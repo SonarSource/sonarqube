@@ -19,10 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Function;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,13 +29,13 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.server.component.ws.LanguageParamUtils;
 import org.sonar.server.qualityprofile.QProfile;
-import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
-import static com.google.common.collect.Maps.uniqueIndex;
 import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements QProfileWsAction {
@@ -108,13 +107,12 @@ public class SearchAction implements QProfileWsAction {
 
   private SearchWsResponse buildResponse(SearchData data) {
     List<QProfile> profiles = data.getProfiles();
-    Map<String, QProfile> profilesByKey = uniqueIndex(profiles, QProfileToKey.INSTANCE);
+    Map<String, QProfile> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfile::key, identity()));
 
-    QualityProfiles.SearchWsResponse.Builder response = QualityProfiles.SearchWsResponse.newBuilder();
-    QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
+    SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     for (QProfile profile : profiles) {
-      profileBuilder.clear();
+      QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
       String profileKey = profile.key();
       profileBuilder.setKey(profileKey);
@@ -123,6 +121,9 @@ public class SearchAction implements QProfileWsAction {
       }
       if (profile.getRulesUpdatedAt() != null) {
         profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
+      }
+      if (profile.getLastUsed() != null) {
+        profileBuilder.setLastUsed(formatDateTime(profile.getLastUsed()));
       }
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
       profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
@@ -134,7 +135,6 @@ public class SearchAction implements QProfileWsAction {
       writeParentFields(profileBuilder, profile, profilesByKey);
       profileBuilder.setIsInherited(profile.isInherited());
       profileBuilder.setIsDefault(profile.isDefault());
-      response.addProfiles(profileBuilder);
     }
 
     return response.build();
@@ -163,15 +163,6 @@ public class SearchAction implements QProfileWsAction {
     QProfile parent = profilesByKey.get(parentKey);
     if (parent != null && parent.name() != null) {
       profileBuilder.setParentName(parent.name());
-    }
-  }
-
-  private enum QProfileToKey implements Function<QProfile, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull QProfile input) {
-      return input.key();
     }
   }
 }

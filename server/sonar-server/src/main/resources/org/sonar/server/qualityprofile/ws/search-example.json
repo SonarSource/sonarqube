@@ -8,7 +8,9 @@
       "isInherited": false,
       "activeRuleCount": 37,
       "activeDeprecatedRuleCount": 0,
-      "isDefault": true
+      "isDefault": true,
+      "ruleUpdatedAt": "2016-12-22T19:10:03+0100",
+      "lastUsed": "2016-12-01T19:10:03+0100"
     },
     {
       "key": "my-bu-profile-java-34567",
@@ -21,7 +23,9 @@
       "activeRuleCount": 72,
       "activeDeprecatedRuleCount": 5,
       "isDefault": false,
-      "projectCount": 13
+      "projectCount": 13,
+      "ruleUpdatedAt": "2016-12-20T19:10:03+0100",
+      "lastUsed": "2016-12-21T16:10:03+0100"
     },
     {
       "key": "my-company-profile-java-23456",
@@ -31,7 +35,8 @@
       "isInherited": false,
       "isDefault": true,
       "activeRuleCount": 42,
-      "activeDeprecatedRuleCount": 3
+      "activeDeprecatedRuleCount": 3,
+      "ruleUpdatedAt": "2016-12-22T19:10:03+0100"
     },
     {
       "key": "sonar-way-python-01234",
@@ -41,7 +46,8 @@
       "isInherited": false,
       "activeRuleCount": 125,
       "activeDeprecatedRuleCount": 0,
-      "isDefault": true
+      "isDefault": true,
+      "ruleUpdatedAt": "2014-12-22T19:10:03+0100"
     }
   ]
 }

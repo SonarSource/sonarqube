@@ -41,5 +41,6 @@ message SearchWsResponse {
     optional int64 activeDeprecatedRuleCount = 12;
     optional int64 projectCount = 10;
     optional string rulesUpdatedAt = 11;
+    optional string lastUsed = 13;
   }
 }
