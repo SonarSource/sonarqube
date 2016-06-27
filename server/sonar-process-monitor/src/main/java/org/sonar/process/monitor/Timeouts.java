@@ -31,7 +31,7 @@ class Timeouts {
   }
 
   public Timeouts() {
-    this(60000L);
+    this(60_000L);
   }
 
   /**

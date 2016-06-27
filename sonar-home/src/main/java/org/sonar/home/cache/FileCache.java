@@ -32,7 +32,7 @@ import javax.annotation.CheckForNull;
 public class FileCache {
 
   /** Maximum loop count when creating temp directories. */
-  private static final int TEMP_DIR_ATTEMPTS = 10000;
+  private static final int TEMP_DIR_ATTEMPTS = 10_000;
 
   private final File dir;
   private final File tmpDir;

@@ -109,7 +109,7 @@ public class CeServer implements Monitored {
       while (!stopAwait) {
         try {
           // wait for a quite long time but we will be interrupted if flag changes anyway
-          Thread.sleep(10000);
+          Thread.sleep(10_000);
         } catch (InterruptedException e) {
           // continue and check the flag
         }

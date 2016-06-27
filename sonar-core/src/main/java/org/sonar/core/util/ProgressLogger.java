@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Loggers;
  */
 public class ProgressLogger {
 
-  public static final long DEFAULT_PERIOD_MS = 60000L;
+  public static final long DEFAULT_PERIOD_MS = 60_000L;
 
   private final Timer timer;
   private final LoggerTimerTask task;

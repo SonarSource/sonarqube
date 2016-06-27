@@ -75,11 +75,11 @@ public class WidgetPropertyDao implements Dao {
 
   public void deleteByWidgetIds(DbSession session, List<Long> widgetIdsWithPropertiesToDelete) {
     executeLargeInputs(
-        widgetIdsWithPropertiesToDelete,
-        input -> {
-          mapper(session).deleteByWidgetIds(input);
-          return Collections.emptyList();
-        });
+      widgetIdsWithPropertiesToDelete,
+      input -> {
+        mapper(session).deleteByWidgetIds(input);
+        return Collections.emptyList();
+      });
   }
 
   private static WidgetPropertyMapper mapper(DbSession session) {

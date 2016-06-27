@@ -53,7 +53,7 @@ public class EmailNotificationChannel extends NotificationChannel {
    * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)
    * @see org.apache.commons.mail.Email#setSocketTimeout(int)
    */
-  private static final int SOCKET_TIMEOUT = 30000;
+  private static final int SOCKET_TIMEOUT = 30_000;
 
   /**
    * Email Header Field: "List-ID".

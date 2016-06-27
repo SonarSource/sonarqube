@@ -127,7 +127,7 @@ public class QueryContext {
    * Limit on the number of results to return. Defaults to {@link #DEFAULT_LIMIT}.
    */
   public int getLimit() {
-    return showFullResult ? 999999 : limit;
+    return showFullResult ? 999_999 : limit;
   }
 
   /**

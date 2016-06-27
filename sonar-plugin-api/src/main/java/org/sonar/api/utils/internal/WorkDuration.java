@@ -30,7 +30,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class WorkDuration implements Serializable {
 
-  static final int DAY_POSITION_IN_LONG = 10000;
+  static final int DAY_POSITION_IN_LONG = 10_000;
   static final int HOUR_POSITION_IN_LONG = 100;
   static final int MINUTE_POSITION_IN_LONG = 1;
 

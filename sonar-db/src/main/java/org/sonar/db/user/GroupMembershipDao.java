@@ -76,14 +76,14 @@ public class GroupMembershipDao implements Dao {
   public Map<String, Integer> countUsersByGroups(DbSession session, Collection<Long> groupIds) {
     Map<String, Integer> result = Maps.newHashMap();
     executeLargeInputs(
-        groupIds,
-        input -> {
-          List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
-          for (GroupUserCount count : userCounts) {
-            result.put(count.groupName(), count.userCount());
-          }
-          return userCounts;
-        });
+      groupIds,
+      input -> {
+        List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
+        for (GroupUserCount count : userCounts) {
+          result.put(count.groupName(), count.userCount());
+        }
+        return userCounts;
+      });
 
     return result;
   }
@@ -91,14 +91,14 @@ public class GroupMembershipDao implements Dao {
   public Multimap<String, String> selectGroupsByLogins(DbSession session, Collection<String> logins) {
     Multimap<String, String> result = ArrayListMultimap.create();
     executeLargeInputs(
-        logins,
-        input -> {
-          List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
-          for (LoginGroup membership : groupMemberships) {
-            result.put(membership.login(), membership.groupName());
-          }
-          return groupMemberships;
-        });
+      logins,
+      input -> {
+        List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
+        for (LoginGroup membership : groupMemberships) {
+          result.put(membership.login(), membership.groupName());
+        }
+        return groupMemberships;
+      });
 
     return result;
   }
