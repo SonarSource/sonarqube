@@ -48,11 +48,14 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
@@ -148,29 +151,36 @@ public class SearchActionTest {
 
   @Test
   public void search_for_project_qp() {
+    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
     QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
       .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
+      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
+      .setLastUsed(time)
       .setName("Sonar way");
     QualityProfileDto qualityProfileOnXoo2 = QualityProfileDto.createFor("sonar-way-xoo2-12345")
       .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
+      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
+      .setLastUsed(time)
       .setName("Sonar way");
     QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
       .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
+      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
+      .setLastUsed(time)
       .setName("Another way");
     ComponentDto project = newProjectDto("project-uuid");
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     qualityProfileDb.insertProjectWithQualityProfileAssociations(project, qualityProfileOnXoo1, qualityProfileOnXoo2);
 
-    String result = ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.key())
-      .execute().getInput();
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, project.key()));
 
-    assertThat(result)
+    assertThat(result.getProfilesList())
+      .hasSize(2)
+      .extracting(QualityProfile::getKey)
       .contains("sonar-way-xoo1-12345", "sonar-way-xoo2-12345")
       .doesNotContain("sonar-way-xoo1-45678");
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getRulesUpdatedAt, QualityProfile::getLastUsed)
+      .contains(tuple("2016-12-21T19:10:03+0100", formatDateTime(time)));
   }
 
   @Test

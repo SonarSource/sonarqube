@@ -244,7 +244,8 @@ public class SearchDataLoader {
         .setName(input.getName())
         .setLanguage(input.getLanguage())
         .setDefault(input.isDefault())
-        .setRulesUpdatedAt(input.getRulesUpdatedAt());
+        .setRulesUpdatedAt(input.getRulesUpdatedAt())
+        .setLastUsed(input.getLastUsed());
     }
   }
 }

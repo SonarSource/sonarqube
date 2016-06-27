@@ -93,7 +93,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+    return  new SearchWsRequest()
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setProfileName(request.param(PARAM_PROFILE_NAME))
       .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
