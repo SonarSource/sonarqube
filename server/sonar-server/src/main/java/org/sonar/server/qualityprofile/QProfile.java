@@ -35,6 +35,7 @@ public class QProfile {
   private boolean isDefault;
   private String rulesUpdatedAt;
   private Long lastUsed;
+  private Long userUpdatedAt;
 
   /**
    * @deprecated in 4.4
@@ -122,6 +123,16 @@ public class QProfile {
     return this;
   }
 
+  @CheckForNull
+  public Long getUserUpdatedAt() {
+    return userUpdatedAt;
+  }
+
+  public QProfile setUserUpdatedAt(@Nullable Long userUpdatedAt) {
+    this.userUpdatedAt = userUpdatedAt;
+    return this;
+  }
+
   public static QProfile from(QualityProfileDto dto) {
     return new QProfile()
       .setId(dto.getId())
@@ -131,7 +142,8 @@ public class QProfile {
       .setParent(dto.getParentKee())
       .setDefault(dto.isDefault())
       .setRulesUpdatedAt(dto.getRulesUpdatedAt())
-      .setLastUsed(dto.getLastUsed());
+      .setLastUsed(dto.getLastUsed())
+      .setUserUpdatedAt(dto.getUserUpdatedAt());
   }
 
   @Override

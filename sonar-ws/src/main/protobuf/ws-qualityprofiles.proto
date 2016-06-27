@@ -42,5 +42,6 @@ message SearchWsResponse {
     optional int64 projectCount = 10;
     optional string rulesUpdatedAt = 11;
     optional string lastUsed = 13;
+    optional string userUpdatedAt = 14;
   }
 }

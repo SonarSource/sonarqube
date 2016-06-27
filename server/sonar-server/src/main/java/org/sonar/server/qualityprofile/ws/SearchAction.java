@@ -125,6 +125,9 @@ public class SearchAction implements QProfileWsAction {
       if (profile.getLastUsed() != null) {
         profileBuilder.setLastUsed(formatDateTime(profile.getLastUsed()));
       }
+      if (profile.getUserUpdatedAt() != null) {
+        profileBuilder.setUserUpdatedAt(formatDateTime(profile.getUserUpdatedAt()));
+      }
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
       profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
       if (!profile.isDefault()) {
