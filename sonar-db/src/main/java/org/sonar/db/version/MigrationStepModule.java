@@ -131,6 +131,7 @@ import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
 import org.sonar.db.version.v60.PopulateUuidPathColumnOnProjects;
+import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -275,6 +276,8 @@ public class MigrationStepModule extends Module {
       // PROJECTS.UUID_PATH
       AddUuidPathColumnToProjects.class,
       PopulateUuidPathColumnOnProjects.class,
-      MakeUuidPathColumnNotNullOnProjects.class);
+      MakeUuidPathColumnNotNullOnProjects.class,
+
+      RemoveUsersPasswordWhenNotLocal.class);
   }
 }
