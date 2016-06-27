@@ -22,3 +22,4 @@ function nothing () {
 }
 
 require.extensions['.css'] = nothing;
+require.extensions['.hbs'] = nothing;

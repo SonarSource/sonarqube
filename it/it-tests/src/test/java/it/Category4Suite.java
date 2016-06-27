@@ -33,6 +33,7 @@ import it.duplication.DuplicationsTest;
 import it.http.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
+import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.ServerSystemTest;
 import it.ui.UiTest;
 import it.uiExtension.UiExtensionsTest;
@@ -90,7 +91,9 @@ import static util.ItUtils.xooPlugin;
   // ui extensions
   UiExtensionsTest.class,
   WsLocalCallTest.class,
-  WsTest.class
+  WsTest.class,
+  // quality profiles
+  QualityProfilesPageTest.class
 })
 public class Category4Suite {
 

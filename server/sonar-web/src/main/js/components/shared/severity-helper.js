@@ -26,11 +26,12 @@ export default React.createClass({
     if (!this.props.severity) {
       return null;
     }
-    return <span>
-      <span className="spacer-right">
-        <SeverityIcon severity={this.props.severity}/>
-      </span>
-      {translate('severity', this.props.severity)}
-    </span>;
+    return (
+        <span>
+          <SeverityIcon severity={this.props.severity}/>
+          {' '}
+          {translate('severity', this.props.severity)}
+        </span>
+    );
   }
 });

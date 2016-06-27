@@ -1,3 +1,3 @@
 --recursive
---compilers js:babel-register,css:tests/null-compiler.js
+--compilers js:babel-register,css:tests/null-compiler.js,hbs:tests/null-compiler.js
 --require tests/jsdom-setup.js

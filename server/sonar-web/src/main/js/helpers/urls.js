@@ -101,3 +101,29 @@ export function getQualityProfileUrl (key) {
 export function getQualityGateUrl (key) {
   return window.baseUrl + '/quality_gates/show/' + encodeURIComponent(key);
 }
+
+/**
+ * Generate URL for the rules page
+ * @param {object} query
+ * @returns {string}
+ */
+export function getRulesUrl (query) {
+  if (query) {
+    const serializedQuery = Object.keys(query).map(criterion => (
+        `${encodeURIComponent(criterion)}=${encodeURIComponent(
+            query[criterion])}`
+    )).join('|');
+    return window.baseUrl + '/coding_rules#' + serializedQuery;
+  }
+  return window.baseUrl + '/coding_rules';
+}
+
+/**
+ * Generate URL for the rules page filtering only active deprecated rules
+ * @param {object} query
+ * @returns {string}
+ */
+export function getDeprecatedActiveRulesUrl (query = {}) {
+  const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
+  return getRulesUrl({ ...query, ...baseQuery });
+}

@@ -1,0 +1,26 @@
+.date-input-control {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.date-input-control-input {
+  width: 105px;
+  padding-left: 24px !important;
+  cursor: pointer;
+}
+
+.date-input-control-icon {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.date-input-control-icon path {
+  fill: #cdcdcd;
+  transition: fill 0.3s ease;
+}
+
+.date-input-control-input:focus + .date-input-control-icon path {
+  fill: #4b9fd5;
+}
