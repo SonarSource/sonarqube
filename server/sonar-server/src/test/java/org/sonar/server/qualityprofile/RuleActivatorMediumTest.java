@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -166,11 +167,31 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
+  public void automatic_activation_does_not_update_intended_column() {
+    RuleActivation activation = new RuleActivation(XOO_X1);
+    activation.setSeverity(BLOCKER);
+    activation.setParameter("max", "7");
+    activation.setParameter("min", "3");
+    List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, XOO_P1_KEY);
+    dbSession.commit();
+    dbSession.clearCache();
+    userSessionRule.anonymous();
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    verifyHasActiveRuleInDb(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1), BLOCKER, null,
+      ImmutableMap.of("max", "7", "min", "3"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
+    assertProfileHasBeenUpdatedAutomatically(XOO_P1_KEY);
+  }
+
+  @Test
   public void activate_with_profile_dto() {
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(BLOCKER);
     activation.setParameter("max", "7");
     activation.setParameter("min", "3");
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
@@ -180,6 +201,7 @@ public class RuleActivatorMediumTest {
       ImmutableMap.of("max", "7", "min", "3"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
+    assertProfileHasBeenUpdatedManually(profileDto.getKey());
   }
 
   @Test
@@ -467,12 +489,14 @@ public class RuleActivatorMediumTest {
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(BLOCKER);
     activation.setParameter("max", "7");
+    userSessionRule.login();
     activate(activation, XOO_P1_KEY);
 
     // deactivation
     ruleActivator.deactivate(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1));
 
     verifyZeroActiveRules(XOO_P1_KEY);
+    assertProfileHasBeenUpdatedManually(XOO_P1_KEY);
   }
 
   @Test
@@ -571,6 +595,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void propagate_activation_update_on_child_profiles() {
     createChildProfiles();
+    userSessionRule.login();
 
     // activate on root profile
     RuleActivation activation = new RuleActivation(XOO_X1);
@@ -610,6 +635,10 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P1_KEY, XOO_X1, INFO, null, ImmutableMap.of("max", "8"));
     verifyOneActiveRuleInDb(XOO_P2_KEY, XOO_X1, MINOR, OVERRIDES, ImmutableMap.of("max", "9"));
     verifyOneActiveRuleInDb(XOO_P3_KEY, XOO_X1, BLOCKER, OVERRIDES, ImmutableMap.of("max", "10"));
+
+    assertProfileHasBeenUpdatedManually(XOO_P1_KEY);
+    assertProfileHasBeenUpdatedManually(XOO_P2_KEY);
+    assertProfileHasBeenUpdatedManually(XOO_P3_KEY);
   }
 
   @Test
@@ -910,14 +939,14 @@ public class RuleActivatorMediumTest {
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
 
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X1), MAJOR, INHERITED, ImmutableMap.of("max", "10"));
-    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.<String, String>emptyMap());
+    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.emptyMap());
 
     // unset parent
     dbSession.clearCache();
     ruleActivator.setParent(XOO_P2_KEY, null);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
-    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.<String, String>emptyMap());
+    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.emptyMap());
   }
 
   @Test
@@ -993,7 +1022,7 @@ public class RuleActivatorMediumTest {
 
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
-    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, INHERITED, Collections.<String, String>emptyMap());
+    verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, INHERITED, Collections.emptyMap());
   }
 
   @Test
@@ -1137,5 +1166,17 @@ public class RuleActivatorMediumTest {
       new RuleQuery()
         .setQProfileKey(key)
         .setActivation(true))).isEmpty();
+  }
+
+  private void assertProfileHasBeenUpdatedManually(String profileKey) {
+    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
+    assertThat(profile.getUserUpdatedAt()).isNotNull();
+  }
+
+  private void assertProfileHasBeenUpdatedAutomatically(String profileKey) {
+    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
+    assertThat(profile.getUserUpdatedAt()).isNull();
   }
 }

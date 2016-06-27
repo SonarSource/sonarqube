@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -63,10 +64,11 @@ public class RuleActivator {
   private final RuleIndex ruleIndex;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final ActivityService activityService;
+  private final UserSession userSession;
 
   public RuleActivator(System2 system2, DbClient db, RuleIndex ruleIndex,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActiveRuleIndexer activeRuleIndexer, ActivityService activityService) {
+    ActiveRuleIndexer activeRuleIndexer, ActivityService activityService, UserSession userSession) {
     this.system2 = system2;
     this.db = db;
     this.ruleIndex = ruleIndex;
@@ -74,6 +76,7 @@ public class RuleActivator {
     this.typeValidations = typeValidations;
     this.activeRuleIndexer = activeRuleIndexer;
     this.activityService = activityService;
+    this.userSession = userSession;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
@@ -144,14 +147,18 @@ public class RuleActivator {
     }
 
     if (!changes.isEmpty()) {
-      updateProfileDate(dbSession, context);
+      updateProfileDates(dbSession, context);
     }
     return changes;
   }
 
-  private void updateProfileDate(DbSession dbSession, RuleActivatorContext context) {
-    context.profile().setRulesUpdatedAtAsDate(context.getInitDate());
-    db.qualityProfileDao().update(dbSession, context.profile());
+  private void updateProfileDates(DbSession dbSession, RuleActivatorContext context) {
+    QualityProfileDto profile = context.profile();
+    profile.setRulesUpdatedAtAsDate(context.getInitDate());
+    if (userSession.isLoggedIn()) {
+      profile.setUserUpdatedAt(context.getInitDate().getTime());
+    }
+    db.qualityProfileDao().update(dbSession, profile);
   }
 
   /**
@@ -373,7 +380,7 @@ public class RuleActivator {
     }
 
     if (!changes.isEmpty()) {
-      updateProfileDate(dbSession, context);
+      updateProfileDates(dbSession, context);
     }
 
     return changes;
