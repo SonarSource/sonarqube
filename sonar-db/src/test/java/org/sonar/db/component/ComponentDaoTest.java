@@ -322,14 +322,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void count_by_id() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    assertThat(underTest.existsById(4L, dbSession)).isTrue();
-    assertThat(underTest.existsById(111L, dbSession)).isFalse();
-  }
-
-  @Test
   public void select_component_keys_by_qualifiers() {
     db.prepareDbUnit(getClass(), "shared.xml");
 

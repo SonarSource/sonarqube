@@ -85,10 +85,6 @@ public class ComponentDao implements Dao {
     return mapper(session).countByQuery(query);
   }
 
-  public boolean existsById(Long id, DbSession session) {
-    return mapper(session).countById(id) > 0;
-  }
-
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
       return emptyList();
@@ -157,7 +153,8 @@ public class ComponentDao implements Dao {
 
   /**
    * List of ancestors, ordered from root to parent. The list is empty
-   * if the component is a tree root.
+   * if the component is a tree root. Disabled components are excluded by design
+   * as tree represents the more recent analysis.
    */
   public List<ComponentDto> selectAncestors(DbSession dbSession, ComponentDto component) {
     if (component.isRoot()) {
