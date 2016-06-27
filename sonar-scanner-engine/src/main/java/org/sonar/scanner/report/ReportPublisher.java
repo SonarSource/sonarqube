@@ -22,7 +22,7 @@ package org.sonar.scanner.report;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
-import com.squareup.okhttp.HttpUrl;
+import okhttp3.HttpUrl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

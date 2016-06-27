@@ -20,17 +20,6 @@
 package org.sonarqube.ws.client;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.ConnectionSpec;
-import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.Map;
@@ -38,6 +27,17 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocketFactory;
+import okhttp3.Call;
+import okhttp3.ConnectionSpec;
+import okhttp3.Credentials;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -63,7 +63,7 @@ public class HttpConnector implements WsConnector {
   private final String userAgent;
   private final String credentials;
   private final String proxyCredentials;
-  private final OkHttpClient okHttpClient = new OkHttpClient();
+  private final OkHttpClient okHttpClient;
 
   private HttpConnector(Builder builder, JavaVersion javaVersion) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
@@ -78,27 +78,33 @@ public class HttpConnector implements WsConnector {
       // the Basic credentials consider an empty password.
       this.credentials = Credentials.basic(builder.login, nullToEmpty(builder.password));
     }
-
-    if (builder.proxy != null) {
-      this.okHttpClient.setProxy(builder.proxy);
-    }
     // proxy credentials can be used on system-wide proxies, so even if builder.proxy is null
     if (isNullOrEmpty(builder.proxyLogin)) {
       this.proxyCredentials = null;
     } else {
       this.proxyCredentials = Credentials.basic(builder.proxyLogin, nullToEmpty(builder.proxyPassword));
     }
+    this.okHttpClient = buildClient(builder, javaVersion);
+  }
 
-    this.okHttpClient.setConnectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
-    this.okHttpClient.setReadTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
+  private static OkHttpClient buildClient(Builder builder, JavaVersion javaVersion) {
+    OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
+    if (builder.proxy != null) {
+      okHttpClientBuilder.proxy(builder.proxy);
+    }
+
+    okHttpClientBuilder.connectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
+    okHttpClientBuilder.readTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
 
     ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
       .allEnabledTlsVersions()
       .allEnabledCipherSuites()
       .supportsTlsExtensions(true)
       .build();
-    this.okHttpClient.setConnectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
-    this.okHttpClient.setSslSocketFactory(createSslSocketFactory(javaVersion));
+    okHttpClientBuilder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
+    okHttpClientBuilder.sslSocketFactory(createSslSocketFactory(javaVersion));
+
+    return okHttpClientBuilder.build();
   }
 
   private static SSLSocketFactory createSslSocketFactory(JavaVersion javaVersion) {
@@ -162,14 +168,15 @@ public class HttpConnector implements WsConnector {
     if (parts.isEmpty()) {
       okRequestBuilder.post(RequestBody.create(null, ""));
     } else {
-      MultipartBuilder body = new MultipartBuilder().type(MultipartBuilder.FORM);
+      MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
+      bodyBuilder.setType(MultipartBody.FORM);
       for (Map.Entry<String, PostRequest.Part> param : parts.entrySet()) {
         PostRequest.Part part = param.getValue();
-        body.addPart(
+        bodyBuilder.addPart(
           Headers.of("Content-Disposition", format("form-data; name=\"%s\"", param.getKey())),
           RequestBody.create(MediaType.parse(part.getMediaType()), part.getFile()));
       }
-      okRequestBuilder.post(body.build());
+      okRequestBuilder.post(bodyBuilder.build());
     }
 
     return doCall(okRequestBuilder.build());
@@ -209,7 +216,7 @@ public class HttpConnector implements WsConnector {
       Response okResponse = call.execute();
       return new OkHttpResponse(okResponse);
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to request " + okRequest.urlString(), e);
+      throw new IllegalStateException("Fail to request " + okRequest.url(), e);
     }
   }
 

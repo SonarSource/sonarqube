@@ -19,7 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
-import com.squareup.okhttp.Response;
+import okhttp3.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -39,7 +39,7 @@ class OkHttpResponse extends BaseResponse {
 
   @Override
   public String requestUrl() {
-    return okResponse.request().urlString();
+    return okResponse.request().url().toString();
   }
 
   @Override
@@ -52,11 +52,7 @@ class OkHttpResponse extends BaseResponse {
    */
   @Override
   public InputStream contentStream() {
-    try {
-      return okResponse.body().byteStream();
-    } catch (IOException e) {
-      throw fail(e);
-    }
+    return okResponse.body().byteStream();
   }
 
   /**
@@ -66,11 +62,7 @@ class OkHttpResponse extends BaseResponse {
    */
   @Override
   public Reader contentReader() {
-    try {
-      return okResponse.body().charStream();
-    } catch (IOException e) {
-      throw fail(e);
-    }
+    return okResponse.body().charStream();
   }
 
   @Override

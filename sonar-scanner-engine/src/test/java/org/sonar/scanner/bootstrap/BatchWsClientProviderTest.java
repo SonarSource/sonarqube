@@ -45,9 +45,9 @@ public class BatchWsClientProviderTest {
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("http://localhost:9000/");
-    assertThat(httpConnector.okHttpClient().getProxy()).isNull();
-    assertThat(httpConnector.okHttpClient().getConnectTimeout()).isEqualTo(5_000);
-    assertThat(httpConnector.okHttpClient().getReadTimeout()).isEqualTo(60_000);
+    assertThat(httpConnector.okHttpClient().proxy()).isNull();
+    assertThat(httpConnector.okHttpClient().connectTimeoutMillis()).isEqualTo(5_000);
+    assertThat(httpConnector.okHttpClient().readTimeoutMillis()).isEqualTo(60_000);
     assertThat(httpConnector.userAgent()).isEqualTo("Maven Plugin/2.3");
   }
 
@@ -65,7 +65,7 @@ public class BatchWsClientProviderTest {
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("https://here/sonarqube/");
-    assertThat(httpConnector.okHttpClient().getProxy()).isNull();
+    assertThat(httpConnector.okHttpClient().proxy()).isNull();
     assertThat(httpConnector.userAgent()).isEqualTo("Maven Plugin/2.3");
   }
 

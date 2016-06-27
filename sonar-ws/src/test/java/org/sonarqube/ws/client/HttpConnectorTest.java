@@ -19,10 +19,10 @@
  */
 package org.sonarqube.ws.client;
 
-import com.squareup.okhttp.ConnectionSpec;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
+import okhttp3.ConnectionSpec;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import java.io.File;
 import java.util.List;
 import javax.net.ssl.SSLSocketFactory;
@@ -36,7 +36,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.squareup.okhttp.Credentials.basic;
+import static okhttp3.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -72,8 +72,8 @@ public class HttpConnectorTest {
     WsResponse response = underTest.call(request);
 
     // verify default timeouts on client
-    assertThat(underTest.okHttpClient().getConnectTimeout()).isEqualTo(HttpConnector.DEFAULT_CONNECT_TIMEOUT_MILLISECONDS);
-    assertThat(underTest.okHttpClient().getReadTimeout()).isEqualTo(HttpConnector.DEFAULT_READ_TIMEOUT_MILLISECONDS);
+    assertThat(underTest.okHttpClient().connectTimeoutMillis()).isEqualTo(HttpConnector.DEFAULT_CONNECT_TIMEOUT_MILLISECONDS);
+    assertThat(underTest.okHttpClient().readTimeoutMillis()).isEqualTo(HttpConnector.DEFAULT_READ_TIMEOUT_MILLISECONDS);
 
     // verify response
     assertThat(response.hasContent()).isTrue();
@@ -162,8 +162,8 @@ public class HttpConnectorTest {
       .connectTimeoutMilliseconds(74)
       .build();
 
-    assertThat(underTest.okHttpClient().getReadTimeout()).isEqualTo(42);
-    assertThat(underTest.okHttpClient().getConnectTimeout()).isEqualTo(74);
+    assertThat(underTest.okHttpClient().readTimeoutMillis()).isEqualTo(42);
+    assertThat(underTest.okHttpClient().connectTimeoutMillis()).isEqualTo(74);
   }
 
   @Test
@@ -287,7 +287,7 @@ public class HttpConnectorTest {
 
     assertTlsAndClearTextSpecifications(underTest);
     // enable TLS 1.0, 1.1 and 1.2
-    assertThat(underTest.okHttpClient().getSslSocketFactory()).isNotNull().isInstanceOf(Tls12Java7SocketFactory.class);
+    assertThat(underTest.okHttpClient().sslSocketFactory()).isNotNull().isInstanceOf(Tls12Java7SocketFactory.class);
   }
 
   @Test
@@ -296,11 +296,11 @@ public class HttpConnectorTest {
     underTest = HttpConnector.newBuilder().url(serverUrl).build(javaVersion);
 
     assertTlsAndClearTextSpecifications(underTest);
-    assertThat(underTest.okHttpClient().getSslSocketFactory()).isInstanceOf(SSLSocketFactory.getDefault().getClass());
+    assertThat(underTest.okHttpClient().sslSocketFactory()).isInstanceOf(SSLSocketFactory.getDefault().getClass());
   }
 
   private void assertTlsAndClearTextSpecifications(HttpConnector underTest) {
-    List<ConnectionSpec> connectionSpecs = underTest.okHttpClient().getConnectionSpecs();
+    List<ConnectionSpec> connectionSpecs = underTest.okHttpClient().connectionSpecs();
     assertThat(connectionSpecs).hasSize(2);
 
     // TLS. tlsVersions()==null means all TLS versions

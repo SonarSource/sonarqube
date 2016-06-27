@@ -22,10 +22,10 @@ package it.http;
 
 import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
-import com.squareup.okhttp.CacheControl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import it.Category4Suite;
 import java.io.IOException;
 import org.junit.ClassRule;
