@@ -100,6 +100,19 @@ public class PopulateUuidPathColumnOnProjectsTest {
     verifyPath(A_FILE_UUID, format("%s.", A_PROJECT_UUID));
   }
 
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    insert(A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
+    insert(A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
+    insert(A_FILE_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
+
+    underTest.execute();
+    verifyNoNullPath();
+
+    underTest.execute();
+    verifyNoNullPath();
+  }
+
   private void insert(String uuid, String rootUuid, Snapshot... snapshots) {
     db.executeInsert(
       TABLE_PROJECTS,
@@ -124,6 +137,10 @@ public class PopulateUuidPathColumnOnProjectsTest {
   private void verifyPath(String componentUuid, String expectedUuidPath) {
     Map<String, Object> row = db.selectFirst("select uuid_path from projects where uuid='" + componentUuid + "'");
     assertThat(row.get("UUID_PATH")).isEqualTo(expectedUuidPath);
+  }
+
+  private void verifyNoNullPath() {
+    assertThat(db.select("select * from projects where uuid_path is null or uuid_path = ''")).isEmpty();
   }
 
   private static final class Snapshot {
