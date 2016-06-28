@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.version.v60;
 
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.metric.MetricDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.BaseDataChange;
+import org.sonar.db.version.MassUpdate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+public class CleanMeasuresWithNullAnalysisUuid extends BaseDataChange {
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+  public CleanMeasuresWithNullAnalysisUuid(Database db) {
+    super(db);
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, SnapshotDto snapshot) {
-    checkNotNull(metricDto.getId());
-    checkNotNull(metricDto.getKey());
-    checkNotNull(snapshot.getComponentUuid());
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentUuid(snapshot.getComponentUuid())
-      .setSnapshotId(snapshot.getId())
-      .setAnalysisUuid(snapshot.getUuid());
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select id from project_measures where analysis_uuid is null");
+    massUpdate.update("delete from project_measures where id=?");
+    massUpdate.rowPluralName("measures");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
   }
+
 }
