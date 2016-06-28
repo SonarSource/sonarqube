@@ -98,7 +98,7 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshots.xml");
-    underTest.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setComponentUuid(THE_PROJECT_UUID), new PurgeProfiler());
+    underTest.deleteSnapshots(dbSession, new PurgeProfiler(), PurgeSnapshotQuery.create().setIslast(false).setComponentUuid(THE_PROJECT_UUID));
     dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshots-result.xml", "snapshots");
   }
 

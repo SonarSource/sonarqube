@@ -188,16 +188,6 @@ public class PurgeDao implements Dao {
     mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), system2.now());
   }
 
-  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, PurgeProfiler profiler) {
-    final DbSession session = mybatis.openSession(true);
-    try {
-      return deleteSnapshots(session, profiler, query);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public PurgeDao deleteSnapshots(DbSession session, PurgeProfiler profiler, PurgeSnapshotQuery... queries) {
     new PurgeCommands(session, profiler).deleteSnapshots(queries);
     return this;
