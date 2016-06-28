@@ -32,7 +32,6 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.Description;
 import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.ResourceLanguage;
 import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.ResourceScope;
@@ -66,8 +65,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private boolean isDefaultTab = false;
   private boolean isWidget = false;
   private boolean isGlobal = false;
-  private String[] mandatoryMeasures = {};
-  private String[] needOneOfMeasures = {};
 
   public ViewProxy(V view, UserSession userSession) {
     this.view = view;
@@ -84,17 +81,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     initWidgetCategory(view);
     initWidgetLayout(view);
     initWidgetGlobal(view);
-    initRequiredMeasures(view);
 
     isWidget = view instanceof Widget;
-  }
-
-  private void initRequiredMeasures(V view) {
-    RequiredMeasures requiredMeasuresAnnotation = AnnotationUtils.getAnnotation(view, RequiredMeasures.class);
-    if (requiredMeasuresAnnotation != null) {
-      mandatoryMeasures = requiredMeasuresAnnotation.allOf();
-      needOneOfMeasures = requiredMeasuresAnnotation.anyOf();
-    }
   }
 
   private void initWidgetLayout(final V view) {
@@ -255,24 +243,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean supportsMetric(String metricKey) {
     return ArrayUtils.contains(defaultForMetrics, metricKey);
-  }
-
-  public boolean acceptsAvailableMeasures(String[] availableMeasures) {
-    for (String mandatoryMeasure : mandatoryMeasures) {
-      if (!ArrayUtils.contains(availableMeasures, mandatoryMeasure)) {
-        return false;
-      }
-    }
-    if (needOneOfMeasures.length == 0) {
-      return true;
-    } else {
-      for (String neededMeasure : needOneOfMeasures) {
-        if (ArrayUtils.contains(availableMeasures, neededMeasure)) {
-          return true;
-        }
-      }
-      return false;
-    }
   }
 
   public boolean isUserAuthorized() {

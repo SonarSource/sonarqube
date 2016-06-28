@@ -22,9 +22,6 @@ package org.sonar.server.ui;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
@@ -69,7 +66,7 @@ public class ViewsTest {
   @Test
   public void should_get_widgets() {
     final Views views = new Views(userSessionRule, VIEWS);
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
+    List<ViewProxy<Widget>> widgets = views.getWidgets();
     assertThat(widgets.size()).isEqualTo(1);
     assertThat(widgets.get(0).getTarget().getClass()).isEqualTo(FakeWidget.class);
   }
@@ -77,7 +74,7 @@ public class ViewsTest {
   @Test
   public void should_sort_views_by_title() {
     final Views views = new Views(userSessionRule, new View[] {new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
+    List<ViewProxy<Widget>> widgets = views.getWidgets();
     assertThat(widgets.size()).isEqualTo(3);
     assertThat(widgets.get(0).getId()).isEqualTo("aaa");
     assertThat(widgets.get(1).getId()).isEqualTo("bbb");
@@ -87,7 +84,7 @@ public class ViewsTest {
   @Test
   public void should_prefix_title_by_number_to_display_first() {
     final Views views = new Views(userSessionRule, new View[] {new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
+    List<ViewProxy<Widget>> widgets = views.getWidgets();
     assertThat(widgets.size()).isEqualTo(3);
     assertThat(widgets.get(0).getId()).isEqualTo("1id");
     assertThat(widgets.get(1).getId()).isEqualTo("2id");
@@ -108,21 +105,6 @@ public class ViewsTest {
   }
 
   @Test
-  public void should_accept_available_measures() {
-    ViewProxy<?> proxy = mock(ViewProxy.class);
-    when(proxy.acceptsAvailableMeasures(new String[] {"lines"})).thenReturn(true);
-    when(proxy.acceptsAvailableMeasures(new String[] {"ncloc"})).thenReturn(false);
-
-    assertThat(Views.acceptAvailableMeasures(proxy, null)).isEqualTo(true);
-    assertThat(Views.acceptAvailableMeasures(proxy, new String[] {"lines"})).isEqualTo(true);
-    assertThat(Views.acceptAvailableMeasures(proxy, new String[] {"ncloc"})).isEqualTo(false);
-
-    assertThat(Views.accept(proxy, null, null, null, null, null)).isEqualTo(true);
-    assertThat(Views.accept(proxy, null, null, null, null, new String[] {"lines"})).isEqualTo(true);
-    assertThat(Views.accept(proxy, null, null, null, null, new String[] {"ncloc"})).isEqualTo(false);
-  }
-
-  @Test
   public void should_not_check_navigation_section_on_widgets() {
     ViewProxy<?> proxy = mock(ViewProxy.class);
     when(proxy.isWidget()).thenReturn(true);
@@ -132,35 +114,5 @@ public class ViewsTest {
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.CONFIGURATION)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE_CONFIGURATION)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, null)).isEqualTo(true);
-  }
-
-  @Test
-  public void should_check_resource_language() {
-    ViewProxy<?> proxy = mock(ViewProxy.class);
-    assertThat(Views.acceptResourceLanguage(proxy, Java.KEY)).isEqualTo(true);
-
-    when(proxy.getResourceLanguages()).thenReturn(new String[] {"foo"});
-    assertThat(Views.acceptResourceLanguage(proxy, Java.KEY)).isEqualTo(false);
-    assertThat(Views.acceptResourceLanguage(proxy, "foo")).isEqualTo(true);
-  }
-
-  @Test
-  public void should_check_resource_scope() {
-    ViewProxy<?> proxy = mock(ViewProxy.class);
-    assertThat(Views.acceptResourceScope(proxy, Scopes.FILE)).isEqualTo(true);
-
-    when(proxy.getResourceScopes()).thenReturn(new String[] {Scopes.PROJECT, Scopes.FILE});
-    assertThat(Views.acceptResourceScope(proxy, Scopes.FILE)).isEqualTo(true);
-    assertThat(Views.acceptResourceScope(proxy, Scopes.DIRECTORY)).isEqualTo(false);
-  }
-
-  @Test
-  public void should_check_resource_qualifier() {
-    ViewProxy<?> proxy = mock(ViewProxy.class);
-    assertThat(Views.acceptResourceQualifier(proxy, Scopes.FILE)).isEqualTo(true);
-
-    when(proxy.getResourceQualifiers()).thenReturn(new String[] {Qualifiers.CLASS, Qualifiers.FILE});
-    assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.FILE)).isEqualTo(true);
-    assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.PACKAGE)).isEqualTo(false);
   }
 }

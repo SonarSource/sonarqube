@@ -151,9 +151,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     if (snapshot != null) {
       json.prop("version", snapshot.getVersion())
         .prop("snapshotDate", DateUtils.formatDateTime(new Date(snapshot.getCreatedAt())));
-      List<String> availableMeasures = dbClient.measureDao().selectMetricKeysForSnapshot(session, snapshot.getId());
-      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language(),
-        availableMeasures.toArray(new String[availableMeasures.size()]));
+      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE);
       writeExtensions(json, component, pages, userSession.locale());
     }
   }
@@ -219,7 +217,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
     if (isAdmin) {
       json.name("extensions").beginArray();
-      List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language(), null);
+      List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION);
       for (ViewProxy<Page> page : configPages) {
         writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
       }

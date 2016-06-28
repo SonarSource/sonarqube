@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
@@ -190,64 +189,6 @@ public class ViewProxyTest {
   public void widgetShouldDefineOnlyOptionalProperties() {
     ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties(), userSession);
     assertThat(proxy.hasRequiredProperties()).isFalse();
-  }
-
-  @Test
-  public void shouldAcceptAvailableMeasuresForNoRequiredMeasures() {
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-    ViewProxy<?> proxy = new ViewProxy<>(new MyView(), userSession);
-
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
-  }
-
-  @Test
-  public void shouldAcceptAvailableMeasuresForMandatoryMeasures() {
-    @RequiredMeasures(allOf = {"lines", "ncloc"})
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-    ViewProxy<?> proxy = new ViewProxy<>(new MyView(), userSession);
-
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isFalse();
-  }
-
-  @Test
-  public void shouldAcceptAvailableMeasuresForOneOfNeededMeasures() {
-    @RequiredMeasures(anyOf = {"lines", "ncloc"})
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-    ViewProxy<?> proxy = new ViewProxy<>(new MyView(), userSession);
-
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isTrue();
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"complexity", "coverage"})).isFalse();
-  }
-
-  @Test
-  public void shouldAcceptAvailableMeasuresForMandatoryAndOneOfNeededMeasures() {
-    @RequiredMeasures(allOf = {"lines", "ncloc"}, anyOf = {"duplications", "duplictated_blocks"})
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-    ViewProxy<?> proxy = new ViewProxy<>(new MyView(), userSession);
-
-    // ok, mandatory measures and 1 needed measure
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage", "duplications"})).isTrue();
-    // ko, one of the needed measures but not all of the mandatory ones
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage", "duplications"})).isFalse();
-    // ko, mandatory measures but no one of the needed measures
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "nloc", "coverage", "dsm"})).isFalse();
   }
 
   @Test

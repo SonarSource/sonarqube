@@ -136,20 +136,12 @@ public final class JRubyFacade {
     return get(PluginRepository.class).getPluginInfos();
   }
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
-    return get(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
-  }
-
   public List<ViewProxy<Widget>> getWidgets() {
     return get(Views.class).getWidgets();
   }
 
   public ViewProxy<Widget> getWidget(String id) {
     return get(Views.class).getWidget(id);
-  }
-
-  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
-    return get(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
   public ViewProxy<Page> getPage(String id) {

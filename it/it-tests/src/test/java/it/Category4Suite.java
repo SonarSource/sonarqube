@@ -109,7 +109,6 @@ public class Category4Suite {
 
     // Used in DashboardTest
     .addPlugin(pluginArtifact("dashboard-plugin"))
-    .addPlugin(pluginArtifact("required-measures-widgets-plugin"))
 
     // Used in UiExtensionsTest
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
