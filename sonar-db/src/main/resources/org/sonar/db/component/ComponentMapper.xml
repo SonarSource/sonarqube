@@ -322,10 +322,9 @@
     select
     <include refid="componentColumns"/>
     from projects base
-    inner join projects p
+    inner join projects p on p.project_uuid = base.project_uuid
     where
     base.uuid = #{query.baseUuid}
-    and p.project_uuid = base.project_uuid
     and base.uuid_path like #{baseUuidPathLike}
     and p.uuid != base.uuid
     and p.enabled = ${_true}
@@ -347,12 +346,10 @@
 
   <sql id="sqlChildren">
     from projects p
-    inner join projects base
-    inner join snapshots s
+    inner join projects base on base.project_uuid = p.project_uuid
+    inner join snapshots s on s.component_uuid = base.project_uuid
     where
     base.uuid = #{query.baseUuid}
-    and base.project_uuid = p.project_uuid
-    and s.component_uuid = base.project_uuid
     and p.enabled = ${_true}
     and s.islast = ${_true}
     and p.uuid_path = #{baseUuidPath}
@@ -400,14 +397,12 @@
 
   <sql id="sqlDescendants">
     from projects p
-    inner join projects base
-    inner join snapshots s
+    inner join projects base on base.project_uuid=p.project_uuid
+    inner join snapshots s on s.component_uuid = base.project_uuid
     where
     base.uuid = #{query.baseUuid}
-    and base.project_uuid=p.project_uuid
     and p.enabled = ${_true}
     and p.uuid_path like #{baseUuidPathLike} ESCAPE '/'
-    and s.component_uuid = base.project_uuid
     and s.islast = ${_true}
     <include refid="sqlTreeFilters"/>
   </sql>
