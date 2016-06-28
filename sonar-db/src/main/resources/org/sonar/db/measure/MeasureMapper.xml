@@ -30,10 +30,9 @@
     select
     <include refid="measureColumns"/>
     from project_measures pm
-    inner join snapshots s
+    inner join snapshots s on s.id = pm.snapshot_id
     where
-    s.id=pm.snapshot_id
-    and pm.component_uuid in
+    pm.component_uuid in
     <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
       #{componentUuid}
     </foreach>
@@ -56,10 +55,9 @@
     select
     <include refid="measureColumns"/>
     from project_measures pm
-    inner join snapshots s
+    inner join snapshots s on s.id = pm.snapshot_id
     where
-    s.id=pm.snapshot_id
-    and s.islast=${_true}
+    s.islast=${_true}
     and pm.component_uuid in
     <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">#{componentUuid}
     </foreach>
