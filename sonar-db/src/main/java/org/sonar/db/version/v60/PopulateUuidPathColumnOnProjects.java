@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
@@ -134,6 +135,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
   }
 
   private static final class Snapshot {
+    private static final long[] EMPTY_PATH = new long[0];
     private final long id;
     private final long[] snapshotPath;
     private final String componentUuid;
@@ -144,8 +146,11 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
       this.componentUuid = componentUuid;
     }
 
-    // inputs: "", "1." or "1.2.3."
-    private long[] parsePath(String snapshotPath) {
+    // inputs: null (on Oracle), "", "1." or "1.2.3."
+    private long[] parsePath(@Nullable String snapshotPath) {
+      if (snapshotPath == null) {
+        return EMPTY_PATH;
+      }
       return PATH_SPLITTER
         .splitToList(snapshotPath)
         .stream()
