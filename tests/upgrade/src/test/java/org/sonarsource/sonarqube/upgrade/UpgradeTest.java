@@ -25,6 +25,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.config.Configuration;
+import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
 import java.io.File;
@@ -35,6 +36,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.WsResponse;
 
 public class UpgradeTest {
 
@@ -70,8 +76,11 @@ public class UpgradeTest {
     // latest version
     startServer(Version.create(Orchestrator.builderEnv().getSonarVersion()), true);
     checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
+    checkUrlsBeforeUpgrade();
+
     upgradeDatabase();
     checkSystemStatus(ServerStatusResponse.Status.UP);
+    checkUrlsAfterUpgrade();
 
     assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
     scanProject();
@@ -83,6 +92,38 @@ public class UpgradeTest {
     ServerStatusResponse serverStatusResponse = new ServerStatusCall(orchestrator).call();
 
     assertThat(serverStatusResponse.getStatus()).isEqualTo(serverStatus);
+  }
+
+  private void checkUrlsBeforeUpgrade() {
+    // These urls should be available when system requires a migration
+    checkUrlIsReturningOk("/api/system/status");
+    checkUrlIsReturningOk("/api/system/db_migration_status");
+    checkUrlIsReturningOk("/api/webservices/list");
+
+    // These urls should not be available when system requires a migration
+    checkUrlIsReturningNotFound("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
+    checkUrlIsReturningNotFound("/api/components/tree?baseComponentKey=org.apache.struts%3Astruts-core");
+    checkUrlIsReturningNotFound("/api/measures/component_tree?baseComponentKey=org.apache.struts%3Astruts-core&metricKeys=ncloc,files,violations");
+    checkUrlIsReturningNotFound("/api/qualityprofiles/search");
+
+    // These page should all redirect to maintenance page
+    checkUrlIsRedirectedToMaintenancePage("/");
+    checkUrlIsRedirectedToMaintenancePage("/issues/index");
+    checkUrlIsRedirectedToMaintenancePage("/dashboard/index/org.apache.struts:struts-parent");
+    checkUrlIsRedirectedToMaintenancePage("/issues/search");
+    checkUrlIsRedirectedToMaintenancePage("/component/index?id=org.apache.struts%3Astruts-core%3Asrc%2Fmain%2Fjava%2Forg%2Fapache%2Fstruts%2Fchain%2Fcommands%2Fgeneric%2FWrappingLookupCommand.java");
+    checkUrlIsRedirectedToMaintenancePage("/profiles");
+  }
+
+  private void checkUrlsAfterUpgrade() {
+    checkUrlIsReturningOk("/api/system/status");
+    checkUrlIsReturningOk("/api/system/db_migration_status");
+    checkUrlIsReturningOk("/api/webservices/list");
+
+    checkUrlIsReturningOk("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
+    checkUrlIsReturningOk("/api/components/tree?baseComponentKey=org.apache.struts%3Astruts-core");
+    checkUrlIsReturningOk("/api/measures/component_tree?baseComponentKey=org.apache.struts%3Astruts-core&metricKeys=ncloc,files,violations");
+    checkUrlIsReturningOk("/api/qualityprofiles/search");
   }
 
   private void browseWebapp() {
@@ -160,5 +201,26 @@ public class UpgradeTest {
         connection.disconnect();
       }
     }
+  }
+
+  private void checkUrlIsReturningOk(String url) {
+    newWsClient(orchestrator).wsConnector().call(new GetRequest(url)).failIfNotSuccessful();
+  }
+
+  private void checkUrlIsReturningNotFound(String url) {
+    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest(url));
+    assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_NOT_FOUND);
+  }
+
+  private void checkUrlIsRedirectedToMaintenancePage(String url) {
+    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest(url)).failIfNotSuccessful();
+    assertThat(response.requestUrl()).contains("/maintenance");
+  }
+
+  private static WsClient newWsClient(Orchestrator orchestrator) {
+    Server server = orchestrator.getServer();
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(server.getUrl())
+      .build());
   }
 }
