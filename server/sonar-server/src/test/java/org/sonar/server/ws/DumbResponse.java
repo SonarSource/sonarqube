@@ -67,11 +67,15 @@ public class DumbResponse implements Response {
       this.status = i;
       return this;
     }
+
     @Override
     public OutputStream output() {
       return output;
     }
 
+    public String outputAsString() {
+      return new String(output.toByteArray(), StandardCharsets.UTF_8);
+    }
   }
 
   @Override
@@ -109,13 +113,11 @@ public class DumbResponse implements Response {
     return this;
   }
 
-  @Override
   public Collection<String> getHeaderNames() {
     return headers.keySet();
   }
 
-  @Override
-  public String getHeader(String name) {
+  public String getHeader(String name){
     return headers.get(name);
   }
 

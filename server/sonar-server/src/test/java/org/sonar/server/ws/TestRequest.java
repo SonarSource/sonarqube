@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ws;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Throwables;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,13 +28,12 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class TestRequest extends ValidatingRequest {
 
   private final Map<String, String> params = new HashMap<>();
   private String method = "GET";
   private String mimeType = "application/octet-stream";
+  private String path;
 
   @Override
   protected String readParam(String key) {
@@ -56,6 +57,16 @@ public class TestRequest extends ValidatingRequest {
   @Override
   public boolean hasParam(String key) {
     return params.containsKey(key);
+  }
+
+  @Override
+  public String getPath() {
+    return path;
+  }
+
+  public TestRequest setPath(String path) {
+    this.path = path;
+    return this;
   }
 
   public TestRequest setMethod(String method) {

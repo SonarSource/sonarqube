@@ -19,12 +19,21 @@
  */
 package org.sonar.server.ws;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.substring;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
+import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
+
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
@@ -41,13 +50,6 @@ import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.sonar.server.ws.RequestVerifier.verifyRequest;
-import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
 
 /**
  * @since 4.2
@@ -79,30 +81,26 @@ public class WebServiceEngine implements LocalConnector, Startable {
     // nothing
   }
 
-  /**
-   * Used by Ruby on Rails to add ws routes. See WEB_INF/lib/java_ws_routing.rb
-   */
-  public List<WebService.Controller> controllers() {
+  List<WebService.Controller> controllers() {
     return context.controllers();
   }
 
   @Override
   public LocalResponse call(LocalRequest request) {
-    String controller = StringUtils.substringBeforeLast(request.getPath(), "/");
-    String action = substringAfterLast(request.getPath(), "/");
     DefaultLocalResponse localResponse = new DefaultLocalResponse();
-    execute(new LocalRequestAdapter(request), localResponse, controller, action, null);
+    execute(new LocalRequestAdapter(request), localResponse);
     return localResponse;
   }
 
-  public void execute(Request request, Response response, String controllerPath, String actionKey, @Nullable String actionExtension) {
+  public void execute(Request request, Response response) {
     try {
-      WebService.Action action = getAction(controllerPath, actionKey);
+      ActionExtractor actionExtractor = new ActionExtractor(request.getPath());
+      WebService.Action action = getAction(actionExtractor.getController(), actionExtractor.getAction());
       if (request instanceof ValidatingRequest) {
         ((ValidatingRequest) request).setAction(action);
         ((ValidatingRequest) request).setLocalConnector(this);
       }
-      checkActionExtension(actionExtension);
+      checkActionExtension(actionExtractor.getExtension());
       verifyRequest(action, request);
       action.handler().handle(request, response);
     } catch (IllegalArgumentException e) {
@@ -154,6 +152,44 @@ public class WebServiceEngine implements LocalConnector, Startable {
       return;
     }
     checkArgument(SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(actionExtension.toLowerCase(Locale.ENGLISH)) != null, "Unknown action extension: %s", actionExtension);
+  }
+
+  private static class ActionExtractor {
+    private static final String SLASH = "/";
+    private static final String POINT = ".";
+
+    private final String controller;
+    private final String action;
+    private final String extension;
+
+    ActionExtractor(String path) {
+      String pathWithoutExtension = substringBeforeLast(path, POINT);
+      this.controller = extractController(pathWithoutExtension);
+      this.action = substringAfterLast(pathWithoutExtension, SLASH);
+      checkArgument(!action.isEmpty(), "Url is incorrect : '%s'", path);
+      this.extension = substringAfterLast(path, POINT);
+    }
+
+    private static String extractController(String path) {
+      String controller = substringBeforeLast(path, SLASH);
+      if (controller.startsWith(SLASH)) {
+        return substring(controller, 1);
+      }
+      return controller;
+    }
+
+    String getController() {
+      return controller;
+    }
+
+    String getAction() {
+      return action;
+    }
+
+    @CheckForNull
+    String getExtension() {
+      return extension;
+    }
   }
 
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.api.server.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.Map;
@@ -31,9 +34,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RequestTest {
 
@@ -276,6 +276,11 @@ public class RequestTest {
     @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
+    }
+
+    @Override
+    public String getPath() {
+      return null;
     }
 
     public FakeRequest setParam(String key, @Nullable String value) {

@@ -30,9 +30,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonarqube.ws.MediaTypes;
 
 public class BackupAction implements QProfileWsAction {
 
@@ -66,12 +66,12 @@ public class BackupAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
     stream.setMediaType(MediaTypes.XML);
-    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
     DbSession dbSession = dbClient.openSession(false);
+    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
     try {
       String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, dbSession);
-      backuper.backup(profileKey, writer);
       response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profileKey));
+      backuper.backup(profileKey, writer);
     } finally {
       dbSession.close();
       IOUtils.closeQuietly(writer);

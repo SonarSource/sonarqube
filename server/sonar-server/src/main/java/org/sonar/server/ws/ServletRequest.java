@@ -100,4 +100,9 @@ public class ServletRequest extends ValidatingRequest {
     String formatSuffix = substringAfterLast(url, ".");
     return SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(formatSuffix.toLowerCase(Locale.ENGLISH));
   }
+
+  @Override
+  public String getPath(){
+    return source.getRequestURI().replaceFirst(source.getContextPath(), "");
+  }
 }

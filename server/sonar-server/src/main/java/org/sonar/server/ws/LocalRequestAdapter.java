@@ -53,6 +53,11 @@ public class LocalRequestAdapter extends ValidatingRequest {
   }
 
   @Override
+  public String getPath() {
+    return localRequest.getPath();
+  }
+
+  @Override
   public String method() {
     return localRequest.getMethod();
   }

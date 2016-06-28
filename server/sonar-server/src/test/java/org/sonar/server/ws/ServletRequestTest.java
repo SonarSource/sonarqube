@@ -113,6 +113,16 @@ public class ServletRequestTest {
   }
 
   @Test
+  public void getPath() throws Exception {
+    when(source.getRequestURI()).thenReturn("/sonar/path/to/resource/search");
+    when(source.getContextPath()).thenReturn("/sonar");
+
+    ServletRequest request = new ServletRequest(source);
+
+    assertThat(request.getPath()).isEqualTo("/path/to/resource/search");
+  }
+
+  @Test
   public void to_string() {
     when(source.getRequestURL()).thenReturn(new StringBuffer("http:localhost:9000/api/issues"));
     ServletRequest request = new ServletRequest(source);

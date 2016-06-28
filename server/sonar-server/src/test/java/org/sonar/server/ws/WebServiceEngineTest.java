@@ -19,6 +19,10 @@
  */
 package org.sonar.server.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,14 +46,11 @@ import org.sonar.server.exceptions.Message;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.MediaTypes;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class WebServiceEngineTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   I18n i18n = mock(I18n.class);
 
   WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n, userSessionRule);
@@ -72,177 +73,186 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "health", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("good");
+  }
+
+  @Test
+  public void execute_request_when_path_does_not_begin_with_slash() {
+    ValidatingRequest request = new SimpleRequest("GET", "api/system/health");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("good");
   }
 
   @Test
   public void execute_request_with_action_suffix() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "health", "PROTOBUF");
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("good");
   }
 
   @Test
   public void bad_request_if_action_suffix_is_not_supported() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "health", "bat");
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health.bat");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
-    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action extension: bat\"}]}");
   }
 
   @Test
   public void no_content() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "alive", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/alive");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEmpty();
   }
 
   @Test
   public void bad_controller() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/xxx", "health", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/xxx/health");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
   }
 
   @Test
   public void bad_action() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "xxx", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/xxx");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
   }
 
   @Test
   public void method_get_not_allowed() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "ping", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/ping");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
   }
 
   @Test
   public void method_post_required() {
-    ValidatingRequest request = new SimpleRequest("POST");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "ping", null);
+    ValidatingRequest request = new SimpleRequest("POST", "/api/system/ping");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("pong");
   }
 
   @Test
   public void unknown_parameter_is_set() {
-    ValidatingRequest request = new SimpleRequest("GET").setParam("unknown", "Unknown");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "fail_with_undeclared_parameter", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/fail_with_undeclared_parameter").setParam("unknown", "Unknown");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'fail_with_undeclared_parameter'\"}]}");
   }
 
   @Test
   public void required_parameter_is_not_set() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "print", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'message' parameter is missing\"}]}");
   }
 
   @Test
   public void optional_parameter_is_not_set() {
-    ValidatingRequest request = new SimpleRequest("GET").setParam("message", "Hello World");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "print", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print").setParam("message", "Hello World");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
   }
 
   @Test
   public void optional_parameter_is_set() {
-    ValidatingRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print")
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "print", null);
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("Hello World by Marcel");
   }
 
   @Test
   public void param_value_is_in_possible_values() {
-    ValidatingRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print")
       .setParam("message", "Hello World")
       .setParam("format", "json");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "print", null);
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
   }
 
   @Test
   public void param_value_is_not_in_possible_values() {
-    ValidatingRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET", "api/system/print")
       .setParam("message", "Hello World")
       .setParam("format", "html");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "print", null);
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' (html) must be one of: [json, xml]\"}]}");
   }
 
   @Test
   public void internal_error() {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    underTest.execute(request, response, "api/system", "fail", null);
+    ValidatingRequest request = new SimpleRequest("GET", "/api/system/fail");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
-    assertThat(response.stream().httpStatus()).isEqualTo(500);
+    assertThat(response.stream().status()).isEqualTo(500);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void bad_request_with_i18n_message() {
     userSessionRule.setLocale(Locale.ENGLISH);
-    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
-    ServletResponse response = new ServletResponse();
+    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_i18n_message").setParam("count", "3");
+    DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
 
-    underTest.execute(request, response, "api/system", "fail_with_i18n_message", null);
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo(
       "{\"errors\":[{\"msg\":\"reason #0\"}]}");
-    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void bad_request_with_multiple_messages() {
-    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
-    ServletResponse response = new ServletResponse();
+    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_multiple_messages").setParam("count", "3");
+    DumbResponse response = new DumbResponse();
 
-    underTest.execute(request, response, "api/system", "fail_with_multiple_messages", null);
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
       + "{\"msg\":\"Bad request reason #0\"},"
       + "{\"msg\":\"Bad request reason #1\"},"
       + "{\"msg\":\"Bad request reason #2\"}"
       + "]}");
-    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
@@ -250,25 +260,25 @@ public class WebServiceEngineTest {
   public void bad_request_with_multiple_i18n_messages() {
     userSessionRule.setLocale(Locale.ENGLISH);
 
-    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
-    ServletResponse response = new ServletResponse();
+    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_multiple_i18n_messages").setParam("count", "3");
+    DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 1)).thenReturn("reason #1");
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 2)).thenReturn("reason #2");
 
-    underTest.execute(request, response, "api/system", "fail_with_multiple_i18n_messages", null);
+    underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[" +
       "{\"msg\":\"reason #0\"}," +
       "{\"msg\":\"reason #1\"}," +
       "{\"msg\":\"reason #2\"}]}");
-    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void should_handle_headers() {
-    ServletResponse response = new ServletResponse();
+    DumbResponse response = new DumbResponse();
     String name = "Content-Disposition";
     String value = "attachment; filename=sonarqube.zip";
     response.setHeader(name, value);
@@ -278,10 +288,12 @@ public class WebServiceEngineTest {
 
   private static class SimpleRequest extends ValidatingRequest {
     private final String method;
+    private String path;
     private Map<String, String> params = Maps.newHashMap();
 
-    private SimpleRequest(String method) {
+    private SimpleRequest(String method, String path) {
       this.method = method;
+      this.path = path;
     }
 
     @Override
@@ -297,6 +309,11 @@ public class WebServiceEngineTest {
     @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
+    }
+
+    @Override
+    public String getPath() {
+      return path;
     }
 
     @Override

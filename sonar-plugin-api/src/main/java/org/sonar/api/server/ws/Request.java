@@ -264,4 +264,10 @@ public abstract class Request {
    */
   @Beta
   public abstract LocalConnector localConnector();
+
+  /**
+   * Return path of the request
+   * @since 6.0
+   */
+  public abstract String getPath();
 }

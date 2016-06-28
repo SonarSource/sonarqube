@@ -19,76 +19,78 @@
  */
 package org.sonar.server.ws;
 
-import java.io.ByteArrayOutputStream;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonarqube.ws.MediaTypes.JSON;
+import static org.sonarqube.ws.MediaTypes.XML;
+
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.CheckForNull;
+import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonarqube.ws.MediaTypes;
 
 public class ServletResponse implements Response {
 
-  private Map<String, String> headers = new HashMap<>();
+  private final ServletStream stream;
+
+  public ServletResponse(HttpServletResponse response) {
+    stream = new ServletStream(response);
+  }
 
   public static class ServletStream implements Stream {
-    private String mediaType;
-    private int httpStatus = 200;
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+    private final HttpServletResponse response;
 
-    @CheckForNull
-    public String mediaType() {
-      return mediaType;
-    }
-
-    public int httpStatus() {
-      return httpStatus;
+    public ServletStream(HttpServletResponse response) {
+      this.response = response;
+      this.response.setStatus(200);
+      // SONAR-6964 WS should not be cached by browser
+      this.response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     }
 
     @Override
     public ServletStream setMediaType(String s) {
-      this.mediaType = s;
+      this.response.setContentType(s);
       return this;
     }
 
     @Override
     public ServletStream setStatus(int httpStatus) {
-      this.httpStatus = httpStatus;
+      this.response.setStatus(httpStatus);
       return this;
     }
 
     @Override
     public OutputStream output() {
-      return output;
+      try {
+        return response.getOutputStream();
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
     }
 
-    public String outputAsString() {
-      return new String(output.toByteArray(), StandardCharsets.UTF_8);
+    HttpServletResponse response() {
+      return response;
     }
 
     public ServletStream reset() {
-      output.reset();
+      response.reset();
       return this;
     }
   }
 
-  private final ServletStream stream = new ServletStream();
-
   @Override
   public JsonWriter newJsonWriter() {
-    stream.setMediaType(MediaTypes.JSON);
-    return JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
+    stream.setMediaType(JSON);
+    return JsonWriter.of(new OutputStreamWriter(stream.output(), UTF_8));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    stream.setMediaType(MediaTypes.XML);
-    return XmlWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
+    stream.setMediaType(XML);
+    return XmlWriter.of(new OutputStreamWriter(stream.output(), UTF_8));
   }
 
   @Override
@@ -104,17 +106,17 @@ public class ServletResponse implements Response {
 
   @Override
   public Response setHeader(String name, String value) {
-    headers.put(name, value);
+    stream.response().setHeader(name, value);
     return this;
   }
 
   @Override
   public Collection<String> getHeaderNames() {
-    return headers.keySet();
+    return stream.response().getHeaderNames();
   }
 
   @Override
   public String getHeader(String name) {
-    return headers.get(name);
+    return stream.response().getHeader(name);
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.server.ws.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.Map;
@@ -26,8 +28,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Fake implementation of {@link org.sonar.api.server.ws.Request} used
@@ -38,6 +38,7 @@ public class SimpleGetRequest extends Request {
 
   private final Map<String, String> params = Maps.newHashMap();
   private String mediaType = "application/json";
+  private String path;
 
   @Override
   public String method() {
@@ -84,5 +85,15 @@ public class SimpleGetRequest extends Request {
   @Override
   public LocalConnector localConnector() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getPath() {
+    return path;
+  }
+
+  public SimpleGetRequest setPath(String path) {
+    this.path = path;
+    return this;
   }
 }

@@ -22,10 +22,8 @@ package org.sonar.server.ws;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.ws.WebServiceFilterTest.WsUrl.newWsUrl;
 
@@ -71,7 +69,8 @@ public class WebServiceFilterTest {
       newWsUrl("api/issues", "search"),
       newWsUrl("batch", "index"),
       newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE),
-      newWsUrl("api/resources", "index").setHandler(RailsHandler.INSTANCE));
+      newWsUrl("api/resources", "index").setHandler(RailsHandler.INSTANCE),
+      newWsUrl("api/issues", "deprecatedSearch").setHandler(RailsHandler.INSTANCE));
 
     assertThat(underTest.doGetPattern().matches("/api/issues/search")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/issues/search.protobuf")).isTrue();
@@ -79,44 +78,17 @@ public class WebServiceFilterTest {
 
     assertThat(underTest.doGetPattern().matches("/api/resources/index")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/issues/deprecatedSearch")).isFalse();
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();
   }
 
   @Test
-  public void execute() throws Exception {
-    initWebServiceEngine(newWsUrl("api/issues", "search"));
-    when(request.getRequestURI()).thenReturn("/api/issues/search");
+  public void execute_ws() throws Exception {
+    underTest = new WebServiceFilter(webServiceEngine);
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(any(ServletRequest.class), any(org.sonar.server.ws.ServletResponse.class), eq("api/issues"), eq("search"), eq(null));
-
-    verify(response).setStatus(200);
-    verify(response).setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-
-    verify(responseOutput).flush();
-    verify(responseOutput).close();
-    verifyZeroInteractions(chain);
-  }
-
-  @Test
-  public void execute_with_extension() throws Exception {
-    initWebServiceEngine(newWsUrl("api/issues", "search"));
-    when(request.getRequestURI()).thenReturn("/api/issues/search.protobuff");
-
-    underTest.doFilter(request, response, chain);
-
-    verify(webServiceEngine).execute(any(ServletRequest.class), any(org.sonar.server.ws.ServletResponse.class), eq("api/issues"), eq("search"), eq("protobuff"));
-  }
-
-  @Test
-  public void fail_on_unknown_path() throws Exception {
-    initWebServiceEngine(newWsUrl("api/issues", "search"));
-    when(request.getRequestURI()).thenReturn("/api/resources/index");
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown path : /api/resources/index");
-    underTest.doFilter(request, response, chain);
+    verify(webServiceEngine).execute(any(ServletRequest.class), any(org.sonar.server.ws.ServletResponse.class));
   }
 
   private void initWebServiceEngine(WsUrl... wsUrls) {

@@ -20,21 +20,14 @@
 
 package org.sonar.server.ws;
 
-import static java.lang.String.format;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.web.ServletFilter;
 
@@ -47,18 +40,20 @@ import org.sonar.api.web.ServletFilter;
 public class WebServiceFilter extends ServletFilter {
 
   private final WebServiceEngine webServiceEngine;
-  private final Map<String, WsUrl> wsUrls = new HashMap<>();
   private final List<String> includeUrls = new ArrayList<>();
+  private final List<String> excludeUrls = new ArrayList<>();
 
   public WebServiceFilter(WebServiceEngine webServiceEngine) {
     this.webServiceEngine = webServiceEngine;
     webServiceEngine.controllers().stream()
       .forEach(controller -> controller.actions().stream()
-        .filter(action -> !(action.handler() instanceof RailsHandler) && !(action.handler() instanceof ServletFilterHandler))
         .forEach(action -> {
-          String url = "/" + action.path();
-          wsUrls.put(url, new WsUrl(controller.path(), action.key()));
-          includeUrls.add(url + "*");
+          // Rails and servlet filter WS should not be executed by the web service engine
+          if (!(action.handler() instanceof RailsHandler) && !(action.handler() instanceof ServletFilterHandler)) {
+            includeUrls.add("/" + controller.path() + "/*");
+          } else {
+            excludeUrls.add("/" + action.path() + "*");
+          }
         }));
   }
 
@@ -66,6 +61,7 @@ public class WebServiceFilter extends ServletFilter {
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
       .includes(includeUrls)
+      .excludes(excludeUrls)
       .build();
   }
 
@@ -73,45 +69,9 @@ public class WebServiceFilter extends ServletFilter {
   public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
-    String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
-
-    String[] pathWithExtension = getPathWithExtension(path);
-    WsUrl url = wsUrls.get(pathWithExtension[0]);
-    if (url == null) {
-      throw new IllegalStateException(format("Unknown path : %s", path));
-    }
     ServletRequest wsRequest = new ServletRequest(request);
-    ServletResponse wsResponse = new ServletResponse();
-    webServiceEngine.execute(wsRequest, wsResponse, url.getController(), url.getAction(), pathWithExtension[1]);
-    writeResponse(wsResponse, response);
-  }
-
-  private static void writeResponse(ServletResponse wsResponse, HttpServletResponse response) throws IOException {
-    // SONAR-6964 WS should not be cached by browser
-    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    for (String header : wsResponse.getHeaderNames()) {
-      response.setHeader(header, wsResponse.getHeader(header));
-    }
-
-    response.setContentType(wsResponse.stream().mediaType());
-    response.setStatus(wsResponse.stream().httpStatus());
-
-    OutputStream responseOutput = response.getOutputStream();
-    ByteArrayOutputStream wsOutputStream = (ByteArrayOutputStream) wsResponse.stream().output();
-    IOUtils.write(wsOutputStream.toByteArray(), responseOutput);
-    responseOutput.flush();
-    responseOutput.close();
-  }
-
-  private static String[] getPathWithExtension(String fullPath) {
-    String path = fullPath;
-    String extension = null;
-    int semiColonPos = fullPath.lastIndexOf('.');
-    if (semiColonPos > 0) {
-      path = fullPath.substring(0, semiColonPos);
-      extension = fullPath.substring(semiColonPos + 1);
-    }
-    return new String[] {path, extension};
+    ServletResponse wsResponse = new ServletResponse(response);
+    webServiceEngine.execute(wsRequest, wsResponse);
   }
 
   @Override

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
+
 import com.google.common.collect.Maps;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -41,9 +44,6 @@ import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.ws.RequestVerifier.verifyRequest;
-
 /**
  * @since 4.2
  */
@@ -52,6 +52,7 @@ public class WsTester {
   public static class TestRequest extends ValidatingRequest {
 
     private final String method;
+    private String path;
 
     private Map<String, String> params = Maps.newHashMap();
 
@@ -72,6 +73,16 @@ public class WsTester {
     @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
+    }
+
+    @Override
+    public String getPath() {
+      return path;
+    }
+
+    public TestRequest setPath(String path) {
+      this.path = path;
+      return this;
     }
 
     public TestRequest setParams(Map<String, String> m) {
