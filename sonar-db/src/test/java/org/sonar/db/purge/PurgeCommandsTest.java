@@ -58,6 +58,15 @@ public class PurgeCommandsTest {
   }
 
   /**
+   * Test that SQL queries execution do not fail with a huge number of parameter
+   */
+  @Test
+  public void should_not_fail_when_deleting_huge_number_of_analyses() {
+    new PurgeCommands(dbTester.getSession(), profiler).deleteAnalyses(getHugeNumberOfIdUuidPairs());
+    // The goal of this test is only to check that the query do no fail, not to check result
+  }
+
+  /**
    * Test that all related data is purged.
    */
   @Test

@@ -113,10 +113,12 @@
   </delete>
 
   <delete id="deleteSnapshot" parameterType="map">
-    delete from snapshots where id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
+    delete from snapshots
+    where
+      uuid in
+      <foreach collection="snapshotUuids" open="(" close=")" item="snapshotUuid" separator=",">
+        #{snapshotUuid}
+      </foreach>
   </delete>
 
   <delete id="deleteAnalyses" parameterType="map">
