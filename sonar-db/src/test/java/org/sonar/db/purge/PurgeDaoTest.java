@@ -60,28 +60,32 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteAbortedBuilds() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAbortedBuilds.xml");
-    underTest.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "shouldDeleteAbortedBuilds-result.xml", "snapshots");
   }
 
   @Test
   public void should_purge_project() {
     dbTester.prepareDbUnit(getClass(), "shouldPurgeProject.xml");
-    underTest.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "shouldPurgeProject-result.xml", "projects", "snapshots");
   }
 
   @Test
   public void delete_file_sources_of_disabled_resources() {
     dbTester.prepareDbUnit(getClass(), "delete_file_sources_of_disabled_resources.xml");
-    underTest.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "delete_file_sources_of_disabled_resources-result.xml", "file_sources");
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    underTest.purge(new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
   }
 
@@ -89,7 +93,8 @@ public class PurgeDaoTest {
   public void disable_resources_without_last_snapshot() {
     dbTester.prepareDbUnit(getClass(), "disable_resources_without_last_snapshot.xml");
     when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml", new String[] {"issue_close_date", "issue_update_date"}, "projects", "snapshots",
       "issues");
   }
@@ -179,7 +184,8 @@ public class PurgeDaoTest {
     PurgeListener purgeListener = mock(PurgeListener.class);
     dbTester.prepareDbUnit(getClass(), "should_delete_old_closed_issues.xml");
 
-    underTest.purge(newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
+    dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
 
@@ -195,7 +201,8 @@ public class PurgeDaoTest {
   @Test
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
-    underTest.purge(new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
   }
 

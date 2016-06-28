@@ -58,17 +58,6 @@ public class PurgeDao implements Dao {
     this.system2 = system2;
   }
 
-  public PurgeDao purge(PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      purge(session, conf, listener, profiler);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    return this;
-  }
-
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
