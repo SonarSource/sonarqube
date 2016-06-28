@@ -97,7 +97,7 @@ public class HighlightingTest extends PerfTestCase {
 
     BuildResult result = orchestrator.executeBuild(scanner);
     System.out.println("Total time: " + MavenLogs.extractTotalTime(result.getLogs()));
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 28200L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 25700L);
 
     Properties prof = readProfiling(baseDir, "highlighting");
     perfRule.assertDurationAround(Long.valueOf(prof.getProperty("Xoo Highlighting Sensor")), 9700L);
