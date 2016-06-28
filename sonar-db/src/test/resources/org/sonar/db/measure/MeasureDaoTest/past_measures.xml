@@ -137,6 +137,7 @@
                     VALUE="60"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1000"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
 
@@ -144,6 +145,7 @@
                     VALUE="80"
                     METRIC_ID="2"
                     SNAPSHOT_ID="1000"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
 
@@ -152,6 +154,7 @@
                     VALUE="20"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1001"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="BCDE"/>
 
@@ -159,6 +162,7 @@
                     VALUE="70"
                     METRIC_ID="2"
                     SNAPSHOT_ID="1001"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="BCDE"/>
 
@@ -167,6 +171,7 @@
                     VALUE="5"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1002"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="CDEF"/>
 
@@ -174,6 +179,7 @@
                     VALUE="60"
                     METRIC_ID="2"
                     SNAPSHOT_ID="1002"
+                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="CDEF"/>
 

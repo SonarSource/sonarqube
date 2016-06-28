@@ -49,14 +49,13 @@ import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
 
 public class ViewsComputeMeasureVariationsStepTest {
 
-  static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
-  static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
-  static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
-  static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
-
-  static final ComponentDto VIEW_DTO = ComponentTesting.newView();
-
-  static final Component VIEW = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).build();
+  private static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
+  private static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
+  private static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
+  private static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
+  private static final ComponentDto VIEW_DTO = ComponentTesting.newView();
+  private static final Component VIEW = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).build();
+  private static final String ANALYSIS_UUID = "a1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -223,7 +222,12 @@ public class ViewsComputeMeasureVariationsStepTest {
   }
 
   private static MeasureDto newMeasureDto(int metricId, String componentUuid, long snapshotId, double value) {
-    return new MeasureDto().setMetricId(metricId).setComponentUuid(componentUuid).setSnapshotId(snapshotId).setValue(value);
+    return new MeasureDto()
+      .setMetricId(metricId)
+      .setComponentUuid(componentUuid)
+      .setSnapshotId(snapshotId)
+      .setAnalysisUuid(ANALYSIS_UUID)
+      .setValue(value);
   }
 
   private static Period newPeriod(int index, SnapshotDto snapshotDto) {

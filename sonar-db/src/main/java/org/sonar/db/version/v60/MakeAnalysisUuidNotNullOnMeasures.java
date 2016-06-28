@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.version.v60;
 
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.metric.MetricDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.DdlChange;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+public class MakeAnalysisUuidNotNullOnMeasures extends DdlChange {
+
+  private static final String TABLE_MEASURES = "project_measures";
+
+  public MakeAnalysisUuidNotNullOnMeasures(Database db) {
+    super(db);
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, SnapshotDto snapshot) {
-    checkNotNull(metricDto.getId());
-    checkNotNull(metricDto.getKey());
-    checkNotNull(snapshot.getComponentUuid());
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentUuid(snapshot.getComponentUuid())
-      .setSnapshotId(snapshot.getId())
-      .setAnalysisUuid(snapshot.getUuid());
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_MEASURES)
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .build());
   }
+
 }
