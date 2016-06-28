@@ -32,11 +32,6 @@
         and s.scope in
         <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
       </if>
-      <if test="qualifiers != null">
-        and s.qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
-        </foreach>
-      </if>
       <if test="withVersionEvent != null">
         <if test="withVersionEvent">
           and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')

@@ -25,7 +25,6 @@ public final class PurgeSnapshotQuery {
   private Long rootSnapshotId;
   private String componentUuid;
   private String[] scopes;
-  private String[] qualifiers;
   private String[] status;
   private Boolean islast;
   private Boolean notPurged;
@@ -62,15 +61,6 @@ public final class PurgeSnapshotQuery {
 
   public PurgeSnapshotQuery setScopes(String[] scopes) {
     this.scopes = scopes; // NOSONAR May expose internal representation by incorporating reference to mutable object
-    return this;
-  }
-
-  public String[] getQualifiers() {
-    return qualifiers;// NOSONAR May expose internal representation by returning reference to mutable object
-  }
-
-  public PurgeSnapshotQuery setQualifiers(String[] qualifiers) {
-    this.qualifiers = qualifiers;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
