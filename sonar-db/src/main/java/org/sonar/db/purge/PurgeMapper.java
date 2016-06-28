@@ -27,7 +27,7 @@ public interface PurgeMapper {
 
   List<IdUuidPair> selectSnapshotIdsAndUuids(PurgeSnapshotQuery query);
 
-  List<IdUuidPair> selectSnapshotIdAndUuidsByResource(@Param("componentUuids") List<String> componentUuids);
+  List<IdUuidPair> selectSnapshotIdAndUuidsByComponent(@Param("componentUuids") List<String> componentUuids);
 
   /**
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
@@ -46,29 +46,27 @@ public interface PurgeMapper {
 
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
 
-  void updatePurgeStatusToOne(long snapshotId);
+  void updatePurgeStatusToOne(String snapshotUuid);
 
-  void disableResource(long resourceId);
+  void disableComponent(String componentUuid);
 
-  void resolveResourceIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("dateAsLong") Long dateAsLong);
+  void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("dateAsLong") Long dateAsLong);
 
   void deleteResourceIndex(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteEvent(long eventId);
-
   void setSnapshotIsLastToFalse(@Param("componentUuid") String componentUuid);
 
-  void deleteResourceLinks(@Param("componentUuids") List<String> componentUuids);
+  void deleteComponentLinks(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteResourceProperties(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponentProperties(@Param("componentIds") List<Long> componentIds);
 
-  void deleteResource(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponents(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteResourceGroupRoles(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponentGroupRoles(@Param("componentIds") List<Long> componentIds);
 
-  void deleteResourceUserRoles(@Param("resourceIds") List<Long> resourceIds);
+  void deleteComponentUserRoles(@Param("componentIds") List<Long> componentIds);
 
-  void deleteResourceManualMeasures(@Param("componentUuids") List<String> componentUuids);
+  void deleteComponentManualMeasures(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 

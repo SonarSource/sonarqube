@@ -62,21 +62,21 @@ class PurgeCommands {
     // Batch requests can only relate to the same PreparedStatement.
 
     for (List<String> componentUuidPartition : componentUuidsPartitions) {
-      deleteSnapshots(purgeMapper.selectSnapshotIdAndUuidsByResource(componentUuidPartition));
+      deleteSnapshots(purgeMapper.selectSnapshotIdAndUuidsByComponent(componentUuidPartition));
     }
 
     // possible missing optimization: filter requests according to resource scope
 
     profiler.start("deleteResourceLinks (project_links)");
     for (List<String> componentUuidPartition : componentUuidsPartitions) {
-      purgeMapper.deleteResourceLinks(componentUuidPartition);
+      purgeMapper.deleteComponentLinks(componentUuidPartition);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceProperties (properties)");
     for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceProperties(partResourceIds);
+      purgeMapper.deleteComponentProperties(partResourceIds);
     }
     session.commit();
     profiler.stop();
@@ -90,21 +90,21 @@ class PurgeCommands {
 
     profiler.start("deleteResourceGroupRoles (group_roles)");
     for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceGroupRoles(partResourceIds);
+      purgeMapper.deleteComponentGroupRoles(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceUserRoles (user_roles)");
     for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceUserRoles(partResourceIds);
+      purgeMapper.deleteComponentUserRoles(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceManualMeasures (manual_measures)");
     for (List<String> componentUuidPartition : componentUuidsPartitions) {
-      purgeMapper.deleteResourceManualMeasures(componentUuidPartition);
+      purgeMapper.deleteComponentManualMeasures(componentUuidPartition);
     }
     session.commit();
     profiler.stop();
@@ -131,8 +131,8 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("deleteResource (projects)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResource(partResourceIds);
+    for (List<String> componentUuidPartition : componentUuidsPartitions) {
+      purgeMapper.deleteComponents(componentUuidPartition);
     }
     session.commit();
     profiler.stop();
@@ -205,7 +205,7 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("updatePurgeStatusToOne (snapshots)");
-    snapshotIdUuidPairs.iterator().forEachRemaining(idUuidPair -> purgeMapper.updatePurgeStatusToOne(idUuidPair.getId()));
+    snapshotIdUuidPairs.iterator().forEachRemaining(idUuidPair -> purgeMapper.updatePurgeStatusToOne(idUuidPair.getUuid()));
     session.commit();
     profiler.stop();
   }

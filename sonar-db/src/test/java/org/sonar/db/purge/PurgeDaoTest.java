@@ -84,7 +84,8 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    underTest.purge(dbSession, new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY,
+      new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
   }
@@ -95,8 +96,9 @@ public class PurgeDaoTest {
     when(system2.now()).thenReturn(1450000000000L);
     underTest.purge(dbSession, newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
-    dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml", new String[] {"issue_close_date", "issue_update_date"}, "projects", "snapshots",
-      "issues");
+    dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml",
+      new String[] {"issue_close_date", "issue_update_date"},
+      "projects", "snapshots", "issues");
   }
 
   @Test

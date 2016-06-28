@@ -46,14 +46,16 @@
     </where>
   </select>
 
-  <select id="selectSnapshotIdAndUuidsByResource" parameterType="map" resultType="IdUuidPair">
-    select s.id as id, s.uuid as uuid from snapshots s
-    <where>
+  <select id="selectSnapshotIdAndUuidsByComponent" parameterType="map" resultType="IdUuidPair">
+    select
+      s.id as id, s.uuid as uuid
+    from
+      snapshots s
+    where
       s.component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
         #{componentUuid}
       </foreach>
-    </where>
   </select>
 
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
@@ -82,10 +84,15 @@
       and parent_snapshot_id is null
   </select>
 
-  <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
-    select p.id, p.uuid from projects p
-    where p.root_uuid=#{uuid} and p.enabled=${_true}
-    and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
+  <select id="selectComponentUuidsToDisable" resultType="String" parameterType="String">
+    select
+      p.uuid
+    from
+      projects p
+    where
+      p.root_uuid=#{uuid}
+      and p.enabled=${_true}
+      and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
   </select>
 
   <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
@@ -140,70 +147,93 @@
     </where>
   </delete>
 
-  <update id="updatePurgeStatusToOne" parameterType="long">
-    update snapshots set purge_status = 1 where id = #{id}
+  <update id="updatePurgeStatusToOne" parameterType="string">
+    update
+      snapshots
+    set
+      purge_status = 1
+    where
+      uuid = #{snapshotUuid}
   </update>
 
-  <update id="disableResource" parameterType="long">
-    update projects set enabled=${_false} where id=#{id}
+  <update id="disableComponent" parameterType="string">
+    update
+      projects
+    set
+      enabled=${_false}
+    where
+      uuid=#{componentUuid}
   </update>
 
-  <update id="resolveResourceIssuesNotAlreadyResolved" parameterType="map">
-    UPDATE issues SET status='CLOSED',resolution='REMOVED',updated_at=#{dateAsLong},issue_close_date=#{dateAsLong},
-    issue_update_date=#{dateAsLong}
-    WHERE component_uuid=#{componentUuid} AND resolution IS NULL
+  <update id="resolveComponentIssuesNotAlreadyResolved" parameterType="map">
+    update
+      issues
+    set
+      status='CLOSED',
+      resolution='REMOVED',
+      updated_at=#{dateAsLong},
+      issue_close_date=#{dateAsLong},
+      issue_update_date=#{dateAsLong}
+    where
+      component_uuid=#{componentUuid}
+      and resolution is null
   </update>
 
   <delete id="deleteResourceIndex" parameterType="map">
-    delete from resource_index where component_uuid in
-    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
-    </foreach>
+    delete from resource_index
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </delete>
 
-  <delete id="deleteEvent" parameterType="map">
-    delete from events where id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
+  <delete id="deleteComponentLinks" parameterType="map">
+    delete from project_links
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </delete>
 
-  <delete id="deleteResourceLinks" parameterType="map">
-    delete from project_links where component_uuid in
-    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
-    </foreach>
+  <delete id="deleteComponentProperties" parameterType="map">
+    delete from properties
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
   </delete>
 
-  <delete id="deleteResourceProperties" parameterType="map">
-    delete from properties where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
+  <delete id="deleteComponents" parameterType="map">
+    delete from projects
+    where
+      uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </delete>
 
-  <delete id="deleteResource" parameterType="map">
-    delete from projects where id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
+  <delete id="deleteComponentGroupRoles" parameterType="map">
+    delete from group_roles
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
   </delete>
 
-  <delete id="deleteResourceGroupRoles" parameterType="map">
-    delete from group_roles where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
+  <delete id="deleteComponentUserRoles" parameterType="map">
+    delete from user_roles
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
   </delete>
 
-  <delete id="deleteResourceUserRoles" parameterType="map">
-    delete from user_roles where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
-  </delete>
-
-  <delete id="deleteResourceManualMeasures" parameterType="map">
+  <delete id="deleteComponentManualMeasures" parameterType="map">
     delete from manual_measures where component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
       #{componentUuid}
@@ -211,17 +241,21 @@
   </delete>
 
   <delete id="deleteComponentEvents" parameterType="map">
-    delete from events where component_uuid in
-    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
-    </foreach>
+    delete from events
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </delete>
 
   <delete id="deleteAuthors" parameterType="map">
-    delete from authors where person_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
+    delete from authors
+    where
+      person_id in
+      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+        #{resourceId}
+      </foreach>
   </delete>
 
   <update id="setSnapshotIsLastToFalse" parameterType="String">

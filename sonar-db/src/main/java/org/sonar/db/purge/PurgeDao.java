@@ -21,7 +21,6 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 
@@ -48,12 +46,10 @@ public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
 
-  private final MyBatis mybatis;
   private final ResourceDao resourceDao;
   private final System2 system2;
 
-  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, System2 system2) {
-    this.mybatis = mybatis;
+  public PurgeDao(ResourceDao resourceDao, System2 system2) {
     this.resourceDao = resourceDao;
     this.system2 = system2;
   }
@@ -119,19 +115,19 @@ public class PurgeDao implements Dao {
     }
   }
 
-  private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
-    final List<IdUuidPair> componentIdUuids = new ArrayList<>();
-    session.select("org.sonar.db.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getUuid(),
+  private void disableOrphanResources(ResourceDto project, SqlSession session, PurgeMapper purgeMapper, PurgeListener purgeListener) {
+    List<String> componentUuids = new ArrayList<>();
+    session.select("org.sonar.db.purge.PurgeMapper.selectComponentUuidsToDisable", project.getUuid(),
       resultContext -> {
-        IdUuidPair componentIdUuid = (IdUuidPair) resultContext.getResultObject();
-        if (componentIdUuid.getId() != null) {
-          componentIdUuids.add(componentIdUuid);
+        String componentUuid = (String) resultContext.getResultObject();
+        if (componentUuid != null) {
+          componentUuids.add(componentUuid);
         }
       });
 
-    for (IdUuidPair componentIdUuid : componentIdUuids) {
-      disableResource(componentIdUuid, purgeMapper);
-      purgeListener.onComponentDisabling(componentIdUuid.getUuid());
+    for (String componentUuid : componentUuids) {
+      disableComponent(componentUuid, purgeMapper);
+      purgeListener.onComponentDisabling(componentUuid);
     }
 
     session.commit();
@@ -160,12 +156,12 @@ public class PurgeDao implements Dao {
     commands.deleteCeActivity(rootUuid);
   }
 
-  private void disableResource(IdUuidPair componentIdUuid, PurgeMapper mapper) {
-    mapper.deleteResourceIndex(Arrays.asList(componentIdUuid.getUuid()));
-    mapper.setSnapshotIsLastToFalse(componentIdUuid.getUuid());
-    mapper.deleteFileSourcesByUuid(componentIdUuid.getUuid());
-    mapper.disableResource(componentIdUuid.getId());
-    mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), system2.now());
+  private void disableComponent(String uuid, PurgeMapper mapper) {
+    mapper.deleteResourceIndex(Collections.singletonList(uuid));
+    mapper.setSnapshotIsLastToFalse(uuid);
+    mapper.deleteFileSourcesByUuid(uuid);
+    mapper.disableComponent(uuid);
+    mapper.resolveComponentIssuesNotAlreadyResolved(uuid, system2.now());
   }
 
   public PurgeDao deleteSnapshots(DbSession session, PurgeProfiler profiler, PurgeSnapshotQuery... queries) {
