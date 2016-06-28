@@ -19,16 +19,23 @@
  */
 package org.sonar.db.charset;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
 
 import static com.google.common.collect.Sets.immutableEnumSet;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -39,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 
+@RunWith(DataProviderRunner.class)
 public class MssqlCharsetHandlerTest {
 
   private static final String TABLE_ISSUES = "issues";
@@ -108,6 +116,31 @@ public class MssqlCharsetHandlerTest {
   }
 
   @Test
+  @UseDataProvider("combinationsOfCsAsAndSuffix")
+  public void repair_case_insensitive_accent_insensitive_combinations_with_or_without_suffix(String collation, String expectedCollation) throws Exception {
+    answerColumns(Collections.singletonList(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", collation, "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE issues ALTER COLUMN kee varchar(10) COLLATE " + expectedCollation + " NOT NULL");
+  }
+
+  @DataProvider
+  public static Object[][] combinationsOfCsAsAndSuffix() {
+    List<String[]> res = new ArrayList<>();
+    for (String sensitivity : Arrays.asList("CI_AI", "CI_AS", "CS_AI")) {
+      for (String suffix : Arrays.asList("", "_KS_WS")) {
+        res.add(new String[] {
+          format("Latin1_General_%s%s", sensitivity, suffix),
+          format("Latin1_General_CS_AS%s", suffix)
+        });
+      }
+    }
+    return res.stream().toArray(Object[][]::new);
+  }
+
+  @Test
   public void support_the_max_size_of_varchar_column() throws Exception {
     // returned size is -1
     answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", -1, false)));
@@ -127,6 +160,44 @@ public class MssqlCharsetHandlerTest {
     underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @Test
+  @UseDataProvider("combinationOfBinAndSuffix")
+  public void do_not_repair_if_collation_contains_BIN(String collation) throws Exception {
+    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @DataProvider
+  public static Object[][] combinationOfBinAndSuffix() {
+    return Arrays.asList("", "_KS_WS")
+      .stream()
+      .map(suffix -> new String[] {format("Latin1_General_BIN%s", suffix)})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("combinationOfBin2AndSuffix")
+  public void do_not_repair_if_collation_contains_BIN2(String collation) throws Exception {
+    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @DataProvider
+  public static Object[][] combinationOfBin2AndSuffix() {
+    return Arrays.asList("", "_KS_WS")
+      .stream()
+      .map(suffix -> new String[] {format("Latin1_General_BIN2%s", suffix)})
+      .toArray(Object[][]::new);
   }
 
   private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {
