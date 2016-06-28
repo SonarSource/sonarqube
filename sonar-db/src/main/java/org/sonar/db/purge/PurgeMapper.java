@@ -27,14 +27,16 @@ public interface PurgeMapper {
 
   List<IdUuidPair> selectSnapshotIdsAndUuids(PurgeSnapshotQuery query);
 
-  List<IdUuidPair> selectSnapshotIdAndUuidsByComponent(@Param("componentUuids") List<String> componentUuids);
-
   /**
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
    */
   List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
 
-  void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
+  void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
+
+  void deleteDescendantSnapshots(@Param("snapshotIds") List<Long> snapshotIds);
+
+  void deleteSnapshot(@Param("snapshotUuids") List<String> snapshotUuids);
 
   void deleteSnapshotDuplications(@Param("analysisUuids") List<String> analysisUuids);
 

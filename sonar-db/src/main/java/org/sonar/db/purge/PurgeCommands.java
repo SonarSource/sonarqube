@@ -54,16 +54,16 @@ class PurgeCommands {
     return purgeMapper.selectSnapshotIdsAndUuids(query).stream().map(IdUuidPair::getUuid).collect(Collectors.toList());
   }
 
+  void deleteAnalyses(String rootUuid) {
+    deleteAnalyses(purgeMapper.selectSnapshotIdsAndUuids(PurgeSnapshotQuery.create().setComponentUuid(rootUuid)));
+  }
+
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
     List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     // Note : do not merge the delete statements into a single loop of resource ids. It's
     // voluntarily grouped by tables in order to benefit from JDBC batch mode.
     // Batch requests can only relate to the same PreparedStatement.
-
-    for (List<String> componentUuidPartition : componentUuidsPartitions) {
-      deleteSnapshots(purgeMapper.selectSnapshotIdAndUuidsByComponent(componentUuidPartition));
-    }
 
     // possible missing optimization: filter requests according to resource scope
 
@@ -176,6 +176,38 @@ class PurgeCommands {
     profiler.start("deleteSnapshot (snapshots)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshot(partSnapshotIds);
+    }
+    session.commit();
+    profiler.stop();
+  }
+
+  @VisibleForTesting
+  protected void deleteAnalyses(List<IdUuidPair> analysisIdUuids) {
+    List<List<Long>> snapshotIdsPartition = Lists.partition(IdUuidPairs.ids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<String>> snapshotUuidsPartition = Lists.partition(IdUuidPairs.uuids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
+
+    deleteSnapshotDuplications(snapshotUuidsPartition);
+
+    profiler.start("deleteAnalyses (events)");
+    for (List<String> partSnapshotUuids : snapshotUuidsPartition) {
+      purgeMapper.deleteSnapshotEvents(partSnapshotUuids);
+    }
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteAnalyses (project_measures)");
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotMeasures(partSnapshotIds);
+    }
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteAnalyses (snapshots)");
+    for (List<String> partSnapshotUuids : snapshotUuidsPartition) {
+      purgeMapper.deleteAnalyses(partSnapshotUuids);
+    }
+    for (List<Long> snapshotIdPartition : snapshotIdsPartition) {
+      purgeMapper.deleteDescendantSnapshots(snapshotIdPartition);
     }
     session.commit();
     profiler.stop();

@@ -57,6 +57,26 @@
           created_at="1228222680000"
           event_data="[null]"/>
 
+  <events id="2"
+          analysis_uuid="u1"
+          component_uuid="[null]"
+          name="Version 1.0"
+          category="VERSION"
+          description="[null]"
+          event_date="1228222680000"
+          created_at="1228222680000"
+          event_data="[null]"/>
+
+  <events id="3"
+          analysis_uuid="u1"
+          component_uuid="[null]"
+          name="Version 1.0"
+          category="VERSION"
+          description="[null]"
+          event_date="1228222680000"
+          created_at="1228222680000"
+          event_data="[null]"/>
+
   <issues id="1"
           kee="ABCDE"
           component_uuid="uuid_1"

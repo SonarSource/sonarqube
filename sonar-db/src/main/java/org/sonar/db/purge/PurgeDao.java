@@ -151,6 +151,7 @@ public class PurgeDao implements Dao {
 
   private static void deleteProject(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> childrenIds = mapper.selectComponentsByProjectUuid(rootUuid);
+    commands.deleteAnalyses(rootUuid);
     commands.deleteComponents(childrenIds);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);

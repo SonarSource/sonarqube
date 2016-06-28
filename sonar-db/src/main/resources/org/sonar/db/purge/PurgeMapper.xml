@@ -46,18 +46,6 @@
     </where>
   </select>
 
-  <select id="selectSnapshotIdAndUuidsByComponent" parameterType="map" resultType="IdUuidPair">
-    select
-      s.id as id, s.uuid as uuid
-    from
-      snapshots s
-    where
-      s.component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
-      </foreach>
-  </select>
-
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
     select
       s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
@@ -129,6 +117,24 @@
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
       #{snapshotId}
     </foreach>
+  </delete>
+
+  <delete id="deleteAnalyses" parameterType="map">
+    delete from snapshots
+    where
+      uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+  </delete>
+
+  <delete id="deleteDescendantSnapshots" parameterType="map">
+    delete from snapshots
+    where
+      root_snapshot_id in
+      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+      </foreach>
   </delete>
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="map">

@@ -88,17 +88,34 @@ public class PurgeCommandsTest {
   }
 
   @Test
-  public void shouldDeleteResource() {
+  public void shouldDeleteComponentsAndChildrenTables() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(newArrayList(new IdUuidPair(1L, "uuid_1")));
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler);
+    purgeCommands.deleteComponents(newArrayList(new IdUuidPair(1L, "uuid_1")));
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
-    assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
-    assertThat(dbTester.countRowsOfTable("events")).isZero();
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
     assertThat(dbTester.countRowsOfTable("authors")).isZero();
+  }
+
+
+  @Test
+  public void shouldDeleteAnalyses() {
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler);
+    purgeCommands.deleteAnalyses("uuid_1");
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
+    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("authors")).isEqualTo(2);
   }
 
   /**
