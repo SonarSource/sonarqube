@@ -19,22 +19,21 @@
  */
 package org.sonar.db.purge.period;
 
-import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeepOneFilterTest {
 
-  private static List<Long> snapshotIds(List<PurgeableAnalysisDto> snapshotDtos) {
-    return newArrayList(Iterables.transform(snapshotDtos, input -> input == null ? null : input.getAnalysisId()));
+  private static List<String> analysisUuids(List<PurgeableAnalysisDto> snapshotDtos) {
+    return snapshotDtos.stream().map(input -> input.getAnalysisUuid()).collect(Collectors.toList());
   }
 
   @Test
@@ -42,18 +41,17 @@ public class KeepOneFilterTest {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"), // out of scope -> keep
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-01"), // may -> keep
-      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-02"), // may -> to be deleted
-      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-05-19"), // may -> to be deleted
-      DbCleanerTestUtils.createSnapshotWithDate(5L, "2011-06-01"), // june -> keep
-      DbCleanerTestUtils.createSnapshotWithDate(6L, "2012-01-01") // out of scope -> keep
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2010-01-01"), // out of scope -> keep
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-01"), // may -> keep
+      DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-02"), // may -> to be deleted
+      DbCleanerTestUtils.createAnalysisWithDate("u4", "2011-05-19"), // may -> to be deleted
+      DbCleanerTestUtils.createAnalysisWithDate("u5", "2011-06-01"), // june -> keep
+      DbCleanerTestUtils.createAnalysisWithDate("u6", "2012-01-01") // out of scope -> keep
       ));
 
     assertThat(toDelete).hasSize(2);
 
-    List<Long> snapshotIds = snapshotIds(toDelete);
-    assertThat(snapshotIds).containsOnly(2L, 3L);
+    assertThat(analysisUuids(toDelete)).containsOnly("u2", "u3");
   }
 
   @Test
@@ -61,24 +59,22 @@ public class KeepOneFilterTest {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
     List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01"), // to be deleted
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-02").setLast(true),
-      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-19").setHasEvents(true).setLast(false),
-      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-05-23") // to be deleted
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01"), // to be deleted
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-02").setLast(true),
+      DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-19").setHasEvents(true).setLast(false),
+      DbCleanerTestUtils.createAnalysisWithDate("u4", "2011-05-23") // to be deleted
       ));
 
     assertThat(toDelete).hasSize(2);
 
-    List<Long> snapshotIds = snapshotIds(toDelete);
-    assertThat(snapshotIds).contains(1L);
-    assertThat(snapshotIds).contains(4L);
+    assertThat(analysisUuids(toDelete)).contains("u1", "u4");
   }
 
   @Test
   public void test_isDeletable() {
-    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
-    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
-    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01"))).isTrue();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setLast(true))).isFalse();
+    assertThat(KeepOneFilter.isDeletable(DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01").setHasEvents(true))).isFalse();
   }
 
 }

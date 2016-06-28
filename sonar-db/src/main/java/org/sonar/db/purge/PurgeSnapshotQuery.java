@@ -20,9 +20,9 @@
 package org.sonar.db.purge;
 
 public final class PurgeSnapshotQuery {
-  private Long id;
+  private String snapshotUuid;
+  private String analysisUuid;
   private String rootComponentUuid;
-  private Long rootSnapshotId;
   private String componentUuid;
   private String[] scopes;
   private String[] status;
@@ -37,12 +37,21 @@ public final class PurgeSnapshotQuery {
     return new PurgeSnapshotQuery();
   }
 
-  public Long getId() {
-    return id;
+  public String getSnapshotUuid() {
+    return snapshotUuid;
   }
 
-  public PurgeSnapshotQuery setId(Long l) {
-    this.id = l;
+  public PurgeSnapshotQuery setSnapshotUuid(String snapshotUuid) {
+    this.snapshotUuid = snapshotUuid;
+    return this;
+  }
+
+  public String getAnalysisUuid() {
+    return analysisUuid;
+  }
+
+  public PurgeSnapshotQuery setAnalysisUuid(String analysisUuid) {
+    this.analysisUuid = analysisUuid;
     return this;
   }
 
@@ -88,15 +97,6 @@ public final class PurgeSnapshotQuery {
 
   public PurgeSnapshotQuery setNotPurged(Boolean notPurged) {
     this.notPurged = notPurged;
-    return this;
-  }
-
-  public Long getRootSnapshotId() {
-    return rootSnapshotId;
-  }
-
-  public PurgeSnapshotQuery setRootSnapshotId(Long rootSnapshotId) {
-    this.rootSnapshotId = rootSnapshotId;
     return this;
   }
 

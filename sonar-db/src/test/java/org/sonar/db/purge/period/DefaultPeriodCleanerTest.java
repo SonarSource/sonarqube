@@ -48,8 +48,8 @@ public class DefaultPeriodCleanerTest {
   public void doClean() {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
-    when(dao.selectPurgeableSnapshots("uuid_123", session)).thenReturn(Arrays.asList(
-      new PurgeableAnalysisDto().setAnalysisId(999L).setDate(System2.INSTANCE.now())));
+    when(dao.selectPurgeableAnalyses("uuid_123", session)).thenReturn(Arrays.asList(
+      new PurgeableAnalysisDto().setAnalysisUuid("u999").setDate(System2.INSTANCE.now())));
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
@@ -66,7 +66,7 @@ public class DefaultPeriodCleanerTest {
       @Override
       public boolean matches(Object o) {
         PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
-        return ObjectUtils.equals(query.getRootSnapshotId(), 999L);
+        return ObjectUtils.equals(query.getAnalysisUuid(), "u999");
       }
     };
   }
@@ -76,7 +76,7 @@ public class DefaultPeriodCleanerTest {
       @Override
       public boolean matches(Object o) {
         PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
-        return ObjectUtils.equals(query.getId(), 999L);
+        return ObjectUtils.equals(query.getSnapshotUuid(), "u999");
       }
     };
   }

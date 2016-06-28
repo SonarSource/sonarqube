@@ -48,7 +48,7 @@ public class DefaultPeriodCleaner {
 
   @VisibleForTesting
   void doClean(String componentUuid, List<Filter> filters, DbSession session) {
-    List<PurgeableAnalysisDto> history = selectProjectSnapshots(componentUuid, session);
+    List<PurgeableAnalysisDto> history = selectAnalysesOfComponent(componentUuid, session);
     for (Filter filter : filters) {
       filter.log();
       delete(filter.filter(history), session);
@@ -60,12 +60,12 @@ public class DefaultPeriodCleaner {
       LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getAnalysisUuid());
       purgeDao.deleteSnapshots(
         session, profiler,
-        PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getAnalysisId()),
-        PurgeSnapshotQuery.create().setId(snapshot.getAnalysisId()));
+        PurgeSnapshotQuery.create().setAnalysisUuid(snapshot.getAnalysisUuid()),
+        PurgeSnapshotQuery.create().setSnapshotUuid(snapshot.getAnalysisUuid()));
     }
   }
 
-  private List<PurgeableAnalysisDto> selectProjectSnapshots(String componentUuid, DbSession session) {
-    return purgeDao.selectPurgeableSnapshots(componentUuid, session);
+  private List<PurgeableAnalysisDto> selectAnalysesOfComponent(String componentUuid, DbSession session) {
+    return purgeDao.selectPurgeableAnalyses(componentUuid, session);
   }
 }

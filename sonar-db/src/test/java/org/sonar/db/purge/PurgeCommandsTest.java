@@ -43,7 +43,7 @@ public class PurgeCommandsTest {
   public void shouldDeleteSnapshot() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshot.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
+    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u5"));
 
     dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }
@@ -64,7 +64,7 @@ public class PurgeCommandsTest {
   public void shouldPurgeSnapshot() {
     dbTester.prepareDbUnit(getClass(), "shouldPurgeSnapshot.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u1"));
 
     dbTester.assertDbUnit(getClass(), "shouldPurgeSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }
@@ -73,7 +73,7 @@ public class PurgeCommandsTest {
   public void delete_wasted_measures_when_purging_snapshot() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u1"));
 
     dbTester.assertDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot-result.xml", "project_measures");
   }

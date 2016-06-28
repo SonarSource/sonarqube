@@ -35,11 +35,11 @@ public class DeleteAllFilterTest {
     Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
 
     List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
-      DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2010-01-01"),
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2010-12-25"),
+      DbCleanerTestUtils.createAnalysisWithDate("u3", "2012-01-01")
       ));
 
-    assertThat(toDelete).extracting("analysisId").containsOnly(1L, 2L);
+    assertThat(toDelete).extracting("analysisUuid").containsOnly("u1", "u2");
   }
 }

@@ -41,7 +41,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
-
 public class PurgeDaoTest {
 
   private static final String THE_PROJECT_UUID = "P1";
@@ -105,15 +104,15 @@ public class PurgeDaoTest {
   @Test
   public void shouldSelectPurgeableSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableSnapshots.xml");
-    List<PurgeableAnalysisDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_UUID);
+    List<PurgeableAnalysisDto> snapshots = underTest.selectPurgeableAnalyses(THE_PROJECT_UUID, dbSession);
 
     assertThat(snapshots).hasSize(3);
-    assertThat(getById(snapshots, THE_PROJECT_ID).isLast()).isTrue();
-    assertThat(getById(snapshots, THE_PROJECT_ID).hasEvents()).isFalse();
-    assertThat(getById(snapshots, 4L).isLast()).isFalse();
-    assertThat(getById(snapshots, 4L).hasEvents()).isFalse();
-    assertThat(getById(snapshots, 5L).isLast()).isFalse();
-    assertThat(getById(snapshots, 5L).hasEvents()).isTrue();
+    assertThat(getById(snapshots, "u1").isLast()).isTrue();
+    assertThat(getById(snapshots, "u1").hasEvents()).isFalse();
+    assertThat(getById(snapshots, "u4").isLast()).isFalse();
+    assertThat(getById(snapshots, "u4").hasEvents()).isFalse();
+    assertThat(getById(snapshots, "u5").isLast()).isFalse();
+    assertThat(getById(snapshots, "u5").hasEvents()).isTrue();
   }
 
   @Test
@@ -184,7 +183,7 @@ public class PurgeDaoTest {
 
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
 
-    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>)(Class)ArrayList.class;
+    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>) (Class) ArrayList.class;
     ArgumentCaptor<ArrayList<String>> issueKeys = ArgumentCaptor.forClass(listClass);
     ArgumentCaptor<String> projectUuid = ArgumentCaptor.forClass(String.class);
 
@@ -217,13 +216,11 @@ public class PurgeDaoTest {
     return dto;
   }
 
-  private static PurgeableAnalysisDto getById(List<PurgeableAnalysisDto> snapshots, long id) {
-    for (PurgeableAnalysisDto snapshot : snapshots) {
-      if (snapshot.getAnalysisId() == id) {
-        return snapshot;
-      }
-    }
-    return null;
+  private static PurgeableAnalysisDto getById(List<PurgeableAnalysisDto> snapshots, String uuid) {
+    return snapshots.stream()
+      .filter(snapshot -> uuid.equals(snapshot.getAnalysisUuid()))
+      .findFirst()
+      .orElse(null);
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {

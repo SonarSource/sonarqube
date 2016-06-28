@@ -45,15 +45,15 @@ public class IntervalTest {
   @Test
   public void shouldGroupByIntervals() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-04-03"),
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-04-03"),
 
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-01"),
-      DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-19"),
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-01"),
+      DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-19"),
 
-      DbCleanerTestUtils.createSnapshotWithDate(4L, "2011-06-02"),
-      DbCleanerTestUtils.createSnapshotWithDate(5L, "2011-06-20"),
+      DbCleanerTestUtils.createAnalysisWithDate("u4", "2011-06-02"),
+      DbCleanerTestUtils.createAnalysisWithDate("u5", "2011-06-20"),
 
-      DbCleanerTestUtils.createSnapshotWithDate(6L, "2012-06-29") // out of scope
+      DbCleanerTestUtils.createAnalysisWithDate("u6", "2012-06-29") // out of scope
       );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
@@ -72,8 +72,8 @@ public class IntervalTest {
   @Test
   public void shouldNotJoinMonthsOfDifferentYears() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-04-03"),
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-04-13")
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2010-04-03"),
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-04-13")
       );
 
     List<Interval> intervals = Interval.group(snapshots,
@@ -92,9 +92,9 @@ public class IntervalTest {
   @Test
   public void shouldIgnoreTimeWhenGroupingByIntervals() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDateTime(1L, "2011-05-25T00:16:48+0100"),
-      DbCleanerTestUtils.createSnapshotWithDateTime(2L, "2012-01-26T00:16:48+0100"),
-      DbCleanerTestUtils.createSnapshotWithDateTime(3L, "2012-01-27T00:16:48+0100")
+      DbCleanerTestUtils.createAnalysisWithDateTime("u1", "2011-05-25T00:16:48+0100"),
+      DbCleanerTestUtils.createAnalysisWithDateTime("u2", "2012-01-26T00:16:48+0100"),
+      DbCleanerTestUtils.createAnalysisWithDateTime("u3", "2012-01-27T00:16:48+0100")
       );
 
     List<Interval> intervals = Interval.group(snapshots,
@@ -102,6 +102,6 @@ public class IntervalTest {
       DateUtils.parseDateTime("2012-01-26T00:00:00+0100"), Calendar.MONTH);
     assertThat(intervals.size()).isEqualTo(1);
     assertThat(intervals.get(0).count()).isEqualTo(1);
-    assertThat(intervals.get(0).get().get(0).getAnalysisId()).isEqualTo((2L));
+    assertThat(intervals.get(0).get().get(0).getAnalysisUuid()).isEqualTo(("u2"));
   }
 }

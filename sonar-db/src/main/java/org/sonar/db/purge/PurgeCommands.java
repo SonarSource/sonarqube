@@ -50,8 +50,8 @@ class PurgeCommands {
     this(session, session.getMapper(PurgeMapper.class), profiler);
   }
 
-  List<Long> selectSnapshotIds(PurgeSnapshotQuery query) {
-    return purgeMapper.selectSnapshotIdsAndUuids(query).stream().map(IdUuidPair::getId).collect(Collectors.toList());
+  List<String> selectSnapshotUuids(PurgeSnapshotQuery query) {
+    return purgeMapper.selectSnapshotIdsAndUuids(query).stream().map(IdUuidPair::getUuid).collect(Collectors.toList());
   }
 
   void deleteComponents(List<IdUuidPair> componentIdUuids) {

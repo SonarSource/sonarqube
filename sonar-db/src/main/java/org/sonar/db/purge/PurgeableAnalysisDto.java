@@ -23,10 +23,11 @@ import java.util.Date;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+/**
+ * Represents an analysis, aka. root snapshot, aka. snapshot of a project, developer or view
+ */
 public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
   private Date date;
-  // FIXME this property will be useless once we refactor table SNAPSHOTS into ANALYSES
-  private long analysisId;
   private String analysisUuid;
   private boolean hasEvents;
   private boolean isLast;
@@ -37,15 +38,6 @@ public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
 
   public PurgeableAnalysisDto setDate(Long aLong) {
     this.date = new Date(aLong);
-    return this;
-  }
-
-  public long getAnalysisId() {
-    return analysisId;
-  }
-
-  public PurgeableAnalysisDto setAnalysisId(long analysisId) {
-    this.analysisId = analysisId;
     return this;
   }
 
@@ -90,12 +82,12 @@ public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
       return false;
     }
     PurgeableAnalysisDto that = (PurgeableAnalysisDto) o;
-    return analysisId == that.analysisId;
+    return analysisUuid.equals(that.analysisUuid);
   }
 
   @Override
   public int hashCode() {
-    return (int) analysisId;
+    return analysisUuid.hashCode();
   }
 
   @Override

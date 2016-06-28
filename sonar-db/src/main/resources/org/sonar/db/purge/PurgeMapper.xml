@@ -4,19 +4,22 @@
 <mapper namespace="org.sonar.db.purge.PurgeMapper">
 
   <select id="selectSnapshotIdsAndUuids" parameterType="map" resultType="IdUuidPair">
-    select s.id as id, s.uuid as uuid from snapshots s
+    select
+      s.id as id, s.uuid as uuid
+    from
+      snapshots s
+    <if test="analysisUuid != null">
+      join snapshots analysis on analysis.uuid=#{analysisUuid} and s.root_snapshot_id=analysis.id
+    </if>
     <where>
+      <if test="snapshotUuid != null">
+        and s.uuid=#{snapshotUuid}
+      </if>
       <if test="islast != null">
         and s.islast=#{islast}
       </if>
       <if test="notPurged != null and notPurged">
         and (s.purge_status is null or s.purge_status=0)
-      </if>
-      <if test="rootSnapshotId != null">
-        and s.root_snapshot_id=#{rootSnapshotId}
-      </if>
-      <if test="id != null">
-        and s.id=#{id}
       </if>
       <if test="rootComponentUuid != null">
         and s.root_component_uuid=#{rootComponentUuid}
@@ -54,17 +57,29 @@
   </select>
 
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
-    select s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
-    snapshots s where
-    s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
-    exists(select e.id from events e where e.analysis_uuid=s.uuid)
+    select
+      s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
+    from
+      snapshots s
+    where
+      s.component_uuid=#{componentUuid}
+      and s.status='P'
+      and s.qualifier &lt;&gt; 'LIB'
+      and exists(select e.id from events e where e.analysis_uuid=s.uuid)
+      and parent_snapshot_id is null
   </select>
 
   <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
-    select s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast" from
-    snapshots s where
-    s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
-    not exists(select e.id from events e where e.analysis_uuid=s.uuid)
+    select
+      s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast"
+    from
+      snapshots s
+    where
+      s.component_uuid=#{componentUuid}
+      and s.status='P'
+      and s.qualifier &lt;&gt; 'LIB'
+      and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
+      and parent_snapshot_id is null
   </select>
 
   <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">

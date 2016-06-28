@@ -108,25 +108,25 @@ public class PurgeDao implements Dao {
   }
 
   private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
-    List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
-      PurgeSnapshotQuery.create()
-        .setComponentUuid(project.getUuid())
-        .setIslast(false)
-        .setNotPurged(true));
-    for (Long projectSnapshotId : projectSnapshotIds) {
-      LOG.debug("<- Clean snapshot " + projectSnapshotId);
+    List<String> projectSnapshotIds = purgeCommands.selectSnapshotUuids(
+        PurgeSnapshotQuery.create()
+            .setComponentUuid(project.getUuid())
+            .setIslast(false)
+            .setNotPurged(true));
+    for (String analysisUuid : projectSnapshotIds) {
+      LOG.debug("<- Clean analysis " + analysisUuid);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
           .setIslast(false)
           .setScopes(scopesWithoutHistoricalData)
-          .setRootSnapshotId(projectSnapshotId);
+          .setAnalysisUuid(analysisUuid);
         purgeCommands.deleteSnapshots(query);
       }
 
       // must be executed at the end for reentrance
       purgeCommands.purgeSnapshots(
-        PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true),
-        PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true));
+        PurgeSnapshotQuery.create().setAnalysisUuid(analysisUuid).setNotPurged(true),
+        PurgeSnapshotQuery.create().setSnapshotUuid(analysisUuid).setNotPurged(true));
     }
   }
 
@@ -148,16 +148,7 @@ public class PurgeDao implements Dao {
     session.commit();
   }
 
-  public List<PurgeableAnalysisDto> selectPurgeableSnapshots(String componentUuid) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      return selectPurgeableSnapshots(componentUuid, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<PurgeableAnalysisDto> selectPurgeableSnapshots(String componentUuid, DbSession session) {
+  public List<PurgeableAnalysisDto> selectPurgeableAnalyses(String componentUuid, DbSession session) {
     List<PurgeableAnalysisDto> result = Lists.newArrayList();
     result.addAll(mapper(session).selectPurgeableAnalysesWithEvents(componentUuid));
     result.addAll(mapper(session).selectPurgeableAnalysesWithoutEvents(componentUuid));
