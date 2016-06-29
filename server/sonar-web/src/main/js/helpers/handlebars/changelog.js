@@ -25,7 +25,7 @@ module.exports = function (diff) {
   if (diff.key === 'file') {
     return translate('issue.change.issue_was_moved');
   }
-  
+
   if (diff.newValue != null) {
     message = translateWithParameters('issue.changelog.changed_to',
         translate('issue.changelog.field', diff.key), diff.newValue);

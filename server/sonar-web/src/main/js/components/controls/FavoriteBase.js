@@ -67,7 +67,7 @@ export default class FavoriteBase extends React.Component {
   }
 
   renderSVG () {
-    /* jscs:disable maximumLineLength */
+    /* eslint max-len: 0 */
     return (
         <svg width="16" height="16">
           <path

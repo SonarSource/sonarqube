@@ -20,7 +20,7 @@
 import React from 'react';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentView from '../views/ChangeParentView';
-import { ProfileType, ProfilesListType } from '../propTypes';
+import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
 

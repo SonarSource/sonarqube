@@ -21,7 +21,7 @@ import React from 'react';
 
 export default React.createClass({
   render() {
-    /* jscs:disable maximumLineLength */
+    /* eslint max-len: 0 */
     return (
         <svg width="16" height="16" className="icon-pending">
           <g transform="matrix(0.0364583,0,0,0.0364583,1,-0.166667)">

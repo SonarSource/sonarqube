@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import without from 'lodash/without';
-import sortBy from 'lodash/sortBy';
 
 import {
     addComponent,

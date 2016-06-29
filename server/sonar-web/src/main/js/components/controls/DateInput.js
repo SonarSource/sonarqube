@@ -65,6 +65,7 @@ export default class DateInput extends React.Component {
   render () {
     const inputProps = pick(this.props, ['placeholder', 'name']);
 
+    /* eslint max-len: 0 */
     return (
         <span className="date-input-control">
           <input

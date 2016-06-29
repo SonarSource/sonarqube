@@ -20,7 +20,7 @@
 import React from 'react';
 
 export default function ListIcon () {
-  /* jscs:disable maximumLineLength */
+  /* eslint max-len: 0 */
   return (
       <svg className="measure-tab-icon"
            viewBox="0 0 448 448"
