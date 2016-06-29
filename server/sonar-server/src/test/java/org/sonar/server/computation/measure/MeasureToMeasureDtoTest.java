@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.Developer;
 import org.sonar.server.computation.component.DumbDeveloper;
@@ -52,22 +51,18 @@ public class MeasureToMeasureDtoTest {
   private static final MetricImpl SOME_DOUBLE_METRIC = new MetricImpl(4, "4", "4", Metric.MetricType.FLOAT);
   private static final MetricImpl SOME_STRING_METRIC = new MetricImpl(5, "5", "5", Metric.MetricType.STRING);
   private static final MetricImpl SOME_LEVEL_METRIC = new MetricImpl(6, "6", "6", Metric.MetricType.LEVEL);
-  private static final String ANALYSIS_UUID = "a1";
-  private static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid_1").build();
+
+  static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid_1").build();
 
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(SOME_COMPONENT);
 
-  @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
-  MeasureToMeasureDto underTest = new MeasureToMeasureDto(dbIdsRepository, analysisMetadataHolder);
+  MeasureToMeasureDto underTest = new MeasureToMeasureDto(dbIdsRepository);
 
   @Before
   public void setUp() throws Exception {
     dbIdsRepository.setComponentId(SOME_COMPONENT, SOME_COMPONENT_ID);
     dbIdsRepository.setSnapshotId(SOME_COMPONENT, SOME_SNAPSHOT_ID);
-    analysisMetadataHolder.setUuid(ANALYSIS_UUID);
   }
 
   @Test(expected = NullPointerException.class)

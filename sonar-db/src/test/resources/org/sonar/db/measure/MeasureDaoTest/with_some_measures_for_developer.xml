@@ -28,7 +28,6 @@
 
   <project_measures id="20"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
                     text_value="0123456789012345678901234567890123456789"
@@ -44,7 +43,6 @@
                     component_uuid="1"/>
   <project_measures id="21"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
                     text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1"
@@ -60,7 +58,6 @@
                     component_uuid="1"/>
   <project_measures id="22"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="12"
                     value="10"
                     text_value="[null]"
@@ -77,7 +74,6 @@
   <!--measures for developer 333-->
   <project_measures id="30"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
                     text_value="0123456789012345678901234567890123456789"
@@ -93,7 +89,6 @@
                     component_uuid="1"/>
   <project_measures id="31"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
                     text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1"
@@ -109,7 +104,6 @@
                     component_uuid="1"/>
   <project_measures id="32"
                     snapshot_id="5"
-                    analysis_uuid="u5"
                     metric_id="12"
                     value="10"
                     text_value="[null]"

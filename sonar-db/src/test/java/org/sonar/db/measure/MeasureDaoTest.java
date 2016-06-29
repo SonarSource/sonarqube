@@ -486,7 +486,6 @@ public class MeasureDaoTest {
       .setValue(value)
       .setComponentUuid(componentDto.uuid())
       .setSnapshotId(snapshotDto.getId())
-      .setAnalysisUuid("u1")
       .setDeveloperId(developerId);
     dbClient.measureDao().insert(dbSession, measureDto);
     dbSession.commit();
@@ -499,7 +498,6 @@ public class MeasureDaoTest {
 
     underTest.insert(dbSession, new MeasureDto()
       .setSnapshotId(2L)
-      .setAnalysisUuid("u2")
       .setMetricId(3)
       .setDeveloperId(23L)
       .setComponentUuid("FILE1")
@@ -524,13 +522,11 @@ public class MeasureDaoTest {
 
     underTest.insert(dbSession, new MeasureDto()
       .setSnapshotId(2L)
-      .setAnalysisUuid("u2")
       .setMetricId(3)
       .setComponentUuid("COMPONENT_1")
       .setValue(2.0d),
       new MeasureDto()
         .setSnapshotId(3L)
-        .setAnalysisUuid("u2")
         .setMetricId(4)
         .setComponentUuid("COMPONENT_2")
         .setValue(4.0d));

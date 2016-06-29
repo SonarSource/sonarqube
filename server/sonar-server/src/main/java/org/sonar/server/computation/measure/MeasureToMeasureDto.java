@@ -22,7 +22,6 @@ package org.sonar.server.computation.measure;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.Developer;
@@ -31,11 +30,9 @@ import org.sonar.server.computation.metric.Metric;
 public class MeasureToMeasureDto {
 
   private final DbIdsRepository dbIdsRepository;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public MeasureToMeasureDto(DbIdsRepository dbIdsRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+  public MeasureToMeasureDto(DbIdsRepository dbIdsRepository) {
     this.dbIdsRepository = dbIdsRepository;
-    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Nonnull
@@ -43,7 +40,6 @@ public class MeasureToMeasureDto {
     MeasureDto out = new MeasureDto();
     out.setMetricId(metric.getId());
     out.setComponentUuid(component.getUuid());
-    out.setAnalysisUuid(analysisMetadataHolder.getUuid());
     out.setSnapshotId(dbIdsRepository.getSnapshotId(component));
     if (measure.hasVariations()) {
       setVariations(out, measure.getVariations());

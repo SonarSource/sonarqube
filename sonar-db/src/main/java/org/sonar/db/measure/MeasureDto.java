@@ -42,7 +42,6 @@ public class MeasureDto {
   private String description;
   private String componentUuid;
   private Long snapshotId;
-  private String analysisUuid;
   private Integer metricId;
   private Long developerId;
 
@@ -189,15 +188,6 @@ public class MeasureDto {
     return this;
   }
 
-  public String getAnalysisUuid() {
-    return analysisUuid;
-  }
-
-  public MeasureDto setAnalysisUuid(String s) {
-    this.analysisUuid = s;
-    return this;
-  }
-
   /**
    * @deprecated in 5.5. Does nothing. Kept for compatibility with developer cockpit plugin, version 1.10
    */
@@ -250,7 +240,6 @@ public class MeasureDto {
       .add("description", description)
       .add("componentUuid", componentUuid)
       .add("snapshotId", snapshotId)
-      .add("analysisUuid", analysisUuid)
       .add("metricId", metricId)
       .add("developerId", developerId)
       .add("metricKey", metricKey)

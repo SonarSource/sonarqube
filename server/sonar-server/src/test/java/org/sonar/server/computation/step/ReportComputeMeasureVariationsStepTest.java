@@ -51,16 +51,16 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class ReportComputeMeasureVariationsStepTest {
 
-  private static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
-  private static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
-  private static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
-  private static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
-  private static final Metric NEW_DEBT = new MetricImpl(5, "new_debt", "new_debt", Metric.MetricType.WORK_DUR);
-  private static final String ANALYSIS_UUID = "a1";
-  private static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
-  private static final int PROJECT_REF = 1;
-  private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid(PROJECT_DTO.uuid()).build();
+  static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
+  static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
+  static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
+  static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
+  static final Metric NEW_DEBT = new MetricImpl(5, "new_debt", "new_debt", Metric.MetricType.WORK_DUR);
 
+  static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
+
+  static final int PROJECT_REF = 1;
+  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid(PROJECT_DTO.uuid()).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -319,12 +319,7 @@ public class ReportComputeMeasureVariationsStepTest {
   }
 
   private static MeasureDto newMeasureDto(int metricId, String componentUuid, long snapshotId, double value) {
-    return new MeasureDto()
-      .setMetricId(metricId)
-      .setComponentUuid(componentUuid)
-      .setSnapshotId(snapshotId)
-      .setAnalysisUuid(ANALYSIS_UUID)
-      .setValue(value);
+    return new MeasureDto().setMetricId(metricId).setComponentUuid(componentUuid).setSnapshotId(snapshotId).setValue(value);
   }
 
   private static Period newPeriod(int index, SnapshotDto snapshotDto) {

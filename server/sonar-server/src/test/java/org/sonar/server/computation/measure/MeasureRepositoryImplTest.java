@@ -71,7 +71,6 @@ public class MeasureRepositoryImplTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  private static final String AN_ANALYSIS_UUID = "a1";
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
   private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
@@ -421,7 +420,6 @@ public class MeasureRepositoryImplTest {
     return new MeasureDto()
       .setComponentUuid(componentUuid)
       .setSnapshotId(snapshotId)
-      .setAnalysisUuid(AN_ANALYSIS_UUID)
       .setData(SOME_DATA)
       .setMetricId(metricId);
   }

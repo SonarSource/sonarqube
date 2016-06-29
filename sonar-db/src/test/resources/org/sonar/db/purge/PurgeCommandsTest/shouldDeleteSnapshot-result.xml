@@ -43,7 +43,6 @@
                     VALUE="10.0"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1"
-                    analysis_uuid="u1"
                     person_id="[null]"
                     text_value="[null]"
                     component_uuid="1"

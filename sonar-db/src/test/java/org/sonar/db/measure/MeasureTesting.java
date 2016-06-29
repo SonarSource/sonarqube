@@ -37,7 +37,6 @@ public class MeasureTesting {
       .setMetricId(metricDto.getId())
       .setMetricKey(metricDto.getKey())
       .setComponentUuid(snapshot.getComponentUuid())
-      .setSnapshotId(snapshot.getId())
-      .setAnalysisUuid(snapshot.getUuid());
+      .setSnapshotId(snapshot.getId());
   }
 }

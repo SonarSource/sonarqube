@@ -66,7 +66,6 @@
                     metric_id="1"
                     value="500"
                     snapshot_id="101"
-                    analysis_uuid="u101"
                     variation_value_1="[null]"
                     variation_value_2="[null]"
                     variation_value_3="[null]"

@@ -44,7 +44,6 @@
                     VALUE="60"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1000"
-                    analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
 
@@ -52,7 +51,6 @@
                     VALUE="20"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1000"
-                    analysis_uuid="u1000"
                     person_id="20"
                     component_uuid="ABCD"/>
 
@@ -60,7 +58,6 @@
                     VALUE="40"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1000"
-                    analysis_uuid="u1000"
                     person_id="21"
                     component_uuid="ABCD"/>
 

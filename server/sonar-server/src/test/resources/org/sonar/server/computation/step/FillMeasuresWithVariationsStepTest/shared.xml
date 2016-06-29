@@ -91,7 +91,6 @@
                     VALUE="60"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1000"
-                    analysis_uuid="u1000"
                     text_value="[null]"
                     project_id="[null]"
                     person_id="[null]"/>
@@ -100,7 +99,6 @@
                     VALUE="80"
                     METRIC_ID="2"
                     SNAPSHOT_ID="1000"
-                    analysis_uuid="u1000"
                     text_value="[null]"
                     project_id="[null]"
                     person_id="[null]"/>
@@ -110,7 +108,6 @@
                     VALUE="20"
                     METRIC_ID="1"
                     SNAPSHOT_ID="1001"
-                    analysis_uuid="u1000"
                     text_value="[null]"
                     project_id="[null]"
                     person_id="[null]"/>
@@ -119,7 +116,6 @@
                     VALUE="70"
                     METRIC_ID="2"
                     SNAPSHOT_ID="1001"
-                    analysis_uuid="u1000"
                     text_value="[null]"
                     project_id="[null]"
                     person_id="[null]"/>

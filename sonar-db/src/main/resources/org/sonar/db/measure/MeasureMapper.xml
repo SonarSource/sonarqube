@@ -8,7 +8,6 @@
     pm.person_id as developerId,
     pm.component_uuid as componentUuid,
     pm.snapshot_id as snapshotId,
-    pm.analysis_uuid as analysisUuid,
     pm.value as value,
     pm.text_value as textValue,
     pm.alert_status as alertStatus,
@@ -218,39 +217,18 @@
 
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     INSERT INTO project_measures (
-    value,
-    metric_id,
-    component_uuid,
-    snapshot_id,
-    analysis_uuid,
-    text_value,
-    alert_status,
-    alert_text,
-    description,
-    person_id,
-    variation_value_1,
-    variation_value_2,
-    variation_value_3,
-    variation_value_4,
-    variation_value_5,
-    measure_data)
+    value, metric_id, component_uuid, snapshot_id, text_value, alert_status, alert_text, description,
+    person_id, variation_value_1, variation_value_2, variation_value_3, variation_value_4,
+    variation_value_5, measure_data)
     VALUES (
-    #{value, jdbcType=DOUBLE},
-    #{metricId, jdbcType=INTEGER},
-    #{componentUuid, jdbcType=VARCHAR},
+    #{value, jdbcType=DOUBLE}, #{metricId, jdbcType=INTEGER}, #{componentUuid, jdbcType=VARCHAR},
     #{snapshotId, jdbcType=INTEGER},
-    #{analysisUuid, jdbcType=VARCHAR},
     #{textValue, jdbcType=VARCHAR},
-    #{alertStatus, jdbcType=VARCHAR},
-    #{alertText, jdbcType=VARCHAR},
+    #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR},
-    #{developerId, jdbcType=INTEGER},
-    #{variation1, jdbcType=DOUBLE},
-    #{variation2, jdbcType=DOUBLE},
+    #{developerId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE},
     #{variation3, jdbcType=DOUBLE},
-    #{variation4, jdbcType=DOUBLE},
-    #{variation5, jdbcType=DOUBLE},
-    #{dataValue, jdbcType=BINARY}
+    #{variation4, jdbcType=DOUBLE}, #{variation5, jdbcType=DOUBLE}, #{dataValue, jdbcType=BINARY}
     )
   </insert>
 

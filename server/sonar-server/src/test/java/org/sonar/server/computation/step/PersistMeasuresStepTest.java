@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.Developer;
@@ -81,7 +80,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final long INTERMEDIATE_1_SNAPSHOT_ID = 4L;
   private static final long INTERMEDIATE_2_SNAPSHOT_ID = 5L;
   private static final long LEAF_SNAPSHOT_ID = 6L;
-  private static final String ANALYSIS_UUID = "a1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -94,9 +92,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
-  @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
   DbClient dbClient = dbTester.getDbClient();
   RuleDto rule;
   ComponentDto rootDto;
@@ -108,8 +103,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Before
   public void setUp() {
-    underTest = new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(dbIdsRepository, analysisMetadataHolder), treeRootHolder, measureRepository);
-    analysisMetadataHolder.setUuid(ANALYSIS_UUID);
+    underTest = new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(dbIdsRepository), treeRootHolder, measureRepository);
   }
 
   private void setupReportComponents() {
