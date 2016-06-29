@@ -57,10 +57,10 @@ public class PurgeDao implements Dao {
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    deleteAbortedAnalyses(conf.rootProjectIdUuid().getUuid(), commands);
     List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
     for (ResourceDto project : projects) {
       LOG.debug("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
-      deleteAbortedBuilds(project, commands);
       purge(project, conf.scopesWithoutHistoricalData(), commands);
     }
     for (ResourceDto project : projects) {
@@ -83,35 +83,35 @@ public class PurgeDao implements Dao {
     listener.onIssuesRemoval(conf.rootProjectIdUuid().getUuid(), issueKeys);
   }
 
-  private static void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
+  private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
     LOG.debug("<- Delete aborted builds");
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
       .setStatus(UNPROCESSED_STATUS)
-      .setRootComponentUuid(project.getUuid());
-    commands.deleteSnapshots(query);
+      .setRootComponentUuid(rootUuid);
+    commands.deleteAnalyses(query);
   }
 
   private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
-    List<String> projectSnapshotIds = purgeCommands.selectSnapshotUuids(
+    List<String> projectSnapshotUuids = purgeCommands.selectSnapshotUuids(
         PurgeSnapshotQuery.create()
             .setComponentUuid(project.getUuid())
             .setIslast(false)
             .setNotPurged(true));
-    for (String analysisUuid : projectSnapshotIds) {
-      LOG.debug("<- Clean analysis " + analysisUuid);
+    for (String snapshotUuid : projectSnapshotUuids) {
+      LOG.debug("<- Clean analysis " + snapshotUuid);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
           .setIslast(false)
           .setScopes(scopesWithoutHistoricalData)
-          .setAnalysisUuid(analysisUuid);
+          .setAnalysisUuid(snapshotUuid);
         purgeCommands.deleteSnapshots(query);
       }
 
       // must be executed at the end for reentrance
       purgeCommands.purgeSnapshots(
-        PurgeSnapshotQuery.create().setAnalysisUuid(analysisUuid).setNotPurged(true),
-        PurgeSnapshotQuery.create().setSnapshotUuid(analysisUuid).setNotPurged(true));
+        PurgeSnapshotQuery.create().setAnalysisUuid(snapshotUuid).setNotPurged(true),
+        PurgeSnapshotQuery.create().setSnapshotUuid(snapshotUuid).setNotPurged(true));
     }
   }
 

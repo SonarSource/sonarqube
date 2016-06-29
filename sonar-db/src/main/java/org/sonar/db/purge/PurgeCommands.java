@@ -160,25 +160,26 @@ class PurgeCommands {
     deleteSnapshotDuplications(snapshotUuidsPartitions);
 
     profiler.start("deleteSnapshotEvents (events)");
-    for (List<String> snapshotUuidsPartition : snapshotUuidsPartitions) {
-      purgeMapper.deleteSnapshotEvents(snapshotUuidsPartition);
-    }
+    snapshotUuidsPartitions.forEach(purgeMapper::deleteSnapshotEvents);
     session.commit();
     profiler.stop();
 
     profiler.start("deleteSnapshotMeasures (project_measures)");
-    for (List<Long> snapshotIdsPartition : snapshotIdsPartitions) {
-      purgeMapper.deleteSnapshotMeasures(snapshotIdsPartition);
-    }
+    snapshotIdsPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
     session.commit();
     profiler.stop();
 
     profiler.start("deleteSnapshot (snapshots)");
-    for (List<String> snapshotUuidsPartition : snapshotUuidsPartitions) {
-      purgeMapper.deleteSnapshot(snapshotUuidsPartition);
-    }
+    snapshotUuidsPartitions.forEach(purgeMapper::deleteSnapshot);
     session.commit();
     profiler.stop();
+  }
+
+  void deleteAnalyses(PurgeSnapshotQuery... queries) {
+    List<IdUuidPair> snapshotIds = from(asList(queries))
+        .transformAndConcat(purgeMapper::selectSnapshotIdsAndUuids)
+        .toList();
+    deleteAnalyses(snapshotIds);
   }
 
   @VisibleForTesting
@@ -240,11 +241,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  private void deleteSnapshotDuplications(Iterable<List<String>> snapshotUuidsPartition) {
+  private void deleteSnapshotDuplications(List<List<String>> snapshotUuidsPartition) {
     profiler.start("deleteSnapshotDuplications (duplications_index)");
-    for (List<String> partSnapshotUuids : snapshotUuidsPartition) {
-      purgeMapper.deleteSnapshotDuplications(partSnapshotUuids);
-    }
+    snapshotUuidsPartition.forEach(purgeMapper::deleteSnapshotDuplications);
     session.commit();
     profiler.stop();
   }

@@ -1,9 +1,9 @@
 <dataset>
 
   <!-- the project -->
-  <projects uuid="projectUUID"
+  <projects uuid="P1"
             uuid_path="NOT_USED"
-            project_uuid="projectUUID"
+            project_uuid="P1"
             long_name="[null]"
             scope="PRJ"
             qualifier="TRK"
@@ -16,14 +16,14 @@
             authorization_updated_at="[null]"
             id="1"
             enabled="[true]"
-            root_uuid="projectUUID"/>
+            root_uuid="P1"/>
 
   <!-- past snapshot with status "processed" and already purged -->
   <snapshots id="1"
              uuid="u1"
-             component_uuid="projectUUID"
+             component_uuid="P1"
              parent_snapshot_id="[null]"
-             root_component_uuid="projectUUID"
+             root_component_uuid="P1"
              root_snapshot_id="[null]"
              status="P"
              islast="[false]"
@@ -54,9 +54,9 @@
   <!-- snapshot with status "unprocessed" -> to be deleted -->
   <snapshots id="2"
              uuid="u2"
-             component_uuid="projectUUID"
+             component_uuid="P1"
              parent_snapshot_id="[null]"
-             root_component_uuid="projectUUID"
+             root_component_uuid="P1"
              root_snapshot_id="[null]"
              status="U"
              islast="[false]"
@@ -87,9 +87,9 @@
   <!-- snapshot with status "processed" and flagged as "last" -> do not purge and do not delete -->
   <snapshots id="3"
              uuid="u3"
-             component_uuid="projectUUID"
+             component_uuid="P1"
              parent_snapshot_id="[null]"
-             root_component_uuid="projectUUID"
+             root_component_uuid="P1"
              root_snapshot_id="[null]"
              status="P"
              islast="[true]"
