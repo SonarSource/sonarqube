@@ -76,12 +76,12 @@ public class ProjectCleaner {
     }
   }
 
-  private void cleanHistoricalData(DbSession session, String componentUuid, Settings settings) {
+  private void cleanHistoricalData(DbSession session, String rootUuid, Settings settings) {
     try {
-      periodCleaner.clean(session, componentUuid, settings);
+      periodCleaner.clean(session, rootUuid, settings);
     } catch (Exception e) {
       // purge errors must no fail the batch
-      LOG.error("Fail to clean historical data [uuid=" + componentUuid + "]", e);
+      LOG.error("Fail to clean historical data [uuid=" + rootUuid + "]", e);
     }
   }
 

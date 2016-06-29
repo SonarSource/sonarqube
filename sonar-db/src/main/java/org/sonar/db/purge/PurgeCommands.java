@@ -183,32 +183,30 @@ class PurgeCommands {
 
   @VisibleForTesting
   protected void deleteAnalyses(List<IdUuidPair> analysisIdUuids) {
-    List<List<Long>> snapshotIdsPartitions = Lists.partition(IdUuidPairs.ids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
-    List<List<String>> snapshotUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<Long>> analysisIdsPartitions = Lists.partition(IdUuidPairs.ids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDuplications(snapshotUuidsPartitions);
+    deleteSnapshotDuplications(analysisUuidsPartitions);
 
     profiler.start("deleteAnalyses (events)");
-    for (List<String> snapshotUuidsPartition : snapshotUuidsPartitions) {
-      purgeMapper.deleteSnapshotEvents(snapshotUuidsPartition);
-    }
+    analysisUuidsPartitions.forEach(purgeMapper::deleteSnapshotEvents);
     session.commit();
     profiler.stop();
 
     profiler.start("deleteAnalyses (project_measures)");
-    for (List<Long> snapshotIdsPartition : snapshotIdsPartitions) {
-      purgeMapper.deleteSnapshotMeasures(snapshotIdsPartition);
-    }
+    analysisIdsPartitions.forEach(analysisIdsPartition -> {
+      purgeMapper.deleteSnapshotMeasures(analysisIdsPartition);
+      for (Long analysisId : analysisIdsPartition) {
+        List<List<Long>> snapshotIdPartitions = Lists.partition(purgeMapper.selectDescendantsSnapshotIds(analysisId), MAX_SNAPSHOTS_PER_QUERY);
+        snapshotIdPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
+      }
+    });
     session.commit();
     profiler.stop();
 
     profiler.start("deleteAnalyses (snapshots)");
-    for (List<String> snapshotUuidsPartition : snapshotUuidsPartitions) {
-      purgeMapper.deleteAnalyses(snapshotUuidsPartition);
-    }
-    for (List<Long> snapshotIdsPartition : snapshotIdsPartitions) {
-      purgeMapper.deleteDescendantSnapshots(snapshotIdsPartition);
-    }
+    analysisUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
+    analysisIdsPartitions.forEach(purgeMapper::deleteDescendantSnapshots);
     session.commit();
     profiler.stop();
   }

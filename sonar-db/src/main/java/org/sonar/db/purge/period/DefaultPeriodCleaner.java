@@ -20,16 +20,21 @@
 package org.sonar.db.purge.period;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbSession;
+import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.db.purge.PurgeSnapshotQuery;
 import org.sonar.db.purge.PurgeableAnalysisDto;
+
+import static org.sonar.core.util.stream.GuavaCollectors.toList;
 
 public class DefaultPeriodCleaner {
 
@@ -42,27 +47,36 @@ public class DefaultPeriodCleaner {
     this.profiler = profiler;
   }
 
-  public void clean(DbSession session, String componentUuid, Settings settings) {
-    doClean(componentUuid, new Filters(settings).all(), session);
+  public void clean(DbSession session, String rootUuid, Settings settings) {
+    doClean(rootUuid, new Filters(settings).all(), session);
   }
 
   @VisibleForTesting
-  void doClean(String componentUuid, List<Filter> filters, DbSession session) {
-    List<PurgeableAnalysisDto> history = selectAnalysesOfComponent(componentUuid, session);
+  void doClean(String rootUuid, List<Filter> filters, DbSession session) {
+    List<PurgeableAnalysisDto> history = new ArrayList<>(selectAnalysesOfComponent(rootUuid, session));
     for (Filter filter : filters) {
       filter.log();
-      delete(filter.filter(history), session);
+      history.removeAll(delete(rootUuid, filter.filter(history), session));
     }
   }
 
-  private void delete(List<PurgeableAnalysisDto> snapshots, DbSession session) {
-    for (PurgeableAnalysisDto snapshot : snapshots) {
-      LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getAnalysisUuid());
-      purgeDao.deleteSnapshots(
-        session, profiler,
-        PurgeSnapshotQuery.create().setAnalysisUuid(snapshot.getAnalysisUuid()),
-        PurgeSnapshotQuery.create().setSnapshotUuid(snapshot.getAnalysisUuid()));
+  private List<PurgeableAnalysisDto> delete(String rootUuid, List<PurgeableAnalysisDto> snapshots, DbSession session) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("<- Delete analyses of component {}: {}",
+        rootUuid,
+        Joiner.on(", ").join(
+          snapshots.stream()
+            .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
+            .collect(Collectors.toList(snapshots.size()))));
     }
+    purgeDao.deleteAnalyses(
+      session, profiler,
+      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(toList(snapshots.size())));
+    return snapshots;
+  }
+
+  private static IdUuidPair toIdUuidPair(PurgeableAnalysisDto snapshot) {
+    return new IdUuidPair(snapshot.getAnalysisId(), snapshot.getAnalysisUuid());
   }
 
   private List<PurgeableAnalysisDto> selectAnalysesOfComponent(String componentUuid, DbSession session) {

@@ -170,6 +170,10 @@ public class PurgeDao implements Dao {
     return this;
   }
 
+  public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<IdUuidPair> analysisIdUuids) {
+    new PurgeCommands(session, profiler).deleteAnalyses(analysisIdUuids);
+  }
+
   /**
    * Load the whole tree of projects, including the project given in parameter.
    */
@@ -180,5 +184,4 @@ public class PurgeDao implements Dao {
   private static PurgeMapper mapper(DbSession session) {
     return session.getMapper(PurgeMapper.class);
   }
-
 }

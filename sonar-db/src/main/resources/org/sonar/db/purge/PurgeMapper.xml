@@ -48,7 +48,7 @@
 
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
     select
-      s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
     from
       snapshots s
     where
@@ -61,7 +61,7 @@
 
   <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
     select
-      s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast"
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast"
     from
       snapshots s
     where
@@ -91,11 +91,17 @@
     select id, uuid from projects where project_uuid=#{uuid} or uuid=#{uuid}
   </select>
 
+  <select id="selectDescendantsSnapshotIds" resultType="long" parameterType="long">
+    select id from snapshots where root_snapshot_id=#{analysisId}
+  </select>
+
   <delete id="deleteSnapshotMeasures" parameterType="map">
-    delete from project_measures where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
+    delete from project_measures
+    where
+      snapshot_id in
+      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+      </foreach>
   </delete>
 
   <delete id="deleteSnapshotDuplications" parameterType="map">

@@ -19,27 +19,24 @@
  */
 package org.sonar.db.purge.period;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import org.apache.commons.lang.ObjectUtils;
-import org.hamcrest.BaseMatcher;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
+import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.db.purge.PurgeSnapshotQuery;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultPeriodCleanerTest {
@@ -49,45 +46,27 @@ public class DefaultPeriodCleanerTest {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
     when(dao.selectPurgeableAnalyses("uuid_123", session)).thenReturn(Arrays.asList(
-      new PurgeableAnalysisDto().setAnalysisUuid("u999").setDate(System2.INSTANCE.now())));
-    Filter filter1 = newLazyFilter();
-    Filter filter2 = newLazyFilter();
+        new PurgeableAnalysisDto().setAnalysisId(999).setAnalysisUuid("u999").setDate(System2.INSTANCE.now()),
+        new PurgeableAnalysisDto().setAnalysisId(456).setAnalysisUuid("u456").setDate(System2.INSTANCE.now())
+        ));
+    Filter filter1 = newFirstSnapshotInListFilter();
+    Filter filter2 = newFirstSnapshotInListFilter();
 
-    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao, new PurgeProfiler());
+    PurgeProfiler profiler = new PurgeProfiler();
+    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao, profiler);
     cleaner.doClean("uuid_123", Arrays.asList(filter1, filter2), session);
 
-    verify(filter1).log();
-    verify(filter2).log();
-    verify(dao, times(2)).deleteSnapshots(eq(session), any(PurgeProfiler.class), argThat(newRootSnapshotQuery()), argThat(newSnapshotIdQuery()));
+    InOrder inOrder = Mockito.inOrder(dao, filter1, filter2);
+    inOrder.verify(filter1).log();
+    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of(new IdUuidPair(999, "u999"))));
+    inOrder.verify(filter2).log();
+    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of(new IdUuidPair(456, "u456"))));
+    inOrder.verifyNoMoreInteractions();
   }
 
-  private BaseMatcher<PurgeSnapshotQuery> newRootSnapshotQuery() {
-    return new ArgumentMatcher<PurgeSnapshotQuery>() {
-      @Override
-      public boolean matches(Object o) {
-        PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
-        return ObjectUtils.equals(query.getAnalysisUuid(), "u999");
-      }
-    };
-  }
-
-  private BaseMatcher<PurgeSnapshotQuery> newSnapshotIdQuery() {
-    return new ArgumentMatcher<PurgeSnapshotQuery>() {
-      @Override
-      public boolean matches(Object o) {
-        PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
-        return ObjectUtils.equals(query.getSnapshotUuid(), "u999");
-      }
-    };
-  }
-
-  private Filter newLazyFilter() {
+  private Filter newFirstSnapshotInListFilter() {
     Filter filter1 = mock(Filter.class);
-    when(filter1.filter(anyListOf(PurgeableAnalysisDto.class))).thenAnswer(new Answer<Object>() {
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        return invocation.getArguments()[0];
-      }
-    });
+    when(filter1.filter(anyListOf(PurgeableAnalysisDto.class))).thenAnswer(invocation -> Collections.singletonList(((List) invocation.getArguments()[0]).iterator().next()));
     return filter1;
   }
 }

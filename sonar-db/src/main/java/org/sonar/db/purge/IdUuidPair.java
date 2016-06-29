@@ -19,6 +19,9 @@
  */
 package org.sonar.db.purge;
 
+import java.util.Objects;
+import javax.annotation.Nullable;
+
 public class IdUuidPair {
   private Long id;
   private String uuid;
@@ -45,5 +48,30 @@ public class IdUuidPair {
 
   public void setUuid(String uuid) {
     this.uuid = uuid;
+  }
+
+  @Override
+  public String toString() {
+    return "IdUuidPair{" +
+        "id=" + id +
+        ", uuid='" + uuid + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    IdUuidPair that = (IdUuidPair) o;
+    return Objects.equals(id, that.id) && Objects.equals(uuid, that.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, uuid);
   }
 }

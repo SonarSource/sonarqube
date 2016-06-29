@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
   private Date date;
+  private long analysisId;
   private String analysisUuid;
   private boolean hasEvents;
   private boolean isLast;
@@ -38,6 +39,15 @@ public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
 
   public PurgeableAnalysisDto setDate(Long aLong) {
     this.date = new Date(aLong);
+    return this;
+  }
+
+  public long getAnalysisId() {
+    return analysisId;
+  }
+
+  public PurgeableAnalysisDto setAnalysisId(long analysisId) {
+    this.analysisId = analysisId;
     return this;
   }
 
