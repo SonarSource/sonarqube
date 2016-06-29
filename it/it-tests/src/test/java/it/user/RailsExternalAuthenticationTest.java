@@ -36,7 +36,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -90,7 +89,6 @@ public class RailsExternalAuthenticationTest {
   public void resetData() throws Exception {
     setServerProperty(orchestrator, USERS_PROPERTY, null);
     setServerProperty(orchestrator, "sonar.security.updateUserAttributes", null);
-    setServerProperty(orchestrator, "sonar.security.savePassword", null);
     setServerProperty(orchestrator, "sonar.authenticator.createUsers", null);
     resetUsers(USER_LOGIN, TECH_USER);
   }
@@ -177,44 +175,6 @@ public class RailsExternalAuthenticationTest {
    * SONAR-3138
    */
   @Test
-  @Ignore("Fail because sonar.security.savePassword is only read at startup => this test should start its own server")
-  public void shouldFallback() {
-    // Given clean Sonar installation and no users in external system
-    setServerProperty(orchestrator, "sonar.security.savePassword", "true");
-    String login = USER_LOGIN;
-    String oldPassword = "1234567";
-    Map<String, String> users = Maps.newHashMap();
-
-    // When user created in external system
-    users.put(login + ".password", oldPassword);
-    updateUsersInExtAuth(users);
-    // Then
-    assertThat(loginAttempt(login, oldPassword)).isEqualTo(AUTHORIZED);
-
-    // When new external password was set
-    String newPassword = "7654321";
-    users.put(login + ".password", newPassword);
-    updateUsersInExtAuth(users);
-    // Then
-    assertThat(loginAttempt(login, newPassword)).isEqualTo(AUTHORIZED);
-
-    assertThat(loginAttempt(login, oldPassword)).isEqualTo(NOT_AUTHORIZED);
-
-    assertThat(loginAttempt(login, "wrong")).isEqualTo(NOT_AUTHORIZED);
-
-    // When external system does not work
-    users.remove(login + ".password");
-    updateUsersInExtAuth(users);
-    // Then
-    assertThat(loginAttempt(login, newPassword)).isEqualTo(AUTHORIZED);
-    assertThat(loginAttempt(login, oldPassword)).isEqualTo(NOT_AUTHORIZED);
-    assertThat(loginAttempt(login, "wrong")).isEqualTo(NOT_AUTHORIZED);
-  }
-
-  /**
-   * SONAR-3138
-   */
-  @Test
   public void shouldNotFallback() {
     // Given clean Sonar installation and no users in external system
     String login = USER_LOGIN;
@@ -240,7 +200,6 @@ public class RailsExternalAuthenticationTest {
   @Test
   public void adminIsLocalAccountByDefault() {
     // Given clean Sonar installation and no users in external system
-    setServerProperty(orchestrator, "sonar.security.savePassword", "false");
     String login = "admin";
     String localPassword = "admin";
     String remotePassword = "nimda";

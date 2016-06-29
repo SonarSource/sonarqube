@@ -19,6 +19,15 @@
  */
 package org.sonar.ce.container;
 
+import static java.lang.String.valueOf;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessProperties.PATH_DATA;
+import static org.sonar.process.ProcessProperties.PATH_HOME;
+import static org.sonar.process.ProcessProperties.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.STARTED_AT;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -33,15 +42,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
-
-import static java.lang.String.valueOf;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_HOME;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.ProcessProperties.STARTED_AT;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -102,7 +102,7 @@ public class ComputeEngineContainerImplTest {
         + 22 // level 1
         + 46 // content of DaoModule
         + 1 // content of EsSearchModule
-        + 57 // content of CorePropertyDefinitions
+        + 56 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions
     );
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();

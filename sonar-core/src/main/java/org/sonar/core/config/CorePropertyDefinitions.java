@@ -19,6 +19,8 @@
  */
 package org.sonar.core.config;
 
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -27,8 +29,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitions {
 
@@ -118,10 +118,6 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)
         .name("Security Realm")
-        .hidden()
-        .build(),
-      PropertyDefinition.builder("sonar.security.savePassword")
-        .name("Save external password")
         .hidden()
         .build(),
       PropertyDefinition.builder("sonar.authenticator.downcase")
