@@ -124,6 +124,7 @@ public class ComponentTreeQuery {
 
     public ComponentTreeQuery build() {
       requireNonNull(baseUuid);
+      requireNonNull(sortFields);
       return new ComponentTreeQuery(this);
     }
 
