@@ -32,8 +32,6 @@ public interface PurgeMapper {
    */
   List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
 
-  List<Long> selectDescendantsSnapshotIds(@Param("analysisId") long analysisId);
-
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteDescendantSnapshots(@Param("snapshotIds") List<Long> snapshotIds);
@@ -43,6 +41,8 @@ public interface PurgeMapper {
   void deleteSnapshotDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteSnapshotEvents(@Param("analysisUuids") List<String> analysisUuids);
+
+  void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 

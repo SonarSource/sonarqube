@@ -195,13 +195,7 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("deleteAnalyses (project_measures)");
-    analysisIdsPartitions.forEach(analysisIdsPartition -> {
-      purgeMapper.deleteSnapshotMeasures(analysisIdsPartition);
-      for (Long analysisId : analysisIdsPartition) {
-        List<List<Long>> snapshotIdPartitions = Lists.partition(purgeMapper.selectDescendantsSnapshotIds(analysisId), MAX_SNAPSHOTS_PER_QUERY);
-        snapshotIdPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
-      }
-    });
+    analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisMeasures);
     session.commit();
     profiler.stop();
 

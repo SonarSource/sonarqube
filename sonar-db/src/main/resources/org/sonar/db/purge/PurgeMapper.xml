@@ -91,9 +91,14 @@
     select id, uuid from projects where project_uuid=#{uuid} or uuid=#{uuid}
   </select>
 
-  <select id="selectDescendantsSnapshotIds" resultType="long" parameterType="long">
-    select id from snapshots where root_snapshot_id=#{analysisId}
-  </select>
+  <delete id="deleteAnalysisMeasures" parameterType="map">
+    delete from project_measures
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+  </delete>
 
   <delete id="deleteSnapshotMeasures" parameterType="map">
     delete from project_measures
