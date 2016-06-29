@@ -6,7 +6,7 @@
 # 1. the path to Orchestrator properties file. If empty, then default values are used. Example: "file:///Users/me/orchestrator.properties"
 #
 # Example:
-# ./run-upgrade-tests.sh "Category1" "file:///Users/me/orchestrator-mysql56.properties"
+# ./run-upgrade-tests.sh "file:///Users/me/orchestrator-mysql56.properties"
 
 set -euo pipefail
 
