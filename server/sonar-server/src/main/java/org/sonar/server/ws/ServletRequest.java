@@ -20,12 +20,13 @@
 package org.sonar.server.ws;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
-import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
@@ -73,11 +74,22 @@ public class ServletRequest extends ValidatingRequest {
   @Override
   protected InputStream readInputStreamParam(String key) {
     try {
+      if (!isMultipartContent()) {
+        return null;
+      }
       Part part = source.getPart(key);
-      return part == null ? null : part.getInputStream();
+      if (part == null || part.getSize() == 0) {
+        return null;
+      }
+      return part.getInputStream();
     } catch (Exception e) {
       throw new IllegalStateException("Can't read file part", e);
     }
+  }
+
+  private boolean isMultipartContent() {
+    String contentType = source.getContentType();
+    return contentType != null && contentType.toLowerCase(ENGLISH).startsWith(MULTIPART);
   }
 
   @Override
@@ -98,11 +110,11 @@ public class ServletRequest extends ValidatingRequest {
   @CheckForNull
   private static String mediaTypeFromUrl(String url) {
     String formatSuffix = substringAfterLast(url, ".");
-    return SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(formatSuffix.toLowerCase(Locale.ENGLISH));
+    return SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(formatSuffix.toLowerCase(ENGLISH));
   }
 
   @Override
-  public String getPath(){
+  public String getPath() {
     return source.getRequestURI().replaceFirst(source.getContextPath(), "");
   }
 }

@@ -88,9 +88,11 @@ public class ServletRequestTest {
 
   @Test
   public void read_input_stream() throws Exception {
+    when(source.getContentType()).thenReturn("multipart/form-data");
     InputStream file = mock(InputStream.class);
     Part part = mock(Part.class);
     when(part.getInputStream()).thenReturn(file);
+    when(part.getSize()).thenReturn(10L);
     when(source.getPart("param1")).thenReturn(part);
 
     ServletRequest request = new ServletRequest(source);
@@ -100,9 +102,38 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void throw_ISE_when_invalid_part() throws Exception {
+  public void read_no_input_stream_when_part_size_is_zero() throws Exception {
+    when(source.getContentType()).thenReturn("multipart/form-data");
     InputStream file = mock(InputStream.class);
     Part part = mock(Part.class);
+    when(part.getInputStream()).thenReturn(file);
+    when(part.getSize()).thenReturn(0L);
+    when(source.getPart("param1")).thenReturn(part);
+
+    ServletRequest request = new ServletRequest(source);
+    assertThat(request.readInputStreamParam("param1")).isNull();
+  }
+
+  @Test
+  public void return_no_input_stream_when_content_type_is_not_multipart() throws Exception {
+    when(source.getContentType()).thenReturn("multipart/form-data");
+    ServletRequest request = new ServletRequest(source);
+    assertThat(request.readInputStreamParam("param1")).isNull();
+  }
+
+  @Test
+  public void return_no_input_stream_when_content_type_is_null() throws Exception {
+    when(source.getContentType()).thenReturn(null);
+    ServletRequest request = new ServletRequest(source);
+    assertThat(request.readInputStreamParam("param1")).isNull();
+  }
+
+  @Test
+  public void throw_ISE_when_invalid_part() throws Exception {
+    when(source.getContentType()).thenReturn("multipart/form-data");
+    InputStream file = mock(InputStream.class);
+    Part part = mock(Part.class);
+    when(part.getSize()).thenReturn(0L);
     when(part.getInputStream()).thenReturn(file);
     doThrow(IllegalArgumentException.class).when(source).getPart("param1");
     ServletRequest request = new ServletRequest(source);
