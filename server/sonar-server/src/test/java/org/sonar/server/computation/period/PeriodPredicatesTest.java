@@ -40,6 +40,6 @@ public class PeriodPredicatesTest {
   }
 
   private Period createPeriod(int index) {
-    return new Period(index, "don't care", null, 1l, 1l);
+    return new Period(index, "don't care", null, 1l, "U1");
   }
 }

@@ -43,7 +43,6 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
 
@@ -55,7 +54,6 @@ public class ViewsComputeMeasureVariationsStepTest {
   private static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
   private static final ComponentDto VIEW_DTO = ComponentTesting.newView();
   private static final Component VIEW = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).build();
-  private static final String ANALYSIS_UUID = "a1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -97,7 +95,7 @@ public class ViewsComputeMeasureVariationsStepTest {
   public void do_nothing_when_no_raw_measure() {
     SnapshotDto period1ViewSnapshot = newSnapshotForView(VIEW_DTO);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));
@@ -123,19 +121,17 @@ public class ViewsComputeMeasureVariationsStepTest {
   @Test
   public void set_variation() {
     // View
-    SnapshotDto period1ViewSnapshot = newSnapshotForView(VIEW_DTO);
-    dbClient.snapshotDao().insert(session, period1ViewSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 60d));
+    SnapshotDto period1Snapshot = newSnapshotForView(VIEW_DTO);
+    dbClient.snapshotDao().insert(session, period1Snapshot);
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1Snapshot.getUuid(), 60d));
 
     // SubView
     ComponentDto subviewDto = ComponentTesting.newSubView(VIEW_DTO, "dir", "key");
     dbClient.componentDao().insert(session, subviewDto);
-    SnapshotDto period1SubviewSnapshot = createForComponent(subviewDto, period1ViewSnapshot);
-    dbClient.snapshotDao().insert(session, period1SubviewSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), subviewDto.uuid(), period1SubviewSnapshot.getId(), 10d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), subviewDto.uuid(), period1Snapshot.getUuid(), 10d));
     session.commit();
 
-    periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1Snapshot));
 
     Component subview = ViewsComponent.builder(Component.Type.SUBVIEW, 2).setUuid(subviewDto.uuid()).build();
     Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).addChildren(subview).build();
@@ -160,11 +156,11 @@ public class ViewsComputeMeasureVariationsStepTest {
     dbClient.snapshotDao().insert(session, period1ViewSnapshot, period2ViewSnapshot, period3ViewSnapshot, period4ViewSnapshot, period5ViewSnapshot);
 
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 0d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period2ViewSnapshot.getId(), 20d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period3ViewSnapshot.getId(), 40d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period4ViewSnapshot.getId(), 80d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period5ViewSnapshot.getId(), 100d));
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 0d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period2ViewSnapshot.getUuid(), 20d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period3ViewSnapshot.getUuid(), 40d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period4ViewSnapshot.getUuid(), 80d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period5ViewSnapshot.getUuid(), 100d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot),
@@ -195,10 +191,10 @@ public class ViewsComputeMeasureVariationsStepTest {
     SnapshotDto period1ViewSnapshot = newSnapshotForProject(VIEW_DTO);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 60d),
-      newMeasureDto(DEBT_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 10d),
-      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 2d),
-      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getId(), 1d)
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 60d),
+      newMeasureDto(DEBT_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 10d),
+      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 2d),
+      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 1d)
       );
     session.commit();
 
@@ -221,17 +217,16 @@ public class ViewsComputeMeasureVariationsStepTest {
     assertThat(measureRepository.getRawMeasure(VIEW, BUILD_BREAKER_METRIC).get().getVariations().getVariation1()).isEqualTo(-1d);
   }
 
-  private static MeasureDto newMeasureDto(int metricId, String componentUuid, long snapshotId, double value) {
+  private static MeasureDto newMeasureDto(int metricId, String componentUuid, String analysisUuid, double value) {
     return new MeasureDto()
       .setMetricId(metricId)
       .setComponentUuid(componentUuid)
-      .setSnapshotId(snapshotId)
-      .setAnalysisUuid(ANALYSIS_UUID)
+      .setAnalysisUuid(analysisUuid)
       .setValue(value);
   }
 
   private static Period newPeriod(int index, SnapshotDto snapshotDto) {
-    return new Period(index, "mode", null, snapshotDto.getCreatedAt(), snapshotDto.getId());
+    return new Period(index, "mode", null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   private void addRawMeasure(Component component, Metric metric, Measure measure) {

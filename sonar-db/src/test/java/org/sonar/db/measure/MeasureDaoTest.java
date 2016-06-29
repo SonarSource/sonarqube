@@ -19,492 +19,45 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricTesting;
+import org.sonar.db.component.SnapshotTesting;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 
 public class MeasureDaoTest {
 
-  private static final int SNAPSHOT_ID = 5;
-  private static final long DEVELOPER_ID = 333L;
-  private static final int AUTHORS_BY_LINE_METRIC_ID = 10;
-  private static final int COVERAGE_LINE_HITS_DATA_METRIC_ID = 11;
+  private static final int COVERAGE_METRIC_ID = 10;
+  private static final int COMPLEXITY_METRIC_ID = 11;
   private static final int NCLOC_METRIC_ID = 12;
+  private static final long A_PERSON_ID = 444L;
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  final DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
-
-  MeasureDao underTest = dbClient.measureDao();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
+  private MeasureDao underTest = db.getDbClient().measureDao();
 
   @Test
-  public void get_value_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
-    assertThat(result.getId()).isEqualTo(22);
-    assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getData()).isNull();
-    assertThat(result.getVariation(1)).isEqualTo(1d);
-    assertThat(result.getVariation(2)).isEqualTo(2d);
-    assertThat(result.getVariation(3)).isEqualTo(3d);
-    assertThat(result.getVariation(4)).isEqualTo(4d);
-    assertThat(result.getVariation(5)).isEqualTo(-5d);
-    assertThat(result.getAlertStatus()).isEqualTo("OK");
-    assertThat(result.getAlertText()).isEqualTo("Green");
-  }
-
-  @Test
-  // TODO the string must be longer than 4000 char to be persisted in the data field
-  public void get_data_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
-    assertThat(result.getId()).isEqualTo(20);
-    assertThat(result.getData()).isEqualTo("0123456789012345678901234567890123456789");
-  }
-
-  @Test
-  public void get_text_value_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
-    assertThat(result.getId()).isEqualTo(21);
-    assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
-  }
-
-  @Test
-  public void select_by_component_key_and_metrics() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    List<MeasureDto> results = underTest.selectByComponentKeyAndMetricKeys(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java",
-      newArrayList("ncloc", "authors_by_line"));
-    assertThat(results).hasSize(2);
-
-    results = underTest.selectByComponentKeyAndMetricKeys(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
-    assertThat(results).hasSize(1);
-
-    MeasureDto result = results.get(0);
-    assertThat(result.getId()).isEqualTo(22);
-    assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getMetricKey()).isEqualTo("ncloc");
-    assertThat(result.getVariation(1)).isEqualTo(1d);
-    assertThat(result.getVariation(2)).isEqualTo(2d);
-    assertThat(result.getVariation(3)).isEqualTo(3d);
-    assertThat(result.getVariation(4)).isEqualTo(4d);
-    assertThat(result.getVariation(5)).isEqualTo(-5d);
-  }
-
-  @Test
-  public void select_by_snapshotId_and_metrics() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, ImmutableSet.of("ncloc", "authors_by_line"), dbSession);
-    assertThat(results).hasSize(2);
-
-    Optional<MeasureDto> optional = from(results).filter(input -> input.getId() == 22).first();
-    assertThat(optional).isPresent();
-
-    MeasureDto result = optional.get();
-    assertThat(result.getId()).isEqualTo(22);
-    assertThat(result.getMetricId()).isEqualTo(12);
-    assertThat(result.getMetricKey()).isNull();
-    assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getVariation(1)).isEqualTo(1d);
-    assertThat(result.getVariation(2)).isEqualTo(2d);
-    assertThat(result.getVariation(3)).isEqualTo(3d);
-    assertThat(result.getVariation(4)).isEqualTo(4d);
-    assertThat(result.getVariation(5)).isEqualTo(-5d);
-  }
-
-  @Test
-  public void find_by_component_key_and_metric() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
-    assertThat(result.getId()).isEqualTo(22);
-    assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getMetricKey()).isEqualTo("ncloc");
-    assertThat(result.getVariation(1)).isEqualTo(1d);
-    assertThat(result.getVariation(2)).isEqualTo(2d);
-    assertThat(result.getVariation(3)).isEqualTo(3d);
-    assertThat(result.getVariation(4)).isEqualTo(4d);
-    assertThat(result.getVariation(5)).isEqualTo(-5d);
-
-    assertThat(underTest.selectByComponentKeyAndMetricKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isNull();
-  }
-
-  @Test
-  public void exists_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    assertThat(underTest.existsByKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc")).isTrue();
-    assertThat(underTest.existsByKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isFalse();
-  }
-
-  @Test
-  public void select_past_measures_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
-    db.prepareDbUnit(getClass(), "past_measures.xml");
-
-    Map<Long, PastMeasureDto> fileMeasures = pastMeasuresById(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 1000L, ImmutableSet.of(1, 2)));
-    assertThat(fileMeasures).hasSize(2);
-
-    PastMeasureDto fileMeasure1 = fileMeasures.get(5L);
-    assertThat(fileMeasure1.getValue()).isEqualTo(5d);
-    assertThat(fileMeasure1.getMetricId()).isEqualTo(1);
-    assertThat(fileMeasure1.getPersonId()).isNull();
-
-    PastMeasureDto fileMeasure2 = fileMeasures.get(6L);
-    assertThat(fileMeasure2.getValue()).isEqualTo(60d);
-    assertThat(fileMeasure2.getMetricId()).isEqualTo(2);
-
-    Map<Long, PastMeasureDto> projectMeasures = pastMeasuresById(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1, 2)));
-    assertThat(projectMeasures).hasSize(2);
-
-    PastMeasureDto projectMeasure1 = projectMeasures.get(1L);
-    assertThat(projectMeasure1.getValue()).isEqualTo(60d);
-    assertThat(projectMeasure1.getMetricId()).isEqualTo(1);
-
-    PastMeasureDto projectMeasure2 = projectMeasures.get(2L);
-    assertThat(projectMeasure2.getValue()).isEqualTo(80d);
-    assertThat(projectMeasure2.getMetricId()).isEqualTo(2);
-
-    assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "UNKNOWN", 1000L, ImmutableSet.of(1, 2))).isEmpty();
-    assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 987654L, ImmutableSet.of(1, 2))).isEmpty();
-    assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 1000L, ImmutableSet.of(123, 456))).isEmpty();
-  }
-
-  @Test
-  public void select_past_measures_ignore_measures_with_person_id() {
-    db.prepareDbUnit(getClass(), "past_measures_with_person_id.xml");
-
-    List<PastMeasureDto> measures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1));
-    assertThat(measures).hasSize(1);
-
-    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
-
-    PastMeasureDto measure1 = pastMeasuresById.get(1L);
-    assertThat(measure1.getPersonId()).isNull();
-  }
-
-  @Test
-  public void select_by_snapshot_and_metric_keys() throws Exception {
-    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys.xml");
-
-    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, newHashSet("ncloc", "authors_by_line"), dbSession);
-    assertThat(results).hasSize(2);
-
-    results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, newHashSet("ncloc"), dbSession);
-    assertThat(results).hasSize(1);
-
-    MeasureDto result = results.get(0);
-    assertThat(result.getId()).isEqualTo(22);
-    assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getVariation(1)).isEqualTo(1d);
-    assertThat(result.getVariation(2)).isEqualTo(2d);
-    assertThat(result.getVariation(3)).isEqualTo(3d);
-    assertThat(result.getVariation(4)).isEqualTo(4d);
-    assertThat(result.getVariation(5)).isEqualTo(-5d);
-
-    assertThat(underTest.selectBySnapshotIdAndMetricKeys(123, newHashSet("ncloc"), dbSession)).isEmpty();
-    assertThat(underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, Collections.<String>emptySet(), dbSession)).isEmpty();
-  }
-
-  @Test
-  public void selectByDeveloperForSnapshotAndMetrics_when_there_is_no_measure_for_developer_returns_empty() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(dbSession,
-      DEVELOPER_ID, SNAPSHOT_ID,
-      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).isEmpty();
-  }
-
-  @Test
-  public void selectByDeveloperForSnapshotAndMetrics_returns_only_measures_for_developer() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(dbSession,
-      DEVELOPER_ID, SNAPSHOT_ID,
-      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).extracting("id").containsOnly(30L, 31L, 32L);
-  }
-
-  @Test
-  public void selectByDeveloperForSnapshotAndMetrics_returns_only_measures_for_developer_and_specified_metric_id() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(dbSession,
-      DEVELOPER_ID, SNAPSHOT_ID,
-      ImmutableList.of(NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).extracting("id").containsOnly(32L);
-  }
-
-  @Test
-  public void selectBySnapshotAndMetrics_returns_empty_when_single_metric_id_does_not_exist() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(dbSession,
-      SNAPSHOT_ID,
-      ImmutableList.of(666));
-
-    assertThat(measureDtos).isEmpty();
-  }
-
-  @Test
-  public void selectBySnapshotAndMetrics_returns_only_measures_not_for_developer() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(dbSession,
-      SNAPSHOT_ID,
-      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).extracting("id").containsOnly(20L, 21L, 22L);
-  }
-
-  @Test
-  public void selectBySnapshotAndMetrics_returns_only_measures_not_for_developer_and_with_specified_metric_id() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(dbSession,
-      SNAPSHOT_ID,
-      ImmutableList.of(NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).extracting("id").containsOnly(22L);
-  }
-
-  @Test
-  public void selectByDeveloperForSnapshotAndMetrics_returns_empty_when_single_metric_id_does_not_exist() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(dbSession,
-      DEVELOPER_ID, SNAPSHOT_ID,
-      ImmutableList.of(666));
-
-    assertThat(measureDtos).isEmpty();
-  }
-
-  @Test
-  public void selectByDeveloperForSnapshotAndMetrics_returns_empty_when_snapshotId_does_not_exist() {
-    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
-
-    List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(dbSession,
-      DEVELOPER_ID, 10,
-      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
-
-    assertThat(measureDtos).isEmpty();
-  }
-
-  @Test
-  public void selectSnapshotIdsAndMetricIds() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto());
-    ComponentDto project = newProjectDto();
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid"), projectSnapshot);
-    ComponentDto developer = newDeveloper("Ray Bradbury");
-    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
-    underTest.insert(dbSession,
-      newMeasureDto(metric, developerSnapshot).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot),
-      newMeasureDto(metric, fileSnapshot));
-    dbSession.commit();
-
-    List<MeasureDto> result = underTest.selectBySnapshotIdsAndMetricIds(dbSession,
-      newArrayList(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId()),
-      singletonList(metric.getId()));
-
-    assertThat(result)
-      .hasSize(2)
-      .extracting("snapshotId")
-      .containsOnly(projectSnapshot.getId(), fileSnapshot.getId())
-      .doesNotContain(developerSnapshot.getId());
-  }
-
-  @Test
-  public void selectDeveloperAndSnapshotIdsAndMetricIds() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto());
-    ComponentDto project = newProjectDto();
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid"), projectSnapshot);
-    ComponentDto developer = newDeveloper("Ray Bradbury");
-    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
-
-    underTest.insert(dbSession,
-      newMeasureDto(metric, developerSnapshot).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot).setDeveloperId(null),
-      newMeasureDto(metric, fileSnapshot).setDeveloperId(developer.getId()));
-    dbSession.commit();
-
-    List<MeasureDto> result = underTest.selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession,
-      developer.getId(),
-      newArrayList(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId()),
-      singletonList(metric.getId()));
-
-    assertThat(result)
-      .hasSize(3)
-      .extracting("snapshotId")
-      .containsOnly(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId());
-    assertThat(result)
-      .extracting("developerId")
-      .containsOnly(developer.getId());
-  }
-
-  @Test
-  public void selectDeveloperAndSnapshotIdsAndMetricIds_with_empty_lists() {
-    List<MeasureDto> result = underTest.selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession, null, emptyList(), emptyList());
-
-    assertThat(result).isEmpty();
-  }
-
-  @Test
-  public void selectProjectMeasuresByDeveloperForMetrics_returns_empty_on_empty_db() {
-    assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID, AUTHORS_BY_LINE_METRIC_ID))).isEmpty();
-  }
-
-  @Test
-  public void selectProjectMeasuresByDeveloperForMetrics_returns_empty_when_no_measure_for_developer() {
-    long otherDeveloperId = 666l;
-
-    ComponentDto projectDto = insertProject("aa");
-    SnapshotDto snapshotDto = insertSnapshot("u1", projectDto, true);
-    insertMeasure(projectDto, snapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
-
-    List<MeasureDto> measureDtos = underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID));
-    assertThat(measureDtos).hasSize(1);
-    MeasureDto measureDto = measureDtos.iterator().next();
-    assertThat(measureDto.getId()).isNotNull();
-    assertThat(measureDto.getMetricId()).isEqualTo(NCLOC_METRIC_ID);
-    assertThat(measureDto.getSnapshotId()).isEqualTo(snapshotDto.getId());
-    assertThat(measureDto.getComponentUuid()).isEqualTo(projectDto.uuid());
-    assertThat(measureDto.getDeveloperId()).isEqualTo(DEVELOPER_ID);
-
-    assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, otherDeveloperId, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
-    assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID))).isEmpty();
-  }
-
-  @Test
-  public void selectProjectMeasuresByDeveloperForMetrics_returns_ignores_measure_of_non_last_snapshot() {
-    long otherDeveloperId = 666l;
-
-    ComponentDto projectDto = insertProject("aa");
-    SnapshotDto nonLastSnapshotDto = insertSnapshot("u1", projectDto, false);
-    insertMeasure(projectDto, nonLastSnapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
-    SnapshotDto lastSnapshotDto = insertSnapshot("u2", projectDto, true);
-    insertMeasure(projectDto, lastSnapshotDto, otherDeveloperId, NCLOC_METRIC_ID, 15d);
-
-    assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).hasSize(0);
-
-    List<MeasureDto> measureDtos = underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, otherDeveloperId, ImmutableList.of(NCLOC_METRIC_ID));
-    assertThat(measureDtos).hasSize(1);
-    MeasureDto measureDto = measureDtos.iterator().next();
-    assertThat(measureDto.getMetricId()).isEqualTo(NCLOC_METRIC_ID);
-    assertThat(measureDto.getSnapshotId()).isEqualTo(lastSnapshotDto.getId());
-    assertThat(measureDto.getComponentUuid()).isEqualTo(projectDto.uuid());
-    assertThat(measureDto.getDeveloperId()).isEqualTo(otherDeveloperId);
-    assertThat(measureDto.getValue()).isEqualTo(15d);
-  }
-
-  @Test
-  public void selectProjectMeasuresByDeveloperForMetrics_returns_ignores_snapshots_of_any_component_but_project() {
-    ComponentDto projectDto = insertProject("aa");
-    insertSnapshot("u1", projectDto, true);
-    ComponentDto moduleDto = insertComponent(ComponentTesting.newModuleDto(projectDto));
-    insertMeasure(moduleDto, insertSnapshot("u2", moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
-    ComponentDto dirDto = insertComponent(ComponentTesting.newDirectory(moduleDto, "toto"));
-    insertMeasure(dirDto, insertSnapshot("u3", dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
-    ComponentDto fileDto = insertComponent(ComponentTesting.newFileDto(moduleDto, "tutu"));
-    insertMeasure(fileDto, insertSnapshot("u4", fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
-
-    assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
-  }
-
-  private ComponentDto insertComponent(ComponentDto moduleDto) {
-    dbClient.componentDao().insert(dbSession, moduleDto);
-    dbSession.commit();
-    return moduleDto;
-  }
-
-  private ComponentDto insertProject(String uuid) {
-    ComponentDto projectDto = newProjectDto(uuid);
-    return insertComponent(projectDto);
-  }
-
-  private SnapshotDto insertSnapshot(String uuid, ComponentDto componentDto, boolean last) {
-    SnapshotDto snapshotDto = new SnapshotDto()
-      .setUuid(uuid)
-      .setComponentUuid(componentDto.uuid())
-      .setRootComponentUuid(componentDto.projectUuid())
-      .setLast(last)
-      .setQualifier(componentDto.qualifier()).setScope(componentDto.scope());
-    dbClient.snapshotDao().insert(dbSession, snapshotDto);
-    dbSession.commit();
-    return snapshotDto;
-  }
-
-  private MeasureDto insertMeasure(ComponentDto componentDto, SnapshotDto snapshotDto, Long developerId, int metricId, double value) {
-    MeasureDto measureDto = new MeasureDto()
-      .setMetricId(metricId)
-      .setValue(value)
-      .setComponentUuid(componentDto.uuid())
-      .setSnapshotId(snapshotDto.getId())
-      .setAnalysisUuid("u1")
-      .setDeveloperId(developerId);
-    dbClient.measureDao().insert(dbSession, measureDto);
-    dbSession.commit();
-    return measureDto;
-  }
-
-  @Test
-  public void insert() {
-    db.prepareDbUnit(getClass(), "empty.xml");
-
-    underTest.insert(dbSession, new MeasureDto()
-      .setSnapshotId(2L)
-      .setAnalysisUuid("u2")
-      .setMetricId(3)
-      .setDeveloperId(23L)
-      .setComponentUuid("FILE1")
-      .setValue(2.0d)
-      .setData("measure-value")
+  public void test_inserted_and_selected_columns() {
+    insertAnalysis("A1", true);
+
+    MeasureDto inserted = new MeasureDto()
+      .setAnalysisUuid("A1")
+      .setMetricId(2)
+      .setDeveloperId(3L)
+      .setComponentUuid("C4")
+      .setValue(5.0d)
+      .setData("data")
       .setVariation(1, 1.0d)
       .setVariation(2, 2.0d)
       .setVariation(3, 3.0d)
@@ -512,41 +65,128 @@ public class MeasureDaoTest {
       .setVariation(5, 5.0d)
       .setAlertStatus("alert")
       .setAlertText("alert-text")
-      .setDescription("measure-description"));
-    dbSession.commit();
+      .setDescription("measure-description");
+    underTest.insert(db.getSession(), inserted);
+    db.commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
+    MeasureDto selected = underTest.selectSingle(db.getSession(), MeasureQuery.builder()
+      .setComponentUuid(inserted.getComponentUuid())
+      .setPersonId(inserted.getDeveloperId())
+      .build()).get();
+    assertThat(selected.getAnalysisUuid()).isEqualTo(inserted.getAnalysisUuid());
+    assertThat(selected.getMetricId()).isEqualTo(inserted.getMetricId());
+    assertThat(selected.getDeveloperId()).isEqualTo(inserted.getDeveloperId());
+    assertThat(selected.getComponentUuid()).isEqualTo(inserted.getComponentUuid());
+    assertThat(selected.getValue()).isEqualTo(inserted.getValue());
+    assertThat(selected.getData()).isEqualTo(inserted.getData());
+    assertThat(selected.getVariation(1)).isEqualTo(inserted.getVariation(1));
+    assertThat(selected.getVariation(2)).isEqualTo(inserted.getVariation(2));
+    assertThat(selected.getVariation(3)).isEqualTo(inserted.getVariation(3));
+    assertThat(selected.getVariation(4)).isEqualTo(inserted.getVariation(4));
+    assertThat(selected.getVariation(5)).isEqualTo(inserted.getVariation(5));
+    assertThat(selected.getAlertStatus()).isEqualTo(inserted.getAlertStatus());
+    assertThat(selected.getAlertText()).isEqualTo(inserted.getAlertText());
   }
 
   @Test
-  public void insert_measures() {
-    db.prepareDbUnit(getClass(), "empty.xml");
+  public void selectByQuery() {
+    insertAnalysis("A1", false);
+    insertAnalysis("A2", true);
+    // component C1
+    insertMeasure("M1", "A1", "C1", NCLOC_METRIC_ID);
+    insertMeasure("M2", "A2", "C1", NCLOC_METRIC_ID);
+    insertMeasure("M3", "A2", "C1", COVERAGE_METRIC_ID);
+    insertMeasureOnPerson("M4", "A2", "C1", NCLOC_METRIC_ID, A_PERSON_ID);
+    // component C2
+    insertMeasure("M5", "A2", "C2", NCLOC_METRIC_ID);
+    db.commit();
 
-    underTest.insert(dbSession, new MeasureDto()
-      .setSnapshotId(2L)
-      .setAnalysisUuid("u2")
-      .setMetricId(3)
-      .setComponentUuid("COMPONENT_1")
-      .setValue(2.0d),
-      new MeasureDto()
-        .setSnapshotId(3L)
-        .setAnalysisUuid("u2")
-        .setMetricId(4)
-        .setComponentUuid("COMPONENT_2")
-        .setValue(4.0d));
-    dbSession.commit();
+    verifyZeroMeasures(MeasureQuery.builder().setComponentUuids(emptyList()));
+    verifyZeroMeasures(MeasureQuery.builder().setComponentUuid("MISSING_COMPONENT"));
 
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
+    // all measures of component C1
+    verifyMeasures(MeasureQuery.builder().setComponentUuid("C1"), "M2", "M3");
+
+    // ncloc measure of component C1
+    verifyMeasures(MeasureQuery.builder().setComponentUuid("C1").setMetricId(NCLOC_METRIC_ID), "M2");
+
+    // multiple measures of component C1
+    verifyMeasures(MeasureQuery.builder().setComponentUuid("C1").setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M2", "M3");
+
+    // missing measure of component C1
+    verifyZeroMeasures(MeasureQuery.builder().setComponentUuid("C1").setMetricId(COMPLEXITY_METRIC_ID));
+
+    // ncloc measures of components C1, C2 and C3 (which does not exist)
+    verifyMeasures(MeasureQuery.builder().setComponentUuids(asList("C1", "C2", "C3")), "M2", "M3", "M5");
+
+    // measures of missing developer of component C1
+    verifyZeroMeasures(MeasureQuery.builder().setComponentUuid("C1").setPersonId(123L));
+
+    // developer measures of component C1
+    verifyMeasures(MeasureQuery.builder().setComponentUuid("C1").setPersonId(A_PERSON_ID), "M4");
   }
 
-  private static Map<Long, PastMeasureDto> pastMeasuresById(List<PastMeasureDto> pastMeasures) {
-    return from(pastMeasures).uniqueIndex(new Function<PastMeasureDto, Long>() {
-      @Nullable
-      @Override
-      public Long apply(PastMeasureDto input) {
-        return input.getId();
-      }
-    });
+  @Test
+  public void selectSingle() {
+    insertAnalysis("A1", true);
+    insertMeasure("M1", "A1", "C1", NCLOC_METRIC_ID);
+    insertMeasure("M2", "A1", "C1", COMPLEXITY_METRIC_ID);
+    db.commit();
+
+    assertThat(selectSingle(MeasureQuery.builder().setComponentUuids(emptyList()))).isNotPresent();
+    assertThat(selectSingle(MeasureQuery.builder().setComponentUuid("MISSING_COMPONENT"))).isNotPresent();
+
+    // select a single measure
+    assertThat(selectSingle(MeasureQuery.builder().setComponentUuid("C1").setMetricId(NCLOC_METRIC_ID))).isPresent();
+
+    // select multiple measures -> fail
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("expected one element");
+    selectSingle(MeasureQuery.builder().setComponentUuid("C1"));
   }
+
+  private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {
+    return underTest.selectSingle(db.getSession(), query.build());
+  }
+
+  private void verifyMeasures(MeasureQuery.Builder query, String... expectedIds) {
+    List<MeasureDto> measures = underTest.selectByQuery(db.getSession(), query.build());
+    assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
+  }
+
+  private void verifyZeroMeasures(MeasureQuery.Builder query) {
+    assertThat(underTest.selectByQuery(db.getSession(), query.build())).isEmpty();
+  }
+
+  private void insertMeasure(String id, String analysisUuid, String componentUuid, int metricId) {
+    MeasureDto measure = MeasureTesting.newMeasure()
+      .setAnalysisUuid(analysisUuid)
+      .setComponentUuid(componentUuid)
+      .setMetricId(metricId)
+      // as ids can't be forced when inserting measures, the field "data"
+      // is used to store a virtual id. It is used then in assertions.
+      .setData(id);
+    db.getDbClient().measureDao().insert(db.getSession(), measure);
+  }
+
+  private void insertMeasureOnPerson(String id, String analysisUuid, String componentUuid, int metricId, long personId) {
+    MeasureDto measure = MeasureTesting.newMeasure()
+      .setAnalysisUuid(analysisUuid)
+      .setComponentUuid(componentUuid)
+      .setMetricId(metricId)
+      .setDeveloperId(personId)
+      // as ids can't be forced when inserting measures, the field "data"
+      // is used to store a virtual id. It is used then in assertions.
+      .setData(id);
+    db.getDbClient().measureDao().insert(db.getSession(), measure);
+  }
+
+  private void insertAnalysis(String uuid, boolean isLast) {
+    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshot()
+      .setUuid(uuid)
+      .setLast(isLast));
+  }
+
+  // TODO test selectPastMeasures
 
 }

@@ -94,11 +94,11 @@ public class I18nRule implements I18n {
 
   @Override
   public String formatDouble(Locale locale, Double value) {
-    throw new UnsupportedOperationException();
+    return String.valueOf(value);
   }
 
   @Override
   public String formatInteger(Locale locale, Integer value) {
-    throw new UnsupportedOperationException();
+    return String.valueOf(value);
   }
 }

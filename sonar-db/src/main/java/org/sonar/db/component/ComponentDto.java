@@ -57,15 +57,16 @@ public class ComponentDto implements Component {
   private String uuid;
 
   /**
-   * Not empty path of ancestor UUIDS, including self. Value is suffixed by a dot in
-   * order to support LIKE conditions when requesting descendants of a component.
+   * Not empty path of ancestor UUIDS, excluding itself. Value is suffixed by a dot in
+   * order to support LIKE conditions when requesting descendants of a component
+   * and to avoid Oracle NULL on root components.
    * Example:
-   * - on root module: UUID="1" UUID_PATH="1."
-   * - on module: UUID="2" UUID_PATH="1.2."
-   * - on directory: UUID="3" UUID_PATH="1.2.3."
-   * - on file: UUID="4" UUID_PATH="1.2.3.4."
-   * - on view: UUID="5" UUID_PATH="5."
-   * - on sub-view: UUID="6" UUID_PATH="5.6."
+   * - on root module: UUID="1" UUID_PATH="."
+   * - on module: UUID="2" UUID_PATH=".1."
+   * - on directory: UUID="3" UUID_PATH=".1.2."
+   * - on file: UUID="4" UUID_PATH="1.2.3."
+   * - on view: UUID="5" UUID_PATH="."
+   * - on sub-view: UUID="6" UUID_PATH=".5."
    *
    * @since 6.0
    */
@@ -130,11 +131,7 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  /**
-   * No need to have public visibility as this field
-   * is supposed to be used only internally in SQL requests.
-   */
-  String getUuidPath() {
+  public String getUuidPath() {
     return uuidPath;
   }
 

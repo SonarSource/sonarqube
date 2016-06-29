@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -239,10 +238,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public String[] getDefaultTabForMetrics() {
     return defaultForMetrics;
-  }
-
-  public boolean supportsMetric(String metricKey) {
-    return ArrayUtils.contains(defaultForMetrics, metricKey);
   }
 
   public boolean isUserAuthorized() {

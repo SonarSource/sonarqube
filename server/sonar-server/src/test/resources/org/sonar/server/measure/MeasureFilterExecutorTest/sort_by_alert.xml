@@ -16,8 +16,10 @@
            delete_historical_data="[null]"/>
 
   <!-- java project -->
-  <projects uuid="UUID_JAVA_PROJECT"
-            uuid_path="NOT_USED"
+  <projects id="1"
+            uuid="UUID_JAVA_PROJECT"
+            uuid_path="."
+            project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
             language="[null]"
@@ -27,8 +29,9 @@
             scope="PRJ"
             qualifier="TRK"
             name="Java project"
-            id="1"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
   <snapshots id="101"
              uuid="u101"
@@ -76,13 +79,15 @@
                     variation_value_5="400"
                     alert_text="[null]"
                     text_value="WARN"
-                    component_uuid="ABCD"
+                    component_uuid="UUID_JAVA_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
   <!-- php project -->
-  <projects uuid="UUID_PHP_PROJECT"
-            uuid_path="NOT_USED"
+  <projects id="10"
+            uuid="UUID_PHP_PROJECT"
+            uuid_path="."
+            project_uuid="UUID_PHP_PROJECT"
             description="[null]"
             enabled="[true]"
             language="[null]"
@@ -92,8 +97,9 @@
             scope="PRJ"
             qualifier="TRK"
             name="PHP project"
-            id="10"
-            root_uuid="UUID_PHP_PROJECT"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
 
   <snapshots id="110"
@@ -134,7 +140,6 @@
                     value="5000"
                     snapshot_id="110"
                     analysis_uuid="u110"
-                    url="[null]"
                     variation_value_1="[null]"
                     variation_value_2="[null]"
                     variation_value_3="[null]"
@@ -142,13 +147,14 @@
                     variation_value_5="[null]"
                     alert_text="[null]"
                     text_value="OK"
-                    component_uuid="BCDE"
+                    component_uuid="UUID_PHP_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
   <!-- js project -->
-  <projects uuid="CDEF"
-            uuid_path="NOT_USED"
+  <projects uuid="UUID_JS_PROJECT"
+            uuid_path="."
+            project_uuid="UUID_JS_PROJECT"
             description="[null]"
             enabled="[true]"
             language="[null]"
@@ -159,13 +165,15 @@
             qualifier="TRK"
             name="JS project"
             id="20"
-            root_uuid="CDEF"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
 
   <snapshots id="120"
              uuid="u120"
-             component_uuid="CDEF"
-             root_component_uuid="CDEF"
+             component_uuid="UUID_JS_PROJECT"
+             root_component_uuid="UUID_JS_PROJECT"
              root_snapshot_id="[null]"
              parent_snapshot_id="[null]"
              scope="PRJ"
@@ -207,9 +215,8 @@
                     variation_value_5="[null]"
                     alert_text="[null]"
                     text_value="ERROR"
-                    component_uuid="CDEF"
+                    component_uuid="UUID_JS_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
-
 
 </dataset>

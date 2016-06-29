@@ -37,14 +37,14 @@
         <% @filter.rows.each do |row| %>
           <tr class="thin <%= cycle 'even', 'odd' -%>">
             <% if display_favourites %>
-              <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
+              <td class="thin"><%= link_to_favourite(row.resource) -%></td>
             <% end %>
             <td class="nowrap">
-              <%= qualifier_icon(row.snapshot) -%> <%= link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => h(row.snapshot.resource.key)) -%>
+              <%= qualifier_icon(row.resource) -%> <%= link_to(h(row.resource.name(true)), {:controller => 'dashboard', :id => row.resource.id}, :title => h(row.resource.key)) -%>
             </td>
             <td class="sep"></td>
             <td>
-              <%= h row.snapshot.resource.description -%>
+              <%= h row.resource.description -%>
             </td>
             <td class="sep"></td>
             <td class="nowrap text-right">

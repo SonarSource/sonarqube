@@ -36,9 +36,7 @@ class MetricDtoWithBestValue {
 
   MetricDtoWithBestValue(MetricDto metric, List<Integer> periodIndexes) {
     this.metric = metric;
-    MeasureDto measure = new MeasureDto()
-      .setMetricId(metric.getId())
-      .setMetricKey(metric.getKey());
+    MeasureDto measure = new MeasureDto().setMetricId(metric.getId());
     boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
     if (isNewTypeMetric) {
       for (Integer periodIndex : periodIndexes) {

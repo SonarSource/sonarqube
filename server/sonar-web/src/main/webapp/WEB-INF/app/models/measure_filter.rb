@@ -22,21 +22,26 @@ class MeasureFilter < ActiveRecord::Base
 
   # Row in the table of results
   class Row
-    attr_reader :snapshot, :measures_by_metric, :links
+    attr_reader :component, :measures_by_metric, :links, :analysis
 
-    def initialize(snapshot)
-      @snapshot = snapshot
+    def initialize(component)
+      @component = component
       @measures_by_metric = {}
       @links = nil
     end
 
     def resource
-      snapshot.resource
+      component
     end
 
     # For internal use
     def add_measure(measure)
       @measures_by_metric[measure.metric] = measure
+    end
+
+    # For internal use
+    def set_analysis(analysis)
+      @analysis=analysis
     end
 
     # For internal use
@@ -208,9 +213,9 @@ class MeasureFilter < ActiveRecord::Base
       errors.add_to_base(Api::Utils.message("measure_filter.error.#{result.error}"))
     else
       rows = result.getRows()
-      snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
+      component_uuids = filter_authorized_component_uuids(rows, controller)
       base_project = filter_authorized_base_project(base_resource, controller)
-      load_results(snapshot_ids, base_project)
+      load_results(component_uuids, base_project)
     end
     self
   end
@@ -240,76 +245,82 @@ class MeasureFilter < ActiveRecord::Base
     controller.has_role?(:user, base_resource) ? base_resource : nil
   end
 
-  def filter_authorized_snapshot_ids(rows, controller)
+  def filter_authorized_component_uuids(rows, controller)
     project_uuids = rows.map { |row| row.getRootComponentUuid() }.compact.uniq
     authorized_project_uuids = controller.select_authorized(:user, project_uuids)
-    snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_uuids.include?(row.getRootComponentUuid()) }.compact
-    @security_exclusions = (snapshot_ids.size<rows.size)
+    component_uuids = rows.map { |row| row.getComponentUuid() if authorized_project_uuids.include?(row.getRootComponentUuid()) }.compact
+    @security_exclusions = (component_uuids.size<rows.size)
     @pagination = Api::Pagination.new
     @pagination.per_page=(criteria(:pageSize)||999999).to_i
     @pagination.page=(criteria(:page)||1).to_i
-    @pagination.count = snapshot_ids.size
-    snapshot_ids[@pagination.offset ... (@pagination.offset+@pagination.limit)] || []
+    @pagination.count = component_uuids.size
+    component_uuids[@pagination.offset ... (@pagination.offset+@pagination.limit)] || []
   end
 
-  def load_results(snapshot_ids, base_resource)
+  def load_results(component_uuids, base_resource)
     @rows = []
     metric_ids = metrics.map(&:id)
 
-    if !snapshot_ids.empty?
-      rows_by_snapshot_id = {}
+    if !component_uuids.empty?
+      rows_by_component_uuid = {}
 
-      snapshots = []
-      snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
-        snapshots.concat(Snapshot.all(:include => ['project'], :conditions => ['id in (?)', safe_for_oracle_ids]))
+      components = []
+      component_uuids.each_slice(999) do |safe_for_oracle_uuids|
+        components.concat(Project.find(:all, :conditions => ['uuid in (?)', safe_for_oracle_uuids]))
       end
-      snapshots.each do |snapshot|
-        row = Row.new(snapshot)
-        rows_by_snapshot_id[snapshot.id] = row
+      project_uuids = []
+      components.each do |component|
+        row = Row.new(component)
+        rows_by_component_uuid[component.uuid] = row
+        project_uuids << component.project_uuid
+      end
+      project_uuids.uniq!
+
+      analysis_by_project_uuid = Snapshot.all(:conditions => ['component_uuid in (?) and islast=?', project_uuids, true]).inject({}) do |hash, analysis|
+        hash[analysis.component_uuid] = analysis
+        hash
       end
 
-      # @rows must be in the same order than the snapshot ids
-      snapshot_ids.each do |sid|
-        @rows << rows_by_snapshot_id[sid]
+      components.each do |component|
+        analysis = analysis_by_project_uuid[component.project_uuid]
+        rows_by_component_uuid[component.uuid].set_analysis(analysis) if analysis
+      end
+
+      # @rows must be in the same order than the component uuids
+      component_uuids.each do |uuid|
+        @rows << rows_by_component_uuid[uuid]
       end
 
       unless metric_ids.empty?
         measures = []
-        snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
-          measures.concat(ProjectMeasure.all(:conditions =>
-            ['person_id is null and snapshot_id in (?) and metric_id in (?)', safe_for_oracle_ids, metric_ids]
+        component_uuids.each_slice(999) do |safe_for_oracle_uuids|
+          measures.concat(ProjectMeasure.all(:include => :analysis, :conditions =>
+            ['project_measures.person_id is null and project_measures.component_uuid in (?) and project_measures.metric_id in (?) and snapshots.islast=?', safe_for_oracle_uuids, metric_ids, true]
           ))
         end
         measures.each do |measure|
-          row = rows_by_snapshot_id[measure.snapshot_id]
+          row = rows_by_component_uuid[measure.component_uuid]
           row.add_measure(measure)
         end
       end
 
       if require_links?
-        project_uuids = []
-        rows_by_project_uuid = {}
-        snapshots.each do |snapshot|
-          project_uuids << snapshot.component_uuid
-          rows_by_project_uuid[snapshot.component_uuid] = rows_by_snapshot_id[snapshot.id]
-        end
+        uuids_for_links = components.map { |c| c.uuid if c.scope=='PRJ'}.compact.uniq
 
-        links = []
-        project_uuids.each_slice(999) do |safe_for_oracle_uuids|
-          links.concat(ProjectLink.all(:conditions => {:component_uuid => safe_for_oracle_uuids}, :order => 'link_type'))
-        end
-        links.each do |link|
-          rows_by_project_uuid[link.component_uuid].add_link(link)
+        uuids_for_links.each_slice(999) do |safe_for_oracle_uuids|
+          ProjectLink.all(:conditions => {:component_uuid => safe_for_oracle_uuids}, :order => 'link_type').each do |link|
+            rows_by_component_uuid[link.component_uuid].add_link(link)
+          end
         end
       end
     end
     if base_resource
       base_snapshot = base_resource.last_snapshot
       if base_snapshot
-        @base_row = Row.new(base_snapshot)
+        @base_row = Row.new(base_resource)
         unless metric_ids.empty?
-          base_measures = ProjectMeasure.all(:conditions =>
-            ['person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, metric_ids]
+          base_measures = ProjectMeasure.all(:include => :analysis, :conditions =>
+            ['project_measures.person_id is null and project_measures.component_uuid=? and project_measures.metric_id in (?) and snapshots.islast=?', base_resource.uuid, metric_ids, true]
           )
           base_measures.each do |base_measure|
             @base_row.add_measure(base_measure)

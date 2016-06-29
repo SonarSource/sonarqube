@@ -188,6 +188,6 @@ public class PeriodsHolderImplTest {
   }
 
   private static Period createPeriod(int index) {
-    return new Period(index, index + "mode", null, 1000L, 11l);
+    return new Period(index, index + "mode", null, 1000L, "U1");
   }
 }

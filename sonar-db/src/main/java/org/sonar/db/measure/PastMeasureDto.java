@@ -19,28 +19,23 @@
  */
 package org.sonar.db.measure;
 
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class PastMeasureDto {
 
-  private Long id;
+  private int metricId;
+
+  @CheckForNull
   private Double value;
-  private Integer metricId;
-  private Integer personId;
 
-  public Long getId() {
-    return id;
-  }
-
-  public PastMeasureDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
+  @CheckForNull
+  private Long personId;
 
   public double getValue() {
-    Objects.requireNonNull(value);
+    requireNonNull(value);
     return value;
   }
 
@@ -53,22 +48,22 @@ public class PastMeasureDto {
     return value != null;
   }
 
-  public Integer getMetricId() {
+  public int getMetricId() {
     return metricId;
   }
 
-  public PastMeasureDto setMetricId(Integer metricId) {
-    this.metricId = metricId;
+  public PastMeasureDto setMetricId(int i) {
+    this.metricId = i;
     return this;
   }
 
   @CheckForNull
-  public Integer getPersonId() {
+  public Long getPersonId() {
     return personId;
   }
 
-  public PastMeasureDto setPersonId(@Nullable Integer personId) {
-    this.personId = personId;
+  public PastMeasureDto setPersonId(@Nullable Long l) {
+    this.personId = l;
     return this;
   }
 

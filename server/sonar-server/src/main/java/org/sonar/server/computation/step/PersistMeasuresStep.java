@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -112,9 +113,10 @@ public class PersistMeasuresStep implements ComputationStep {
 
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = Predicates.not(BestValueOptimization.from(metric, component));
+        MeasureDao measureDao = dbClient.measureDao();
         for (Measure measure : from(measures.getValue()).filter(NonEmptyMeasure.INSTANCE).filter(notBestValueOptimized)) {
           MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
-          dbClient.measureDao().insert(session, measureDto);
+          measureDao.insert(session, measureDto);
         }
       }
     }

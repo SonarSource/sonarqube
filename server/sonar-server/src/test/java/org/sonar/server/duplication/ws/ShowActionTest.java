@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -37,6 +36,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -90,8 +90,8 @@ public class ShowActionTest {
     when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
-    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
-      new MeasureDto().setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
+    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(
+      java.util.Optional.of(new MeasureDto().setData("{duplications}"))
     );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
@@ -113,8 +113,8 @@ public class ShowActionTest {
     when(componentDao.selectByUuid(session, uuid)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
-    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
-      new MeasureDto().setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
+    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(
+      java.util.Optional.of(new MeasureDto().setData("{duplications}"))
     );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
@@ -134,19 +134,19 @@ public class ShowActionTest {
     ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
     when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
-    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
+    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(java.util.Optional.empty());
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();
 
-    verify(duplicationsJsonWriter).write(eq(Lists.<DuplicationsParser.Block>newArrayList()), any(JsonWriter.class), eq(session));
+    verify(duplicationsJsonWriter).write(eq(Lists.newArrayList()), any(JsonWriter.class), eq(session));
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_when_file_not_found() throws Exception {
     String componentKey = "src/Foo.java";
 
-    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.<ComponentDto>absent());
+    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.absent());
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();
