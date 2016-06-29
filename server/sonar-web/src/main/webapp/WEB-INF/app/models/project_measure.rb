@@ -25,6 +25,7 @@ class ProjectMeasure < ActiveRecord::Base
   HOUR = 1000 * 60 * 60
   DAY = 1000 * 60 * 60 * 24
 
+  belongs_to :analysis, :class_name => 'Snapshot', :foreign_key => 'analysis_uuid', :primary_key => 'uuid'
   belongs_to :snapshot
   belongs_to :project, :class_name => 'Project', :foreign_key => 'component_uuid', :primary_key => 'uuid'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
@@ -211,14 +212,6 @@ class ProjectMeasure < ActiveRecord::Base
     else
       text_value || (value && value.to_i)
     end
-  end
-
-  def tip
-    snapshot.project.tip
-  end
-
-  def self.find_by_metrics_and_snapshots(metric_ids, snapshot_ids)
-    ProjectMeasure.find(:all, :conditions => {:snapshot_id => snapshot_ids, :metric_id => metric_ids})
   end
 
   def short_name

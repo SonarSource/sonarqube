@@ -21,6 +21,7 @@ package org.sonar.server.duplication.ws;
 
 import com.google.common.io.Resources;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
@@ -81,10 +83,9 @@ public class ShowAction implements RequestHandler {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
-      String componentKey = component.key();
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, componentKey);
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, component.key());
       JsonWriter json = response.newJsonWriter().beginObject();
-      String duplications = findDataFromComponent(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY, dbSession);
+      String duplications = findDataFromComponent(dbSession, component);
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
       duplicationsJsonWriter.write(blocks, json, dbSession);
       json.endObject().close();
@@ -94,11 +95,12 @@ public class ShowAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String findDataFromComponent(String fileKey, String metricKey, DbSession session) {
-    MeasureDto measure = measureDao.selectByComponentKeyAndMetricKey(session, fileKey, metricKey);
-    if (measure != null) {
-      return measure.getData();
-    }
-    return null;
+  private String findDataFromComponent(DbSession dbSession, ComponentDto component) {
+    MeasureQuery query = MeasureQuery.builder()
+      .setComponentUuid(component.uuid())
+      .setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
+      .build();
+    Optional<MeasureDto> measure = measureDao.selectSingle(dbSession, query);
+    return measure.isPresent() ? measure.get().getData() : null;
   }
 }

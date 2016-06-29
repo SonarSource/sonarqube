@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.period;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -34,10 +35,10 @@ public class Period {
   @CheckForNull
   private final String modeParameter;
   private final long snapshotDate;
-  private final long snapshotId;
+  private final String analysisUuid;
 
   public Period(int index, String mode, @Nullable String modeParameter,
-    long snapshotDate, long snapshotId) {
+    long snapshotDate, String analysisUuid) {
     if (!isValidPeriodIndex(index)) {
       throw new IllegalArgumentException(String.format("Period index (%s) must be > 0 and < 6", index));
     }
@@ -45,7 +46,7 @@ public class Period {
     this.mode = requireNonNull(mode);
     this.modeParameter = modeParameter;
     this.snapshotDate = snapshotDate;
-    this.snapshotId = snapshotId;
+    this.analysisUuid = analysisUuid;
   }
 
   public static boolean isValidPeriodIndex(int i) {
@@ -72,8 +73,8 @@ public class Period {
     return snapshotDate;
   }
 
-  public long getSnapshotId() {
-    return snapshotId;
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 
   @Override
@@ -87,14 +88,14 @@ public class Period {
     Period period = (Period) o;
     return index == period.index
       && snapshotDate == period.snapshotDate
-      && snapshotId == period.snapshotId
+      && Objects.equals(analysisUuid, period.analysisUuid)
       && mode.equals(period.mode)
-      && java.util.Objects.equals(modeParameter, period.modeParameter);
+      && Objects.equals(modeParameter, period.modeParameter);
   }
 
   @Override
   public int hashCode() {
-    return hash(index, mode, modeParameter, snapshotDate, snapshotId);
+    return hash(index, mode, modeParameter, snapshotDate, analysisUuid);
   }
 
   @Override
@@ -104,7 +105,7 @@ public class Period {
       .add("mode", mode)
       .add("modeParameter", modeParameter)
       .add("snapshotDate", snapshotDate)
-      .add("snapshotId", snapshotId)
+      .add("analysisUuid", analysisUuid)
       .toString();
   }
 }

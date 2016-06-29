@@ -259,7 +259,6 @@ import org.sonar.server.source.ws.LinesAction;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.SourcesWs;
-import org.sonar.server.test.CoverageService;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -618,7 +617,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultNotificationManager.class,
 
       // Tests
-      CoverageService.class,
       TestsWs.class,
       CoveredFilesAction.class,
       org.sonar.server.test.ws.ListAction.class,

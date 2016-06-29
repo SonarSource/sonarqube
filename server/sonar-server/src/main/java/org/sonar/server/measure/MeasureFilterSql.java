@@ -35,9 +35,13 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.Database;
-import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.db.WildcardPosition;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
+
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 class MeasureFilterSql {
 
@@ -96,98 +100,98 @@ class MeasureFilterSql {
 
   private String generateSql() {
     StringBuilder sb = new StringBuilder(1000);
-    sb.append("SELECT s.id, p.id, root.uuid, ");
+    sb.append("select c.uuid, c.project_uuid, ");
     sb.append(filter.sort().column());
-    sb.append(" FROM snapshots s");
-    sb.append(" INNER JOIN projects p ON s.component_uuid=p.uuid ");
-    sb.append(" INNER JOIN projects root ON s.root_component_uuid=root.uuid ");
+    sb.append(" from projects c");
+    sb.append(" inner join snapshots s on s.component_uuid=c.project_uuid ");
+    if (context.getBaseComponent() != null) {
+      sb.append(" inner join projects base on base.project_uuid = c.project_uuid ");
+    }
 
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
-      sb.append(" INNER JOIN project_measures pmcond").append(index);
-      sb.append(" ON s.id=pmcond").append(index).append(".snapshot_id AND ");
+      sb.append(" inner join project_measures pmcond").append(index);
+      sb.append(" on pmcond").append(index).append(".analysis_uuid = s.uuid and ");
+      sb.append(" pmcond").append(index).append(".component_uuid = c.uuid and ");
       condition.appendSqlCondition(sb, index);
     }
 
     if (filter.isOnFavourites()) {
-      sb.append(" INNER JOIN properties props ON props.resource_id=p.id ");
+      sb.append(" inner join properties props on props.resource_id=c.id ");
     }
 
     if (filter.sort().isOnMeasure()) {
-      sb.append(" LEFT OUTER JOIN project_measures pmsort ON s.id=pmsort.snapshot_id AND pmsort.metric_id=");
+      sb.append(" left outer join project_measures pmsort ON s.uuid = pmsort.analysis_uuid and pmsort.component_uuid = c.uuid and pmsort.metric_id=");
       sb.append(filter.sort().metric().getId());
-      sb.append(" AND pmsort.person_id IS NULL ");
+      sb.append(" and pmsort.person_id is null ");
     }
 
-    sb.append(" WHERE ");
-    appendResourceConditions(sb);
+    sb.append(" where ");
+    sb.append(" s.islast=").append(database.getDialect().getTrueSqlValue());
+    appendComponentConditions(sb);
 
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
-      sb.append(" AND ");
+      sb.append(" and ");
       condition.appendSqlCondition(sb, index);
     }
 
     return sb.toString();
   }
 
-  private void appendResourceConditions(StringBuilder sb) {
-    sb.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
-    if (context.getBaseSnapshot() == null) {
-      sb.append(" AND p.copy_component_uuid IS NULL ");
+  private void appendComponentConditions(StringBuilder sb) {
+    sb.append(" and c.enabled=").append(database.getDialect().getTrueSqlValue());
+    ComponentDto base = context.getBaseComponent();
+    if (base == null) {
+      sb.append(" and c.copy_component_uuid is null ");
+    } else {
+      sb.append(" and base.uuid = '").append(base.uuid()).append("' ");
+      if (filter.isOnBaseResourceChildren()) {
+        String path = base.getUuidPath() + base.uuid() + UUID_PATH_SEPARATOR;
+        sb.append(" and c.uuid_path = '").append(path).append("' ");
+      } else {
+        String like =  DatabaseUtils.buildLikeValue(base.getUuidPath() + base.uuid() + UUID_PATH_SEPARATOR, WildcardPosition.AFTER);
+        sb.append(" and c.uuid_path like '").append(like).append("' escape '/' ");
+      }
     }
     if (!filter.getResourceQualifiers().isEmpty()) {
-      sb.append(" AND s.qualifier IN ");
+      sb.append(" and c.qualifier in ");
       appendInStatement(filter.getResourceQualifiers(), sb);
     }
     if (!filter.getResourceScopes().isEmpty()) {
-      sb.append(" AND s.scope IN ");
+      sb.append(" and c.scope in ");
       appendInStatement(filter.getResourceScopes(), sb);
     }
     appendDateConditions(sb);
     appendFavouritesCondition(sb);
     appendResourceNameCondition(sb);
     appendResourceKeyCondition(sb);
-    appendResourceBaseCondition(sb);
   }
 
   private void appendDateConditions(StringBuilder sb) {
     Date fromDate = filter.getFromDate();
     if (fromDate != null) {
-      sb.append(" AND s.created_at >= ? ");
+      sb.append(" and s.created_at >= ? ");
       dateParameters.add(fromDate.getTime());
     }
     Date toDate = filter.getToDate();
     if (toDate != null) {
-      sb.append(" AND s.created_at <= ? ");
+      sb.append(" and s.created_at <= ? ");
       dateParameters.add(toDate.getTime());
     }
   }
 
   private void appendFavouritesCondition(StringBuilder sb) {
     if (filter.isOnFavourites()) {
-      sb.append(" AND props.prop_key='favourite' AND props.resource_id IS NOT NULL AND props.user_id=");
+      sb.append(" and props.prop_key='favourite' and props.resource_id is not null and props.user_id=");
       sb.append(context.getUserId());
       sb.append(" ");
     }
   }
 
-  private void appendResourceBaseCondition(StringBuilder sb) {
-    SnapshotDto baseSnapshot = context.getBaseSnapshot();
-    if (baseSnapshot != null) {
-      if (filter.isOnBaseResourceChildren()) {
-        sb.append(" AND s.parent_snapshot_id=").append(baseSnapshot.getId());
-      } else {
-        Long rootSnapshotId = baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId();
-        sb.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
-        sb.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
-      }
-    }
-  }
-
   private void appendResourceKeyCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceKey())) {
-      sb.append(" AND UPPER(p.kee) LIKE '%");
+      sb.append(" and UPPER(c.kee) like '%");
       sb.append(escapePercentAndUnderscrore(StringEscapeUtils.escapeSql(StringUtils.upperCase(filter.getResourceKey()))));
       sb.append("%'");
       appendEscapeForSomeDb(sb);
@@ -196,7 +200,7 @@ class MeasureFilterSql {
 
   private void appendResourceNameCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceName())) {
-      sb.append(" AND p.uuid IN (SELECT rindex.component_uuid FROM resource_index rindex WHERE rindex.kee LIKE '");
+      sb.append(" and c.uuid in (select rindex.component_uuid from resource_index rindex WHERE rindex.kee LIKE '");
       sb.append(escapePercentAndUnderscrore(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName()))));
       sb.append("%'");
       appendEscapeForSomeDb(sb);
@@ -205,6 +209,7 @@ class MeasureFilterSql {
         appendInStatement(filter.getResourceQualifiers(), sb);
       }
       sb.append(") ");
+      // TODO filter on ROOT_COMPONENT_UUID if base
     }
   }
 
@@ -259,8 +264,8 @@ class MeasureFilterSql {
   static class TextSortRowProcessor extends RowProcessor {
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
-      row.setSortText(rs.getString(4));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getString(1), rs.getString(2));
+      row.setSortText(rs.getString(3));
       return row;
     }
 
@@ -304,8 +309,8 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
-      double value = rs.getDouble(4);
+      MeasureFilterRow row = new MeasureFilterRow(rs.getString(1), rs.getString(2));
+      double value = rs.getDouble(3);
       if (!rs.wasNull()) {
         row.setSortDouble(value);
       }
@@ -333,8 +338,8 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
-      row.setSortDate(rs.getTimestamp(4).getTime());
+      MeasureFilterRow row = new MeasureFilterRow(rs.getString(1), rs.getString(2));
+      row.setSortDate(rs.getTimestamp(3).getTime());
       return row;
     }
     @Override
@@ -352,8 +357,8 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
-      row.setSortDate(rs.getLong(4));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getString(1), rs.getString(2));
+      row.setSortDate(rs.getLong(3));
       return row;
     }
 

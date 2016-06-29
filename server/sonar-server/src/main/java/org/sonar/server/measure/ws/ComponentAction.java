@@ -44,6 +44,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureDtoFunctions;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
@@ -137,10 +138,10 @@ public class ComponentAction implements MeasuresWsAction {
       Long developerId = searchDeveloperId(dbSession, request);
       Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
       checkPermissions(component);
-      SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
+      SnapshotDto analysis = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
       List<MetricDto> metrics = searchMetrics(dbSession, request);
-      List<WsMeasures.Period> periods = snapshotToWsPeriods(lastSnapshot);
-      List<MeasureDto> measures = searchMeasures(dbSession, component, lastSnapshot, metrics, periods, developerId);
+      List<WsMeasures.Period> periods = snapshotToWsPeriods(analysis);
+      List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, periods, developerId);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
     } finally {
@@ -180,7 +181,6 @@ public class ComponentAction implements MeasuresWsAction {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap()));
     }
 
-
     List<String> additionalFields = request.getAdditionalFields();
     if (additionalFields != null) {
       if (additionalFields.contains(ADDITIONAL_METRICS)) {
@@ -210,14 +210,19 @@ public class ComponentAction implements MeasuresWsAction {
     return metrics;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto snapshot, List<MetricDto> metrics, List<WsMeasures.Period> periods,
+  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto analysis, List<MetricDto> metrics, List<WsMeasures.Period> periods,
     @Nullable Long developerId) {
-    if (snapshot == null) {
+    if (analysis == null) {
       return emptyList();
     }
 
-    List<Integer> metricIds = Lists.transform(metrics, MetricDtoFunctions.toId());
-    List<MeasureDto> measures = dbClient.measureDao().selectByDeveloperForSnapshotAndMetrics(dbSession, developerId, snapshot.getId(), metricIds);
+    List<Integer> metricIds = Lists.transform(metrics, MetricDto::getId);
+    MeasureQuery query = MeasureQuery.builder()
+      .setPersonId(developerId)
+      .setMetricIds(metricIds)
+      .setComponentUuid(component.uuid())
+      .build();
+    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, query);
     addBestValuesToMeasures(measures, component, metrics, periods);
 
     return measures;

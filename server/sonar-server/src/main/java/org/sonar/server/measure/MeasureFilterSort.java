@@ -93,16 +93,16 @@ class MeasureFilterSort {
     String column;
     switch (field) {
       case KEY:
-        column = "p.kee";
+        column = "c.kee";
         break;
       case NAME:
-        column = "p.long_name";
+        column = "c.long_name";
         break;
       case SHORT_NAME:
-        column = "p.name";
+        column = "c.name";
         break;
       case DESCRIPTION:
-        column = "p.description";
+        column = "c.description";
         break;
       case VERSION:
         column = "s.version";
@@ -111,7 +111,7 @@ class MeasureFilterSort {
         column = "s.created_at";
         break;
       case PROJECT_CREATION_DATE:
-        column = "p.created_at";
+        column = "c.created_at";
         break;
       case METRIC:
         column = getMetricColumn();

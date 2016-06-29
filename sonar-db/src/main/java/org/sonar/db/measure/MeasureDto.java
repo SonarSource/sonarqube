@@ -28,7 +28,6 @@ public class MeasureDto {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
-  private Long id;
   private Double value;
   private String textValue;
   private byte[] dataValue;
@@ -43,20 +42,8 @@ public class MeasureDto {
   private String componentUuid;
   private Long snapshotId;
   private String analysisUuid;
-  private Integer metricId;
+  private int metricId;
   private Long developerId;
-
-  // TODO to delete – not in db
-  private String metricKey;
-
-  public Long getId() {
-    return id;
-  }
-
-  public MeasureDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   @CheckForNull
   public Double getValue() {
@@ -75,6 +62,10 @@ public class MeasureDto {
   public MeasureDto setComponentUuid(String s) {
     this.componentUuid = s;
     return this;
+  }
+
+  public void setSnapshotId(Long l) {
+    this.snapshotId = l;
   }
 
   @CheckForNull
@@ -171,21 +162,12 @@ public class MeasureDto {
     return this;
   }
 
-  public Integer getMetricId() {
+  public int getMetricId() {
     return metricId;
   }
 
-  public MeasureDto setMetricId(Integer metricId) {
+  public MeasureDto setMetricId(int metricId) {
     this.metricId = metricId;
-    return this;
-  }
-
-  public Long getSnapshotId() {
-    return snapshotId;
-  }
-
-  public MeasureDto setSnapshotId(Long snapshotId) {
-    this.snapshotId = snapshotId;
     return this;
   }
 
@@ -195,14 +177,6 @@ public class MeasureDto {
 
   public MeasureDto setAnalysisUuid(String s) {
     this.analysisUuid = s;
-    return this;
-  }
-
-  /**
-   * @deprecated in 5.5. Does nothing. Kept for compatibility with developer cockpit plugin, version 1.10
-   */
-  @Deprecated
-  public MeasureDto setRuleId(@Nullable Integer ruleId) {
     return this;
   }
 
@@ -216,27 +190,9 @@ public class MeasureDto {
     return this;
   }
 
-  public String getMetricKey() {
-    return metricKey;
-  }
-
-  public MeasureDto setMetricKey(String metricKey) {
-    this.metricKey = metricKey;
-    return this;
-  }
-
-  /**
-   * @deprecated in 5.5. Does nothing. Kept for compatibility with developer cockpit plugin, version 1.10
-   */
-  @Deprecated
-  public MeasureDto setCharacteristicId(@Nullable Integer characteristicId) {
-    return this;
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("id", id)
       .add("value", value)
       .add("textValue", textValue)
       .add("dataValue", dataValue)
@@ -249,11 +205,9 @@ public class MeasureDto {
       .add("alertText", alertText)
       .add("description", description)
       .add("componentUuid", componentUuid)
-      .add("snapshotId", snapshotId)
       .add("analysisUuid", analysisUuid)
       .add("metricId", metricId)
       .add("developerId", developerId)
-      .add("metricKey", metricKey)
       .toString();
   }
 }

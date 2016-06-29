@@ -16,7 +16,8 @@
            delete_historical_data="[null]"/>
 
   <projects uuid="UUID_JAVA_PROJECT"
-            uuid_path="NOT_USED"
+            uuid_path="."
+            project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
             language="[null]"
@@ -74,7 +75,7 @@
                     variation_value_5="400"
                     alert_text="[null]"
                     text_value="[null]"
-                    component_uuid="ABCD"
+                    component_uuid="UUID_JAVA_PROJECT"
                     alert_status="[null]"
                     description="[null]"
                     person_id="[null]"/>

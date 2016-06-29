@@ -199,7 +199,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) stringMetricId);
     assertThat(dto.get("value")).isNull();
@@ -207,7 +207,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("severity")).isNull();
 
     dto = dtos.get(1);
-    assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_1_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(intermediate1Dto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) intMetricId);
     assertValue(dto, 12d);
@@ -215,7 +215,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("severity")).isNull();
 
     dto = dtos.get(2);
-    assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_2_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(intermediate2Dto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) longMetricId);
     assertValue(dto, 9635d);
@@ -223,7 +223,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("severity")).isNull();
 
     dto = dtos.get(3);
-    assertThat(dto.get("snapshotId")).isEqualTo(LEAF_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(leafDto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) doubleMetricId);
     assertValue(dto, 123.1d);
@@ -329,7 +329,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
@@ -350,7 +350,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
@@ -371,7 +371,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
+    assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
@@ -407,13 +407,13 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   private static Period createPeriod(Integer index) {
-    return new Period(index, "mode" + index, null, index, index);
+    return new Period(index, "mode" + index, null, index, String.valueOf(index));
   }
 
   private List<Map<String, Object>> selectSnapshots() {
     return dbTester
       .select(
-        "SELECT snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", metric_id as \"metricId\", person_id as \"developerId\", "
+        "SELECT analysis_uuid as \"analysisUuid\", component_uuid as \"componentUuid\", metric_id as \"metricId\", person_id as \"developerId\", "
         +
         "value as \"value\", text_value as \"textValue\", " +
         "variation_value_1 as \"variation_value_1\", " +
@@ -422,7 +422,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         "variation_value_4 as \"variation_value_4\", " +
         "variation_value_5 as \"variation_value_5\"" +
         "FROM project_measures " +
-        "ORDER by snapshot_id asc");
+        "ORDER by id asc");
   }
 
   @Override

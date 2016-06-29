@@ -140,8 +140,8 @@ public class ReportNewCoverageMeasuresStepTest {
   @Before
   public void setUp() {
     periodsHolder.setPeriods(
-      new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), 1),
-      new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), 2));
+      new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"),
+      new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), "u2"));
   }
 
   @Test
@@ -558,10 +558,10 @@ public class ReportNewCoverageMeasuresStepTest {
   private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
     MeasureVariations.Builder variationBuilder = newMeasureVariationsBuilder();
     if (variationPeriod2 != null) {
-      variationBuilder.setVariation(new Period(2, "", null, 1L, 2L), variationPeriod2);
+      variationBuilder.setVariation(new Period(2, "", null, 1L, "u2"), variationPeriod2);
     }
     if (variationPeriod5 != null) {
-      variationBuilder.setVariation(new Period(5, "", null, 1L, 2L), variationPeriod5);
+      variationBuilder.setVariation(new Period(5, "", null, 1L, "u2"), variationPeriod5);
     }
     return newMeasureBuilder()
       .setVariations(variationBuilder.build())

@@ -134,7 +134,7 @@ public class RegisterMetrics {
     }
   }
 
-  private enum MetricToDto implements Function<Metric, MetricDto> {
+  public enum MetricToDto implements Function<Metric, MetricDto> {
     INSTANCE;
     @Override
     @Nonnull

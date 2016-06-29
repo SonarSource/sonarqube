@@ -71,7 +71,6 @@ public class MeasureRepositoryImplTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  private static final String AN_ANALYSIS_UUID = "a1";
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
   private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
@@ -81,9 +80,8 @@ public class MeasureRepositoryImplTest {
   private static final int METRIC_ID_2 = 2;
   private final Metric metric1 = mock(Metric.class);
   private final Metric metric2 = mock(Metric.class);
-  private static final long LAST_SNAPSHOT_ID = 123;
-  private static final long OTHER_SNAPSHOT_ID = 369;
-  private static final String COMPONENT_UUID = "UUID1";
+  private static final String LAST_ANALYSIS_UUID = "u123";
+  private static final String OTHER_ANALYSIS_UUID = "u369";
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
 
@@ -141,8 +139,8 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, FILE_COMPONENT.getUuid(), LAST_SNAPSHOT_ID));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, FILE_COMPONENT.getUuid(), OTHER_SNAPSHOT_ID));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, FILE_COMPONENT.getUuid(), LAST_ANALYSIS_UUID));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, FILE_COMPONENT.getUuid(), OTHER_ANALYSIS_UUID));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
@@ -417,11 +415,10 @@ public class MeasureRepositoryImplTest {
     assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.newMeasureBuilder().create("some value"));
   }
 
-  private static MeasureDto createMeasureDto(int metricId, String componentUuid, long snapshotId) {
+  private static MeasureDto createMeasureDto(int metricId, String componentUuid, String analysisUuid) {
     return new MeasureDto()
       .setComponentUuid(componentUuid)
-      .setSnapshotId(snapshotId)
-      .setAnalysisUuid(AN_ANALYSIS_UUID)
+      .setAnalysisUuid(analysisUuid)
       .setData(SOME_DATA)
       .setMetricId(metricId);
   }

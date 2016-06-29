@@ -270,6 +270,6 @@ public class MeasureVariationsTest {
   }
 
   private static Period createPeriod(int i) {
-    return new Period(i, "mode " + i, null, 100L + i, 952L + i);
+    return new Period(i, "mode " + i, null, 100L + i, String.valueOf(952L + i));
   }
 }

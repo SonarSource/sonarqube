@@ -19,8 +19,11 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -39,20 +42,21 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 
 public class AppAction implements RequestHandler {
 
   private static final String PARAM_UUID = "uuid";
   private static final String PARAM_PERIOD = "period";
-  private static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
+  static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
     CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
     CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
     CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY);
@@ -154,37 +158,24 @@ public class AppAction implements RequestHandler {
 
   private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
     json.name("measures").beginObject();
-    json.prop("lines", formatMeasure(measuresByMetricKey.get(CoreMetrics.LINES_KEY)));
-    json.prop("coverage", formatMeasure(coverageMeasure(measuresByMetricKey)));
-    json.prop("duplicationDensity", formatMeasure(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY)));
-    json.prop("issues", formatMeasure(measuresByMetricKey.get(CoreMetrics.VIOLATIONS_KEY)));
-    json.prop("tests", formatMeasure(measuresByMetricKey.get(CoreMetrics.TESTS_KEY)));
-    json.prop("debt", formatMeasure(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY)));
-    json.prop("sqaleRating", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY)));
-    json.prop("debtRatio", formatMeasure(measuresByMetricKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY)));
+    json.prop("lines", formatMeasure(measuresByMetricKey, CoreMetrics.LINES));
+    json.prop("coverage", formatCoverageMeasure(measuresByMetricKey));
+    json.prop("duplicationDensity", formatMeasure(measuresByMetricKey, CoreMetrics.DUPLICATED_LINES_DENSITY));
+    json.prop("issues", formatMeasure(measuresByMetricKey, CoreMetrics.VIOLATIONS));
+    json.prop("tests", formatMeasure(measuresByMetricKey, CoreMetrics.TESTS));
+    json.prop("debt", formatMeasure(measuresByMetricKey, CoreMetrics.TECHNICAL_DEBT));
+    json.prop("sqaleRating", formatMeasure(measuresByMetricKey, CoreMetrics.SQALE_RATING));
+    json.prop("debtRatio", formatMeasure(measuresByMetricKey, CoreMetrics.SQALE_DEBT_RATIO));
     json.endObject();
   }
 
-  private static MeasureDto coverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
-    MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
-    MeasureDto itCoverage = measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY);
-    MeasureDto utCoverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);
-    if (overallCoverage != null) {
-      return overallCoverage;
-    } else if (utCoverage != null) {
-      return utCoverage;
-    } else {
-      return itCoverage;
-    }
-  }
-
   private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
-    Map<String, MeasureDto> measuresByMetricKey = newHashMap();
-    String fileKey = component.getKey();
-    for (MeasureDto measureDto : dbClient.measureDao().selectByComponentKeyAndMetricKeys(session, fileKey, METRIC_KEYS)) {
-      measuresByMetricKey.put(measureDto.getMetricKey(), measureDto);
-    }
-    return measuresByMetricKey;
+    MeasureQuery query = MeasureQuery.builder().setComponentUuid(component.uuid()).setMetricKeys(METRIC_KEYS).build();
+    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(session, query);
+    Set<Integer> metricIds = measures.stream().map(MeasureDto::getMetricId).collect(Collectors.toSet());
+    List<MetricDto> metrics = dbClient.metricDao().selectByIds(session, metricIds);
+    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
+    return Maps.uniqueIndex(measures, m -> metricsById.get(m.getMetricId()).getKey());
   }
 
   @CheckForNull
@@ -196,12 +187,29 @@ public class AppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasure(@Nullable MeasureDto measure) {
+  private String formatCoverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
+    MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
+    if (overallCoverage != null) {
+      return formatMeasure(overallCoverage, CoreMetrics.OVERALL_COVERAGE);
+    }
+    MeasureDto utCoverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);
+    if (utCoverage != null) {
+      return formatMeasure(utCoverage, CoreMetrics.COVERAGE);
+    }
+    MeasureDto itCoverage = measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY);
+    return formatMeasure(itCoverage, CoreMetrics.IT_COVERAGE);
+  }
+
+  @CheckForNull
+  private String formatMeasure(Map<String, MeasureDto> measuresByMetricKey, Metric metric) {
+    MeasureDto measure = measuresByMetricKey.get(metric.getKey());
+    return formatMeasure(measure, metric);
+  }
+
+  private String formatMeasure(@Nullable MeasureDto measure, Metric metric) {
     if (measure == null) {
       return null;
     }
-
-    Metric metric = CoreMetrics.getMetric(measure.getMetricKey());
     Metric.ValueType metricType = metric.getType();
     Double value = getDoubleValue(measure, metric);
     String data = measure.getData();

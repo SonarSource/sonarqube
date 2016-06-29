@@ -140,7 +140,7 @@ public class MeasureToMeasureDtoTest {
     MeasureDto measureDto = underTest.toMeasureDto(measure, metric, SOME_COMPONENT);
 
     assertThat(measureDto.getComponentUuid()).isEqualTo(SOME_COMPONENT.getUuid());
-    assertThat(measureDto.getSnapshotId()).isEqualTo(SOME_SNAPSHOT_ID);
+    //assertThat(measureDto.getSnapshotId()).isEqualTo(SOME_SNAPSHOT_ID);
   }
 
   @Test

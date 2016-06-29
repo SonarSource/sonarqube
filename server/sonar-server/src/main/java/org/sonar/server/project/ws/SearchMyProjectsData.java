@@ -46,7 +46,7 @@ class SearchMyProjectsData {
     this.projects = copyOf(builder.projects);
     this.projectLinksByProjectUuid = buildProjectLinks(builder.projectLinks);
     this.lastAnalysisDates = buildAnalysisDates(builder.snapshots);
-    this.qualityGateStatuses = buildQualityGateStatuses(builder.snapshots, builder.qualityGates);
+    this.qualityGateStatuses = buildQualityGateStatuses(builder.qualityGates);
     this.totalNbOfProject = builder.totalNbOfProjects;
   }
 
@@ -86,10 +86,9 @@ class SearchMyProjectsData {
       snapshot -> formatDateTime(snapshot.getCreatedAt()))));
   }
 
-  private static Map<String, String> buildQualityGateStatuses(List<SnapshotDto> snapshots, List<MeasureDto> measures) {
-    Map<Long, String> componentUuidsBySnapshotId = snapshots.stream().collect(Collectors.toMap(SnapshotDto::getId, SnapshotDto::getComponentUuid));
+  private static Map<String, String> buildQualityGateStatuses(List<MeasureDto> measures) {
     return ImmutableMap.copyOf(measures.stream()
-      .collect(Collectors.toMap(measure -> componentUuidsBySnapshotId.get(measure.getSnapshotId()), MeasureDto::getData)));
+      .collect(Collectors.toMap(measure -> measure.getComponentUuid(), MeasureDto::getData)));
   }
 
   static class Builder {

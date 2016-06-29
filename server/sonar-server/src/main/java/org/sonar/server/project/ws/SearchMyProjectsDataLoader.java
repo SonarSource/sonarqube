@@ -33,11 +33,11 @@ import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
 
-import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.project.ws.SearchMyProjectsData.builder;
@@ -57,13 +57,15 @@ public class SearchMyProjectsDataLoader {
       SearchMyProjectsData.Builder data = builder();
       ProjectsResult searchResult = searchProjects(dbSession, request);
       List<ComponentDto> projects = searchResult.projects;
-      List<String> componentUuids = Lists.transform(projects, ComponentDto::uuid);
-      List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, componentUuids);
-      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastSnapshotByComponentUuids(dbSession, componentUuids);
-      MetricDto alertStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
-      List<MeasureDto> qualityGates = dbClient.measureDao().selectBySnapshotIdsAndMetricIds(dbSession,
-        Lists.transform(snapshots, SnapshotDto::getId),
-        singletonList(alertStatusMetric.getId()));
+      List<String> projectUuids = Lists.transform(projects, ComponentDto::uuid);
+      List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
+      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastSnapshotByComponentUuids(dbSession, projectUuids);
+      MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
+      MeasureQuery measureQuery = MeasureQuery.builder()
+        .setComponentUuids(projectUuids)
+        .setMetricId(gateStatusMetric.getId())
+        .build();
+      List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
 
       data.setProjects(projects)
         .setProjectLinks(projectLinks)
