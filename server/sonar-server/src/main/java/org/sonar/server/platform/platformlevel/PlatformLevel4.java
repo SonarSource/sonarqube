@@ -168,8 +168,6 @@ import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.UpdateCenterClient;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
@@ -275,7 +273,7 @@ import org.sonar.server.ui.ws.ComponentNavigationAction;
 import org.sonar.server.ui.ws.GlobalNavigationAction;
 import org.sonar.server.ui.ws.NavigationWs;
 import org.sonar.server.ui.ws.SettingsNavigationAction;
-import org.sonar.server.updatecenter.ws.UpdateCenterWs;
+import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.DeprecatedUserFinder;
@@ -367,9 +365,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueTagCloudWidget.class,
 
       // update center
-      UpdateCenterClient.class,
-      UpdateCenterMatrixFactory.class,
-      UpdateCenterWs.class,
+      UpdateCenterModule.class,
 
       // quality profile
       ActiveRuleIndexer.class,

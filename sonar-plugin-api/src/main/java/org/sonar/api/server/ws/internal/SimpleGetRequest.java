@@ -37,6 +37,7 @@ import org.sonar.api.server.ws.Request;
 public class SimpleGetRequest extends Request {
 
   private final Map<String, String> params = Maps.newHashMap();
+  private final Map<String, Part> parts = Maps.newHashMap();
   private String mediaType = "application/json";
   private String path;
 
@@ -83,6 +84,16 @@ public class SimpleGetRequest extends Request {
   }
 
   @Override
+  public Part paramAsPart(String key) {
+    return parts.get(key);
+  }
+
+  public SimpleGetRequest setPart(String key, InputStream input, String fileName) {
+    parts.put(key, new PartImpl(input, fileName));
+    return this;
+  }
+
+  @Override
   public LocalConnector localConnector() {
     throw new UnsupportedOperationException();
   }
@@ -96,4 +107,5 @@ public class SimpleGetRequest extends Request {
     this.path = path;
     return this;
   }
+
 }

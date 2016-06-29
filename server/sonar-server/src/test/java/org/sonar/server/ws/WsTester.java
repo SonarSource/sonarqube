@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
@@ -55,6 +56,7 @@ public class WsTester {
     private String path;
 
     private Map<String, String> params = Maps.newHashMap();
+    private final Map<String, Part> parts = Maps.newHashMap();
 
     private TestRequest(String method) {
       this.method = method;
@@ -107,6 +109,16 @@ public class WsTester {
       String param = readParam(key);
 
       return param == null ? null : IOUtils.toInputStream(param);
+    }
+
+    @Override
+    protected Part readPart(String key) {
+      return parts.get(key);
+    }
+
+    public TestRequest setPart(String key, InputStream input, String fileName) {
+      parts.put(key, new PartImpl(input, fileName));
+      return this;
     }
 
     public Result execute() throws Exception {

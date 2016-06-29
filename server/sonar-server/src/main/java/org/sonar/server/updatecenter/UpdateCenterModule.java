@@ -17,33 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.server.updatecenter;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import org.sonar.core.platform.Module;
+import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.updatecenter.ws.UpdateCenterWs;
+import org.sonar.server.updatecenter.ws.UploadAction;
 
-public class TestResponse {
-
-  private final DumbResponse dumbResponse;
-
-  TestResponse(DumbResponse dumbResponse) {
-    this.dumbResponse = dumbResponse;
-  }
-
-  public InputStream getInputStream() {
-    return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
-  }
-
-  public String getInput() {
-    return new String(dumbResponse.getFlushedOutput(), StandardCharsets.UTF_8);
-  }
-
-  public String getMediaType() {
-    return dumbResponse.stream().mediaType();
-  }
-
-  public int getStatus() {
-    return dumbResponse.stream().status();
+public class UpdateCenterModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      UpdateCenterClient.class,
+      UpdateCenterMatrixFactory.class,
+      UploadAction.class,
+      UpdateCenterWs.class);
   }
 }

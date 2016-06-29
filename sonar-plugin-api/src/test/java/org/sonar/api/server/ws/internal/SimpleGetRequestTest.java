@@ -19,29 +19,44 @@
  */
 package org.sonar.api.server.ws.internal;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.io.InputStream;
+import org.junit.Test;
+import org.sonar.api.server.ws.Request;
 
 public class SimpleGetRequestTest {
 
+  SimpleGetRequest underTest = new SimpleGetRequest();
+
   @Test
   public void method() {
-    SimpleGetRequest request = new SimpleGetRequest();
-    assertThat(request.method()).isEqualTo("GET");
+    assertThat(underTest.method()).isEqualTo("GET");
 
-    request.setParam("foo", "bar");
-    assertThat(request.param("foo")).isEqualTo("bar");
-    assertThat(request.param("unknown")).isNull();
+    underTest.setParam("foo", "bar");
+    assertThat(underTest.param("foo")).isEqualTo("bar");
+    assertThat(underTest.param("unknown")).isNull();
   }
 
   @Test
   public void has_param() {
-    SimpleGetRequest request = new SimpleGetRequest();
-    assertThat(request.method()).isEqualTo("GET");
+    assertThat(underTest.method()).isEqualTo("GET");
 
-    request.setParam("foo", "bar");
-    assertThat(request.hasParam("foo")).isTrue();
-    assertThat(request.hasParam("unknown")).isFalse();
+    underTest.setParam("foo", "bar");
+    assertThat(underTest.hasParam("foo")).isTrue();
+    assertThat(underTest.hasParam("unknown")).isFalse();
+  }
+
+  @Test
+  public void get_part() throws Exception {
+    InputStream inputStream = mock(InputStream.class);
+    underTest.setPart("key", inputStream, "filename");
+
+    Request.Part part = underTest.paramAsPart("key");
+    assertThat(part.getInputStream()).isEqualTo(inputStream);
+    assertThat(part.getFileName()).isEqualTo("filename");
+
+    assertThat(underTest.paramAsPart("unknown")).isNull();
   }
 }

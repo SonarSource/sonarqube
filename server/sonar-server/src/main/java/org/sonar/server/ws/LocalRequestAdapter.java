@@ -48,6 +48,11 @@ public class LocalRequestAdapter extends ValidatingRequest {
   }
 
   @Override
+  protected Part readPart(String key) {
+    throw new UnsupportedOperationException("reading part is not supported yet by local WS calls");
+  }
+
+  @Override
   public boolean hasParam(String key) {
     return localRequest.hasParam(key);
   }

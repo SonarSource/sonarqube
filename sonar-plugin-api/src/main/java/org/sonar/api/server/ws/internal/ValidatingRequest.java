@@ -19,6 +19,8 @@
  */
 package org.sonar.api.server.ws.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -33,8 +35,6 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Loggers;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @since 4.2
@@ -72,6 +72,12 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public InputStream paramAsInputStream(String key) {
     return readInputStreamParam(key);
+  }
+
+  @Override
+  @CheckForNull
+  public Part paramAsPart(String key) {
+    return readPart(key);
   }
 
   @CheckForNull
@@ -138,6 +144,9 @@ public abstract class ValidatingRequest extends Request {
 
   @CheckForNull
   protected abstract InputStream readInputStreamParam(String key);
+
+  @CheckForNull
+  protected abstract Part readPart(String key);
 
   private static void validate(String value, WebService.Param definition) {
     Set<String> possibleValues = definition.possibleValues();

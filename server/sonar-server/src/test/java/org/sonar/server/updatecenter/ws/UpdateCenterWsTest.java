@@ -19,13 +19,15 @@
  */
 package org.sonar.server.updatecenter.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.ws.WsTester;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdateCenterWsTest {
 
@@ -33,7 +35,8 @@ public class UpdateCenterWsTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new UpdateCenterWs());
+    tester = new WsTester(new UpdateCenterWs(
+      new UploadAction(null, mock(DefaultServerFileSystem.class))));
   }
 
   @Test
@@ -42,7 +45,7 @@ public class UpdateCenterWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
@@ -56,4 +59,15 @@ public class UpdateCenterWsTest {
     assertThat(action.params()).hasSize(1);
   }
 
+  @Test
+  public void define_upload_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/updatecenter");
+
+    WebService.Action action = controller.action("upload");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.params()).hasSize(1);
+  }
 }

@@ -17,33 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
 
-import java.io.ByteArrayInputStream;
+package org.sonar.api.server.ws.internal;
+
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import org.sonar.api.server.ws.Request;
 
-public class TestResponse {
+public class PartImpl implements Request.Part {
 
-  private final DumbResponse dumbResponse;
+  private final InputStream inputStream;
+  private final String fileName;
 
-  TestResponse(DumbResponse dumbResponse) {
-    this.dumbResponse = dumbResponse;
+  public PartImpl(InputStream inputStream, String fileName) {
+    this.inputStream = inputStream;
+    this.fileName = fileName;
   }
 
+  @Override
   public InputStream getInputStream() {
-    return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
+    return inputStream;
   }
 
-  public String getInput() {
-    return new String(dumbResponse.getFlushedOutput(), StandardCharsets.UTF_8);
-  }
-
-  public String getMediaType() {
-    return dumbResponse.stream().mediaType();
-  }
-
-  public int getStatus() {
-    return dumbResponse.stream().status();
+  @Override
+  public String getFileName() {
+    return fileName;
   }
 }

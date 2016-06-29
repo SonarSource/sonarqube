@@ -19,6 +19,8 @@
  */
 package org.sonar.api.server.ws;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -121,6 +123,15 @@ public abstract class Request {
 
   @CheckForNull
   public abstract InputStream paramAsInputStream(String key);
+
+  @CheckForNull
+  public abstract Part paramAsPart(String key);
+
+  public Part mandatoryParamAsPart(String key) {
+    Part part = paramAsPart(key);
+    checkArgument(part != null, "The '%s' parameter is missing", key);
+    return part;
+  }
 
   /**
    * @deprecated to be dropped in 4.4. Default values are declared in ws metadata
@@ -270,4 +281,13 @@ public abstract class Request {
    * @since 6.0
    */
   public abstract String getPath();
+
+  /**
+   * @since 6.0
+   */
+  public interface Part {
+    InputStream getInputStream();
+
+    String getFileName();
+  }
 }

@@ -25,6 +25,12 @@ import org.sonar.api.server.ws.WebService;
 
 public class UpdateCenterWs implements WebService {
 
+  private final UpdateCenterWsAction[] actions;
+
+  public UpdateCenterWs(UpdateCenterWsAction... actions) {
+    this.actions = actions;
+  }
+
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/updatecenter")
@@ -32,6 +38,9 @@ public class UpdateCenterWs implements WebService {
       .setSince("2.10");
 
     defineInstalledPluginsAction(controller);
+    for (UpdateCenterWsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

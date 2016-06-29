@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonarqube.ws.MediaTypes;
 
@@ -73,15 +73,22 @@ public class ServletRequest extends ValidatingRequest {
 
   @Override
   protected InputStream readInputStreamParam(String key) {
+    Part part = readPart(key);
+    return (part == null) ? null : part.getInputStream();
+  }
+
+  @Override
+  @CheckForNull
+  public Part readPart(String key) {
     try {
       if (!isMultipartContent()) {
         return null;
       }
-      Part part = source.getPart(key);
+      javax.servlet.http.Part part = source.getPart(key);
       if (part == null || part.getSize() == 0) {
         return null;
       }
-      return part.getInputStream();
+      return new PartImpl(part.getInputStream(), part.getSubmittedFileName());
     } catch (Exception e) {
       throw new IllegalStateException("Can't read file part", e);
     }
@@ -117,4 +124,5 @@ public class ServletRequest extends ValidatingRequest {
   public String getPath() {
     return source.getRequestURI().replaceFirst(source.getContextPath(), "");
   }
+
 }

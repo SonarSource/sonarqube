@@ -23,12 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Maps;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
-import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -73,7 +69,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -82,7 +78,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request_when_path_does_not_begin_with_slash() {
-    ValidatingRequest request = new SimpleRequest("GET", "api/system/health");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -91,7 +87,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request_with_action_suffix() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -100,7 +96,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_if_action_suffix_is_not_supported() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/health.bat");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health.bat");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -111,7 +107,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void no_content() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/alive");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/alive");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -120,7 +116,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_controller() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/xxx/health");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/xxx/health");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -129,7 +125,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_action() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/xxx");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/xxx");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -138,7 +134,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_get_not_allowed() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/ping");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/ping");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -147,7 +143,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_post_required() {
-    ValidatingRequest request = new SimpleRequest("POST", "/api/system/ping");
+    ValidatingRequest request = new TestRequest().setMethod("POST").setPath("/api/system/ping");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -156,7 +152,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void unknown_parameter_is_set() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/fail_with_undeclared_parameter").setParam("unknown", "Unknown");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_undeclared_parameter").setParam("unknown", "Unknown");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -165,7 +161,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void required_parameter_is_not_set() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -174,7 +170,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_not_set() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print").setParam("message", "Hello World");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print").setParam("message", "Hello World");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -183,7 +179,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_set() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print")
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
     DumbResponse response = new DumbResponse();
@@ -194,7 +190,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_in_possible_values() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/print")
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
       .setParam("message", "Hello World")
       .setParam("format", "json");
     DumbResponse response = new DumbResponse();
@@ -205,7 +201,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_not_in_possible_values() {
-    ValidatingRequest request = new SimpleRequest("GET", "api/system/print")
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
       .setParam("message", "Hello World")
       .setParam("format", "html");
     DumbResponse response = new DumbResponse();
@@ -216,7 +212,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void internal_error() {
-    ValidatingRequest request = new SimpleRequest("GET", "/api/system/fail");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail");
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
@@ -228,7 +224,7 @@ public class WebServiceEngineTest {
   @Test
   public void bad_request_with_i18n_message() {
     userSessionRule.setLocale(Locale.ENGLISH);
-    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_i18n_message").setParam("count", "3");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_i18n_message").setParam("count", "3");
     DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
 
@@ -242,7 +238,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_messages() {
-    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_multiple_messages").setParam("count", "3");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_multiple_messages").setParam("count", "3");
     DumbResponse response = new DumbResponse();
 
     underTest.execute(request, response);
@@ -260,7 +256,7 @@ public class WebServiceEngineTest {
   public void bad_request_with_multiple_i18n_messages() {
     userSessionRule.setLocale(Locale.ENGLISH);
 
-    ValidatingRequest request = new SimpleRequest("GET", "api/system/fail_with_multiple_i18n_messages").setParam("count", "3");
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_multiple_i18n_messages").setParam("count", "3");
     DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 1)).thenReturn("reason #1");
@@ -284,62 +280,6 @@ public class WebServiceEngineTest {
     response.setHeader(name, value);
     assertThat(response.getHeaderNames()).containsExactly(name);
     assertThat(response.getHeader(name)).isEqualTo(value);
-  }
-
-  private static class SimpleRequest extends ValidatingRequest {
-    private final String method;
-    private String path;
-    private Map<String, String> params = Maps.newHashMap();
-
-    private SimpleRequest(String method, String path) {
-      this.method = method;
-      this.path = path;
-    }
-
-    @Override
-    public String method() {
-      return method;
-    }
-
-    @Override
-    public String getMediaType() {
-      return MediaTypes.JSON;
-    }
-
-    @Override
-    public boolean hasParam(String key) {
-      return params.keySet().contains(key);
-    }
-
-    @Override
-    public String getPath() {
-      return path;
-    }
-
-    @Override
-    protected String readParam(String key) {
-      return params.get(key);
-    }
-
-    @Override
-    protected InputStream readInputStreamParam(String key) {
-      String param = readParam(key);
-
-      return param == null ? null : IOUtils.toInputStream(param);
-    }
-
-    public SimpleRequest setParams(Map<String, String> m) {
-      this.params = m;
-      return this;
-    }
-
-    public SimpleRequest setParam(String key, @Nullable String value) {
-      if (value != null) {
-        params.put(key, value);
-      }
-      return this;
-    }
-
   }
 
   static class SystemWs implements WebService {

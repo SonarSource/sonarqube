@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
 
@@ -259,9 +260,30 @@ public class RequestTest {
     assertThat(IOUtils.toString(underTest.setParam("a_string", "foo").paramAsInputStream("a_string"))).isEqualTo("foo");
   }
 
+  @Test
+  public void param_as_part() throws Exception {
+    InputStream inputStream = mock(InputStream.class);
+    underTest.setPart("key", inputStream, "filename");
+
+    Request.Part part = underTest.paramAsPart("key");
+    assertThat(part.getInputStream()).isEqualTo(inputStream);
+    assertThat(part.getFileName()).isEqualTo("filename");
+
+    assertThat(underTest.paramAsPart("unknown")).isNull();
+  }
+
+  @Test
+  public void mandatory_param_as_part() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'required_param' parameter is missing");
+
+    underTest.mandatoryParamAsPart("required_param");
+  }
+
   private static class FakeRequest extends ValidatingRequest {
 
     private final Map<String, String> params = Maps.newHashMap();
+    private final Map<String, Part> parts = Maps.newHashMap();
 
     @Override
     public String method() {
@@ -300,6 +322,16 @@ public class RequestTest {
       String param = readParam(key);
 
       return param == null ? null : IOUtils.toInputStream(param);
+    }
+
+    @Override
+    protected Part readPart(String key) {
+      return parts.get(key);
+    }
+
+    public FakeRequest setPart(String key, InputStream input, String fileName) {
+      parts.put(key, new PartImpl(input, fileName));
+      return this;
     }
   }
 

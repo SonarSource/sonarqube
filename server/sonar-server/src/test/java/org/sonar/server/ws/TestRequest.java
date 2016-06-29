@@ -22,15 +22,18 @@ package org.sonar.server.ws;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 public class TestRequest extends ValidatingRequest {
 
   private final Map<String, String> params = new HashMap<>();
+  private final Map<String, Part> parts = Maps.newHashMap();
   private String method = "GET";
   private String mimeType = "application/octet-stream";
   private String path;
@@ -47,6 +50,16 @@ public class TestRequest extends ValidatingRequest {
       return null;
     }
     return IOUtils.toInputStream(value);
+  }
+
+  @Override
+  protected Part readPart(String key) {
+    return parts.get(key);
+  }
+
+  public TestRequest setPart(String key, InputStream input, String fileName) {
+    parts.put(key, new PartImpl(input, fileName));
+    return this;
   }
 
   @Override

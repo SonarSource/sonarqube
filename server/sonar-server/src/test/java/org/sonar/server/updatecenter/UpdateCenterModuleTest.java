@@ -17,33 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.server.updatecenter;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestResponse {
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-  private final DumbResponse dumbResponse;
-
-  TestResponse(DumbResponse dumbResponse) {
-    this.dumbResponse = dumbResponse;
-  }
-
-  public InputStream getInputStream() {
-    return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
-  }
-
-  public String getInput() {
-    return new String(dumbResponse.getFlushedOutput(), StandardCharsets.UTF_8);
-  }
-
-  public String getMediaType() {
-    return dumbResponse.stream().mediaType();
-  }
-
-  public int getStatus() {
-    return dumbResponse.stream().status();
+public class UpdateCenterModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new UpdateCenterModule().configure(container);
+    assertThat(container.size()).isEqualTo(2 + 4);
   }
 }
