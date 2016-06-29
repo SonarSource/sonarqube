@@ -31,8 +31,6 @@ public class MeasureDtoTest {
   @Test
   public void test_getter_and_setter() throws Exception {
     underTest
-      .setMetricKey("metric")
-      .setId(10L)
       .setValue(2d)
       .setData("text value")
       .setVariation(1, 1d)
@@ -41,7 +39,6 @@ public class MeasureDtoTest {
       .setVariation(4, 4d)
       .setVariation(5, 5d);
 
-    assertThat(underTest.getId()).isEqualTo(10);
     assertThat(underTest.getValue()).isEqualTo(2d);
     assertThat(underTest.getData()).isNotNull();
     assertThat(underTest.getVariation(1)).isEqualTo(1d);

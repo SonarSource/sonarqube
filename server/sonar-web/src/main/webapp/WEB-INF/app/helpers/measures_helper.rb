@@ -48,21 +48,21 @@ module MeasuresHelper
       end
 
     elsif column.key=='name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key)})}"
+      "#{qualifier_icon(row.resource)} #{link_to(h(row.resource.name(true)), {:controller => 'dashboard', :id => row.resource.id}, {:title => h(row.resource.key)})}"
     elsif column.key=='short_name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key)})}"
+      "#{qualifier_icon(row.resource)} #{link_to(h(row.resource.name(false)), {:controller => 'dashboard', :id => row.resource.id}, {:title => h(row.resource.key)})}"
     elsif column.key=='date'
-      human_short_date(row.snapshot.created_at)
+      human_short_date(row.analysis.created_at) if row.analysis
     elsif column.key=='project_creation_date'
-      human_short_date(row.snapshot.resource.created_at) if row.snapshot.resource.created_at
+      human_short_date(row.resource.created_at) if row.resource.created_at
     elsif column.key=='key'
-      "<span class='small'>#{row.snapshot.resource.kee}</span>"
+      "<span class='small'>#{row.resource.kee}</span>"
     elsif column.key=='description'
-      h row.snapshot.resource.description
+      h row.resource.description
     elsif column.key=='version'
-      h row.snapshot.version
+      h row.analysis.version if row.analysis
     elsif column.key=='language'
-      Api::Utils.language_name(row.snapshot.resource.language)
+      Api::Utils.language_name(row.resource.language)
     elsif column.key=='links' && row.links
       html = ''
       row.links.select { |link| link.href.start_with?('http') }.each do |link|

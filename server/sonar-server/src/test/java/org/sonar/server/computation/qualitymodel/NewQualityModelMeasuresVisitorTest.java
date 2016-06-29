@@ -64,7 +64,7 @@ public class NewQualityModelMeasuresVisitorTest {
   private static final long LANGUAGE_1_DEV_COST = 30l;
   private static final long PERIOD_2_SNAPSHOT_DATE = 12323l;
   private static final long PERIOD_5_SNAPSHOT_DATE = 99999999l;
-  private static final long SOME_SNAPSHOT_ID = 9993l;
+  private static final String SOME_ANALYSIS_UUID = "9993l";
   private static final String SOME_PERIOD_MODE = "some mode";
   private static final int ROOT_REF = 1;
   private static final int LANGUAGE_1_FILE_REF = 11111;
@@ -329,11 +329,11 @@ public class NewQualityModelMeasuresVisitorTest {
     long period5 = 50000L;
 
     periodsHolder.setPeriods(
-      new Period(1, SOME_PERIOD_MODE, null, period1, SOME_SNAPSHOT_ID),
-      new Period(2, SOME_PERIOD_MODE, null, period2, SOME_SNAPSHOT_ID),
-      new Period(3, SOME_PERIOD_MODE, null, period3, SOME_SNAPSHOT_ID),
-      new Period(4, SOME_PERIOD_MODE, null, period4, SOME_SNAPSHOT_ID),
-      new Period(5, SOME_PERIOD_MODE, null, period5, SOME_SNAPSHOT_ID));
+      new Period(1, SOME_PERIOD_MODE, null, period1, SOME_ANALYSIS_UUID),
+      new Period(2, SOME_PERIOD_MODE, null, period2, SOME_ANALYSIS_UUID),
+      new Period(3, SOME_PERIOD_MODE, null, period3, SOME_ANALYSIS_UUID),
+      new Period(4, SOME_PERIOD_MODE, null, period4, SOME_ANALYSIS_UUID),
+      new Period(5, SOME_PERIOD_MODE, null, period5, SOME_ANALYSIS_UUID));
 
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
 
@@ -463,7 +463,7 @@ public class NewQualityModelMeasuresVisitorTest {
 
   private void setTwoPeriods() {
     periodsHolder.setPeriods(
-      new Period(2, SOME_PERIOD_MODE, null, PERIOD_2_SNAPSHOT_DATE, SOME_SNAPSHOT_ID),
-      new Period(4, SOME_PERIOD_MODE, null, PERIOD_5_SNAPSHOT_DATE, SOME_SNAPSHOT_ID));
+      new Period(2, SOME_PERIOD_MODE, null, PERIOD_2_SNAPSHOT_DATE, SOME_ANALYSIS_UUID),
+      new Period(4, SOME_PERIOD_MODE, null, PERIOD_5_SNAPSHOT_DATE, SOME_ANALYSIS_UUID));
   }
 }

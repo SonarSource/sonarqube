@@ -115,17 +115,17 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
-      SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, component.uuid());
+      SnapshotDto analysis = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, component.uuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponent(json, session, component, snapshot, userSession);
+      writeComponent(json, session, component, analysis, userSession);
 
       if (userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid()) || userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component, userSession);
       }
 
-      writeBreadCrumbs(json, session, component, snapshot);
+      writeBreadCrumbs(json, session, component, analysis);
       json.endObject().close();
 
     } finally {
@@ -133,7 +133,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     }
   }
 
-  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto snapshot, UserSession userSession) {
+  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis, UserSession userSession) {
 
     json.prop("key", component.key())
       .prop("uuid", component.uuid())
@@ -148,10 +148,10 @@ public class ComponentNavigationAction implements NavigationWsAction {
     }
     writeDashboards(json, dashboards);
 
-    if (snapshot != null) {
-      json.prop("version", snapshot.getVersion())
-        .prop("snapshotDate", DateUtils.formatDateTime(new Date(snapshot.getCreatedAt())));
-      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE);
+    if (analysis != null) {
+      json.prop("version", analysis.getVersion())
+        .prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
+      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language());
       writeExtensions(json, component, pages, userSession.locale());
     }
   }
@@ -217,7 +217,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
     if (isAdmin) {
       json.name("extensions").beginArray();
-      List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION);
+      List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language());
       for (ViewProxy<Page> page : configPages) {
         writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
       }

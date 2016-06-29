@@ -71,7 +71,7 @@ public class SettingsNavigationAction implements NavigationWsAction {
 
     json.name("extensions").beginArray();
     if (isAdmin) {
-      for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION)) {
+      for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION, null, null, null)) {
         json.beginObject()
           .prop("name", i18n.message(userSession.locale(), String.format("%s.page", page.getTitle()), page.getTitle()))
           .prop("url", getPageUrl(page))

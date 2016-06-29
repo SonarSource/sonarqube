@@ -20,7 +20,6 @@
 package org.sonar.server.computation.issue;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -31,6 +30,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
 
@@ -43,8 +43,8 @@ public class NewEffortCalculatorTest {
   private static final Duration FIVE_DAYS = Duration.create(5 * HOURS_IN_DAY * 60 * 60L);
   private static final Duration TEN_DAYS = Duration.create(10 * HOURS_IN_DAY * 60 * 60L);
   private static final long PERIOD_DATE = 150000000L;
-  private static final long SNAPSHOT_ID = 1000L;
-  private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, SNAPSHOT_ID);
+  private static final String ANALYSIS_UUID = "u1";
+  private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, ANALYSIS_UUID);
 
   DefaultIssue issue = new DefaultIssue();
   NewEffortCalculator underTest = new NewEffortCalculator();
@@ -56,7 +56,7 @@ public class NewEffortCalculatorTest {
   public void total_debt_if_issue_created_during_period() {
     issue.setEffort(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE + 10000));
 
-    long newDebt = underTest.calculate(issue, Collections.<IssueChangeDto>emptyList(), PERIOD);
+    long newDebt = underTest.calculate(issue, emptyList(), PERIOD);
 
     assertThat(newDebt).isEqualTo(TWO_DAYS.toMinutes());
   }

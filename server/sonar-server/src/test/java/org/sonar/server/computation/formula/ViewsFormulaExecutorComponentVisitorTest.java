@@ -91,7 +91,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
-    .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
+    .setPeriods(new Period(2, "some mode", null, 95l, "u1"), new Period(5, "some other mode", null, 756L, "u2"));
 
   @Test
   public void verify_aggregation_on_value() throws Exception {

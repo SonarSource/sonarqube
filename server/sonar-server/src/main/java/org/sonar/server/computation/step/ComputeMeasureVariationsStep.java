@@ -72,7 +72,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     @Nullable
     @Override
     public MeasureKey apply(@Nonnull PastMeasureDto input) {
-      Metric metric = metricRepository.getById(input.getMetricId());
+      Metric metric = metricRepository.getById((long)input.getMetricId());
       return new MeasureKey(metric.getKey(), null);
     }
   };
@@ -122,7 +122,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       MeasuresWithVariationRepository measuresWithVariationRepository = new MeasuresWithVariationRepository();
       for (Period period : periodsHolder.getPeriods()) {
         List<PastMeasureDto> pastMeasures = dbClient.measureDao()
-          .selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, component.getUuid(), period.getSnapshotId(), metricIds);
+          .selectPastMeasures(session, component.getUuid(), period.getAnalysisUuid(), metricIds);
         setVariationMeasures(component, pastMeasures, period.getIndex(), measuresWithVariationRepository);
       }
       return measuresWithVariationRepository;

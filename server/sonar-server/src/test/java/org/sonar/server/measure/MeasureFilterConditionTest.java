@@ -62,7 +62,7 @@ public class MeasureFilterConditionTest {
     assertThat(condition.textValue()).isNull();
     assertThat(condition.appendSqlColumn(new StringBuilder(), 1).toString()).isEqualTo("pmcond1.value");
     assertThat(condition.toString()).isNotEmpty();
-    assertThat(condition.appendSqlCondition(new StringBuilder(), 1).toString()).isEqualTo(" pmcond1.metric_id=123 AND pmcond1.value > 10.0 AND pmcond1.person_id IS NULL ");
+    assertThat(condition.appendSqlCondition(new StringBuilder(), 1).toString()).isEqualTo(" pmcond1.metric_id=123 and pmcond1.value > 10.0 and pmcond1.person_id is null ");
   }
 
   @Test
@@ -79,7 +79,7 @@ public class MeasureFilterConditionTest {
     assertThat(condition.appendSqlColumn(new StringBuilder(), 2).toString()).isEqualTo("pmcond2.variation_value_3");
     assertThat(condition.toString()).isNotEmpty();
     assertThat(condition.appendSqlCondition(new StringBuilder(), 2).toString())
-      .isEqualTo(" pmcond2.metric_id=123 AND pmcond2.variation_value_3 <= 10.0 AND pmcond2.person_id IS NULL ");
+      .isEqualTo(" pmcond2.metric_id=123 and pmcond2.variation_value_3 <= 10.0 and pmcond2.person_id is null ");
   }
 
   @Test
@@ -95,6 +95,6 @@ public class MeasureFilterConditionTest {
     assertThat(condition.textValue()).isEqualTo("\"foo\"");
     assertThat(condition.appendSqlColumn(new StringBuilder(), 1).toString()).isEqualTo("pmcond1.text_value");
     assertThat(condition.toString()).isNotEmpty();
-    assertThat(condition.appendSqlCondition(new StringBuilder(), 1).toString()).isEqualTo(" pmcond1.metric_id=123 AND pmcond1.text_value = \"foo\" AND pmcond1.person_id IS NULL ");
+    assertThat(condition.appendSqlCondition(new StringBuilder(), 1).toString()).isEqualTo(" pmcond1.metric_id=123 and pmcond1.text_value = \"foo\" and pmcond1.person_id is null ");
   }
 }

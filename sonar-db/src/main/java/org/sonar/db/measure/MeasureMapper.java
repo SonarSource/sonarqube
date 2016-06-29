@@ -19,40 +19,15 @@
  */
 package org.sonar.db.measure;
 
-import java.util.Collection;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface MeasureMapper {
 
   List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query);
 
-  MeasureDto selectByKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-  List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
-
-  List<MeasureDto> selectBySnapshotAndMetricKeys(@Param("snapshotId") long snapshotId, @Param("metricKeys") List<String> metricKeys);
-
-  List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(@Nullable @Param("developerId") Long developerId, @Param("snapshotId") long snapshotId,
-    @Param("metricIds") List<Integer> metricIds);
-
-  List<MeasureDto> selectBySnapshotAndMetrics(@Param("snapshotId") long snapshotId, @Param("metricIds") List<Integer> input);
-
-  List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(@Nullable @Param("developerId") Long developerId, @Param("snapshotIds") List<Long> snapshotIds,
-    @Param("metricIds") List<Integer> metricIds);
-
-  List<MeasureDto> selectProjectMeasuresByDeveloperForMetrics(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);
-
-  @CheckForNull
-  MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-
-  long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-
-  List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(@Param("componentUuid") String componentuuid, @Param("rootSnapshotId") long rootSnapshotId,
-    @Param("metricIds") List<Integer> metricIds, @Param("status") String status);
+  List<PastMeasureDto> selectPastMeasures(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid, @Param("metricIds") List<Integer> metricIds);
 
   void insert(MeasureDto measureDto);
 
-  List<String> selectMetricKeysForSnapshot(@Param("snapshotId") long snapshotId);
 }

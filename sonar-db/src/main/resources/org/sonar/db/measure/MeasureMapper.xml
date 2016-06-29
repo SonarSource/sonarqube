@@ -2,12 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.measure.MeasureMapper">
+
   <sql id="measureColumns">
-    pm.id,
     pm.metric_id as metricId,
     pm.person_id as developerId,
     pm.component_uuid as componentUuid,
-    pm.snapshot_id as snapshotId,
     pm.analysis_uuid as analysisUuid,
     pm.value as value,
     pm.text_value as textValue,
@@ -26,21 +25,22 @@
     metric.name as metricKey
   </sql>
 
-
   <select id="selectByQuery" parameterType="map" resultType="Measure">
-    select
-    <include refid="measureColumns"/>
+    select <include refid="measureColumns"/>
     from project_measures pm
-    inner join snapshots s on s.id = pm.snapshot_id
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-    pm.component_uuid in
+    analysis.islast=${_true}
+    and pm.component_uuid in
     <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
       #{componentUuid}
     </foreach>
-    and s.islast=${_true}
     <if test="query.getMetricIds() != null">
       and pm.metric_id in
       <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <if test="query.getMetricKeys() != null">
+      and pm.metric_id in (select id from metrics where name in <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">#{metricKey}</foreach>)
     </if>
     <choose>
       <when test="query.getPersonId() != null">
@@ -52,172 +52,19 @@
     </choose>
   </select>
 
-  <select id="selectByComponentUuidsAndMetricIds" parameterType="map" resultType="Measure">
-    select
-    <include refid="measureColumns"/>
+  <select id="selectPastMeasures" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
+    select pm.id as id, pm.metric_id as metricId, pm.person_id as personId, pm.value as value
     from project_measures pm
-    inner join snapshots s on s.id = pm.snapshot_id
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-    s.islast=${_true}
-    and pm.component_uuid in
-    <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">#{componentUuid}
-    </foreach>
-    and pm.person_id is null
-    and pm.metric_id in
-    <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
-  </select>
-
-  <select id="selectByComponentAndMetric" parameterType="map" resultType="Measure">
-    SELECT metric.name as metric_name,
-    <include refid="extendedMeasureColumns"/>
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN projects p ON p.uuid=pm.component_uuid AND p.enabled=${_true}
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    <where>
-      AND p.kee = #{componentKey}
-      AND metric.name=#{metricKey}
-      AND pm.person_id IS NULL
-    </where>
-  </select>
-
-  <select id="selectByComponentAndMetrics" parameterType="map" resultType="Measure">
-    SELECT metric.name as metric_name,
-    <include refid="extendedMeasureColumns"/>
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN projects p ON p.uuid=pm.component_uuid AND p.enabled=${_true}
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    <where>
-      AND p.kee = #{componentKey}
-      AND
-      <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">
-        metric.name=#{metricKey}
-      </foreach>
-      AND pm.person_id IS NULL
-    </where>
-  </select>
-
-  <select id="selectBySnapshotAndMetricKeys" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    <where>
-      AND pm.snapshot_id = #{snapshotId}
-      AND
-      <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">
-        metric.name=#{metricKey}
-      </foreach>
-      AND pm.person_id IS NULL
-    </where>
-  </select>
-
-  <select id="selectByDeveloperForSnapshotAndMetrics" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    <where>
-      pm.snapshot_id = #{snapshotId}
-      <if test="developerId!=null">
-        AND pm.person_id = #{developerId}
-      </if>
-      <if test="developerId==null">
-        AND pm.person_id is NULL
-      </if>
-      AND
-      <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
-        pm.metric_id=#{metricId}
-      </foreach>
-    </where>
-  </select>
-
-  <select id="selectByDeveloperAndSnapshotIdsAndMetricIds" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    <where>
-      pm.snapshot_id in
-      <foreach item="snapshotId" collection="snapshotIds" open="(" separator="," close=")">
-        #{snapshotId}
-      </foreach>
-      AND
-      pm.metric_id in
-      <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
-        #{metricId}
-      </foreach>
-      <if test="developerId==null">
-        AND pm.person_id is NULL
-      </if>
-      <if test="developerId!=null">
-        AND pm.person_id=#{developerId}
-      </if>
-    </where>
-  </select>
-
-  <select id="selectProjectMeasuresByDeveloperForMetrics" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>,
-    p.id as componentId
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true} AND s.scope='PRJ' AND s.qualifier='TRK'
-    INNER JOIN projects p ON p.uuid=s.component_uuid
-    <where>
-      pm.person_id = #{developerId}
-      AND
-      pm.metric_id in
-      <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
-        #{metricId}
-      </foreach>
-    </where>
-  </select>
-
-  <select id="selectBySnapshotAndMetrics" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    <where>
-      pm.snapshot_id = #{snapshotId}
-      AND pm.person_id is NULL
-      AND
-      <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
-        pm.metric_id=#{metricId}
-      </foreach>
-    </where>
-  </select>
-
-  <select id="countByComponentAndMetric" parameterType="map" resultType="long">
-    SELECT count(pm.id)
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
-    WHERE
-      p.kee = #{componentKey}
-      AND metric.name = #{metricKey}
-      AND pm.person_id IS NULL
-  </select>
-
-  <select id="selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds" parameterType="map"
-          resultType="org.sonar.db.measure.PastMeasureDto">
-    SELECT pm.id as id, pm.metric_id as metricId,
-    pm.person_id as personId, pm.value as value
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.status=#{status}
-    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
-    WHERE
-      <!-- do not filter on pm.component_uuid in order to benefit from index on p.uuid -->
-      p.uuid=#{componentUuid}
-      AND (s.root_snapshot_id=#{rootSnapshotId} OR s.id=#{rootSnapshotId})
-      AND
-      <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
-        pm.metric_id=#{metricId}
-      </foreach>
-      AND pm.person_id IS NULL
+      pm.component_uuid = #{componentUuid}
+      and analysis.uuid = #{analysisUuid}
+      and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+      and pm.person_id is null
   </select>
 
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
-    INSERT INTO project_measures (
+    insert into project_measures (
     value,
     metric_id,
     component_uuid,
@@ -238,7 +85,7 @@
     #{value, jdbcType=DOUBLE},
     #{metricId, jdbcType=INTEGER},
     #{componentUuid, jdbcType=VARCHAR},
-    #{snapshotId, jdbcType=INTEGER},
+    #{snapshotId, jdbcType=BIGINT},
     #{analysisUuid, jdbcType=VARCHAR},
     #{textValue, jdbcType=VARCHAR},
     #{alertStatus, jdbcType=VARCHAR},
@@ -253,12 +100,5 @@
     #{dataValue, jdbcType=BINARY}
     )
   </insert>
-
-  <select id="selectMetricKeysForSnapshot" parameterType="long" resultType="string">
-    SELECT DISTINCT m.name
-    FROM project_measures pm
-    INNER JOIN metrics m ON m.id=pm.metric_id
-    WHERE pm.snapshot_id=#{snapshotId}
-  </select>
 
 </mapper>

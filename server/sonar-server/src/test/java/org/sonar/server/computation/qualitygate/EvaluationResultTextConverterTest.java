@@ -54,7 +54,7 @@ public class EvaluationResultTextConverterTest {
   private static final String ERROR_THRESHOLD = "error_threshold";
   private static final String WARNING_THRESHOLD = "warning_threshold";
   private static final String SOME_MODE = "mode";
-  private static final long SOME_SNAPSHOT_ID = 1l;
+  private static final String SOME_ANALYSIS_UUID = "u1";
 
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
@@ -133,7 +133,7 @@ public class EvaluationResultTextConverterTest {
       .thenReturn(metricMsg);
 
     Date date = new Date();
-    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_SNAPSHOT_ID);
+    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
     periodsHolder.setPeriods(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 
@@ -156,7 +156,7 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "variation", "variation")).thenReturn(variationMsg);
 
     Date date = new Date();
-    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_SNAPSHOT_ID);
+    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
     periodsHolder.setPeriods(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 

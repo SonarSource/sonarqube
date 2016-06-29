@@ -19,30 +19,31 @@
  */
 package org.sonar.server.measure;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.Database;
-import org.sonar.db.MyBatis;
-import org.sonar.db.component.ResourceDao;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.api.server.ServerSide;
+import org.sonar.db.Database;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
 
 @ServerSide
 public class MeasureFilterExecutor {
 
   private MyBatis mybatis;
   private Database database;
-  private ResourceDao resourceDao;
+  private ComponentDao componentDao;
 
-  public MeasureFilterExecutor(MyBatis mybatis, Database database, ResourceDao resourceDao) {
+  public MeasureFilterExecutor(MyBatis mybatis, Database database, ComponentDao componentDao) {
     this.mybatis = mybatis;
     this.database = database;
-    this.resourceDao = resourceDao;
+    this.componentDao = componentDao;
   }
 
   public List<MeasureFilterRow> execute(MeasureFilter filter, MeasureFilterContext context) throws SQLException {
@@ -51,7 +52,7 @@ public class MeasureFilterExecutor {
     }
 
     List<MeasureFilterRow> rows;
-    SqlSession session = null;
+    DbSession session = null;
     Connection connection = null;
     try {
       session = mybatis.openSession(false);
@@ -74,15 +75,18 @@ public class MeasureFilterExecutor {
     return rows;
   }
 
-  private void prepareContext(MeasureFilterContext context, MeasureFilter filter, SqlSession session) {
+  private void prepareContext(MeasureFilterContext context, MeasureFilter filter, DbSession session) {
     if (filter.getBaseResourceKey() != null) {
-      context.setBaseSnapshot(resourceDao.getLastSnapshot(filter.getBaseResourceKey(), session));
+      Optional<ComponentDto> component = componentDao.selectByKey(session, filter.getBaseResourceKey());
+      if (component.isPresent()) {
+        context.setBaseComponent(component.get());
+      }
     }
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
-    boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot() != null;
-    valid &= !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
+    boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseComponent() != null;
+    valid &= !(filter.isOnBaseResourceChildren() && context.getBaseComponent() == null);
     valid &= !(filter.isOnFavourites() && context.getUserId() == null);
     valid &= validateMeasureConditions(filter);
     valid &= validateSort(filter);

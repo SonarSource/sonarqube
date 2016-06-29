@@ -22,15 +22,17 @@ package org.sonar.server.ui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
+
+import javax.annotation.Nullable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -73,9 +75,14 @@ public class Views {
   }
 
   public List<ViewProxy<Page>> getPages(String section) {
+    return getPages(section, null, null, null);
+  }
+
+  public List<ViewProxy<Page>> getPages(String section,
+    @Nullable String resourceScope, @Nullable String resourceQualifier, @Nullable String resourceLanguage) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
-      if (accept(proxy, section)) {
+      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage)) {
         result.add(proxy);
       }
     }
@@ -86,12 +93,38 @@ public class Views {
     return widgetsPerId.get(id);
   }
 
+  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
+    List<ViewProxy<Widget>> result = Lists.newArrayList();
+    for (ViewProxy<Widget> proxy : widgets) {
+      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage)) {
+        result.add(proxy);
+      }
+    }
+    return result;
+  }
+
   public List<ViewProxy<Widget>> getWidgets() {
     return Lists.newArrayList(widgets);
   }
 
-  protected static boolean accept(ViewProxy<?> proxy, @Nullable String section) {
-    return acceptNavigationSection(proxy, section);
+  protected static boolean accept(ViewProxy<?> proxy,
+    @Nullable String section, @Nullable String resourceScope, @Nullable String resourceQualifier, @Nullable String resourceLanguage) {
+    return acceptNavigationSection(proxy, section)
+      && acceptResourceScope(proxy, resourceScope)
+      && acceptResourceQualifier(proxy, resourceQualifier)
+      && acceptResourceLanguage(proxy, resourceLanguage);
+  }
+
+  protected static boolean acceptResourceLanguage(ViewProxy<?> proxy, @Nullable String resourceLanguage) {
+    return resourceLanguage == null || ArrayUtils.isEmpty(proxy.getResourceLanguages()) || ArrayUtils.contains(proxy.getResourceLanguages(), resourceLanguage);
+  }
+
+  protected static boolean acceptResourceScope(ViewProxy<?> proxy, @Nullable String resourceScope) {
+    return resourceScope == null || ArrayUtils.isEmpty(proxy.getResourceScopes()) || ArrayUtils.contains(proxy.getResourceScopes(), resourceScope);
+  }
+
+  protected static boolean acceptResourceQualifier(ViewProxy<?> proxy, @Nullable String resourceQualifier) {
+    return resourceQualifier == null || ArrayUtils.isEmpty(proxy.getResourceQualifiers()) || ArrayUtils.contains(proxy.getResourceQualifiers(), resourceQualifier);
   }
 
   protected static boolean acceptNavigationSection(ViewProxy<?> proxy, @Nullable String section) {

@@ -19,15 +19,14 @@
  */
 package org.sonar.server.measure;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.db.component.SnapshotDto;
-
-import javax.annotation.Nullable;
+import org.sonar.db.component.ComponentDto;
 
 class MeasureFilterContext {
   private Long userId = null;
-  private SnapshotDto baseSnapshot = null;
+  private ComponentDto baseComponent = null;
   private String sql;
   private String data;
 
@@ -40,12 +39,12 @@ class MeasureFilterContext {
     return this;
   }
 
-  SnapshotDto getBaseSnapshot() {
-    return baseSnapshot;
+  ComponentDto getBaseComponent() {
+    return baseComponent;
   }
 
-  MeasureFilterContext setBaseSnapshot(@Nullable SnapshotDto baseSnapshot) {
-    this.baseSnapshot = baseSnapshot;
+  MeasureFilterContext setBaseComponent(@Nullable ComponentDto baseComponent) {
+    this.baseComponent = baseComponent;
     return this;
   }
 

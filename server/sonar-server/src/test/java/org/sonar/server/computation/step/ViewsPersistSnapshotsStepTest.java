@@ -179,7 +179,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(view, viewDto.getId());
     dbIdsRepository.setComponentId(subView, subViewDto.getId());
 
-    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
+    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
     underTest.execute();
 
