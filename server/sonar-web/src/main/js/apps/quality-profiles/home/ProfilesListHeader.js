@@ -35,7 +35,7 @@ export default class ProfilesListHeader extends React.Component {
 
     const label = currentFilter ?
         translateWithParameters(
-            'quality_profiles.x_profiles',
+            'quality_profiles.x_Profiles',
             currentLanguage.name) :
         translate('quality_profiles.all_profiles');
 

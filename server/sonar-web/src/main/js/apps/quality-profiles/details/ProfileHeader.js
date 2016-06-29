@@ -26,6 +26,7 @@ import DeleteProfileView from '../views/DeleteProfileView';
 import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { setDefaultProfile } from '../../../api/quality-profiles';
+import { getRulesUrl } from '../../../helpers/urls';
 
 export default class ProfileHeader extends React.Component {
   static propTypes = {
@@ -84,7 +85,10 @@ export default class ProfileHeader extends React.Component {
         '/api/qualityprofiles/backup?profileKey=' +
         encodeURIComponent(profile.key);
 
-    // TODO fix inline styles
+    const activateMoreUrl = getRulesUrl({
+      qprofile: this.props.profile.key,
+      activation: 'false'
+    });
 
     return (
         <header className="page-header quality-profile-header">
@@ -92,6 +96,12 @@ export default class ProfileHeader extends React.Component {
             <IndexLink to="/" className="text-muted">
               {translate('quality_profiles.page')}
             </IndexLink>
+            {' / '}
+            <Link
+                to={{ pathname: '/', query: { language: profile.language } }}
+                className="text-muted">
+              {profile.languageName}
+            </Link>
           </div>
 
           <h1 className="page-title">
@@ -100,9 +110,6 @@ export default class ProfileHeader extends React.Component {
                 className="link-base-color">
               {profile.name}
             </ProfileLink>
-            <span className="spacer-left small text-muted">
-              {this.props.profile.languageName}
-            </span>
           </h1>
 
           <div className="pull-right">
@@ -110,8 +117,7 @@ export default class ProfileHeader extends React.Component {
               <li>
                 <Link
                     to={{ pathname: '/changelog', query: { key: this.props.profile.key } }}
-                    className="small text-muted"
-                    activeClassName="link-active">
+                    className="button">
                   {translate('changelog')}
                 </Link>
               </li>
@@ -124,6 +130,18 @@ export default class ProfileHeader extends React.Component {
                     <i className="icon-dropdown"/>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-right">
+                    <li>
+                      <Link
+                          to={{ pathname: '/compare', query: { key: profile.key } }}
+                          id="quality-profile-compare">
+                        {translate('compare')}
+                      </Link>
+                    </li>
+                    <li>
+                      <a href={activateMoreUrl}>
+                        {translate('quality_profiles.activate_more_rules')}
+                      </a>
+                    </li>
                     <li>
                       <Link
                           to={{ pathname: '/compare', query: { key: profile.key } }}

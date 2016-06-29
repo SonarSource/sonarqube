@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import ChangeProjectsView from '../views/ChangeProjectsView';
+import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { ProfileType } from '../propTypes';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -110,7 +111,7 @@ export default class ProfileProjects extends React.Component {
               <li key={project.uuid}
                   className="spacer-top js-profile-project"
                   data-key={project.key}>
-                <i className="icon-checkbox icon-checkbox-checked"/>
+                <QualifierIcon qualifier="TRK"/>
                 {' '}
                 {project.name}
               </li>

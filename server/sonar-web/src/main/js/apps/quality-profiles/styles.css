@@ -103,16 +103,6 @@
 .quality-profile-inheritance {
 }
 
-.quality-profile-progress-bar {
-  transition: width 0.5s ease;
-  animation: appear 0.5s forwards;
-}
-
-@keyframes appear {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(0); }
-}
-
 .quality-profile-not-found {
   padding-top: 100px;
   text-align: center;

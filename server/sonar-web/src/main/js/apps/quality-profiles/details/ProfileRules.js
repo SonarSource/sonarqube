@@ -132,6 +132,25 @@ export default class ProfileRules extends React.Component {
     );
   }
 
+  renderActiveTotal () {
+    const rulesUrl = getRulesUrl({
+      qprofile: this.props.profile.key,
+      activation: 'false'
+    });
+
+    if (this.state.total == null) {
+      return null;
+    }
+
+    return (
+        <a href={rulesUrl}>
+          <strong>
+            {formatMeasure(this.state.total, 'SHORT_INT')}
+          </strong>
+        </a>
+    );
+  }
+
   getTooltipForType (type) {
     const { count } = this.state.activatedByType[type];
     const total = this.state.allByType[type].count;
@@ -150,6 +169,26 @@ export default class ProfileRules extends React.Component {
     });
 
     const { count } = this.state.activatedByType[type];
+
+    if (count == null) {
+      return null;
+    }
+
+    return (
+        <a href={rulesUrl}>
+          {formatMeasure(count, 'SHORT_INT')}
+        </a>
+    );
+  }
+
+  renderTotalForType (type) {
+    const rulesUrl = getRulesUrl({
+      qprofile: this.props.profile.key,
+      activation: 'false',
+      types: type
+    });
+
+    const { count } = this.state.allByType[type];
 
     if (count == null) {
       return null;
@@ -186,8 +225,6 @@ export default class ProfileRules extends React.Component {
   }
 
   render () {
-    const { total, activatedTotal, allByType, activatedByType } = this.state;
-
     const activateMoreUrl = getRulesUrl({
       qprofile: this.props.profile.key,
       activation: 'false'
@@ -212,21 +249,17 @@ export default class ProfileRules extends React.Component {
             <ul className="quality-profile-rules-distribution">
               <li key="all" className="big-spacer-bottom">
                 <ProfileRulesRow
-                    count={activatedTotal}
-                    total={total}
-                    tooltip={this.getTooltip(activatedTotal, total)}
                     renderTitle={this.renderActiveTitle.bind(this)}
-                    renderCount={this.renderActiveCount.bind(this)}/>
+                    renderCount={this.renderActiveCount.bind(this)}
+                    renderTotal={this.renderActiveTotal.bind(this)}/>
               </li>
 
               {TYPES.map(type => (
                   <li key={type} className="spacer-top">
                     <ProfileRulesRow
-                        count={activatedByType[type].count}
-                        total={allByType[type].count}
-                        tooltip={this.getTooltipForType(type)}
                         renderTitle={this.renderTitleForType.bind(this, type)}
-                        renderCount={this.renderCountForType.bind(this, type)}/>
+                        renderCount={this.renderCountForType.bind(this, type)}
+                        renderTotal={this.renderTotalForType.bind(this, type)}/>
                   </li>
               ))}
             </ul>

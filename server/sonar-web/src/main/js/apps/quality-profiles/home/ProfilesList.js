@@ -21,6 +21,7 @@ import React from 'react';
 import { PropTypes as RouterPropTypes } from 'react-router';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
+import sortBy from 'lodash/sortBy';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
@@ -64,7 +65,7 @@ export default class ProfilesList extends React.Component {
               {')'}
               {this.props.canAdmin && (
                   <button
-                      className="spacer-left js-restore-built-in"
+                      className="huge-spacer-left js-restore-built-in"
                       data-language={languageKey}
                       onClick={this.handleRestoreBuiltIn.bind(this, languageKey)}>
                     {translate('quality_profiles.restore_built_in_profiles')}
@@ -97,6 +98,8 @@ export default class ProfilesList extends React.Component {
         pick(profilesIndex, language) :
         profilesIndex;
 
+    const languagesToShow = sortBy(Object.keys(profilesToShow));
+
     return (
         <div>
           <ProfilesListHeader
@@ -109,7 +112,7 @@ export default class ProfilesList extends React.Component {
               </div>
           )}
 
-          {Object.keys(profilesToShow).map(languageKey => (
+          {languagesToShow.map(languageKey => (
               <table
                   key={languageKey}
                   data-language={languageKey}
