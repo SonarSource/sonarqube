@@ -17,43 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import { connect } from 'react-redux';
+import { getError } from '../store/rootReducer';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-}
+class PageError extends React.Component {
+  static propTypes = {
+    message: React.PropTypes.string
+  };
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+  render () {
+    const { message } = this.props;
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
+    if (!message) {
+      return null;
+    }
 
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
+    return (
+        <div className="alert alert-danger">
+          {message}
+        </div>
+    );
   }
 }
 
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
+const mapStateToProps = state => ({
+  message: getError(state)
+});
 
+export default connect(
+    mapStateToProps
+)(PageError);

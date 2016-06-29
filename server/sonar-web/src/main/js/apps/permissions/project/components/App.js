@@ -17,43 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import React from 'react';
+import PageHeader from './PageHeader';
+import AllHoldersList from './AllHoldersList';
+import PageError from '../../shared/components/PageError';
+import '../../styles.css';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-}
+// TODO helmet
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+export default class App extends React.Component {
+  static propTypes = {
+    project: React.PropTypes.object.isRequired
+  };
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
+  render () {
+    return (
+        <div className="page page-limited">
+          <PageHeader project={this.props.project}/>
+          <PageError/>
+          <AllHoldersList project={this.props.project}/>
+        </div>
+    );
   }
 }
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
-

@@ -17,43 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import { combineReducers } from 'redux';
+import byLogin, { getUserByLogin } from './byLogin';
+import logins, { getLogins } from './logins';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-}
+export default combineReducers({
+  byLogin,
+  logins
+});
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
-
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
-
-.search-box-input-note {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  line-height: 1;
-  color: #777;
-  font-size: @smallFontSize;
-  white-space: nowrap;
-}
-
+export const getUsers = state =>
+    getLogins(state.logins).map(login => getUserByLogin(state.byLogin, login));

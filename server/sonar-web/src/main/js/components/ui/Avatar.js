@@ -19,11 +19,13 @@
  */
 import React from 'react';
 import md5 from 'blueimp-md5';
+import classNames from 'classnames';
 
 export default class Avatar extends React.Component {
   static propTypes = {
     email: React.PropTypes.string,
-    size: React.PropTypes.number.isRequired
+    size: React.PropTypes.number.isRequired,
+    className: React.PropTypes.string
   };
 
   render () {
@@ -37,8 +39,10 @@ export default class Avatar extends React.Component {
         .replace('{EMAIL_MD5}', emailHash)
         .replace('{SIZE}', this.props.size * 2);
 
+    const className = classNames(this.props.className, 'rounded');
+
     return (
-        <img className="rounded"
+        <img className={className}
              src={url}
              width={this.props.size}
              height={this.props.size}

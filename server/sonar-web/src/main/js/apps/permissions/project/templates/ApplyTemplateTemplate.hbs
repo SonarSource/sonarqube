@@ -1,0 +1,30 @@
+<form id="project-permissions-apply-template-form" autocomplete="off">
+  <div class="modal-head">
+    <h2>Apply Permission Template to "{{project.name}}"</h2>
+  </div>
+
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    {{#notNull permissionTemplates}}
+      <div class="modal-field">
+        <label for="project-permissions-template">
+          Template<em class="mandatory">*</em>
+        </label>
+        <select id="project-permissions-template">
+          {{#each permissionTemplates}}
+            <option value="{{id}}">{{name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    {{else}}
+      <i class="spinner"></i>
+    {{/notNull}}
+  </div>
+
+  <div class="modal-foot">
+    {{#notNull permissionTemplates}}
+      <button id="project-permissions-apply-template">Apply</button>
+    {{/notNull}}
+    <a href="#" class="js-modal-close">Cancel</a>
+  </div>
+</form>
