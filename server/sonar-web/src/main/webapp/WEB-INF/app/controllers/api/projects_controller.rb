@@ -108,7 +108,7 @@ class Api::ProjectsController < Api::ApiController
     end
 
     # this is really an advanced optimization !
-    select_columns='id,uuid,kee,name,language,long_name,scope,qualifier,root_uuid'
+    select_columns='id,uuid,kee,name,language,long_name,scope,qualifier,root_uuid,project_uuid'
     select_columns += ',description' if @show_description
 
     projects=Project.find(:all, :select => select_columns, :conditions => [conditions.join(' AND '), values], :order => 'name')
@@ -118,9 +118,9 @@ class Api::ProjectsController < Api::ApiController
   def load_snapshots_by_project
     select_columns='id,component_uuid,version,islast,created_at'
     if params[:versions]=='true'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.uuid}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.project_uuid}])
     elsif params[:versions]=='last'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND islast=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.uuid}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND islast=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.project_uuid}])
     else
       snapshots=[]
     end
@@ -140,7 +140,7 @@ class Api::ProjectsController < Api::ApiController
 
       if @snapshots_by_puuid && @snapshots_by_puuid[project.uuid]
         versions={}
-        @snapshots_by_puuid[project.uuid].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
+        @snapshots_by_puuid[project.project_uuid].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
           version={:sid => snapshot.id.to_s}
           version[:d]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
           if snapshot.last?

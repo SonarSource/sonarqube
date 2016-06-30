@@ -19,15 +19,9 @@
 #
 class Snapshot < ActiveRecord::Base
   include Resourceable
-  acts_as_tree :foreign_key => 'parent_snapshot_id'
 
   belongs_to :project, :class_name => 'Project', :foreign_key => 'component_uuid',:primary_key => 'uuid'
   belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_component_uuid',:primary_key => 'uuid'
-  belongs_to :parent_snapshot, :class_name => 'Snapshot', :foreign_key => 'parent_snapshot_id'
-  belongs_to :root_snapshot, :class_name => 'Snapshot', :foreign_key => 'root_snapshot_id'
-
-  has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'person_id IS NULL'
-  has_many :person_measures, :class_name => 'ProjectMeasure', :conditions => 'person_id IS NOT NULL'
 
   has_many :events, :class_name => 'Event', :foreign_key => 'analysis_uuid', :primary_key => 'uuid', :dependent => :destroy, :order => 'event_date DESC'
 
@@ -128,32 +122,6 @@ class Snapshot < ActiveRecord::Base
     islast
   end
 
-  def root_snapshot
-    @root_snapshot ||=
-      (root_snapshot_id ? Snapshot.find(root_snapshot_id) : self)
-  end
-
-  def project_snapshot
-    @project_snapshot ||=
-      begin
-        if scope==Project::SCOPE_SET
-          self
-        elsif parent_snapshot_id
-          parent_snapshot.project_snapshot
-        else
-          nil
-        end
-      end
-  end
-
-  def root?
-    parent_snapshot_id.nil?
-  end
-
-  def descendants
-    children.map(&:descendants).flatten + children
-  end
-
   def user_events
     categories=EventCategory.categories(true)
     category_names=categories.map { |cat| cat.name }
@@ -171,34 +139,6 @@ class Snapshot < ActiveRecord::Base
     end
   end
 
-  def measure(metric)
-    unless metric.is_a? Metric
-      metric=Metric.by_key(metric)
-    end
-    metric ? measures_hash[metric.id] : nil
-  end
-
-  def person_measure(metric, person_id)
-    person_measures.each do |m|
-      return m if m.metric_id==metric.id && m.person_id==person_id
-    end
-    nil
-  end
-
-  def f_measure(metric)
-    m=measure(metric)
-    m && m.formatted_value
-  end
-
-  def rule_measures(metrics=nil, rule=nil)
-    # SONAR-7501 kept for backward-compatibility
-    []
-  end
-
-  def rule_measure(metric, rule)
-    # SONAR-7501 kept for backward-compatibility
-    nil
-  end
 
   def self.snapshot_by_date(resource_uuid, date)
     if resource_uuid && date
@@ -224,32 +164,16 @@ class Snapshot < ActiveRecord::Base
     root_component_uuid
   end
 
-  def path_name
-    result=''
-    if root_snapshot_id && root_snapshot_id!=id
-      result += root_snapshot.project.long_name
-      result += ' &raquo; '
-      if root_snapshot.depth<self.depth-2
-        result += ' ... &raquo; '
-      end
-      if parent_snapshot_id && root_snapshot_id!=parent_snapshot_id
-        result += "#{parent_snapshot.project.long_name} &raquo; "
-      end
-    end
-    result += project.long_name
-    result
-  end
-
   def period_mode(period_index)
-    project_snapshot.send "period#{period_index}_mode"
+    send "period#{period_index}_mode"
   end
 
   def period_param(period_index)
-    project_snapshot.send "period#{period_index}_param"
+    send "period#{period_index}_param"
   end
 
   def period_datetime(period_index)
-    project_snapshot.send "period#{period_index}_date"
+    send "period#{period_index}_date"
   end
 
   def metrics

@@ -4,7 +4,7 @@
 
   <div class="page-actions noprint">
     <% if @snapshot %>
-      <% if @snapshot.project_snapshot.periods? %>
+      <% if @snapshot.periods? %>
         <% period_options = period_select_option_tags(@snapshot, 'small') %>
         <% if period_options %>
           <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">

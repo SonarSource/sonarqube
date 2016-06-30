@@ -100,61 +100,52 @@ class Api::ResourcesController < Api::ApiController
       resource_id=params[:resource]
       if resource_id
         @resource=Project.by_key(resource_id)
-        @snapshot=(@resource && @resource.last_snapshot)
-        raise ApiException.new(404, "Resource [#{resource_id}] not found") if @snapshot.nil?
-        raise ApiException.new(401, "Unauthorized") unless has_role?(:user, @snapshot)
+        @analysis=(@resource && @resource.last_snapshot)
+        raise ApiException.new(404, "Resource [#{resource_id}] not found") if @analysis.nil?
+        raise ApiException.new(401, "Unauthorized") unless has_role?(:user, @resource)
       else
-        @snapshot=nil
+        @analysis=nil
         if params['scopes'].blank? && params['qualifiers'].blank?
-          params['scopes']=Project::SCOPE_SET
-          params['qualifiers']=Project::QUALIFIER_PROJECT
+          params['scopes']='PRJ'
+          params['qualifiers']='TRK'
         end
       end
 
       # ---------- PARAMETERS
-      snapshots_conditions=['snapshots.islast=:islast']
-      snapshots_values={:islast => true}
+      components_conditions=['snapshots.islast=:islast']
+      components_values={:islast => true}
 
       load_measures=false
       measures_conditions=[]
       measures_values={}
       measures_order = nil
       measures_limit = nil
-      measures_by_sid={}
+      measures_by_component_uuid={}
       measures=nil
 
       if params['scopes']
-        snapshots_conditions << 'snapshots.scope in (:scopes)'
-        snapshots_values[:scopes]=params['scopes'].split(',')
+        components_conditions << 'projects.scope in (:scopes)'
+        components_values[:scopes]=params['scopes'].split(',')
       end
 
       if params['qualifiers']
-        snapshots_conditions << 'snapshots.qualifier in (:qualifiers)'
-        snapshots_values[:qualifiers]=params['qualifiers'].split(',')
+        components_conditions << 'projects.qualifier in (:qualifiers)'
+        components_values[:qualifiers]=params['qualifiers'].split(',')
       end
 
-      if @snapshot
+      if @analysis
         depth=(params['depth'] ? params['depth'].to_i : 0)
         if depth==0
-          snapshots_conditions << 'snapshots.id=:sid'
-          snapshots_values[:sid]=@snapshot.id
-
-        elsif depth>0
-          snapshots_conditions << 'snapshots.root_snapshot_id=:root_sid'
-          snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
-
-          snapshots_conditions << 'snapshots.path LIKE :path'
-          snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
-
-          snapshots_conditions << 'snapshots.depth=:depth'
-          snapshots_values[:depth] = @snapshot.depth + depth
+          components_conditions << 'projects.uuid=:component_uuid'
+          components_values[:component_uuid]=@resource.uuid
 
         else
-          # negative : all the resource tree
-          snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
-          snapshots_values[:sid]=@snapshot.id
-          snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
-          snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
+          # negative : all the tree
+          components_conditions << 'projects.project_uuid = :project_uuid and projects.enabled=:enabled and (projects.uuid=:component_uuid OR projects.uuid_path LIKE :uuid_path)'
+          components_values[:component_uuid]=@resource.uuid
+          components_values[:project_uuid] = @resource.project_uuid
+          components_values[:enabled] = true
+          components_values[:uuid_path]="#{@resource.uuid_path}#{@resource.uuid}.%"
         end
       end
 
@@ -179,72 +170,64 @@ class Api::ResourcesController < Api::ApiController
 
         measures_conditions << 'project_measures.person_id IS NULL'
 
-        measures=ProjectMeasure.all(:joins => :snapshot,
+        measures = ProjectMeasure.all(:joins => [:analysis, :project],
                                      :select => select_columns_for_measures,
-                                     :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
+                                     :conditions => [(components_conditions + measures_conditions).join(' AND '), components_values.merge(measures_values)],
                                      :order => measures_order,
                                      # SONAR-6584 avoid OOM errors
                                      :limit => measures_limit ? measures_limit : 10000)
 
         measures.each do |measure|
-          measures_by_sid[measure.snapshot_id]||=[]
-          measures_by_sid[measure.snapshot_id]<<measure
+          measures_by_component_uuid[measure.component_uuid] ||= []
+          measures_by_component_uuid[measure.component_uuid] << measure
         end
 
         if measures_limit
-          snapshots_conditions << 'snapshots.id IN (:sids)'
-          # Derby does not support empty lists, that's why a fake value is set
-          snapshots_values[:sids] = (measures_by_sid.empty? ? [-1] : measures_by_sid.keys)
+          components_conditions << 'projects.uuid IN (:component_uuids)'
+          components_values[:component_uuids] = measures_by_component_uuid.keys
         end
 
       end
 
-      # ---------- LOAD RESOURCES
-      if params['scopes']
-        # optimization : add constraint to projects table
-        snapshots_conditions << 'projects.scope in (:scopes)'
+      # ---------- LOAD COMPONENTS
+      # H2 does not support empty lists, so short-breaking if no measures
+      if load_measures && measures_by_component_uuid.empty?
+        components = []
+      else
+        components = Project.all(
+          :include => :last_analysis,
+          :conditions => [components_conditions.join(' AND '), components_values],
+          # SONAR-6584 avoid OOM errors
+          :limit => 500)
       end
-
-      if params['qualifiers']
-        # optimization : add constraint to projects table
-        snapshots_conditions << 'projects.qualifier in (:qualifiers)'
-      end
-
-      snapshots_including_resource=Snapshot.all(
-        :conditions => [snapshots_conditions.join(' AND '), snapshots_values],
-        :include => 'project',
-        # SONAR-6584 avoid OOM errors
-        :limit => 500)
 
       # ---------- APPLY SECURITY - remove unauthorized resources - only if no selected resource
       if @resource.nil?
-        snapshots_including_resource=select_authorized(:user, snapshots_including_resource)
+        components = select_authorized(:user, components)
       end
 
       # ---------- PREPARE RESPONSE
-      resource_by_sid={}
-      snapshots_by_uuid={}
-      snapshots_including_resource.each do |snapshot|
-        resource_by_sid[snapshot.id]=snapshot.project
-        snapshots_by_uuid[snapshot.component_uuid]=snapshot
+      components_by_uuid = {}
+      components.each do |c|
+        components_by_uuid[c.uuid]=c
       end
 
 
       # ---------- SORT RESOURCES
       if load_measures && measures_order && measures && !measures.empty?
-        # resources sorted by measures
-        sorted_resources=measures.map do |measure|
-          resource_by_sid[measure.snapshot_id]
+        # components are sorted by measures
+        sorted_components = measures.map do |measure|
+          components_by_uuid[measure.component_uuid]
         end
       else
         # no specific sort
-        sorted_resources=resource_by_sid.values
+        sorted_components = components
       end
 
-      sorted_resources=sorted_resources.uniq.compact
+      sorted_components = sorted_components.uniq.compact
 
       # ---------- FORMAT RESPONSE
-      objects={:sorted_resources => sorted_resources, :snapshots_by_uuid => snapshots_by_uuid, :measures_by_sid => measures_by_sid, :params => params}
+      objects={:sorted_components => sorted_components, :components_by_uuid => components_by_uuid, :measures_by_component_uuid => measures_by_component_uuid, :params => params}
       render :json => jsonp(to_json(objects))
     rescue ApiException => e
       render_error(e.msg, e.code)
@@ -254,7 +237,7 @@ class Api::ResourcesController < Api::ApiController
   private
 
   def select_columns_for_measures
-    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.text_value,project_measures.measure_data'
+    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.component_uuid,project_measures.text_value,project_measures.measure_data'
     if params[:includetrends]=='true'
       select_columns+=',project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
@@ -268,60 +251,60 @@ class Api::ResourcesController < Api::ApiController
   end
 
   def to_json(objects)
-    resources = objects[:sorted_resources]
-    snapshots_by_uuid = objects[:snapshots_by_uuid]
-    measures_by_sid = objects[:measures_by_sid]
+    components = objects[:sorted_components]
+    components_by_uuid = objects[:components_by_uuid]
+    measures_by_component_uuid = objects[:measures_by_component_uuid]
     params = objects[:params]
 
     result=[]
-    resources.each do |resource|
-      snapshot=snapshots_by_uuid[resource.uuid]
-      result<<resource_to_json(resource, snapshot, measures_by_sid[snapshot.id], params)
+    components.each do |component|
+      measures = measures_by_component_uuid[component.uuid]
+      result << component_to_json(component, measures, params)
     end
     result
   end
 
-  def resource_to_json(resource, snapshot, measures, options={})
+  def component_to_json(component, measures, options={})
     verbose=(options[:verbose]=='true')
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
     include_descriptions=(options[:includedescriptions]=='true')
 
     json = {
-      'id' => resource.id,
-      'uuid' => resource.uuid,
-      'key' => resource.key,
-      'uuid' => resource.uuid,
-      'name' => resource.name,
-      'scope' => resource.scope,
-      'qualifier' => resource.qualifier,
-      'date' => Api::Utils.format_datetime(snapshot.created_at),
-      'creationDate' => Api::Utils.format_datetime(resource.created_at)}
-    json['lname']=resource.long_name if resource.long_name
-    json['lang']=resource.language if resource.language
-    json['version']=snapshot.version if snapshot.version
-    json['branch']=resource.branch if resource.branch
-    json['description']=resource.description if resource.description
-    if include_trends
-      json[:p1]=snapshot.period1_mode if snapshot.period1_mode
-      json[:p1p]=snapshot.period1_param if snapshot.period1_param
-      json[:p1d]=Api::Utils.format_datetime(snapshot.period1_date) if snapshot.period1_date
+      'id' => component.id,
+      'uuid' => component.uuid,
+      'key' => component.key,
+      'uuid' => component.uuid,
+      'name' => component.name,
+      'scope' => component.scope,
+      'qualifier' => component.qualifier,
+      'creationDate' => Api::Utils.format_datetime(component.created_at)}
+    json['date'] =  Api::Utils.format_datetime(component.last_analysis.created_at) if component.last_analysis
+    json['lname'] = component.long_name if component.long_name
+    json['lang']=component.language if component.language
+    json['version']= component.last_analysis.version if component.last_analysis && component.last_analysis.version
+    json['branch']=component.branch if component.branch
+    json['description']=component.description if component.description
+    if include_trends && component.last_snapshot
+      json[:p1]=component.last_snapshot.period1_mode if component.last_snapshot.period1_mode
+      json[:p1p]=component.last_snapshot.period1_param if component.last_snapshot.period1_param
+      json[:p1d]=Api::Utils.format_datetime(component.last_snapshot.period1_date) if component.last_snapshot.period1_date
 
-      json[:p2]=snapshot.period2_mode if snapshot.period2_mode
-      json[:p2p]=snapshot.period2_param if snapshot.period2_param
-      json[:p2d]=Api::Utils.format_datetime(snapshot.period2_date) if snapshot.period2_date
+      json[:p2]=component.last_snapshot.period2_mode if component.last_snapshot.period2_mode
+      json[:p2p]=component.last_snapshot.period2_param if component.last_snapshot.period2_param
+      json[:p2d]=Api::Utils.format_datetime(component.last_snapshot.period2_date) if component.last_snapshot.period2_date
 
-      json[:p3]=snapshot.period3_mode if snapshot.period3_mode
-      json[:p3p]=snapshot.period3_param if snapshot.period3_param
-      json[:p3d]=Api::Utils.format_datetime(snapshot.period3_date) if snapshot.period3_date
+      json[:p3]=component.last_snapshot.period3_mode if component.last_snapshot.period3_mode
+      json[:p3p]=component.last_snapshot.period3_param if component.last_snapshot.period3_param
+      json[:p3d]=Api::Utils.format_datetime(component.last_snapshot.period3_date) if component.last_snapshot.period3_date
 
-      json[:p4]=snapshot.period4_mode if snapshot.period4_mode
-      json[:p4p]=snapshot.period4_param if snapshot.period4_param
-      json[:p4d]=Api::Utils.format_datetime(snapshot.period4_date) if snapshot.period4_date
+      json[:p4]=component.last_snapshot.period4_mode if component.last_snapshot.period4_mode
+      json[:p4p]=component.last_snapshot.period4_param if component.last_snapshot.period4_param
+      json[:p4d]=Api::Utils.format_datetime(component.last_snapshot.period4_date) if component.last_snapshot.period4_date
 
-      json[:p5]=snapshot.period5_mode if snapshot.period5_mode
-      json[:p5p]=snapshot.period5_param if snapshot.period5_param
-      json[:p5d]=Api::Utils.format_datetime(snapshot.period5_date) if snapshot.period5_date
+      json[:p5]=component.last_snapshot.period5_mode if component.last_snapshot.period5_mode
+      json[:p5p]=component.last_snapshot.period5_param if component.last_snapshot.period5_param
+      json[:p5d]=Api::Utils.format_datetime(component.last_snapshot.period5_date) if component.last_snapshot.period5_date
     end
     if measures
       json_measures=[]
