@@ -56,7 +56,9 @@ package org.sonar.api;
  * 
  *
  * @since 2.3
+ * @deprecated since 6.0 should no more be used
  */
+@Deprecated
 public abstract class ExtensionProvider implements Extension {
 
   public abstract Object provide();
