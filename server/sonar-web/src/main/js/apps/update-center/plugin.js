@@ -44,9 +44,6 @@ export default Backbone.Model.extend({
     const opts = _.extend({}, options, {
       type: 'POST',
       data: { key: this.id },
-      beforeSend () {
-        // disable global ajax notifications
-      },
       success () {
         options.success(that);
       },
