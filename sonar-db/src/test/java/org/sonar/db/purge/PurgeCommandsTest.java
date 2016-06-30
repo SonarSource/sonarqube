@@ -44,7 +44,7 @@ public class PurgeCommandsTest {
   public void shouldDeleteSnapshot() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshot.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u5"));
+    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(PurgeSnapshotQuery.create().setComponentUuid("uuid_5"));
 
     dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }

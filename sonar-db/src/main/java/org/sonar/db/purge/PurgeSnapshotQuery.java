@@ -20,39 +20,18 @@
 package org.sonar.db.purge;
 
 public final class PurgeSnapshotQuery {
-  private String snapshotUuid;
-  private String analysisUuid;
   private String rootComponentUuid;
   private String componentUuid;
   private String[] scopes;
   private String[] status;
   private Boolean islast;
   private Boolean notPurged;
-  private Boolean withVersionEvent;
 
   private PurgeSnapshotQuery() {
   }
 
   public static PurgeSnapshotQuery create() {
     return new PurgeSnapshotQuery();
-  }
-
-  public String getSnapshotUuid() {
-    return snapshotUuid;
-  }
-
-  public PurgeSnapshotQuery setSnapshotUuid(String snapshotUuid) {
-    this.snapshotUuid = snapshotUuid;
-    return this;
-  }
-
-  public String getAnalysisUuid() {
-    return analysisUuid;
-  }
-
-  public PurgeSnapshotQuery setAnalysisUuid(String analysisUuid) {
-    this.analysisUuid = analysisUuid;
-    return this;
   }
 
   public String getRootComponentUuid() {
@@ -109,12 +88,4 @@ public final class PurgeSnapshotQuery {
     return this;
   }
 
-  public Boolean getWithVersionEvent() {
-    return withVersionEvent;
-  }
-
-  public PurgeSnapshotQuery setWithVersionEvent(Boolean withVersionEvent) {
-    this.withVersionEvent = withVersionEvent;
-    return this;
-  }
 }

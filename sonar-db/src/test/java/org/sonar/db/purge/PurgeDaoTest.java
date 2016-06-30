@@ -103,24 +103,24 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void shouldDeleteSnapshots() {
+  public void shouldDeleteAnalyses() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAnalyses.xml");
     underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(3, "u3")));
     dbTester.assertDbUnit(getClass(), "shouldDeleteAnalyses-result.xml", "snapshots");
   }
 
   @Test
-  public void shouldSelectPurgeableSnapshots() {
-    dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableSnapshots.xml");
-    List<PurgeableAnalysisDto> snapshots = underTest.selectPurgeableAnalyses(THE_PROJECT_UUID, dbSession);
+  public void shouldSelectPurgeableAnalysis() {
+    dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableAnalysis.xml");
+    List<PurgeableAnalysisDto> analyses = underTest.selectPurgeableAnalyses(THE_PROJECT_UUID, dbSession);
 
-    assertThat(snapshots).hasSize(3);
-    assertThat(getById(snapshots, "u1").isLast()).isTrue();
-    assertThat(getById(snapshots, "u1").hasEvents()).isFalse();
-    assertThat(getById(snapshots, "u4").isLast()).isFalse();
-    assertThat(getById(snapshots, "u4").hasEvents()).isFalse();
-    assertThat(getById(snapshots, "u5").isLast()).isFalse();
-    assertThat(getById(snapshots, "u5").hasEvents()).isTrue();
+    assertThat(analyses).hasSize(3);
+    assertThat(getById(analyses, "u1").isLast()).isTrue();
+    assertThat(getById(analyses, "u1").hasEvents()).isFalse();
+    assertThat(getById(analyses, "u4").isLast()).isFalse();
+    assertThat(getById(analyses, "u4").hasEvents()).isFalse();
+    assertThat(getById(analyses, "u5").isLast()).isFalse();
+    assertThat(getById(analyses, "u5").hasEvents()).isTrue();
   }
 
   @Test

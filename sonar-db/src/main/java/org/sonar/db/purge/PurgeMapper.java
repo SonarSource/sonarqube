@@ -26,7 +26,7 @@ import org.apache.ibatis.session.ResultHandler;
 
 public interface PurgeMapper {
 
-  List<IdUuidPair> selectSnapshotIdsAndUuids(PurgeSnapshotQuery query);
+  List<IdUuidPair> selectAnalysisIdsAndUuids(PurgeSnapshotQuery query);
 
   /**
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
@@ -39,21 +39,18 @@ public interface PurgeMapper {
 
   void deleteDescendantSnapshots(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshot(@Param("snapshotUuids") List<String> snapshotUuids);
+  void deleteAnalysisDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
-  void deleteSnapshotDuplications(@Param("analysisUuids") List<String> analysisUuids);
-
-  void deleteSnapshotEvents(@Param("analysisUuids") List<String> analysisUuids);
+  void deleteAnalysisEvents(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
+  // FIXME remove when snapshot cardinality is changed
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
   void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
 
   List<Long> selectMetricIdsWithoutHistoricalData();
-
-  void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
 
   void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
 
@@ -67,7 +64,7 @@ public interface PurgeMapper {
 
   void deleteResourceIndex(@Param("componentUuids") List<String> componentUuids);
 
-  void setSnapshotIsLastToFalse(@Param("componentUuids") List<String> componentUuids);
+  void setAnalysisIsLastToFalse(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentLinks(@Param("componentUuids") List<String> componentUuids);
 

@@ -3,18 +3,12 @@
 
 <mapper namespace="org.sonar.db.purge.PurgeMapper">
 
-  <select id="selectSnapshotIdsAndUuids" parameterType="map" resultType="IdUuidPair">
+  <select id="selectAnalysisIdsAndUuids" parameterType="map" resultType="IdUuidPair">
     select
       s.id as id, s.uuid as uuid
     from
       snapshots s
-    <if test="analysisUuid != null">
-      join snapshots analysis on analysis.uuid=#{analysisUuid} and s.root_snapshot_id=analysis.id
-    </if>
     <where>
-      <if test="snapshotUuid != null">
-        and s.uuid=#{snapshotUuid}
-      </if>
       <if test="islast != null">
         and s.islast=#{islast}
       </if>
@@ -34,14 +28,6 @@
       <if test="scopes != null">
         and s.scope in
         <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
-      </if>
-      <if test="withVersionEvent != null">
-        <if test="withVersionEvent">
-          and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
-        </if>
-        <if test="!withVersionEvent">
-          and not exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
-        </if>
       </if>
     </where>
   </select>
@@ -122,26 +108,21 @@
       </foreach>
   </delete>
 
-  <delete id="deleteSnapshotDuplications" parameterType="map">
-    delete from duplications_index where analysis_uuid in
-    <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-      #{analysisUuid}
-    </foreach>
-  </delete>
-
-  <delete id="deleteSnapshotEvents" parameterType="map">
-    delete from events where analysis_uuid in
-    <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-      #{analysisUuid}
-    </foreach>
-  </delete>
-
-  <delete id="deleteSnapshot" parameterType="map">
-    delete from snapshots
+  <delete id="deleteAnalysisDuplications" parameterType="map">
+    delete from duplications_index
     where
-      uuid in
-      <foreach collection="snapshotUuids" open="(" close=")" item="snapshotUuid" separator=",">
-        #{snapshotUuid}
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAnalysisEvents" parameterType="map">
+    delete from events
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
       </foreach>
   </delete>
 
@@ -161,22 +142,6 @@
       <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
         #{snapshotId}
       </foreach>
-  </delete>
-
-  <delete id="deleteSnapshotWastedMeasures" parameterType="map">
-    delete from project_measures
-    <where>
-      snapshot_id in
-      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
-      </foreach>
-      and (person_id is not null
-      <if test="mids.size()>0">
-        or metric_id in
-        <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
-      </if>
-      )
-    </where>
   </delete>
 
   <delete id="deleteAnalysisWastedMeasures" parameterType="map">
@@ -329,7 +294,7 @@
       </foreach>
   </delete>
 
-  <update id="setSnapshotIsLastToFalse" parameterType="String">
+  <update id="setAnalysisIsLastToFalse" parameterType="String">
     update
       snapshots
     set
