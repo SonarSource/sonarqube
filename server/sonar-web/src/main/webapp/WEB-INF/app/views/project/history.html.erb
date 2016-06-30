@@ -35,12 +35,12 @@
       <%
         current_year = nil
         current_month = nil
-        @snapshots.each_with_index do |snapshot, index|
-          time = snapshot.created_at
-          version_event = snapshot.event(EventCategory::KEY_VERSION)
-          alert_event = snapshot.event(EventCategory::KEY_ALERT)
-          profile_event = snapshot.event(EventCategory::KEY_PROFILE)
-          other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
+        @analyses.each_with_index do |analysis, index|
+          time = analysis.created_at
+          version_event = analysis.event(EventCategory::KEY_VERSION)
+          alert_event = analysis.event(EventCategory::KEY_ALERT)
+          profile_event = analysis.event(EventCategory::KEY_PROFILE)
+          other_events = analysis.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
       %>
       <tr class="<%= cycle 'even','odd' -%> snapshot">
 
@@ -66,9 +66,9 @@
               <td class="small edit_actions" style="padding-left:20px">
                 <a id="version_<%= index -%>_change" href="#" onclick="$j('#version_<%= index -%>').hide();$j('#version_<%= index -%>_form').show();$j('#version_name_<%= index -%>').focus();return false;"><%= message('project_history.rename_version') -%></a>
 
-                <% if version_event && !snapshot.islast? %>
+                <% if version_event && !analysis.islast? %>
                   <%= link_to( message('project_history.remove_version'),
-                            { :action => 'delete_version', :sid => snapshot.id},
+                            { :action => 'delete_version', :sid => analysis.id},
                             :confirm => message('project_history.do_you_want_to_remove_version', :params => version_event.name) ) -%>
                 <% end %>
               </td>
@@ -82,7 +82,7 @@
             </tr>
             <tr id="version_<%= index -%>_form" style="display:none;">
               <td coslpan="2" class="admin">
-                <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
+                <% form_tag( {:action => 'update_version', :sid => analysis.id }) do -%>
                   <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? h(version_event.name) : '' -%>"
                          onKeyUp="if (this.value=='') $j('#save_version_<%= index -%>').disabled='true'; else $j('#save_version_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_version_' + index.to_s %>
@@ -127,7 +127,7 @@
             </tr>
             <tr id="create_event_<%= index -%>_form" style="display:none;">
               <td colspan="2" class="admin">
-                  <% form_tag( {:action => 'create_event', :sid => snapshot.id }) do -%>
+                  <% form_tag( {:action => 'create_event', :sid => analysis.id }) do -%>
                     <input id="create_event_name_<%= index -%>" name="event_name" type="text" value=""
                            onKeyUp="if (this.value=='') $j('#create_save_event_<%= index -%>').disabled='true'; else $j('#create_save_event_<%= index -%>').disabled='';"/>
                     <%= submit_tag message('save'), :id => 'create_save_event_' + index.to_s %>
@@ -149,11 +149,11 @@
         <td class="thin nowrap text-right" style="padding-left:10px; padding-right:10px">
           <%
             cell_content = nil;
-            if snapshot.islast?
+            if analysis.islast?
               cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
             else
               cell_content = button_to( message('project_history.delete_snapshot'),
-                                          { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id },
+                                          { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => analysis.id },
                                           :class => 'button-red',
                                           :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )
             end
