@@ -33,7 +33,7 @@ class Api::UserPropertiesController < Api::ApiController
     properties = current_user.properties
     respond_to do |format|
       format.json { render :json => jsonp(properties_to_json(properties)) }
-      format.xml  { render :xml => properties_to_xml(properties) }
+      format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported }
     end
   end
@@ -47,7 +47,7 @@ class Api::UserPropertiesController < Api::ApiController
     if property
       respond_to do |format|
         format.json { render :json => jsonp(properties_to_json([property])) }
-        format.xml  { render :xml => properties_to_xml([property]) }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => text_not_supported }
       end
     else
@@ -69,7 +69,7 @@ class Api::UserPropertiesController < Api::ApiController
         property=Property.create(:prop_key => key, :text_value => value, :user_id => current_user.id)
         respond_to do |format|
           format.json { render :json => jsonp(properties_to_json([property])) }
-          format.xml  { render :xml => properties_to_xml([property]) }
+          format.xml { render :xml => xml_not_supported }
           format.text { render :text => text_not_supported }
         end
 
@@ -105,14 +105,6 @@ class Api::UserPropertiesController < Api::ApiController
       json<<p.to_hash_json
     end
     json
-  end
-
-  def properties_to_xml(properties, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.properties do
-      properties.each do |p|
-        p.to_xml(xml)
-      end
-    end
   end
 
 end

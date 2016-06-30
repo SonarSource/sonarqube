@@ -31,7 +31,7 @@ class Api::FavouritesController < Api::ApiController
   def index
     respond_to do |format|
       format.json { render :json => jsonp(favourites_to_json(current_user.favourites)) }
-      format.xml  { render :xml => favourites_to_xml(current_user.favourites) }
+      format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported }
     end
   end
@@ -45,7 +45,7 @@ class Api::FavouritesController < Api::ApiController
     if favourite
       respond_to do |format|
         format.json { render :json => jsonp(favourites_to_json([favourite])) }
-        format.xml  { render :xml => favourites_to_xml([favourite]) }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => text_not_supported }
       end
     else
@@ -83,33 +83,4 @@ class Api::FavouritesController < Api::ApiController
     hash
   end
 
-  def favourites_to_xml(favourites, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.favourites do
-      favourites.each do |f|
-        xml.favourite do
-          xml.id(f.id)
-          xml.key(f.key)
-          xml.name(f.name)
-          xml.lname(f.long_name) if f.long_name
-          xml.branch(f.branch) if f.branch
-          xml.scope(f.scope)
-          xml.qualifier(f.qualifier)
-          xml.lang(f.language) if f.language
-        end
-      end
-    end
-  end
-
-  def favourite_to_xml(favourite, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.favourite do
-      xml.id(f.id)
-      xml.key(f.key)
-      xml.name(f.name)
-      xml.lname(f.long_name) if f.long_name
-      xml.branch(f.branch) if f.branch
-      xml.scope(f.scope)
-      xml.qualifier(f.qualifier)
-      xml.lang(f.language) if f.language
-    end
-  end
 end

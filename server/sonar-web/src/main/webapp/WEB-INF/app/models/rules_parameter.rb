@@ -35,17 +35,6 @@ class RulesParameter < ActiveRecord::Base
     json
   end
 
-  def to_xml(active_rule, xml)
-    xml.param do
-      xml.name(name)
-      xml.description { xml.cdata!(description) } if description
-      if active_rule
-        active_parameter = active_rule.active_param_by_param_id(id)
-        xml.value(active_parameter.value) if active_parameter
-      end
-    end
-  end
-
   def <=>(other)
     name <=> other.name
   end

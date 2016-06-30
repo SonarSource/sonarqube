@@ -36,7 +36,7 @@ class Api::ServerController < Api::ApiController
     complete_with_status(hash)
     respond_to do |format|
       format.json{ render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'server') }
+      format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported}
     end
   end
@@ -66,7 +66,7 @@ class Api::ServerController < Api::ApiController
 
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
-        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => hash[:status] }
       end
     rescue => e
@@ -81,7 +81,7 @@ class Api::ServerController < Api::ApiController
       }
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
-        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => hash[:status] }
       end
     end

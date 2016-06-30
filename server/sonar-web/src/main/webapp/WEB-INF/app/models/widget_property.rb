@@ -57,14 +57,6 @@ class WidgetProperty < ActiveRecord::Base
     {:key => key, :value => text_value}
   end
 
-  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.property do
-      xml.key(prop_key)
-      xml.value { xml.cdata!(text_value) }
-    end
-    xml
-  end
-
   def self.text_to_value(text, type)
     PropertyType.text_to_value(text, type);
   end

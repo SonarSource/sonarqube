@@ -69,7 +69,7 @@ class Api::EventsController < Api::ApiController
 
       respond_to do |format|
         format.json { render :json => jsonp(events_to_json(events)) }
-        format.xml  { render :xml => events_to_xml(events) }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => text_not_supported }
       end
 
@@ -91,7 +91,7 @@ class Api::EventsController < Api::ApiController
 
       respond_to do |format|
         format.json { render :json => jsonp(events_to_json([event])) }
-        format.xml  { render :xml => events_to_xml([event]) }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => text_not_supported }
       end
 
@@ -167,7 +167,7 @@ class Api::EventsController < Api::ApiController
       
       respond_to do |format|
         format.json { render :json => jsonp(events_to_json([event_to_return])) }
-        format.xml  { render :xml => events_to_xml([event_to_return]) }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => text_not_supported }
       end
 
@@ -271,25 +271,6 @@ class Api::EventsController < Api::ApiController
     hash[:dt]=Api::Utils.format_datetime(event.event_date) if event.event_date
     hash[:ds]=event.description if event.description
     hash
-  end
-
-  def events_to_xml(events, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.events do
-      events.each do |event|
-        event_to_xml(event, xml)
-      end
-    end
-  end
-
-  def event_to_xml(event, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.event do
-      xml.id(event.id.to_s)
-      xml.name(event.name) if event.name
-      xml.resourceKey(event.resource.key) if event.resource
-      xml.category(event.category)
-      xml.date(Api::Utils.format_datetime(event.event_date)) if event.event_date
-      xml.description(event.description) if event.description
-    end
   end
 
 end
