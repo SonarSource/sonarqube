@@ -271,12 +271,13 @@ public class SensorContextTester implements SensorContext {
    * @param componentKey Key of the file like 'myProjectKey:src/foo.php'
    * @param line Line you want to query
    * @param lineOffset Offset you want to query.
-   * @return List of references for the symbol or empty list if there is no symbol at this position or if there is no reference for this symbol.
+   * @return List of references for the symbol (potentially empty) or null if there is no symbol at this position.
    */
+  @CheckForNull
   public Collection<TextRange> referencesForSymbolAt(String componentKey, int line, int lineOffset) {
     DefaultSymbolTable symbolTable = sensorStorage.symbolsPerComponent.get(componentKey);
     if (symbolTable == null) {
-      return Collections.emptyList();
+      return null;
     }
     DefaultTextPointer location = new DefaultTextPointer(line, lineOffset);
     for (Map.Entry<TextRange, Set<TextRange>> symbol : symbolTable.getReferencesBySymbol().entrySet()) {
@@ -284,7 +285,7 @@ public class SensorContextTester implements SensorContext {
         return symbol.getValue();
       }
     }
-    return Collections.emptyList();
+    return null;
   }
 
 }

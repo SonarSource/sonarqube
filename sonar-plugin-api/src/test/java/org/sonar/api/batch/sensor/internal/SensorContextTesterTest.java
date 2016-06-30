@@ -142,15 +142,22 @@ public class SensorContextTesterTest {
 
   @Test
   public void testSymbolReferences() {
-    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).isEmpty();
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 0)).isNull();
+
     NewSymbolTable symbolTable = tester.newSymbolTable()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))));
     symbolTable
-      .newSymbol(1, 0, 1, 5)
+      .newSymbol(1, 8, 1, 10);
+
+    symbolTable
+      .newSymbol(1, 1, 1, 5)
       .newReference(6, 9)
       .newReference(1, 10, 1, 13);
 
     symbolTable.save();
+
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 0)).isNull();
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 8)).isEmpty();
     assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset").containsExactly(tuple(1, 6, 1, 9),
       tuple(1, 10, 1, 13));
   }
