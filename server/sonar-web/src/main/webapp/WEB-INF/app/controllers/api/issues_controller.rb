@@ -39,7 +39,7 @@ class Api::IssuesController < Api::ApiController
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar') }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 
@@ -84,7 +84,7 @@ class Api::IssuesController < Api::ApiController
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
       format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 
@@ -127,7 +127,7 @@ class Api::IssuesController < Api::ApiController
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
       format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => result.httpStatus) }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 
@@ -188,7 +188,7 @@ class Api::IssuesController < Api::ApiController
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
       format.json { render :json => jsonp(hash), :status => 200 }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => 200) }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 

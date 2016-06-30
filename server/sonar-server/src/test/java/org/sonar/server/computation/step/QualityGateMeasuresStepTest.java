@@ -301,7 +301,7 @@ public class QualityGateMeasuresStepTest {
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder()
-      .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, 121), rawValue).build())
+      .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, "u1"), rawValue).build())
       .create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
@@ -321,7 +321,7 @@ public class QualityGateMeasuresStepTest {
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder()
-        .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, 121), rawValue).build())
+        .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, "u1"), rawValue).build())
         .create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 

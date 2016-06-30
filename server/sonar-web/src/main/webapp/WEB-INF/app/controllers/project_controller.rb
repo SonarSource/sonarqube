@@ -218,8 +218,8 @@ class ProjectController < ApplicationController
       redirect_to :action => 'index', :id => params[:id]
     end
 
-    @snapshot=@project.last_snapshot
-    @snapshots = Snapshot.all(:conditions => ["status='P' AND component_uuid=?", @project.uuid],
+    @snapshot = @project.last_snapshot
+    @analyses = Snapshot.all(:conditions => ["status='P' AND component_uuid=?", @project.uuid],
                               :include => 'events', :order => 'snapshots.created_at DESC')
   end
 

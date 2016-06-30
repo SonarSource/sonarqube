@@ -252,15 +252,15 @@ class MeasuresController < ApplicationController
     hash = {}
     components_json = []
     filter.rows.each do |row|
-      component = row.snapshot.resource
+      component = row.resource
       component_hash = {}
       component_hash[:key] = component.key
       component_hash[:name] = component.name if fields.include?('name') && component.name
       component_hash[:longName] = component.long_name if fields.include?('longName') && component.long_name
       component_hash[:qualifier] = component.qualifier if component.qualifier
       component_hash[:favorite] = logged_in? && current_user.favourite?(component.id) if fields.include?('favourite')
-      component_hash[:date] = Api::Utils.format_datetime(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
-      component_hash[:fdate] = human_short_date(row.snapshot.created_at) if fields.include?('date') && row.snapshot.created_at
+      component_hash[:date] = Api::Utils.format_datetime(row.analysis.created_at) if fields.include?('date') && row.analysis.created_at
+      component_hash[:fdate] = human_short_date(row.analysis.created_at) if fields.include?('date') && row.analysis.created_at
 
       if display_links && row.links
         links_hash = {}

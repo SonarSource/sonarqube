@@ -124,7 +124,7 @@ public class CoverageUtilsTest {
   }
 
   private Period createPeriod(int periodIndex) {
-    return new Period(periodIndex, "mode" + periodIndex, null, 963L + periodIndex, 9865L + periodIndex);
+    return new Period(periodIndex, "mode" + periodIndex, null, 963L + periodIndex, String.valueOf(9865L + periodIndex));
   }
 
   private static class CounterInitializationContextRule extends ExternalResource implements CounterInitializationContext {

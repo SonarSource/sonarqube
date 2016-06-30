@@ -64,8 +64,9 @@
            delete_historical_data="[null]"/>
 
   <!-- java project -->
-  <projects uuid="UUID_JAVA_PROJECT"
-            uuid_path="NOT_USED"
+  <projects id="1"
+            uuid="UUID_JAVA_PROJECT"
+            uuid_path="."
             project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
@@ -76,11 +77,13 @@
             scope="PRJ"
             qualifier="TRK"
             name="Java project"
-            id="1"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
-  <projects uuid="BCDE"
-            uuid_path="NOT_USED"
+  <projects id="2"
+            uuid="UUID_JAVA_DIR"
+            uuid_path=".UUID_JAVA_PROJECT."
             project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
@@ -88,14 +91,16 @@
             created_at="2008-12-19 00:00:00.00"
             kee="java_project:org.sonar.foo"
             scope="DIR"
-            qualifier="PAC"
-            long_name="org.sonar.foo"
-            name="org.sonar.foo"
-            id="2"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            qualifier="DIR"
+            long_name="org/sonar/foo"
+            name="org/sonar/foo"
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
-  <projects uuid="CDEF"
-            uuid_path="NOT_USED"
+  <projects id="3"
+            uuid="UUID_JAVA_BIG_FILE"
+            uuid_path=".UUID_JAVA_PROJECT.UUID_JAVA_DIR."
             project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
@@ -103,14 +108,16 @@
             created_at="2008-12-19 00:00:00.00"
             kee="java_project:org.sonar.foo.Big"
             scope="FIL"
-            qualifier="CLA"
-            long_name="org.sonar.foo.Big"
-            name="Big"
-            id="3"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            qualifier="FIL"
+            long_name="org/sonar/foo/Big.java"
+            name="Big.java"
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
-  <projects uuid="DEFG"
-            uuid_path="NOT_USED"
+  <projects id="4"
+            uuid="UUID_JAVA_TINY_FILE"
+            uuid_path=".UUID_JAVA_PROJECT.UUID_JAVA_DIR."
             project_uuid="UUID_JAVA_PROJECT"
             description="[null]"
             enabled="[true]"
@@ -118,11 +125,12 @@
             created_at="2008-12-19 00:00:00.00"
             kee="java_project:org.sonar.foo.Tiny"
             scope="FIL"
-            qualifier="CLA"
-            long_name="org.sonar.foo.Tiny"
+            qualifier="FIL"
+            long_name="org/sonar/foo/Tiny.java"
             name="Tiny"
-            id="4"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
   <snapshots id="101"
              uuid="u101"
@@ -158,7 +166,7 @@
 
   <snapshots id="102"
              uuid="u102"
-             component_uuid="BCDE"
+             component_uuid="UUID_JAVA_DIR"
              root_component_uuid="UUID_JAVA_PROJECT"
              root_snapshot_id="101"
              parent_snapshot_id="101"
@@ -190,12 +198,12 @@
 
   <snapshots id="103"
              uuid="u103"
-             component_uuid="CDEF"
+             component_uuid="UUID_JAVA_BIG_FILE"
              root_component_uuid="UUID_JAVA_PROJECT"
              root_snapshot_id="101"
              parent_snapshot_id="102"
              scope="FIL"
-             qualifier="CLA"
+             qualifier="FIL"
              path="101.102."
              depth="2"
              purge_status="[null]"
@@ -222,12 +230,12 @@
 
   <snapshots id="104"
              uuid="u104"
-             component_uuid="DEFG"
+             component_uuid="UUID_JAVA_TINY_FILE"
              root_component_uuid="UUID_JAVA_PROJECT"
              root_snapshot_id="101"
              parent_snapshot_id="102"
              scope="FIL"
-             qualifier="CLA"
+             qualifier="FIL"
              path="101.102."
              depth="2"
              purge_status="[null]"
@@ -266,7 +274,7 @@
                     variation_value_5="400"
                     alert_text="[null]"
                     text_value="[null]"
-                    component_uuid="ABCD"
+                    component_uuid="UUID_JAVA_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
@@ -284,7 +292,7 @@
                     text_value="[null]"
                     alert_status="[null]"
                     description="[null]"
-                    component_uuid="BCDE"/>
+                    component_uuid="UUID_JAVA_DIR"/>
 
   <project_measures id="1003"
                     metric_id="1"
@@ -300,7 +308,7 @@
                     text_value="[null]"
                     alert_status="[null]"
                     description="[null]"
-                    component_uuid="CDEF"/>
+                    component_uuid="UUID_JAVA_BIG_FILE"/>
 
   <project_measures id="1004"
                     metric_id="1"
@@ -316,7 +324,7 @@
                     text_value="[null]"
                     alert_status="[null]"
                     description="[null]"
-                    component_uuid="DEFG"/>
+                    component_uuid="UUID_JAVA_TINY_FILE"/>
 
   <!-- profile of java project -->
   <project_measures id="1005"
@@ -331,7 +339,7 @@
                     variation_value_5="[null]"
                     alert_text="[null]"
                     text_value="Sonar way"
-                    component_uuid="ABCD"
+                    component_uuid="UUID_JAVA_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
@@ -348,13 +356,14 @@
                     variation_value_5="[null]"
                     alert_text="[null]"
                     text_value="Sonar way"
-                    component_uuid="ABCD"
+                    component_uuid="UUID_JAVA_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
   <!-- php project -->
-  <projects uuid="UUID_PHP_PROJECT"
-            uuid_path="NOT_USED"
+  <projects id="10"
+            uuid="UUID_PHP_PROJECT"
+            uuid_path="."
             project_uuid="UUID_PHP_PROJECT"
             description="[null]"
             enabled="[true]"
@@ -365,8 +374,9 @@
             scope="PRJ"
             qualifier="TRK"
             name="PHP project"
-            id="10"
-            root_uuid="UUID_JAVA_PROJECT"/>
+            root_uuid="NOT_USED"
+            copy_component_uuid="[null]"
+  />
 
 
   <snapshots id="110"
@@ -414,7 +424,7 @@
                     variation_value_5="4900"
                     alert_text="[null]"
                     text_value="[null]"
-                    component_uuid="EFGH"
+                    component_uuid="UUID_PHP_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 
@@ -430,7 +440,7 @@
                     variation_value_5="[null]"
                     alert_text="[null]"
                     text_value="php way"
-                    component_uuid="EFGH"
+                    component_uuid="UUID_PHP_PROJECT"
                     alert_status="[null]"
                     description="[null]"/>
 

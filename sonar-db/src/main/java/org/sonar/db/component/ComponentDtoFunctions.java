@@ -34,25 +34,12 @@ public final class ComponentDtoFunctions {
     return ToKey.INSTANCE;
   }
 
-  public static Function<ComponentDto, Long> toId() {
-    return ToId.INSTANCE;
-  }
-
   public static Function<ComponentDto, String> toProjectUuid() {
     return ToProjectUuid.INSTANCE;
   }
 
   public static Function<ComponentDto, String> toUuid() {
     return ToUuid.INSTANCE;
-  }
-
-  private enum ToId implements Function<ComponentDto, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull ComponentDto input) {
-      return input.getId();
-    }
   }
 
   private enum ToKey implements Function<ComponentDto, String> {

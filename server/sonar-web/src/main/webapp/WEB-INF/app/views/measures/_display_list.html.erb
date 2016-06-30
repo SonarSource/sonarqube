@@ -188,7 +188,7 @@
   <% if filter.base_row %>
     <tr class="highlight">
       <% if display_favourites %>
-        <td class="thin"><%= link_to_favourite(filter.base_row.snapshot.resource) -%></td>
+        <td class="thin"><%= link_to_favourite(filter.base_row.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%> <%= column.row_css -%>">
@@ -201,7 +201,7 @@
   <% filter.rows.each do |row| %>
     <tr class="<%= cycle 'even', 'odd' -%>">
       <% if display_favourites %>
-        <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
+        <td class="thin"><%= link_to_favourite(row.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%> <%= column.row_css -%>">

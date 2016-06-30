@@ -105,7 +105,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to date {} (analysis of {})", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getId());
+    return new Period(index, TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -117,7 +117,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getId());
+    return new Period(index, TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -127,7 +127,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to previous analysis ({})", formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getId());
+    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -142,7 +142,7 @@ public class PeriodResolver {
     }
     SnapshotDto snapshotDto = snapshotDtos.get(0);
     LOG.debug("Compare to previous version ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getId());
+    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
@@ -152,7 +152,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to first analysis ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getId());
+    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
@@ -162,7 +162,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to version ({}) ({})", version, formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getId());
+    return new Period(index, TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull

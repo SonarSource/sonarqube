@@ -22,25 +22,19 @@ package org.sonar.server.measure;
 import org.apache.commons.lang.StringUtils;
 
 public class MeasureFilterRow {
-  private final long snapshotId;
-  private final long resourceId;
+  private final String componentUuid;
   private final String rootComponentUuid;
   private String sortText = null;
   private Long sortDate = null;
   private Double sortDouble = null;
 
-  MeasureFilterRow(long snapshotId, long resourceId, String rootComponentUuid) {
-    this.snapshotId = snapshotId;
-    this.resourceId = resourceId;
+  MeasureFilterRow(String componentUuid, String rootComponentUuid) {
+    this.componentUuid = componentUuid;
     this.rootComponentUuid = rootComponentUuid;
   }
 
-  public long getSnapshotId() {
-    return snapshotId;
-  }
-
-  public long getResourceId() {
-    return resourceId;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
   public String getRootComponentUuid() {

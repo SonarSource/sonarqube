@@ -28,31 +28,27 @@ public class PastMeasureDtoTest {
   @Test
   public void test_getter_and_setter() throws Exception {
     PastMeasureDto dto = new PastMeasureDto()
-      .setId(10L)
       .setValue(1d)
       .setMetricId(2)
-      .setPersonId(5);
+      .setPersonId(5L);
 
-    assertThat(dto.getId()).isEqualTo(10L);
     assertThat(dto.hasValue()).isTrue();
     assertThat(dto.getValue()).isEqualTo(1d);
     assertThat(dto.getMetricId()).isEqualTo(2);
-    assertThat(dto.getPersonId()).isEqualTo(5);
+    assertThat(dto.getPersonId()).isEqualTo(5L);
   }
 
   @Test
   public void test_has_value() throws Exception {
     PastMeasureDto measureWithValue = new PastMeasureDto()
-      .setId(10L)
       .setValue(1d)
       .setMetricId(2)
-      .setPersonId(5);
+      .setPersonId(5L);
     assertThat(measureWithValue.hasValue()).isTrue();
 
     PastMeasureDto measureWithoutValue = new PastMeasureDto()
-      .setId(10L)
       .setMetricId(2)
-      .setPersonId(5);
+      .setPersonId(5L);
     assertThat(measureWithoutValue.hasValue()).isFalse();
   }
 

@@ -99,7 +99,7 @@ class Api::ProfilesController < Api::ApiController
 
     respond_to do |format|
       format.json { render :json => jsonp(to_json) }
-      format.xml { render :xml => to_xml }
+      format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported }
     end
   end
@@ -162,33 +162,6 @@ class Api::ProfilesController < Api::ApiController
     result[:rules]=rules unless rules.empty?
 
     [result]
-  end
-
-  def to_xml
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-
-    xml.profile do
-      xml.name(@profile.name)
-      xml.language(@profile.language)
-      xml.parent(@profile.parent_kee) if @profile.parent_kee.present?
-      xml.default(@profile.default_profile?)
-
-      @active_rules.each do |active_rule|
-        xml.rule do
-          xml.key(active_rule.rule.plugin_rule_key)
-          xml.repo(active_rule.rule.plugin_name)
-          xml.severity(active_rule.priority_text)
-          xml.inheritance(active_rule.inheritance) if active_rule.inheritance
-          active_rule.active_rule_parameters.each do |param|
-            xml.param do
-              xml.key(param.name)
-              xml.value(param.value)
-            end
-          end
-        end
-      end
-    end
   end
 
 end

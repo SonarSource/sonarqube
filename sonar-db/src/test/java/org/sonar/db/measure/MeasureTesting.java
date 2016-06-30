@@ -19,12 +19,16 @@
  */
 package org.sonar.db.measure;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MeasureTesting {
+
+  private static int cursor = RandomUtils.nextInt(100);
+
   private MeasureTesting() {
     // static methods only
   }
@@ -35,9 +39,19 @@ public class MeasureTesting {
     checkNotNull(snapshot.getComponentUuid());
     return new MeasureDto()
       .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
       .setComponentUuid(snapshot.getComponentUuid())
-      .setSnapshotId(snapshot.getId())
       .setAnalysisUuid(snapshot.getUuid());
+  }
+
+  public static MeasureDto newMeasure() {
+    return new MeasureDto()
+      .setMetricId(cursor++)
+      .setComponentUuid(String.valueOf(cursor++))
+      .setAnalysisUuid(String.valueOf(cursor++))
+      .setDeveloperId(null)
+      .setData(String.valueOf(cursor++))
+      .setAlertStatus(String.valueOf(cursor++))
+      .setAlertText(String.valueOf(cursor++))
+      .setValue((double)cursor++);
   }
 }

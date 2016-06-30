@@ -121,7 +121,7 @@ class Api::ApiController < ApplicationController
   def render_response(status, message)
     respond_to do |format|
       format.json { render :json => error_to_json(status, message), :status => status }
-      format.xml { render :xml => error_to_xml(status, message), :status => status }
+      format.xml { render :xml => xml_not_supported }
       format.text { render :text => message, :status => status }
     end
   end

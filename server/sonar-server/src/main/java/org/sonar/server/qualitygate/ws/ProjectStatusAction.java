@@ -24,7 +24,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.exceptions.BadRequestException;
@@ -121,7 +121,7 @@ public class ProjectStatusAction implements QGateWsAction {
     try {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, request);
       checkPermission(projectAndSnapshot.project.uuid());
-      Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.snapshotDto);
+      Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.project);
 
       return ProjectStatusWsResponse.newBuilder()
         .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
@@ -148,24 +148,23 @@ public class ProjectStatusAction implements QGateWsAction {
     return new ProjectAndSnapshot(projectDto, snapshotDto);
   }
 
-  private ProjectAndSnapshot getSnapshotThenProject(DbSession dbSession, String snapshotId) {
-    SnapshotDto snapshotDto = getSnapshot(dbSession, snapshotId);
+  private ProjectAndSnapshot getSnapshotThenProject(DbSession dbSession, String analysisUuid) {
+    SnapshotDto snapshotDto = getSnapshot(dbSession, analysisUuid);
     ComponentDto projectDto = dbClient.componentDao().selectOrFailByUuid(dbSession, snapshotDto.getComponentUuid());
     return new ProjectAndSnapshot(projectDto, snapshotDto);
   }
 
-  private SnapshotDto getSnapshot(DbSession dbSession, String analysisUuidFromRequest) {
-    java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuidFromRequest);
-    return checkFoundWithOptional(snapshotDto, "Analysis with id '%s' is not found", analysisUuidFromRequest);
+  private SnapshotDto getSnapshot(DbSession dbSession, String analysisUuid) {
+    java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuid);
+    return checkFoundWithOptional(snapshotDto, "Analysis with id '%s' is not found", analysisUuid);
   }
 
-  private Optional<String> getQualityGateDetailsMeasureData(DbSession dbSession, Optional<SnapshotDto> snapshotDto) {
-    if (!snapshotDto.isPresent()) {
-      return Optional.absent();
-    }
-
-    List<MeasureDto> measures = dbClient.measureDao().selectBySnapshotIdAndMetricKeys(snapshotDto.get().getId(),
-      Collections.singleton(CoreMetrics.QUALITY_GATE_DETAILS_KEY), dbSession);
+  private Optional<String> getQualityGateDetailsMeasureData(DbSession dbSession, ComponentDto project) {
+    MeasureQuery measureQuery = MeasureQuery.builder()
+      .setComponentUuid(project.projectUuid())
+      .setMetricKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY)
+      .build();
+    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
 
     return measures.isEmpty()
       ? Optional.absent()

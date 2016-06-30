@@ -110,7 +110,7 @@ public class MeasureFilterCondition {
     String table = "pmcond" + conditionIndex;
     sql.append(" ").append(table).append(".metric_id=");
     sql.append(metric.getId());
-    sql.append(" AND ");
+    sql.append(" and ");
     appendSqlColumn(sql, conditionIndex);
     sql.append(" ").append(operator.getSql()).append(" ");
     if (textValue == null) {
@@ -118,8 +118,8 @@ public class MeasureFilterCondition {
     } else {
       sql.append(textValue);
     }
-    sql.append(" AND ");
-    sql.append(table).append(".person_id IS NULL ");
+    sql.append(" and ");
+    sql.append(table).append(".person_id is null ");
     return sql;
   }
 

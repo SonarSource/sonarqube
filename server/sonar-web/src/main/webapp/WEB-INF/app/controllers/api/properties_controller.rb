@@ -60,7 +60,7 @@ class Api::PropertiesController < Api::ApiController
 
     respond_to do |format|
       format.json { render :json => jsonp(to_json(properties)) }
-      format.xml { render :xml => to_xml(properties) }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 
@@ -84,14 +84,14 @@ class Api::PropertiesController < Api::ApiController
       message = "Property not found: #{key}"
       return respond_to do |format|
         format.json { render :json => error_to_json(404, message), :status => 200 }
-        format.xml { render :xml => error_to_xml(404, message), :status => 200 }
+        format.xml { render :xml => xml_not_supported }
         format.text { render :text => message, :status => 200 }
       end
     end
     access_denied unless allowed?(key)
     respond_to do |format|
       format.json { render :json => jsonp(to_json([prop])) }
-      format.xml { render :xml => to_xml([prop]) }
+      format.xml { render :xml => xml_not_supported }
     end
   end
 
@@ -143,16 +143,6 @@ class Api::PropertiesController < Api::ApiController
 
   def to_json(properties)
     properties.collect { |property| property.to_hash_json }
-  end
-
-  def to_xml(properties)
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-    xml.properties do
-      properties.each do |property|
-        property.to_xml(xml)
-      end
-    end
   end
 
   def allowed?(property_key)

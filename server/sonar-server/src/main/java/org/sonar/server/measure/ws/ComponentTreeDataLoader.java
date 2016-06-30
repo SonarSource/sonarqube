@@ -207,7 +207,7 @@ public class ComponentTreeDataLoader {
     components.stream().forEach(c -> componentUuids.add(c.uuid()));
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
-    MeasureQuery measureQuery = new MeasureQuery.Builder()
+    MeasureQuery measureQuery = MeasureQuery.builder()
       .setPersonId(developerId)
       .setComponentUuids(componentUuids)
       .setMetricIds(metricsById.keySet())
