@@ -21,7 +21,6 @@ class Project < ActiveRecord::Base
   include Comparable
   include Resourceable
 
-  has_many :snapshots, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'uuid'
   has_many :events, :foreign_key => 'component_uuid', :primary_key => 'uuid', :order => 'event_date DESC'
   has_many :project_links, :foreign_key => 'component_uuid', :primary_key => 'uuid', :dependent => :delete_all, :order => 'link_type'
   has_many :user_roles, :foreign_key => 'resource_id'
@@ -33,6 +32,7 @@ class Project < ActiveRecord::Base
   has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
   has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => 'position=0', :select => 'kee'
   has_many :resource_index, :foreign_key => 'resource_id'
+  has_one :last_analysis, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => ['snapshots.islast=?', true]
 
   def self.by_key(k)
     begin
@@ -71,7 +71,11 @@ class Project < ActiveRecord::Base
   def root_project
     @root_project ||=
       begin
-        parent_module(self)
+        if project_uuid == uuid
+          self
+        else
+          Project.find(:first, :conditions => ['uuid = ?', project_uuid])
+        end
       end
   end
 
@@ -107,11 +111,12 @@ class Project < ActiveRecord::Base
   def last_snapshot
     @last_snapshot ||=
       begin
-        snapshot=Snapshot.first(:conditions => {:islast => true, :component_uuid => uuid})
-        if snapshot
-          snapshot.project=self
-        end
-        snapshot
+        analysis = Snapshot.find(:first, :conditions => ['component_uuid = ? and islast = ?', project_uuid, true])
+        if analysis
+           ComponentSnapshot.new(analysis, self)
+         else
+           nil
+         end
       end
   end
 
@@ -174,20 +179,7 @@ class Project < ActiveRecord::Base
   end
 
   def component_uuid_for_authorization
-    if library?
-      # no security on libraries
-      nil
-    elsif set?
-      self.root_uuid || self.uuid
-    elsif last_snapshot
-      last_snapshot.component_uuid_for_authorization
-    else
-      self.root_uuid
-    end
-  end
-
-  def path_name
-    last_snapshot && last_snapshot.path_name
+    self.project_uuid
   end
 
   private

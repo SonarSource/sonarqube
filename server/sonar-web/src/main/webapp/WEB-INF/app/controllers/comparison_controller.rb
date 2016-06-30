@@ -50,7 +50,7 @@ class ComparisonController < ApplicationController
         end
       end
     end
-    @snapshots = select_authorized(:user, snapshots)
+    @snapshots = select_authorized(:user, snapshots).map { |snapshot| ComponentSnapshot.new(snapshot, snapshot.resource) }
 
     metrics = get_params_as_array(:metrics)
     if metrics.empty?

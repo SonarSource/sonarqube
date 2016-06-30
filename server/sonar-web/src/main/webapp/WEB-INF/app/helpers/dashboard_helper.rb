@@ -71,7 +71,7 @@ module DashboardHelper
   end
 
   def period_label(snapshot, index)
-    if snapshot.project_snapshot
+    if snapshot
       mode = snapshot.period_mode(index)
       mode_param = snapshot.period_param(index)
       date = localize(snapshot.period_datetime(index).to_date) if snapshot.period_datetime(index)
@@ -80,16 +80,16 @@ module DashboardHelper
   end
 
   def short_period_label(snapshot, index)
-    if snapshot.project_snapshot
+    if snapshot
       Api::Utils.java_facade.getPeriodLabel(index)
     end
   end
 
   def violation_period_select_options(snapshot, index)
-    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode=snapshot.project_snapshot.send "period#{index}_mode"
-    mode_param=snapshot.project_snapshot.send "period#{index}_param"
-    date=snapshot.project_snapshot.send "period#{index}_date"
+    return nil if snapshot.nil?
+    mode=snapshot.send "period#{index}_mode"
+    mode_param=snapshot.send "period#{index}_param"
+    date=snapshot.send "period#{index}_date"
 
     if mode
       if mode=='days'

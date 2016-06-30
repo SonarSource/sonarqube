@@ -53,23 +53,23 @@ class Api::TimemachineController < Api::ApiController
   #
   def index
     begin
-      resource_id = params[:resource]
+      component_key = params[:resource]
 
-      @resource=Project.by_key(resource_id)
-      if @resource.nil?
-        raise ApiException.new 404, "Resource not found: #{resource_id}"
+      @component=Project.by_key(component_key)
+      if @component.nil?
+        raise ApiException.new 404, "Resource not found: #{component_key}"
       end
 
       # ---------- PARAMETERS
       load_metadata()
 
-      @sids=[]
-      @dates_by_sid={}
-      @measures_by_sid={}
+      @analysis_uuids = []
+      @dates_by_analysis_uuid = {}
+      @measures_by_analysis_uuid = {}
 
       unless @metrics.empty?
-        sql_conditions = ['snapshots.component_uuid=:rid AND snapshots.status=:status AND project_measures.person_id IS NULL']
-        sql_values = {:rid => @resource.uuid, :status => Snapshot::STATUS_PROCESSED}
+        sql_conditions = ['project_measures.component_uuid=:component_uuid AND snapshots.status=:status AND project_measures.person_id IS NULL']
+        sql_values = {:component_uuid => @component.uuid, :status => Snapshot::STATUS_PROCESSED}
 
         if params[:fromDateTime]
           from = parse_datetime(params[:fromDateTime])
@@ -91,8 +91,8 @@ class Api::TimemachineController < Api::ApiController
         sql_values[:metrics] = @metrics.select{|m| m.id}
 
         measures = ProjectMeasure.find(:all,
-          :joins => :snapshot,
-          :select => 'project_measures.id,project_measures.value,project_measures.text_value,project_measures.metric_id,project_measures.snapshot_id,snapshots.created_at',
+          :joins => :analysis,
+          :select => 'project_measures.id,project_measures.value,project_measures.text_value,project_measures.metric_id,project_measures.analysis_uuid,snapshots.created_at',
           :conditions => [sql_conditions.join(' AND '), sql_values],
           :order => 'snapshots.created_at')
 
@@ -100,15 +100,15 @@ class Api::TimemachineController < Api::ApiController
         # sorted array of unique snapshot ids
 
         # workaround to convert snapshot date from string to datetime
-        date_column=Snapshot.connection.columns('snapshots')[1]
+        date_column = Snapshot.connection.columns('snapshots')[1]
 
         measures.each do |m|
-          @sids<<m.snapshot_id
-          @dates_by_sid[m.snapshot_id]=date_column.type_cast(m.attributes['created_at'])
-          @measures_by_sid[m.snapshot_id]||={}
-          @measures_by_sid[m.snapshot_id][MetadataId.new(m.metric_id)]=m
+          @analysis_uuids << m.analysis_uuid
+          @dates_by_analysis_uuid[m.analysis_uuid] = date_column.type_cast(m.attributes['created_at'])
+          @measures_by_analysis_uuid[m.analysis_uuid] ||= {}
+          @measures_by_analysis_uuid[m.analysis_uuid][MetadataId.new(m.metric_id)] = m
         end
-        @sids.uniq!
+        @analysis_uuids.uniq!
       end
 
       # ---------- FORMAT RESPONSE
@@ -141,7 +141,7 @@ class Api::TimemachineController < Api::ApiController
 
     @metadata=[]
     @metrics.each do |metric|
-      @metadata<<Metadata.new(metric)
+      @metadata << Metadata.new(metric)
     end
     @metadata
   end
@@ -156,17 +156,17 @@ class Api::TimemachineController < Api::ApiController
       cols<<col
     end
 
-    @sids.each do |snapshot_id|
-      cell={:d => Api::Utils.format_datetime(Time.at(@dates_by_sid[snapshot_id]/1000))}
+    @analysis_uuids.each do |analysis_uuid|
+      cell={:d => Api::Utils.format_datetime(Time.at(@dates_by_analysis_uuid[analysis_uuid]/1000))}
       cell_values=[]
       cell[:v]=cell_values
 
       @metadata.each do |metadata|
-        measure=@measures_by_sid[snapshot_id][metadata.to_id]
+        measure = @measures_by_analysis_uuid[analysis_uuid][metadata.to_id]
         if measure
-          cell_values<<measure.typed_value
+          cell_values << measure.typed_value
         else
-          cell_values<<nil
+          cell_values << nil
         end
       end
       cells<<cell
@@ -181,10 +181,10 @@ class Api::TimemachineController < Api::ApiController
         header<<metadata.to_s
       end
       csv << header
-      @sids.each do |snapshot_id|
-        row=[Api::Utils.format_datetime(Time.at(@dates_by_sid[snapshot_id]/1000))]
+      @analysis_uuids.each do |analysis_uuid|
+        row=[Api::Utils.format_datetime(Time.at(@dates_by_analysis_uuid[analysis_uuid]/1000))]
         @metadata.each do |metadata|
-          measure=@measures_by_sid[snapshot_id][metadata.to_id]
+          measure=@measures_by_analysis_uuid[analysis_uuid][metadata.to_id]
           if measure
             row<<measure.typed_value
           else

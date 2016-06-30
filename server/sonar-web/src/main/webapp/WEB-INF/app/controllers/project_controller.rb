@@ -242,10 +242,10 @@ class ProjectController < ApplicationController
   def links
     @project = get_current_project(params[:id])
 
-    @snapshot=@project.last_snapshot
     if !@project.project?
       redirect_to :action => 'index', :id => params[:id]
     end
+    @snapshot = @project.last_snapshot
   end
 
   def set_links
@@ -276,11 +276,11 @@ class ProjectController < ApplicationController
   def settings
     @resource = get_current_project(params[:id])
 
-    @snapshot = @resource.last_snapshot
     if !java_facade.getResourceTypeBooleanProperty(@resource.qualifier, 'configurable')
       redirect_to :action => 'index', :id => params[:id]
     end
 
+    @snapshot = @resource.last_snapshot
     definitions_per_category = java_facade.propertyDefinitions.propertiesByCategory(@resource.qualifier)
     processProperties(definitions_per_category)
   end
