@@ -8,7 +8,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
   <!-- the project -->
   <projects uuid="ABCD"
-            uuid_path="NOT_USED"
+            uuid_path="."
             project_uuid="ABCD"
             module_uuid="[null]"
             module_uuid_path="."
@@ -31,7 +31,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
   <!-- the directory -->
   <projects uuid="EFGH"
-            uuid_path="NOT_USED"
+            uuid_path=".ABCD."
             project_uuid="ABCD"
             module_uuid="ABCD"
             module_uuid_path="."
@@ -54,7 +54,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
   <!-- the file -->
   <projects uuid="GHIJ"
-            uuid_path="NOT_USED"
+            uuid_path=".ABCD.EFGH."
             project_uuid="ABCD"
             module_uuid="ABCD"
             module_uuid_path=".ABCD."

@@ -109,6 +109,19 @@
       </foreach>
   </delete>
 
+  <delete id="deleteComponentMeasures" parameterType="map">
+    delete from project_measures
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+      and component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
+  </delete>
+
   <delete id="deleteSnapshotDuplications" parameterType="map">
     delete from duplications_index where analysis_uuid in
     <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">

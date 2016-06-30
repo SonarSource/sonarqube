@@ -46,6 +46,8 @@ public interface PurgeMapper {
 
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
+  void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
+
   List<Long> selectMetricIdsWithoutHistoricalData();
 
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
@@ -95,5 +97,4 @@ public interface PurgeMapper {
   void deleteFileSourcesByUuid(String fileUuid);
 
   void deleteCeActivityByProjectUuid(String projectUuid);
-
 }

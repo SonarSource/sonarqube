@@ -21,17 +21,21 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.GuavaCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 
@@ -45,12 +49,15 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
+  private static final List<String> UUID_FIELD_SORT = Collections.singletonList("uuid");
 
   private final ResourceDao resourceDao;
+  private final ComponentDao componentDao;
   private final System2 system2;
 
-  public PurgeDao(ResourceDao resourceDao, System2 system2) {
+  public PurgeDao(ResourceDao resourceDao, ComponentDao componentDao, System2 system2) {
     this.resourceDao = resourceDao;
+    this.componentDao = componentDao;
     this.system2 = system2;
   }
 
@@ -58,10 +65,12 @@ public class PurgeDao implements Dao {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     deleteAbortedAnalyses(conf.rootProjectIdUuid().getUuid(), commands);
+    deleteDataOfComponentsWithoutHistoricalData(session, conf.rootProjectIdUuid().getUuid(), conf.scopesWithoutHistoricalData(), commands);
+    // retrieve all nodes in the tree (including root) with scope=PROJECT
     List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
     for (ResourceDto project : projects) {
       LOG.debug("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
-      purge(project, conf.scopesWithoutHistoricalData(), commands);
+      purge(project.getUuid(), commands);
     }
     for (ResourceDto project : projects) {
       disableOrphanResources(project, session, mapper, listener);
@@ -92,21 +101,53 @@ public class PurgeDao implements Dao {
     commands.deleteAnalyses(query);
   }
 
-  private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
+  private void deleteDataOfComponentsWithoutHistoricalData(DbSession dbSession, String rootUuid, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
+    if (scopesWithoutHistoricalData.length == 0) {
+      return;
+    }
+
+    List<String> analysisUuids = purgeCommands.selectSnapshotUuids(
+      PurgeSnapshotQuery.create()
+        .setComponentUuid(rootUuid)
+        .setIslast(false)
+        .setNotPurged(true));
+    List<String> componentWithoutHistoricalDataUuids = componentDao
+      .selectDescendants(
+        dbSession,
+        newComponentTreeQuery()
+          .setBaseUuid(rootUuid)
+          .setQualifiers(Arrays.asList(scopesWithoutHistoricalData))
+          .build())
+      .stream().map(ComponentDto::uuid)
+      .collect(GuavaCollectors.toList());
+
+    purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
+    // FIXME remove this when cardinality of snapshots has been changed
+    for (String componentUuid : componentWithoutHistoricalDataUuids) {
+      purgeCommands.deleteSnapshots(PurgeSnapshotQuery.create()
+        .setIslast(false)
+        .setComponentUuid(componentUuid));
+    }
+  }
+
+  /**
+   * Creates a new ComponentTreeQuery.Builder with properties that don't matter here but are mandatory populated.
+   */
+  private static ComponentTreeQuery.Builder newComponentTreeQuery() {
+    return ComponentTreeQuery.builder()
+      .setPage(1)
+      .setPageSize(Integer.MAX_VALUE)
+      .setSortFields(UUID_FIELD_SORT);
+  }
+
+  private static void purge(String componentUuid, PurgeCommands purgeCommands) {
     List<String> projectSnapshotUuids = purgeCommands.selectSnapshotUuids(
-        PurgeSnapshotQuery.create()
-            .setComponentUuid(project.getUuid())
-            .setIslast(false)
-            .setNotPurged(true));
+      PurgeSnapshotQuery.create()
+        .setComponentUuid(componentUuid)
+        .setIslast(false)
+        .setNotPurged(true));
     for (String snapshotUuid : projectSnapshotUuids) {
       LOG.debug("<- Clean analysis " + snapshotUuid);
-      if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
-        PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-          .setIslast(false)
-          .setScopes(scopesWithoutHistoricalData)
-          .setAnalysisUuid(snapshotUuid);
-        purgeCommands.deleteSnapshots(query);
-      }
 
       // must be executed at the end for reentrance
       purgeCommands.purgeSnapshots(

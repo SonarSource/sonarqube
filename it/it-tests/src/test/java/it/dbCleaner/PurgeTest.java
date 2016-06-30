@@ -49,8 +49,12 @@ import static util.ItUtils.setServerProperty;
 
 public class PurgeTest {
 
-  static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
-  static final String PROJECT_SAMPLE_PATH = "dbCleaner/xoo-multi-modules-sample";
+  private static final String COUNT_FILE_SNAPSHOTS = "snapshots where scope='FIL'";
+  private static final String COUNT_FILE_MEASURES = "project_measures pm, snapshots s where pm.snapshot_id = s.id and s.scope='FIL'";
+  private static final String COUNT_DIR_SNAPSHOTS = "snapshots where scope='DIR'";
+  private static final String COUNT_DIR_MEASURES = "project_measures pm, snapshots s where pm.snapshot_id = s.id and s.scope='DIR'";
+  private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
+  private static final String PROJECT_SAMPLE_PATH = "dbCleaner/xoo-multi-modules-sample";
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
@@ -247,11 +251,18 @@ public class PurgeTest {
   @Test
   public void should_delete_historical_data_of_directories_by_default() {
     scan(PROJECT_SAMPLE_PATH, "2012-01-01");
-    String select = "snapshots where scope='DIR'";
-    int directorySnapshots = count(select);
+
+    int fileSnapshots = count(COUNT_FILE_SNAPSHOTS);
+    int fileMeasures = count(COUNT_FILE_MEASURES);
+    int directorySnapshots = count(COUNT_DIR_SNAPSHOTS);
+    int dirMeasures = count(COUNT_DIR_MEASURES);
 
     scan(PROJECT_SAMPLE_PATH, "2012-02-02");
-    assertThat(count(select)).isEqualTo(directorySnapshots);
+
+    assertThat(count(COUNT_FILE_SNAPSHOTS)).isEqualTo(fileSnapshots);
+    assertThat(count(COUNT_FILE_MEASURES)).isEqualTo(fileMeasures);
+    assertThat(count(COUNT_DIR_SNAPSHOTS)).isEqualTo(directorySnapshots);
+    assertThat(count(COUNT_DIR_MEASURES)).isLessThan(2 * dirMeasures); // second analysis as NEW_* metrics
   }
 
   /**
@@ -261,14 +272,19 @@ public class PurgeTest {
   public void should_not_delete_historical_data_of_directories() {
     scan(PROJECT_SAMPLE_PATH, "2012-01-01");
 
-    String select = "snapshots where scope='DIR'";
-    int directorySnapshots = count(select);
+    int fileSnapshots = count(COUNT_FILE_SNAPSHOTS);
+    int fileMeasures = count(COUNT_FILE_MEASURES);
+    int directorySnapshots = count(COUNT_DIR_SNAPSHOTS);
+    int dirMeasures = count(COUNT_DIR_MEASURES);
 
     setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", "false");
 
     scan(PROJECT_SAMPLE_PATH, "2012-02-02");
 
-    assertThat(count(select)).isEqualTo(2 * directorySnapshots);
+    assertThat(count(COUNT_FILE_SNAPSHOTS)).isEqualTo(fileSnapshots);
+    assertThat(count(COUNT_FILE_MEASURES)).isEqualTo(fileMeasures);
+    assertThat(count(COUNT_DIR_SNAPSHOTS)).isEqualTo(2 * directorySnapshots);
+    assertThat(count(COUNT_DIR_MEASURES)).isGreaterThan(2 * dirMeasures); // second analysis as NEW_* metrics
   }
 
   /**
@@ -331,7 +347,7 @@ public class PurgeTest {
   }
 
   private void logMeasures(String title, String qualifier) {
-    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3, pm.rule_id "
+    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3 "
       +
       "FROM project_measures pm, snapshots s, metrics m " +
       "WHERE pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='"
