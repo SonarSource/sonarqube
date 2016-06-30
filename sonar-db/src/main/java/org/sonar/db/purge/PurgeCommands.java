@@ -54,6 +54,10 @@ class PurgeCommands {
     return purgeMapper.selectSnapshotIdsAndUuids(query).stream().map(IdUuidPair::getUuid).collect(Collectors.toList());
   }
 
+  List<IdUuidPair> selectSnapshotIdUuids(PurgeSnapshotQuery query) {
+    return purgeMapper.selectSnapshotIdsAndUuids(query);
+  }
+
   void deleteAnalyses(String rootUuid) {
     deleteAnalyses(purgeMapper.selectSnapshotIdsAndUuids(PurgeSnapshotQuery.create().setComponentUuid(rootUuid)));
   }
@@ -233,7 +237,6 @@ class PurgeCommands {
 
   @VisibleForTesting
   protected void purgeSnapshots(Iterable<IdUuidPair> snapshotIdUuidPairs) {
-    // note that events are not deleted
     List<List<Long>> snapshotIdsPartitions = Lists.partition(IdUuidPairs.ids(snapshotIdUuidPairs), MAX_SNAPSHOTS_PER_QUERY);
     List<List<String>> snapshotUuidsPartitions = Lists.partition(IdUuidPairs.uuids(snapshotIdUuidPairs), MAX_SNAPSHOTS_PER_QUERY);
 
@@ -247,7 +250,27 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("updatePurgeStatusToOne (snapshots)");
-    snapshotIdUuidPairs.iterator().forEachRemaining(idUuidPair -> purgeMapper.updatePurgeStatusToOne(idUuidPair.getUuid()));
+    snapshotUuidsPartitions.forEach(snapshotUuidsPartition -> purgeMapper.updatePurgeStatusToOne(snapshotUuidsPartition));
+    session.commit();
+    profiler.stop();
+  }
+
+  public void purgeAnalyses(List<IdUuidPair> analysisUuids) {
+    List<List<Long>> analysisIdsPartitions = Lists.partition(IdUuidPairs.ids(analysisUuids), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisUuids), MAX_SNAPSHOTS_PER_QUERY);
+
+    deleteSnapshotDuplications(analysisUuidsPartitions);
+
+    profiler.start("deleteSnapshotWastedMeasures (project_measures)");
+    List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
+    analysisUuidsPartitions.stream()
+        .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
+    session.commit();
+    profiler.stop();
+
+    profiler.start("updatePurgeStatusToOne (snapshots)");
+    analysisUuidsPartitions.forEach(purgeMapper::updatePurgeStatusToOne);
+    analysisIdsPartitions.forEach(purgeMapper::updateDescendantPurgeStatusToOne);
     session.commit();
     profiler.stop();
   }

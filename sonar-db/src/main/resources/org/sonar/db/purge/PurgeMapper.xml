@@ -179,13 +179,46 @@
     </where>
   </delete>
 
-  <update id="updatePurgeStatusToOne" parameterType="string">
+  <delete id="deleteAnalysisWastedMeasures" parameterType="map">
+    delete from project_measures
+    <where>
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+      and (person_id is not null
+      <if test="metricIds.size()>0">
+        or metric_id in
+        <foreach collection="metricIds" open="(" item="metricId" separator="," close=")">
+          #{metricId}
+        </foreach>
+      </if>
+      )
+    </where>
+  </delete>
+
+  <update id="updatePurgeStatusToOne" parameterType="map">
     update
       snapshots
     set
       purge_status = 1
     where
-      uuid = #{snapshotUuid}
+      uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+  </update>
+
+  <update id="updateDescendantPurgeStatusToOne" parameterType="map">
+    update
+      snapshots
+    set
+      purge_status = 1
+    where
+      root_snapshot_id in
+      <foreach collection="analysisIds" open="(" close=")" item="analysisId" separator=",">
+        #{analysisId}
+      </foreach>
   </update>
 
   <update id="disableComponent" parameterType="string">

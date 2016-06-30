@@ -9,9 +9,9 @@ What has been changed :
 <dataset>
 
   <!-- the project -->
-  <projects uuid="ABCD"
+  <projects uuid="P1"
             uuid_path="NOT_USED"
-            project_uuid="ABCD"
+            project_uuid="P1"
             module_uuid="[null]"
             module_uuid_path="."
             created_at="[null]"
@@ -29,13 +29,13 @@ What has been changed :
             authorization_updated_at="[null]"
             id="1"
             enabled="[false]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <!-- the directory -->
   <projects uuid="EFGH"
             uuid_path="NOT_USED"
-            project_uuid="ABCD"
-            module_uuid="ABCD"
+            project_uuid="P1"
+            module_uuid="P1"
             module_uuid_path="."
             created_at="[null]"
             long_name="[null]"
@@ -52,14 +52,14 @@ What has been changed :
             authorization_updated_at="[null]"
             id="2"
             enabled="[false]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <!-- the file -->
   <projects uuid="GHIJ"
             uuid_path="NOT_USED"
-            project_uuid="ABCD"
-            module_uuid="ABCD"
-            module_uuid_path=".ABCD."
+            project_uuid="P1"
+            module_uuid="P1"
+            module_uuid_path=".P1."
             created_at="[null]"
             long_name="[null]"
             scope="FIL"
@@ -75,13 +75,13 @@ What has been changed :
             authorization_updated_at="[null]"
             id="3"
             enabled="[false]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <snapshots id="1"
              uuid="u1"
-             component_uuid="ABCD"
+             component_uuid="P1"
              parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="[null]"
              status="P"
              islast="[false]"
@@ -113,7 +113,7 @@ What has been changed :
              uuid="u2"
              component_uuid="EFGH"
              parent_snapshot_id="1"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="1"
              status="P"
              islast="[false]"
@@ -146,7 +146,7 @@ What has been changed :
              uuid="u3"
              component_uuid="GHIJ"
              parent_snapshot_id="2"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="1"
              status="P"
              islast="[false]"
@@ -178,7 +178,7 @@ What has been changed :
   <issues id="1"
           kee="ISSUE-1"
           component_uuid="GHIJ"
-          project_uuid="ABCD"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1396994400000"
           resolution="REMOVED"
@@ -208,7 +208,7 @@ What has been changed :
   <issues id="2"
           kee="ISSUE-2"
           component_uuid="EFGH"
-          project_uuid="ABCD"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1396994400000"
           resolution="REMOVED"
@@ -236,8 +236,8 @@ What has been changed :
   <!-- Open issue on project -->
   <issues id="3"
           kee="ISSUE-3"
-          component_uuid="ABCD"
-          project_uuid="ABCD"
+          component_uuid="P1"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1396994400000"
           resolution="REMOVED"
@@ -266,7 +266,7 @@ What has been changed :
   <issues id="4"
           kee="ISSUE-4"
           component_uuid="GHIJ"
-          project_uuid="ABCD"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1449529200000"
           resolution="FIXED"

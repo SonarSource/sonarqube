@@ -52,7 +52,11 @@ public interface PurgeMapper {
 
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
 
-  void updatePurgeStatusToOne(String snapshotUuid);
+  void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
+
+  void updatePurgeStatusToOne(@Param("analysisUuids") List<String> analysisUuid);
+
+  void updateDescendantPurgeStatusToOne(@Param("analysisIds") List<Long> analysisIds);
 
   void disableComponent(String componentUuid);
 

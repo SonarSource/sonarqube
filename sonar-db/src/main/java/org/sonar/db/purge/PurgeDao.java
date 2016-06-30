@@ -64,14 +64,19 @@ public class PurgeDao implements Dao {
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
-    deleteAbortedAnalyses(conf.rootProjectIdUuid().getUuid(), commands);
+    String rootUuid = conf.rootProjectIdUuid().getUuid();
+    deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, conf.rootProjectIdUuid().getUuid(), conf.scopesWithoutHistoricalData(), commands);
+
+    List<IdUuidPair> analysisUuids = commands.selectSnapshotIdUuids(
+        PurgeSnapshotQuery.create()
+            .setComponentUuid(rootUuid)
+            .setIslast(false)
+            .setNotPurged(true));
+    commands.purgeAnalyses(analysisUuids);
+
     // retrieve all nodes in the tree (including root) with scope=PROJECT
     List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
-    for (ResourceDto project : projects) {
-      LOG.debug("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
-      purge(project.getUuid(), commands);
-    }
     for (ResourceDto project : projects) {
       disableOrphanResources(project, session, mapper, listener);
     }
@@ -138,22 +143,6 @@ public class PurgeDao implements Dao {
       .setPage(1)
       .setPageSize(Integer.MAX_VALUE)
       .setSortFields(UUID_FIELD_SORT);
-  }
-
-  private static void purge(String componentUuid, PurgeCommands purgeCommands) {
-    List<String> projectSnapshotUuids = purgeCommands.selectSnapshotUuids(
-      PurgeSnapshotQuery.create()
-        .setComponentUuid(componentUuid)
-        .setIslast(false)
-        .setNotPurged(true));
-    for (String snapshotUuid : projectSnapshotUuids) {
-      LOG.debug("<- Clean analysis " + snapshotUuid);
-
-      // must be executed at the end for reentrance
-      purgeCommands.purgeSnapshots(
-        PurgeSnapshotQuery.create().setAnalysisUuid(snapshotUuid).setNotPurged(true),
-        PurgeSnapshotQuery.create().setSnapshotUuid(snapshotUuid).setNotPurged(true));
-    }
   }
 
   private void disableOrphanResources(ResourceDto project, SqlSession session, PurgeMapper purgeMapper, PurgeListener purgeListener) {
