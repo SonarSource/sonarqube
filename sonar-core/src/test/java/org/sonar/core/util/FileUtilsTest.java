@@ -25,12 +25,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import javax.annotation.CheckForNull;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class FileUtilsTest {
   @Rule
@@ -89,6 +91,7 @@ public class FileUtilsTest {
 
   @Test
   public void cleanDirectory_follows_symlink_to_target_directory() throws IOException {
+    assumeTrue(SystemUtils.IS_OS_UNIX);
     Path target = temporaryFolder.newFolder().toPath();
     Path symToDir = Files.createSymbolicLink(temporaryFolder.newFolder().toPath().resolve("sym_to_dir"), target);
     Path childFile1 = Files.createFile(target.resolve("file1.txt"));
@@ -157,6 +160,7 @@ public class FileUtilsTest {
 
   @Test
   public void deleteQuietly_deletes_symbolicLink() throws IOException {
+    assumeTrue(SystemUtils.IS_OS_UNIX);
     Path folder = temporaryFolder.newFolder().toPath();
     Path file1 = Files.createFile(folder.resolve("file1.txt"));
     Path symLink = Files.createSymbolicLink(folder.resolve("link1"), file1);
@@ -196,6 +200,7 @@ public class FileUtilsTest {
 
   @Test
   public void deleteDirectory_throws_IOE_if_file_is_symbolicLink() throws IOException {
+    assumeTrue(SystemUtils.IS_OS_UNIX);
     Path folder = temporaryFolder.newFolder().toPath();
     Path file1 = Files.createFile(folder.resolve("file1.txt"));
     Path symLink = Files.createSymbolicLink(folder.resolve("link1"), file1);
