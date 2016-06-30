@@ -58,10 +58,7 @@ class Api::PropertiesController < Api::ApiController
     # apply security
     properties = properties.select{|prop| allowed?(prop.key)}
 
-    respond_to do |format|
-      format.json { render :json => jsonp(to_json(properties)) }
-      format.xml { render :xml => to_xml(properties) }
-    end
+    render :json => jsonp(to_json(properties))
   end
 
   # GET /api/properties/<key>[?resource=<resource>]
@@ -82,17 +79,10 @@ class Api::PropertiesController < Api::ApiController
     unless prop
       # for backward-compatibility with versions <= 2.14 : keep status 200
       message = "Property not found: #{key}"
-      return respond_to do |format|
-        format.json { render :json => error_to_json(404, message), :status => 200 }
-        format.xml { render :xml => error_to_xml(404, message), :status => 200 }
-        format.text { render :text => message, :status => 200 }
-      end
+      render :json => error_to_json(404, message), :status => 200
     end
     access_denied unless allowed?(key)
-    respond_to do |format|
-      format.json { render :json => jsonp(to_json([prop])) }
-      format.xml { render :xml => to_xml([prop]) }
-    end
+    render :json => jsonp(to_json([prop]))
   end
 
   # curl -u admin:admin -v -X POST http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
@@ -143,16 +133,6 @@ class Api::PropertiesController < Api::ApiController
 
   def to_json(properties)
     properties.collect { |property| property.to_hash_json }
-  end
-
-  def to_xml(properties)
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-    xml.properties do
-      properties.each do |property|
-        property.to_xml(xml)
-      end
-    end
   end
 
   def allowed?(property_key)

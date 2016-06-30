@@ -75,11 +75,7 @@ class Api::ProfilesController < Api::ApiController
       :language => profile.language,
       :default => default_profile_by_language[profile.language].name == profile.name
     } }
-    respond_to do |format|
-      format.json { render :json => jsonp(json) }
-      format.xml { render :xml => xml_not_supported }
-      format.text { render :text => text_not_supported }
-    end
+    render :json => jsonp(json)
   end
   
   # GET /api/profiles?language=<language>[&name=<name>]
@@ -97,11 +93,7 @@ class Api::ProfilesController < Api::ApiController
 
     @active_rules=filter_rules()
 
-    respond_to do |format|
-      format.json { render :json => jsonp(to_json) }
-      format.xml { render :xml => to_xml }
-      format.text { render :text => text_not_supported }
-    end
+    render :json => jsonp(to_json)
   end
 
   private
@@ -162,33 +154,6 @@ class Api::ProfilesController < Api::ApiController
     result[:rules]=rules unless rules.empty?
 
     [result]
-  end
-
-  def to_xml
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-
-    xml.profile do
-      xml.name(@profile.name)
-      xml.language(@profile.language)
-      xml.parent(@profile.parent_kee) if @profile.parent_kee.present?
-      xml.default(@profile.default_profile?)
-
-      @active_rules.each do |active_rule|
-        xml.rule do
-          xml.key(active_rule.rule.plugin_rule_key)
-          xml.repo(active_rule.rule.plugin_name)
-          xml.severity(active_rule.priority_text)
-          xml.inheritance(active_rule.inheritance) if active_rule.inheritance
-          active_rule.active_rule_parameters.each do |param|
-            xml.param do
-              xml.key(param.name)
-              xml.value(param.value)
-            end
-          end
-        end
-      end
-    end
   end
 
 end

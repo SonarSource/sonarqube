@@ -92,11 +92,7 @@ class Api::ResourcesController < Api::ApiController
       json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :key => r.key, :nm => r.name(true), :q => r.qualifier} }}
     end
 
-    respond_to do |format|
-      format.json { render :json => jsonp(json) }
-      format.xml { render :xml => xml_not_supported }
-      format.text { render :text => text_not_supported }
-    end
+    render :json => jsonp(json)
   end
 
   def index
@@ -249,11 +245,7 @@ class Api::ResourcesController < Api::ApiController
 
       # ---------- FORMAT RESPONSE
       objects={:sorted_resources => sorted_resources, :snapshots_by_uuid => snapshots_by_uuid, :measures_by_sid => measures_by_sid, :params => params}
-      respond_to do |format|
-        format.json { render :json => jsonp(to_json(objects)) }
-        format.xml { render :xml => to_xml(objects) }
-        format.text { render :text => text_not_supported }
-      end
+      render :json => jsonp(to_json(objects))
     rescue ApiException => e
       render_error(e.msg, e.code)
     end
@@ -287,23 +279,6 @@ class Api::ResourcesController < Api::ApiController
       result<<resource_to_json(resource, snapshot, measures_by_sid[snapshot.id], params)
     end
     result
-  end
-
-  def to_xml(objects)
-    resources = objects[:sorted_resources]
-    snapshots_by_rid = objects[:snapshots_by_rid]
-    measures_by_sid = objects[:measures_by_sid]
-    params = objects[:params]
-
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-
-    xml.resources do
-      resources.each do |resource|
-        snapshot=snapshots_by_rid[resource.id]
-        resource_to_xml(xml, resource, snapshot, measures_by_sid[snapshot.id], params)
-      end
-    end
   end
 
   def resource_to_json(resource, snapshot, measures, options={})
@@ -382,77 +357,4 @@ class Api::ResourcesController < Api::ApiController
     json
   end
 
-  def resource_to_xml(xml, resource, snapshot, measures, options={})
-    verbose=(options[:verbose]=='true')
-    include_alerts=(options[:includealerts]=='true')
-    include_trends=(options[:includetrends]=='true')
-    include_descriptions=(options[:includedescriptions]=='true')
-
-    xml.resource do
-      xml.id(resource.id)
-      xml.key(resource.key)
-      xml.name(resource.name)
-      xml.lname(resource.long_name) if resource.long_name
-      xml.branch(resource.branch) if resource.branch
-      xml.scope(resource.scope)
-      xml.qualifier(resource.qualifier)
-      xml.lang(resource.language) if resource.language
-      xml.version(snapshot.version) if snapshot.version
-      xml.date(Api::Utils.format_datetime(snapshot.created_at))
-      xml.creationDate(Api::Utils.format_datetime(resource.created_at))
-      xml.description(resource.description) if include_descriptions && resource.description
-
-      if include_trends
-        xml.period1(snapshot.period1_mode) if snapshot.period1_mode
-        xml.period1_param(snapshot.period1_param) if snapshot.period1_param
-        xml.period1_date(Api::Utils.format_datetime(snapshot.period1_date)) if snapshot.period1_date
-
-        xml.period2(snapshot.period2_mode) if snapshot.period2_mode
-        xml.period2_param(snapshot.period2_param) if snapshot.period2_param
-        xml.period2_date(Api::Utils.format_datetime(snapshot.period2_date)) if snapshot.period2_date
-
-        xml.period3(snapshot.period3_mode) if snapshot.period3_mode
-        xml.period3_param(snapshot.period3_param) if snapshot.period3_param
-        xml.period3_date(Api::Utils.format_datetime(snapshot.period3_date)) if snapshot.period3_date
-
-        xml.period4(snapshot.period4_mode) if snapshot.period4_mode
-        xml.period4_param(snapshot.period4_param) if snapshot.period4_param
-        xml.period4_date(Api::Utils.format_datetime(snapshot.period4_date)) if snapshot.period4_date
-
-        xml.period5(snapshot.period5_mode) if snapshot.period5_mode
-        xml.period5_param(snapshot.period5_param) if snapshot.period5_param
-        xml.period5_date(Api::Utils.format_datetime(snapshot.period5_date)) if snapshot.period5_date
-      end
-
-      if measures
-        measures.select { |measure| !measure.metric.key.start_with?('new_') || include_trends }.each do |measure|
-          xml.msr do
-            xml.key(measure.metric.name)
-            xml.name(measure.metric.short_name) if verbose
-            xml.val(measure.value.to_f) if measure.value
-            xml.frmt_val(measure.formatted_value) if measure.value
-            xml.data(measure.data) if measure.data
-            xml.description(measure.description) if include_descriptions && measure.description
-            xml.url(measure.url) if include_descriptions && measure.url
-            if include_alerts
-              xml.alert(measure.alert_status) if measure.alert_status
-              xml.alert_text(measure.alert_text) if measure.alert_text
-            end
-            if include_trends
-              xml.var1(measure.variation_value_1.to_f) if measure.variation_value_1
-              xml.fvar1(measure.format_numeric_value(measure.variation_value_1.to_f)) if measure.variation_value_1
-              xml.var2(measure.variation_value_2.to_f) if measure.variation_value_2
-              xml.fvar2(measure.format_numeric_value(measure.variation_value_2.to_f)) if measure.variation_value_2
-              xml.var3(measure.variation_value_3.to_f) if measure.variation_value_3
-              xml.fvar3(measure.format_numeric_value(measure.variation_value_3.to_f)) if measure.variation_value_3
-              xml.var4(measure.variation_value_4.to_f) if measure.variation_value_4
-              xml.fvar4(measure.format_numeric_value(measure.variation_value_4.to_f)) if measure.variation_value_4
-              xml.var5(measure.variation_value_5.to_f) if measure.variation_value_5
-              xml.fvar5(measure.format_numeric_value(measure.variation_value_5.to_f)) if measure.variation_value_5
-            end
-          end
-        end
-      end
-    end
-  end
 end

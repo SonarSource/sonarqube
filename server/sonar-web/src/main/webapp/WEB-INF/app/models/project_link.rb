@@ -65,14 +65,6 @@ class ProjectLink < ActiveRecord::Base
     {'type' => link_type, 'name' => name, 'url' => href}
   end
 
-  def to_xml(xml)
-    xml.link do
-      xml.type(link_type)
-      xml.name(name)
-      xml.url(href)
-    end
-  end
-
   def <=>(other)
     if name.nil?
       -1

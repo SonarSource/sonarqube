@@ -70,11 +70,7 @@ class Api::TestsController < Api::ApiController
       end
       json.delete_if { |k, v| v.nil? }
 
-      respond_to do |format|
-        format.json { render :json => jsonp(json) }
-        format.xml { render :xml => xml_not_supported }
-        format.text { render :text => text_not_supported }
-      end
+      render :json => jsonp(json)
     end
   end
 
@@ -121,10 +117,6 @@ class Api::TestsController < Api::ApiController
     end
     json.delete_if { |k, v| v.nil? }
 
-    respond_to do |format|
-      format.json { render :json => jsonp(json) }
-      format.xml { render :xml => xml_not_supported }
-      format.text { render :text => text_not_supported }
-    end
+    render :json => jsonp(json)
   end
 end

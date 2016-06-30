@@ -31,11 +31,7 @@ class Api::UserPropertiesController < Api::ApiController
   #
   def index
     properties = current_user.properties
-    respond_to do |format|
-      format.json { render :json => jsonp(properties_to_json(properties)) }
-      format.xml  { render :xml => properties_to_xml(properties) }
-      format.text { render :text => text_not_supported }
-    end
+    render :json => jsonp(properties_to_json(properties))
   end
 
   #
@@ -45,11 +41,7 @@ class Api::UserPropertiesController < Api::ApiController
   def show
     property = Property.by_key(params[:id], nil, current_user.id)
     if property
-      respond_to do |format|
-        format.json { render :json => jsonp(properties_to_json([property])) }
-        format.xml  { render :xml => properties_to_xml([property]) }
-        format.text { render :text => text_not_supported }
-      end
+      render :json => jsonp(properties_to_json([property]))
     else
       render_error('Not found', 404)
     end
@@ -67,11 +59,7 @@ class Api::UserPropertiesController < Api::ApiController
       begin
         Property.clear(key, nil, current_user.id)
         property=Property.create(:prop_key => key, :text_value => value, :user_id => current_user.id)
-        respond_to do |format|
-          format.json { render :json => jsonp(properties_to_json([property])) }
-          format.xml  { render :xml => properties_to_xml([property]) }
-          format.text { render :text => text_not_supported }
-        end
+        render :json => jsonp(properties_to_json([property]))
 
       rescue Exception => e
         render_error(e.message, 500)
@@ -105,14 +93,6 @@ class Api::UserPropertiesController < Api::ApiController
       json<<p.to_hash_json
     end
     json
-  end
-
-  def properties_to_xml(properties, xml=Builder::XmlMarkup.new(:indent => 0))
-    xml.properties do
-      properties.each do |p|
-        p.to_xml(xml)
-      end
-    end
   end
 
 end

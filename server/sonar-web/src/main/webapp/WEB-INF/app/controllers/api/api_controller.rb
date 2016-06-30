@@ -119,11 +119,7 @@ class Api::ApiController < ApplicationController
   end
 
   def render_response(status, message)
-    respond_to do |format|
-      format.json { render :json => error_to_json(status, message), :status => status }
-      format.xml { render :xml => error_to_xml(status, message), :status => status }
-      format.text { render :text => message, :status => status }
-    end
+    render :json => error_to_json(status, message), :status => status
   end
 
   def error_to_json(status, message=nil)
