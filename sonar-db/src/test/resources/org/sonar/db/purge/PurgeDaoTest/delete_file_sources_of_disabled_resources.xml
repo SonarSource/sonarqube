@@ -1,9 +1,9 @@
 <dataset>
 
   <!-- the project -->
-  <projects uuid="ABCD"
-            uuid_path="NOT_USED"
-            project_uuid="ABCD"
+  <projects uuid="P1"
+            uuid_path="."
+            project_uuid="P1"
             module_uuid="[null]"
             module_uuid_path="."
             created_at="[null]"
@@ -21,13 +21,13 @@
             authorization_updated_at="[null]"
             id="1"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <!-- the directory -->
   <projects uuid="EFGH"
-            uuid_path="NOT_USED"
-            project_uuid="ABCD"
-            module_uuid="ABCD"
+            uuid_path=".P1."
+            project_uuid="P1"
+            module_uuid="P1"
             module_uuid_path="."
             created_at="[null]"
             long_name="[null]"
@@ -44,14 +44,14 @@
             authorization_updated_at="[null]"
             id="2"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <!-- the files -->
   <projects uuid="GHIJ"
-            uuid_path="NOT_USED"
-            project_uuid="ABCD"
-            module_uuid="ABCD"
-            module_uuid_path=".ABCD."
+            uuid_path=".P1.EFGH."
+            project_uuid="P1"
+            module_uuid="P1"
+            module_uuid_path=".P1."
             created_at="[null]"
             long_name="[null]"
             scope="FIL"
@@ -67,12 +67,12 @@
             authorization_updated_at="[null]"
             id="3"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
   <projects uuid="KLMN"
-            uuid_path="NOT_USED"
-            project_uuid="ABCD"
-            module_uuid="ABCD"
-            module_uuid_path=".ABCD."
+            uuid_path=".P1.EFGH."
+            project_uuid="P1"
+            module_uuid="P1"
+            module_uuid_path=".P1."
             created_at="[null]"
             long_name="[null]"
             scope="FIL"
@@ -88,13 +88,13 @@
             authorization_updated_at="[null]"
             id="4"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="P1"/>
 
   <snapshots id="1"
              uuid="u1"
-             component_uuid="ABCD"
+             component_uuid="P1"
              parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="[null]"
              status="P"
              islast="[false]"
@@ -126,7 +126,7 @@
              uuid="u2"
              component_uuid="EFGH"
              parent_snapshot_id="1"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="1"
              status="P"
              islast="[false]"
@@ -158,7 +158,7 @@
              uuid="u3"
              component_uuid="GHIJ"
              parent_snapshot_id="2"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="1"
              status="P"
              islast="[false]"
@@ -191,7 +191,7 @@
              uuid="u4"
              component_uuid="KLMN"
              parent_snapshot_id="2"
-             root_component_uuid="ABCD"
+             root_component_uuid="P1"
              root_snapshot_id="1"
              status="P"
              islast="[true]"
@@ -220,7 +220,7 @@
              path="[null]"/>
 
   <file_sources id="1"
-                project_uuid="ABCD"
+                project_uuid="P1"
                 file_uuid="GHIJ"
                 binary_data="[null]"
                 line_hashes="[null]"
@@ -231,7 +231,7 @@
                 src_hash="12345"
                 data_type="SOURCE"/>
   <file_sources id="2"
-                project_uuid="ABCD"
+                project_uuid="P1"
                 file_uuid="KLMN"
                 binary_data="[null]"
                 line_hashes="[null]"
@@ -242,7 +242,7 @@
                 src_hash="123456"
                 data_type="SOURCE"/>
   <file_sources id="3"
-                project_uuid="ABCD"
+                project_uuid="P1"
                 file_uuid="GHIJ"
                 binary_data="[null]"
                 line_hashes="[null]"
@@ -253,7 +253,7 @@
                 src_hash="12345"
                 data_type="TEST"/>
   <file_sources id="4"
-                project_uuid="ABCD"
+                project_uuid="P1"
                 file_uuid="KLMN"
                 binary_data="[null]"
                 line_hashes="[null]"

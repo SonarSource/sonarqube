@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -70,29 +71,29 @@ public class PurgeCommandsTest {
    * Test that all related data is purged.
    */
   @Test
-  public void shouldPurgeSnapshot() {
-    dbTester.prepareDbUnit(getClass(), "shouldPurgeSnapshot.xml");
+  public void shouldPurgeAnalysis() {
+    dbTester.prepareDbUnit(getClass(), "shouldPurgeAnalysis.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u1"));
+    new PurgeCommands(dbTester.getSession(), profiler).purgeAnalyses(singletonList(new IdUuidPair(1, "u1")));
 
-    dbTester.assertDbUnit(getClass(), "shouldPurgeSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
+    dbTester.assertDbUnit(getClass(), "shouldPurgeAnalysis-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }
 
   @Test
-  public void delete_wasted_measures_when_purging_snapshot() {
-    dbTester.prepareDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot.xml");
+  public void delete_wasted_measures_when_purging_analysis() {
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingAnalysis.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setSnapshotUuid("u1"));
+    new PurgeCommands(dbTester.getSession(), profiler).purgeAnalyses(singletonList(new IdUuidPair(1, "u1")));
 
-    dbTester.assertDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot-result.xml", "project_measures");
+    dbTester.assertDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingAnalysis-result.xml", "project_measures");
   }
 
   /**
    * Test that SQL queries execution do not fail with a huge number of parameter
    */
   @Test
-  public void should_not_fail_when_purging_huge_number_of_snapshots() {
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(getHugeNumberOfIdUuidPairs());
+  public void should_not_fail_when_purging_huge_number_of_analyses() {
+    new PurgeCommands(dbTester.getSession(), profiler).purgeAnalyses(getHugeNumberOfIdUuidPairs());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 

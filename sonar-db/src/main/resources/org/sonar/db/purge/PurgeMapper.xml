@@ -78,7 +78,7 @@
     from
       projects p
     where
-      p.root_uuid=#{uuid}
+      p.project_uuid=#{rootUuid}
       and p.enabled=${_true}
       and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
   </select>
@@ -227,7 +227,10 @@
     set
       enabled=${_false}
     where
-      uuid=#{componentUuid}
+      uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </update>
 
   <update id="resolveComponentIssuesNotAlreadyResolved" parameterType="map">
@@ -240,7 +243,10 @@
       issue_close_date=#{dateAsLong},
       issue_update_date=#{dateAsLong}
     where
-      component_uuid=#{componentUuid}
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
       and resolution is null
   </update>
 
@@ -324,7 +330,15 @@
   </delete>
 
   <update id="setSnapshotIsLastToFalse" parameterType="String">
-    update snapshots set islast=${_false} where component_uuid=#{componentUuid}
+    update
+      snapshots
+    set
+      islast=${_false}
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
+      </foreach>
   </update>
 
   <delete id="deleteComponentIssueChanges" parameterType="map">
@@ -366,7 +380,12 @@
   </delete>
 
   <delete id="deleteFileSourcesByUuid">
-    delete from file_sources where file_uuid=#{fileUuid}
+    delete from file_sources
+    where
+      file_uuid in
+      <foreach collection="fileUuids" open="(" close=")" item="fileUuid" separator=",">
+        #{fileUuid}
+      </foreach>
   </delete>
 
   <select id="selectOldClosedIssueKeys" parameterType="map" resultType="String">

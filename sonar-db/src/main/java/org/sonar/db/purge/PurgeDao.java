@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -36,8 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.DateUtils.dateToLong;
@@ -51,12 +48,10 @@ public class PurgeDao implements Dao {
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
   private static final List<String> UUID_FIELD_SORT = Collections.singletonList("uuid");
 
-  private final ResourceDao resourceDao;
   private final ComponentDao componentDao;
   private final System2 system2;
 
-  public PurgeDao(ResourceDao resourceDao, ComponentDao componentDao, System2 system2) {
-    this.resourceDao = resourceDao;
+  public PurgeDao(ComponentDao componentDao, System2 system2) {
     this.componentDao = componentDao;
     this.system2 = system2;
   }
@@ -66,26 +61,25 @@ public class PurgeDao implements Dao {
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     String rootUuid = conf.rootProjectIdUuid().getUuid();
     deleteAbortedAnalyses(rootUuid, commands);
-    deleteDataOfComponentsWithoutHistoricalData(session, conf.rootProjectIdUuid().getUuid(), conf.scopesWithoutHistoricalData(), commands);
-
-    List<IdUuidPair> analysisUuids = commands.selectSnapshotIdUuids(
-        PurgeSnapshotQuery.create()
-            .setComponentUuid(rootUuid)
-            .setIslast(false)
-            .setNotPurged(true));
-    commands.purgeAnalyses(analysisUuids);
-
-    // retrieve all nodes in the tree (including root) with scope=PROJECT
-    List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
-    for (ResourceDto project : projects) {
-      disableOrphanResources(project, session, mapper, listener);
-    }
+    deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
+    purgeAnalyses(commands, rootUuid);
+    disableOrphanResources(rootUuid, session, mapper, listener);
     deleteOldClosedIssues(conf, mapper, listener);
+  }
+
+  private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
+    List<IdUuidPair> analysisUuids = commands.selectSnapshotIdUuids(
+      PurgeSnapshotQuery.create()
+        .setComponentUuid(rootUuid)
+        .setIslast(false)
+        .setNotPurged(true));
+    commands.purgeAnalyses(analysisUuids);
   }
 
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
-    List<String> issueKeys = mapper.selectOldClosedIssueKeys(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
+    String rootUuid = conf.rootProjectIdUuid().getUuid();
+    List<String> issueKeys = mapper.selectOldClosedIssueKeys(rootUuid, dateToLong(toDate));
     executeLargeInputs(issueKeys, input -> {
       mapper.deleteIssueChangesFromIssueKeys(input);
       return emptyList();
@@ -94,7 +88,7 @@ public class PurgeDao implements Dao {
       mapper.deleteIssuesFromKeys(input);
       return emptyList();
     });
-    listener.onIssuesRemoval(conf.rootProjectIdUuid().getUuid(), issueKeys);
+    listener.onIssuesRemoval(rootUuid, issueKeys);
   }
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
@@ -145,9 +139,10 @@ public class PurgeDao implements Dao {
       .setSortFields(UUID_FIELD_SORT);
   }
 
-  private void disableOrphanResources(ResourceDto project, SqlSession session, PurgeMapper purgeMapper, PurgeListener purgeListener) {
+  private void disableOrphanResources(String rootUuid, SqlSession session, PurgeMapper mapper, PurgeListener listener) {
     List<String> componentUuids = new ArrayList<>();
-    session.select("org.sonar.db.purge.PurgeMapper.selectComponentUuidsToDisable", project.getUuid(),
+    mapper.selectComponentUuidsToDisable(
+      rootUuid,
       resultContext -> {
         String componentUuid = (String) resultContext.getResultObject();
         if (componentUuid != null) {
@@ -155,9 +150,9 @@ public class PurgeDao implements Dao {
         }
       });
 
+    disableComponents(componentUuids, mapper);
     for (String componentUuid : componentUuids) {
-      disableComponent(componentUuid, purgeMapper);
-      purgeListener.onComponentDisabling(componentUuid);
+      listener.onComponentDisabling(componentUuid);
     }
 
     session.commit();
@@ -187,28 +182,20 @@ public class PurgeDao implements Dao {
     commands.deleteCeActivity(rootUuid);
   }
 
-  private void disableComponent(String uuid, PurgeMapper mapper) {
-    mapper.deleteResourceIndex(Collections.singletonList(uuid));
-    mapper.setSnapshotIsLastToFalse(uuid);
-    mapper.deleteFileSourcesByUuid(uuid);
-    mapper.disableComponent(uuid);
-    mapper.resolveComponentIssuesNotAlreadyResolved(uuid, system2.now());
-  }
-
-  public PurgeDao deleteSnapshots(DbSession session, PurgeProfiler profiler, PurgeSnapshotQuery... queries) {
-    new PurgeCommands(session, profiler).deleteSnapshots(queries);
-    return this;
+  private void disableComponents(List<String> uuids, PurgeMapper mapper) {
+    executeLargeInputs(uuids,
+      input -> {
+        mapper.deleteResourceIndex(input);
+        mapper.setSnapshotIsLastToFalse(input);
+        mapper.deleteFileSourcesByUuid(input);
+        mapper.disableComponent(input);
+        mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
+        return emptyList();
+      });
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<IdUuidPair> analysisIdUuids) {
     new PurgeCommands(session, profiler).deleteAnalyses(analysisIdUuids);
-  }
-
-  /**
-   * Load the whole tree of projects, including the project given in parameter.
-   */
-  private List<ResourceDto> getProjects(long rootId, SqlSession session) {
-    return resourceDao.selectWholeTreeForRootId(session, rootId, Scopes.PROJECT);
   }
 
   private static PurgeMapper mapper(DbSession session) {

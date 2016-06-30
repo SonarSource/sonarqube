@@ -19,6 +19,7 @@
  */
 package org.sonar.db.purge;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
@@ -103,9 +104,9 @@ public class PurgeDaoTest {
 
   @Test
   public void shouldDeleteSnapshots() {
-    dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshots.xml");
-    underTest.deleteSnapshots(dbSession, new PurgeProfiler(), PurgeSnapshotQuery.create().setIslast(false).setComponentUuid(THE_PROJECT_UUID));
-    dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshots-result.xml", "snapshots");
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteAnalyses.xml");
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(3, "u3")));
+    dbTester.assertDbUnit(getClass(), "shouldDeleteAnalyses-result.xml", "snapshots");
   }
 
   @Test
