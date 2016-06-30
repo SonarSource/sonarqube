@@ -65,11 +65,7 @@ class Api::RestController < ApplicationController
   end
   
   def rest_render(objects)
-    respond_to do |format| 
-      format.json{ render :json => rest_to_jsonp(objects) }
-      format.xml { render :xml => rest_to_xml(objects) }
-      format.text { render :text => rest_to_text(objects) }
-    end
+    render :json => rest_to_jsonp(objects)
   end
   
   def rest_to_jsonp(objects)
