@@ -75,7 +75,7 @@ export default class ProfileProjects extends React.Component {
     e.target.blur();
     new ChangeProjectsView({
       profile: this.props.profile,
-      loadProjects: this.loadProjects
+      loadProjects: this.props.updateProfiles
     }).render();
   }
 

@@ -131,44 +131,37 @@ export default class ProfileHeader extends React.Component {
                   </button>
                   <ul className="dropdown-menu dropdown-menu-right">
                     <li>
-                      <Link
-                          to={{ pathname: '/compare', query: { key: profile.key } }}
-                          id="quality-profile-compare">
-                        {translate('compare')}
-                      </Link>
-                    </li>
-                    <li>
                       <a href={activateMoreUrl}>
                         {translate('quality_profiles.activate_more_rules')}
                       </a>
-                    </li>
-                    <li>
-                      <Link
-                          to={{ pathname: '/compare', query: { key: profile.key } }}
-                          id="quality-profile-compare">
-                        {translate('compare')}
-                      </Link>
                     </li>
                     <li>
                       <a id="quality-profile-backup" href={backupUrl}>
                         {translate('backup_verb')}
                       </a>
                     </li>
-                    {canAdmin && (
-                        <li>
-                          <a id="quality-profile-rename"
-                             href="#"
-                             onClick={this.handleRenameClick.bind(this)}>
-                            {translate('rename')}
-                          </a>
-                        </li>
-                    )}
+                    <li>
+                      <Link
+                          to={{ pathname: '/compare', query: { key: profile.key } }}
+                          id="quality-profile-compare">
+                        {translate('compare')}
+                      </Link>
+                    </li>
                     {canAdmin && (
                         <li>
                           <a id="quality-profile-copy"
                              href="#"
                              onClick={this.handleCopyClick.bind(this)}>
                             {translate('copy')}
+                          </a>
+                        </li>
+                    )}
+                    {canAdmin && (
+                        <li>
+                          <a id="quality-profile-rename"
+                             href="#"
+                             onClick={this.handleRenameClick.bind(this)}>
+                            {translate('rename')}
                           </a>
                         </li>
                     )}

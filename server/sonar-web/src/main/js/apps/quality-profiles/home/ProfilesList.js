@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { PropTypes as RouterPropTypes } from 'react-router';
+import { Link, PropTypes as RouterPropTypes } from 'react-router';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import sortBy from 'lodash/sortBy';
@@ -56,13 +56,16 @@ export default class ProfilesList extends React.Component {
         <thead>
           <tr>
             <th>
-              {language.name}
-              {' ('}
+              <Link
+                  to={{ pathname: '/', query: { language: language.key } }}
+                  className="link-base-color">
+                {language.name}
+              </Link>
+              {', '}
               {translateWithParameters(
                   'quality_profiles.x_profiles',
                   profilesCount
               )}
-              {')'}
               {this.props.canAdmin && (
                   <button
                       className="huge-spacer-left js-restore-built-in"
