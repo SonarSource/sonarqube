@@ -52,6 +52,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
+import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 
@@ -78,6 +79,8 @@ public class ScannerReportViewerApp {
   private TextLineNumber textLineNumber;
   private JScrollPane duplicationTab;
   private JEditorPane duplicationEditor;
+  private JScrollPane issuesTab;
+  private JEditorPane issuesEditor;
 
   /**
    * Create the application.
@@ -191,6 +194,7 @@ public class ScannerReportViewerApp {
     updateSource(component);
     updateCoverage(component);
     updateDuplications(component);
+    updateIssues(component);
   }
 
   private void updateDuplications(Component component) {
@@ -204,6 +208,19 @@ public class ScannerReportViewerApp {
       } catch (Exception e) {
         throw new IllegalStateException("Can't read duplications for " + getNodeName(component), e);
       }
+    }
+  }
+
+  private void updateIssues(Component component) {
+    issuesEditor.setText("");
+    try (CloseableIterator<Issue> it = reader.readComponentIssues(component.getRef())) {
+      while (it.hasNext()) {
+        Issue issue = it.next();
+        int offset = issuesEditor.getDocument().getEndPosition().getOffset();
+        issuesEditor.getDocument().insertString(offset, issue.toString(), null);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read issues for " + getNodeName(component), e);
     }
   }
 
@@ -323,6 +340,12 @@ public class ScannerReportViewerApp {
 
     duplicationEditor = new JEditorPane();
     duplicationTab.setViewportView(duplicationEditor);
+
+    issuesTab = new JScrollPane();
+    tabbedPane.addTab("Issues", null, issuesTab, null);
+
+    issuesEditor = new JEditorPane();
+    issuesTab.setViewportView(issuesEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));
