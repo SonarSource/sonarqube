@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.scanner.index.BatchComponent;
@@ -149,6 +150,10 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   @CheckForNull
   private static String getName(Resource r) {
+    if (ResourceUtils.isProject(r)) {
+      Project project = (Project) r;
+      return project.getOriginalName();
+    }
     // Don't return name for directories and files since it can be guessed from the path
     return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
   }

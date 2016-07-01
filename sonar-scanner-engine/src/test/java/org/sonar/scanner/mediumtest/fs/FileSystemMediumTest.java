@@ -78,6 +78,36 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void scanProjectWithoutProjectName() throws IOException {
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.task", "scan")
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.projectVersion", "1.0-SNAPSHOT")
+      .put("sonar.projectDescription", "Description of Foo Project");
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    int ref = result.getReportReader().readMetadata().getRootComponentRef();
+    assertThat(result.getReportReader().readComponent(ref).getName()).isEmpty();
+    assertThat(result.inputFiles()).hasSize(1);
+    assertThat(result.inputDirs()).hasSize(1);
+    assertThat(result.inputFile("src/sample.xoo").type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(result.inputFile("src/sample.xoo").relativePath()).isEqualTo("src/sample.xoo");
+    assertThat(result.inputDir("src").relativePath()).isEqualTo("src");
+  }
+
+  @Test
   public void scanProjectWithSourceDir() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();

@@ -461,6 +461,13 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
+  public void shouldAcceptNoProjectName() {
+    ProjectDefinition rootProject = loadProjectDefinition("simple-project-with-missing-project-name");
+    assertThat(rootProject.getOriginalName()).isNull();
+    assertThat(rootProject.getName()).isEqualTo("Unnamed - com.foo.project");
+  }
+
+  @Test
   public void shouldSetModuleKeyIfNotPresent() {
     Map<String, String> props = new HashMap<>();
     props.put("sonar.projectVersion", "1.0");

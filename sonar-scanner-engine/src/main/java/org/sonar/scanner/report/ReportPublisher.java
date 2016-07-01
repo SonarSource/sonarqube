@@ -167,7 +167,7 @@ public class ReportPublisher implements Startable {
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("projectKey", projectDefinition.getKey())
-      .setParam("projectName", projectDefinition.getName())
+      .setParam("projectName", projectDefinition.getOriginalName())
       .setParam("projectBranch", projectDefinition.getBranch())
       .setPart("report", filePart);
     WsResponse response = wsClient.call(post).failIfNotSuccessful();

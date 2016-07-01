@@ -41,6 +41,10 @@ import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsComponents.ShowWsResponse;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
+
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,7 +175,7 @@ public class BatchTest {
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.language", "foo",
       "sonar.profile", "");
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains(
       "You must install a plugin that supports the language 'foo'");
   }
@@ -183,9 +187,51 @@ public class BatchTest {
 
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.profile", "unknow");
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains(
       "sonar.profile was set to 'unknow' but didn't match any profile for any language. Please check your configuration.");
+  }
+
+  @Test
+  public void should_create_project_without_name() {
+    //some of the sub-modules have a name defined, others don't
+    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name");
+    assertThat(buildResult.isSuccess()).isTrue();
+
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
+    
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2");
+    
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2");
+
+  }
+  
+  @Test
+  public void should_analyze_project_without_name() {
+    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "My project name");
+    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name");
+    assertThat(buildResult.isSuccess()).isTrue();
+
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample", "My project name");
+    
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2");
+    
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1");
+    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2");
+  }
+  
+  private void assertProjectName(String projectKey, String expectedProjectName) {
+    ShowWsRequest req = new ShowWsRequest();
+    req.setKey(projectKey);
+    ShowWsResponse response = ItUtils.newWsClient(orchestrator).components().show(req);
+    assertThat(response.getComponent().getName()).isEqualTo(expectedProjectName);
   }
 
   @Test
@@ -195,11 +241,11 @@ public class BatchTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarScanner runner = configureScanner("shared/xoo-sample",
+    SonarScanner scanner = configureScanner("shared/xoo-sample",
       "sonar.verbose", "true");
-    runner.setEnvironmentVariable("SONAR_USER_HOME", "/dev/null");
-    BuildResult buildResult = orchestrator.executeBuildQuietly(runner);
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    scanner.setEnvironmentVariable("SONAR_USER_HOME", "/dev/null");
+    BuildResult buildResult = orchestrator.executeBuildQuietly(scanner);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
 
     buildResult = scan("shared/xoo-sample",
       "sonar.verbose", "true",
@@ -218,7 +264,7 @@ public class BatchTest {
       BuildResult buildResult = scanQuietly("shared/xoo-sample",
         "sonar.login", "",
         "sonar.password", "");
-      assertThat(buildResult.getStatus()).isEqualTo(1);
+      assertThat(buildResult.getLastStatus()).isEqualTo(1);
       assertThat(buildResult.getLogs()).contains(
         "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
 
@@ -226,14 +272,14 @@ public class BatchTest {
       buildResult = scanQuietly("shared/xoo-sample",
         "sonar.login", "wrong_login",
         "sonar.password", "wrong_password");
-      assertThat(buildResult.getStatus()).isEqualTo(1);
+      assertThat(buildResult.getLastStatus()).isEqualTo(1);
       assertThat(buildResult.getLogs()).contains(
         "Not authorized. Please check the properties sonar.login and sonar.password.");
 
       buildResult = scan("shared/xoo-sample",
         "sonar.login", "admin",
         "sonar.password", "admin");
-      assertThat(buildResult.getStatus()).isEqualTo(0);
+      assertThat(buildResult.getLastStatus()).isEqualTo(0);
 
     } finally {
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "false"));
@@ -244,7 +290,7 @@ public class BatchTest {
    * SONAR-4211 Test Sonar Runner when server requires authentication
    */
   @Test
-  public void sonar_runner_with_secured_server() {
+  public void sonar_scanner_with_secured_server() {
     try {
       orchestrator.getServer().provisionProject("sample", "xoo-sample");
       orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
@@ -252,21 +298,21 @@ public class BatchTest {
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
 
       BuildResult buildResult = scanQuietly("shared/xoo-sample");
-      assertThat(buildResult.getStatus()).isEqualTo(1);
+      assertThat(buildResult.getLastStatus()).isEqualTo(1);
       assertThat(buildResult.getLogs()).contains(
         "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
 
       buildResult = scanQuietly("shared/xoo-sample",
         "sonar.login", "wrong_login",
         "sonar.password", "wrong_password");
-      assertThat(buildResult.getStatus()).isEqualTo(1);
+      assertThat(buildResult.getLastStatus()).isEqualTo(1);
       assertThat(buildResult.getLogs()).contains(
         "Not authorized. Please check the properties sonar.login and sonar.password.");
 
       buildResult = scan("shared/xoo-sample",
         "sonar.login", "admin",
         "sonar.password", "admin");
-      assertThat(buildResult.getStatus()).isEqualTo(0);
+      assertThat(buildResult.getLastStatus()).isEqualTo(0);
 
     } finally {
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "false"));
@@ -345,20 +391,20 @@ public class BatchTest {
 
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.projectKey", "ar g$l:");
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains("\"ar g$l:\" is not a valid project or module key")
       .contains("Allowed characters");
 
     // SONAR-4629
     buildResult = scanQuietly("shared/xoo-sample",
       "sonar.projectKey", "12345");
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains("\"12345\" is not a valid project or module key")
       .contains("Allowed characters");
 
     buildResult = scanQuietly("shared/xoo-sample",
       "sonar.branch", "ar g$l:");
-    assertThat(buildResult.getStatus()).isEqualTo(1);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains("\"ar g$l:\" is not a valid branch")
       .contains("Allowed characters");
   }
@@ -371,7 +417,7 @@ public class BatchTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     BuildResult result = scanQuietly("shared/xoo-sample", "raiseMessageException", "true");
-    assertThat(result.getStatus()).isNotEqualTo(0);
+    assertThat(result.getLastStatus()).isNotEqualTo(0);
     assertThat(result.getLogs())
       // message
       .contains("Error message from plugin")
@@ -422,7 +468,7 @@ public class BatchTest {
     orchestrator.getServer().associateProjectToQualityProfile("projectAC", "xoo", "one-issue-per-line");
 
     BuildResult result = scanQuietly("analysis/prevent-common-module/projectAC");
-    assertThat(result.getStatus()).isNotEqualTo(0);
+    assertThat(result.getLastStatus()).isNotEqualTo(0);
     assertThat(result.getLogs()).contains("Module \"com.sonarsource.it.samples:moduleA\" is already part of project \"projectAB\"");
   }
 
@@ -455,7 +501,7 @@ public class BatchTest {
     analysis.setProperty("sonar.projectDate", "2000-10-19");
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
 
-    assertThat(result.getStatus()).isNotEqualTo(0);
+    assertThat(result.getLastStatus()).isNotEqualTo(0);
     assertThat(result.getLogs()).contains("'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '2000-10-19'. " +
       "Latest quality snapshot: ");
     assertThat(result.getLogs()).contains("This property may only be used to rebuild the past in a chronological order.");
@@ -466,13 +512,13 @@ public class BatchTest {
   }
 
   private BuildResult scan(String projectPath, String... props) {
-    SonarScanner runner = configureScanner(projectPath, props);
-    return orchestrator.executeBuild(runner);
+    SonarScanner scanner = configureScanner(projectPath, props);
+    return orchestrator.executeBuild(scanner);
   }
 
   private BuildResult scanQuietly(String projectPath, String... props) {
-    SonarScanner runner = configureScanner(projectPath, props);
-    return orchestrator.executeBuildQuietly(runner);
+    SonarScanner scanner = configureScanner(projectPath, props);
+    return orchestrator.executeBuildQuietly(scanner);
   }
 
   private SonarScanner configureScanner(String projectPath, String... props) {
