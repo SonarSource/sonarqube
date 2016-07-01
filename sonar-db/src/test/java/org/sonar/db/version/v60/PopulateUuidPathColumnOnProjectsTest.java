@@ -37,6 +37,10 @@ public class PopulateUuidPathColumnOnProjectsTest {
   private static final String A_MODULE_UUID = "U_MOD";
   private static final String A_DIR_UUID = "U_DIR";
   private static final String A_FILE_UUID = "U_FIL";
+  private static final String QUALIFIER_PROJECT = "TRK";
+  private static final String QUALIFIER_MODULE = "BRC";
+  private static final String QUALIFIER_DIR = "DIR";
+  private static final String QUALIFIER_FILE = "FIL";
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidPathColumnOnProjectsTest.class,
@@ -53,7 +57,7 @@ public class PopulateUuidPathColumnOnProjectsTest {
 
   @Test
   public void migrates_provisioned_projects() throws SQLException {
-    insert(A_PROJECT_UUID, A_PROJECT_UUID);
+    insert(QUALIFIER_PROJECT, A_PROJECT_UUID, A_PROJECT_UUID);
 
     underTest.execute();
 
@@ -62,49 +66,49 @@ public class PopulateUuidPathColumnOnProjectsTest {
 
   @Test
   public void migrates_projects_without_modules() throws SQLException {
-    insert(A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
-    insert(A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
-    insert(A_FILE_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
+    insert(QUALIFIER_PROJECT, A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
+    insert(QUALIFIER_DIR, A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
+    insert(QUALIFIER_FILE, A_FILE_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
 
     underTest.execute();
 
     verifyPath(A_PROJECT_UUID, ".");
-    verifyPath(A_DIR_UUID, format("%s.", A_PROJECT_UUID));
-    verifyPath(A_FILE_UUID, format("%s.%s.", A_PROJECT_UUID, A_DIR_UUID));
+    verifyPath(A_DIR_UUID, format(".%s.", A_PROJECT_UUID));
+    verifyPath(A_FILE_UUID, format(".%s.%s.", A_PROJECT_UUID, A_DIR_UUID));
   }
 
   @Test
   public void migrates_projects_with_modules() throws SQLException {
-    insert(A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
-    insert(A_MODULE_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
-    insert(A_DIR_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
-    insert(A_FILE_UUID, A_PROJECT_UUID, new Snapshot(4L, "1.2.3.", true));
+    insert(QUALIFIER_PROJECT, A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
+    insert(QUALIFIER_MODULE, A_MODULE_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
+    insert(QUALIFIER_DIR, A_DIR_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
+    insert(QUALIFIER_FILE, A_FILE_UUID, A_PROJECT_UUID, new Snapshot(4L, "1.2.3.", true));
 
     underTest.execute();
 
     verifyPath(A_PROJECT_UUID, ".");
-    verifyPath(A_MODULE_UUID, format("%s.", A_PROJECT_UUID));
-    verifyPath(A_DIR_UUID, format("%s.%s.", A_PROJECT_UUID, A_MODULE_UUID));
-    verifyPath(A_FILE_UUID, format("%s.%s.%s.", A_PROJECT_UUID, A_MODULE_UUID, A_DIR_UUID));
+    verifyPath(A_MODULE_UUID, format(".%s.", A_PROJECT_UUID));
+    verifyPath(A_DIR_UUID, format(".%s.%s.", A_PROJECT_UUID, A_MODULE_UUID));
+    verifyPath(A_FILE_UUID, format(".%s.%s.%s.", A_PROJECT_UUID, A_MODULE_UUID, A_DIR_UUID));
   }
 
   @Test
   public void migrates_components_without_snapshot_path() throws SQLException {
     // these components do not have snapshots
-    insert(A_DIR_UUID, A_PROJECT_UUID);
-    insert(A_FILE_UUID, A_PROJECT_UUID);
+    insert(QUALIFIER_DIR, A_DIR_UUID, A_PROJECT_UUID);
+    insert(QUALIFIER_FILE, A_FILE_UUID, A_PROJECT_UUID);
 
     underTest.execute();
 
-    verifyPath(A_DIR_UUID, format("%s.", A_PROJECT_UUID));
-    verifyPath(A_FILE_UUID, format("%s.", A_PROJECT_UUID));
+    verifyPath(A_DIR_UUID, format(".%s.", A_PROJECT_UUID));
+    verifyPath(A_FILE_UUID, format(".%s.", A_PROJECT_UUID));
   }
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    insert(A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
-    insert(A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
-    insert(A_FILE_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
+    insert(QUALIFIER_PROJECT, A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
+    insert(QUALIFIER_DIR, A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.", true));
+    insert(QUALIFIER_FILE, A_FILE_UUID, A_PROJECT_UUID, new Snapshot(3L, "1.2.", true));
 
     underTest.execute();
     verifyNoNullPath();
@@ -113,12 +117,13 @@ public class PopulateUuidPathColumnOnProjectsTest {
     verifyNoNullPath();
   }
 
-  private void insert(String uuid, String rootUuid, Snapshot... snapshots) {
+  private void insert(String qualifier, String uuid, String rootUuid, Snapshot... snapshots) {
     db.executeInsert(
       TABLE_PROJECTS,
       "uuid", uuid,
       "project_uuid", rootUuid,
-      "root_uuid", rootUuid);
+      "root_uuid", rootUuid,
+      "qualifier", qualifier);
 
     for (Snapshot snapshot : snapshots) {
       db.executeInsert(
@@ -128,8 +133,8 @@ public class PopulateUuidPathColumnOnProjectsTest {
         "path", snapshot.idPath,
         "islast", String.valueOf(snapshot.isLast),
         "component_uuid", uuid,
-        "root_component_uuid", rootUuid
-        );
+        "root_component_uuid", rootUuid,
+        "qualifier", qualifier);
     }
     db.commit();
   }
@@ -137,6 +142,11 @@ public class PopulateUuidPathColumnOnProjectsTest {
   private void verifyPath(String componentUuid, String expectedUuidPath) {
     Map<String, Object> row = db.selectFirst("select uuid_path from projects where uuid='" + componentUuid + "'");
     assertThat(row.get("UUID_PATH")).isEqualTo(expectedUuidPath);
+  }
+
+  private void verifyProjectUuid(String componentUuid, String expectedProjectUuid) {
+    Map<String, Object> row = db.selectFirst("select project_uuid from projects where uuid='" + componentUuid + "'");
+    assertThat(row.get("PROJECT_UUID")).isEqualTo(expectedProjectUuid);
   }
 
   private void verifyNoNullPath() {
