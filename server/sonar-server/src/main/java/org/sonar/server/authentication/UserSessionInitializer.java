@@ -85,6 +85,7 @@ public class UserSessionInitializer {
       setUserSession(request, response);
       return true;
     } catch (UnauthorizedException e) {
+      jwtHttpHandler.removeToken(response);
       response.setStatus(HTTP_UNAUTHORIZED);
       if (isWsUrl(path)) {
         return false;

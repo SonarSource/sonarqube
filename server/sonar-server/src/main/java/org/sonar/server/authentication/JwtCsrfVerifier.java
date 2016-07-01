@@ -81,6 +81,10 @@ public class JwtCsrfVerifier {
     response.addCookie(createCookie(csrfState, timeoutInSeconds));
   }
 
+  public void removeState(HttpServletResponse response){
+    response.addCookie(createCookie(null, 0));
+  }
+
   private static boolean shouldRequestBeChecked(HttpServletRequest request) {
     if (UPDATE_METHODS.contains(request.getMethod())) {
       String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");

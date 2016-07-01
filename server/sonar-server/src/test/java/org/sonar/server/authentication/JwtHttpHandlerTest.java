@@ -196,7 +196,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() throws Exception {
+  public void validate_token_removes_session_when_disconnected_timeout_is_reached() throws Exception {
     addJwtCookie();
 
     // Token was created 4 months ago, refreshed 4 minutes ago, and it expired in 5 minutes
@@ -206,10 +206,12 @@ public class JwtHttpHandlerTest {
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
     assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_user_is_disabled() throws Exception {
+  public void validate_token_removes_session_when_user_is_disabled() throws Exception {
     addJwtCookie();
     UserDto user = addUser(false);
 
@@ -217,15 +219,19 @@ public class JwtHttpHandlerTest {
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
     assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_token_is_no_more_valid() throws Exception {
+  public void validate_token_removes_session_when_token_is_no_more_valid() throws Exception {
     addJwtCookie();
 
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
 
     assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
   }
 
   @Test
@@ -271,6 +277,26 @@ public class JwtHttpHandlerTest {
 
     verify(jwtSerializer).refresh(any(Claims.class), anyInt());
     verify(jwtCsrfVerifier).refreshState(response, "CSRF_STATE", 3 * 24 * 60 * 60);
+  }
+
+  @Test
+  public void validate_token_remove_state_when_removing_token() throws Exception {
+    addJwtCookie();
+    // Token is invalid => it will be removed
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
+
+    underTest.validateToken(request, response);
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
+    verify(jwtCsrfVerifier).removeState(response);
+  }
+
+  @Test
+  public void remove_token() throws Exception {
+    underTest.removeToken(response);
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
+    verify(jwtCsrfVerifier).removeState(response);
   }
 
   private void verifyToken(JwtSerializer.JwtSession token, int expectedExpirationTime, long expectedRefreshTime) {
