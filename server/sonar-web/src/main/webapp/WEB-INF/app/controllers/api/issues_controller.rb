@@ -37,7 +37,10 @@ class Api::IssuesController < Api::ApiController
     hash = {}
     hash[:changelog] = Issue.changelog_to_hash(changelog)
 
-    render :json => jsonp(hash)
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar') }
+    end
   end
 
   #
@@ -78,7 +81,11 @@ class Api::IssuesController < Api::ApiController
     hash = result_to_hash(result)
     hash[:comment] = Issue.comment_to_hash(result.get) if result.get
 
-    render :json => jsonp(hash), :status => result.httpStatus
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+    end
   end
 
   #
@@ -117,7 +124,11 @@ class Api::IssuesController < Api::ApiController
     hash = result_to_hash(result)
     hash[:comment] = Issue.comment_to_hash(result.get) if result.get
 
-    render :json => jsonp(hash), :status => result.httpStatus
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => result.httpStatus) }
+    end
   end
 
   #
@@ -174,7 +185,11 @@ class Api::IssuesController < Api::ApiController
       :issues => result.issuesNotChanged().map { |issue| issue.key() }
     }
 
-    render :json => jsonp(hash), :status => 200
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => 200 }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => 200) }
+    end
   end
 
   protected

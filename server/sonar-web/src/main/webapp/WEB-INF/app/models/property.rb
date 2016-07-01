@@ -137,6 +137,15 @@ class Property < ActiveRecord::Base
     java_definition && (java_definition.multi_values? || !java_definition.fields.blank?)
   end
 
+  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.property do
+      xml.key(prop_key)
+      xml.value { xml.cdata!(value.to_s) }
+      Property.string_to_array_value(value.to_s).each { |v| xml.values { xml.cdata!(v) } } if multi_values?
+    end
+    xml
+  end
+
   def java_definition
     @java_definition ||= Property.property_def(key)
   end

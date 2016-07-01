@@ -34,7 +34,11 @@ class Api::ServerController < Api::ApiController
   def index
     hash={:id => Java::OrgSonarServerPlatform::Platform.getServer().getId(), :version => Java::OrgSonarServerPlatform::Platform.getServer().getVersion()}
     complete_with_status(hash)
-    render :json => jsonp(hash)
+    respond_to do |format|
+      format.json{ render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'server') }
+      format.text { render :text => text_not_supported}
+    end
   end
 
   def setup
@@ -60,7 +64,11 @@ class Api::ServerController < Api::ApiController
       hash[:message]=manager.message if manager.message
       hash[:startedAt]=manager.migration_start_time if manager.migration_start_time
 
-      render :json => jsonp(hash)
+      respond_to do |format|
+        format.json{ render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.text { render :text => hash[:status] }
+      end
     rescue => e
       hash={
         # deprecated fields
@@ -71,7 +79,11 @@ class Api::ServerController < Api::ApiController
         :message => e.message,
         :state => manager.status
       }
-      render :json => jsonp(hash)
+      respond_to do |format|
+        format.json{ render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.text { render :text => hash[:status] }
+      end
     end
   end
 

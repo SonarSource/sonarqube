@@ -27,7 +27,11 @@ class Api::UpdatecenterController < Api::ApiController
   # curl http://localhost:9000/api/updatecenter/installed_plugins -v
   #
   def installed_plugins
-    render :json => jsonp(plugins_to_json(user_plugins()))
+    respond_to do |format|
+      format.json { render :json => jsonp(plugins_to_json(user_plugins())) }
+      format.xml  { render :xml => plugins_to_xml(user_plugins()) }
+      format.text { render :text => text_not_supported }
+    end
   end
 
   private
@@ -46,6 +50,18 @@ class Api::UpdatecenterController < Api::ApiController
     hash['name']=plugin.getName()
     hash['version']=plugin.getVersion().getName()
     hash
+  end
+
+  def plugins_to_xml(plugins, xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.plugins do
+      plugins.each do |plugin|
+        xml.plugin do
+          xml.key(plugin.getKey())
+          xml.name(plugin.getName())
+          xml.version(plugin.getVersion().getName())
+        end
+      end
+    end
   end
 
   def user_plugins

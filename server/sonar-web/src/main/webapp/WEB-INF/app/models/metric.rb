@@ -281,6 +281,21 @@ class Metric < ActiveRecord::Base
       end
   end
 
+  def to_xml(options={})
+    xml = Builder::XmlMarkup.new
+    xml.metric do
+      xml.key(name)
+      xml.name(short_name)
+      xml.description(description)
+      xml.domain(domain)
+      xml.qualitative(qualitative)
+      xml.direction(direction)
+      xml.user_managed(self.user_managed)
+      xml.val_type(val_type)
+      xml.hidden(hidden)
+    end
+  end
+
   HUMANIZED_ATTRIBUTES = {
       :name => "key",
       :short_name => "name",
