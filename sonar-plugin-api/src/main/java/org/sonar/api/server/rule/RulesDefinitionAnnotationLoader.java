@@ -40,7 +40,9 @@ import org.sonar.check.Cardinality;
  *
  * @see org.sonar.api.server.rule.RulesDefinition
  * @since 4.3
+ * @deprecated since 6.0 sonar-check-api is deprecated
  */
+@Deprecated
 public class RulesDefinitionAnnotationLoader {
 
   private static final Logger LOG = Loggers.get(RulesDefinitionAnnotationLoader.class);
@@ -54,8 +56,7 @@ public class RulesDefinitionAnnotationLoader {
       .put(Boolean.class, RuleParamType.BOOLEAN)
       .put(boolean.class, RuleParamType.BOOLEAN)
       .build(),
-    RuleParamType.STRING
-  );
+    RuleParamType.STRING);
 
   public void load(RulesDefinition.NewExtendedRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {

@@ -23,13 +23,14 @@ import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.3
- * @deprecated since 5.1. Use {@link ActiveRules} on batch side.
+ * @deprecated since 5.1. Use {@link ActiveRules} on scanner side. Not deprecated on server side because it is required to use {@link ProfileDefinition} extension point.
  */
 @Deprecated
 @BatchSide

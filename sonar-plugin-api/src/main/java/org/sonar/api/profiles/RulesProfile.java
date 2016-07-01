@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -302,8 +303,27 @@ public class RulesProfile implements Cloneable {
 
   /**
    * @param optionalSeverity if null, then the default rule severity is used
+   * @deprecated since 5.6 use {@link #activateRule(Rule, String)}
    */
+  @Deprecated
   public ActiveRule activateRule(final Rule rule, @Nullable RulePriority optionalSeverity) {
+    return activateRule(rule, optionalSeverity != null ? optionalSeverity.name() : null);
+  }
+
+  /**
+   * Activate a rule using default rule severity
+   * @since 5.6
+   */
+  public ActiveRule activateRule(final Rule rule) {
+    return activateRule(rule, (String) null);
+  }
+
+  /**
+   * Activate a rule by optionally overriding the severity
+   * @param optionalSeverity if null, then the default rule severity is used. See constants in {@link Severity}.
+   * @since 5.6
+   */
+  public ActiveRule activateRule(final Rule rule, @Nullable String optionalSeverity) {
     if (Iterables.any(activeRules, new MatchRule(rule))) {
       throw MessageException.of(String.format(
         "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
@@ -312,7 +332,7 @@ public class RulesProfile implements Cloneable {
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);
     activeRule.setRulesProfile(this);
-    activeRule.setSeverity(optionalSeverity == null ? rule.getSeverity() : optionalSeverity);
+    activeRule.setSeverity(optionalSeverity == null ? rule.getSeverity() : RulePriority.valueOf(optionalSeverity));
     activeRules.add(activeRule);
     return activeRule;
   }

@@ -21,18 +21,20 @@ package org.sonar.api.profiles;
 
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.BelongsToProfile;
 
 /**
  * @since 2.3
+ * @deprecated since 5.6 use your own way to implement {@link ProfileDefinition} 
  */
+@Deprecated
 @ServerSide
 @ComputeEngineSide
 public final class AnnotationProfileParser {

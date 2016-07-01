@@ -80,7 +80,7 @@ public class DefaultIndexTest {
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
-    rulesProfile.activateRule(rule, null);
+    rulesProfile.activateRule(rule, (String) null);
     index.setCurrentProject(project, mock(DefaultSensorStorage.class));
     index.doStart(project);
   }

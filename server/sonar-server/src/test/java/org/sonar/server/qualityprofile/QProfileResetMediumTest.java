@@ -154,7 +154,7 @@ public class QProfileResetMediumTest {
   @Test
   public void reset_language_profile_param_when_rule_definition_has_changed() {
     RulesProfile defProfile = RulesProfile.create("Basic", ServerTester.Xoo.KEY);
-    defProfile.activateRule(org.sonar.api.rules.Rule.create("xoo", "x1"), null);
+    defProfile.activateRule(org.sonar.api.rules.Rule.create("xoo", "x1"));
 
     register(new Rules() {
       @Override

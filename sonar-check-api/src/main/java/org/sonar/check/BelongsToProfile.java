@@ -26,7 +26,9 @@ import java.lang.annotation.Target;
 
 /**
  * @since 2.1
+ * @deprecated since 6.0 use your own way to implement org.sonar.api.profiles.ProfileDefinition 
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface BelongsToProfile {
@@ -34,5 +36,5 @@ public @interface BelongsToProfile {
   String title();
 
   Priority priority();
-  
+
 }

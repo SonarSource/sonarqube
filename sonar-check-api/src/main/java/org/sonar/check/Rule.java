@@ -26,7 +26,9 @@ import java.lang.annotation.Target;
 
 /**
  * @since 2.3
+ * @deprecated since 6.0 sonar-check-api is deprecated 
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Rule {

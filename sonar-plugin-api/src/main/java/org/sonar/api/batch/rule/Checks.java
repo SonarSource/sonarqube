@@ -78,7 +78,9 @@ import org.sonar.check.RuleProperty;
  * It replaces org.sonar.api.checks.AnnotationCheckFactory
  *
  * @since 4.2
+ * @deprecated since 6.0 sonar-check-api is deprecated
  */
+@Deprecated
 public class Checks<C> {
   private final ActiveRules activeRules;
   private final String repository;
