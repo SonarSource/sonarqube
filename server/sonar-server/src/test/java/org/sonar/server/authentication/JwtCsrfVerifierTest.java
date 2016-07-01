@@ -183,18 +183,6 @@ public class JwtCsrfVerifierTest {
     verifyCookie(cookieArgumentCaptor.getValue(), true);
   }
 
-  @Test
-  public void remove_state() throws Exception {
-    when(server.isSecured()).thenReturn(true);
-
-    underTest.removeState(response);
-
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    Cookie cookie = cookieArgumentCaptor.getValue();
-    assertThat(cookie.getValue()).isNull();
-    assertThat(cookie.getMaxAge()).isEqualTo(0);
-  }
-
   private void verifyCookie(Cookie cookie, boolean isSecured) {
     assertThat(cookie.getName()).isEqualTo("XSRF-TOKEN");
     assertThat(cookie.getValue()).isNotEmpty();
@@ -204,16 +192,16 @@ public class JwtCsrfVerifierTest {
     assertThat(cookie.getSecure()).isEqualTo(isSecured);
   }
 
-  private void mockPostJavaWsRequest(){
+  private void mockPostJavaWsRequest() {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("POST");
   }
 
-  private void mockRequestCsrf(String csrfState){
+  private void mockRequestCsrf(String csrfState) {
     when(request.getHeader("X-XSRF-TOKEN")).thenReturn(csrfState);
   }
 
-  private void executeVerifyStateDoesNotFailOnRequest(String uri, String method){
+  private void executeVerifyStateDoesNotFailOnRequest(String uri, String method) {
     when(request.getRequestURI()).thenReturn(uri);
     when(request.getMethod()).thenReturn(method);
 

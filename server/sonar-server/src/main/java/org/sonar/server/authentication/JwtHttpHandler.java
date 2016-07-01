@@ -94,7 +94,6 @@ public class JwtHttpHandler {
     if (userDto.isPresent()) {
       return userDto;
     }
-    removeToken(response);
     return Optional.empty();
   }
 
@@ -153,11 +152,6 @@ public class JwtHttpHandler {
     String refreshToken = jwtSerializer.refresh(token, sessionTimeoutInSeconds);
     response.addCookie(createCookie(JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
     jwtCsrfVerifier.refreshState(response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
-  }
-
-  void removeToken(HttpServletResponse response) {
-    response.addCookie(createCookie(JWT_COOKIE, null, 0));
-    jwtCsrfVerifier.removeState(response);
   }
 
   private Cookie createCookie(String name, @Nullable String value, int expirationInSeconds) {
