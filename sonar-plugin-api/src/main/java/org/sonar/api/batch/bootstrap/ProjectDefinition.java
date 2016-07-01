@@ -190,6 +190,11 @@ public class ProjectDefinition {
   public String getVersion() {
     return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
+  
+  @CheckForNull
+  public String getOriginalName() {
+    return properties.get(CoreProperties.PROJECT_NAME_PROPERTY);
+  }
 
   public String getName() {
     String name = properties.get(CoreProperties.PROJECT_NAME_PROPERTY);

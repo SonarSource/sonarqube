@@ -59,6 +59,7 @@ public class Project extends Resource implements Component {
   private Date analysisDate;
   private String analysisVersion;
   private Settings settings;
+  private String originalName;
 
   // For internal use
   private java.io.File baseDir;
@@ -76,9 +77,11 @@ public class Project extends Resource implements Component {
     if (StringUtils.isNotBlank(branch)) {
       setKey(String.format(BRANCH_KEY_FORMAT, key, branch));
       this.name = String.format("%s %s", name, branch);
+      this.originalName = String.format("%s %s", name, branch);
     } else {
       setKey(key);
       this.name = name;
+      this.originalName = name;
     }
     setEffectiveKey(getKey());
     this.branch = branch;
@@ -94,6 +97,15 @@ public class Project extends Resource implements Component {
   public Project setBranch(String branch) {
     this.branch = branch;
     return this;
+  }
+  
+  @CheckForNull
+  public String getOriginalName() {
+    return originalName;
+  }
+  
+  public void setOriginalName(String originalName) {
+    this.originalName = originalName;
   }
 
   @Override

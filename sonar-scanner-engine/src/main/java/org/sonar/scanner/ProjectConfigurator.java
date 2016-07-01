@@ -47,6 +47,7 @@ public class ProjectConfigurator {
   public Project create(ProjectDefinition definition) {
     Project project = new Project(definition.getKey(), definition.getBranch(), definition.getName());
     project.setDescription(StringUtils.defaultString(definition.getDescription()));
+    project.setOriginalName(definition.getOriginalName());
     return project;
   }
 
