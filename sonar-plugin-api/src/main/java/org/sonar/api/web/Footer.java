@@ -25,6 +25,7 @@ import org.sonar.api.server.ServerSide;
 /**
  * @since 1.10
  */
+@FunctionalInterface
 @ServerSide
 @ExtensionPoint
 public interface Footer {

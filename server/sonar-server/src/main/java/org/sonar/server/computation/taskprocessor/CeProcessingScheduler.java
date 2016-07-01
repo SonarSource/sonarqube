@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
+@FunctionalInterface
 public interface CeProcessingScheduler {
 
   void startScheduling();

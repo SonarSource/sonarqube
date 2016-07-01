@@ -23,6 +23,7 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.batch.scan.ProjectScanContainer;
 
+@FunctionalInterface
 @BatchSide
 @ExtensionPoint
 public interface ScanTaskObserver {

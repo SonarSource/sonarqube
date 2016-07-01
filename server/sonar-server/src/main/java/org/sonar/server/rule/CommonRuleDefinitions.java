@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import org.sonar.api.server.rule.RulesDefinition;
 
+@FunctionalInterface
 public interface CommonRuleDefinitions {
   void define(RulesDefinition.Context context);
 }

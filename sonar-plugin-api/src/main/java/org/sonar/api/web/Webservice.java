@@ -28,6 +28,7 @@ import org.sonar.api.server.ServerSide;
  * @since 1.11
  * @deprecated in 4.2. Replaced by {@link org.sonar.api.server.ws.WebService}
  */
+@FunctionalInterface
 @Deprecated
 @ServerSide
 @ExtensionPoint

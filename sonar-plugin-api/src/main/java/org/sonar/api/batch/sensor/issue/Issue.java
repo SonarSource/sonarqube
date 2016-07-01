@@ -32,6 +32,7 @@ import org.sonar.api.rule.RuleKey;
  */
 public interface Issue {
 
+  @FunctionalInterface
   interface Flow {
     /**
      * @return Ordered list of locations for the execution flow

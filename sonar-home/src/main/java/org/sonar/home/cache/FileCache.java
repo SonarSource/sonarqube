@@ -69,6 +69,7 @@ public class FileCache {
     return null;
   }
 
+  @FunctionalInterface
   public interface Downloader {
     void download(String filename, File toFile) throws IOException;
   }

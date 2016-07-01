@@ -21,6 +21,7 @@ package org.sonar.server.computation.measure;
 
 import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 
+@FunctionalInterface
 public interface MeasureComputersHolder {
 
   /**

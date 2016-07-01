@@ -87,6 +87,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
   private interface SearchKey {
   }
 
+  @FunctionalInterface
   private interface SearchKeyFactory {
     SearchKey create(Trackable trackable);
   }

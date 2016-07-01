@@ -25,6 +25,7 @@ package org.sonar.api.batch.fs;
  * and {@link org.sonar.api.batch.fs.FilePredicates}.
  * @since 4.2
  */
+@FunctionalInterface
 public interface FilePredicate {
   /**
    * Test if provided file is valid for this predicate

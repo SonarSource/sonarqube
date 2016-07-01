@@ -25,6 +25,7 @@ import java.sql.SQLException;
  * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link MigrationStepModule}
  * @since 3.7
  */
+@FunctionalInterface
 public interface MigrationStep {
 
   void execute() throws SQLException;

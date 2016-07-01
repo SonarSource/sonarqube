@@ -63,6 +63,7 @@ public abstract class BlameCommand {
   /**
    * Callback for the provider to report results of blame per file.
    */
+  @FunctionalInterface
   public interface BlameOutput {
 
     /**

@@ -21,6 +21,7 @@ package org.sonar.ce.queue;
 
 import org.sonar.db.ce.CeActivityDto;
 
+@FunctionalInterface
 public interface CeQueueListener {
 
   void onRemoved(CeTask task, CeActivityDto.Status status);

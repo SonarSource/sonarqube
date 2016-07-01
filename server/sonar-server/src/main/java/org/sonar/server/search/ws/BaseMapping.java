@@ -90,6 +90,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
     return this;
   }
 
+  @FunctionalInterface
   public interface Mapper<DOC extends BaseDoc, CTX> {
     void write(JsonWriter json, DOC doc, CTX context);
   }

@@ -22,6 +22,7 @@ package org.sonar.server.computation.developer;
 /**
  * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
  */
+@FunctionalInterface
 public interface PersistDevelopersDelegate {
 
   void execute();

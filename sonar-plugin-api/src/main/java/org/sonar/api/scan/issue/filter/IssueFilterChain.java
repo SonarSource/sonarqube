@@ -29,6 +29,7 @@ package org.sonar.api.scan.issue.filter;
  * 
  * @since 5.3
  */
+@FunctionalInterface
 public interface IssueFilterChain {
   /**
    * Called by a filter to let downstream filters decide the fate of the issue

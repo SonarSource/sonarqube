@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.issue;
 
+@FunctionalInterface
 public interface IssueCallback {
   void execute();
 }

@@ -31,6 +31,7 @@ import org.sonar.api.resources.Project;
  * @since 1.10
  * @deprecated since 5.6 use org.sonar.api.batch.postjob.PostJob
  */
+@FunctionalInterface
 @Deprecated
 @BatchSide
 @ExtensionPoint

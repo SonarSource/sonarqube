@@ -21,6 +21,7 @@ package org.sonar.batch.rule;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface ActiveRulesLoader {
   List<LoadedActiveRule> load(String qualityProfileKey);
 }

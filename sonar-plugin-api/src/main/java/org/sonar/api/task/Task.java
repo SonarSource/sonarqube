@@ -26,6 +26,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  * Implement this interface to provide the behavior of a task.
  * @since 3.6
  */
+@FunctionalInterface
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
 public interface Task {

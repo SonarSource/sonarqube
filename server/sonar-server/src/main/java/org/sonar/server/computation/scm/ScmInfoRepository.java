@@ -27,6 +27,7 @@ import org.sonar.server.computation.component.Component;
  *
  * It will always search in the db if there's nothing in the report.
  */
+@FunctionalInterface
 public interface ScmInfoRepository {
 
   /**

@@ -47,6 +47,7 @@ import java.io.IOException;
  * @since 2.2
  * @deprecated since 5.5
  */
+@FunctionalInterface
 @Deprecated
 public interface Tokenizer {
 

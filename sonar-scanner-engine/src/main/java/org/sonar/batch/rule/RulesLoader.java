@@ -22,6 +22,7 @@ package org.sonar.batch.rule;
 import java.util.List;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
+@FunctionalInterface
 public interface RulesLoader {
   List<Rule> load();
 }

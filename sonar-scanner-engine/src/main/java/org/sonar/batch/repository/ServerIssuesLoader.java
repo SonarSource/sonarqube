@@ -22,6 +22,7 @@ package org.sonar.batch.repository;
 import com.google.common.base.Function;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
+@FunctionalInterface
 public interface ServerIssuesLoader {
 
   void load(String componentKey, Function<ServerIssue, Void> consumer);

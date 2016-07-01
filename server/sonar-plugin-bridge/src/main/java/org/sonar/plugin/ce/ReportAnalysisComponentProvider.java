@@ -22,6 +22,7 @@ package org.sonar.plugin.ce;
 import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
 
+@FunctionalInterface
 @ComputeEngineSide
 public interface ReportAnalysisComponentProvider {
 

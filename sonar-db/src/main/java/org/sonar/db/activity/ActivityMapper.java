@@ -19,6 +19,7 @@
  */
 package org.sonar.db.activity;
 
+@FunctionalInterface
 public interface ActivityMapper {
 
   void insert(ActivityDto dto);

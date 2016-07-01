@@ -21,6 +21,7 @@ package org.sonar.server.computation.qualitygate;
 
 import com.google.common.base.Optional;
 
+@FunctionalInterface
 public interface QualityGateHolder {
   /**
    * The QualityGate for the project if there is any.

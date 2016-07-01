@@ -31,6 +31,7 @@ import org.sonar.api.resources.Resource;
  * @since 1.12
  * @deprecated since 4.2. Analysis is file-system oriented. See {@link org.sonar.api.batch.fs.InputFileFilter}
  */
+@FunctionalInterface
 @Deprecated
 @BatchSide
 @ExtensionPoint

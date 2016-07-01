@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ruby;
 
+@FunctionalInterface
 public interface CallInvalidateMetricCache {
   void callInvalidate();
 }

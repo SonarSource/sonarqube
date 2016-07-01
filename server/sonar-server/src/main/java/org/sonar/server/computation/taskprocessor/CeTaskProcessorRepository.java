@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
+@FunctionalInterface
 public interface CeTaskProcessorRepository {
 
   /**

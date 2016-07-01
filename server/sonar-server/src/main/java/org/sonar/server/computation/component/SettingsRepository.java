@@ -24,6 +24,7 @@ import org.sonar.api.config.Settings;
 /**
  * Repository of component settings.
  */
+@FunctionalInterface
 public interface SettingsRepository {
   /**
    * Returns the settings for the specified Component.

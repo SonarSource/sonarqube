@@ -24,6 +24,7 @@ import org.jruby.Ruby;
 /**
  * Acts as a bridge between the Java application of the platform and the Rack application.
  */
+@FunctionalInterface
 public interface RackBridge {
   /**
    * Provides access to {@link Ruby} runtime instance created by the Rack application.

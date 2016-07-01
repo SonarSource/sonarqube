@@ -22,6 +22,7 @@ package org.sonar.server.computation.qualityprofile;
 import com.google.common.base.Optional;
 import org.sonar.api.rule.RuleKey;
 
+@FunctionalInterface
 public interface ActiveRulesHolder {
 
   Optional<ActiveRule> get(RuleKey ruleKey);

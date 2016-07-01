@@ -26,6 +26,7 @@ import org.sonar.api.ExtensionPoint;
  * Extension point to exclude some files from inspection
  * @since 4.2
  */
+@FunctionalInterface
 @BatchSide
 @ExtensionPoint
 public interface InputFileFilter {
