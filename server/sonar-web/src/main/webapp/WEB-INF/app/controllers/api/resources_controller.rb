@@ -195,7 +195,7 @@ class Api::ResourcesController < Api::ApiController
 
       # ---------- LOAD COMPONENTS
       # H2 does not support empty lists, so short-breaking if no measures
-      if load_measures && measures_by_component_uuid.empty?
+      if measures_limit && measures_by_component_uuid.empty?
         components = []
       else
         components = Project.all(
@@ -284,7 +284,7 @@ class Api::ResourcesController < Api::ApiController
     xml.resources do
       components.each do |component|
         measures = measures_by_component_uuid[component.uuid]
-        resource_to_xml(xml, component, measures, params)
+        component_to_xml(xml, component, measures, params)
       end
     end
   end
@@ -365,7 +365,7 @@ class Api::ResourcesController < Api::ApiController
     json
   end
 
-  def resource_to_xml(xml, component, measures, options={})
+  def component_to_xml(xml, component, measures, options={})
     verbose=(options[:verbose]=='true')
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
@@ -382,8 +382,8 @@ class Api::ResourcesController < Api::ApiController
       xml.lang(component.language) if component.language
       xml.version(component.last_analysis.version) if component.last_analysis && component.last_analysis.version
       xml.date(Api::Utils.format_datetime(component.last_analysis.created_at)) if component.last_analysis
-      xml.creationDate(Api::Utils.format_datetime(resource.created_at))
-      xml.description(resource.description) if include_descriptions && resource.description
+      xml.creationDate(Api::Utils.format_datetime(component.created_at))
+      xml.description(component.description) if include_descriptions && component.description
 
       if include_trends && component.last_snapshot
         xml.period1(component.last_snapshot.period1_mode) if component.last_snapshot.period1_mode
