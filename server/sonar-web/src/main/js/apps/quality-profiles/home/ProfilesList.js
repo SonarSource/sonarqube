@@ -56,11 +56,7 @@ export default class ProfilesList extends React.Component {
         <thead>
           <tr>
             <th>
-              <Link
-                  to={{ pathname: '/', query: { language: language.key } }}
-                  className="link-base-color">
-                {language.name}
-              </Link>
+              {language.name}
               {', '}
               {translateWithParameters(
                   'quality_profiles.x_profiles',
@@ -116,22 +112,23 @@ export default class ProfilesList extends React.Component {
           )}
 
           {languagesToShow.map(languageKey => (
-              <table
-                  key={languageKey}
-                  data-language={languageKey}
-                  className="data zebra zebra-hover quality-profiles-table">
+              <div key={languageKey}
+                   className="quality-profile-box quality-profiles-table">
+                <table data-language={languageKey}
+                       className="data zebra zebra-hover">
 
-                {this.renderHeader(
-                    languageKey,
-                    profilesToShow[languageKey].length)}
+                  {this.renderHeader(
+                      languageKey,
+                      profilesToShow[languageKey].length)}
 
-                <TooltipsContainer>
-                  <tbody>
-                    {this.renderProfiles(profilesToShow[languageKey])}
-                  </tbody>
-                </TooltipsContainer>
+                  <TooltipsContainer>
+                    <tbody>
+                      {this.renderProfiles(profilesToShow[languageKey])}
+                    </tbody>
+                  </TooltipsContainer>
 
-              </table>
+                </table>
+              </div>
           ))}
 
         </div>

@@ -40,7 +40,7 @@ export default class EvolutionStagnant extends React.Component {
     }
 
     return (
-        <div className="quality-profiles-evolution-stagnant">
+        <div className="quality-profile-box quality-profiles-evolution-stagnant">
           <div className="spacer-bottom">
             <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
           </div>

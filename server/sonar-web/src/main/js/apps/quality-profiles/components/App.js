@@ -31,6 +31,7 @@ export default class App extends React.Component {
   state = { loading: true };
 
   componentWillMount () {
+    document.querySelector('html').classList.add('dashboard-page');
     this.updateProfiles = this.updateProfiles.bind(this);
   }
 
@@ -41,6 +42,7 @@ export default class App extends React.Component {
 
   componentWillUnmount () {
     this.mounted = false;
+    document.querySelector('html').classList.remove('dashboard-page');
   }
 
   loadData () {

@@ -77,7 +77,7 @@ export default class EvolutionRules extends React.Component {
     });
 
     return (
-        <div className="quality-profiles-evolution-rules">
+        <div className="quality-profile-box quality-profiles-evolution-rules">
           <div className="clearfix">
             <strong className="pull-left">
               {translate('quality_profiles.latest_new_rules')}

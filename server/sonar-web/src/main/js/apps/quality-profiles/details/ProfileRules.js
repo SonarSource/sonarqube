@@ -108,7 +108,7 @@ export default class ProfileRules extends React.Component {
   renderActiveTitle () {
     return (
         <strong>
-          {translate('quality_profile.total_active_rules')}
+          {translate('total')}
         </strong>
     );
   }
@@ -142,10 +142,17 @@ export default class ProfileRules extends React.Component {
       return null;
     }
 
+    if (this.state.total === this.state.activatedTotal) {
+      return <span className="note text-muted">0</span>;
+    }
+
     return (
-        <a href={rulesUrl}>
+        <a href={rulesUrl} className="small text-muted">
           <strong>
-            {formatMeasure(this.state.total, 'SHORT_INT')}
+            {formatMeasure(
+                this.state.total - this.state.activatedTotal,
+                'SHORT_INT'
+            )}
           </strong>
         </a>
     );
@@ -188,15 +195,20 @@ export default class ProfileRules extends React.Component {
       types: type
     });
 
-    const { count } = this.state.allByType[type];
+    const { count } = this.state.activatedByType[type];
+    const { count: total } = this.state.allByType[type];
 
     if (count == null) {
       return null;
     }
 
+    if (total === count) {
+      return <span className="note text-muted">0</span>;
+    }
+
     return (
-        <a href={rulesUrl}>
-          {formatMeasure(count, 'SHORT_INT')}
+        <a href={rulesUrl} className="small text-muted">
+          {formatMeasure(total - count, 'SHORT_INT')}
         </a>
     );
   }
@@ -232,38 +244,44 @@ export default class ProfileRules extends React.Component {
 
     return (
         <div className="quality-profile-rules">
-          <header className="clearfix">
-            <h2 className="pull-left">{translate('rules')}</h2>
-
-            {this.props.canAdmin && (
-                <a href={activateMoreUrl}
-                   className="button pull-right js-activate-rules">
-                  {translate('quality_profiles.activate_more')}
-                </a>
-            )}
-          </header>
-
-          {this.renderDeprecated()}
-
-          <TooltipsContainer options={{ delay: { show: 250, hide: 0 } }}>
-            <ul className="quality-profile-rules-distribution">
-              <li key="all" className="big-spacer-bottom">
+          <div className="quality-profile-rules-distribution">
+            <table className="data condensed">
+              <thead>
+                <tr>
+                  <th>
+                    <h2>{translate('rules')}</h2>
+                  </th>
+                  <th>Active</th>
+                  <th>Inactive</th>
+                </tr>
+              </thead>
+              <tbody>
                 <ProfileRulesRow
+                    key="all"
                     renderTitle={this.renderActiveTitle.bind(this)}
                     renderCount={this.renderActiveCount.bind(this)}
                     renderTotal={this.renderActiveTotal.bind(this)}/>
-              </li>
-
-              {TYPES.map(type => (
-                  <li key={type} className="spacer-top">
+                {TYPES.map(type => (
                     <ProfileRulesRow
+                        key={type}
                         renderTitle={this.renderTitleForType.bind(this, type)}
                         renderCount={this.renderCountForType.bind(this, type)}
                         renderTotal={this.renderTotalForType.bind(this, type)}/>
-                  </li>
-              ))}
-            </ul>
-          </TooltipsContainer>
+                ))}
+              </tbody>
+            </table>
+
+            {this.props.canAdmin && (
+                <div className="text-right big-spacer-top">
+                  <a href={activateMoreUrl}
+                     className="button js-activate-rules">
+                    {translate('quality_profiles.activate_more')}
+                  </a>
+                </div>
+            )}
+          </div>
+
+          {this.renderDeprecated()}
         </div>
     );
   }

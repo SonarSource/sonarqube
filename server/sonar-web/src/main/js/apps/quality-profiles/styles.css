@@ -6,7 +6,9 @@
 }
 
 .quality-profiles-table {
-  margin-top: 30px;
+  margin-top: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .quality-profiles-table-name { }
@@ -23,10 +25,8 @@
 
 .quality-profiles-list-header {
   line-height: 24px;
-  margin-bottom: 15px;
   padding: 5px 10px;
-  border-radius: 3px;
-  background-color: #f3f3f3;
+  border-bottom: 1px solid #e6e6e6;
 }
 
 .quality-profile-grid {
@@ -71,14 +71,13 @@
 }
 
 .quality-profile-rules-distribution {
-  padding: 0 20px 20px;
+  margin-bottom: 20px;
+  padding: 5px 20px 0;
 }
 
 .quality-profile-rules-deprecated {
-  margin-bottom: 20px;
   padding: 15px 20px;
   border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
   background-color: #fcf8e3;
 }
 
@@ -119,19 +118,19 @@
 .quality-profiles-evolution-stagnant,
 .quality-profiles-evolution-rules {
   width: 325px;
-  padding: 15px 20px;
   box-sizing: border-box;
 }
 
 .quality-profiles-evolution-deprecated,
 .quality-profiles-evolution-stagnant {
   margin-right: 30px;
-  border: 1px solid #faebcc;
+  border-color: #faebcc;
   background-color: #fcf8e3;
 }
 
 .quality-profiles-evolution-rules {
   border: 1px solid #e6e6e6;
+  background-color: #fff;
 }
 
 .quality-profile-comparison-table {

@@ -30,16 +30,17 @@ export default class ProfileRulesRow extends React.Component {
     const { renderTitle, renderCount, renderTotal } = this.props;
 
     return (
-        <div className="clearfix">
-          <div className="pull-left">
+        <tr>
+          <td>
             {renderTitle()}
-          </div>
-          <div className="pull-right">
+          </td>
+          <td className="thin nowrap text-right">
             {renderCount()}
-            {' / '}
+          </td>
+          <td className="thin nowrap text-right">
             {renderTotal()}
-          </div>
-        </div>
+          </td>
+        </tr>
     );
   }
 }

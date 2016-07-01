@@ -38,11 +38,11 @@ export default class ProfilesListRow extends React.Component {
     const { profile } = this.props;
     const offset = 25 * (profile.depth - 1);
     return (
-        <h4 style={{ paddingLeft: offset }}>
+        <div style={{ paddingLeft: offset }}>
           <ProfileLink profileKey={profile.key}>
             {profile.name}
           </ProfileLink>
-        </h4>
+        </div>
     );
   }
 

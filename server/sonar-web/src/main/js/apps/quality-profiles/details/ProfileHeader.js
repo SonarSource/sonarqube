@@ -130,11 +130,13 @@ export default class ProfileHeader extends React.Component {
                     <i className="icon-dropdown"/>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-right">
-                    <li>
-                      <a href={activateMoreUrl}>
-                        {translate('quality_profiles.activate_more_rules')}
-                      </a>
-                    </li>
+                    {canAdmin && (
+                        <li>
+                          <a href={activateMoreUrl}>
+                            {translate('quality_profiles.activate_more_rules')}
+                          </a>
+                        </li>
+                    )}
                     <li>
                       <a id="quality-profile-backup" href={backupUrl}>
                         {translate('backup_verb')}

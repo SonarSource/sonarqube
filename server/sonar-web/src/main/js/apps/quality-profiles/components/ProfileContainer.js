@@ -32,14 +32,6 @@ export default class ProfileContainer extends React.Component {
     updateProfiles: React.PropTypes.func
   };
 
-  componentWillMount () {
-    document.querySelector('html').classList.add('dashboard-page');
-  }
-
-  componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
-  }
-
   render () {
     const { profiles, location, ...other } = this.props;
     const { key } = location.query;

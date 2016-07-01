@@ -94,7 +94,7 @@ export default class ProfileInheritance extends React.Component {
           </header>
 
           {!this.state.loading && (
-              <table className="data condensed zebra">
+              <table className="data zebra">
                 <tbody>
                   {this.state.ancestors.map((ancestor, index) => (
                       <ProfileInheritanceBox

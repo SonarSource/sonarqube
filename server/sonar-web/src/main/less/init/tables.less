@@ -52,6 +52,14 @@ table.data > thead > tr > th {
   border-bottom: 1px solid @barBorderColor;
   font-weight: 500;
 
+  &:first-child {
+    padding-left: 0
+  }
+
+  &:last-child {
+    padding-right: 0;
+  }
+
   & > .small {
     display: block;
     line-height: 1.4;
@@ -69,6 +77,14 @@ table.data > tbody > tr > td {
   padding: 8px 10px;
   vertical-align: text-top;
   line-height: 16px;
+
+  &:first-child {
+    padding-left: 0
+  }
+
+  &:last-child {
+    padding-right: 0;
+  }
 
   &.text-middle {
     vertical-align: middle;

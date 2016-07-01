@@ -30,7 +30,7 @@ export default class ProfileInheritanceBox extends React.Component {
       overridingRuleCount: React.PropTypes.number
     }).isRequired,
     depth: React.PropTypes.number.isRequired,
-    displayLink: React.PropTypes.bool.isRequired,
+    displayLink: React.PropTypes.bool,
     className: React.PropTypes.string
   };
 
@@ -45,13 +45,13 @@ export default class ProfileInheritanceBox extends React.Component {
     return (
         <tr className={className}>
           <td>
-            <h6 style={{ paddingLeft: offset }}>
+            <div style={{ paddingLeft: offset }}>
               {this.props.displayLink ? (
                   <ProfileLink profileKey={profile.key}>
                     {profile.name}
                   </ProfileLink>
               ) : profile.name}
-            </h6>
+            </div>
           </td>
 
           <td>

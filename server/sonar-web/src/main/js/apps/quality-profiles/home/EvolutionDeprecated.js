@@ -41,7 +41,8 @@ export default class EvolutionDeprecated extends React.Component {
         .reduce((p, c) => p + c, 0);
 
     return (
-        <div className="quality-profiles-evolution-deprecated">
+        <div
+            className="quality-profile-box quality-profiles-evolution-deprecated">
           <div className="spacer-bottom">
             <strong>{translate('quality_profiles.deprecated_rules')}</strong>
           </div>
