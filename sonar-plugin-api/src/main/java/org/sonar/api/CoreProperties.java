@@ -75,38 +75,16 @@ public interface CoreProperties {
   String CATEGORY_CODE_COVERAGE = "codeCoverage";
 
   /**
-   * @see #SUBCATEGORY_DUPLICATIONS
-   * @since 2.11
-   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   */
-  @Deprecated
-  String CATEGORY_DUPLICATIONS = "duplications";
-
-  /**
    * @since 2.11
    */
   String CATEGORY_SECURITY = "security";
 
   /**
-   * @see #SUBCATEGORY_L10N
    * @since 2.11
-   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @deprecated since 6.0
    */
   @Deprecated
-  String CATEGORY_L10N = "localization";
-
-  /**
-   * @since 2.11
-   */
   String CATEGORY_JAVA = "java";
-
-  /**
-   * @see #SUBCATEGORY_DIFFERENTIAL_VIEWS
-   * @since 2.11
-   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   */
-  @Deprecated
-  String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
 
   /**
    * @since 3.3
@@ -176,12 +154,6 @@ public interface CoreProperties {
   @Deprecated
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
 
-  /**
-   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5185
-   */
-  @Deprecated
-  String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
-
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
@@ -198,14 +170,6 @@ public interface CoreProperties {
   String GLOBAL_TEST_EXCLUSIONS_PROPERTY = "sonar.global.test.exclusions";
 
   /* Sonar Core */
-
-  /**
-   * @deprecated since 4.1. See http://jira.sonarsource.com/browse/SONAR-4875
-   */
-  @Deprecated
-  String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
-
-  String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
 
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
@@ -370,20 +334,6 @@ public interface CoreProperties {
    * @since 3.6
    */
   String PROFILING_LOG_PROPERTY = "sonar.showProfiling";
-
-  /**
-   * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
-   * See http://jira.sonarsource.com/browse/SONARJAVA-39 for more details.
-   */
-  @Deprecated
-  String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";
-
-  /**
-   * @since 3.7
-   * @deprecated in 4.0 no more used
-   */
-  @Deprecated
-  String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
 
   /**
    * @since 4.0

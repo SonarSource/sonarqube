@@ -57,8 +57,7 @@ public class ProjectConfigurator {
     Date analysisDate = loadAnalysisDate();
     project
       .setAnalysisDate(analysisDate)
-      .setAnalysisVersion(loadAnalysisVersion())
-      .setAnalysisType(loadAnalysisType());
+      .setAnalysisVersion(loadAnalysisVersion());
     return this;
   }
 
@@ -76,22 +75,6 @@ public class ProjectConfigurator {
       settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, date, true);
     }
     return date;
-  }
-
-  private Project.AnalysisType loadAnalysisType() {
-    String value = settings.getString(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY);
-    if (value == null) {
-      return Project.AnalysisType.DYNAMIC;
-    }
-
-    LOG.warn("'sonar.dynamicAnalysis' is deprecated since version 4.3 and should no longer be used.");
-    if ("true".equals(value)) {
-      return Project.AnalysisType.DYNAMIC;
-    }
-    if ("reuseReports".equals(value)) {
-      return Project.AnalysisType.REUSE_REPORTS;
-    }
-    return Project.AnalysisType.STATIC;
   }
 
   private String loadAnalysisVersion() {

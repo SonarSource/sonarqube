@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -28,9 +29,8 @@ import org.sonar.api.config.Settings;
 public final class RenameProject extends ProjectBuilder {
 
   private Settings settings;
-  
-  public RenameProject(ProjectReactor reactor, Settings settings) {
-    super(reactor);
+
+  public RenameProject(Settings settings) {
     this.settings = settings;
   }
 

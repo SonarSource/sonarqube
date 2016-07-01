@@ -31,9 +31,7 @@ public final class CreateSubProjects extends ProjectBuilder {
 
   private Settings settings;
 
-  public CreateSubProjects(ProjectReactor reactor, Settings settings) {
-    super(reactor);
-
+  public CreateSubProjects(Settings settings) {
     // A real implementation should for example use the configuration
     this.settings = settings;
   }

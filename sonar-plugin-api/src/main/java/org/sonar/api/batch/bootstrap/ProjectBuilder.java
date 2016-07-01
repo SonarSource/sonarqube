@@ -19,9 +19,9 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * This extension point allows to change project structure at runtime. It is executed once during task startup.
@@ -46,14 +46,6 @@ public abstract class ProjectBuilder {
    */
   public interface Context {
     ProjectReactor projectReactor();
-  }
-
-  /**
-   * Don't inject ProjectReactor as it may not be available
-   * @deprecated since 3.7 use {@link #ProjectBuilder()}
-   */
-  @Deprecated
-  protected ProjectBuilder(final ProjectReactor reactor) {
   }
 
   /**

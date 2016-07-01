@@ -19,8 +19,6 @@
  */
 package org.sonar.core.config;
 
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -29,6 +27,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitions {
 
@@ -211,13 +211,6 @@ public class CorePropertyDefinitions {
         .build(),
 
       // BATCH
-
-      PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
-        .defaultValue("en")
-        .name("Locale used for issue messages")
-        .description("Deprecated property. Keep default value for backward compatibility.")
-        .hidden()
-        .build(),
 
       PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 1)
         .name("Leak Period")

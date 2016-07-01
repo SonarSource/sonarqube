@@ -89,33 +89,6 @@ public class ProjectConfiguratorTest {
   }
 
   @Test
-  public void explicit_dynamic_analysis() {
-    Settings configuration = new Settings();
-    configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "true");
-    Project project = new Project("key");
-    new ProjectConfigurator(configuration, system2).configure(project);
-    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.DYNAMIC);
-  }
-
-  @Test
-  public void explicit_static_analysis() {
-    Settings configuration = new Settings();
-    configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "false");
-    Project project = new Project("key");
-    new ProjectConfigurator(configuration, system2).configure(project);
-    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.STATIC);
-  }
-
-  @Test
-  public void explicit_dynamic_analysis_reusing_reports() {
-    Settings configuration = new Settings();
-    configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "reuseReports");
-    Project project = new Project("key");
-    new ProjectConfigurator(configuration, system2).configure(project);
-    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.REUSE_REPORTS);
-  }
-
-  @Test
   public void is_dynamic_analysis() {
     assertThat(Project.AnalysisType.DYNAMIC.isDynamic(false)).isTrue();
     assertThat(Project.AnalysisType.DYNAMIC.isDynamic(true)).isTrue();
