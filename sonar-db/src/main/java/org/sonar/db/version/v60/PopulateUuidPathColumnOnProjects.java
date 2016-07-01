@@ -60,7 +60,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
       handleRoot(rootUuid, context);
     }
 
-    handleOrphans(context);
+   handleOrphans(context);
   }
 
   private void handleRoot(String rootComponentUuid, Context context) throws SQLException {
@@ -91,7 +91,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     massUpdate.execute((row, update, updateIndex) -> {
       String uuid = row.getString(1);
       String rootUuid = row.getString(2);
-      String path = uuid.equals(rootUuid) ? ROOT_PATH : (rootUuid + PATH_SEPARATOR);
+      String path = uuid.equals(rootUuid) ? ROOT_PATH : (PATH_SEPARATOR + rootUuid + PATH_SEPARATOR);
       update.setString(1, path);
       update.setString(2, uuid);
       return true;
@@ -119,7 +119,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     List<String> componentUuidPath = Arrays.stream(snapshot.snapshotPath)
       .mapToObj(snapshotId -> relations.snapshotsById.get(snapshotId).componentUuid)
       .collect(toCollection(() -> new ArrayList<>(snapshot.snapshotPath.length)));
-    update.setString(1, PATH_JOINER.join(componentUuidPath) + PATH_SEPARATOR);
+    update.setString(1, PATH_SEPARATOR + PATH_JOINER.join(componentUuidPath) + PATH_SEPARATOR);
     update.setString(2, componentUuid);
     return true;
   }
