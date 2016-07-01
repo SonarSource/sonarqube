@@ -92,7 +92,11 @@ class Api::ResourcesController < Api::ApiController
       json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :key => r.key, :nm => r.name(true), :q => r.qualifier} }}
     end
 
-    render :json => jsonp(json)
+    respond_to do |format|
+      format.json { render :json => jsonp(json) }
+      format.xml { render :xml => xml_not_supported }
+      format.text { render :text => text_not_supported }
+    end
   end
 
   def index
@@ -228,7 +232,11 @@ class Api::ResourcesController < Api::ApiController
 
       # ---------- FORMAT RESPONSE
       objects={:sorted_components => sorted_components, :components_by_uuid => components_by_uuid, :measures_by_component_uuid => measures_by_component_uuid, :params => params}
-      render :json => jsonp(to_json(objects))
+      respond_to do |format|
+        format.json { render :json => jsonp(to_json(objects)) }
+        format.xml { render :xml => to_xml(objects) }
+        format.text { render :text => text_not_supported }
+      end
     rescue ApiException => e
       render_error(e.msg, e.code)
     end
@@ -262,6 +270,23 @@ class Api::ResourcesController < Api::ApiController
       result << component_to_json(component, measures, params)
     end
     result
+  end
+
+  def to_xml(objects)
+    components = objects[:sorted_components]
+    components_by_uuid = objects[:components_by_uuid]
+    measures_by_component_uuid = objects[:measures_by_component_uuid]
+    params = objects[:params]
+
+    xml = Builder::XmlMarkup.new(:indent => 0)
+    xml.instruct!
+
+    xml.resources do
+      components.each do |component|
+        measures = measures_by_component_uuid[component.uuid]
+        resource_to_xml(xml, component, measures, params)
+      end
+    end
   end
 
   def component_to_json(component, measures, options={})
@@ -340,4 +365,77 @@ class Api::ResourcesController < Api::ApiController
     json
   end
 
+  def resource_to_xml(xml, component, measures, options={})
+    verbose=(options[:verbose]=='true')
+    include_alerts=(options[:includealerts]=='true')
+    include_trends=(options[:includetrends]=='true')
+    include_descriptions=(options[:includedescriptions]=='true')
+
+    xml.resource do
+      xml.id(component.id)
+      xml.key(component.key)
+      xml.name(component.name)
+      xml.lname(component.long_name) if component.long_name
+      xml.branch(component.branch) if component.branch
+      xml.scope(component.scope)
+      xml.qualifier(component.qualifier)
+      xml.lang(component.language) if component.language
+      xml.version(snapshot.version) if snapshot.version
+      xml.date(Api::Utils.format_datetime(snapshot.created_at))
+      xml.creationDate(Api::Utils.format_datetime(resource.created_at))
+      xml.description(resource.description) if include_descriptions && resource.description
+
+      if include_trends && component.last_snapshot
+        xml.period1(component.last_snapshot.period1_mode) if component.last_snapshot.period1_mode
+        xml.period1_param(component.last_snapshot.period1_param) if component.last_snapshot.period1_param
+        xml.period1_date(Api::Utils.format_datetime(component.last_snapshot.period1_date)) if component.last_snapshot.period1_date
+
+        xml.period2(component.last_snapshot.period2_mode) if component.last_snapshot.period2_mode
+        xml.period2_param(component.last_snapshot.period2_param) if component.last_snapshot.period2_param
+        xml.period2_date(Api::Utils.format_datetime(component.last_snapshot.period2_date)) if component.last_snapshot.period2_date
+
+        xml.period3(component.last_snapshot.period3_mode) if component.last_snapshot.period3_mode
+        xml.period3_param(component.last_snapshot.period3_param) if component.last_snapshot.period3_param
+        xml.period3_date(Api::Utils.format_datetime(component.last_snapshot.period3_date)) if component.last_snapshot.period3_date
+
+        xml.period4(component.last_snapshot.period4_mode) if component.last_snapshot.period4_mode
+        xml.period4_param(component.last_snapshot.period4_param) if component.last_snapshot.period4_param
+        xml.period4_date(Api::Utils.format_datetime(component.last_snapshot.period4_date)) if component.last_snapshot.period4_date
+
+        xml.period5(component.last_snapshot.period5_mode) if component.last_snapshot.period5_mode
+        xml.period5_param(component.last_snapshot.period5_param) if component.last_snapshot.period5_param
+        xml.period5_date(Api::Utils.format_datetime(component.last_snapshot.period5_date)) if component.last_snapshot.period5_date
+      end
+
+      if measures
+        measures.select { |measure| !measure.metric.key.start_with?('new_') || include_trends }.each do |measure|
+          xml.msr do
+            xml.key(measure.metric.name)
+            xml.name(measure.metric.short_name) if verbose
+            xml.val(measure.value.to_f) if measure.value
+            xml.frmt_val(measure.formatted_value) if measure.value
+            xml.data(measure.data) if measure.data
+            xml.description(measure.description) if include_descriptions && measure.description
+            xml.url(measure.url) if include_descriptions && measure.url
+            if include_alerts
+              xml.alert(measure.alert_status) if measure.alert_status
+              xml.alert_text(measure.alert_text) if measure.alert_text
+            end
+            if include_trends
+              xml.var1(measure.variation_value_1.to_f) if measure.variation_value_1
+              xml.fvar1(measure.format_numeric_value(measure.variation_value_1.to_f)) if measure.variation_value_1
+              xml.var2(measure.variation_value_2.to_f) if measure.variation_value_2
+              xml.fvar2(measure.format_numeric_value(measure.variation_value_2.to_f)) if measure.variation_value_2
+              xml.var3(measure.variation_value_3.to_f) if measure.variation_value_3
+              xml.fvar3(measure.format_numeric_value(measure.variation_value_3.to_f)) if measure.variation_value_3
+              xml.var4(measure.variation_value_4.to_f) if measure.variation_value_4
+              xml.fvar4(measure.format_numeric_value(measure.variation_value_4.to_f)) if measure.variation_value_4
+              xml.var5(measure.variation_value_5.to_f) if measure.variation_value_5
+              xml.fvar5(measure.format_numeric_value(measure.variation_value_5.to_f)) if measure.variation_value_5
+            end
+          end
+        end
+      end
+    end
+  end
 end

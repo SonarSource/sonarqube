@@ -67,7 +67,11 @@ class Api::EventsController < Api::ApiController
 
       events=Event.find(:all, :conditions => [conditions.join(' AND '), values], :order => 'event_date DESC')
 
-      render :json => jsonp(events_to_json(events))
+      respond_to do |format|
+        format.json { render :json => jsonp(events_to_json(events)) }
+        format.xml  { render :xml => events_to_xml(events) }
+        format.text { render :text => text_not_supported }
+      end
 
     rescue ApiException => e
       render_error(e.msg, e.code)
@@ -85,7 +89,11 @@ class Api::EventsController < Api::ApiController
       event=Event.find(params[:id])
       load_resource_by_uuid(:user, event.component_uuid)
 
-      render :json => jsonp(events_to_json([event]))
+      respond_to do |format|
+        format.json { render :json => jsonp(events_to_json([event])) }
+        format.xml  { render :xml => events_to_xml([event]) }
+        format.text { render :text => text_not_supported }
+      end
 
     rescue ActiveRecord::RecordNotFound => e
       render_error(e.message, 404)
@@ -156,7 +164,12 @@ class Api::EventsController < Api::ApiController
         event_to_return = event if snapshot.component_uuid = @resource.uuid
       end
       
-      render :json => jsonp(events_to_json([event_to_return]))
+      
+      respond_to do |format|
+        format.json { render :json => jsonp(events_to_json([event_to_return])) }
+        format.xml  { render :xml => events_to_xml([event_to_return]) }
+        format.text { render :text => text_not_supported }
+      end
 
     rescue ApiException => e
       render_error(e.msg, e.code)
@@ -258,6 +271,25 @@ class Api::EventsController < Api::ApiController
     hash[:dt]=Api::Utils.format_datetime(event.event_date) if event.event_date
     hash[:ds]=event.description if event.description
     hash
+  end
+
+  def events_to_xml(events, xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.events do
+      events.each do |event|
+        event_to_xml(event, xml)
+      end
+    end
+  end
+
+  def event_to_xml(event, xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.event do
+      xml.id(event.id.to_s)
+      xml.name(event.name) if event.name
+      xml.resourceKey(event.resource.key) if event.resource
+      xml.category(event.category)
+      xml.date(Api::Utils.format_datetime(event.event_date)) if event.event_date
+      xml.description(event.description) if event.description
+    end
   end
 
 end

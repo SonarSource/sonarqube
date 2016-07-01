@@ -39,7 +39,11 @@ class Api::ProjectsController < Api::ApiController
       @show_description=(params[:desc]=='true')
       @projects=load_projects
       @snapshots_by_puuid=load_snapshots_by_project
-      render :json => jsonp(to_json)
+      respond_to do |format|
+        format.json{ render :json => jsonp(to_json) }
+        format.xml { render :xml => to_xml }
+        format.text { render :text => text_not_supported }
+      end
 
     rescue Exception => e
       logger.error("Fails to execute #{request.url} : #{e.message}")
@@ -62,7 +66,10 @@ class Api::ProjectsController < Api::ApiController
     id = Internal.component_api.createComponent(params[:key], params[:branch], params[:name], nil)
     result = Project.find(id.to_i)
 
-    render :json => jsonp(to_json_hash(result))
+    respond_to do |format|
+      format.json { render :json => jsonp(to_json_hash(result)) }
+      format.xml { render :xml => to_xml_hash(result) }
+    end
   end
 
   private
@@ -166,4 +173,29 @@ class Api::ProjectsController < Api::ApiController
     }.reject!{|k,v| v.nil?}
   end
 
+  def to_xml
+    xml = Builder::XmlMarkup.new(:indent => 0)
+    xml.projects do
+      @projects.each do |project|
+        to_xml_hash(project, xml)
+      end
+    end
+  end
+
+  def to_xml_hash(project, xml=Builder::XmlMarkup.new(:indent => 0))
+    xml.project(:id => project.id.to_s, :key => project.key) do
+      xml.name(project.name(true))
+      xml.scope(project.scope)
+      xml.qualifier(project.qualifier)
+      xml.desc(project.description) if @show_description && project.description
+
+      if @snapshots_by_puuid && @snapshots_by_puuid[project.uuid]
+        @snapshots_by_puuid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
+          attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
+          attributes[:date]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
+          xml.version(snapshot.version, attributes)
+        end
+      end
+    end
+  end
 end

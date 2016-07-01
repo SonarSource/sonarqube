@@ -77,7 +77,11 @@ class Api::ComponentsController < Api::ApiController
     end
     json['results']=json_results
 
-    render :json => jsonp(json)
+    respond_to do |format|
+      format.json { render :json => jsonp(json) }
+      format.xml { render :xml => xml_not_supported }
+      format.text { render :text => text_not_supported }
+    end
   end
 
   private

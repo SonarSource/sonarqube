@@ -206,6 +206,32 @@ class Rule < ActiveRecord::Base
     json
   end
 
+  def to_xml(profile, xml)
+    xml.rule do
+      xml.title(name)
+      xml.key(key)
+      xml.config_key(config_key)
+      xml.plugin(plugin_name)
+      xml.description { xml.cdata!(description) } if description
+      active_rule = nil
+      if profile
+        active_rule = profile.active_by_rule_id(id)
+        if active_rule
+          xml.priority(active_rule.priority_text)
+          xml.status('ACTIVE')
+        else
+          xml.priority(priority_text)
+          xml.status("INACTIVE")
+        end
+      else
+        xml.priority(priority_text)
+      end
+      parameters.each do |parameter|
+        parameter.to_xml(active_rule, xml)
+      end
+    end
+  end
+
   def to_csv(profile)
     csv = [name.strip, plugin_rule_key, plugin_name]
     if profile
