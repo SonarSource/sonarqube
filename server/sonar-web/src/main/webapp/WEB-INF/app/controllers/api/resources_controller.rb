@@ -380,8 +380,8 @@ class Api::ResourcesController < Api::ApiController
       xml.scope(component.scope)
       xml.qualifier(component.qualifier)
       xml.lang(component.language) if component.language
-      xml.version(snapshot.version) if snapshot.version
-      xml.date(Api::Utils.format_datetime(snapshot.created_at))
+      xml.version(component.last_analysis.version) if component.last_analysis && component.last_analysis.version
+      xml.date(Api::Utils.format_datetime(component.last_analysis.created_at)) if component.last_analysis
       xml.creationDate(Api::Utils.format_datetime(resource.created_at))
       xml.description(resource.description) if include_descriptions && resource.description
 

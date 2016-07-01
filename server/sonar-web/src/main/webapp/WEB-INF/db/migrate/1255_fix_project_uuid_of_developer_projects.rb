@@ -21,9 +21,9 @@
 #
 # SonarQube 6.0
 #
-class FixProjectUuidOfDevelopers < ActiveRecord::Migration
+class FixProjectUuidOfDeveloperProjects < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.FixProjectUuidOfDevelopers')
+    execute_java_migration('org.sonar.db.version.v60.FixProjectUuidOfDeveloperProjects')
   end
 end
