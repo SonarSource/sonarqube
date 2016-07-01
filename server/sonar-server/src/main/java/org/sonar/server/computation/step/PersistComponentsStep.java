@@ -192,6 +192,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setName(project.getName());
     res.setLongName(res.name());
     res.setDescription(project.getDescription());
+
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
     res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
@@ -252,6 +253,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setName(view.getName());
     res.setDescription(view.getDescription());
     res.setLongName(res.name());
+
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
     res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
@@ -305,9 +307,9 @@ public class PersistComponentsStep implements ComputationStep {
    * Applies to a node of type either MODULE, SUBVIEW, PROJECT_VIEW
    */
   private static void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-    ComponentDto projectDto = from(path.getCurrentPath()).last().get().getElement().getDto();
-    res.setRootUuid(projectDto.uuid());
-    res.setProjectUuid(projectDto.uuid());
+    ComponentDto rootDto = path.root().getDto();
+    res.setRootUuid(rootDto.uuid());
+    res.setProjectUuid(rootDto.uuid());
 
     ComponentDto parentModule = path.parent().getDto();
     res.setUuidPath(formatUuidPathFromParent(parentModule));
@@ -319,6 +321,8 @@ public class PersistComponentsStep implements ComputationStep {
    * Applies to a node of type either DIRECTORY or FILE
    */
   private static void setParentModuleProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+    componentDto.setProjectUuid(path.root().getDto().uuid());
+
     ComponentDto parentModule = from(path.getCurrentPath())
       .filter(ParentModulePathElement.INSTANCE)
       .first()
@@ -326,9 +330,9 @@ public class PersistComponentsStep implements ComputationStep {
       .getElement().getDto();
     componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
     componentDto.setRootUuid(parentModule.uuid());
-    componentDto.setProjectUuid(parentModule.projectUuid());
     componentDto.setModuleUuid(parentModule.uuid());
     componentDto.setModuleUuidPath(parentModule.moduleUuidPath());
+
   }
 
   private static boolean updateExisting(ComponentDto existingComponent, ComponentDto newComponent) {

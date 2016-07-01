@@ -332,7 +332,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.description()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(projectDto.path()).isNull();
     assertThat(projectDto.uuid()).isEqualTo(VIEW_UUID);
-    assertThat(projectDto.projectUuid()).isEqualTo(projectDto.uuid());
+    assertThat(projectDto.projectUuid()).isEqualTo(VIEW_UUID);
     assertThat(projectDto.getRootUuid()).isEqualTo(VIEW_UUID);
     assertThat(projectDto.moduleUuid()).isNull();
     assertThat(projectDto.moduleUuidPath()).isEqualTo("." + projectDto.uuid() + ".");
