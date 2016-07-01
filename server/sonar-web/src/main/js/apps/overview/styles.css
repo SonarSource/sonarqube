@@ -260,6 +260,11 @@
   white-space: nowrap;
 }
 
+.overview-meta-list i {
+  position: relative;
+  top: -1px;
+}
+
 /*
  * Other
  */

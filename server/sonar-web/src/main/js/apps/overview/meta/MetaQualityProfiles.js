@@ -18,30 +18,97 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { searchRules } from '../../../api/rules';
+import { getRulesUrl } from '../../../helpers/urls';
 
-const MetaQualityProfiles = ({ profiles }) => {
-  return (
-      <div>
-        <h4 className="overview-meta-header">
-          {translate('overview.quality_profiles')}
-        </h4>
+export default class MetaQualityProfiles extends React.Component {
+  state = {
+    deprecatedByKey: {}
+  };
 
-        <ul className="overview-meta-list">
-          {profiles.map(profile => (
-              <li key={profile.key}>
-                <span className="note spacer-right">
-                  {'(' + profile.language + ')'}
-                </span>
-                <a href={getQualityProfileUrl(profile.key)}>
-                  {profile.name}
-                </a>
-              </li>
-          ))}
-        </ul>
-      </div>
-  );
-};
+  componentDidMount () {
+    this.mounted = true;
+    this.loadDeprecatedRules();
+  }
 
-export default MetaQualityProfiles;
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  loadDeprecatedRules () {
+    const requests = this.props.profiles.map(profile => (
+        this.loadDeprecatedRulesForProfile(profile.key)
+    ));
+    Promise.all(requests).then(responses => {
+      if (this.mounted) {
+        const deprecatedByKey = {};
+        responses.forEach((count, i) => {
+          const profileKey = this.props.profiles[i].key;
+          deprecatedByKey[profileKey] = count;
+        });
+        this.setState({ deprecatedByKey });
+      }
+    });
+  }
+
+  loadDeprecatedRulesForProfile (profileKey) {
+    const data = {
+      qprofile: profileKey,
+      activation: 'true',
+      statuses: 'DEPRECATED',
+      ps: 1
+    };
+    return searchRules(data).then(r => r.total);
+  }
+
+  renderDeprecated (profile) {
+    const count = this.state.deprecatedByKey[profile.key];
+    if (!count) {
+      return null;
+    }
+
+    const url = getRulesUrl({
+      qprofile: profile.key,
+      activation: 'true',
+      statuses: 'DEPRECATED'
+    });
+
+    return (
+        <a className="icon-alert-warn spacer-right"
+           href={url}
+           title={translateWithParameters('overview.deprecated_profile', count)}
+           data-toggle="tooltip"/>
+    );
+  }
+
+  render () {
+    const { profiles } = this.props;
+
+    return (
+        <TooltipsContainer>
+          <div>
+            <h4 className="overview-meta-header">
+              {translate('overview.quality_profiles')}
+            </h4>
+
+            <ul className="overview-meta-list">
+              {profiles.map(profile => (
+                  <li key={profile.key}>
+                    {this.renderDeprecated(profile)}
+                    <span className="note spacer-right">
+                      {'(' + profile.language + ')'}
+                    </span>
+                    <a href={getQualityProfileUrl(profile.key)}>
+                      {profile.name}
+                    </a>
+                  </li>
+              ))}
+            </ul>
+          </div>
+        </TooltipsContainer>
+    );
+  }
+}
