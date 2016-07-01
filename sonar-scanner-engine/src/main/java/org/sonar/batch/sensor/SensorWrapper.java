@@ -59,6 +59,10 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
   @Override
   public String toString() {
-    return descriptor.name() + (LOG.isDebugEnabled() ? " (wrapped)" : "");
+    if (descriptor.name() != null) {
+      return descriptor.name();
+    } else {
+      return wrappedSensor.getClass().getName();
+    }
   }
 }

@@ -61,7 +61,10 @@ public class BatchUtils {
   public static String describe(Object o) {
     try {
       if (o.getClass().getMethod("toString").getDeclaringClass() != Object.class) {
-        return o.toString();
+        String str = o.toString();
+        if (str != null) {
+          return str;
+        }
       }
     } catch (Exception e) {
       // fallback
