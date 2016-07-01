@@ -32,7 +32,7 @@ class Project < ActiveRecord::Base
   has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
   has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => 'position=0', :select => 'kee'
   has_many :resource_index, :foreign_key => 'resource_id'
-  has_one :last_analysis, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => ['snapshots.islast=?', true]
+  has_one :last_analysis, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'project_uuid', :conditions => ['snapshots.islast=?', true]
 
   def self.by_key(k)
     begin
@@ -66,6 +66,10 @@ class Project < ActiveRecord::Base
 
   def project
     root||self
+  end
+
+  def root?
+    project_uuid == uuid
   end
 
   def root_project
@@ -141,17 +145,6 @@ class Project < ActiveRecord::Base
     links.reject { |l| l.custom? }
   end
 
-  def chart_measures(metric_id)
-    sql = Project.send(:sanitize_sql, ['select s.created_at as created_at, m.value as value ' +
-                                         ' from project_measures m, snapshots s ' +
-                                         ' where s.id=m.snapshot_id and ' +
-                                         " s.status='%s' and " +
-                                         ' s.component_uuid=%s and m.metric_id=%s ', 'P', self.uuid, metric_id]) +
-      ' and m.person_id IS NULL' +
-      ' order by s.created_at'
-    create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')
-  end
-
   def <=>(other)
     kee <=> other.kee
   end
@@ -183,25 +176,6 @@ class Project < ActiveRecord::Base
   end
 
   private
-
-  def create_chart_measures(results, date_column_name, value_column_name)
-    chart_measures = []
-    if results and results.first != nil
-      # :sanitize_sql is protected so its behaviour cannot be predicted exactly,
-      # the jdbc active record impl adapter returns a db typed objects array
-      # when regular active record impl return string typed objects
-      if results.first[date_column_name].class == Time
-        results.each do |hash|
-          chart_measures << ChartMeasure.new(hash[date_column_name], hash[value_column_name])
-        end
-      else
-        results.each do |hash|
-          chart_measures << ChartMeasure.new(Time.parse(hash[date_column_name]), hash[value_column_name].to_d)
-        end
-      end
-    end
-    chart_measures
-  end
 
   def parent_module(current_module)
     current_module.root.uuid = current_module.uuid ? current_module : parent_module(current_module.root)

@@ -19,12 +19,12 @@
 #
 class TrendsChart
 
-  def self.time_machine_measures(resource, metric_ids, options={})
+  def self.time_machine_measures(component, metric_ids, options={})
     unless metric_ids.empty?
-      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.id as sid " +
-            " from project_measures m LEFT OUTER JOIN snapshots s ON s.id=m.snapshot_id " +
+      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.uuid as analysis_uuid " +
+            " from project_measures m LEFT OUTER JOIN snapshots s ON s.uuid = m.analysis_uuid " +
             " where s.status=? " +
-            " and s.component_uuid=? " +
+            " and m.component_uuid=? " +
             " and m.metric_id in (?) " +
             " and m.person_id is null"
       if (options[:from])
@@ -34,7 +34,7 @@ class TrendsChart
         sql += ' and s.created_at<=?'
       end
       sql += ' order by s.created_at ASC'
-      conditions=[sql, Snapshot::STATUS_PROCESSED, resource.uuid, metric_ids]
+      conditions=[sql, Snapshot::STATUS_PROCESSED, component.uuid, metric_ids]
       if (options[:from])
         conditions<<options[:from].to_i*1000
       end

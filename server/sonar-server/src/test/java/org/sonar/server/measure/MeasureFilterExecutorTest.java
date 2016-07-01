@@ -488,10 +488,6 @@ public class MeasureFilterExecutorTest {
   public void escape_percent_and_underscore_when_filter_by_component_name_or_key() throws SQLException {
     db.prepareDbUnit(getClass(), "escape_percent_and_underscore_when_filter_by_component_name_or_key.xml");
 
-//    assertThat(executor.execute(
-//      new MeasureFilter().setResourceQualifiers(newArrayList("FIL")).setResourceKey("java_"),
-//      new MeasureFilterContext())).hasSize(2);
-
     assertThat(executor.execute(
       new MeasureFilter().setResourceQualifiers(newArrayList("FIL")).setResourceName("java%"),
       new MeasureFilterContext())).hasSize(2);

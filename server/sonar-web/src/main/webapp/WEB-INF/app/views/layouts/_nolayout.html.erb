@@ -1,6 +1,6 @@
 <div id="body" class="page">
-  <% if @snapshot %>
-    <div class="print"><h2><%= h @snapshot.project.name(true) %></h2></div>
+  <% if @resource %>
+    <div class="print"><h2><%= h @resource.name(true) %></h2></div>
   <% end %>
   <div class="hidden" id="messages-panel">
     <div class="alert alert-danger hidden" id="error">

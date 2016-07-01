@@ -104,7 +104,7 @@ class Api::ResourcesController < Api::ApiController
       resource_id=params[:resource]
       if resource_id
         @resource=Project.by_key(resource_id)
-        @analysis=(@resource && @resource.last_snapshot)
+        @analysis=(@resource && @resource.last_analysis)
         raise ApiException.new(404, "Resource [#{resource_id}] not found") if @analysis.nil?
         raise ApiException.new(401, "Unauthorized") unless has_role?(:user, @resource)
       else
@@ -195,7 +195,7 @@ class Api::ResourcesController < Api::ApiController
 
       # ---------- LOAD COMPONENTS
       # H2 does not support empty lists, so short-breaking if no measures
-      if load_measures && measures_by_component_uuid.empty?
+      if measures_limit && measures_by_component_uuid.empty?
         components = []
       else
         components = Project.all(
@@ -284,7 +284,7 @@ class Api::ResourcesController < Api::ApiController
     xml.resources do
       components.each do |component|
         measures = measures_by_component_uuid[component.uuid]
-        resource_to_xml(xml, component, measures, params)
+        component_to_xml(xml, component, measures, params)
       end
     end
   end
@@ -310,26 +310,26 @@ class Api::ResourcesController < Api::ApiController
     json['version']= component.last_analysis.version if component.last_analysis && component.last_analysis.version
     json['branch']=component.branch if component.branch
     json['description']=component.description if component.description
-    if include_trends && component.last_snapshot
-      json[:p1]=component.last_snapshot.period1_mode if component.last_snapshot.period1_mode
-      json[:p1p]=component.last_snapshot.period1_param if component.last_snapshot.period1_param
-      json[:p1d]=Api::Utils.format_datetime(component.last_snapshot.period1_date) if component.last_snapshot.period1_date
+    if include_trends && component.last_analysis
+      json[:p1]=component.last_snapshot.period1_mode if component.last_analysis.period1_mode
+      json[:p1p]=component.last_analysis.period1_param if component.last_analysis.period1_param
+      json[:p1d]=Api::Utils.format_datetime(component.last_analysis.period1_date) if component.last_analysis.period1_date
 
-      json[:p2]=component.last_snapshot.period2_mode if component.last_snapshot.period2_mode
-      json[:p2p]=component.last_snapshot.period2_param if component.last_snapshot.period2_param
-      json[:p2d]=Api::Utils.format_datetime(component.last_snapshot.period2_date) if component.last_snapshot.period2_date
+      json[:p2]=component.last_analysis.period2_mode if component.last_analysis.period2_mode
+      json[:p2p]=component.last_analysis.period2_param if component.last_analysis.period2_param
+      json[:p2d]=Api::Utils.format_datetime(component.last_analysis.period2_date) if component.last_analysis.period2_date
 
-      json[:p3]=component.last_snapshot.period3_mode if component.last_snapshot.period3_mode
-      json[:p3p]=component.last_snapshot.period3_param if component.last_snapshot.period3_param
-      json[:p3d]=Api::Utils.format_datetime(component.last_snapshot.period3_date) if component.last_snapshot.period3_date
+      json[:p3]=component.last_analysis.period3_mode if component.last_analysis.period3_mode
+      json[:p3p]=component.last_analysis.period3_param if component.last_analysis.period3_param
+      json[:p3d]=Api::Utils.format_datetime(component.last_analysis.period3_date) if component.last_analysis.period3_date
 
-      json[:p4]=component.last_snapshot.period4_mode if component.last_snapshot.period4_mode
-      json[:p4p]=component.last_snapshot.period4_param if component.last_snapshot.period4_param
-      json[:p4d]=Api::Utils.format_datetime(component.last_snapshot.period4_date) if component.last_snapshot.period4_date
+      json[:p4]=component.last_analysis.period4_mode if component.last_analysis.period4_mode
+      json[:p4p]=component.last_analysis.period4_param if component.last_analysis.period4_param
+      json[:p4d]=Api::Utils.format_datetime(component.last_analysis.period4_date) if component.last_analysis.period4_date
 
-      json[:p5]=component.last_snapshot.period5_mode if component.last_snapshot.period5_mode
-      json[:p5p]=component.last_snapshot.period5_param if component.last_snapshot.period5_param
-      json[:p5d]=Api::Utils.format_datetime(component.last_snapshot.period5_date) if component.last_snapshot.period5_date
+      json[:p5]=component.last_analysis.period5_mode if component.last_analysis.period5_mode
+      json[:p5p]=component.last_analysis.period5_param if component.last_analysis.period5_param
+      json[:p5d]=Api::Utils.format_datetime(component.last_analysis.period5_date) if component.last_analysis.period5_date
     end
     if measures
       json_measures=[]
@@ -365,7 +365,7 @@ class Api::ResourcesController < Api::ApiController
     json
   end
 
-  def resource_to_xml(xml, component, measures, options={})
+  def component_to_xml(xml, component, measures, options={})
     verbose=(options[:verbose]=='true')
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
@@ -380,31 +380,31 @@ class Api::ResourcesController < Api::ApiController
       xml.scope(component.scope)
       xml.qualifier(component.qualifier)
       xml.lang(component.language) if component.language
-      xml.version(snapshot.version) if snapshot.version
-      xml.date(Api::Utils.format_datetime(snapshot.created_at))
-      xml.creationDate(Api::Utils.format_datetime(resource.created_at))
-      xml.description(resource.description) if include_descriptions && resource.description
+      xml.version(component.last_analysis.version) if component.last_analysis && component.last_analysis.version
+      xml.date(Api::Utils.format_datetime(component.last_analysis.created_at)) if component.last_analysis
+      xml.creationDate(Api::Utils.format_datetime(component.created_at))
+      xml.description(component.description) if include_descriptions && component.description
 
-      if include_trends && component.last_snapshot
-        xml.period1(component.last_snapshot.period1_mode) if component.last_snapshot.period1_mode
-        xml.period1_param(component.last_snapshot.period1_param) if component.last_snapshot.period1_param
-        xml.period1_date(Api::Utils.format_datetime(component.last_snapshot.period1_date)) if component.last_snapshot.period1_date
+      if include_trends && component.last_analysis
+        xml.period1(component.last_analysis.period1_mode) if component.last_analysis.period1_mode
+        xml.period1_param(component.last_analysis.period1_param) if component.last_analysis.period1_param
+        xml.period1_date(Api::Utils.format_datetime(component.last_analysis.period1_date)) if component.last_analysis.period1_date
 
-        xml.period2(component.last_snapshot.period2_mode) if component.last_snapshot.period2_mode
-        xml.period2_param(component.last_snapshot.period2_param) if component.last_snapshot.period2_param
-        xml.period2_date(Api::Utils.format_datetime(component.last_snapshot.period2_date)) if component.last_snapshot.period2_date
+        xml.period2(component.last_analysis.period2_mode) if component.last_analysis.period2_mode
+        xml.period2_param(component.last_analysis.period2_param) if component.last_analysis.period2_param
+        xml.period2_date(Api::Utils.format_datetime(component.last_analysis.period2_date)) if component.last_analysis.period2_date
 
-        xml.period3(component.last_snapshot.period3_mode) if component.last_snapshot.period3_mode
-        xml.period3_param(component.last_snapshot.period3_param) if component.last_snapshot.period3_param
-        xml.period3_date(Api::Utils.format_datetime(component.last_snapshot.period3_date)) if component.last_snapshot.period3_date
+        xml.period3(component.last_analysis.period3_mode) if component.last_analysis.period3_mode
+        xml.period3_param(component.last_analysis.period3_param) if component.last_analysis.period3_param
+        xml.period3_date(Api::Utils.format_datetime(component.last_analysis.period3_date)) if component.last_analysis.period3_date
 
-        xml.period4(component.last_snapshot.period4_mode) if component.last_snapshot.period4_mode
-        xml.period4_param(component.last_snapshot.period4_param) if component.last_snapshot.period4_param
-        xml.period4_date(Api::Utils.format_datetime(component.last_snapshot.period4_date)) if component.last_snapshot.period4_date
+        xml.period4(component.last_analysis.period4_mode) if component.last_analysis.period4_mode
+        xml.period4_param(component.last_analysis.period4_param) if component.last_analysis.period4_param
+        xml.period4_date(Api::Utils.format_datetime(component.last_analysis.period4_date)) if component.last_analysis.period4_date
 
-        xml.period5(component.last_snapshot.period5_mode) if component.last_snapshot.period5_mode
-        xml.period5_param(component.last_snapshot.period5_param) if component.last_snapshot.period5_param
-        xml.period5_date(Api::Utils.format_datetime(component.last_snapshot.period5_date)) if component.last_snapshot.period5_date
+        xml.period5(component.last_analysis.period5_mode) if component.last_analysis.period5_mode
+        xml.period5_param(component.last_analysis.period5_param) if component.last_analysis.period5_param
+        xml.period5_date(Api::Utils.format_datetime(component.last_analysis.period5_date)) if component.last_analysis.period5_date
       end
 
       if measures

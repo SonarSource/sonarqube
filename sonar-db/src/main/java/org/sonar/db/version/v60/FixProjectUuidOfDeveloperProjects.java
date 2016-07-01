@@ -26,22 +26,22 @@ import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
-public class FixProjectUuidOfDevelopers extends BaseDataChange {
+public class FixProjectUuidOfDeveloperProjects extends BaseDataChange {
 
-  public FixProjectUuidOfDevelopers(Database db) {
+  public FixProjectUuidOfDeveloperProjects(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select distinct developer_uuid from projects where qualifier = 'DEV_PRJ'");
-    massUpdate.update("update projects set project_uuid = developer_uuid where developer_uuid = ? and qualifier = 'DEV_PRJ'");
+    massUpdate.select("select distinct developer_uuid from projects where qualifier = 'DEV_PRJ' and project_uuid != developer_uuid");
+    massUpdate.update("update projects set project_uuid = developer_uuid where developer_uuid = ? and qualifier = 'DEV_PRJ' and project_uuid != developer_uuid");
     massUpdate.rowPluralName("developers in project");
-    massUpdate.execute((row, update) -> handleComponent(row, update));
+    massUpdate.execute(FixProjectUuidOfDeveloperProjects::handleComponent);
   }
 
-  private boolean handleComponent(Select.Row row, SqlStatement update) throws SQLException {
+  private static boolean handleComponent(Select.Row row, SqlStatement update) throws SQLException {
     String developerUuid = row.getString(1);
     update.setString(1, developerUuid);
 

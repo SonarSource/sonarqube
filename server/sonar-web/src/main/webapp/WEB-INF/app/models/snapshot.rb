@@ -65,29 +65,6 @@ class Snapshot < ActiveRecord::Base
     Time.at(date_in_long/1000) if date_in_long
   end
 
-  def self.for_timemachine_matrix(resource)
-    # http://jira.sonarsource.com/browse/SONAR-1850
-    # Conditions on scope and qualifier are required to exclude library snapshots.
-    # Use-case :
-    #   1. project A 2.0 is analyzed -> new snapshot A with qualifier TRK
-    #   2. project B, which depends on A 1.0, is analyzed -> new snapshot A 1.0 with qualifier LIB.
-    #   3. project A has 2 snapshots : the first one with qualifier=TRK has measures, the second one with qualifier LIB has no measures. Its version must not be used in time machine
-    # That's why the 2 following SQL requests check the qualifiers (and optionally scopes, just to be sure)
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.component_uuid=? AND events.analysis_uuid=snapshots.uuid AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
-                            :include => 'events',
-                            :order => 'snapshots.created_at ASC')
-
-    snapshots<<resource.last_snapshot if snapshots.empty?
-
-    snapshots=snapshots[-5, 5] if snapshots.size>=5
-
-    snapshots.insert(0, Snapshot.find(:first,
-                                      :conditions => ["component_uuid=? AND status=? AND scope=? AND qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
-                                      :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
-
-    snapshots.compact.uniq
-  end
-
   def self.for_timemachine_widget(resource, number_of_columns, options={})
     if number_of_columns == 1
       # Display only the latest snapshot
@@ -95,13 +72,13 @@ class Snapshot < ActiveRecord::Base
     end
 
     # Get 1rst & latests snapshots of the period
-    snapshot_conditions = ["snapshots.component_uuid=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier]
+    snapshot_conditions = ["snapshots.component_uuid=? AND snapshots.status=?", resource.project_uuid, STATUS_PROCESSED]
     if options[:from]
       snapshot_conditions[0] += " AND snapshots.created_at>=?"
       snapshot_conditions << options[:from].to_i * 1000
     end
-    first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
-    last_snapshot=resource.last_snapshot
+    first_snapshot = Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
+    last_snapshot = resource.last_analysis
 
     if first_snapshot==last_snapshot
       return [last_snapshot]

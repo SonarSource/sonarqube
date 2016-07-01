@@ -45,9 +45,9 @@ public class MeasureQuery {
   }
 
   private MeasureQuery(List<String> componentUuids,
-                       @Nullable Collection<Integer> metricIds,
-                       @Nullable Collection<String> metricKeys,
-                       @Nullable Long personId) {
+    @Nullable Collection<Integer> metricIds,
+    @Nullable Collection<String> metricKeys,
+    @Nullable Long personId) {
     checkState(componentUuids != null, "Component UUIDs must be set");
     checkState(metricIds == null || metricKeys == null, "Metric IDs and keys must not be set both");
     this.componentUuids = componentUuids;
@@ -96,6 +96,7 @@ public class MeasureQuery {
     private Long personId;
 
     private Builder() {
+      // see MeasureQuery#builder()
     }
 
     public Builder setComponentUuids(List<String> componentUuids) {

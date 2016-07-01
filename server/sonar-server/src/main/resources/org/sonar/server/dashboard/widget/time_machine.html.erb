@@ -8,7 +8,7 @@
      if metric
        metric_ids << metric.id
        row=Sonar::TimemachineRow.new(metric)
-       rows_by_metric_id[metric.id]=row
+       rows_by_metric_id[metric.id] = row
      end
    end
    if metric_ids.empty?
@@ -24,29 +24,26 @@
    if from_date
      options[:from] = from_date
    end
-   snapshots=Snapshot.for_timemachine_widget(@resource, number_of_columns, options)
-   sids = snapshots.collect { |s| s.id }.uniq
-   measures=ProjectMeasure.find(:all,
+   analyses = Snapshot.for_timemachine_widget(@resource, number_of_columns, options)
+   analysis_uuids = analyses.collect { |a| a.uuid }.uniq
+   measures = ProjectMeasure.find(:all,
                                 :conditions =>
-                                    ["snapshot_id IN (:snapshot_id) AND metric_id IN (:metric_id) AND person_id IS NULL",
-                                     {:snapshot_id => sids, :metric_id => metric_ids}
+                                    ["analysis_uuid IN (:analysis_uuids) AND component_uuid = :component_uuid and metric_id IN (:metric_id) AND person_id IS NULL",
+                                     {:analysis_uuids => analysis_uuids, :component_uuid => @resource.uuid, :metric_id => metric_ids}
                                     ]
    )
 
 
    # Prepare the rows to display
-   snapshot_by_id={}
-   snapshots.each do |s|
-     snapshot_by_id[s.id]=s
+   analyses_by_uuid = {}
+   analyses.each do |a|
+     analyses_by_uuid[a.uuid] = a
    end
    measures.each do |measure|
      next unless measure.metric
 
      if measure.metric.timemachine? && (measure.value || measure.text_value)
-       row=rows_by_metric_id[measure.metric_id]
-
-       #optimization : avoid eager loading of snapshots
-       measure.snapshot=snapshot_by_id[measure.snapshot_id]
+       row = rows_by_metric_id[measure.metric_id]
        row.add_measure(measure)
      end
    end
@@ -64,7 +61,7 @@
    sparklines_by_row = {}
    if widget_properties["displaySparkLine"]
      rows.each do |row|
-       sparkline = row.sparkline
+       sparkline = row.sparkline(analyses)
        sparklines_by_row[row] = sparkline if sparkline
      end
    end
@@ -84,11 +81,11 @@
     <tr>
       <th></th>
       <%
-         snapshots.each do |snapshot|
-           event = snapshot.event('Version')
+         analyses.each do |analysis|
+           event = analysis.event('Version')
       %>
         <th nowrap="nowrap" style="vertical-align:top;text-align: right;font-size: 10px">
-          <%= l snapshot.created_at.to_date -%>
+          <%= l analysis.created_at.to_date -%>
           <br/>
           <%= event.name unless event==nil -%>
         </th>
@@ -108,8 +105,8 @@
           <%= row.metric.short_name %>
         </td>
         <%
-           snapshots.each do |snapshot|
-             measure=row.measure(snapshot)
+           analyses.each do |analysis|
+             measure = row.measure(analysis)
         %>
           <td width="1%" nowrap="nowrap" class="right"><%= format_measure(measure, :skip_span_id => true) %></td>
         <% end %>

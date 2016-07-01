@@ -22,15 +22,15 @@ class Sonar::TimemachineRow
 
   def initialize(metric)
     @metric=metric
-    @measure_by_sid={}
+    @measures_by_analysis_uuid = {}
   end
 
   def add_measure(measure)
-    @measure_by_sid[measure.snapshot_id]=measure
+    @measures_by_analysis_uuid[measure.analysis_uuid] = measure
   end
 
-  def measure(snapshot)
-    @measure_by_sid[snapshot.id]
+  def measure(analysis)
+    @measures_by_analysis_uuid[analysis.uuid]
   end
 
   def domain
@@ -41,14 +41,17 @@ class Sonar::TimemachineRow
     (self.domain <=> other.domain).nonzero? || (self.metric.short_name <=> other.metric.short_name)
   end
 
-  def sparkline
-    if metric.numeric? && @measure_by_sid.size > 1
+  def sparkline(analyses)
+    if metric.numeric? && @measures_by_analysis_uuid.size > 1
       x = []
       y = []
-      @measure_by_sid.values.each do |measure|
-        # date.to_f does not works under oracle
-        x << measure.snapshot.created_at.to_s(:number)
-        y << (measure.value.nil? ? 0 : measure.value)
+      analyses.each do |analysis|
+        m = measure(analysis)
+        if m
+          # date.to_f does not works under oracle
+          x << analysis.created_at.to_s(:number)
+          y << (m.value.nil? ? 0 : m.value)
+        end
       end
       [x, y]
     else

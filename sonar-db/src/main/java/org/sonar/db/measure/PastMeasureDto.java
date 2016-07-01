@@ -39,7 +39,7 @@ public class PastMeasureDto {
     return value;
   }
 
-  public PastMeasureDto setValue(@Nullable Double value) {
+  PastMeasureDto setValue(@Nullable Double value) {
     this.value = value;
     return this;
   }
@@ -52,7 +52,7 @@ public class PastMeasureDto {
     return metricId;
   }
 
-  public PastMeasureDto setMetricId(int i) {
+  PastMeasureDto setMetricId(int i) {
     this.metricId = i;
     return this;
   }
@@ -62,7 +62,7 @@ public class PastMeasureDto {
     return personId;
   }
 
-  public PastMeasureDto setPersonId(@Nullable Long l) {
+  PastMeasureDto setPersonId(@Nullable Long l) {
     this.personId = l;
     return this;
   }

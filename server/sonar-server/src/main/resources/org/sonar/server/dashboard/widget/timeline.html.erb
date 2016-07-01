@@ -32,45 +32,45 @@
        options[:from] = from_date
      end
      # Variables used if undefinedToZero is set to true
-     previous_snapshot_id = nil
+     previous_analysis_uuid = nil
      previous_created_at = nil
      first_trend_item = true
-     metric_previous_snapshot_id = {}
-     metric_count_per_snapshot_id = {}
+     metric_previous_analysis_uuid = {}
+     metric_count_per_analysis_uuid = {}
      total_number_of_metrics = metric_map.keys.size()
      TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
-       sid = trend_item["sid"]
+       analysis_uuid = trend_item["analysis_uuid"]
        if undefinedToZero
          if first_trend_item
            first_trend_item = false
-           previous_snapshot_id = sid
+           previous_analysis_uuid = analysis_uuid
            previous_created_at = Time.at(trend_item["created_at"].to_i/1000)
          end
-         if previous_snapshot_id != sid
-           if metric_count_per_snapshot_id[previous_snapshot_id] != total_number_of_metrics
+         if previous_analysis_uuid != analysis_uuid
+           if metric_count_per_analysis_uuid[previous_analysis_uuid] != total_number_of_metrics
              metric_map.keys.each do |metric_id|
-               unless metric_previous_snapshot_id.include?(metric_id)
-                 metric_data_map[metric_id] << {:date => previous_created_at, :value => 0.00, :sid => previous_snapshot_id}
-                 if metric_count_per_snapshot_id[previous_snapshot_id]
-                   metric_count_per_snapshot_id[previous_snapshot_id] += 1
+               unless metric_previous_analysis_uuid.include?(metric_id)
+                 metric_data_map[metric_id] << {:date => previous_created_at, :value => 0.00, :analysis_uuid => previous_analysis_uuid}
+                 if metric_count_per_analysis_uuid[previous_analysis_uuid]
+                   metric_count_per_analysis_uuid[previous_analysis_uuid] += 1
                  else
-                   metric_count_per_snapshot_id[previous_snapshot_id] = 1
+                   metric_count_per_analysis_uuid[previous_analysis_uuid] = 1
                  end
                end
              end
            end
-           previous_snapshot_id = sid
+           previous_analysis_uuid = analysis_uuid
            previous_created_at = Time.at(trend_item["created_at"].to_i/1000)
-           metric_previous_snapshot_id = {}
+           metric_previous_analysis_uuid = {}
          end
-         metric_previous_snapshot_id[trend_item["metric_id"].to_i] = 1
+         metric_previous_analysis_uuid[trend_item["metric_id"].to_i] = 1
        end
-       if metric_count_per_snapshot_id[sid]
-         metric_count_per_snapshot_id[sid] += 1
+       if metric_count_per_analysis_uuid[analysis_uuid]
+         metric_count_per_analysis_uuid[analysis_uuid] += 1
        else
-         metric_count_per_snapshot_id[sid] = 1
+         metric_count_per_analysis_uuid[analysis_uuid] = 1
        end
-       metric_data_map[trend_item["metric_id"].to_i] << {:date => Time.at(trend_item["created_at"].to_i/1000), :value => trend_item["value"], :sid => trend_item["sid"]}
+       metric_data_map[trend_item["metric_id"].to_i] << {:date => Time.at(trend_item["created_at"].to_i/1000), :value => trend_item["value"], :analysis_uuid => trend_item["analysis_uuid"]}
      end
 
      # Create JS structures to print out in the HTML page
@@ -83,7 +83,7 @@
          js_data += "["
          metric_data_map[metric_id].each() do |metric_data|
            # for every metric value, we need to check that the corresponding snapshot has values for each metric
-           if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
+           if metric_count_per_analysis_uuid[metric_data[:analysis_uuid]]==total_number_of_metrics
              m_date = metric_data[:date]
              m_value = sprintf("%0.02f", metric_data[:value])
              m_value_localized = ProjectMeasure.new(:metric => metric_map[metric_id]).format_numeric_value(metric_data[:value], {})
@@ -107,9 +107,9 @@
              js_data += "\"},"
              if index == 0
                # we fill the js_snapshots array (no need to do this more than once)
-               js_snapshots += "{sid:"
-               js_snapshots += metric_data[:sid].to_s
-               js_snapshots += ",d:\""
+               js_snapshots += "{sid:\""
+               js_snapshots += metric_data[:analysis_uuid]
+               js_snapshots += "\",d:\""
                js_snapshots += human_short_date m_date
                js_snapshots += "\"},"
              end
@@ -143,9 +143,9 @@
        js_events = "["
        events.keys().sort.each() do |e_date|
          e_details = events[e_date]
-         js_events += "{sid:"
-         js_events += e_details[0].snapshot.id.to_s
-         js_events += ",d:d("
+         js_events += "{sid:\""
+         js_events += e_details[0].analysis_uuid
+         js_events += "\",d:d("
          js_events += e_date.year.to_s
          js_events += ","
          # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)

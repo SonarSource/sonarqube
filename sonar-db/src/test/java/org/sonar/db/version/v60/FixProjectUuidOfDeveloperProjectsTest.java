@@ -29,7 +29,7 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FixProjectUuidOfDevelopersTest {
+public class FixProjectUuidOfDeveloperProjectsTest {
 
   private static final String TABLE_PROJECTS = "projects";
   private static final String PROJECT_UUID = "U1";
@@ -39,10 +39,10 @@ public class FixProjectUuidOfDevelopersTest {
   private static final String DEV2_IN_PROJECT_UUID = "U5";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FixProjectUuidOfDevelopersTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FixProjectUuidOfDeveloperProjectsTest.class,
     "in_progress_projects.sql");
 
-  private FixProjectUuidOfDevelopers underTest = new FixProjectUuidOfDevelopers(db.database());
+  private FixProjectUuidOfDeveloperProjects underTest = new FixProjectUuidOfDeveloperProjects(db.database());
 
   @Test
   public void migration_has_no_effect_on_empty_tables() throws SQLException {

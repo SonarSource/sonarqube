@@ -30,9 +30,9 @@ class ComparisonController < ApplicationController
       project = Project.by_key(resource_key)
       return render_not_found('Project not found') unless project
 
-      snapshots = project.events.select { |event| !event.snapshot.nil? && event.category==EventCategory::KEY_VERSION }[0..5].reverse.map {|e| e.snapshot}
+      snapshots = project.events.select { |event| event.snapshot && event.category==EventCategory::KEY_VERSION }[0..5].reverse.map {|e| e.snapshot}
       # if last snapshot is not in the list, add it at the end (=> might be the case for views or developers which do not have events)
-      last_snapshot = project.last_snapshot
+      last_snapshot = project.last_analysis
       unless snapshots.last == last_snapshot
         snapshots.shift
         snapshots.push(last_snapshot)
@@ -79,7 +79,7 @@ class ComparisonController < ApplicationController
       @versions = project.events.select { |event| event.category==EventCategory::KEY_VERSION && !suuids.include?(event.analysis_uuid.to_s) }
 
       # check if the latest snapshot if suggested or not (and if not, suggest it as "LATEST" => this is used for views or developers which do not have events)
-      latest_snapshot_uuid = project.last_snapshot.uuid
+      latest_snapshot_uuid = project.last_analysis.uuid
       current_and_suggested_suuids = suuids + @versions.map {|e| e.analysis_uuid.to_s}
       unless current_and_suggested_suuids.include?(latest_snapshot_uuid.to_s)
         @versions.unshift Event.new(:name => Api::Utils.message('comparison.version.latest'), :analysis_uuid => latest_snapshot_uuid)

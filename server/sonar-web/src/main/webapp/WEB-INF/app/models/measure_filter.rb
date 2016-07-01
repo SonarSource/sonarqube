@@ -286,7 +286,7 @@ class MeasureFilter < ActiveRecord::Base
         rows_by_component_uuid[component.uuid].set_analysis(analysis) if analysis
       end
 
-      # @rows must be in the same order than the component uuids
+      # @rows must be in the same order as the component uuids
       component_uuids.each do |uuid|
         @rows << rows_by_component_uuid[uuid]
       end
