@@ -245,7 +245,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
     try {
       pico.as(Characteristics.CACHE).addComponent(key, extension);
     } catch (Throwable t) {
-      throw new IllegalStateException("Unable to register extension " + getName(extension), t);
+      throw new IllegalStateException("Unable to register extension " + getName(extension) + (pluginInfo != null ? (" from plugin '" + pluginInfo.getKey() + "'") : ""), t);
     }
     declareExtension(pluginInfo, extension);
     return this;

@@ -68,8 +68,6 @@ public class PluginsTest {
     "lits",
 
     "citymodel",
-    // status 1.0 is built for Java 8 so it is temporarily disabled
-    "status",
     // temporary incompatibility with cobol 3.1
     // https://jira.sonarsource.com/browse/MAIF-213
     "maifcobolplugin");
