@@ -68,6 +68,10 @@ class Project < ActiveRecord::Base
     root||self
   end
 
+  def root?
+    project_uuid == uuid
+  end
+
   def root_project
     @root_project ||=
       begin

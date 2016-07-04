@@ -1,6 +1,6 @@
 <div class="page">
   <%
-     if !@snapshot || @snapshot.root?
+     if !@snapshot || @project.root?
        resource_qualifier = message('qualifier.' + @project.qualifier)
        delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
   %>
