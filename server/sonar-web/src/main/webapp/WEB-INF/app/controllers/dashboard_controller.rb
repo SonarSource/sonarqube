@@ -55,7 +55,7 @@ class DashboardController < ApplicationController
           # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
           @hide_sidebar = true
           @file = @resource
-          @project = @snapshot.parent.project
+          @project = @resource.root_project
           @metric=params[:metric]
           render :action => 'no_dashboard'
       end
