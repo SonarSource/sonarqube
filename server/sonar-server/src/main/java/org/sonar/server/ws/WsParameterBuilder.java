@@ -19,12 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
-import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
@@ -35,11 +29,16 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Ordering.natural;
+import static java.lang.String.format;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+
 public class WsParameterBuilder {
   private static final String PARAM_QUALIFIER = "qualifier";
   private static final String PARAM_QUALIFIERS = "qualifiers";
-  private static final Set<String> DEPRECATED_QUALIFIERS = ImmutableSet.of(
-    Qualifiers.CLASS, Qualifiers.PACKAGE, Qualifiers.FIELD, Qualifiers.LIBRARY, Qualifiers.METHOD, Qualifiers.PARAGRAPH);
+  private static final Set<String> DEPRECATED_QUALIFIERS = ImmutableSet.of(Qualifiers.LIBRARY);
 
   private WsParameterBuilder() {
     // static methods only

@@ -63,33 +63,8 @@ public final class Qualifiers {
    */
   public static final String MODULE = "BRC";
 
-  /**
-   * @deprecated since 4.2 now packages are considered as regular directories. Use {@link #DIRECTORY} instead.
-   */
-  @Deprecated
-  public static final String PACKAGE = "PAC";
   public static final String DIRECTORY = "DIR";
   public static final String FILE = "FIL";
-  /**
-   * @deprecated since 4.2 now java files are considered as regular files. Use {@link #FILE} instead.
-   */
-  @Deprecated
-  public static final String CLASS = "CLA";
-  /**
-   * @deprecated since 4.2 resources under FILE level will no more be supported.
-   */
-  @Deprecated
-  public static final String PARAGRAPH = "PAR";
-  /**
-   * @deprecated since 4.2 resources under FILE level will no more be supported.
-   */
-  @Deprecated
-  public static final String METHOD = "MET";
-  /**
-   * @deprecated since 4.2 resources under FILE level will no more be supported.
-   */
-  @Deprecated
-  public static final String FIELD = "FLD";
 
   // ugly, should be replaced by "natures"
   public static final String UNIT_TEST_FILE = "UTS";
@@ -139,40 +114,9 @@ public final class Qualifiers {
   }
 
   /**
-   * @deprecated since 4.2 Package is now a directory. Use {@link #isDirectory(Resource)}
-   */
-  @Deprecated
-  public static boolean isPackage(final Resource resource) {
-    return StringUtils.equals(PACKAGE, resource.getQualifier()) || isDirectory(resource);
-  }
-
-  /**
    * @param resource not nullable
    */
   public static boolean isFile(final Resource resource) {
     return StringUtils.equals(FILE, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   * @deprecated since 4.2 CLA qualifier is deprecated
-   */
-  @Deprecated
-  public static boolean isClass(final Resource resource) {
-    return StringUtils.equals(CLASS, resource.getQualifier()) || isFile(resource);
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isMethod(final Resource resource) {
-    return StringUtils.equals(METHOD, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isParagraph(final Resource resource) {
-    return StringUtils.equals(PARAGRAPH, resource.getQualifier());
   }
 }

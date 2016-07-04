@@ -22,17 +22,14 @@ package org.sonar.server.measure;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Qualifiers;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.api.measures.Metric;
 
 public class MeasureFilter {
 
@@ -81,12 +78,6 @@ public class MeasureFilter {
 
   public MeasureFilter setResourceQualifiers(@Nullable List<String> list) {
     this.resourceQualifiers = sanitize(list);
-    if (resourceQualifiers.contains(Qualifiers.FILE)) {
-      resourceQualifiers.add(Qualifiers.CLASS);
-    }
-    if (resourceQualifiers.contains(Qualifiers.DIRECTORY)) {
-      resourceQualifiers.add(Qualifiers.PACKAGE);
-    }
     return this;
   }
 

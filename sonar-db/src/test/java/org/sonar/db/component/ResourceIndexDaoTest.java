@@ -69,7 +69,7 @@ public class ResourceIndexDaoTest {
   }
 
   @Test
-  public void shouldNotIndexPackages() {
+  public void shouldNotIndexDirectories() {
     dbTester.prepareDbUnit(getClass(), "shouldNotIndexPackages.xml");
 
     underTest.indexProject("ABCD");

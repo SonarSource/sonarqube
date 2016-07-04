@@ -81,12 +81,6 @@ public abstract class Resource implements Serializable {
   public static final String QUALIFIER_MODULE = Qualifiers.MODULE;
 
   /**
-   * @deprecated since 2.6. Use Qualifiers.PACKAGE.
-   */
-  @Deprecated
-  public static final String QUALIFIER_PACKAGE = Qualifiers.PACKAGE;
-
-  /**
    * @deprecated since 2.6. Use Qualifiers.DIRECTORY.
    */
   @Deprecated
@@ -97,30 +91,6 @@ public abstract class Resource implements Serializable {
    */
   @Deprecated
   public static final String QUALIFIER_FILE = Qualifiers.FILE;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.CLASS.
-   */
-  @Deprecated
-  public static final String QUALIFIER_CLASS = Qualifiers.CLASS;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.FIELD.
-   */
-  @Deprecated
-  public static final String QUALIFIER_FIELD = Qualifiers.FIELD;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.METHOD.
-   */
-  @Deprecated
-  public static final String QUALIFIER_METHOD = Qualifiers.METHOD;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.UNIT_TEST_FILE.
-   */
-  @Deprecated
-  public static final String QUALIFIER_UNIT_TEST_CLASS = Qualifiers.UNIT_TEST_FILE;
 
   private Integer id;
 

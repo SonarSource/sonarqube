@@ -37,9 +37,9 @@ public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
   private final CpdExecutor cpdExecutor;
 
   public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
-    DefaultIndex index, EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi, FileSystemLogger fsLogger, DefaultModuleFileSystem fs,
+    DefaultIndex index, EventBus eventBus, ReportPublisher reportPublisher, FileSystemLogger fsLogger, DefaultModuleFileSystem fs,
     QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, pi, fsLogger, fs, profileVerifier, issueExclusionsLoader);
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;

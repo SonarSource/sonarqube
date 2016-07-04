@@ -43,9 +43,9 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final IssueCallback issueCallback;
 
   public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
-    DefaultIndex index, EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    DefaultIndex index, EventBus eventBus, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, IssueCallback issueCallback) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, pi, fsLogger, fs, profileVerifier, issueExclusionsLoader);
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;

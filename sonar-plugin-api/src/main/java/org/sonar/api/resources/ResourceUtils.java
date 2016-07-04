@@ -60,14 +60,6 @@ public final class ResourceUtils {
   }
 
   /**
-   * @deprecated since 4.2 Package are now directory. Use {@link #isDirectory(Resource)}
-   */
-  @Deprecated
-  public static boolean isPackage(Resource resource) {
-    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier());
-  }
-
-  /**
    * @return whether a resource is a set
    */
   public static boolean isSet(Resource resource) {
@@ -110,15 +102,6 @@ public final class ResourceUtils {
   }
 
   /* QUALIFIERS */
-
-  /**
-   * @return whether a resource is a class
-   * @deprecated since 4.2 CLA qualifier is deprecated
-   */
-  @Deprecated
-  public static boolean isClass(Resource resource) {
-    return Qualifiers.CLASS.equals(resource.getQualifier());
-  }
 
   /**
    * @return whether a resource is a unit test class

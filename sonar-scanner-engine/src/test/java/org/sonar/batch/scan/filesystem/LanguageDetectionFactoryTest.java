@@ -21,8 +21,8 @@ package org.sonar.batch.scan.filesystem;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
+import org.sonar.batch.FakeJava;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.repository.language.LanguagesRepository;
 
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LanguageDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(Java.INSTANCE));
+    LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(FakeJava.INSTANCE));
     LanguageDetectionFactory factory = new LanguageDetectionFactory(new Settings(), languages);
     LanguageDetection languageDetection = factory.create();
     assertThat(languageDetection).isNotNull();

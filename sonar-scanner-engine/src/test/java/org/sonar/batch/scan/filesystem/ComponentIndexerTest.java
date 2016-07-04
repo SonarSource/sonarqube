@@ -33,11 +33,11 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.FakeJava;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
@@ -81,7 +81,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void should_index_java_files() throws IOException {
-    Languages languages = new Languages(Java.INSTANCE);
+    Languages languages = new Languages(FakeJava.INSTANCE);
     ComponentIndexer indexer = createIndexer(languages);
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode);
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false, Status.ADDED));
@@ -91,8 +91,8 @@ public class ComponentIndexerTest {
 
     fs.index();
 
-    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", Java.INSTANCE, false));
-    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java2/foo/bar/Foo.java", Java.INSTANCE, false));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", FakeJava.INSTANCE, false));
+    verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java2/foo/bar/Foo.java", FakeJava.INSTANCE, false));
     verify(sonarIndex).index(argThat(new ArgumentMatcher<org.sonar.api.resources.File>() {
       @Override
       public boolean matches(Object arg0) {

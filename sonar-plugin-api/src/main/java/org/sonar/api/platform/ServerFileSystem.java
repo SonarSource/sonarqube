@@ -20,7 +20,6 @@
 package org.sonar.api.platform;
 
 import java.io.File;
-import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -34,12 +33,5 @@ public interface ServerFileSystem {
   File getHomeDir();
 
   File getTempDir();
-
-  /**
-   * @param suffixes the file suffixes. If null, then return all the files, whatever their suffix
-   * @deprecated since 4.1
-   */
-  @Deprecated
-  List<File> getExtensions(String dirName, String... suffixes);
 
 }

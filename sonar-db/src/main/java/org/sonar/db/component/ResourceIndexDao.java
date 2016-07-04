@@ -46,7 +46,7 @@ public class ResourceIndexDao extends AbstractDao {
   // Directories and packages are explicitly excluded.
   private static final String[] RENAMABLE_QUALIFIERS = {Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW};
   private static final String[] RENAMABLE_SCOPES = {Scopes.PROJECT};
-  private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS};
+  private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE};
   private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE};
 
   public ResourceIndexDao(MyBatis myBatis, System2 system2) {

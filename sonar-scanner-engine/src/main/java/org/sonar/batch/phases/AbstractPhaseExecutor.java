@@ -37,7 +37,6 @@ public abstract class AbstractPhaseExecutor {
   private final SensorsExecutor sensorsExecutor;
   private final SensorContext sensorContext;
   private final DefaultIndex index;
-  private final ProjectInitializer pi;
   private final FileSystemLogger fsLogger;
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
@@ -45,8 +44,7 @@ public abstract class AbstractPhaseExecutor {
 
   public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi,
-    FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
@@ -54,7 +52,6 @@ public abstract class AbstractPhaseExecutor {
     this.sensorContext = sensorContext;
     this.index = index;
     this.eventBus = eventBus;
-    this.pi = pi;
     this.fsLogger = fsLogger;
     this.fs = fs;
     this.profileVerifier = profileVerifier;
@@ -65,8 +62,6 @@ public abstract class AbstractPhaseExecutor {
    * Executed on each module
    */
   public final void execute(Project module) {
-    pi.execute(module);
-
     eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
 
     executeInitializersPhase();

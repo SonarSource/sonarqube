@@ -21,7 +21,7 @@
   <projects long_name="org.struts"
             id="2"
             scope="DIR"
-            qualifier="PAC"
+            qualifier="DIR"
             kee="org.struts:struts:org.struts"
             uuid="BCDE"
             uuid_path="NOT_USED"
@@ -38,7 +38,7 @@
   <projects long_name="org.struts.RequestContext"
             id="3"
             scope="FIL"
-            qualifier="CLA"
+            qualifier="FIL"
             kee="org.struts:struts:org.struts.RequestContext"
             uuid="CDEF"
             uuid_path="NOT_USED"
@@ -66,7 +66,7 @@
              root_component_uuid="ABCD"
              component_uuid="BCDE"
              scope="DIR"
-             qualifier="PAC"/>
+             qualifier="DIR"/>
   <snapshots purge_status="[null]"
              id="3"
              islast="[true]"
@@ -74,5 +74,5 @@
              root_component_uuid="ABCD"
              component_uuid="CDEF"
              scope="FIL"
-             qualifier="CLA"/>
+             qualifier="FIL"/>
 </dataset>

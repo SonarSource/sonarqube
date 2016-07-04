@@ -53,30 +53,11 @@ public class Project extends Resource implements Component {
 
   public static final String SCOPE = Scopes.PROJECT;
 
-  /**
-   * Enumerates the type of possible analysis
-   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
-   */
-  @Deprecated
-  public enum AnalysisType {
-    STATIC, DYNAMIC, REUSE_REPORTS;
-
-    /**
-     * @param includeReuseReportMode whether to count report reuse as dynamic or not
-     * @return whether this a dynamic analysis
-     */
-    public boolean isDynamic(boolean includeReuseReportMode) {
-      return equals(Project.AnalysisType.DYNAMIC) ||
-        (equals(Project.AnalysisType.REUSE_REPORTS) && includeReuseReportMode);
-    }
-  }
-
   private String branch;
   private String name;
   private String description;
   private Language language;
   private Date analysisDate;
-  private AnalysisType analysisType;
   private String analysisVersion;
   private Settings settings;
 
@@ -139,6 +120,11 @@ public class Project extends Resource implements Component {
     return this;
   }
 
+  @Override
+  public Language getLanguage() {
+    return null;
+  }
+
   /**
    * For internal use only.
    */
@@ -166,34 +152,6 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
-   */
-  @Deprecated
-  public AnalysisType getAnalysisType() {
-    return analysisType;
-  }
-
-  /**
-   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
-   */
-  @Deprecated
-  public Project setAnalysisType(AnalysisType at) {
-    this.analysisType = at;
-    return this;
-  }
-
-  /**
-   * whether it's the latest analysis done on this project (displayed in sonar dashboard) or an analysis on a past revision.
-   *
-   * @since 2.0
-   * @deprecated in 3.6. The analysis is now always the latest one (past analysis must be done in a chronological order). See http://jira.sonarsource.com/browse/SONAR-4334
-   */
-  @Deprecated
-  public boolean isLatestAnalysis() {
-    return true;
-  }
-
-  /**
    * For internal use only.
    *
    * @deprecated in 3.6. It's not possible to analyze a project before the latest known quality snapshot.
@@ -209,27 +167,9 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return the project language when there is only one language
-   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
-   */
-  @Deprecated
-  @Override
-  public Language getLanguage() {
-    return language;
-  }
-
-  /**
-   * Internal use
-   */
-  public Project setLanguage(Language language) {
-    this.language = language;
-    return this;
-  }
-
-  /**
-   * @return the language key or empty if no language is specified
-   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
-   */
+     * @return the language key or empty if no language is specified
+     * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
+     */
   @Deprecated
   public String getLanguageKey() {
     if (settings == null) {

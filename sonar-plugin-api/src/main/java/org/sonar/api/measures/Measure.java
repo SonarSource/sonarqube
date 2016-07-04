@@ -455,15 +455,6 @@ public class Measure<G extends Serializable> implements Serializable {
   }
 
   /**
-   * Called by views when cloning measures
-   * @deprecated since 4.4 not used
-   */
-  @Deprecated
-  public Measure<G> setId(Long id) {
-    return this;
-  }
-
-  /**
    * @return the first variation value
    * @since 2.5
    */

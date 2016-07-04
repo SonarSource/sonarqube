@@ -53,12 +53,9 @@ public class DeprecatedResourceApiSensor implements Sensor {
 
   @Override
   public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
-    createIssueOnDir(new Directory(""));
-    File src = fileSystem.sourceDirs().get(0);
-
     for (File f : fileSystem.files(FileQuery.onMain().onLanguage(Xoo.KEY))) {
-      String relativePathFromSourceDir = new PathResolver().relativePath(src, f);
-      org.sonar.api.resources.File sonarFile = new org.sonar.api.resources.File(relativePathFromSourceDir);
+      String relativePathFromSourceDir = new PathResolver().relativePath(fileSystem.baseDir(), f);
+      org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(relativePathFromSourceDir);
       Issuable issuable = perspectives.as(Issuable.class, sonarFile);
       issuable.addIssue(issuable.newIssueBuilder()
         .ruleKey(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY))

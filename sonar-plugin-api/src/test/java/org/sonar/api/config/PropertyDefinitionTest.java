@@ -50,7 +50,7 @@ public class PropertyDefinitionTest {
       .options("de", "en")
       .description("desc")
       .type(PropertyType.FLOAT)
-      .onlyOnQualifiers(Qualifiers.FILE, Qualifiers.CLASS)
+      .onlyOnQualifiers(Qualifiers.FILE)
       .multiValues(true)
       .propertySetKey("set")
       .build();
@@ -63,7 +63,7 @@ public class PropertyDefinitionTest {
     assertThat(def.description()).isEqualTo("desc");
     assertThat(def.type()).isEqualTo(PropertyType.FLOAT);
     assertThat(def.global()).isFalse();
-    assertThat(def.qualifiers()).containsOnly(Qualifiers.FILE, Qualifiers.CLASS);
+    assertThat(def.qualifiers()).containsOnly(Qualifiers.FILE);
     assertThat(def.multiValues()).isTrue();
     assertThat(def.propertySetKey()).isEqualTo("set");
     assertThat(def.fields()).isEmpty();
@@ -149,8 +149,7 @@ public class PropertyDefinitionTest {
       .name("Hello")
       .fields(
         PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
-        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
-      )
+        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build())
       .build();
 
     assertThat(def.fields()).hasSize(2);

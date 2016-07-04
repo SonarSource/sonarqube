@@ -29,9 +29,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.FakeJava;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -70,7 +70,7 @@ public class ComponentsPublisherTest {
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setInputComponent(new DefaultInputDir("foo", "src"));
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
+    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
     file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
@@ -80,7 +80,7 @@ public class ComponentsPublisherTest {
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
     resourceCache.add(fileWithoutLang, dir).setInputComponent(new DefaultInputFile("module1", "src/make").setLines(10));
 
-    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", Java.INSTANCE, true);
+    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", FakeJava.INSTANCE, true);
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
     resourceCache.add(testFile, dir).setInputComponent(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
@@ -141,7 +141,7 @@ public class ComponentsPublisherTest {
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setInputComponent(new DefaultInputDir("foo", "src"));
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
+    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
     file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));

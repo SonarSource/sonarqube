@@ -21,9 +21,6 @@ package org.sonar.server.platform;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
@@ -124,28 +121,4 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return new File(getDeployDir(), "plugins/index.txt");
   }
 
-  /**
-   * @deprecated since 4.1
-   */
-  @Override
-  @Deprecated
-  public List<File> getExtensions(String dirName, String... suffixes) {
-    File dir = new File(getHomeDir(), "extensions/rules/" + dirName);
-    if (dir.exists() && dir.isDirectory()) {
-      return getFiles(dir, suffixes);
-    }
-    return Collections.emptyList();
-  }
-
-  private List<File> getFiles(File dir, String... fileSuffixes) {
-    List<File> files = new ArrayList<>();
-    if (dir != null && dir.exists()) {
-      if (fileSuffixes != null && fileSuffixes.length > 0) {
-        files.addAll(FileUtils.listFiles(dir, fileSuffixes, false));
-      } else {
-        files.addAll(FileUtils.listFiles(dir, null, false));
-      }
-    }
-    return files;
-  }
 }

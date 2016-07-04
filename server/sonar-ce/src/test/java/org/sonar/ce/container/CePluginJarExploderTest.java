@@ -21,7 +21,6 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -115,9 +114,5 @@ public class CePluginJarExploderTest {
       return tempDir;
     }
 
-    @Override
-    public List<File> getExtensions(String dirName, String... suffixes) {
-      throw new UnsupportedOperationException();
-    }
   }
 }

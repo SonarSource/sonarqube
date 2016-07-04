@@ -52,7 +52,6 @@ import org.sonar.batch.phases.AbstractPhaseExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
 import org.sonar.batch.phases.IssuesPhaseExecutor;
 import org.sonar.batch.phases.PostJobsExecutor;
-import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.phases.PublishPhaseExecutor;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.postjob.DefaultPostJobContext;
@@ -120,7 +119,6 @@ public class ModuleScanContainer extends ComponentContainer {
       PostJobsExecutor.class,
       SensorsExecutor.class,
       InitializersExecutor.class,
-      ProjectInitializer.class,
 
       // file system
       ModuleInputFileCache.class,

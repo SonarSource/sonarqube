@@ -23,25 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class FileTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void createFromIoFileShouldComputeCorrectKey() throws IOException {
-    java.io.File baseDir = temp.newFolder();
-    Project project = mock(Project.class);
-    when(project.getBaseDir()).thenReturn(baseDir);
-    Resource file = File.fromIOFile(new java.io.File(baseDir, "src/foo/bar/toto.sql"), project);
-    assertThat(file.getKey()).isEqualTo("src/foo/bar/toto.sql");
-  }
 
   @Test
   public void trimKeyAndName() {

@@ -19,14 +19,10 @@
  */
 package org.sonar.api.resources;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
@@ -48,50 +44,6 @@ public class File extends Resource {
   private File() {
     // Used by factory method
     this.relativePathFromSourceDir = null;
-  }
-
-  /**
-   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
-   */
-  @Deprecated
-  public File(String relativePathFromSourceDir) {
-    if (relativePathFromSourceDir == null) {
-      throw new IllegalArgumentException("File key is null");
-    }
-    this.relativePathFromSourceDir = parseKey(relativePathFromSourceDir);
-  }
-
-  /**
-   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
-   */
-  @Deprecated
-  public File(String relativeDirectoryPathFromSourceDir, String filename) {
-    this.filename = StringUtils.trim(filename);
-    if (StringUtils.isBlank(relativeDirectoryPathFromSourceDir)) {
-      this.relativePathFromSourceDir = filename;
-    } else {
-      this.relativePathFromSourceDir = new StringBuilder().append(Directory.parseKey(relativeDirectoryPathFromSourceDir)).append(Directory.SEPARATOR).append(this.filename)
-        .toString();
-    }
-  }
-
-  /**
-   * @deprecated since 4.2 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
-   */
-  @Deprecated
-  public File(Language language, String relativePathFromSourceDir) {
-    this(relativePathFromSourceDir);
-    this.language = language;
-  }
-
-  /**
-   * Creates a File from language, directory and filename
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
-   */
-  @Deprecated
-  public File(Language language, String relativeDirectoryPathFromSourceDir, String filename) {
-    this(relativeDirectoryPathFromSourceDir, filename);
-    this.language = language;
   }
 
   /**
@@ -130,39 +82,6 @@ public class File extends Resource {
   public boolean matchFilePattern(String antPattern) {
     WildcardPattern matcher = WildcardPattern.create(antPattern, Directory.SEPARATOR);
     return matcher.match(getKey());
-  }
-
-  /**
-  * Creates a File from an io.file and a list of sources directories
-  * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
-  */
-  @Deprecated
-  @CheckForNull
-  public static File fromIOFile(java.io.File file, List<java.io.File> sourceDirs) {
-    PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
-    if (relativePath != null) {
-      return new File(relativePath.path());
-    }
-    return null;
-  }
-
-  /**
-   * Creates a {@link File} from an absolute {@link java.io.File} and a module.
-   * The returned {@link File} can be then passed for example to
-   * {@link SensorContext#saveMeasure(Resource, org.sonar.api.measures.Measure)}.
-   * @param file absolute path to a file
-   * @param module
-   * @return null if the file is not under module basedir.
-   * @deprecated since 4.5 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
-   */
-  @Deprecated
-  @CheckForNull
-  public static File fromIOFile(java.io.File file, Project module) {
-    String relativePathFromBasedir = new PathResolver().relativePath(module.getBaseDir(), file);
-    if (relativePathFromBasedir != null) {
-      return File.create(relativePathFromBasedir);
-    }
-    return null;
   }
 
   /**

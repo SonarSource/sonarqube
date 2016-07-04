@@ -31,7 +31,7 @@ public class DefaultResourceTypesTest {
   public void provide_types() {
     ResourceTypeTree tree = DefaultResourceTypes.get();
 
-    assertThat(tree.getTypes()).hasSize(7);
+    assertThat(tree.getTypes()).hasSize(5);
     assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
   }
 

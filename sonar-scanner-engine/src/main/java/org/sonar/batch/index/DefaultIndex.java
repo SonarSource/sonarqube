@@ -312,25 +312,6 @@ public class DefaultIndex {
         relativePathFromSourceDir = "";
       }
     }
-    if (relativePathFromSourceDir != null) {
-      // Resolve using deprecated key
-      List<String> dirs;
-      ProjectDefinition projectDef = projectTree.getProjectDefinition(getProject());
-      if (isTest) {
-        dirs = projectDef.tests();
-      } else {
-        dirs = projectDef.sources();
-      }
-      for (String src : dirs) {
-        java.io.File dirOrFile = pathResolver.relativeFile(projectDef.getBaseDir(), src);
-        java.io.File abs = new java.io.File(dirOrFile, relativePathFromSourceDir);
-        Bucket b = getBucket(isDir ? Directory.fromIOFile(abs, getProject()) : File.fromIOFile(abs, getProject()));
-        if (b != null) {
-          return b;
-        }
-      }
-
-    }
     return null;
   }
 

@@ -27,7 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Java;
+import org.sonar.batch.FakeJava;
 import org.sonar.batch.cpd.CpdComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,12 +55,12 @@ public class DeprecatedCpdBlockIndexerSensorTest {
   @Test
   public void test_global_skip() {
     settings.setProperty("sonar.cpd.skip", true);
-    assertThat(sensor.isSkipped(Java.KEY)).isTrue();
+    assertThat(sensor.isSkipped(FakeJava.KEY)).isTrue();
   }
 
   @Test
   public void should_not_skip_by_default() {
-    assertThat(sensor.isSkipped(Java.KEY)).isFalse();
+    assertThat(sensor.isSkipped(FakeJava.KEY)).isFalse();
   }
 
   @Test
@@ -69,12 +69,12 @@ public class DeprecatedCpdBlockIndexerSensorTest {
     settings.setProperty("sonar.cpd.php.skip", true);
 
     assertThat(sensor.isSkipped("php")).isTrue();
-    assertThat(sensor.isSkipped(Java.KEY)).isFalse();
+    assertThat(sensor.isSkipped(FakeJava.KEY)).isFalse();
   }
 
   @Test
   public void test_engine() {
-    assertThat(sensor.getBlockIndexer(Java.KEY)).isSameAs(sonarEngine);
+    assertThat(sensor.getBlockIndexer(FakeJava.KEY)).isSameAs(sonarEngine);
     assertThat(sensor.getBlockIndexer("PHP")).isSameAs(sonarBridgeEngine);
   }
 

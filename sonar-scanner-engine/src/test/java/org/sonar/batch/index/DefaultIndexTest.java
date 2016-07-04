@@ -30,13 +30,13 @@ import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProjectTree;
+import org.sonar.batch.FakeJava;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 
@@ -101,7 +101,7 @@ public class DefaultIndexTest {
   @Test
   public void shouldIndexTreeOfResources() {
     Directory directory = Directory.create("src/org/foo");
-    File file = File.create("src/org/foo/Bar.java", Java.INSTANCE, false);
+    File file = File.create("src/org/foo/Bar.java", FakeJava.INSTANCE, false);
 
     assertThat(index.index(directory)).isTrue();
     assertThat(index.index(file, directory)).isTrue();
@@ -118,7 +118,7 @@ public class DefaultIndexTest {
   @Test
   public void shouldGetSource() throws Exception {
     Directory directory = Directory.create("src/org/foo");
-    File file = File.create("src/org/foo/Bar.java", Java.INSTANCE, false);
+    File file = File.create("src/org/foo/Bar.java", FakeJava.INSTANCE, false);
     FileUtils.write(new java.io.File(baseDir, "src/org/foo/Bar.java"), "Foo bar");
 
     assertThat(index.index(directory)).isTrue();

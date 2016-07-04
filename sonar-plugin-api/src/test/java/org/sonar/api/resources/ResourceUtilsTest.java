@@ -30,8 +30,6 @@ public class ResourceUtilsTest {
   @Test
   public void checkFile() {
     File file = File.create("hello.Foo");
-    assertThat(ResourceUtils.isClass(file)).isFalse();
-    assertThat(ResourceUtils.isPackage(file)).isFalse();
     assertThat(ResourceUtils.isModuleProject(file)).isFalse();
     assertThat(ResourceUtils.isSpace(file)).isFalse();
     assertThat(ResourceUtils.isEntity(file)).isTrue();
@@ -44,8 +42,6 @@ public class ResourceUtilsTest {
   public void checkUnitTest() {
     File utFile = File.create("hello.Foo");
     utFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
-    assertThat(ResourceUtils.isClass(utFile)).isFalse();
-    assertThat(ResourceUtils.isPackage(utFile)).isFalse();
     assertThat(ResourceUtils.isModuleProject(utFile)).isFalse();
     assertThat(ResourceUtils.isSpace(utFile)).isFalse();
     assertThat(ResourceUtils.isEntity(utFile)).isTrue();
@@ -57,8 +53,6 @@ public class ResourceUtilsTest {
   @Test
   public void checkDirectory() {
     Directory dir = Directory.create("hello");
-    assertThat(ResourceUtils.isClass(dir)).isFalse();
-    assertThat(ResourceUtils.isPackage(dir)).isFalse();
     assertThat(ResourceUtils.isModuleProject(dir)).isFalse();
     assertThat(ResourceUtils.isSpace(dir)).isTrue();
     assertThat(ResourceUtils.isEntity(dir)).isFalse();

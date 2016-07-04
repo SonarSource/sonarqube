@@ -45,22 +45,6 @@ public class Directory extends Resource {
   }
 
   /**
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
-   */
-  @Deprecated
-  public Directory(String relativePathFromSourceDir) {
-    this(relativePathFromSourceDir, null);
-  }
-
-  /**
-   * @deprecated since 4.2 use {@link #fromIOFile(java.io.File, Project)}
-   */
-  @Deprecated
-  public Directory(String relativePathFromSourceDir, Language language) {
-    this.relativePathFromSourceDir = parseKey(relativePathFromSourceDir);
-  }
-
-  /**
    * Internal.
    */
   public String relativePathFromSourceDir() {
