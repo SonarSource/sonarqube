@@ -21,7 +21,7 @@ class TrendsChart
 
   def self.time_machine_measures(component, metric_ids, options={})
     unless metric_ids.empty?
-      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.uuid as analysisUuid " +
+      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.uuid as analysis_uuid " +
             " from project_measures m LEFT OUTER JOIN snapshots s ON s.uuid = m.analysis_uuid " +
             " where s.status=? " +
             " and m.component_uuid=? " +

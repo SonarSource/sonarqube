@@ -39,7 +39,7 @@
      metric_count_per_analysis_uuid = {}
      total_number_of_metrics = metric_map.keys.size()
      TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
-       analysis_uuid = trend_item["analysisUuid"]
+       analysis_uuid = trend_item["analysis_uuid"]
        if undefinedToZero
          if first_trend_item
            first_trend_item = false
@@ -107,9 +107,9 @@
              js_data += "\"},"
              if index == 0
                # we fill the js_snapshots array (no need to do this more than once)
-               js_snapshots += "{sid:"
-               js_snapshots += metric_data[:analysis_uuid].to_s
-               js_snapshots += ",d:\""
+               js_snapshots += "{sid:\""
+               js_snapshots += metric_data[:analysis_uuid]
+               js_snapshots += "\",d:\""
                js_snapshots += human_short_date m_date
                js_snapshots += "\"},"
              end
@@ -143,9 +143,9 @@
        js_events = "["
        events.keys().sort.each() do |e_date|
          e_details = events[e_date]
-         js_events += "{sid:"
-         js_events += e_details[0].snapshot.id.to_s
-         js_events += ",d:d("
+         js_events += "{sid:\""
+         js_events += e_details[0].analysis_uuid
+         js_events += "\",d:d("
          js_events += e_date.year.to_s
          js_events += ","
          # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
