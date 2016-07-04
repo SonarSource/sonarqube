@@ -20,7 +20,7 @@
 package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,7 +74,7 @@ public class SincePreviousVersionHistoryTest {
   }
 
   private static void analyzeProject(String version, @Nullable String exclusions, @Nullable String date) {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperties("sonar.projectVersion", version);
     if (exclusions != null) {
       build.setProperties("sonar.exclusions", exclusions);

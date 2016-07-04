@@ -20,7 +20,7 @@
 package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import org.junit.AfterClass;
@@ -72,7 +72,7 @@ public class PermissionSearchTest {
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner sampleProject = SonarRunner.create(projectDir("shared/xoo-sample"));
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
     orchestrator.executeBuild(sampleProject);
 
     adminWsClient = newAdminWsClient(orchestrator);

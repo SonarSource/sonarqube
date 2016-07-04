@@ -20,7 +20,7 @@
 package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.List;
@@ -61,7 +61,7 @@ public class TechnicalDebtTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     // Generate some issues
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // All the issues should have a technical debt
     List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create()).list();
@@ -80,7 +80,7 @@ public class TechnicalDebtTest {
     // One day -> 10 hours
     debtConfiguration.updateHoursInDay(10);
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
       // As OneIssuePerFile has a debt of 10 minutes, we multiply it by 72 to have 1 day and 2 hours of technical debt
       .setProperties("sonar.oneIssuePerFile.effortToFix", "72")
       );
@@ -100,7 +100,7 @@ public class TechnicalDebtTest {
     // One day -> 10 hours : debt will be stored as 360.000 seconds (1 day * 10 hours per day * 60 * 60)
     debtConfiguration.updateHoursInDay(10);
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // Issue debt was 1 day during analysis but will be displayed as 1 day and 2 hours (hours in day property was set
     // to 10 during analysis but is now 8)

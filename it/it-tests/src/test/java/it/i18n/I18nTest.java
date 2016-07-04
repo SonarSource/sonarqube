@@ -20,7 +20,7 @@
 package it.i18n;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class I18nTest {
   @Test
   @Ignore
   public void test_localization() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("ui-i18n",
       "/i18n/default-locale-is-english.html",

@@ -20,7 +20,7 @@
 package it.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import javax.annotation.Nullable;
@@ -137,7 +137,7 @@ public class QualityGateUiTest {
   }
 
   private void scanSample(@Nullable String date, @Nullable String profile) {
-    SonarRunner scan = SonarRunner.create(projectDir("shared/xoo-sample"))
+    SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperties("sonar.cpd.skip", "true");
     if (date != null) {
       scan.setProperty("sonar.projectDate", date);

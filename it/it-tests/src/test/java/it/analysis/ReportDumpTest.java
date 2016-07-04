@@ -20,7 +20,7 @@
 package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -50,7 +50,7 @@ public class ReportDumpTest {
   @Test
   public void dump_metadata_of_uploaded_report() throws Exception {
     File projectDir = ItUtils.projectDir("shared/xoo-sample");
-    orchestrator.executeBuild(SonarRunner.create(projectDir, "sonar.projectKey", "dump_metadata_of_uploaded_report", "sonar.projectName", "dump_metadata_of_uploaded_report"));
+    orchestrator.executeBuild(SonarScanner.create(projectDir, "sonar.projectKey", "dump_metadata_of_uploaded_report", "sonar.projectName", "dump_metadata_of_uploaded_report"));
 
     File metadata = new File(projectDir, ".sonar/report-task.txt");
     assertThat(metadata).exists().isFile();

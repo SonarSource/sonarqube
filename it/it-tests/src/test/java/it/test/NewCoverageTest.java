@@ -20,7 +20,7 @@
 package it.test;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
 import org.assertj.core.data.Offset;
 import org.junit.BeforeClass;
@@ -51,11 +51,11 @@ public class NewCoverageTest {
   public static void analyze_project() {
     orchestrator.resetData();
 
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-new-coverage-v1"))
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v1"))
       .setProperty("sonar.projectDate", "2015-02-01")
       .setProperty("sonar.scm.disabled", "false")
       );
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-new-coverage-v2"))
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v2"))
       .setProperty("sonar.scm.disabled", "false"));
   }
 

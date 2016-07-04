@@ -21,7 +21,7 @@ package it.duplication;
 
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import org.apache.commons.io.FileUtils;
@@ -121,19 +121,19 @@ public class CrossModuleDuplicationsTest {
     verifyDuplicationMeasures(PROJECT_KEY + ":module2", 0, 0, 0, 0);
   }
 
-  private static SonarRunner analyzeProject(File projectDir, String projectKey, boolean create, String... additionalProperties) {
+  private static SonarScanner analyzeProject(File projectDir, String projectKey, boolean create, String... additionalProperties) {
     if (create) {
       orchestrator.getServer().provisionProject(projectKey, projectKey);
       orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
     }
 
-    SonarRunner sonarRunner = SonarRunner.create(projectDir);
+    SonarScanner sonarRunner = SonarScanner.create(projectDir);
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
     for (int i = 0; i < additionalProperties.length; i += 2) {
       builder.put(additionalProperties[i], additionalProperties[i + 1]);
     }
-    SonarRunner scan = sonarRunner.setDebugLogs(true).setProperties(builder.build());
+    SonarScanner scan = sonarRunner.setDebugLogs(true).setProperties(builder.build());
     orchestrator.executeBuild(scan);
     return scan;
   }

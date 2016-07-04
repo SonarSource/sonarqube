@@ -20,7 +20,7 @@
 package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category2Suite;
@@ -64,7 +64,7 @@ public class TechnicalDebtWidgetTest {
   }
 
   private static void scanProject(String date, String excludes) {
-    SonarRunner scan = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+    SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperties("sonar.projectDate", date, "sonar.exclusions", excludes);
     orchestrator.executeBuild(scan);
   }

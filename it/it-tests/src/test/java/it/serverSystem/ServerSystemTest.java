@@ -20,7 +20,7 @@
 package it.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.io.File;
@@ -176,7 +176,7 @@ public class ServerSystemTest {
   // TODO should be moved elsewhere
   @Test
   public void not_fail_with_url_ending_by_jsp() {
-    orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+    orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "myproject.jsp"));
     // Access dashboard
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("url_ending_by_jsp",

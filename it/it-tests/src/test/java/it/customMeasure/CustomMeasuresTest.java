@@ -20,7 +20,7 @@
 package it.customMeasure;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,7 +88,7 @@ public class CustomMeasuresTest {
   }
 
   private void analyzeProject() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
   private void setTeamSize(int i) {

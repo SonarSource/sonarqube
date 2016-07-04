@@ -19,11 +19,8 @@
  */
 package it.component;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
-
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
@@ -38,6 +35,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.QaOnly;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.projectDir;
+
 @Category(QaOnly.class)
 public class ProjectSearchTest {
 
@@ -47,7 +47,7 @@ public class ProjectSearchTest {
   @Before
   public void inspectProject() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
   /**
@@ -55,7 +55,7 @@ public class ProjectSearchTest {
    */
   @Test
   public void projects_web_service() throws IOException {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-sample"));
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-sample"));
     orchestrator.executeBuild(build);
 
     String url = orchestrator.getServer().getUrl() + "/api/projects/index?key=sample&versions=true";

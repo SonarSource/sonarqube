@@ -20,7 +20,7 @@
 package it.test;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
@@ -56,7 +56,7 @@ public class CoverageTest {
 
   @Test
   public void unit_test_coverage() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-ut-coverage")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
@@ -87,7 +87,7 @@ public class CoverageTest {
 
   @Test
   public void unit_test_coverage_no_condition() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-ut-coverage-no-condition")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage-no-condition")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
@@ -112,7 +112,7 @@ public class CoverageTest {
 
   @Test
   public void it_coverage() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-it-coverage")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-it-coverage")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-it-coverage", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isNull();
@@ -136,7 +136,7 @@ public class CoverageTest {
 
   @Test
   public void ut_and_it_coverage() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-overall-coverage")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-overall-coverage")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-overall-coverage", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
@@ -175,7 +175,7 @@ public class CoverageTest {
    */
   @Test
   public void should_compute_coverage_on_project() {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
@@ -188,7 +188,7 @@ public class CoverageTest {
    */
   @Test
   public void should_ignore_coverage_on_full_path() {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered"))
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "src/main/xoo/org/sonar/tests/halfcovered/UnCovered.xoo"));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
@@ -202,7 +202,7 @@ public class CoverageTest {
    */
   @Test
   public void should_ignore_coverage_on_pattern() {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered"))
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "**/UnCovered*"));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
@@ -216,7 +216,7 @@ public class CoverageTest {
    */
   @Test
   public void should_not_have_coverage_at_all() {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered"))
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "**/*"));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));

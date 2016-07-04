@@ -20,7 +20,7 @@
 package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class BulkDeletionTest {
 
   private void executeBuild(String projectKey, String projectName) {
     orchestrator.executeBuild(
-      SonarRunner.create(projectDir("shared/xoo-sample"))
+      SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey(projectKey)
         .setProjectName(projectName)
       );

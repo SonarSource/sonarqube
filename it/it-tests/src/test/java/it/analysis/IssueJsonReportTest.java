@@ -21,7 +21,7 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.ResourceLocation;
 import it.Category3Suite;
@@ -67,7 +67,7 @@ public class IssueJsonReportTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     File projectDir = ItUtils.projectDir("shared/xoo-sample");
-    SonarRunner runner = SonarRunner.create(projectDir,
+    SonarScanner runner = SonarScanner.create(projectDir,
       "sonar.analysis.mode", "issues",
       "sonar.verbose", "true",
       "sonar.report.export.path", "sonar-report.json");
@@ -101,7 +101,7 @@ public class IssueJsonReportTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample-multiline", "xoo", "multiline");
 
     File projectDir = ItUtils.projectDir("shared/xoo-precise-issues");
-    SonarRunner runner = SonarRunner.create(projectDir,
+    SonarScanner runner = SonarScanner.create(projectDir,
       "sonar.analysis.mode", "issues",
       "sonar.verbose", "true",
       "sonar.report.export.path", "sonar-report.json");
@@ -135,7 +135,7 @@ public class IssueJsonReportTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     File projectDir = ItUtils.projectDir("analysis/tracking/v1");
-    SonarRunner issuesModeScan = SonarRunner.create(projectDir)
+    SonarScanner issuesModeScan = SonarScanner.create(projectDir)
       .setProperty("sonar.analysis.mode", "issues")
       .setProperty("sonar.userHome", temp.newFolder().getAbsolutePath())
       .setProperty("sonar.report.export.path", "sonar-report.json")
@@ -156,13 +156,13 @@ public class IssueJsonReportTest {
     orchestrator.getServer().provisionProject("sample", "tracking");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner scan = SonarRunner.create(ItUtils.projectDir("analysis/tracking/v1"))
+    SonarScanner scan = SonarScanner.create(ItUtils.projectDir("analysis/tracking/v1"))
       .setProperty("sonar.projectDate", "2013-05-01");
     orchestrator.executeBuild(scan);
 
     // Issues mode scan -> 2 new issues and 13 existing issues
     File projectDir = ItUtils.projectDir("analysis/tracking/v2");
-    SonarRunner issuesModeScan = SonarRunner.create(projectDir)
+    SonarScanner issuesModeScan = SonarScanner.create(projectDir)
       .setProperty("sonar.analysis.mode", "issues")
       .setProperty("sonar.userHome", temp.newFolder().getAbsolutePath())
       .setProperty("sonar.report.export.path", "sonar-report.json")
@@ -183,14 +183,14 @@ public class IssueJsonReportTest {
     orchestrator.getServer().provisionProject("sample:mybranch", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample:mybranch", "xoo", "one-issue-per-line");
 
-    SonarRunner scan = SonarRunner.create(ItUtils.projectDir("analysis/tracking/v1"))
+    SonarScanner scan = SonarScanner.create(ItUtils.projectDir("analysis/tracking/v1"))
       .setProperty("sonar.projectDate", "2013-05-01")
       .setProperty("sonar.branch", "mybranch");
     orchestrator.executeBuild(scan);
 
     // issues mode scan -> 2 new issues and 13 existing issues
     File projectDir = ItUtils.projectDir("analysis/tracking/v2");
-    SonarRunner issuesModeScan = SonarRunner.create(projectDir)
+    SonarScanner issuesModeScan = SonarScanner.create(projectDir)
       .setProperty("sonar.analysis.mode", "issues")
       .setProperty("sonar.userHome", temp.newFolder().getAbsolutePath())
       .setProperty("sonar.report.export.path", "sonar-report.json")
@@ -218,13 +218,13 @@ public class IssueJsonReportTest {
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
     File rootDir = ItUtils.projectDir("shared/xoo-multi-modules-sample");
-    SonarRunner scan = SonarRunner.create(rootDir)
+    SonarScanner scan = SonarScanner.create(rootDir)
       .setProperty("sonar.projectDate", "2013-05-01");
     orchestrator.executeBuild(scan);
 
     // Issues mode scan on a module -> no new issues
     File moduleDir = ItUtils.projectDir("shared/xoo-multi-modules-sample/module_a/module_a1");
-    SonarRunner issuesModeScan = SonarRunner.create(moduleDir)
+    SonarScanner issuesModeScan = SonarScanner.create(moduleDir)
       .setProperty("sonar.projectKey", "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")
       .setProperty("sonar.projectVersion", "1.0-SNAPSHOT")
       .setProperty("sonar.projectName", "ModuleA1")
@@ -255,12 +255,12 @@ public class IssueJsonReportTest {
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
     File rootDir = ItUtils.projectDir("shared/xoo-multi-modules-sample");
-    SonarRunner scan = SonarRunner.create(rootDir)
+    SonarScanner scan = SonarScanner.create(rootDir)
       .setProperty("sonar.projectDate", "2013-05-01");
     orchestrator.executeBuild(scan);
 
     // issues mode scan -> no new issues
-    SonarRunner issuesModeScan = SonarRunner.create(rootDir)
+    SonarScanner issuesModeScan = SonarScanner.create(rootDir)
       .setProperty("sonar.analysis.mode", "issues")
       .setProperty("sonar.userHome", temp.newFolder().getAbsolutePath())
       .setProperty("sonar.report.export.path", "sonar-report.json")

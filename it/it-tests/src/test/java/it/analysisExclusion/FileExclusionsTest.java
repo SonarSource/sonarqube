@@ -20,7 +20,7 @@
 package it.analysisExclusion;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
@@ -134,7 +134,7 @@ public class FileExclusionsTest {
   }
 
   private void scan(String... properties) {
-    SonarRunner build = SonarRunner
+    SonarScanner build = SonarScanner
       .create(ItUtils.projectDir("exclusions/exclusions"))
       .setProperties(properties);
     orchestrator.executeBuild(build);

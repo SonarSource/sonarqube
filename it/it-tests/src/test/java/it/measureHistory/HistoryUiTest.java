@@ -20,7 +20,7 @@
 package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
@@ -50,7 +50,7 @@ public class HistoryUiTest {
   }
 
   private static void analyzeProject(String path, String date) {
-    orchestrator.executeBuild(SonarRunner.create(projectDir(path))
+    orchestrator.executeBuild(SonarScanner.create(projectDir(path))
       .setProperties("sonar.projectDate", date));
   }
 

@@ -20,7 +20,7 @@
 package it.test;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +47,7 @@ public class CoverageTrackingTest {
 
   @Test
   public void test_coverage_per_test() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-with-coverage-per-test")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-coverage-per-test")));
 
     String tests = orchestrator.getServer().adminWsClient().get("api/tests/list", "testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTrackingTest/tests-expected.json"), "UTF-8"), tests, false);

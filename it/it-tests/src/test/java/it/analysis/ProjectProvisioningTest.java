@@ -21,7 +21,7 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category3Suite;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class ProjectProvisioningTest {
   public static void init() {
     orchestrator.resetData();
     orchestrator.executeBuild(
-      SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+      SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       );
   }
 
@@ -154,7 +154,7 @@ public class ProjectProvisioningTest {
 
   private static BuildResult scan(String projectPath, String... propertiesKeyValues) {
     return orchestrator.executeBuildQuietly(
-      SonarRunner.create(ItUtils.projectDir(projectPath)).setProperties(propertiesKeyValues));
+      SonarScanner.create(ItUtils.projectDir(projectPath)).setProperties(propertiesKeyValues));
   }
 
   private static void setProperty(String key, String value) {

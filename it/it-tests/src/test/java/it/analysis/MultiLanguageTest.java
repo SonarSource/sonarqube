@@ -21,7 +21,7 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import org.junit.After;
@@ -57,7 +57,7 @@ public class MultiLanguageTest {
     orchestrator.getServer().associateProjectToQualityProfile("multi-language-sample", "xoo", "one-issue-per-line");
     orchestrator.getServer().associateProjectToQualityProfile("multi-language-sample","xoo2", "one-issue-per-line-xoo2");
 
-    SonarRunner build = SonarRunner.create().setProjectDir(ItUtils.projectDir("analysis/xoo-multi-languages"));
+    SonarScanner build = SonarScanner.create().setProjectDir(ItUtils.projectDir("analysis/xoo-multi-languages"));
     BuildResult result = orchestrator.executeBuild(build);
 
     assertThat(result.getLogs()).contains("2 files indexed");

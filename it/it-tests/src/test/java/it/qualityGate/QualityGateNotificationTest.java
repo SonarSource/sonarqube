@@ -20,7 +20,7 @@
 package it.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.util.Iterator;
@@ -102,7 +102,7 @@ public class QualityGateNotificationTest {
       qgClient().setDefault(simple.id());
       qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").period(1).operator("EQ").warningThreshold("0"));
 
-      SonarRunner analysis = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
+      SonarScanner analysis = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
       orchestrator.executeBuild(analysis);
       assertThat(fetchGateStatus().getData()).isEqualTo("OK");
 

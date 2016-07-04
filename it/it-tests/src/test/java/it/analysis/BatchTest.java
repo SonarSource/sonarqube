@@ -21,7 +21,7 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
@@ -199,7 +199,7 @@ public class BatchTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample",
+    SonarScanner runner = configureScanner("shared/xoo-sample",
       "sonar.verbose", "true");
     runner.setEnvironmentVariable("SONAR_USER_HOME", "/dev/null");
     BuildResult buildResult = orchestrator.executeBuildQuietly(runner);
@@ -443,7 +443,7 @@ public class BatchTest {
     long before = new Date().getTime() - 2000l;
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample")));
     long after = new Date().getTime() + 2000l;
     Resource xooSample = orchestrator.getServer().getWsClient().find(new ResourceQuery().setResourceKeyOrId("sample"));
     assertThat(xooSample.getCreationDate().getTime()).isGreaterThan(before).isLessThan(after);
@@ -457,7 +457,7 @@ public class BatchTest {
   public void fail_if_project_date_is_older_than_latest_snapshot() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner analysis = SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"));
+    SonarScanner analysis = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"));
     analysis.setProperty("sonar.projectDate", "2014-01-01");
     orchestrator.executeBuild(analysis);
 
@@ -475,19 +475,19 @@ public class BatchTest {
   }
 
   private BuildResult scan(String projectPath, String... props) {
-    SonarRunner runner = configureRunner(projectPath, props);
+    SonarScanner runner = configureScanner(projectPath, props);
     return orchestrator.executeBuild(runner);
   }
 
   private BuildResult scanQuietly(String projectPath, String... props) {
-    SonarRunner runner = configureRunner(projectPath, props);
+    SonarScanner runner = configureScanner(projectPath, props);
     return orchestrator.executeBuildQuietly(runner);
   }
 
-  private SonarRunner configureRunner(String projectPath, String... props) {
-    SonarRunner runner = SonarRunner.create(ItUtils.projectDir(projectPath))
+  private SonarScanner configureScanner(String projectPath, String... props) {
+    SonarScanner scanner = SonarScanner.create(ItUtils.projectDir(projectPath))
       .setProperties(props);
-    return runner;
+    return scanner;
   }
 
 }

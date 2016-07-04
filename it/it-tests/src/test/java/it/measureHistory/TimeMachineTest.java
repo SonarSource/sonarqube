@@ -21,7 +21,7 @@ package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.util.Date;
@@ -73,7 +73,7 @@ public class TimeMachineTest {
   }
 
   private static BuildResult analyzeProject(String path, String date) {
-    return orchestrator.executeBuild(SonarRunner.create(projectDir(path), "sonar.projectDate", date));
+    return orchestrator.executeBuild(SonarScanner.create(projectDir(path), "sonar.projectDate", date));
   }
 
   @Test

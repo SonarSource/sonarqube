@@ -20,7 +20,7 @@
 package it.test;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class TestExecutionTest {
 
   @Test
   public void test_execution() throws Exception {
-    orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-with-tests-execution")));
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-tests-execution")));
 
     Resource project = orchestrator.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics("sample-with-tests", "test_success_density", "test_failures", "test_errors", "tests", "skipped_tests", "test_execution_time"));

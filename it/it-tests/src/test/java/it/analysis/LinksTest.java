@@ -22,7 +22,7 @@ package it.analysis;
 import com.google.common.collect.Lists;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.db.Database;
 import it.Category3Suite;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class LinksTest {
    */
   @Test
   public void shouldUseLinkProperties() {
-    SonarRunner runner = SonarRunner.create(ItUtils.projectDir("analysis/links-project"))
+    SonarScanner runner = SonarScanner.create(ItUtils.projectDir("analysis/links-project"))
       .setProperty("sonar.scm.disabled", "true");
     orchestrator.executeBuild(runner);
 

@@ -21,7 +21,7 @@ package it.analysisExclusion;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import org.junit.Before;
@@ -238,7 +238,7 @@ public class IssueExclusionsTest {
       "Sonar :: Integration Tests :: Multi-modules With Exclusions");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-exclusions", "xoo", "with-many-rules");
 
-    SonarRunner scan = SonarRunner.create(ItUtils.projectDir(PROJECT_DIR))
+    SonarScanner scan = SonarScanner.create(ItUtils.projectDir(PROJECT_DIR))
       .setProperties("sonar.cpd.skip", "true")
       .setProperties(properties)
       .setProperties("sonar.verbose", "true");

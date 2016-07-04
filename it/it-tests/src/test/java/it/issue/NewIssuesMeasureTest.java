@@ -19,7 +19,7 @@
  */
 package it.issue;
 
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.AfterClass;
@@ -64,12 +64,12 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
     // Execute an analysis in the past with no issue to have a past snapshot
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", "2013-01-01"));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", "2013-01-01"));
 
     // Execute a analysis now with some issues
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
     Resource newIssues = ORCHESTRATOR.getServer().getWsClient()
@@ -79,7 +79,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     assertThat(measures.get(0).getVariation2().intValue()).isEqualTo(17);
 
     // second analysis, with exactly the same profile -> no new issues
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
     newIssues = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_violations").setIncludeTrends(true));
@@ -93,10 +93,10 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
 
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
       // Analyse a project in the past, with a date older than 30 last days (second period)
       .setProperty("sonar.projectDate", "2013-01-01"));
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // new issues measures should be to 0 on project on 2 periods as new issues has been created
     Resource file = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample", "new_violations").setIncludeTrends(true));
@@ -117,10 +117,10 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
     // Execute an analysis in the past to have a past snapshot
     // version 1
-    ORCHESTRATOR.executeBuilds(SonarRunner.create(projectDir("shared/xoo-history-v1")));
+    ORCHESTRATOR.executeBuilds(SonarScanner.create(projectDir("shared/xoo-history-v1")));
 
     // version 2 with 2 new violations and 3 more ncloc
-    ORCHESTRATOR.executeBuilds(SonarRunner.create(projectDir("shared/xoo-history-v2")));
+    ORCHESTRATOR.executeBuilds(SonarScanner.create(projectDir("shared/xoo-history-v2")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
     Resource file = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample", "new_violations", "violations", "ncloc").setIncludeTrends(true));
@@ -147,13 +147,13 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     // First analysis without module b
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile1.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile1");
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperties("sonar.modules", "module_a"));
 
     // Second analysis with module b and with a new rule activated to have new issues on module a since last analysis
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile2.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile2");
-    ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     Resource project = ORCHESTRATOR.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics("com.sonarsource.it.samples:multi-modules-sample", "new_violations", "violations").setIncludeTrends(true));

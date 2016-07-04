@@ -20,7 +20,7 @@
 package it.componentSearch;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.BeforeClass;
@@ -41,7 +41,7 @@ public class AllProjectsTest {
   @BeforeClass
   public static void inspectProject() {
     orchestrator.executeBuild(
-      SonarRunner.create(projectDir("shared/xoo-sample"))
+      SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey("all-project-test-project")
         .setProjectName("AllProjectsTest Project")
     );

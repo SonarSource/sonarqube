@@ -22,7 +22,7 @@ package it.user;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class FavouriteTest {
   @Before
   public void inspectProject() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
   @Test

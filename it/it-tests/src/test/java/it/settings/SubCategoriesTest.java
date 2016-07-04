@@ -20,7 +20,7 @@
 package it.settings;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
@@ -58,7 +58,7 @@ public class SubCategoriesTest {
    */
   @Test
   public void should_support_project_subcategories() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("subcategories",
       "/settings/subcategories/project-subcategories.html",

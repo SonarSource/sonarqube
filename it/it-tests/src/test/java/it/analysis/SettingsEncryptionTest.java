@@ -22,7 +22,7 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category3Suite;
 import java.io.File;
 import java.net.URL;
@@ -46,7 +46,7 @@ public class SettingsEncryptionTest {
    */
   @Test
   public void testEncryptedProperty() throws Exception {
-    SonarRunner build = SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+    SonarScanner build = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.secretKeyPath", pathToValidSecretKey())
       .setProperty("sonar.login", "admin")
       // wrong password
@@ -57,7 +57,7 @@ public class SettingsEncryptionTest {
     assertThat(result.getStatus()).isNotEqualTo(0);
     assertThat(result.getLogs()).contains("Fail to decrypt the property sonar.password. Please check your secret key");
 
-    build = SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+    build = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.secretKeyPath", pathToValidSecretKey())
       // "admin" encrypted with the above secret key
       .setProperty("sonar.login", "{aes}evRHXHsEyPr5RjEuxUJcHA==")
@@ -74,7 +74,7 @@ public class SettingsEncryptionTest {
   @Test(expected = BuildFailureException.class)
   public void failIfEncryptedPropertyButNoSecretKey() throws Exception {
     // path to secret key is missing
-    SonarRunner build = SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+    SonarScanner build = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("encryptedProperty", "{aes}9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
     orchestrator.executeBuild(build);
   }

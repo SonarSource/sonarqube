@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
 import com.sonar.orchestrator.config.FileSystem;
@@ -86,7 +85,7 @@ public class IssuesModeTest {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", null, "sonar.verbose", "true");
+    SonarScanner runner = configureRunnerIssues("shared/xoo-sample", null, "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
   }
@@ -96,7 +95,7 @@ public class IssuesModeTest {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunner("shared/xoo-sample");
+    SonarScanner runner = configureRunner("shared/xoo-sample");
     runner.setProperty("sonar.analysis.mode", "incremental");
 
     thrown.expect(BuildFailureException.class);
@@ -110,7 +109,7 @@ public class IssuesModeTest {
     restoreProfile("one-issue-per-line.xml");
     setDefaultQualityProfile("xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample");
+    SonarScanner runner = configureRunner("shared/xoo-sample");
     runner.setProjectKey("sample/project");
     runner.setProperty("sonar.analysis.mode", "issues");
     BuildResult result = orchestrator.executeBuild(runner);
@@ -124,7 +123,7 @@ public class IssuesModeTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    SonarScanner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
     List<Issue> serverIssues = ItUtils.getAllServerIssues(orchestrator);
     for (Issue i : serverIssues) {
@@ -152,7 +151,7 @@ public class IssuesModeTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    SonarScanner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
     List<Issue> serverIssues = ItUtils.getAllServerIssues(orchestrator);
     for (Issue i : serverIssues) {
@@ -181,7 +180,7 @@ public class IssuesModeTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    SonarScanner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
 
     // change QP
@@ -195,7 +194,7 @@ public class IssuesModeTest {
     FileUtils.write(srcFile, "\n", StandardCharsets.UTF_8, true);
 
     // scan again, with different QP
-    runner = SonarRunner.create(tmpProjectDir,
+    runner = SonarScanner.create(tmpProjectDir,
       "sonar.working.directory", temp.newFolder().getAbsolutePath(),
       "sonar.analysis.mode", "issues",
       "sonar.report.export.path", "sonar-report.json",
@@ -215,7 +214,7 @@ public class IssuesModeTest {
     orchestrator.getServer().provisionProject("sample", "xoo-sample-with-spaces");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
 
-    SonarRunner runner = configureRunner("analysis/xoo-sample-with-spaces/v2");
+    SonarScanner runner = configureRunner("analysis/xoo-sample-with-spaces/v2");
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(getResource("sample:my sources/main/xoo/sample/My Sample.xoo")).isNotNull();
 
@@ -235,7 +234,7 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
 
     // First real scan with source
-    SonarRunner runner = configureRunner("shared/xoo-history-v2");
+    SonarScanner runner = configureRunner("shared/xoo-history-v2");
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNotNull();
 
@@ -256,7 +255,7 @@ public class IssuesModeTest {
   @Test
   public void should_fail_if_plugin_access_secured_properties() throws IOException {
     // Test access from task (ie BatchSettings)
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", null,
+    SonarScanner runner = configureRunnerIssues("shared/xoo-sample", null,
       "accessSecuredFromTask", "true");
     BuildResult result = orchestrator.executeBuildQuietly(runner);
 
@@ -278,7 +277,7 @@ public class IssuesModeTest {
     File homeDir = runFirstAnalysisAndFlagIssueAsWontFix();
 
     // Second issues mode using same cache dir but cache disabled by default
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir);
+    SonarScanner runner = configureRunnerIssues("shared/xoo-sample", homeDir);
     BuildResult result = orchestrator.executeBuild(runner);
 
     // False positive is not returned
@@ -291,7 +290,7 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     // First run (publish mode)
-    SonarRunner runner = configureRunner("shared/xoo-sample");
+    SonarScanner runner = configureRunner("shared/xoo-sample");
     orchestrator.executeBuild(runner);
 
     // First issues mode
@@ -317,7 +316,7 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     // First run (publish mode)
-    SonarRunner runner = configureRunner("shared/xoo-sample");
+    SonarScanner runner = configureRunner("shared/xoo-sample");
     orchestrator.executeBuild(runner);
 
     SonarClient client = orchestrator.getServer().adminWsClient();
@@ -367,7 +366,7 @@ public class IssuesModeTest {
 
     // use same working dir, because lock file is in it
     String workDirPath = temp.newFolder().getAbsolutePath();
-    SonarRunner runner = configureRunner("shared/xoo-sample",
+    SonarScanner runner = configureRunner("shared/xoo-sample",
       "sonar.working.directory", workDirPath);
 
     orchestrator.executeBuild(runner);
@@ -436,8 +435,8 @@ public class IssuesModeTest {
     return scanner;
   }
 
-  private SonarRunner configureRunner(String projectDir, String... props) throws IOException {
-    SonarRunner runner = SonarRunner.create(ItUtils.projectDir(projectDir),
+  private SonarScanner configureRunner(String projectDir, String... props) throws IOException {
+    SonarScanner runner = SonarScanner.create(ItUtils.projectDir(projectDir),
       "sonar.working.directory", temp.newFolder().getAbsolutePath(),
       "sonar.report.export.path", "sonar-report.json",
       "sonar.userHome", temp.newFolder().getAbsolutePath());

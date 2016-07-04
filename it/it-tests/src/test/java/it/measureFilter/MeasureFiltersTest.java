@@ -20,7 +20,7 @@
 package it.measureFilter;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.AfterClass;
@@ -48,7 +48,7 @@ public class MeasureFiltersTest {
   @BeforeClass
   public static void scanStruts() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
     adminWsClient = newAdminWsClient(orchestrator);
 
     createUser("user-measure-filters", "User Measure Filters");

@@ -20,7 +20,7 @@
 package it.settings;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.net.URL;
 import org.junit.After;
@@ -97,9 +97,9 @@ public class SettingsTestRestartingOrchestrator {
       .build();
     orchestrator.start();
 
-    SonarRunner withDeprecatedKey = SonarRunner.create(projectDir("shared/xoo-sample"))
+    SonarScanner withDeprecatedKey = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.deprecatedKey", "true");
-    SonarRunner withNewKey = SonarRunner.create(projectDir("shared/xoo-sample"))
+    SonarScanner withNewKey = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.newKey", "true");
     // should not fail
     orchestrator.executeBuilds(withDeprecatedKey, withNewKey);

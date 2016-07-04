@@ -20,7 +20,7 @@
 package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import org.junit.Before;
@@ -59,12 +59,12 @@ public class IssuePermissionTest {
 
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner sampleProject = SonarRunner.create(projectDir("shared/xoo-sample"));
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
     orchestrator.executeBuild(sampleProject);
 
     orchestrator.getServer().provisionProject("sample2", "Sample2");
     orchestrator.getServer().associateProjectToQualityProfile("sample2", "xoo", "one-issue-per-line");
-    SonarRunner sampleProject2 = SonarRunner.create(projectDir("shared/xoo-sample"))
+    SonarScanner sampleProject2 = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "sample2")
       .setProperty("sonar.projectName", "Sample2");
     orchestrator.executeBuild(sampleProject2);

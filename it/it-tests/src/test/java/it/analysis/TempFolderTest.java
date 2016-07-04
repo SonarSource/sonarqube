@@ -21,7 +21,7 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
@@ -83,7 +83,7 @@ public class TempFolderTest {
       File tmp = temp.newFolder();
       assertThat(tmp.list()).isEmpty();
 
-      SonarRunner runner = configureRunner()
+      SonarScanner runner = configureScanner()
         .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Djava.io.tmpdir=" + tmp.getAbsolutePath());
       orchestrator.executeBuild(runner);
 
@@ -96,12 +96,12 @@ public class TempFolderTest {
   }
 
   private BuildResult scan(String... props) {
-    SonarRunner runner = configureRunner(props);
+    SonarScanner runner = configureScanner(props);
     return orchestrator.executeBuild(runner);
   }
 
-  private SonarRunner configureRunner(String... props) {
-    return SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+  private SonarScanner configureScanner(String... props) {
+    return SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperties(props);
   }
 

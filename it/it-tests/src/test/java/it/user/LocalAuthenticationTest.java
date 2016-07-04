@@ -21,7 +21,7 @@ package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
@@ -147,7 +147,7 @@ public class LocalAuthenticationTest {
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
       .setName(tokenName));
-    SonarRunner sampleProject = SonarRunner.create(projectDir("shared/xoo-sample"));
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
     sampleProject.setProperties(
       "sonar.login", generateWsResponse.getToken(),
       "sonar.password", "");
@@ -160,7 +160,7 @@ public class LocalAuthenticationTest {
 
   @Test
   public void run_analysis_with_incorrect_token() {
-    SonarRunner sampleProject = SonarRunner.create(projectDir("shared/xoo-sample"));
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
     sampleProject.setProperties(
       "sonar.login", "unknown-token",
       "sonar.password", "");

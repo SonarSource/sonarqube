@@ -20,7 +20,7 @@
 package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import javax.annotation.CheckForNull;
@@ -66,7 +66,7 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     assertThat(getMeasure(PROJECT, "sqale_rating").getIntValue()).isEqualTo(3);
     assertThat(getMeasure(PROJECT, "sqale_rating").getData()).isEqualTo("C");
@@ -90,7 +90,7 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     assertThat(getMeasure(PROJECT, "sqale_debt_ratio").getValue()).isEqualTo(29.1d);
     assertThat(getMeasure(MODULE, "sqale_debt_ratio").getValue()).isEqualTo(28.5d);
@@ -105,14 +105,14 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     Measure rating = getMeasure("sample", "sqale_rating");
     assertThat(rating.getIntValue()).isEqualTo(1);
     assertThat(rating.getData()).isEqualTo("A");
 
     debtConfiguration.updateDevelopmentCost(2);
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     rating = getMeasure("sample", "sqale_rating");
     assertThat(rating.getIntValue()).isEqualTo(4);
@@ -125,7 +125,7 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     Measure rating = getMeasure(PROJECT, "sqale_rating");
     assertThat(rating.getIntValue()).isEqualTo(1);
@@ -133,7 +133,7 @@ public class MaintainabilityRatingMeasureTest {
 
     debtConfiguration.updateLanguageDevelopmentCost("xoo", 1);
     orchestrator.executeBuild(
-      SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+      SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
         .setProfile("one-issue-per-line"));
 
     rating = getMeasure(PROJECT, "sqale_rating");
@@ -147,14 +147,14 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     Measure rating = getMeasure("sample", "sqale_rating");
     assertThat(rating.getIntValue()).isEqualTo(1);
     assertThat(rating.getData()).isEqualTo("A");
 
     debtConfiguration.updateRatingGrid(0.001d, 0.005d, 0.01d, 0.015d);
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     rating = getMeasure("sample", "sqale_rating");
     assertThat(rating.getIntValue()).isEqualTo(5);
@@ -167,7 +167,7 @@ public class MaintainabilityRatingMeasureTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     assertThat(getMeasure(PROJECT, "sqale_rating").getData()).isEqualTo("C");
     assertThat(getMeasure(PROJECT, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(292);
