@@ -21,54 +21,49 @@ package org.sonar.db.measure;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 public class MeasureQuery {
-
-  @CheckForNull
   private final String analysisUuid;
-
   private final List<String> componentUuids;
-
   @CheckForNull
   private final Collection<Integer> metricIds;
-
   @CheckForNull
   private final Collection<String> metricKeys;
-
   @CheckForNull
   private final Long personId;
 
   private MeasureQuery(Builder builder) {
-    this(builder.componentUuids, builder.analysisUuid, builder.metricIds, builder.metricKeys, builder.personId);
+    this(builder.analysisUuid, builder.componentUuids, builder.metricIds, builder.metricKeys, builder.personId);
   }
 
-  private MeasureQuery(List<String> componentUuids,
-    @Nullable String analysisUuid,
+  private MeasureQuery(@Nullable String analysisUuid,
+    List<String> componentUuids,
     @Nullable Collection<Integer> metricIds,
     @Nullable Collection<String> metricKeys,
     @Nullable Long personId) {
-    checkState(componentUuids != null, "Component UUIDs must be set");
+    requireNonNull(componentUuids, "Component UUIDs must be set");
     checkState(metricIds == null || metricKeys == null, "Metric IDs and keys must not be set both");
-    this.componentUuids = componentUuids;
     this.analysisUuid = analysisUuid;
+    this.componentUuids = componentUuids;
     this.metricIds = metricIds;
     this.metricKeys = metricKeys;
     this.personId = personId;
   }
 
-  public List<String> getComponentUuids() {
-    return componentUuids;
-  }
-
-  @CheckForNull
   public String getAnalysisUuid() {
     return analysisUuid;
+  }
+
+  public List<String> getComponentUuids() {
+    return componentUuids;
   }
 
   @CheckForNull
@@ -92,23 +87,49 @@ public class MeasureQuery {
       || (metricKeys != null && metricKeys.isEmpty());
   }
 
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MeasureQuery that = (MeasureQuery) o;
+    return Objects.equals(analysisUuid, that.analysisUuid) &&
+        Objects.equals(componentUuids, that.componentUuids) &&
+        Objects.equals(metricIds, that.metricIds) &&
+        Objects.equals(metricKeys, that.metricKeys) &&
+        Objects.equals(personId, that.personId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(analysisUuid, componentUuids, metricIds, metricKeys, personId);
+  }
+
   public static Builder builder() {
     return new Builder();
   }
 
   static MeasureQuery copyWithSubsetOfComponentUuids(MeasureQuery query, List<String> componentUuids) {
-    return new MeasureQuery(componentUuids, query.analysisUuid, query.metricIds, query.metricKeys, query.personId);
+    return new MeasureQuery(query.analysisUuid, componentUuids, query.metricIds, query.metricKeys, query.personId);
   }
 
   public static final class Builder {
-    private List<String> componentUuids;
     private String analysisUuid;
+    private List<String> componentUuids;
     private Collection<Integer> metricIds;
     private Collection<String> metricKeys;
     private Long personId;
 
     private Builder() {
       // see MeasureQuery#builder()
+    }
+
+    public Builder setAnalysisUuid(String analysisUuid) {
+      this.analysisUuid = analysisUuid;
+      return this;
     }
 
     public Builder setComponentUuids(List<String> componentUuids) {
@@ -118,11 +139,6 @@ public class MeasureQuery {
 
     public Builder setComponentUuid(String componentUuid) {
       this.componentUuids = singletonList(componentUuid);
-      return this;
-    }
-
-    public Builder setAnalysisUuid(String s) {
-      this.analysisUuid = s;
       return this;
     }
 

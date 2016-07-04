@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.version.Select;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -37,6 +38,19 @@ public class MeasureDao implements Dao {
     return Optional.ofNullable(Iterables.getOnlyElement(measures, null));
   }
 
+  /**
+   * Selects the measures of either the last analysis (when {@link MeasureQuery#analysisUuid} is {@code null}) or of the
+   * specified analysis (given by {@link MeasureQuery#analysisUuid}) for the component UUIDs specified in
+   * {@link MeasureQuery#componentUuids}.
+   * <p>
+   * In addition, this method returns measures which are not associated to any developer, unless one is specified in
+   * {@link MeasureQuery#personId}.
+   * </p>
+   * <p>
+   * Returned measure can optionally be filtered metric (either by specifying {@link MeasureQuery#metricIds}
+   * or {@link MeasureQuery#metricKeys}).
+   * </p>
+   */
   public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query) {
     if (query.returnsEmpty()) {
       return Collections.emptyList();
@@ -47,6 +61,19 @@ public class MeasureDao implements Dao {
     return executeLargeInputs(query.getComponentUuids(), componentUuids -> {
       MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
       return mapper(dbSession).selectByQuery(pageQuery);
+    });
+  }
+
+  public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query, Select.RowHandler rowHandler) {
+    if (query.returnsEmpty()) {
+      return Collections.emptyList();
+    }
+    if (query.getComponentUuids() == null) {
+      return mapper(dbSession).selectByQuery(query, rowHandler);
+    }
+    return executeLargeInputs(query.getComponentUuids(), componentUuids -> {
+      MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
+      return mapper(dbSession).selectByQuery(pageQuery, rowHandler);
     });
   }
 
