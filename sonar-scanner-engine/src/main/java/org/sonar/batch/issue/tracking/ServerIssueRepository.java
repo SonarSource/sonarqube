@@ -21,7 +21,7 @@ package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -36,7 +36,7 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-@BatchSide
+@ScannerSide
 public class ServerIssueRepository {
 
   private static final Logger LOG = Loggers.get(ServerIssueRepository.class);

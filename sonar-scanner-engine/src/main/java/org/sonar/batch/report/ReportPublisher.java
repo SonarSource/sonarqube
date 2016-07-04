@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -54,7 +54,7 @@ import org.sonarqube.ws.client.WsResponse;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
-@BatchSide
+@ScannerSide
 public class ReportPublisher implements Startable {
 
   private static final Logger LOG = Loggers.get(ReportPublisher.class);

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.user.User;
 
@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 /**
  * @since 3.6
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface IssueHandler {
 

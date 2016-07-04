@@ -21,7 +21,7 @@ package org.sonar.api.utils;
 
 import java.io.File;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -35,7 +35,7 @@ import org.sonar.api.server.ServerSide;
  * @since 4.0
  *
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public interface TempFolder {

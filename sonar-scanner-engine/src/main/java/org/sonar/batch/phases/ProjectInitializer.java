@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.phases;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -31,7 +31,7 @@ import org.sonar.api.utils.MessageException;
 /**
  * Should be dropped when org.sonar.api.resources.Project is fully refactored.
  */
-@BatchSide
+@ScannerSide
 public class ProjectInitializer {
 
   private Languages languages;

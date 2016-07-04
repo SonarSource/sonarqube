@@ -244,7 +244,7 @@ public class ProjectScanContainer extends ComponentContainer {
   static class BatchExtensionFilter implements ExtensionMatcher {
     @Override
     public boolean accept(Object extension) {
-      return ExtensionUtils.isBatchSide(extension)
+      return ExtensionUtils.isScannerSide(extension)
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
     }
   }

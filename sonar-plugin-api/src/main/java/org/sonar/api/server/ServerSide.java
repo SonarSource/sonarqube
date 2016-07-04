@@ -24,10 +24,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
- * Same as {@link BatchSide} but for server-side components.
+ * Same as {@link ScannerSide} but for server-side components.
  *
  * @since 5.2
  */

@@ -22,14 +22,14 @@ package org.sonar.batch.issue.ignore.pattern;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-@BatchSide
+@ScannerSide
 public abstract class AbstractPatternInitializer {
 
   private Settings settings;

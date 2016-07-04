@@ -20,7 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 /**
@@ -33,7 +33,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
  * For testing purpose you can use {@link SensorContextTester}
  * @since 5.1
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface Sensor {
 

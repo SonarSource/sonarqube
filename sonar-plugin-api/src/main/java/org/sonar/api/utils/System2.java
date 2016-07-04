@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -63,7 +63,7 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 4.2
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class System2 {

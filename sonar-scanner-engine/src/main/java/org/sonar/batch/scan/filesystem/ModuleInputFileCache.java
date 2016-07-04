@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 
-@BatchSide
+@ScannerSide
 public class ModuleInputFileCache extends DefaultFileSystem.Cache {
 
   private final String moduleKey;

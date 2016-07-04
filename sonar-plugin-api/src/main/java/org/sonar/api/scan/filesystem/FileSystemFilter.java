@@ -19,7 +19,7 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFileFilter;
 
@@ -36,7 +36,7 @@ import java.io.File;
  * @deprecated since 4.2 use {@link InputFileFilter}
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface FileSystemFilter {
 

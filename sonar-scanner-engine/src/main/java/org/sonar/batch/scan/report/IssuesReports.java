@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
-@BatchSide
+@ScannerSide
 public class IssuesReports {
 
   private final Reporter[] reporters;

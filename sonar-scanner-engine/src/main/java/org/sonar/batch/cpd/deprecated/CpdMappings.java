@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.cpd.deprecated;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.CpdMapping;
 
 import javax.annotation.CheckForNull;
 
-@BatchSide
+@ScannerSide
 public class CpdMappings {
 
   private final CpdMapping[] mappings;

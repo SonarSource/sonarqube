@@ -28,10 +28,10 @@ import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.scan.filesystem.PathResolver;
 
-@BatchSide
+@ScannerSide
 public class FileSystemLogger {
 
   private final DefaultModuleFileSystem fs;

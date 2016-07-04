@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -40,7 +40,7 @@ import static com.google.common.collect.Sets.newHashSet;
 /**
  * Filters the plugins to be enabled during analysis
  */
-@BatchSide
+@ScannerSide
 public class BatchPluginPredicate implements Predicate<String> {
 
   private static final Logger LOG = Loggers.get(BatchPluginPredicate.class);

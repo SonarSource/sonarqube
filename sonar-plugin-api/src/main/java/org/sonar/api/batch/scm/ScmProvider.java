@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.scm;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -30,7 +30,7 @@ import java.io.File;
  * See {@link CoreProperties#LINKS_SOURCES_DEV} to get old Maven URL format.
  * @since 5.0
  */
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
 public abstract class ScmProvider {

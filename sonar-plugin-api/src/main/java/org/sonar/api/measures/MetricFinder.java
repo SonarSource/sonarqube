@@ -22,7 +22,7 @@ package org.sonar.api.measures;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -31,7 +31,7 @@ import org.sonar.api.server.ServerSide;
  * @deprecated since 5.1 use {@link org.sonar.api.batch.measure.MetricFinder} on scanner side.
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public interface MetricFinder {

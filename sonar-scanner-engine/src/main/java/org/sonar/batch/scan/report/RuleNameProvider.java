@@ -23,12 +23,12 @@ import org.sonar.api.batch.rule.Rule;
 
 import org.sonar.api.batch.rule.Rules;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 
-@BatchSide
+@ScannerSide
 public class RuleNameProvider {
   private Rules rules;
 

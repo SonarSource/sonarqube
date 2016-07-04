@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -42,7 +42,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * Used to define a metric in a plugin. Should be used with {@link Metrics} extension point.
  * Should no more be used on scanner side. Use {@link org.sonar.api.batch.measure.Metric} instead. 
  */
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
 @ComputeEngineSide

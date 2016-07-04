@@ -29,7 +29,7 @@ import org.sonar.api.resources.Project;
  * <p>
  * @since 2.6
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public abstract class Initializer implements CheckProject {
 

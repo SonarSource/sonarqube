@@ -33,7 +33,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
@@ -86,7 +86,7 @@ import org.sonar.api.utils.DateUtils;
  * 
  * @since 2.12
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class Settings {

@@ -20,7 +20,7 @@
 package org.sonar.api.issue.batch;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.issue.Issue;
 
 /**
@@ -28,7 +28,7 @@ import org.sonar.api.issue.Issue;
  * @since 4.0
  * @deprecated since 5.3. Use {@link org.sonar.api.scan.issue.filter.IssueFilter} instead.
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 @Deprecated
 public interface IssueFilter {

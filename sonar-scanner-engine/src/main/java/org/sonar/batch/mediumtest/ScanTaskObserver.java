@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.batch.scan.ProjectScanContainer;
 
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface ScanTaskObserver {
 

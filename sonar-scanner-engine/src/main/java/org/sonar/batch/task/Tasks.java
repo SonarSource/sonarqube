@@ -24,12 +24,12 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedMap;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
 public class Tasks {
 

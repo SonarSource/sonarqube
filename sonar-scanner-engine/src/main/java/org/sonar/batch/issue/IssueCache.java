@@ -21,7 +21,7 @@ package org.sonar.batch.issue;
 
 import org.sonar.batch.issue.tracking.TrackedIssue;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -30,7 +30,7 @@ import java.util.Collection;
 /**
  * Shared issues among all project modules
  */
-@BatchSide
+@ScannerSide
 public class IssueCache {
 
   // component key -> issue key -> issue

@@ -21,9 +21,9 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.batch.repository.ProjectRepositories;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
-@BatchSide
+@ScannerSide
 public class StatusDetectionFactory {
 
   private final ProjectRepositories projectReferentials;

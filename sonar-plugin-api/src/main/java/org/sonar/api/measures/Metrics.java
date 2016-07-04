@@ -21,7 +21,7 @@ package org.sonar.api.measures;
 
 import java.util.List;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
  * This is the extension point used by plugins to declare new metrics.
  * @since 1.10
  */
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
 @ComputeEngineSide
