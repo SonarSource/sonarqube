@@ -431,7 +431,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void users_does_GET_on_Ws_users() {
-    underTest.users(new UsersWsRequest()
+    underTest.users(new OldUsersWsRequest()
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)

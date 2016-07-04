@@ -213,7 +213,7 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_PROJECT_KEY_PATTERN, request.getProjectKeyPattern()), UpdateTemplateWsResponse.parser());
   }
 
-  public UsersWsResponse users(UsersWsRequest request) {
+  public UsersWsResponse users(OldUsersWsRequest request) {
     return call(new GetRequest(path("users"))
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())

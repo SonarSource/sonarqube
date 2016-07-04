@@ -35,7 +35,7 @@ import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
 import org.sonarqube.ws.client.permission.OldUsersWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -52,14 +52,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
-public class UsersAction implements PermissionsWsAction {
+public class OldUsersAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionFinder permissionFinder;
   private final PermissionDependenciesFinder dependenciesFinder;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, PermissionFinder permissionFinder, PermissionDependenciesFinder dependenciesFinder) {
+  public OldUsersAction(DbClient dbClient, UserSession userSession, PermissionFinder permissionFinder, PermissionDependenciesFinder dependenciesFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionFinder = permissionFinder;
@@ -68,7 +68,7 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("users2")
+    WebService.NewAction action = context.createAction("users")
       .setSince("5.2")
       .setDescription(String.format("Lists the users that have been granted the specified permission as individual users rather than through group affiliation. <br />" +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
@@ -79,7 +79,7 @@ public class UsersAction implements PermissionsWsAction {
       .addSearchQuery("stas", "names")
       .addSelectionModeParam()
       .setInternal(true)
-      .setResponseExample(getClass().getResource("users-example.json"))
+      .setResponseExample(getClass().getResource("old-users-example.json"))
       .setHandler(this);
 
     createPermissionParameter(action);
@@ -88,11 +88,11 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    UsersWsResponse usersWsResponse = doHandle(toUsersWsRequest(wsRequest));
+    OldUsersWsResponse usersWsResponse = doHandle(toUsersWsRequest(wsRequest));
     writeProtobuf(usersWsResponse, wsRequest, wsResponse);
   }
 
-  private UsersWsResponse doHandle(OldUsersWsRequest request) {
+  private OldUsersWsResponse doHandle(OldUsersWsRequest request) {
     Optional<WsProjectRef> wsProjectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     validatePermission(request.getPermission(), wsProjectRef);
     DbSession dbSession = dbClient.openSession(false);
@@ -120,9 +120,9 @@ public class UsersAction implements PermissionsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private static UsersWsResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
-    UsersWsResponse.Builder userResponse = UsersWsResponse.newBuilder();
-    WsPermissions.User.Builder user = WsPermissions.User.newBuilder();
+  private static OldUsersWsResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
+    OldUsersWsResponse.Builder userResponse = OldUsersWsResponse.newBuilder();
+    WsPermissions.OldUser.Builder user = WsPermissions.OldUser.newBuilder();
     for (UserWithPermissionDto userWithPermission : usersWithPermission) {
       userResponse.addUsers(
         user

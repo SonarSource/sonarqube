@@ -45,7 +45,7 @@ import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
-import org.sonarqube.ws.client.permission.UsersWsRequest;
+import org.sonarqube.ws.client.permission.OldUsersWsRequest;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +106,7 @@ public class PermissionSearchTest {
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getGroupsCount()).isEqualTo(2);
 
     WsPermissions.UsersWsResponse users = permissionsWsClient
-      .users(new UsersWsRequest()
+      .users(new OldUsersWsRequest()
         .setPermission("admin"));
     assertThat(users.getUsersList()).extracting("login").contains(LOGIN);
 
