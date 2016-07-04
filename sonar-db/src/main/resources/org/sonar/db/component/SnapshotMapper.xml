@@ -30,7 +30,7 @@
   </sql>
 
   <sql id="viewsSnapshotColumns">
-    s.id,
+    s.uuid,
     s.created_at as createdAt
   </sql>
 
