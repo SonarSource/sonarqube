@@ -22,6 +22,7 @@ package org.sonar.scanner.scan;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -46,9 +47,14 @@ public class ProjectBuildersExecutor {
       ProjectBuilderContext context = new ProjectBuilderContext(reactor);
 
       for (ProjectBuilder projectBuilder : projectBuilders) {
-        projectBuilder.build(context);
+        try {
+          projectBuilder.build(context);
+        } catch (Exception e) {
+          throw MessageException.of("Failed to execute project builder: " + projectBuilder, e);
+        }
       }
       profiler.stopInfo();
     }
+
   }
 }

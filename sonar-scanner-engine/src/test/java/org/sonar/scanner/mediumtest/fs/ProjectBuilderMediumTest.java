@@ -25,12 +25,20 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.BatchMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
@@ -49,8 +57,10 @@ public class ProjectBuilderMediumTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
+  private ProjectBuilder projectBuilder = mock(ProjectBuilder.class);
+
   public BatchMediumTester tester = BatchMediumTester.builder()
-    .registerPlugin("xoo", new XooPlugin())
+    .registerPlugin("xoo", new XooPluginWithBuilder(projectBuilder))
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .setPreviousAnalysisDate(new Date())
@@ -62,9 +72,61 @@ public class ProjectBuilderMediumTest {
     tester.start();
   }
 
+  private class XooPluginWithBuilder extends XooPlugin {
+    private ProjectBuilder builder;
+
+    XooPluginWithBuilder(ProjectBuilder builder) {
+      this.builder = builder;
+    }
+
+    @Override
+    public void define(Context context) {
+      super.define(context);
+      context.addExtension(builder);
+    }
+  }
+
   @After
   public void stop() {
     tester.stop();
+  }
+
+  @Test
+  public void testProjectReactorValidation() throws IOException {
+    File baseDir = prepareProject();
+
+    doThrow(new IllegalStateException("My error message")).when(projectBuilder).build(any(ProjectBuilder.Context.class));
+    exception.expectMessage("Failed to execute project builder");
+    exception.expect(MessageException.class);
+    exception.expectCause(new BaseMatcher<Throwable>() {
+
+      @Override
+      public boolean matches(Object item) {
+        if (!(item instanceof IllegalStateException)) {
+          return false;
+        }
+        IllegalStateException e = (IllegalStateException) item;
+        return "My error message".equals(e.getMessage());
+      }
+
+      @Override
+      public void describeTo(Description description) {
+      }
+    });
+
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", ".")
+        .put("sonar.xoo.enableProjectBuilder", "true")
+        .build())
+      .start();
+
   }
 
   @Test
