@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.NewParam;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
@@ -63,8 +64,8 @@ public class PermissionsWsParametersBuilder {
       .setRequired(true);
   }
 
-  public static void createProjectPermissionParameter(NewAction action) {
-    action.createParam(PARAM_PERMISSION)
+  public static NewParam createProjectPermissionParameter(NewAction action) {
+    return action.createParam(PARAM_PERMISSION)
       .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }

@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,13 +35,11 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
-import org.sonarqube.ws.client.permission.OldUsersWsRequest;
+import org.sonarqube.ws.client.permission.UsersWsRequest;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
-import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -53,6 +50,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 public class UsersAction implements PermissionsWsAction {
+
+  private static final int MAX_SIZE = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -70,14 +69,12 @@ public class UsersAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("users2")
       .setSince("5.2")
-      .setDescription(String.format("Lists the users that have been granted the specified permission as individual users rather than through group affiliation. <br />" +
-        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
-        "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'.<br />" +
-        "It requires administration permissions to access.<br />",
-        Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
-      .addPagingParams(100)
+      .setDescription("Lists the users with their permissions as individual users rather than through group affiliation.<br>" +
+        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +
+        "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
+        "It requires administration permissions to access.")
+      .addPagingParams(20, MAX_SIZE)
       .addSearchQuery("stas", "names")
-      .addSelectionModeParam()
       .setInternal(true)
       .setResponseExample(getClass().getResource("users-example.json"))
       .setHandler(this);
@@ -92,7 +89,7 @@ public class UsersAction implements PermissionsWsAction {
     writeProtobuf(usersWsResponse, wsRequest, wsResponse);
   }
 
-  private UsersWsResponse doHandle(OldUsersWsRequest request) {
+  private UsersWsResponse doHandle(UsersWsRequest request) {
     Optional<WsProjectRef> wsProjectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     validatePermission(request.getPermission(), wsProjectRef);
     DbSession dbSession = dbClient.openSession(false);
@@ -109,12 +106,11 @@ public class UsersAction implements PermissionsWsAction {
     }
   }
 
-  private static OldUsersWsRequest toUsersWsRequest(Request request) {
-    return new OldUsersWsRequest()
+  private static UsersWsRequest toUsersWsRequest(Request request) {
+    return new UsersWsRequest()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
-      .setSelected(request.param(Param.SELECTED))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
@@ -143,12 +139,11 @@ public class UsersAction implements PermissionsWsAction {
     return userResponse.build();
   }
 
-  private static PermissionQuery buildPermissionQuery(OldUsersWsRequest request, Optional<ComponentDto> project) {
+  private static PermissionQuery buildPermissionQuery(UsersWsRequest request, Optional<ComponentDto> project) {
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
       .permission(request.getPermission())
       .pageIndex(request.getPage())
       .pageSize(request.getPageSize())
-      .membership(fromSelectionModeToMembership(firstNonNull(request.getSelected(), SelectionMode.SELECTED.value())))
       .search(request.getQuery());
     if (project.isPresent()) {
       permissionQuery.component(project.get().getKey());
