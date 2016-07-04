@@ -19,14 +19,13 @@
  */
 package it.plugins;
 
-import static org.assertj.core.api.Assertions.fail;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import it.plugins.checks.AbapCheck;
 import it.plugins.checks.CCheck;
 import it.plugins.checks.Check;
 import it.plugins.checks.CobolCheck;
@@ -52,6 +51,8 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Verify that the plugins available in update center
@@ -85,8 +86,7 @@ public class PluginsTest {
     "scmstats");
 
   // TODO new PliCheck() is temporarily disabled as PLI plugin does not support multi-language feature. See sonar-project.properties
-  // TODO new AbapCheck() is temporary disabled as there's no compatible version with SonarQube 6.0
-  static final List<Check> CHECKS = Arrays.asList((Check) new CCheck(), new CppCheck(), new CobolCheck(), new CssCheck(),
+  static final List<Check> CHECKS = Arrays.asList((Check) new AbapCheck(), new CCheck(), new CppCheck(), new CobolCheck(), new CssCheck(),
     new FlexCheck(), new GroovyCheck(), new JavaCheck(), new JavascriptCheck(), new PhpCheck(), new RpgCheck(),
     new PythonCheck(), new SwiftCheck(), new VbCheck(), new WebCheck());
 
