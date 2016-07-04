@@ -28,6 +28,13 @@ option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
 // and WS api/permissions/template_users for internal use only
+message OldUsersWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated OldUser users = 2;
+}
+
+// WS api/permissions/users for internal use only
+// and WS api/permissions/template_users for internal use only
 message UsersWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated User users = 2;
@@ -96,6 +103,13 @@ message PermissionTemplate {
   // ex: 2015-08-25T16:18:48+0200
   optional string updatedAt = 6;
   repeated Permission permissions = 7;
+}
+
+message OldUser {
+  optional string login = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional bool selected = 4;
 }
 
 message User {
