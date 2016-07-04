@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
@@ -46,7 +46,7 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
  *   <li>loading of the libraries embedded in plugin JAR files (directory META-INF/libs)</li>
  * </ul>
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class PluginClassloaderFactory {

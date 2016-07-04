@@ -23,14 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
-@BatchSide
+@ScannerSide
 public class QProfileVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(QProfileVerifier.class);

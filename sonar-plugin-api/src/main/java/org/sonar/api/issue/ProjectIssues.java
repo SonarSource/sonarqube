@@ -19,7 +19,7 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -30,7 +30,7 @@ import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
  * @since 4.0
  */
 @InstantiationStrategy(PER_BATCH)
-@BatchSide
+@ScannerSide
 public interface ProjectIssues {
 
   /**

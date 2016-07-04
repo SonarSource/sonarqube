@@ -19,7 +19,7 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Marker interface for all the components available in container of batch (code analyzer). Note that
@@ -38,9 +38,9 @@ import org.sonar.api.batch.BatchSide;
  * </pre>
  *
  * @since 2.2
- * @deprecated since 5.2 use {@link BatchSide} annotation
+ * @deprecated since 5.2 use {@link ScannerSide} annotation
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 public interface BatchComponent {
 }

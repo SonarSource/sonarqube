@@ -19,7 +19,7 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Resource;
 
@@ -30,7 +30,7 @@ import org.sonar.api.resources.Resource;
  *
  * @since 3.2
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 public interface ResourcePermissions {
 

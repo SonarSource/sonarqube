@@ -20,9 +20,9 @@
 package org.sonar.batch.cpd.deprecated;
 
 import org.slf4j.Logger;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
-@BatchSide
+@ScannerSide
 public abstract class CpdBlockIndexer {
 
   abstract boolean isLanguageSupported(String language);

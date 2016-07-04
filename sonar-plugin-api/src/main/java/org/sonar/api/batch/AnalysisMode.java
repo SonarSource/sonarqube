@@ -23,7 +23,7 @@ package org.sonar.api.batch;
  * Use this component to find the current running mode.
  * @since 5.1
  */
-@BatchSide
+@ScannerSide
 public interface AnalysisMode {
   boolean isPreview();
 

@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -34,7 +34,7 @@ import org.sonar.batch.events.EventBus;
 
 import java.util.Collection;
 
-@BatchSide
+@ScannerSide
 public class PostJobsExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
 

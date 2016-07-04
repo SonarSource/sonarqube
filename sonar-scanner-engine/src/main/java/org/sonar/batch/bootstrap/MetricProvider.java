@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,7 +29,7 @@ import org.sonar.api.measures.Metrics;
 
 import java.util.List;
 
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class MetricProvider extends ExtensionProvider {
 

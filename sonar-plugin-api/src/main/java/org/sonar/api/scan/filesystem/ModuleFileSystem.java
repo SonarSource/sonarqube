@@ -23,7 +23,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -32,7 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
  * @deprecated in 4.2. Replaced by {@link org.sonar.api.batch.fs.FileSystem}
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 public interface ModuleFileSystem {
 
   /**

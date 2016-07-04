@@ -25,7 +25,7 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -87,7 +87,7 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
  * Scanners should not send other metrics, and the Compute Engine should not allow other metrics.
  */
 @ComputeEngineSide
-@BatchSide
+@ScannerSide
 public class ScannerMetrics {
 
   private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.<Metric>of(

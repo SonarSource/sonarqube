@@ -33,9 +33,9 @@ import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
 import com.persistit.Volume;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
-@BatchSide
+@ScannerSide
 public class Caches implements Startable {
   private final Map<String, Exchange> cacheMap = Maps.newHashMap();
   private Persistit persistit;

@@ -20,7 +20,7 @@
 package org.sonar.api.batch.postjob;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * PostJobs are executed at the very end of scanner analysis. A PostJob can't do any modification
@@ -30,7 +30,7 @@ import org.sonar.api.batch.BatchSide;
  *
  * @since 5.2
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface PostJob {
 

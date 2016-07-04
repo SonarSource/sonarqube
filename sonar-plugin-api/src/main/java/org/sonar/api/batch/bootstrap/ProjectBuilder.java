@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
 
@@ -35,7 +35,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  *
  * @since 2.9
  */
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
 public abstract class ProjectBuilder {

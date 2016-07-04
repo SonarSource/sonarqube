@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Describes execution environment.
  * 
  * @since 2.6
  */
-@BatchSide
+@ScannerSide
 public class EnvironmentInformation {
 
   private String key;

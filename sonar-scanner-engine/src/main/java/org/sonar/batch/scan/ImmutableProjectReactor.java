@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 /**
  * Immutable copy of project reactor after all modifications have been applied (see {@link ImmutableProjectReactorProvider}).
  */
-@BatchSide
+@ScannerSide
 public class ImmutableProjectReactor {
 
   private ProjectDefinition root;

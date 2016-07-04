@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.regex.Pattern;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
@@ -32,7 +32,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  * @since 3.6
  */
 @ExtensionPoint
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
 public class TaskDefinition implements Comparable<TaskDefinition> {
   static final String KEY_PATTERN = "[a-zA-Z0-9\\-\\_]+";

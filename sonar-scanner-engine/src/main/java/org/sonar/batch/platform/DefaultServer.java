@@ -27,14 +27,14 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.batch.bootstrap.BatchWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
-@BatchSide
+@ScannerSide
 public class DefaultServer extends Server {
 
   private Settings settings;

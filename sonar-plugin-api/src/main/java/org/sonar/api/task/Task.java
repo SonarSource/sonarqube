@@ -19,14 +19,14 @@
  */
 package org.sonar.api.task;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * Implement this interface to provide the behavior of a task.
  * @since 3.6
  */
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
 public interface Task {
 

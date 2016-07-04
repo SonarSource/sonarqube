@@ -32,7 +32,7 @@ import org.sonar.api.resources.Resource;
  * @deprecated since 4.2. Analysis is file-system oriented. See {@link org.sonar.api.batch.fs.InputFileFilter}
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface ResourceFilter {
 

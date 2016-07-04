@@ -29,7 +29,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
@@ -50,7 +50,7 @@ import org.sonar.batch.scan.ImmutableProjectReactor;
     type = PropertyType.BOOLEAN)
 })
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-@BatchSide
+@ScannerSide
 public final class ScmConfiguration implements Startable {
   private static final Logger LOG = Loggers.get(ScmConfiguration.class);
 

@@ -20,7 +20,7 @@
 package org.sonar.api;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -118,7 +118,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @since 5.5
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 @Immutable

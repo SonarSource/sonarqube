@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * Mutable project definitions that can be modified by {@link ProjectBuilder} extensions.
  * @since 2.9
  */
-@BatchSide
+@ScannerSide
 public class ProjectReactor implements ProjectKey {
 
   private ProjectDefinition root;

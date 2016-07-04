@@ -21,7 +21,7 @@ package org.sonar.api.config;
 
 import com.google.common.base.MoreObjects;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 3.2
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class EmailSettings {

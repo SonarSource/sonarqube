@@ -22,12 +22,12 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.scan.filesystem.FileExclusions;
 
-@BatchSide
+@ScannerSide
 public class ExclusionFilters {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExclusionFilters.class);

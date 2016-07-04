@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,7 +35,7 @@ import org.sonar.batch.index.BatchComponentCache;
  *
  * @since 4.2
  */
-@BatchSide
+@ScannerSide
 public class ComponentIndexer {
 
   private final Languages languages;

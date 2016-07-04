@@ -179,7 +179,7 @@ public class ModuleScanContainer extends ComponentContainer {
     installer.install(this, new ExtensionMatcher() {
       @Override
       public boolean accept(Object extension) {
-        return ExtensionUtils.isBatchSide(extension) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT);
+        return ExtensionUtils.isScannerSide(extension) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT);
       }
     });
   }

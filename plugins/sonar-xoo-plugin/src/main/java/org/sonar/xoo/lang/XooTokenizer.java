@@ -27,12 +27,12 @@ import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-@BatchSide
+@ScannerSide
 public class XooTokenizer implements Tokenizer {
 
   private static final Logger LOG = Loggers.get(XooTokenizer.class);

@@ -26,7 +26,7 @@ import org.sonar.api.ExtensionPoint;
  * @deprecated since 5.2 not used anymore
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface CoverageExtension {
 

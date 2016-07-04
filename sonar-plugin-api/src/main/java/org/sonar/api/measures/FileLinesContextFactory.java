@@ -19,7 +19,7 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
 
@@ -28,7 +28,7 @@ import org.sonar.api.resources.Resource;
  *
  * @since 2.14
  */
-@BatchSide
+@ScannerSide
 public interface FileLinesContextFactory {
 
   /**

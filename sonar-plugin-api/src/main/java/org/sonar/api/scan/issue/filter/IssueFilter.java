@@ -20,9 +20,9 @@
 package org.sonar.api.scan.issue.filter;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 /**
  * @since 5.3

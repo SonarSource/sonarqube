@@ -23,7 +23,7 @@ import org.sonar.api.utils.DateUtils;
 
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Lists the Quality profiles enabled on the current module.
  */
-@BatchSide
+@ScannerSide
 public class ModuleQProfiles {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";

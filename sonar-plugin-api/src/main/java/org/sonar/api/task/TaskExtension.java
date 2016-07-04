@@ -19,7 +19,7 @@
  */
 package org.sonar.api.task;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
@@ -29,7 +29,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  * @deprecated since 5.1. Not used.
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
 public interface TaskExtension {
 }

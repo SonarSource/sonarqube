@@ -31,14 +31,14 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Configure Logback
  *
  * @since 2.12
  */
-@BatchSide
+@ScannerSide
 public class Logback {
 
   private Logback() {

@@ -65,7 +65,7 @@ public class TaskContainer extends ComponentContainer {
   static class TaskExtensionFilter implements ExtensionMatcher {
     @Override
     public boolean accept(Object extension) {
-      return ExtensionUtils.isBatchSide(extension)
+      return ExtensionUtils.isScannerSide(extension)
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_TASK);
     }
   }

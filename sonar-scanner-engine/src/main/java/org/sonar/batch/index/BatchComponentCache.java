@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.resources.Resource;
 
-@BatchSide
+@ScannerSide
 public class BatchComponentCache {
   // components by key
   private final Map<String, BatchComponent> components = Maps.newLinkedHashMap();

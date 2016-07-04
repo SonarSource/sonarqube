@@ -30,14 +30,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.14
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class ResourceTypeTree {

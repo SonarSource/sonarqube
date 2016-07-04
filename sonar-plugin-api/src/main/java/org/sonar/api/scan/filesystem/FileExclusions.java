@@ -21,7 +21,7 @@ package org.sonar.api.scan.filesystem;
 
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @since 3.5
  */
-@BatchSide
+@ScannerSide
 public class FileExclusions {
   private final Settings settings;
 
