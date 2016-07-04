@@ -27,13 +27,13 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FilenameUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 3.5
  */
-@BatchSide
+@ScannerSide
 public class PathResolver {
 
   public File relativeFile(File dir, String path) {

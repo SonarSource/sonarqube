@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.TreeSet;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -42,7 +42,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
-@BatchSide
+@ScannerSide
 public class AnalysisContextReportPublisher {
 
   private static final String KEY_VALUE_FORMAT = "  - %s=%s";

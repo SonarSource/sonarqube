@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -31,7 +31,7 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
  * Interface for storing data computed by sensors.
  * @since 5.1
  */
-@BatchSide
+@ScannerSide
 public interface SensorStorage {
 
   void store(Measure measure);

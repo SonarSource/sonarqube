@@ -42,9 +42,10 @@ import java.lang.annotation.Target;
  *   }
  *
  * </pre>
- *
+ * @deprecated since 6.0. Use {@link ScannerSide} instead.
  * @since 5.2
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

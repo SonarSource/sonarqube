@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -35,7 +35,7 @@ import org.sonar.api.utils.System2;
  * Used by views !!
  *
  */
-@BatchSide
+@ScannerSide
 public class ProjectConfigurator {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);

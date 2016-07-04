@@ -19,14 +19,14 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Marker interface for all the batch extension points, which are aimed to be implemented
  * by plugins.
  *
  * @since 1.10
- * @deprecated since 5.2 replaced by {@link BatchSide} and {@link ExtensionPoint} annotations
+ * @deprecated since 5.2 replaced by {@link ScannerSide} and {@link ExtensionPoint} annotations
  */
 @Deprecated
 public interface BatchExtension extends Extension, BatchComponent {

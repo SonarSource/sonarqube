@@ -43,7 +43,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -51,7 +51,7 @@ import org.sonar.api.utils.log.Loggers;
  * Computes hash of files. Ends of Lines are ignored, so files with
  * same content but different EOL encoding have the same hash.
  */
-@BatchSide
+@ScannerSide
 public class FileMetadata {
 
   private static final Logger LOG = Loggers.get(FileMetadata.class);

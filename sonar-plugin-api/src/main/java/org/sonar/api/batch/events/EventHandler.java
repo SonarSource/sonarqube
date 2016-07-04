@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
 
 /**
@@ -28,7 +28,7 @@ import org.sonar.api.ExtensionPoint;
  * 
  * @since 2.8
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface EventHandler {
 

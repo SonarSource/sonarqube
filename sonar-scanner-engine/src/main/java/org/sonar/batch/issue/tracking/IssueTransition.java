@@ -21,7 +21,7 @@ package org.sonar.batch.issue.tracking;
 
 import org.sonar.batch.util.ProgressReport;
 import org.sonar.batch.issue.IssueTransformer;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
@@ -38,7 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@BatchSide
+@ScannerSide
 public class IssueTransition {
   private final IssueCache issueCache;
   private final BatchComponentCache componentCache;

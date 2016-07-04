@@ -22,7 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Index input files into {@link InputPathCache}.
  */
-@BatchSide
+@ScannerSide
 public class FileIndexer {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);

@@ -32,7 +32,7 @@ import org.sonar.api.resources.Project;
  * @deprecated since 5.6 use org.sonar.api.batch.postjob.PostJob
  */
 @Deprecated
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 public interface PostJob {
 

@@ -21,14 +21,14 @@ package org.sonar.core.platform;
 
 import java.util.Collection;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
  * Provides information about the plugins installed in the dependency injection container
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public interface PluginRepository {

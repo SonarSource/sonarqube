@@ -27,12 +27,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.index.BatchComponent;
 
-@BatchSide
+@ScannerSide
 public class SourceProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(SourceProvider.class);

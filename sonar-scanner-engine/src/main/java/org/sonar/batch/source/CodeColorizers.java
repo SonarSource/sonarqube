@@ -34,7 +34,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.JavaTokenizers;
@@ -43,7 +43,7 @@ import org.sonar.colorizer.Tokenizer;
 /**
  * Central point for sonar-colorizer extensions
  */
-@BatchSide
+@ScannerSide
 public class CodeColorizers {
 
   private static final Logger LOG = LoggerFactory.getLogger(CodeColorizers.class);

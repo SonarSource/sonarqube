@@ -31,7 +31,7 @@ import org.sonar.api.resources.Resource;
  * @since 1.10
  * @deprecated since 5.5 use {@link SensorContext#newCpdTokens()}
  */
-@BatchSide
+@ScannerSide
 @ExtensionPoint
 @Deprecated
 public interface CpdMapping {

@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @since 3.5
  */
-@BatchSide
+@ScannerSide
 public class ModuleFileSystemInitializer {
 
   private File baseDir;

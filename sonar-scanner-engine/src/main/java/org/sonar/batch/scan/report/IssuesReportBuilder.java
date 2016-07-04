@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.resources.Project;
@@ -36,7 +36,7 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
-@BatchSide
+@ScannerSide
 public class IssuesReportBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssuesReportBuilder.class);

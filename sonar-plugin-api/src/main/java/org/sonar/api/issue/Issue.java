@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 
@@ -188,7 +188,7 @@ public interface Issue extends Serializable {
    * Non-null list of comments, ordered by chronological order.
    * <br>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
-   * (from {@link BatchSide}).
+   * (from {@link ScannerSide}).
    */
   List<IssueComment> comments();
 

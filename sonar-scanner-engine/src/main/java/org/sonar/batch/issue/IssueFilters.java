@@ -23,12 +23,12 @@ import org.sonar.api.scan.issue.filter.FilterableIssue;
 
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.resources.Project;
 
-@BatchSide
+@ScannerSide
 public class IssueFilters {
   private final IssueFilter[] filters;
   private final org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters;

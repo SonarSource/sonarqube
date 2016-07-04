@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -31,7 +31,7 @@ import javax.annotation.CheckForNull;
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
  * exclusion patterns are already applied.
  */
-@BatchSide
+@ScannerSide
 public class InputPathCache {
 
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();

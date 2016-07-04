@@ -21,10 +21,10 @@ package org.sonar.batch.bootstrap;
 
 import java.util.Map;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.core.platform.PluginInfo;
 
-@BatchSide
+@ScannerSide
 public interface PluginInstaller {
 
   /**

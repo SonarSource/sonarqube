@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -44,7 +44,7 @@ import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-@BatchSide
+@ScannerSide
 public class LocalIssueTracking {
   private final Tracker<TrackedIssue, ServerIssueFromWs> tracker;
   private final ServerLineHashesLoader lastLineHashes;

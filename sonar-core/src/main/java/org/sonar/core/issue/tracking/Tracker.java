@@ -25,12 +25,12 @@ import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.rule.RuleKey;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-@BatchSide
+@ScannerSide
 public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
   public Tracking<RAW, BASE> track(Input<RAW> rawInput, Input<BASE> baseInput) {

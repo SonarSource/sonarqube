@@ -22,7 +22,7 @@ package org.sonar.api.i18n;
 import java.util.Date;
 import java.util.Locale;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -31,7 +31,7 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 2.10
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public interface I18n {

@@ -22,7 +22,7 @@ package org.sonar.api.utils;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
@@ -33,7 +33,7 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 4.3
  */
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class Durations {

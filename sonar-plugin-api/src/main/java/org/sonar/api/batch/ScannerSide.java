@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.batch;
 
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
-import org.sonar.batch.repository.language.LanguagesRepository;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@ScannerSide
-public class LanguageDetectionFactory {
-  private final Settings settings;
-  private final LanguagesRepository languages;
-
-  public LanguageDetectionFactory(Settings settings, LanguagesRepository languages) {
-    this.settings = settings;
-    this.languages = languages;
-  }
-
-  public LanguageDetection create() {
-    return new LanguageDetection(settings, languages);
-  }
+/**
+ * Marker annotation for all the components available in container of batch (code analyzer). Note that
+ * injection of dependencies by constructor is used :
+ * <pre>
+ *   {@literal @}ScannerSide
+ *   public class Foo {
+ *
+ *   }
+ *   {@literal @}ScannerSide
+ *   public class Bar {
+ *     private final Foo foo;
+ *     public Bar(Foo f) {
+ *       this.foo = f;
+ *     }
+ *   }
+ *
+ * </pre>
+ *
+ * @since 6.0
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ScannerSide {
 }

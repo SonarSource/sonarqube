@@ -26,7 +26,7 @@ import java.io.File;
 import java.util.Properties;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.TempFolder;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
@@ -36,7 +36,7 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
  *
  * @since 3.6
  */
-@BatchSide
+@ScannerSide
 public class CachesManager implements Startable {
   private File tempDir;
   private Persistit persistit;

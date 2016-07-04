@@ -19,14 +19,14 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
-@BatchSide
+@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public final class DefaultResourceTypes {
