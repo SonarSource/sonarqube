@@ -23,7 +23,10 @@ import org.sonar.api.batch.Initializer;
 
 /**
  * @since 3.7
+ * @deprecated since 6.0
  */
+@Deprecated
+@FunctionalInterface
 public interface InitializerExecutionHandler extends EventHandler {
 
   /**

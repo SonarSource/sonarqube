@@ -21,8 +21,6 @@ package org.sonar.batch.deprecated;
 
 import java.io.Serializable;
 import java.util.Collection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
@@ -47,8 +45,6 @@ import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedSensorContext.class);
 
   private final DefaultIndex index;
   private final Project project;

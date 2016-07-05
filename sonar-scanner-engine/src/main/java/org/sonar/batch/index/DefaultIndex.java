@@ -41,10 +41,8 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -59,18 +57,16 @@ public class DefaultIndex {
 
   private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
-  private final PathResolver pathResolver;
   private final DefaultProjectTree projectTree;
   // caches
   private DefaultSensorStorage sensorStorage;
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
 
-  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache, PathResolver pathResolver) {
+  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache) {
     this.componentCache = componentCache;
     this.projectTree = projectTree;
     this.measureCache = measureCache;
-    this.pathResolver = pathResolver;
   }
 
   public void start() {
@@ -296,21 +292,6 @@ public class DefaultIndex {
     }
     if (StringUtils.isNotBlank(reference.getKey())) {
       return buckets.get(reference);
-    }
-    String relativePathFromSourceDir = null;
-    boolean isTest = false;
-    boolean isDir = false;
-    if (reference instanceof File) {
-      File referenceFile = (File) reference;
-      isTest = Qualifiers.UNIT_TEST_FILE.equals(referenceFile.getQualifier());
-      relativePathFromSourceDir = referenceFile.relativePathFromSourceDir();
-    } else if (reference instanceof Directory) {
-      isDir = true;
-      Directory referenceDir = (Directory) reference;
-      relativePathFromSourceDir = referenceDir.relativePathFromSourceDir();
-      if (Directory.ROOT.equals(relativePathFromSourceDir)) {
-        relativePathFromSourceDir = "";
-      }
     }
     return null;
   }

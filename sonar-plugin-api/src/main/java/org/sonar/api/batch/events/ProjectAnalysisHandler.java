@@ -23,7 +23,10 @@ import org.sonar.api.resources.Project;
 
 /**
  * @since 2.8
+ * @deprecated since 6.0
  */
+@Deprecated
+@FunctionalInterface
 public interface ProjectAnalysisHandler extends EventHandler {
 
   /**

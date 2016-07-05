@@ -21,8 +21,8 @@ package org.sonar.api.measures;
 
 import java.util.List;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

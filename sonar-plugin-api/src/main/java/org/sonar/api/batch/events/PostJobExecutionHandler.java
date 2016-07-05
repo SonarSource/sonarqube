@@ -23,7 +23,10 @@ import org.sonar.api.batch.PostJob;
 
 /**
  * @since 3.6
+ * @deprecated since 6.0
  */
+@Deprecated
+@FunctionalInterface
 public interface PostJobExecutionHandler extends EventHandler {
 
   /**

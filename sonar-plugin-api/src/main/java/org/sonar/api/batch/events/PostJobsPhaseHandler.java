@@ -19,13 +19,15 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.PostJob;
-
 import java.util.List;
+import org.sonar.api.batch.PostJob;
 
 /**
  * @since 3.6
+ * @deprecated since 6.0
  */
+@Deprecated
+@FunctionalInterface
 public interface PostJobsPhaseHandler extends EventHandler {
 
   /**

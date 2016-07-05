@@ -19,13 +19,13 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.Sensor;
-
 import java.util.List;
+import org.sonar.api.batch.Sensor;
 
 /**
  * @since 2.8
  */
+@FunctionalInterface
 public interface SensorsPhaseHandler extends EventHandler {
 
   /**

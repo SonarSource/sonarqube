@@ -19,22 +19,13 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectDefinitionTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void shouldSetKey() {
@@ -89,7 +80,7 @@ public class ProjectDefinitionTest {
   public void shouldTrimPaths() {
     ProjectDefinition def = ProjectDefinition.create();
     def.setSources("src1", " src2 ", " with whitespace");
-    def.setTests("test1"," test2 "," with whitespace");
+    def.setTests("test1", " test2 ", " with whitespace");
 
     assertThat(def.sources()).containsOnly("src1", "src2", "with whitespace");
     assertThat(def.tests()).containsOnly("test1", "test2", "with whitespace");
@@ -127,6 +118,5 @@ public class ProjectDefinitionTest {
     root.resetTests();
     assertThat(root.tests()).isEmpty();
   }
-
 
 }

@@ -19,16 +19,11 @@
  */
 package org.sonar.api.resources;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void trimKeyAndName() {

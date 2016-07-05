@@ -34,7 +34,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.FakeJava;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -65,7 +64,7 @@ public class DefaultIndexTest {
 
     DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
     BatchComponentCache resourceCache = new BatchComponentCache();
-    index = new DefaultIndex(resourceCache, projectTree, mock(MeasureCache.class), new PathResolver());
+    index = new DefaultIndex(resourceCache, projectTree, mock(MeasureCache.class));
 
     baseDir = temp.newFolder();
     project = new Project("project");
