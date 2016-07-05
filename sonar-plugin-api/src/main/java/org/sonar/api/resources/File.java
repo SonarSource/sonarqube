@@ -63,16 +63,6 @@ public class File extends Resource {
     return parent;
   }
 
-  private static String parseKey(String key) {
-    if (StringUtils.isBlank(key)) {
-      return null;
-    }
-    String normalizedKey = key;
-    normalizedKey = normalizedKey.replace('\\', '/');
-    normalizedKey = StringUtils.trim(normalizedKey);
-    return normalizedKey;
-  }
-
   /**
    * {@inheritDoc}
    *

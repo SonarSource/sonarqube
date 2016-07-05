@@ -56,7 +56,6 @@ public class Project extends Resource implements Component {
   private String branch;
   private String name;
   private String description;
-  private Language language;
   private Date analysisDate;
   private String analysisVersion;
   private Settings settings;
