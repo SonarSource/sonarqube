@@ -19,21 +19,19 @@
  */
 package org.sonar.scanner.rule;
 
-import static org.mockito.Mockito.mock;
-import org.junit.rules.ExpectedException;
-import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
-import org.sonar.scanner.rule.DefaultRulesLoader;
-import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.scanner.WsTestUtil;
+import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 public class DefaultRulesLoaderTest {
   @org.junit.Rule
@@ -42,7 +40,7 @@ public class DefaultRulesLoaderTest {
   @Test
   public void testParseServerResponse() throws IOException {
     BatchWsClient wsClient = mock(BatchWsClient.class);
-    InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf")).openBufferedStream();
+    InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoaderTest/response.protobuf")).openBufferedStream();
     WsTestUtil.mockStream(wsClient, is);
     DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
     List<Rule> ruleList = loader.load();
