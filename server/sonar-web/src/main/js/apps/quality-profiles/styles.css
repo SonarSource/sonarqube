@@ -20,7 +20,7 @@
 .quality-profiles-table-projects,
 .quality-profiles-table-rules,
 .quality-profiles-table-date {
-  min-width: 120px;
+  min-width: 90px;
 }
 
 .quality-profiles-list-header {
@@ -108,22 +108,12 @@
 }
 
 .quality-profiles-evolution {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  margin-bottom: 30px;
-}
-
-.quality-profiles-evolution-deprecated,
-.quality-profiles-evolution-stagnant,
-.quality-profiles-evolution-rules {
-  width: 325px;
-  box-sizing: border-box;
+  padding-top: 55px;
 }
 
 .quality-profiles-evolution-deprecated,
 .quality-profiles-evolution-stagnant {
-  margin-right: 30px;
+  margin-bottom: 20px;
   border-color: #faebcc;
   background-color: #fcf8e3;
 }

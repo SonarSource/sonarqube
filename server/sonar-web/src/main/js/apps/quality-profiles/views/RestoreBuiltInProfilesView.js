@@ -27,7 +27,15 @@ export default ModalFormView.extend({
   successTemplate: TemplateSuccess,
 
   getTemplate () {
-    return this.done ? this.successTemplate : this.template;
+    return this.selectedLanguage ? this.successTemplate : this.template;
+  },
+
+  onRender () {
+    ModalFormView.prototype.onRender.apply(this, arguments);
+    this.$('select').select2({
+      width: '250px',
+      minimumResultsForSearch: 50
+    });
   },
 
   onFormSubmit () {
@@ -37,7 +45,10 @@ export default ModalFormView.extend({
   },
 
   sendRequest () {
-    restoreBuiltInProfiles(this.options.language.key)
+    const language = this.$('#restore-built-in-profiles-language').val();
+    this.selectedLanguage = this.options.languages
+        .find(l => l.key === language).name;
+    restoreBuiltInProfiles(language)
         .then(() => {
           this.done = true;
           this.render();
@@ -50,7 +61,10 @@ export default ModalFormView.extend({
   },
 
   serializeData () {
-    return { language: this.options.language };
+    return {
+      languages: this.options.languages,
+      selectedLanguage: this.selectedLanguage
+    };
   }
 });
 

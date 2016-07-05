@@ -20,6 +20,7 @@
 import React from 'react';
 import CreateProfileView from '../views/CreateProfileView';
 import RestoreProfileView from '../views/RestoreProfileView';
+import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
 import { translate } from '../../../helpers/l10n';
 import { getImporters } from '../../../api/quality-profiles';
 
@@ -73,8 +74,14 @@ export default class PageHeader extends React.Component {
 
   handleRestoreClick (e) {
     e.preventDefault();
-    e.target.blur();
     new RestoreProfileView()
+        .on('done', this.props.updateProfiles)
+        .render();
+  }
+
+  handleRestoreBuiltIn (e) {
+    e.preventDefault();
+    new RestoreBuiltInProfilesView({ languages: this.props.languages })
         .on('done', this.props.updateProfiles)
         .render();
   }
@@ -87,19 +94,34 @@ export default class PageHeader extends React.Component {
           </h1>
 
           {this.props.canAdmin && (
-              <div className="page-actions button-group">
+              <div className="page-actions button-group dropdown">
                 <button
                     id="quality-profiles-create"
                     onClick={this.handleCreateClick.bind(this)}>
                   {translate('create')}
                 </button>
-
                 <button
-                    id="quality-profiles-restore"
-                    className="spacer-left"
-                    onClick={this.handleRestoreClick.bind(this)}>
-                  {translate('quality_profiles.restore_profile')}
+                    className="dropdown-toggle js-more-admin-actions"
+                    data-toggle="dropdown">
+                  <i className="icon-dropdown"/>
                 </button>
+                <ul className="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a href="#"
+                       id="quality-profiles-restore"
+                       onClick={this.handleRestoreClick.bind(this)}>
+                      {translate('quality_profiles.restore_profile')}
+                    </a>
+                  </li>
+
+                  <li>
+                    <a href="#"
+                       id="quality-profiles-restore-built-in"
+                       onClick={this.handleRestoreBuiltIn.bind(this)}>
+                      {translate('quality_profiles.restore_built_in_profiles')}
+                    </a>
+                  </li>
+                </ul>
               </div>
           )}
 

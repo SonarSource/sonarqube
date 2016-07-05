@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link, PropTypes as RouterPropTypes } from 'react-router';
+import { PropTypes as RouterPropTypes } from 'react-router';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import sortBy from 'lodash/sortBy';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
-import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
 import { ProfilesListType, LanguagesListType } from '../propTypes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
@@ -35,14 +34,6 @@ export default class ProfilesList extends React.Component {
     languages: LanguagesListType,
     location: RouterPropTypes.location
   };
-
-  handleRestoreBuiltIn (languageKey, e) {
-    e.preventDefault();
-    const language = this.props.languages.find(l => l.key === languageKey);
-    new RestoreBuiltInProfilesView({ language })
-        .on('done', this.props.updateProfiles)
-        .render();
-  }
 
   renderProfiles (profiles) {
     return profiles.map(profile => (
@@ -61,14 +52,6 @@ export default class ProfilesList extends React.Component {
               {translateWithParameters(
                   'quality_profiles.x_profiles',
                   profilesCount
-              )}
-              {this.props.canAdmin && (
-                  <button
-                      className="huge-spacer-left js-restore-built-in"
-                      data-language={languageKey}
-                      onClick={this.handleRestoreBuiltIn.bind(this, languageKey)}>
-                    {translate('quality_profiles.restore_built_in_profiles')}
-                  </button>
               )}
             </th>
             <th className="text-right nowrap">

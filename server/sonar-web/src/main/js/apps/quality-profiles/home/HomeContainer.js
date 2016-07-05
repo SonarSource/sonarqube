@@ -33,8 +33,14 @@ export default class HomeContainer extends React.Component {
               titleTemplate="SonarQube - %s"/>
 
           <PageHeader {...this.props}/>
-          <Evolution {...this.props}/>
-          <ProfilesList {...this.props}/>
+          <div className="clearfix">
+            <div style={{ float: 'left', width: 750 }}>
+              <ProfilesList {...this.props}/>
+            </div>
+            <div style={{ float: 'right', width: 260, paddingLeft: 30 }}>
+              <Evolution {...this.props}/>
+            </div>
+          </div>
         </div>
     );
   }
