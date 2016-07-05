@@ -60,7 +60,7 @@ public class RoleMapperTest {
     RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     mapper.insertGroupRole(new GroupRoleDto().setRole("admin").setGroupId(100L).setResourceId(123L));
     mapper.insertGroupRole(new GroupRoleDto().setRole("user").setResourceId(123L));// Anyone
-    mapper.insertUserRole(new UserRoleDto().setRole("codeviewer").setUserId(200L).setResourceId(123L));// Anyone
+    mapper.insertUserRole(new UserPermissionDto().setPermission("codeviewer").setUserId(200L).setComponentId(123L));// Anyone
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "insertRoles-result.xml", "group_roles", "user_roles");

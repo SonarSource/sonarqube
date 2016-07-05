@@ -42,9 +42,9 @@ public interface RoleMapper {
 
   void insertGroupRole(GroupRoleDto groupRole);
 
-  void insertUserRole(UserRoleDto userRole);
+  void insertUserRole(UserPermissionDto userRole);
 
-  void deleteUserRole(UserRoleDto userRole);
+  void deleteUserRole(UserPermissionDto userRole);
 
   void deleteGroupRole(GroupRoleDto groupRole);
 

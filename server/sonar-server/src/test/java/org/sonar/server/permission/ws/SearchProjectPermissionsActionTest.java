@@ -38,7 +38,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -324,10 +324,10 @@ public class SearchProjectPermissionsActionTest {
   }
 
   private void insertUserRole(String permission, long userId, @Nullable Long resourceId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(permission)
+    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId)
-      .setResourceId(resourceId));
+      .setComponentId(resourceId));
   }
 
   private GroupDto insertGroup(GroupDto group) {

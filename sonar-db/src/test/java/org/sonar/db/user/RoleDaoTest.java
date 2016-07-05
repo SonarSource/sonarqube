@@ -59,14 +59,14 @@ public class RoleDaoTest {
 
   @Test
   public void select_user_permissions_by_permission_and_user_id() {
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(2L));
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(3L));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(2L));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(3L));
     // global permission - not returned
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(null));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(null));
     // project permission on another user id - not returned
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(42L).setResourceId(2L));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(42L).setComponentId(2L));
     // project permission on another permission - not returned
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(GlobalPermissions.SCAN_EXECUTION).setUserId(1L).setResourceId(2L));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(GlobalPermissions.SCAN_EXECUTION).setUserId(1L).setComponentId(2L));
     db.commit();
 
     List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, 1L);
@@ -92,7 +92,7 @@ public class RoleDaoTest {
     underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(5L).setResourceId(5L));
     groupDb.addUserToGroup(userId, 5L);
     // duplicates on resource id - should be returned once
-    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(userId).setResourceId(2L));
+    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(userId).setComponentId(2L));
     underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(3L));
     db.commit();
 
@@ -127,7 +127,7 @@ public class RoleDaoTest {
   public void delete_global_user_permission() {
     db.prepareDbUnit(getClass(), "globalUserPermissions.xml");
 
-    UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    UserPermissionDto userRoleToDelete = new UserPermissionDto().setUserId(200L).setPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     underTest.deleteUserRole(userRoleToDelete, db.getSession());
     db.getSession().commit();
@@ -139,7 +139,7 @@ public class RoleDaoTest {
   public void delete_resource_user_permission() {
     db.prepareDbUnit(getClass(), "resourceUserPermissions.xml");
 
-    UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(UserRole.USER).setResourceId(1L);
+    UserPermissionDto userRoleToDelete = new UserPermissionDto().setUserId(200L).setPermission(UserRole.USER).setComponentId(1L);
 
     underTest.deleteUserRole(userRoleToDelete, db.getSession());
     db.getSession().commit();
@@ -211,16 +211,16 @@ public class RoleDaoTest {
   public void count_users_with_one_specific_permission() {
     DbClient dbClient = db.getDbClient();
     UserDto user = dbClient.userDao().insert(db.getSession(), new UserDto().setActive(true));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserRoleDto()
+    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
       .setUserId(user.getId())
-      .setResourceId(123L)
-      .setRole(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserRoleDto()
+      .setComponentId(123L)
+      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
+    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
       .setUserId(user.getId())
-      .setRole(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserRoleDto()
+      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
+    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
       .setUserId(user.getId())
-      .setRole(GlobalPermissions.SCAN_EXECUTION));
+      .setPermission(GlobalPermissions.SCAN_EXECUTION));
 
     int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
 
@@ -259,9 +259,9 @@ public class RoleDaoTest {
     dbClient.roleDao().insertGroupRole(db.getSession(), new GroupRoleDto()
       .setGroupId(group.getId())
       .setRole(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserRoleDto()
+    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
       .setUserId(user.getId())
-      .setRole(GlobalPermissions.SYSTEM_ADMIN));
+      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
 
     int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
 
