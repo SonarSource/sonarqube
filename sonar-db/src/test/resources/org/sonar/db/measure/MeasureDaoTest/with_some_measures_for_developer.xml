@@ -27,7 +27,6 @@
   />
 
   <project_measures id="20"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
@@ -43,7 +42,6 @@
                     person_id="[null]"
                     component_uuid="1"/>
   <project_measures id="21"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
@@ -59,7 +57,6 @@
                     person_id="[null]"
                     component_uuid="1"/>
   <project_measures id="22"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="12"
                     value="10"
@@ -76,7 +73,6 @@
                     component_uuid="1"/>
   <!--measures for developer 333-->
   <project_measures id="30"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
@@ -92,7 +88,6 @@
                     person_id="333"
                     component_uuid="1"/>
   <project_measures id="31"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
@@ -108,7 +103,6 @@
                     person_id="333"
                     component_uuid="1"/>
   <project_measures id="32"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="12"
                     value="10"

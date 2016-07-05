@@ -1,6 +1,5 @@
 <dataset>
-  <project_measures snapshot_id="1000"
-                    analysis_uuid="u1000"
+  <project_measures analysis_uuid="u1000"
                     metric_id="10"
                     value="6.0"
                     project_id="[null]"
