@@ -46,8 +46,6 @@ public class DefaultInputFileTest {
       .setType(InputFile.Type.TEST);
 
     assertThat(inputFile.relativePath()).isEqualTo("src/Foo.php");
-    assertThat(inputFile.getRelativePath()).isEqualTo("src/Foo.php");
-    assertThat(inputFile.getFile()).isEqualTo(new File(baseDir.toFile(), "src/Foo.php"));
     assertThat(new File(inputFile.relativePath())).isRelative();
     assertThat(inputFile.absolutePath()).endsWith("Foo.php");
     assertThat(new File(inputFile.absolutePath())).isAbsolute();

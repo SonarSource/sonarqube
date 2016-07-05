@@ -20,11 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Preconditions;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -40,7 +36,7 @@ import org.sonar.api.utils.PathUtils;
 /**
  * @since 4.2
  */
-public class DefaultInputFile extends DefaultInputComponent implements InputFile, org.sonar.api.resources.InputFile {
+public class DefaultInputFile extends DefaultInputComponent implements InputFile {
 
   private final String relativePath;
   private final String moduleKey;
@@ -316,26 +312,6 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   @Override
   public String toString() {
     return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
-  }
-
-  @Override
-  public File getFileBaseDir() {
-    return moduleBaseDir.toFile();
-  }
-
-  @Override
-  public File getFile() {
-    return file();
-  }
-
-  @Override
-  public String getRelativePath() {
-    return relativePath();
-  }
-
-  @Override
-  public InputStream getInputStream() throws FileNotFoundException {
-    return new BufferedInputStream(new FileInputStream(file()));
   }
 
   @Override
