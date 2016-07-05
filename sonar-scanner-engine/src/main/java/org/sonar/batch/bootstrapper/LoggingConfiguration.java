@@ -21,12 +21,9 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -35,6 +32,10 @@ import org.apache.commons.lang.StringUtils;
 public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
+  /**
+   * @deprecated since 5.2 there is no more db access from scanner side
+   */
+  @Deprecated
   public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
 
   public static final String PROPERTY_FORMAT = "FORMAT";
@@ -84,7 +85,7 @@ public final class LoggingConfiguration {
   public LoggingConfiguration setVerbose(boolean verbose) {
     return setRootLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT);
   }
-  
+
   public boolean isVerbose() {
     return verbose;
   }
@@ -116,16 +117,20 @@ public final class LoggingConfiguration {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
   }
 
+  /**
+   * @deprecated since 5.2 there is no more db access from scanner side
+   */
+  @Deprecated
   public LoggingConfiguration setShowSql(boolean showSql) {
-    return addSubstitutionVariable(PROPERTY_SQL_LOGGER_LEVEL, showSql ? "TRACE" : "WARN");
+    return this;
   }
 
+  /**
+   * @deprecated since 5.2 there is no more db access from scanner side
+   */
+  @Deprecated
   public LoggingConfiguration setShowSql(Map<String, String> properties, @Nullable Map<String, String> fallback) {
-    String logLevel = getFallback("sonar.log.level", properties, fallback);
-    String deprecatedProfilingLevel = getFallback("sonar.log.profilingLevel", properties, fallback);
-    boolean sql = "TRACE".equals(logLevel) || "FULL".equals(deprecatedProfilingLevel);
-
-    return setShowSql(sql);
+    return this;
   }
 
   @VisibleForTesting

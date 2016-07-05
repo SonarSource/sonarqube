@@ -142,21 +142,6 @@ public class LoggingConfiguratorTest {
   }
 
   @Test
-  public void testSqlClasspath() throws UnsupportedEncodingException {
-    String classpath = "/org/sonar/batch/bootstrapper/logback.xml";
-
-    conf.setLogOutput(listener);
-    conf.setShowSql(true);
-
-    LoggingConfigurator.apply(conf, classpath);
-
-    Logger logger = LoggerFactory.getLogger("java.sql");
-    logger.info("foo");
-
-    assertThat(listener.msg).endsWith(TEST_STR);
-  }
-
-  @Test
   public void testNoListener() throws UnsupportedEncodingException {
     System.setOut(new PrintStream(out, false, StandardCharsets.UTF_8.name()));
     LoggingConfigurator.apply(conf);
@@ -167,18 +152,4 @@ public class LoggingConfiguratorTest {
     assertThat(new String(out.toByteArray(), StandardCharsets.UTF_8)).contains("info");
   }
 
-  @Test
-  public void testNoSqlClasspath() throws UnsupportedEncodingException {
-    String classpath = "/org/sonar/batch/bootstrapper/logback.xml";
-
-    conf.setLogOutput(listener);
-    conf.setShowSql(false);
-
-    LoggingConfigurator.apply(conf, classpath);
-
-    Logger logger = LoggerFactory.getLogger("java.sql");
-    logger.info("foo");
-
-    assertThat(listener.msg).isNull();
-  }
 }

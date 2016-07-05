@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrapper;
 
 import org.sonar.api.utils.MessageException;
-
+import org.sonar.scanner.bootstrap.GlobalContainer;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.picocontainer.annotations.Nullable;
-import org.sonar.batch.bootstrap.GlobalContainer;
 
 /**
  * Entry point for sonar-runner 2.1.

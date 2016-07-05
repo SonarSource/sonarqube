@@ -4,7 +4,7 @@
   <!--
   
   This file is deprecated. It's replaced by org/sonar/batch/bootstrapper/logback.xml.
-  It can't be deleted as long as Ant Task and Java Runner do not use org.sonar.batch.bootstrapper.LoggingConfiguration.
+  It can't be deleted as long as SonarQube Scanner 2.4 is still supported.
 
   -->
 
@@ -19,24 +19,9 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- sonar.showSql -->
-  <!-- see also org.sonar.db.MyBatis#configureLogback() -->
-  <logger name="org.apache.ibatis">
-    <level value="WARN"/>
-  </logger>
-  <logger name="org.mybatis">
-    <level value="WARN"/>
-  </logger>
-  <logger name="java.sql">
-    <level value="WARN"/>
-  </logger>
-  <logger name="java.sql.ResultSet">
-    <level value="WARN"/>
-  </logger>
   <logger name="PERSISTIT">
     <level value="WARN"/>
   </logger>
-
 
   <root>
     <!-- sonar.verbose -->

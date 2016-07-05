@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrapper;
 
 import org.junit.Test;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
