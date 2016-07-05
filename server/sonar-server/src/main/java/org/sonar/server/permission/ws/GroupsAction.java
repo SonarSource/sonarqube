@@ -31,7 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -98,7 +98,7 @@ public class GroupsAction implements PermissionsWsAction {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey()));
       checkProjectAdminUserByComponentDto(userSession, project);
 
-      PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+      OldPermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
       int total = dbClient.permissionDao().countGroups(dbSession, permissionQuery.permission(), projectIdIfPresent);
       List<GroupWithPermissionDto> groupsWithPermission = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
@@ -128,8 +128,8 @@ public class GroupsAction implements PermissionsWsAction {
       .setSelected(request.mandatoryParam(Param.SELECTED));
   }
 
-  private static PermissionQuery buildPermissionQuery(GroupsWsRequest request, Optional<ComponentDto> project) {
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+  private static OldPermissionQuery buildPermissionQuery(GroupsWsRequest request, Optional<ComponentDto> project) {
+    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
       .permission(request.getPermission())
       .pageIndex(request.getPage())
       .pageSize(request.getPageSize())

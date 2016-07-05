@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
@@ -245,7 +245,7 @@ public class RemoveGroupFromTemplateActionTest {
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
+    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
     return from(dbClient.permissionTemplateDao()
       .selectGroups(dbSession, permissionQuery, templateId))
       .transform(GroupWithPermissionToGroupName.INSTANCE)

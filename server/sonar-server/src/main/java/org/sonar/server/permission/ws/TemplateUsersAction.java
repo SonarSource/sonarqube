@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.user.UserSession;
@@ -85,7 +85,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
-      PermissionQuery query = buildQuery(wsRequest, template);
+      OldPermissionQuery query = buildQuery(wsRequest, template);
       WsPermissions.OldUsersWsResponse templateUsersResponse = buildResponse(dbSession, query, template);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     } finally {
@@ -93,10 +93,10 @@ public class TemplateUsersAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
+  private static OldPermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
     String permission = validateProjectPermission(wsRequest.mandatoryParam(PARAM_PERMISSION));
 
-    return PermissionQuery.builder()
+    return OldPermissionQuery.builder()
       .template(template.getUuid())
       .permission(permission)
       .membership(fromSelectionModeToMembership(wsRequest.mandatoryParam(Param.SELECTED)))
@@ -106,7 +106,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .build();
   }
 
-  private OldUsersWsResponse buildResponse(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
+  private OldUsersWsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
     List<UserWithPermissionDto> usersWithPermission = dbClient.permissionTemplateDao().selectUsers(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
     int total = dbClient.permissionTemplateDao().countUsers(dbSession, query, template.getId());
 

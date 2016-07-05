@@ -19,106 +19,82 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.sonar.db.WildcardPosition;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.api.utils.Paging.offset;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
 
 /**
- * Query used to get users and groups from a permission
+ * Query used to get users and groups permissions
  */
 public class PermissionQuery {
 
+  public static final int RESULTS_MAX_SIZE = 100;
+  public static final int SEARCH_QUERY_MIN_LENGTH = 3;
+  public static final int DEFAULT_PAGE_SIZE = 20;
   public static final int DEFAULT_PAGE_INDEX = 1;
-  public static final int DEFAULT_PAGE_SIZE = 100;
-
-  public static final String ANY = "ANY";
-  public static final String IN = "IN";
-  public static final String OUT = "OUT";
-  public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
   private final String permission;
-  private final String component;
+  private final String componentUuid;
   private final String template;
-  private final String membership;
-  private final String search;
+  private final String searchQuery;
+  private final String searchQueryToSql;
+  private final boolean withPermissionOnly;
 
-  // for internal use in MyBatis
-  final String searchSql;
-
-  // max results per page
   private final int pageSize;
-  // index of selected page. Start with 1.
-  private final int pageIndex;
-  // offset. Starts with 0.
   private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
     this.permission = builder.permission;
-    this.component = builder.component;
+    this.withPermissionOnly = builder.withPermissionOnly;
+    this.componentUuid = builder.componentUuid;
     this.template = builder.template;
-    this.membership = builder.membership;
-    this.search = builder.search;
-    this.searchSql = searchToSql(search);
-
+    this.searchQuery = builder.searchQuery;
+    this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
-    this.pageIndex = builder.pageIndex;
-    this.pageOffset = (builder.pageIndex - 1) * builder.pageSize;
+    this.pageOffset = offset(builder.pageIndex, builder.pageSize);
   }
 
-  private static String searchToSql(@Nullable String s) {
-    String sql = null;
-    if (s != null) {
-      sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = "%" + sql + "%";
-    }
-    return sql;
-  }
-
-  public String permission() {
+  @CheckForNull
+  public String getPermission() {
     return permission;
   }
 
-  /**
-   * Used only for permission template
-   */
+  public boolean withPermissionOnly() {
+    return withPermissionOnly;
+  }
+
   public String template() {
     return template;
   }
 
-  /**
-   * Used on project permission
-   */
   @CheckForNull
-  public String component() {
-    return component;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
   @CheckForNull
-  public String membership() {
-    return membership;
+  public String getSearchQuery() {
+    return searchQuery;
   }
 
   @CheckForNull
-  public String search() {
-    return search;
+  public String getSearchQueryToSql() {
+    return searchQueryToSql;
   }
 
-  public int pageSize() {
+  public int getPageSize() {
     return pageSize;
   }
 
-  public int pageOffset() {
+  public int getPageOffset() {
     return pageOffset;
-  }
-
-  public int pageIndex() {
-    return pageIndex;
   }
 
   public static Builder builder() {
@@ -127,79 +103,58 @@ public class PermissionQuery {
 
   public static class Builder {
     private String permission;
-    private String component;
+    private String componentUuid;
     private String template;
-    private String membership;
-    private String search;
+    private String searchQuery;
+    private boolean withPermissionOnly;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
 
     private Builder() {
+      // enforce method constructor
     }
 
-    public Builder permission(String permission) {
+    public Builder setPermission(@Nullable String permission) {
       this.permission = permission;
       return this;
     }
 
-    public Builder template(String template) {
+    public Builder setTemplate(@Nullable String template) {
       this.template = template;
       return this;
     }
 
-    public Builder component(@Nullable String component) {
-      this.component = component;
+    public Builder setComponentUuid(@Nullable String componentUuid) {
+      this.componentUuid = componentUuid;
       return this;
     }
 
-    public Builder membership(@Nullable String membership) {
-      this.membership = membership;
+    public Builder setSearchQuery(@Nullable String s) {
+      this.searchQuery = defaultIfBlank(s, null);
       return this;
     }
 
-    public Builder search(@Nullable String s) {
-      this.search = StringUtils.defaultIfBlank(s, null);
-      return this;
-    }
-
-    public Builder pageSize(@Nullable Integer i) {
-      this.pageSize = i;
-      return this;
-    }
-
-    public Builder pageIndex(@Nullable Integer i) {
+    public Builder setPageIndex(@Nullable Integer i) {
       this.pageIndex = i;
       return this;
     }
 
-    private void initMembership() {
-      if (membership == null) {
-        membership = PermissionQuery.ANY;
-      } else {
-        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
-          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
-      }
+    public Builder setPageSize(@Nullable Integer i) {
+      this.pageSize = i;
+      return this;
     }
 
-    private void initPageSize() {
-      if (pageSize == null) {
-        pageSize = DEFAULT_PAGE_SIZE;
-      }
-    }
-
-    private void initPageIndex() {
-      if (pageIndex == null) {
-        pageIndex = DEFAULT_PAGE_INDEX;
-      }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
+    public Builder withPermissionOnly() {
+      this.withPermissionOnly = true;
+      return this;
     }
 
     public PermissionQuery build() {
-      checkNotNull(permission, "Permission cannot be null.");
-      initMembership();
-      initPageIndex();
-      initPageSize();
+      this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
+      this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
+      checkArgument(searchQuery == null || searchQuery.length() >= 3);
+      checkArgument(!(withPermissionOnly && permission == null));
       return new PermissionQuery(this);
     }
   }

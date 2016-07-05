@@ -30,7 +30,7 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
@@ -99,7 +99,7 @@ public class OldUsersAction implements PermissionsWsAction {
     try {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, wsProjectRef);
       checkProjectAdminUserByComponentDto(userSession, project);
-      PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+      OldPermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
       int total = dbClient.permissionDao().countUsers(dbSession, permissionQuery, projectIdIfPresent);
       List<UserWithPermissionDto> usersWithPermission = permissionFinder.findUsersWithPermission(dbSession, permissionQuery);
@@ -143,8 +143,8 @@ public class OldUsersAction implements PermissionsWsAction {
     return userResponse.build();
   }
 
-  private static PermissionQuery buildPermissionQuery(OldUsersWsRequest request, Optional<ComponentDto> project) {
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+  private static OldPermissionQuery buildPermissionQuery(OldUsersWsRequest request, Optional<ComponentDto> project) {
+    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
       .permission(request.getPermission())
       .pageIndex(request.getPage())
       .pageSize(request.getPageSize())
