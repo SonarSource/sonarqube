@@ -39,7 +39,7 @@ import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 
 /**
  * This facade wraps db operations related to permissions
@@ -62,14 +62,14 @@ public class PermissionRepository {
    * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
    */
   private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
-    UserRoleDto userRoleDto = new UserRoleDto()
-      .setRole(permission)
+    UserPermissionDto userPermissionDto = new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId)
-      .setResourceId(resourceId);
+      .setComponentId(resourceId);
     if (updateProjectAuthorizationDate) {
       updateProjectAuthorizationDate(session, resourceId);
     }
-    dbClient.roleDao().insertUserRole(session, userRoleDto);
+    dbClient.roleDao().insertUserRole(session, userPermissionDto);
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
@@ -77,12 +77,12 @@ public class PermissionRepository {
   }
 
   public void deleteUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
-    UserRoleDto userRoleDto = new UserRoleDto()
-      .setRole(permission)
+    UserPermissionDto userPermissionDto = new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId)
-      .setResourceId(resourceId);
+      .setComponentId(resourceId);
     updateProjectAuthorizationDate(session, resourceId);
-    dbClient.roleDao().deleteUserRole(userRoleDto, session);
+    dbClient.roleDao().deleteUserRole(userPermissionDto, session);
   }
 
   /**

@@ -122,7 +122,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserGroupMapper;
 import org.sonar.db.user.UserMapper;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
@@ -184,7 +184,7 @@ public class MyBatis {
     confBuilder.loadAlias("Snapshot", SnapshotDto.class);
     confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
     confBuilder.loadAlias("User", UserDto.class);
-    confBuilder.loadAlias("UserRole", UserRoleDto.class);
+    confBuilder.loadAlias("UserRole", UserPermissionDto.class);
     confBuilder.loadAlias("UserGroup", UserGroupDto.class);
     confBuilder.loadAlias("Widget", WidgetDto.class);
     confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);

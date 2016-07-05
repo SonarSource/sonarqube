@@ -63,7 +63,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -245,10 +245,10 @@ public class BulkApplyTemplateActionTest {
   }
 
   private void addUserPermissionToProject(UserDto user, ComponentDto project, String permission) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(permission)
+    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(user.getId())
-      .setResourceId(project.getId()));
+      .setComponentId(project.getId()));
   }
 
   private void addGroupPermissionToProject(GroupDto group, ComponentDto project, String permission) {

@@ -22,49 +22,36 @@ package org.sonar.db.user;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-/**
- * @since 3.2
- */
-public class UserRoleDto {
-  private Long id;
+public class UserPermissionDto {
   private Long userId;
-  private Long resourceId;
-  private String role;
-
-  public Long getId() {
-    return id;
-  }
-
-  public UserRoleDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
+  private Long componentId;
+  private String permission;
 
   public Long getUserId() {
     return userId;
   }
 
-  public UserRoleDto setUserId(Long userId) {
+  public UserPermissionDto setUserId(Long userId) {
     this.userId = userId;
     return this;
   }
 
   @CheckForNull
-  public Long getResourceId() {
-    return resourceId;
+  public Long getComponentId() {
+    return componentId;
   }
 
-  public UserRoleDto setResourceId(@Nullable Long resourceId) {
-    this.resourceId = resourceId;
+  public UserPermissionDto setComponentId(@Nullable Long componentId) {
+    this.componentId = componentId;
     return this;
   }
 
-  public String getRole() {
-    return role;
+  public String getPermission() {
+    return permission;
   }
 
-  public UserRoleDto setRole(String role) {
-    this.role = role;
+  public UserPermissionDto setPermission(String permission) {
+    this.permission = permission;
     return this;
   }
 }

@@ -34,7 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -85,8 +85,8 @@ public class OldUsersActionTest {
   public void search_for_users_with_response_example() {
     UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
     dbSession.commit();
 
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
@@ -107,7 +107,7 @@ public class OldUsersActionTest {
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
     UserDto user = insertUser(newUserDto().setLogin("project-user-login").setName("project-user-name"));
-    insertUserRole(new UserRoleDto().setRole(ISSUE_ADMIN).setUserId(user.getId()).setResourceId(project.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
     dbSession.commit();
     userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");
 
@@ -201,8 +201,8 @@ public class OldUsersActionTest {
     return user;
   }
 
-  private void insertUserRole(UserRoleDto userRoleDto) {
-    dbClient.roleDao().insertUserRole(dbSession, userRoleDto);
+  private void insertUserRole(UserPermissionDto userPermissionDto) {
+    dbClient.roleDao().insertUserRole(dbSession, userPermissionDto);
     dbSession.commit();
   }
 
@@ -210,9 +210,9 @@ public class OldUsersActionTest {
     UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
-    insertUserRole(new UserRoleDto().setRole(SYSTEM_ADMIN).setUserId(user3.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SYSTEM_ADMIN).setUserId(user3.getId()));
     dbSession.commit();
   }
 }

@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -359,10 +359,10 @@ public class UserWithPermissionDaoTest {
   }
 
   private void addPermissionToUser(String permission, long userId, long resourceId) {
-    dbTester.getDbClient().roleDao().insertUserRole(dbTester.getSession(), new UserRoleDto()
-      .setRole(permission)
+    dbTester.getDbClient().roleDao().insertUserRole(dbTester.getSession(), new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId)
-      .setResourceId(resourceId));
+      .setComponentId(resourceId));
     dbTester.commit();
   }
 

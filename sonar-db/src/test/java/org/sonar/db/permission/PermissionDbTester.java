@@ -23,7 +23,7 @@ package org.sonar.db.permission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 
 public class PermissionDbTester {
   private final DbTester db;
@@ -37,16 +37,16 @@ public class PermissionDbTester {
   }
 
   public void addProjectPermissionToUser(String permission, long userId, long componentId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(permission)
+    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId)
-      .setResourceId(componentId));
+      .setComponentId(componentId));
     db.commit();
   }
 
   public void addGlobalPermissionToUser(String permission, long userId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(permission)
+    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(userId));
     db.commit();
   }
