@@ -76,6 +76,24 @@
       and pm.person_id is null
   </select>
 
+  <select id="selectProjectMeasuresOfDeveloper" parameterType="map" resultType="Measure">
+    SELECT
+      <include refid="measureColumns"/>
+    from
+      project_measures pm, snapshots s, projects p
+    where
+      pm.person_id=#{developerId}
+      and pm.metric_id in
+        <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
+          #{metricId}
+        </foreach>
+      and s.uuid=pm.analysis_uuid
+      and s.islast=${_true}
+      and p.uuid=pm.component_uuid
+      and p.scope='PRJ'
+      and p.qualifier='TRK'
+  </select>
+
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     insert into project_measures (
     value,

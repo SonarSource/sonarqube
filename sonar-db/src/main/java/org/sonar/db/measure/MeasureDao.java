@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.version.Select;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -64,19 +63,6 @@ public class MeasureDao implements Dao {
     });
   }
 
-  public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query, Select.RowHandler rowHandler) {
-    if (query.returnsEmpty()) {
-      return Collections.emptyList();
-    }
-    if (query.getComponentUuids() == null) {
-      return mapper(dbSession).selectByQuery(query, rowHandler);
-    }
-    return executeLargeInputs(query.getComponentUuids(), componentUuids -> {
-      MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-      return mapper(dbSession).selectByQuery(pageQuery, rowHandler);
-    });
-  }
-
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession,
     String componentUuid,
     String analysisUuid,
@@ -84,6 +70,15 @@ public class MeasureDao implements Dao {
     return executeLargeInputs(
       metricIds,
       ids -> mapper(dbSession).selectPastMeasures(componentUuid, analysisUuid, ids));
+  }
+
+  /**
+   * Used by developer cockpit.
+   */
+  public List<MeasureDto> selectProjectMeasuresOfDeveloper(DbSession dbSession, long developerId, Collection<Integer> metricIds) {
+    return executeLargeInputs(
+      metricIds,
+      ids -> mapper(dbSession).selectProjectMeasuresOfDeveloper(developerId, metricIds));
   }
 
   public void insert(DbSession session, MeasureDto measureDto) {

@@ -19,18 +19,17 @@
  */
 package org.sonar.db.measure;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.version.Select;
 
 public interface MeasureMapper {
 
   List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query);
 
-  List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query, Select.RowHandler rowHandler);
-
   List<PastMeasureDto> selectPastMeasures(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid, @Param("metricIds") List<Integer> metricIds);
 
-  void insert(MeasureDto measureDto);
+  List<MeasureDto> selectProjectMeasuresOfDeveloper(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);
 
+  void insert(MeasureDto measureDto);
 }
