@@ -19,12 +19,11 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class IdUuidPairs {
+class IdUuidPairs {
   private IdUuidPairs() {
     // prevents instantiation
   }
@@ -33,22 +32,8 @@ public final class IdUuidPairs {
     return pairs.stream().map(IdUuidPair::getId).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
   }
 
-  public static List<Long> ids(Iterable<IdUuidPair> pairs) {
-    if (pairs instanceof List) {
-      return ids((List<IdUuidPair>) pairs);
-    }
-    return ids(Lists.newArrayList(pairs));
-  }
-
   public static List<String> uuids(List<IdUuidPair> pairs) {
     return pairs.stream().map(IdUuidPair::getUuid).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
-  }
-
-  public static List<String> uuids(Iterable<IdUuidPair> pairs) {
-    if (pairs instanceof List) {
-      return uuids((List<IdUuidPair>) pairs);
-    }
-    return uuids(Lists.newArrayList(pairs));
   }
 
 }
