@@ -113,6 +113,7 @@ import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromCeActivity;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromEvents;
+import org.sonar.db.version.v60.DropSnapshotIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropSnapshotIdColumnsFromDuplicationsIndex;
 import org.sonar.db.version.v60.DropTreeColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropTreesOfSnapshots;
@@ -305,7 +306,8 @@ public class MigrationStepModule extends Module {
       MakeAnalysisUuidNotNullOnMeasures.class,
 
       DropTreesOfSnapshots.class,
-      DropTreeColumnsFromSnapshots.class
+      DropTreeColumnsFromSnapshots.class,
+      DropSnapshotIdColumnFromMeasures.class
     );
   }
 }

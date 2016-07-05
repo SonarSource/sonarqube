@@ -99,7 +99,6 @@
   <project_measures id="1"
                     VALUE="60"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1000"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
@@ -107,7 +106,6 @@
   <project_measures id="2"
                     VALUE="80"
                     METRIC_ID="2"
-                    SNAPSHOT_ID="1000"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
@@ -116,7 +114,6 @@
   <project_measures id="3"
                     VALUE="20"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1001"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="BCDE"/>
@@ -124,7 +121,6 @@
   <project_measures id="4"
                     VALUE="70"
                     METRIC_ID="2"
-                    SNAPSHOT_ID="1001"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="BCDE"/>
@@ -133,7 +129,6 @@
   <project_measures id="5"
                     VALUE="5"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1002"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="CDEF"/>
@@ -141,7 +136,6 @@
   <project_measures id="6"
                     VALUE="60"
                     METRIC_ID="2"
-                    SNAPSHOT_ID="1002"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="CDEF"/>

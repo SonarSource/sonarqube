@@ -57,7 +57,6 @@
   <!-- do not delete standard measure -->
   <project_measures id="1"
                     component_uuid="1"
-                    snapshot_id="1"
                     analysis_uuid="u1"
                     metric_id="1"
                     variation_value_1="[null]"
@@ -76,7 +75,6 @@
   <!-- delete measure on metrics that are flagged with delete_historical_data=true -->
   <project_measures id="6"
                     component_uuid="1"
-                    snapshot_id="1"
                     analysis_uuid="u1"
                     metric_id="2"
                     variation_value_1="[null]"
@@ -95,7 +93,6 @@
   <!-- delete measure on developers -->
   <project_measures id="7"
                     component_uuid="1"
-                    snapshot_id="1"
                     analysis_uuid="u1"
                     metric_id="2"
                     variation_value_1="[null]"

@@ -20,7 +20,6 @@
              islast="[true]"/>
 
   <project_measures id="20"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
@@ -35,7 +34,6 @@
                     alert_text="[null]"
                     component_uuid="FILE1"/>
   <project_measures id="21"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
@@ -50,7 +48,6 @@
                     alert_text="[null]"
                     component_uuid="FILE1"/>
   <project_measures id="22"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="12"
                     value="10"

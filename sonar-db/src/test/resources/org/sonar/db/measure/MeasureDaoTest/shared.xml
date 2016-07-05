@@ -21,7 +21,6 @@
 
   <project_measures id="20"
                     component_uuid="ABCD"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="10"
                     value="[null]"
@@ -36,7 +35,6 @@
                     alert_text="[null]"/>
   <project_measures id="21"
                     component_uuid="ABCD"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="11"
                     value="[null]"
@@ -51,7 +49,6 @@
                     alert_text="[null]"/>
   <project_measures id="22"
                     component_uuid="ABCD"
-                    snapshot_id="5"
                     analysis_uuid="u5"
                     metric_id="12"
                     value="10"

@@ -37,7 +37,6 @@
   <project_measures id="1"
                     VALUE="60"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1000"
                     analysis_uuid="u1000"
                     person_id="[null]"
                     component_uuid="ABCD"/>
@@ -45,7 +44,6 @@
   <project_measures id="2"
                     VALUE="20"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1000"
                     analysis_uuid="u1000"
                     person_id="20"
                     component_uuid="ABCD"/>
@@ -53,7 +51,6 @@
   <project_measures id="3"
                     VALUE="40"
                     METRIC_ID="1"
-                    SNAPSHOT_ID="1000"
                     analysis_uuid="u1000"
                     person_id="21"
                     component_uuid="ABCD"/>
