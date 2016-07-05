@@ -137,6 +137,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verify(response).setStatus(401);
+    verifyZeroInteractions(userSession);
   }
 
   @Test
@@ -149,6 +150,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verify(response).setStatus(401);
+    verifyZeroInteractions(userSession);
   }
 
   @Test
@@ -159,6 +161,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
+    verifyZeroInteractions(userSession);
   }
 
   @Test
@@ -169,6 +172,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
+    verifyZeroInteractions(userSession);
   }
 
   @Test

@@ -94,7 +94,6 @@ public class JwtHttpHandler {
     if (userDto.isPresent()) {
       return userDto;
     }
-    removeToken(response);
     return Optional.empty();
   }
 
