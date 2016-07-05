@@ -19,6 +19,7 @@
  */
 package org.sonar.db.permission;
 
+import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,7 +35,6 @@ import static org.sonar.db.DatabaseUtils.buildLikeValue;
  * Query used to get users and groups permissions
  */
 public class PermissionQuery {
-
   public static final int RESULTS_MAX_SIZE = 100;
   public static final int SEARCH_QUERY_MIN_LENGTH = 3;
   public static final int DEFAULT_PAGE_SIZE = 20;
@@ -46,6 +46,7 @@ public class PermissionQuery {
   private final String searchQuery;
   private final String searchQueryToSql;
   private final boolean withPermissionOnly;
+  private final List<String> logins;
 
   private final int pageSize;
   private final int pageOffset;
@@ -59,6 +60,7 @@ public class PermissionQuery {
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
+    this.logins = builder.logins;
   }
 
   @CheckForNull
@@ -97,6 +99,11 @@ public class PermissionQuery {
     return pageOffset;
   }
 
+  @CheckForNull
+  public List<String> getLogins() {
+    return logins;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -107,6 +114,7 @@ public class PermissionQuery {
     private String template;
     private String searchQuery;
     private boolean withPermissionOnly;
+    private List<String> logins;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
@@ -150,11 +158,16 @@ public class PermissionQuery {
       return this;
     }
 
+    public Builder setLogins(@Nullable List<String> logins) {
+      this.logins = logins;
+      return this;
+    }
+
     public PermissionQuery build() {
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
       checkArgument(searchQuery == null || searchQuery.length() >= 3);
-      checkArgument(!(withPermissionOnly && permission == null));
+      checkArgument(logins == null || !logins.isEmpty());
       return new PermissionQuery(this);
     }
   }

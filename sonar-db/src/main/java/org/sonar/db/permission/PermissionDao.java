@@ -33,6 +33,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.user.UserPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionDao implements Dao {
@@ -68,6 +69,10 @@ public class PermissionDao implements Dao {
   }
 
   public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
+    if (query.getLogins() != null && query.getLogins().isEmpty()) {
+      return emptyList();
+    }
+
     return mapper(dbSession).selectUserPermissionsByQuery(query);
   }
 

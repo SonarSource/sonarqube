@@ -36,7 +36,7 @@ public interface PermissionMapper {
 
   int countUsersByQuery(@Param("query") PermissionQuery query);
 
-  List<UserPermissionDto> selectUserPermissionsByQuery(PermissionQuery query);
+  List<UserPermissionDto> selectUserPermissionsByQuery(@Param("query") PermissionQuery query);
 
   List<GroupWithPermissionDto> selectGroups(Map<String, Object> parameters);
 
