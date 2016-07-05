@@ -61,9 +61,21 @@
   </delete>
 
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
-    insert into resource_index (kee, position, name_size, component_uuid, root_component_uuid, qualifier)
-    values (#{key}, #{position}, #{nameSize},
-    #{componentUuid}, #{rootComponentUuid}, #{qualifier})
+    insert into resource_index (
+    kee,
+    position,
+    name_size,
+    component_uuid,
+    root_component_uuid,
+    qualifier)
+    values (
+    #{key, jdbcType=VARCHAR},
+    #{position, jdbcType=INTEGER},
+    #{nameSize, jdbcType=INTEGER},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{rootComponentUuid, jdbcType=VARCHAR},
+    #{qualifier, jdbcType=VARCHAR}
+    )
   </insert>
 
 </mapper>
