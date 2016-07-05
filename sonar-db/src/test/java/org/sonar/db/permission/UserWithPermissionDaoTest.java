@@ -19,19 +19,22 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
 
@@ -39,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserWithPermissionDaoTest {
@@ -47,6 +51,9 @@ public class UserWithPermissionDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  UserDbTester userDb = new UserDbTester(dbTester);
+  PermissionDbTester permissionDb = new PermissionDbTester(dbTester);
+  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   DbSession session = dbTester.getSession();
 
   PermissionDao underTest = new PermissionDao(dbTester.myBatis());
@@ -55,7 +62,7 @@ public class UserWithPermissionDaoTest {
   public void select_all_users_for_project_permission() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = selectUsers(session, query, COMPONENT_ID);
     assertThat(result).hasSize(3);
 
@@ -79,7 +86,7 @@ public class UserWithPermissionDaoTest {
   public void select_all_users_for_global_permission() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("admin").build();
     List<UserWithPermissionDto> result = selectUsers(session, query, null);
     assertThat(result).hasSize(3);
 
@@ -101,7 +108,7 @@ public class UserWithPermissionDaoTest {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     // user1 and user2 have permission user
-    assertThat(selectUsers(session, PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
+    assertThat(selectUsers(session, OldPermissionQuery.builder().permission("user").membership(OldPermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
   }
 
   @Test
@@ -109,18 +116,18 @@ public class UserWithPermissionDaoTest {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     // Only user3 has not the user permission
-    assertThat(selectUsers(session, PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
+    assertThat(selectUsers(session, OldPermissionQuery.builder().permission("user").membership(OldPermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
   }
 
   @Test
   public void search_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    List<UserWithPermissionDto> result = selectUsers(session, PermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
+    List<UserWithPermissionDto> result = selectUsers(session, OldPermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("User1");
 
-    result = selectUsers(session, PermissionQuery.builder().permission("user").search("user").build(), COMPONENT_ID);
+    result = selectUsers(session, OldPermissionQuery.builder().permission("user").search("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
   }
 
@@ -128,24 +135,132 @@ public class UserWithPermissionDaoTest {
   public void select_only_enable_users() {
     dbTester.prepareDbUnit(getClass(), "select_only_enable_users.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = selectUsers(session, query, COMPONENT_ID);
     assertThat(result).hasSize(3);
 
     // Disabled user should not be returned
-    assertThat(Iterables.find(result, new Predicate<UserWithPermissionDto>() {
-      @Override
-      public boolean apply(@Nullable UserWithPermissionDto input) {
-        return input.getLogin().equals("disabledUser");
-      }
-    }, null)).isNull();
+    assertThat(Iterables.find(result, input -> input.getLogin().equals("disabledUser"), null)).isNull();
+  }
+
+  @Test
+  public void select_users() {
+    UserDto user3 = userDb.insertUser(newUserDto().setName("3-name"));
+    UserDto user2 = userDb.insertUser(newUserDto().setName("2-name"));
+    UserDto user1 = userDb.insertUser(newUserDto().setName("1-name"));
+    UserDto user4 = userDb.insertUser(newUserDto().setName("4-name"));
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SYSTEM_ADMIN, user3.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.PROVISIONING, user3.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SYSTEM_ADMIN, user2.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SYSTEM_ADMIN, user1.getId());
+    permissionDb.addProjectPermissionToUser(UserRole.USER, user4.getId(), project.getId());
+
+    PermissionQuery.Builder dbQuery = PermissionQuery.builder();
+    List<UserRef> result = selectUsersByQuery(dbQuery);
+    int count = countUsersByQuery(dbQuery);
+
+    assertThat(result)
+      .hasSize(4)
+      .extracting(UserRef::getName)
+      .containsExactly("1-name", "2-name", "3-name", "4-name");
+    assertThat(result.get(0)).extracting(UserRef::getEmail, UserRef::getLogin)
+      .containsExactly(user1.getEmail(), user1.getLogin());
+    assertThat(count).isEqualTo(4);
+  }
+
+  @Test
+  public void select_users_paginated() {
+    IntStream.rangeClosed(0, 9)
+      .forEach(i -> userDb.insertUser(newUserDto().setName(i + "-name")));
+
+    PermissionQuery.Builder dbQuery = PermissionQuery.builder().setPageIndex(2).setPageSize(3);
+    List<UserRef> result = selectUsersByQuery(dbQuery);
+    int count = countUsersByQuery(dbQuery);
+
+    assertThat(result).hasSize(3).extracting(UserRef::getName)
+      .containsExactly("3-name", "4-name", "5-name");
+    assertThat(count).isEqualTo(10);
+  }
+
+  @Test
+  public void select_users_with_query() {
+    userDb.insertUser(newUserDto().setName("1-name"));
+    userDb.insertUser(newUserDto().setName("unknown"));
+
+    PermissionQuery.Builder dbQuery = PermissionQuery.builder().setSearchQuery("nam");
+    List<UserRef> result = selectUsersByQuery(dbQuery);
+    int count = countUsersByQuery(dbQuery);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getName()).isEqualTo("1-name");
+    assertThat(count).isEqualTo(1);
+  }
+
+  @Test
+  public void select_users_with_global_permissions() {
+    UserDto user3 = userDb.insertUser(newUserDto().setName("3-name"));
+    UserDto user2 = userDb.insertUser(newUserDto().setName("2-name"));
+    UserDto user1 = userDb.insertUser(newUserDto().setName("1-name"));
+    UserDto user4 = userDb.insertUser(newUserDto().setName("4-name"));
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user3.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.PROVISIONING, user3.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user2.getId());
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SYSTEM_ADMIN, user1.getId());
+    // project permission
+    permissionDb.addProjectPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user4.getId(), project.getId());
+
+    PermissionQuery.Builder dbQuery = PermissionQuery.builder()
+      .setComponentUuid(null)
+      .setPermission(GlobalPermissions.SCAN_EXECUTION)
+      .withPermissionOnly();
+    List<UserRef> result = selectUsersByQuery(dbQuery);
+    int count = countUsersByQuery(dbQuery);
+
+    assertThat(result).hasSize(2).extracting(UserRef::getName)
+      .containsExactly("2-name", "3-name");
+    assertThat(count).isEqualTo(2);
+  }
+
+  @Test
+  public void select_users_with_project_permissions() {
+    UserDto user3 = userDb.insertUser(newUserDto().setName("3-name"));
+    UserDto user2 = userDb.insertUser(newUserDto().setName("2-name"));
+    UserDto user1 = userDb.insertUser(newUserDto().setName("1-name"));
+    UserDto user4 = userDb.insertUser(newUserDto().setName("4-name"));
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+
+    permissionDb.addProjectPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user3.getId(), project.getId());
+    permissionDb.addProjectPermissionToUser(GlobalPermissions.PROVISIONING, user3.getId(), project.getId());
+    permissionDb.addProjectPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user2.getId(), project.getId());
+    permissionDb.addProjectPermissionToUser(GlobalPermissions.SYSTEM_ADMIN, user1.getId(), project.getId());
+    // global permission
+    permissionDb.addGlobalPermissionToUser(GlobalPermissions.SCAN_EXECUTION, user4.getId());
+
+    PermissionQuery.Builder dbQuery = PermissionQuery.builder()
+      .setComponentUuid(null)
+      .setPermission(GlobalPermissions.SCAN_EXECUTION)
+      .withPermissionOnly()
+      .setComponentUuid(project.uuid());
+    List<UserRef> result = selectUsersByQuery(dbQuery);
+    int count = countUsersByQuery(dbQuery);
+
+    assertThat(result).hasSize(2).extracting(UserRef::getName)
+      .containsExactly("2-name", "3-name");
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
   public void should_be_sorted_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions_should_be_sorted_by_user_name.xml");
 
-    List<UserWithPermissionDto> result = selectUsers(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
+    List<UserWithPermissionDto> result = selectUsers(session, OldPermissionQuery.builder().permission("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
     assertThat(result.get(0).getName()).isEqualTo("User1");
     assertThat(result.get(1).getName()).isEqualTo("User2");
@@ -156,64 +271,63 @@ public class UserWithPermissionDaoTest {
   public void should_be_paginated() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    List<UserWithPermissionDto> result = underTest.selectUsers(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
+    List<UserWithPermissionDto> result = underTest.selectUsers(session, OldPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("User1");
     assertThat(result.get(1).getName()).isEqualTo("User2");
 
-    result = underTest.selectUsers(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 1, 2);
+    result = underTest.selectUsers(session, OldPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 1, 2);
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("User2");
     assertThat(result.get(1).getName()).isEqualTo("User3");
 
-    result = underTest.selectUsers(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 2, 1);
+    result = underTest.selectUsers(session, OldPermissionQuery.builder().permission("user").build(), COMPONENT_ID, 2, 1);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("User3");
   }
 
   @Test
   public void user_count_by_component_and_permission() {
-    UserDto user1 = insertUser(newUserDto());
-    UserDto user2 = insertUser(newUserDto());
-    UserDto user3 = insertUser(newUserDto());
+    UserDto user1 = userDb.insertUser();
+    UserDto user2 = userDb.insertUser();
+    UserDto user3 = userDb.insertUser();
 
-    insertUserRole(ISSUE_ADMIN, user1.getId(), 42L);
-    insertUserRole(ADMIN, user1.getId(), 123L);
-    insertUserRole(ADMIN, user2.getId(), 123L);
-    insertUserRole(ADMIN, user3.getId(), 123L);
-    insertUserRole(USER, user1.getId(), 123L);
-    insertUserRole(USER, user1.getId(), 456L);
-    commit();
+    addPermissionToUser(ISSUE_ADMIN, user1.getId(), 42L);
+    addPermissionToUser(ADMIN, user1.getId(), 123L);
+    addPermissionToUser(ADMIN, user2.getId(), 123L);
+    addPermissionToUser(ADMIN, user3.getId(), 123L);
+    addPermissionToUser(USER, user1.getId(), 123L);
+    addPermissionToUser(USER, user1.getId(), 456L);
 
     final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
-    underTest.usersCountByComponentIdAndPermission(dbTester.getSession(), Arrays.asList(123L, 456L, 789L), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        result.add((CountByProjectAndPermissionDto) context.getResultObject());
-      }
-    });
+    underTest.usersCountByComponentIdAndPermission(dbTester.getSession(), Arrays.asList(123L, 456L, 789L),
+      context -> result.add((CountByProjectAndPermissionDto) context.getResultObject()));
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
     assertThat(result).extracting("componentId").containsOnly(123L, 456L);
     assertThat(result).extracting("count").containsOnly(3, 1);
   }
 
-  private List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+  private List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {
     return underTest.selectUsers(session, query, componentId, 0, Integer.MAX_VALUE);
   }
 
-  private UserDto insertUser(UserDto userDto) {
-    return dbTester.getDbClient().userDao().insert(dbTester.getSession(), userDto.setActive(true));
+  private List<UserRef> selectUsersByQuery(PermissionQuery.Builder query) {
+    List<UserRef> result = new ArrayList<>();
+    underTest.selectUsersByQuery(session, query.build(), context -> result.add((UserRef) context.getResultObject()));
+    return result;
   }
 
-  private void insertUserRole(String permission, long userId, long resourceId) {
+  private int countUsersByQuery(PermissionQuery.Builder query) {
+    return underTest.countUsersByQuery(session, query.build());
+  }
+
+  private void addPermissionToUser(String permission, long userId, long resourceId) {
     dbTester.getDbClient().roleDao().insertUserRole(dbTester.getSession(), new UserRoleDto()
       .setRole(permission)
       .setUserId(userId)
       .setResourceId(resourceId));
+    dbTester.commit();
   }
 
-  private void commit() {
-    dbTester.getSession().commit();
-  }
 }

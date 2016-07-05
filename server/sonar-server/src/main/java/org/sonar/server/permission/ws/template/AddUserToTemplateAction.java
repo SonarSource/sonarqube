@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.user.UserDto;
@@ -108,7 +108,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
   }
 
   private boolean isUserAlreadyAdded(DbSession dbSession, long templateId, String userLogin, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
+    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
     List<UserWithPermissionDto> usersWithPermission = dbClient.permissionTemplateDao().selectUsers(dbSession, permissionQuery, templateId, 0, Integer.MAX_VALUE);
     return from(usersWithPermission).anyMatch(new HasUserPredicate(userLogin));
   }

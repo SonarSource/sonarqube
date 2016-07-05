@@ -29,6 +29,7 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.permission.PermissionFinder;
@@ -39,6 +40,8 @@ import org.sonarqube.ws.client.permission.UsersWsRequest;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
+import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
@@ -50,8 +53,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 public class UsersAction implements PermissionsWsAction {
-
-  private static final int MAX_SIZE = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -73,13 +74,15 @@ public class UsersAction implements PermissionsWsAction {
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +
         "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
         "It requires administration permissions to access.")
-      .addPagingParams(20, MAX_SIZE)
-      .addSearchQuery("stas", "names")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("users-example.json"))
       .setHandler(this);
 
-    createPermissionParameter(action);
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.", PermissionQuery.SEARCH_QUERY_MIN_LENGTH)
+      .setExampleValue("eri");
+    createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
 
@@ -96,7 +99,7 @@ public class UsersAction implements PermissionsWsAction {
     try {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, wsProjectRef);
       checkProjectAdminUserByComponentDto(userSession, project);
-      PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+      OldPermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
       int total = dbClient.permissionDao().countUsers(dbSession, permissionQuery, projectIdIfPresent);
       List<UserWithPermissionDto> usersWithPermission = permissionFinder.findUsersWithPermission(dbSession, permissionQuery);
@@ -139,8 +142,8 @@ public class UsersAction implements PermissionsWsAction {
     return userResponse.build();
   }
 
-  private static PermissionQuery buildPermissionQuery(UsersWsRequest request, Optional<ComponentDto> project) {
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+  private static OldPermissionQuery buildPermissionQuery(UsersWsRequest request, Optional<ComponentDto> project) {
+    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
       .permission(request.getPermission())
       .pageIndex(request.getPage())
       .pageSize(request.getPageSize())

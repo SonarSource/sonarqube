@@ -30,6 +30,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.user.UserPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -49,19 +50,34 @@ public class PermissionDao implements Dao {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, @Nullable Long componentId, int offset, int limit) {
+  public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
     Map<String, Object> params = usersParameters(query, componentId);
 
     return mapper(session).selectUsers(params, new RowBounds(offset, limit));
   }
 
-  public int countUsers(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+  /**
+   * Each row returns <code>{@link UserRef}</code>, ordered by user names
+   */
+  public void selectUsersByQuery(DbSession dbSession, PermissionQuery query, ResultHandler handler) {
+    mapper(dbSession).selectUsersByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()), handler);
+  }
+
+  public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).countUsersByQuery(query);
+  }
+
+  public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectUserPermissionsByQuery(query);
+  }
+
+  public int countUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = usersParameters(query, componentId);
 
     return mapper(session).countUsers(params);
   }
 
-  private static Map<String, Object> usersParameters(PermissionQuery query, @Nullable Long componentId) {
+  private static Map<String, Object> usersParameters(OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(COMPONENT_ID_PARAMETER, componentId);
@@ -74,12 +90,12 @@ public class PermissionDao implements Dao {
    *
    * @return a non paginated list of groups.
    */
-  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = groupsParameters(query, componentId);
     return mapper(session).selectGroups(params);
   }
 
-  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
+  public List<GroupWithPermissionDto> selectGroups(OldPermissionQuery query, @Nullable Long componentId) {
     DbSession session = myBatis.openSession(false);
     try {
       return selectGroups(session, query, componentId);
@@ -128,7 +144,7 @@ public class PermissionDao implements Dao {
       });
   }
 
-  private static Map<String, Object> groupsParameters(PermissionQuery query, @Nullable Long componentId) {
+  private static Map<String, Object> groupsParameters(OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(COMPONENT_ID_PARAMETER, componentId);

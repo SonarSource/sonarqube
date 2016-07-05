@@ -38,7 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
@@ -301,8 +301,8 @@ public class ApplyTemplateActionTest {
     dbSession.commit();
   }
 
-  private static PermissionQuery query(String permission) {
-    return PermissionQuery.builder().membership(IN).permission(permission).build();
+  private static OldPermissionQuery query(String permission) {
+    return OldPermissionQuery.builder().membership(IN).permission(permission).build();
   }
 
   private static class PermissionNotNull implements Predicate<GroupWithPermissionDto> {

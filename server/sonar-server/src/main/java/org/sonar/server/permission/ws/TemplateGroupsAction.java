@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Group;
@@ -81,7 +81,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
-      PermissionQuery query = buildQuery(wsRequest, template);
+      OldPermissionQuery query = buildQuery(wsRequest, template);
       WsGroupsResponse groupsResponse = buildResponse(dbSession, query, template);
 
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
@@ -90,7 +90,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     }
   }
 
-  private WsGroupsResponse buildResponse(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
+  private WsGroupsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
     int total = dbClient.permissionTemplateDao().countGroups(dbSession, query, template.getId());
     List<GroupWithPermissionDto> groupsWithPermission = dbClient.permissionTemplateDao().selectGroups(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
 
@@ -109,10 +109,10 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     return groupsResponse.build();
   }
 
-  private static PermissionQuery buildQuery(Request request, PermissionTemplateDto template) {
+  private static OldPermissionQuery buildQuery(Request request, PermissionTemplateDto template) {
     String permission = validateProjectPermission(request.mandatoryParam(PARAM_PERMISSION));
 
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
       .permission(permission)
       .pageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .pageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
