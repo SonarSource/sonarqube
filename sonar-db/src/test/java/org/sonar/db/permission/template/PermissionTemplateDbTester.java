@@ -24,10 +24,9 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.PermissionTemplateDto;
 
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateCharacteristicDto;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateCharacteristicDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public class PermissionTemplateDbTester {
   private final DbTester db;

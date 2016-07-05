@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.permission;
+package org.sonar.db.permission.template;
 
 import java.util.List;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
 
 public class PermissionTemplate {
   private final PermissionTemplateDto template;

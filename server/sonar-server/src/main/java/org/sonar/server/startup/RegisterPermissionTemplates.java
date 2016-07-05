@@ -28,7 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.DefaultPermissionTemplates;
 import org.sonar.server.platform.PersistentSettings;

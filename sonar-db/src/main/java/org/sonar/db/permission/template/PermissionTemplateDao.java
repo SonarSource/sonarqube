@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.permission;
+package org.sonar.db.permission.template;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
@@ -36,8 +36,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
+import org.sonar.db.permission.CountByProjectAndPermissionDto;
+import org.sonar.db.permission.GroupWithPermissionDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.UserWithPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
@@ -388,7 +390,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Load permission template and load associated collections of users and groups permissions, and characteristics
    */
-  PermissionTemplate selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
+  public PermissionTemplate selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
     PermissionTemplateDto template = selectByUuid(session, templateUuid);
     if (template == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with uuid " + templateUuid);

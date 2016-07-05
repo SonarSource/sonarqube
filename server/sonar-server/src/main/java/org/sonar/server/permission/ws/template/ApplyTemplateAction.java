@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;

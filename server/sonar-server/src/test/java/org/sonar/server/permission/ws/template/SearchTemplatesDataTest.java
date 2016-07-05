@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public class SearchTemplatesDataTest {
   @Rule
