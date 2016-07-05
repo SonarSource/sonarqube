@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.permission;
+package org.sonar.db.permission.template;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.permission.GroupWithPermissionDto;
+import org.sonar.db.permission.UserWithPermissionDto;
 
 /**
  * @since 3.7

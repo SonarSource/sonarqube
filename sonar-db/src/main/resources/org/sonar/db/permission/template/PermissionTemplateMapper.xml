@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.db.permission.PermissionTemplateMapper">
+<mapper namespace="org.sonar.db.permission.template.PermissionTemplateMapper">
 
   <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO permission_templates (name, kee, description, key_pattern, created_at, updated_at)
@@ -284,7 +284,7 @@
   </select>
 
   <select id="usersCountByTemplateIdAndPermission" parameterType="map"
-          resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
+          resultType="org.sonar.db.permission.template.CountByTemplateAndPermissionDto">
     SELECT ptu.template_id as templateId, ptu.permission_reference as permission, count(u.login) as count
     FROM users u
     INNER JOIN perm_templates_users ptu ON ptu.user_id=u.id
@@ -299,7 +299,7 @@
   </select>
 
   <select id="groupsCountByTemplateIdAndPermission" parameterType="map"
-          resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
+          resultType="org.sonar.db.permission.template.CountByTemplateAndPermissionDto">
     SELECT count(1) as count, permission, templateId
     FROM
     (SELECT g.name as name, ptg.permission_reference as permission, ptg.template_id as templateId
