@@ -139,35 +139,27 @@ class Api::EventsController < Api::ApiController
       raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && root_snapshot.event(EventCategory::KEY_VERSION)
       raise "An event '#{params[:name]}' (category '#{params[:category]}') already exists on this resource." if Event.already_exists(@resource.last_analysis.id, params[:name], params[:category])
       
-      # Create events for the root project and every submodule
       event_to_return = nil
       name = params[:name]
       desc = params[:description]
       category = params[:category]
-      snapshots = Snapshot.find(:all, :include => ['events', 'project'], :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot.id, root_snapshot.id])
-      snapshots.each do |snapshot|
-        # if this is a 'Version' event, must propagate the version number to the snapshot
-        if category==EventCategory::KEY_VERSION
-          snapshot.version = name
-          snapshot.save!
-        end
-        # and then create the event linked to the updated snapshot        
-        event=Event.new(
-          :name => name,
-          :description => desc,
-          :category => category,
-          :snapshot => snapshot,
-          :component_uuid => snapshot.project.uuid,
-          :event_date => snapshot.created_at
-        )
-        event.save!
-        event_to_return = event if snapshot.component_uuid = @resource.uuid
+      if category==EventCategory::KEY_VERSION
+        root_snapshot.version = name
+        root_snapshot.save!
       end
-      
-      
+      event=Event.new(
+        :name => name,
+        :description => desc,
+        :category => category,
+        :snapshot => root_snapshot,
+        :component_uuid => root_snapshot.component_uuid,
+        :event_date => root_snapshot.created_at
+      )
+      event.save!
+
       respond_to do |format|
-        format.json { render :json => jsonp(events_to_json([event_to_return])) }
-        format.xml  { render :xml => events_to_xml([event_to_return]) }
+        format.json { render :json => jsonp(events_to_json([event])) }
+        format.xml  { render :xml => events_to_xml([event]) }
         format.text { render :text => text_not_supported }
       end
 
