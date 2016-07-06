@@ -46,8 +46,8 @@ public class PersistAnalysisStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolder periodsHolder;
 
-  public PersistAnalysisStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-                             PeriodsHolder periodsHolder) {
+  public PersistAnalysisStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder,
+    AnalysisMetadataHolder analysisMetadataHolder, PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
