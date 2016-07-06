@@ -39,8 +39,8 @@ class MeasureValueFormatter {
       case BOOL:
         return formatBoolean(doubleValue);
       case INT:
-      case MILLISEC:
         return formatInteger(doubleValue);
+      case MILLISEC:
       case WORK_DUR:
         return formatLong(doubleValue);
       case FLOAT:
@@ -64,8 +64,8 @@ class MeasureValueFormatter {
       case BOOL:
         return formatBoolean(value);
       case INT:
-      case MILLISEC:
         return formatInteger(value);
+      case MILLISEC:
       case WORK_DUR:
         return formatLong(value);
       case FLOAT:
