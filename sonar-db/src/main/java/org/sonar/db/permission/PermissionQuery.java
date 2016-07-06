@@ -166,7 +166,7 @@ public class PermissionQuery {
     public PermissionQuery build() {
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
-      checkArgument(searchQuery == null || searchQuery.length() >= 3);
+      checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH);
       checkArgument(logins == null || !logins.isEmpty());
       return new PermissionQuery(this);
     }

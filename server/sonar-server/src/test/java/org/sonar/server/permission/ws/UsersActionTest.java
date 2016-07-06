@@ -31,8 +31,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.PermissionDbTester;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -45,7 +48,10 @@ import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -65,10 +71,16 @@ public class UsersActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
+
+  UserDbTester userDb = new UserDbTester(db);
+  PermissionDbTester permissionDb = new PermissionDbTester(db);
+  ComponentDbTester componentDbTester = new ComponentDbTester(db);
+
   WsActionTester ws;
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+
   UsersAction underTest;
 
   @Before
@@ -83,49 +95,108 @@ public class UsersActionTest {
 
   @Test
   public void search_for_users_with_response_example() {
-    UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
-    UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
-    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
-    dbSession.commit();
+    UserDto user2 = userDb.insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
+    UserDto user1 = userDb.insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
+    permissionDb.addGlobalPermissionToUser(SCAN_EXECUTION, user2.getId());
+    permissionDb.addGlobalPermissionToUser(SYSTEM_ADMIN, user1.getId());
+    permissionDb.addGlobalPermissionToUser(QUALITY_GATE_ADMIN, user1.getId());
+    permissionDb.addGlobalPermissionToUser(QUALITY_PROFILE_ADMIN, user1.getId());
 
-    String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
+    String result = ws.newRequest().execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("users-example.json"));
+    assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("users-example.json"));
   }
 
   @Test
   public void search_for_users_with_one_permission() {
-    insertUsers();
+    insertUsersHavingGlobalPermissions();
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
+    assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
   }
 
   @Test
   public void search_for_users_with_permission_on_project() {
-    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
-    UserDto user = insertUser(newUserDto().setLogin("project-user-login").setName("project-user-name"));
-    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
-    dbSession.commit();
     userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");
+
+    // User have permission on project
+    ComponentDto project = componentDbTester.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    UserDto user = userDb.insertUser(newUserDto());
+    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+
+    // User have permission on another project
+    ComponentDto anotherProject = componentDbTester.insertComponent(newProjectDto());
+    UserDto userHavePermissionOnAnotherProject = userDb.insertUser(newUserDto());
+    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(userHavePermissionOnAnotherProject.getId()).setComponentId(anotherProject.getId()));
+
+    // User has no permission
+    UserDto withoutPermission = userDb.insertUser(newUserDto());
+
+    dbSession.commit();
 
     String result = ws.newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .execute().getInput();
 
-    assertThat(result).contains("project-user-login")
-      .doesNotContain("login-1");
+    assertThat(result).contains(user.getLogin())
+      .doesNotContain(userHavePermissionOnAnotherProject.getLogin())
+      .doesNotContain(withoutPermission.getLogin());
+  }
+
+  @Test
+  public void search_only_for_users_with_permission_when_no_search_query() {
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+
+    // User have permission on project
+    ComponentDto project = componentDbTester.insertComponent(newProjectDto());
+    UserDto user = userDb.insertUser(newUserDto());
+    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+
+    // User has no permission
+    UserDto withoutPermission = userDb.insertUser(newUserDto());
+
+    dbSession.commit();
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .execute().getInput();
+
+    assertThat(result).contains(user.getLogin())
+      .doesNotContain(withoutPermission.getLogin());
+  }
+
+  @Test
+  public void search_also_for_users_without_permission_when_search_query() {
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+
+    // User have permission on project
+    ComponentDto project = componentDbTester.insertComponent(newProjectDto());
+    UserDto user = userDb.insertUser(newUserDto("with-permission", "with-permission", null));
+    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+
+    // User has no permission
+    UserDto withoutPermission = userDb.insertUser(newUserDto("without-permission", "without-permission", null));
+    UserDto anotherUser = userDb.insertUser(newUserDto("another-user", "another-user", null));
+
+    dbSession.commit();
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(TEXT_QUERY, "with")
+      .execute().getInput();
+
+    assertThat(result).contains(user.getLogin())
+      .contains(withoutPermission.getLogin())
+      .doesNotContain(anotherUser.getLogin());
   }
 
   @Test
   public void search_for_users_with_query_as_a_parameter() {
-    insertUsers();
+    insertUsersHavingGlobalPermissions();
     String result = ws.newRequest()
       .setParam("permission", "scan")
-      .setParam(Param.TEXT_QUERY, "ame-1")
+      .setParam(TEXT_QUERY, "ame-1")
       .execute().getInput();
 
     assertThat(result).contains("login-1")
@@ -135,10 +206,8 @@ public class UsersActionTest {
 
   @Test
   public void search_for_users_with_select_as_a_parameter() {
-    insertUsers();
+    insertUsersHavingGlobalPermissions();
     String result = ws.newRequest()
-      .setParam("permission", "scan")
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute().getInput();
 
     assertThat(result).contains("login-1", "login-2", "login-3");
@@ -152,13 +221,6 @@ public class UsersActionTest {
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute();
-  }
-
-  @Test
-  public void fail_if_permission_parameter_is_not_filled() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest().execute();
   }
 
   @Test
@@ -195,6 +257,14 @@ public class UsersActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_if_search_query_is_too_short() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+
+    ws.newRequest().setParam(TEXT_QUERY, "ab").execute();
+  }
+
   private UserDto insertUser(UserDto userDto) {
     UserDto user = dbClient.userDao().insert(dbSession, userDto.setActive(true));
     dbSession.commit();
@@ -206,13 +276,13 @@ public class UsersActionTest {
     dbSession.commit();
   }
 
-  private void insertUsers() {
-    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
-    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
+  private void insertUsersHavingGlobalPermissions() {
     UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
+    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
+    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
     insertUserRole(new UserPermissionDto().setPermission(SYSTEM_ADMIN).setUserId(user3.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
     dbSession.commit();
   }
 }

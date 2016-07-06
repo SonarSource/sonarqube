@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -82,6 +83,7 @@ public class OldUsersActionTest {
   }
 
   @Test
+  @Ignore("will be deleted")
   public void search_for_users_with_response_example() {
     UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
@@ -95,6 +97,7 @@ public class OldUsersActionTest {
   }
 
   @Test
+  @Ignore("will be deleted")
   public void search_for_users_with_one_permission() {
     insertUsers();
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();

@@ -3,20 +3,17 @@
 
 <mapper namespace="org.sonar.db.permission.PermissionMapper">
 
-  <!-- TODO delete when not used anymore -->
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, u.email as email, user_role.role as permission
     <include refid="usersSelection"/>
     ORDER BY u.name
   </select>
 
-  <!-- TODO delete when not used anymore -->
   <select id="countUsers" parameterType="map" resultType="int">
     SELECT count(u.login)
     <include refid="usersSelection"/>
   </select>
 
-  <!-- TODO delete when not used anymore -->
   <sql id="usersSelection">
     FROM users u
     LEFT JOIN user_roles user_role ON user_role.user_id=u.id
@@ -45,25 +42,23 @@
 
   <sql id="userColumns">
     <!-- lower(u.name) and u.id are present to order by with select distinct -->
-    u.login as login, u.name as name, u.email as email, lower(u.name), u.id
+    u.login as login, u.name as name, u.id
   </sql>
 
-  <select id="selectUsersByQuery" parameterType="map" resultType="org.sonar.db.permission.UserRef">
-    select distinct <include refid="userColumns" />
-    <include refid="usersByQuery"/>
+  <select id="selectLoginsByPermissionQuery" parameterType="map" resultType="string">
+    select u.login
+    from (
+      select distinct <include refid="userColumns" />
+      <include refid="usersByQuery"/>
+    ) u
     order by lower(u.name), u.name, u.id
   </select>
 
-  <select id="countUsersByQuery" parameterType="map" resultType="int">
+  <select id="countUsersByPermissionQuery" parameterType="map" resultType="int">
     select count(1)
     from (
       select distinct <include refid="userColumns" />
-      <include refid="usersByQuery"/>)
-  </select>
-
-  <select id="selectUserPermissionsByQuery" parameterType="map" resultType="UserRole">
-    select ur.user_id as userId, ur.resource_id as componentId, ur.role as permission
-    <include refid="usersByQuery" />
+      <include refid="usersByQuery"/>) u
   </select>
 
   <sql id="usersByQuery">
@@ -72,12 +67,6 @@
         left join projects p on ur.resource_id = p.id
     <where>
       and u.active = ${_true}
-      <if test="query.logins != null">
-        and u.login in
-        <foreach collection="query.logins" open="(" close=")" item="login" separator=",">
-          #{login}
-        </foreach>
-      </if>
       <if test="query.searchQueryToSql != null">
         and lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
       </if>
@@ -88,7 +77,7 @@
           and ur.resource_id is null
         </if>
         <if test="query.componentUuid!=null">
-          and ur.resource_id is not null
+          and p.uuid=#{query.componentUuid}
         </if>
         <if test="query.permission!=null">
           and ur.role=#{query.permission}
@@ -96,6 +85,18 @@
       </if>
     </where>
   </sql>
+
+  <select id="selectUserPermissionsByLogins" parameterType="map" resultType="UserRole">
+    SELECT ur.user_id AS userId, ur.resource_id AS componentId, ur.role AS permission
+    FROM user_roles ur
+    INNER JOIN users u ON u.id = ur.user_id AND u.active = ${_true}
+    <where>
+      u.login IN
+      <foreach collection="logins" open="(" close=")" item="login" separator=",">
+        #{login}
+      </foreach>
+    </where>
+  </select>
 
   <select id="usersCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">

@@ -48,7 +48,10 @@ public class PermissionRequestValidator {
     // static methods only
   }
 
-  public static void validatePermission(String permission, Optional<WsProjectRef> projectRef) {
+  public static void validatePermission(@Nullable String permission, Optional<WsProjectRef> projectRef) {
+    if (permission == null) {
+      return;
+    }
     if (projectRef.isPresent()) {
       validateProjectPermission(permission);
     } else {

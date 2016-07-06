@@ -33,7 +33,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.user.UserPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Collections.emptyList;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionDao implements Dao {
@@ -50,7 +50,7 @@ public class PermissionDao implements Dao {
 
   /**
    * @return a paginated list of users.
-   * @deprecated use {@link #selectUserPermissionsByQuery(DbSession, PermissionQuery)} instead
+   * @deprecated
    */
   @Deprecated
   public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
@@ -60,22 +60,18 @@ public class PermissionDao implements Dao {
   }
 
   /**
-   * Each row returns <code>{@link UserRef}</code>, ordered by user names
+   * Ordered by user names
    */
-  public void selectUsersByQuery(DbSession dbSession, PermissionQuery query, ResultHandler handler) {
-    mapper(dbSession).selectUsersByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()), handler);
+  public List<String> selectLoginsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectLoginsByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countUsersByQuery(query);
+    return mapper(dbSession).countUsersByPermissionQuery(query);
   }
 
-  public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
-    if (query.getLogins() != null && query.getLogins().isEmpty()) {
-      return emptyList();
-    }
-
-    return mapper(dbSession).selectUserPermissionsByQuery(query);
+  public List<UserPermissionDto> selectUserPermissionsByLogins(DbSession dbSession, List<String> logins) {
+    return executeLargeInputs(logins, mapper(dbSession)::selectUserPermissionsByLogins);
   }
 
   public int countUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {

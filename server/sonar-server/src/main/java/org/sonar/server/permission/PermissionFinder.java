@@ -35,9 +35,8 @@ import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.OldPermissionQuery;
-import org.sonar.db.permission.UserWithPermissionDto;
+import org.sonar.db.permission.PermissionDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -53,12 +52,6 @@ public class PermissionFinder {
   public PermissionFinder(DbClient dbClient) {
     this.resourceDao = dbClient.resourceDao();
     this.permissionDao = dbClient.permissionDao();
-  }
-
-  public List<UserWithPermissionDto> findUsersWithPermission(DbSession dbSession, OldPermissionQuery query) {
-    Long componentId = componentId(query.component());
-    int limit = query.pageSize();
-    return permissionDao.selectUsers(dbSession, query, componentId, offset(query), limit);
   }
 
   /**
@@ -91,12 +84,6 @@ public class PermissionFinder {
       .andTotal(filteredDtos.size());
 
     return pagedGroups(filteredDtos, paging);
-  }
-
-  private static int offset(OldPermissionQuery query) {
-    int pageSize = query.pageSize();
-    int pageIndex = query.pageIndex();
-    return (pageIndex - 1) * pageSize;
   }
 
   private static List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, OldPermissionQuery query) {

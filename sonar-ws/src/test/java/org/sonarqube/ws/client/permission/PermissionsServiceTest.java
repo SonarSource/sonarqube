@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.permission;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -431,7 +432,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void users_does_GET_on_Ws_users() {
-    underTest.users(new OldUsersWsRequest()
+    underTest.oldUsers(new OldUsersWsRequest()
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
@@ -441,7 +442,7 @@ public class PermissionsServiceTest {
       .setQuery(QUERY_VALUE)
       );
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.UsersWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(OldUsersWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("users")
