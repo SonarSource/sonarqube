@@ -126,17 +126,17 @@ class Api::EventsController < Api::ApiController
       load_resource(:admin, params[:resource])
       raise "Resource must be a root project" unless @resource.scope=='PRJ'
       
-      root_snapshot=nil
+      analysis=nil
       if (params[:dateTime])
         # try to find a snapshot on that day
         date = parse_datetime(params[:dateTime], true)
-        root_snapshot = Snapshot.find(:last, :conditions => ["component_uuid = ? AND created_at >= ? AND created_at <= ?", @resource.uuid, date.to_i*1000, (date + 1.day).to_i*1000], :order => :created_at)
-        raise "No snapshot exists for given date" unless root_snapshot
+        analysis = Snapshot.find(:last, :conditions => ["component_uuid = ? AND created_at >= ? AND created_at <= ?", @resource.uuid, date.to_i*1000, (date + 1.day).to_i*1000], :order => :created_at)
+        raise "No snapshot exists for given date" unless analysis
       else
-        root_snapshot = Snapshot.find(:last, :conditions => ["component_uuid = ?", @resource.uuid], :order => :created_at)
+        analysis = Snapshot.find(:last, :conditions => ["component_uuid = ?", @resource.uuid], :order => :created_at)
       end
       
-      raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && root_snapshot.event(EventCategory::KEY_VERSION)
+      raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && analysis.event(EventCategory::KEY_VERSION)
       raise "An event '#{params[:name]}' (category '#{params[:category]}') already exists on this resource." if Event.already_exists(@resource.last_analysis.id, params[:name], params[:category])
       
       event_to_return = nil
@@ -144,16 +144,16 @@ class Api::EventsController < Api::ApiController
       desc = params[:description]
       category = params[:category]
       if category==EventCategory::KEY_VERSION
-        root_snapshot.version = name
-        root_snapshot.save!
+        analysis.version = name
+        analysis.save!
       end
       event=Event.new(
         :name => name,
         :description => desc,
         :category => category,
-        :snapshot => root_snapshot,
-        :component_uuid => root_snapshot.component_uuid,
-        :event_date => root_snapshot.created_at
+        :snapshot => analysis,
+        :component_uuid => analysis.component_uuid,
+        :event_date => analysis.created_at
       )
       event.save!
 
