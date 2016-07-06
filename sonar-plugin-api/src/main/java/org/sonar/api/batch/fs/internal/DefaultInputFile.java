@@ -227,21 +227,21 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public TextRange newRange(TextPointer start, TextPointer end) {
     checkValid(start, "start pointer");
     checkValid(end, "end pointer");
-    return newRangeValidPointers(start, end);
+    return newRangeValidPointers(start, end, false);
   }
 
   @Override
   public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     TextPointer start = newPointer(startLine, startLineOffset);
     TextPointer end = newPointer(endLine, endLineOffset);
-    return newRangeValidPointers(start, end);
+    return newRangeValidPointers(start, end, false);
   }
 
   @Override
   public TextRange selectLine(int line) {
     TextPointer startPointer = newPointer(line, 0);
     TextPointer endPointer = newPointer(line, lineLength(line));
-    return newRangeValidPointers(startPointer, endPointer);
+    return newRangeValidPointers(startPointer, endPointer, true);
   }
 
   public void validate(TextRange range) {
@@ -249,8 +249,9 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     checkValid(range.end(), "end pointer");
   }
 
-  private static TextRange newRangeValidPointers(TextPointer start, TextPointer end) {
-    Preconditions.checkArgument(start.compareTo(end) <= 0, "Start pointer %s should be before end pointer %s", start, end);
+  private static TextRange newRangeValidPointers(TextPointer start, TextPointer end, boolean acceptEmptyRange) {
+    Preconditions.checkArgument(acceptEmptyRange ? (start.compareTo(end) <= 0) : (start.compareTo(end) < 0),
+      "Start pointer %s should be before end pointer %s", start, end);
     return new DefaultTextRange(start, end);
   }
 
@@ -258,7 +259,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
    * Create Range from global offsets. Used for backward compatibility with older API.
    */
   public TextRange newRange(int startOffset, int endOffset) {
-    return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset));
+    return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset), false);
   }
 
   public TextPointer newPointer(int globalOffset) {

@@ -152,28 +152,48 @@ public class DefaultInputFileTest {
   @Test
   public void checkValidRange() {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
-    file.setLines(2);
-    file.setOriginalLineOffsets(new int[] {0, 10});
-    file.setLastValidOffset(15);
+    file.initMetadata("bla bla a\nabcde");
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isEqualTo(1);
     // Don't fail
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 1));
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 9));
     file.newRange(file.newPointer(1, 0), file.newPointer(2, 0));
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 5))).isEqualTo(file.newRange(0, 15));
-    file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
 
     try {
-      file.newRange(file.newPointer(1, 1), file.newPointer(1, 0));
+      file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=1] should be before end pointer [line=1, lineOffset=0]");
+      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=0] should be before end pointer [line=1, lineOffset=0]");
     }
     try {
       file.newRange(file.newPointer(1, 0), file.newPointer(1, 10));
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("10 is not a valid line offset for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 9 character(s) at line 1");
+    }
+  }
+
+  @Test
+  public void selectLine() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.initMetadata("bla bla a\nabcde\n\nabc");
+    assertThat(file.selectLine(1).start().line()).isEqualTo(1);
+    assertThat(file.selectLine(1).start().lineOffset()).isEqualTo(0);
+    assertThat(file.selectLine(1).end().line()).isEqualTo(1);
+    assertThat(file.selectLine(1).end().lineOffset()).isEqualTo(9);
+
+    // Don't fail when selecting empty line
+    assertThat(file.selectLine(3).start().line()).isEqualTo(3);
+    assertThat(file.selectLine(3).start().lineOffset()).isEqualTo(0);
+    assertThat(file.selectLine(3).end().line()).isEqualTo(3);
+    assertThat(file.selectLine(3).end().lineOffset()).isEqualTo(0);
+
+    try {
+      file.selectLine(5);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("5 is not a valid line for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 4 line(s)");
     }
   }
 
