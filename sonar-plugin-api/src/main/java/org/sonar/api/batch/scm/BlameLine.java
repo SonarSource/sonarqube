@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.scm;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -68,8 +69,12 @@ public class BlameLine {
     return author;
   }
 
+  /**
+   * Sets author for this line.
+   * The string will be trimmed, and null will be set if it is empty.
+   */
   public BlameLine author(@Nullable String author) {
-    this.author = author;
+    this.author = StringUtils.trimToNull(author);
     return this;
   }
 

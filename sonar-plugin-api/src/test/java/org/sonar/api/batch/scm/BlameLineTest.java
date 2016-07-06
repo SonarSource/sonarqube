@@ -48,4 +48,15 @@ public class BlameLineTest {
     assertThat(line1.toString()).contains("revision=1,author=foo");
   }
 
+  @Test
+  public void testTrimAuthor() {
+    BlameLine line1 = new BlameLine().date(null).revision("2").author("foo1");
+    BlameLine line2 = new BlameLine().date(null).revision("2").author("  ");
+    BlameLine line3 = new BlameLine().date(null).revision("2").author(" foo3  ");
+
+    assertThat(line1.author()).isEqualTo("foo1");
+    assertThat(line2.author()).isNull();
+    assertThat(line3.author()).isEqualTo("foo3");
+  }
+
 }
