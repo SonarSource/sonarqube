@@ -70,7 +70,7 @@ public class ProvisionedActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
     componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
-    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(analyzedProject);
+    SnapshotDto snapshot = SnapshotTesting.newAnalysis(analyzedProject);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
 

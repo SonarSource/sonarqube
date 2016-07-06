@@ -34,15 +34,15 @@ public class MeasureTesting {
     // static methods only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto snapshot) {
+  public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
     checkNotNull(metricDto.getId());
     checkNotNull(metricDto.getKey());
     checkNotNull(component.uuid());
-    checkNotNull(snapshot.getUuid());
+    checkNotNull(analysis.getUuid());
     return new MeasureDto()
       .setMetricId(metricDto.getId())
       .setComponentUuid(component.uuid())
-      .setAnalysisUuid(snapshot.getUuid());
+      .setAnalysisUuid(analysis.getUuid());
   }
 
   public static MeasureDto newMeasure() {

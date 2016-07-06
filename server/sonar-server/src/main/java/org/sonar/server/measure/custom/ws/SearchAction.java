@@ -100,23 +100,23 @@ public class SearchAction implements CustomMeasuresWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, PROJECT_ID_AND_KEY);
-      checkPermissions(userSession, project);
-      Long lastAnalysisDateMs = searchLastSnapshotDate(dbSession, project);
-      List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);
-      int nbCustomMeasures = countTotalOfCustomMeasures(dbSession, project);
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, PROJECT_ID_AND_KEY);
+      checkPermissions(userSession, component);
+      Long lastAnalysisDateMs = searchLastSnapshotDate(dbSession, component);
+      List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, component, searchOptions);
+      int nbCustomMeasures = countTotalOfCustomMeasures(dbSession, component);
       Map<String, UserDto> usersByLogin = usersByLogin(dbSession, customMeasures);
       Map<Integer, MetricDto> metricsById = metricsById(dbSession, customMeasures);
 
-      writeResponse(response, customMeasures, nbCustomMeasures, project, metricsById, usersByLogin, lastAnalysisDateMs, searchOptions, fieldsToReturn);
+      writeResponse(response, customMeasures, nbCustomMeasures, component, metricsById, usersByLogin, lastAnalysisDateMs, searchOptions, fieldsToReturn);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
   }
 
   @CheckForNull
-  private Long searchLastSnapshotDate(DbSession dbSession, ComponentDto project) {
-    Optional<SnapshotDto> lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, project.projectUuid());
+  private Long searchLastSnapshotDate(DbSession dbSession, ComponentDto component) {
+    Optional<SnapshotDto> lastSnapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
 
     return lastSnapshot.isPresent() ? lastSnapshot.get().getBuildDate() : null;
   }

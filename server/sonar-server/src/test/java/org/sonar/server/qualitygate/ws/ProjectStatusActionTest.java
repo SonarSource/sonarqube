@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -86,7 +86,7 @@ public class ProjectStatusActionTest {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
       .setPeriodMode(2, "last_version")
@@ -115,7 +115,7 @@ public class ProjectStatusActionTest {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
       .setPeriodMode(2, "last_version")
@@ -144,7 +144,7 @@ public class ProjectStatusActionTest {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
       .setPeriodMode(2, "last_version")
@@ -173,7 +173,7 @@ public class ProjectStatusActionTest {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
     ProjectStatusWsResponse result = call(snapshot.getUuid());
@@ -198,7 +198,7 @@ public class ProjectStatusActionTest {
     userSession.addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
     call(snapshot.getUuid());
@@ -209,7 +209,7 @@ public class ProjectStatusActionTest {
     userSession.addProjectUuidPermissions(UserRole.USER, "project-uuid");
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
     call(snapshot.getUuid());
@@ -230,7 +230,7 @@ public class ProjectStatusActionTest {
     userSession.setGlobalPermissions(PROVISIONING);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
     expectedException.expect(ForbiddenException.class);

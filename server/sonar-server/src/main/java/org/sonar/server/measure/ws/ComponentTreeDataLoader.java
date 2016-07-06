@@ -102,7 +102,7 @@ public class ComponentTreeDataLoader {
     try {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, wsRequest.getBaseComponentId(), wsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
-      java.util.Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(dbSession, baseComponent.projectUuid());
+      java.util.Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
       if (!baseSnapshot.isPresent()) {
         return ComponentTreeData.builder()
           .setBaseComponent(baseComponent)

@@ -109,7 +109,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   public void setUp() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     dbClient.componentDao().insert(dbSession, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
+    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);
     dbClient.snapshotDao().insert(dbSession, projectSnapshot);
     dbSession.commit();
 
@@ -332,7 +332,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   private SnapshotDto createProjectSnapshot(ComponentDto project) {
-    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
+    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);
     dbClient.snapshotDao().insert(dbSession, projectSnapshot);
     dbSession.commit();
     return projectSnapshot;

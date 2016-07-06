@@ -196,7 +196,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project));
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project));
     dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
@@ -210,7 +210,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project));
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project));
     dbTester.getSession().commit();
 
     userSessionRule
@@ -351,25 +351,17 @@ public class ComponentNavigationActionTest {
     ComponentDto module = ComponentTesting.newModuleDto("bcde", project)
       .setKey("palap").setName("Palap");
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/xoo");
-    ComponentDto file = ComponentTesting.newFileDto(module, "cdef").setName("Source.xoo")
+    ComponentDto file = ComponentTesting.newFileDto(directory, "cdef").setName("Source.xoo")
       .setKey("palap:src/main/xoo/Source.xoo")
       .setPath(directory.path());
     dbClient.componentDao().insert(dbTester.getSession(), project, module, directory, file);
 
-//    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
-//    dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
-//    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-//    dbClient.snapshotDao().insert(dbTester.getSession(), moduleSnapshot);
-//    SnapshotDto directorySnapshot = SnapshotTesting.createForComponent(directory, moduleSnapshot);
-//    dbClient.snapshotDao().insert(dbTester.getSession(), directorySnapshot);
-//    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForComponent(file, directorySnapshot));
-//
-//    dbTester.getSession().commit();
-//
-//    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
-//
-//    WsTester wsTester = newdWsTester();
-//    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
+    dbTester.getSession().commit();
+
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
+
+    WsTester wsTester = newdWsTester();
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
   }
 
   private WsTester newdWsTester(View... views) {

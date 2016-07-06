@@ -51,7 +51,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
@@ -281,7 +281,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_no_base_project_snapshot_when_no_last_snapshot() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newSnapshotForProject(project).setLast(false));
+    insertSnapshot(newAnalysis(project).setLast(false));
 
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
     underTest.execute();
@@ -292,7 +292,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_base_project_snapshot_when_last_snapshot_exist() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newSnapshotForProject(project).setLast(true));
+    insertSnapshot(newAnalysis(project).setLast(true));
 
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
     underTest.execute();

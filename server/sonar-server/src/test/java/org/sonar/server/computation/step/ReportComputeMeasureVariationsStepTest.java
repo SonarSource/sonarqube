@@ -45,7 +45,7 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class ReportComputeMeasureVariationsStepTest {
@@ -94,7 +94,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void do_nothing_when_no_raw_measure() {
-    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getUuid(), 60d));
     session.commit();
@@ -122,7 +122,7 @@ public class ReportComputeMeasureVariationsStepTest {
   @Test
   public void set_variation() {
     // Project
-    SnapshotDto period1Snapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1Snapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1Snapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1Snapshot.getUuid(), 60d));
 
@@ -150,7 +150,7 @@ public class ReportComputeMeasureVariationsStepTest {
   @Test
   public void set_zero_variation_when_no_change() {
     // Project
-    SnapshotDto period1Snapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1Snapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1Snapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1Snapshot.getUuid(), 60d));
 
@@ -178,8 +178,8 @@ public class ReportComputeMeasureVariationsStepTest {
   @Test
   public void set_variation_to_raw_value_on_new_component() throws Exception {
     // Project
-    SnapshotDto past1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setCreatedAt(1000_000_000L);
-    SnapshotDto currentProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setCreatedAt(2000_000_000L);
+    SnapshotDto past1ProjectSnapshot = newAnalysis(PROJECT_DTO).setCreatedAt(1000_000_000L);
+    SnapshotDto currentProjectSnapshot = newAnalysis(PROJECT_DTO).setCreatedAt(2000_000_000L);
     dbClient.snapshotDao().insert(session, past1ProjectSnapshot);
     dbClient.snapshotDao().insert(session, currentProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), past1ProjectSnapshot.getUuid(), 60d));
@@ -205,11 +205,11 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variations_on_all_periods() {
-    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period2ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period3ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period4ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period5ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period1ProjectSnapshot = newAnalysis(PROJECT_DTO).setLast(false);
+    SnapshotDto period2ProjectSnapshot = newAnalysis(PROJECT_DTO).setLast(false);
+    SnapshotDto period3ProjectSnapshot = newAnalysis(PROJECT_DTO).setLast(false);
+    SnapshotDto period4ProjectSnapshot = newAnalysis(PROJECT_DTO).setLast(false);
+    SnapshotDto period5ProjectSnapshot = newAnalysis(PROJECT_DTO).setLast(false);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot, period2ProjectSnapshot, period3ProjectSnapshot, period4ProjectSnapshot, period5ProjectSnapshot);
 
     dbClient.measureDao().insert(session,
@@ -245,7 +245,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variation_on_all_numeric_metrics() {
-    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
       newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getUuid(), 60d),
@@ -275,7 +275,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void do_not_set_variations_on_numeric_metric_for_developer() {
-    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
       newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getUuid(), 60d));
@@ -297,7 +297,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void does_not_update_existing_variations() throws Exception {
-    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newAnalysis(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(NEW_DEBT.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getUuid(), 60d));
     session.commit();

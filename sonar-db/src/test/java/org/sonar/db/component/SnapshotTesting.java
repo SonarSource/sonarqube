@@ -26,16 +26,12 @@ import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 
 public class SnapshotTesting {
 
-  public static SnapshotDto newSnapshotForProject(ComponentDto project) {
-    return createBasicSnapshot(project);
-  }
-
-  private static SnapshotDto createBasicSnapshot(ComponentDto component) {
-    checkNotNull(component.uuid(), "Project UUID must be set");
-    checkArgument(component.uuid().equals(component.projectUuid()), "Component is not a tree root");
+  public static SnapshotDto newAnalysis(ComponentDto rootComponent) {
+    checkNotNull(rootComponent.uuid(), "Project UUID must be set");
+    checkArgument(rootComponent.uuid().equals(rootComponent.projectUuid()), "Component is not a tree root");
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(component.uuid())
+      .setComponentUuid(rootComponent.uuid())
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())

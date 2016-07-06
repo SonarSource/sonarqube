@@ -66,30 +66,30 @@ public class SnapshotDao implements Dao {
     return executeLargeInputs(snapshotIds, mapper(dbSession)::selectByIds);
   }
 
-  public Optional<SnapshotDto> selectLastSnapshotByComponentUuid(DbSession session, String componentUuid) {
+  public Optional<SnapshotDto> selectLastAnalysisByComponentUuid(DbSession session, String componentUuid) {
     return Optional.ofNullable(mapper(session).selectLastSnapshotByComponentUuid(componentUuid));
   }
 
-  public Optional<SnapshotDto> selectLastSnapshotByRootComponentUuid(DbSession session, String componentUuid) {
+  public Optional<SnapshotDto> selectLastAnalysisByRootComponentUuid(DbSession session, String componentUuid) {
     return Optional.ofNullable(mapper(session).selectLastSnapshotByRootComponentUuid(componentUuid));
   }
 
-  public List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(DbSession dbSession, List<String> componentUuids) {
+  public List<SnapshotDto> selectLastAnalysesByRootComponentUuids(DbSession dbSession, List<String> componentUuids) {
     return componentUuids.isEmpty() ? emptyList() : mapper(dbSession).selectLastSnapshotsByRootComponentUuids(componentUuids);
   }
 
-  public List<SnapshotDto> selectSnapshotsByQuery(DbSession session, SnapshotQuery query) {
+  public List<SnapshotDto> selectAnalysesByQuery(DbSession session, SnapshotQuery query) {
     return mapper(session).selectSnapshotsByQuery(query);
   }
 
   @CheckForNull
-  public SnapshotDto selectSnapshotByQuery(DbSession session, SnapshotQuery query) {
-    List<SnapshotDto> snapshotDtos = mapper(session).selectSnapshotsByQuery(query);
-    if (snapshotDtos.isEmpty()) {
+  public SnapshotDto selectAnalysisByQuery(DbSession session, SnapshotQuery query) {
+    List<SnapshotDto> dtos = mapper(session).selectSnapshotsByQuery(query);
+    if (dtos.isEmpty()) {
       return null;
     }
-    checkState(snapshotDtos.size() == 1, "Expected one snapshot to be returned, got %s", snapshotDtos.size());
-    return snapshotDtos.get(0);
+    checkState(dtos.size() == 1, "Expected one analysis to be returned, got %s", dtos.size());
+    return dtos.get(0);
   }
 
   /**
@@ -109,11 +109,9 @@ public class SnapshotDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(analysisUuid));
   }
 
-  public void unsetIsLastFlagForComponentUuid(DbSession dbSession, String componentUuid) {
-    mapper(dbSession).unsetIsLastFlagForComponentUuid(componentUuid);
-  }
-
-  public void setIsLastFlagForAnalysisUuid(DbSession dbSession, String analysisUuid) {
+  public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {
+    SnapshotMapper mapper = mapper(dbSession);
+    mapper.unsetIsLastFlagForComponentUuid(componentUuid);
     mapper(dbSession).setIsLastFlagForAnalysisUuid(analysisUuid);
   }
 

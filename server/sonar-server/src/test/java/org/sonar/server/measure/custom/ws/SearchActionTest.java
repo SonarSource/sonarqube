@@ -189,7 +189,7 @@ public class SearchActionTest {
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasure(1, metric)
       .setCreatedAt(yesterday)
       .setUpdatedAt(yesterday));
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newSnapshotForProject(defaultProject));
+    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(defaultProject));
     dbSession.commit();
 
     String response = newRequest()

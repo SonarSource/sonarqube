@@ -47,7 +47,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAT
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
 
 
-public class ReportPersistSnapshotsStepTest extends BaseStepTest {
+public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String ANALYSIS_UUID = "U1";
@@ -71,7 +71,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
   long now;
 
-  PersistSnapshotsStep underTest;
+  PersistAnalysisStep underTest;
 
   @Before
   public void setup() {
@@ -84,7 +84,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     when(system2.now()).thenReturn(now);
 
-    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
+    underTest = new PersistAnalysisStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
     // initialize PeriodHolder to empty by default
     periodsHolder.setPeriods();
@@ -96,7 +96,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshot() {
+  public void persist_analysis() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
@@ -139,7 +139,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   public void persist_snapshots_with_periods() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto snapshotDto = SnapshotTesting.newSnapshotForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
     periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
@@ -162,7 +162,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(projectDto);
+    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
 
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
@@ -197,7 +197,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   public void set_no_period_on_snapshots_when_no_period() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto snapshotDto = SnapshotTesting.newSnapshotForProject(projectDto);
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
 
@@ -214,7 +214,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   private SnapshotDto getUnprocessedSnapshot(String componentUuid) {
-    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(dbTester.getSession(),
+    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbTester.getSession(),
       new SnapshotQuery().setComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);

@@ -43,8 +43,7 @@ public class EnableAnalysisStep implements ComputationStep {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Component project = treeRootHolder.getRoot();
-      dbClient.snapshotDao().unsetIsLastFlagForComponentUuid(dbSession, project.getUuid());
-      dbClient.snapshotDao().setIsLastFlagForAnalysisUuid(dbSession, analysisMetadataHolder.getUuid());
+      dbClient.snapshotDao().switchIsLastFlagAndSetProcessedStatus(dbSession, project.getUuid(), analysisMetadataHolder.getUuid());
       dbSession.commit();
 
     } finally {

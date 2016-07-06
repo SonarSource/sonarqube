@@ -116,7 +116,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
-      Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(session, component.projectUuid());
+      Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();

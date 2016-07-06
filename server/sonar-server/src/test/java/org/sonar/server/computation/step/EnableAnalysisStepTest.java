@@ -89,7 +89,7 @@ public class EnableAnalysisStepTest {
   }
 
   private void insertAnalysis(ComponentDto project, String uuid, String status, boolean isLastFlag) {
-    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project)
+    SnapshotDto snapshot = SnapshotTesting.newAnalysis(project)
       .setLast(isLastFlag)
       .setStatus(status)
       .setUuid(uuid);

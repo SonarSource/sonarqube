@@ -33,7 +33,6 @@ import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.MapBasedDbIdsRepository;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
@@ -49,9 +48,8 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
-import static org.sonar.server.computation.component.ComponentFunctions.toKey;
 
-public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
+public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   private static final String ANALYSIS_UUID = "U1";
 
@@ -69,15 +67,13 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
   System2 system2 = mock(System2.class);
 
-  MapBasedDbIdsRepository<String> dbIdsRepository = new MapBasedDbIdsRepository<>(toKey());
-
   DbClient dbClient = dbTester.getDbClient();
 
   long analysisDate;
 
   long now;
 
-  PersistSnapshotsStep underTest;
+  PersistAnalysisStep underTest;
 
   @Before
   public void setup() {
@@ -89,7 +85,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
     when(system2.now()).thenReturn(now);
 
-    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
+    underTest = new PersistAnalysisStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
     // initialize PeriodHolder to empty by default
     periodsHolder.setPeriods();
@@ -101,7 +97,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshot() {
+  public void persist_analysis() {
     ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     ComponentDto projectDto = save(newProjectDto("proj"));
@@ -152,7 +148,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   private SnapshotDto getUnprocessedSnapshot(String componentUuid) {
-    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(dbTester.getSession(),
+    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbTester.getSession(),
       new SnapshotQuery().setComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);

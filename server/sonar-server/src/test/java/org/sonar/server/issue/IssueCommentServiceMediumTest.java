@@ -81,12 +81,11 @@ public class IssueCommentServiceMediumTest {
 
     project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
+    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);
     tester.get(SnapshotDao.class).insert(session, projectSnapshot);
 
     file = ComponentTesting.newFileDto(project);
     tester.get(ComponentDao.class).insert(session, file);
-    //tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
 
     // project can be seen by anyone
     session.commit();
