@@ -108,16 +108,16 @@ public class TreeActionTest {
   @Test
   public void return_children() throws IOException {
     ComponentDto project = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 1), projectSnapshot);
+    componentDb.insertComponent(module);
+    componentDb.insertComponent(newFileDto(project, 1));
     for (int i = 2; i <= 9; i++) {
-      componentDb.insertComponentAndSnapshot(newFileDto(module, i), moduleSnapshot);
+      componentDb.insertComponent(newFileDto(module, i));
     }
     ComponentDto directory = newDirectory(module, "directory-path-1");
-    SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(directory, moduleSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(directory, 10), directorySnapshot);
+    componentDb.insertComponent(directory);
+    componentDb.insertComponent(newFileDto(directory, 10));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -140,14 +140,14 @@ public class TreeActionTest {
     ComponentDto project = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 10), projectSnapshot);
+    componentDb.insertComponent(module);
+    componentDb.insertComponent(newFileDto(project, 10));
     for (int i = 2; i <= 9; i++) {
-      componentDb.insertComponentAndSnapshot(newFileDto(module, i), moduleSnapshot);
+      componentDb.insertComponent(newFileDto(module, i));
     }
     ComponentDto directory = newDirectory(module, "directory-path-1");
-    SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(directory, moduleSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(directory, 1), directorySnapshot);
+    componentDb.insertComponent(directory);
+    componentDb.insertComponent(newFileDto(directory, 1));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -168,10 +168,10 @@ public class TreeActionTest {
   @Test
   public void filter_descendants_by_qualifier() throws IOException {
     ComponentDto project = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 1), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 2), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newModuleDto("module-uuid-1", project), projectSnapshot);
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponent(newFileDto(project, 1));
+    componentDb.insertComponent(newFileDto(project, 2));
+    componentDb.insertComponent(newModuleDto("module-uuid-1", project));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -186,14 +186,14 @@ public class TreeActionTest {
   @Test
   public void return_leaves() throws IOException {
     ComponentDto project = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 1), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(module, 2), moduleSnapshot);
+    componentDb.insertComponent(module);
+    componentDb.insertComponent(newFileDto(project, 1));
+    componentDb.insertComponent(newFileDto(module, 2));
     ComponentDto directory = newDirectory(project, "directory-path-1");
-    SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(directory, moduleSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(directory, 3), directorySnapshot);
+    componentDb.insertComponent(directory);
+    componentDb.insertComponent(newFileDto(directory, 3));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -210,12 +210,12 @@ public class TreeActionTest {
   @Test
   public void sort_descendants_by_qualifier() throws IOException {
     ComponentDto project = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 1), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, 2), projectSnapshot);
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponent(newFileDto(project, 1));
+    componentDb.insertComponent(newFileDto(project, 2));
     ComponentDto module = newModuleDto("module-uuid-1", project);
-    componentDb.insertComponentAndSnapshot(module, projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newDirectory(project, "path/directory/", "directory-uuid-1"), projectSnapshot);
+    componentDb.insertComponent(module);
+    componentDb.insertComponent(newDirectory(project, "path/directory/", "directory-uuid-1"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -230,11 +230,11 @@ public class TreeActionTest {
   @Test
   public void return_children_of_a_view() {
     ComponentDto view = newView("view-uuid");
-    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    componentDb.insertViewAndSnapshot(view);
     ComponentDto project = newProjectDto("project-uuid-1").setName("project-name").setKey("project-key-1");
     componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newProjectCopy("project-uuid-1-copy", project, view), viewSnapshot);
-    componentDb.insertComponentAndSnapshot(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"), viewSnapshot);
+    componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
+    componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -267,8 +267,8 @@ public class TreeActionTest {
     ComponentDto project = newProjectDto("project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto developer = newDeveloper("developer-name");
-    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
+    componentDb.insertDeveloperAndSnapshot(developer);
+    componentDb.insertComponent(newDevProjectCopy("project-copy-uuid", project, developer));
     db.commit();
 
     TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, developer.uuid()));
@@ -284,8 +284,8 @@ public class TreeActionTest {
     ComponentDto project = newProjectDto("project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto view = newView("view-uuid");
-    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
-    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+    componentDb.insertViewAndSnapshot(view);
+    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
 
     TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, view.uuid()));
 
@@ -404,7 +404,7 @@ public class TreeActionTest {
     for (JsonElement componentAsJsonElement : components) {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       String uuid = getJsonField(componentAsJsonObject, "id");
-      componentDb.insertComponentAndSnapshot(ComponentTesting.newChildComponent(uuid, project)
+      componentDb.insertComponent(ComponentTesting.newChildComponent(uuid, project)
         .setKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
         .setLanguage(getJsonField(componentAsJsonObject, "language"))
@@ -412,8 +412,7 @@ public class TreeActionTest {
         .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
         .setDescription(getJsonField(componentAsJsonObject, "description"))
         .setEnabled(true)
-        .setCreatedAt(now),
-        projectSnapshot);
+        .setCreatedAt(now));
     }
     db.commit();
     componentDb.indexAllComponents();

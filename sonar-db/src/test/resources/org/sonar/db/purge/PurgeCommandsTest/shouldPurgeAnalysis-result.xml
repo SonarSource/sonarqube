@@ -11,9 +11,6 @@ Note that measures, events and reviews are not deleted.
   <snapshots id="1"
              uuid="u1"
              component_uuid="uuid_1"
-             parent_snapshot_id="[null]"
-             root_component_uuid="uuid_1"
-             root_snapshot_id="[null]"
              status="P"
              islast="[false]"
              purge_status="1"
@@ -32,13 +29,10 @@ Note that measures, events and reviews are not deleted.
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="[null]"/>
+  />
 
   <!--switched_off="[null]" permanent_id="[null]" FAILURE_LEVEL="2"-->
   <!--MESSAGE="msg1" LINE="[null]" COST="[null]"-->
@@ -81,9 +75,6 @@ Note that measures, events and reviews are not deleted.
   <snapshots id="2"
              uuid="u2"
              component_uuid="uuid_2"
-             parent_snapshot_id="[null]"
-             root_component_uuid="uuid_2"
-             root_snapshot_id="[null]"
              status="P"
              islast="[false]"
              purge_status="1"
@@ -102,13 +93,10 @@ Note that measures, events and reviews are not deleted.
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="[null]"/>
+  />
 
 
   <project_measures ID="2"

@@ -24,9 +24,6 @@
   <snapshots id="1"
              uuid="u1"
              component_uuid="ABCD"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="1"
              status="P"
              islast="[true]"
              purge_status="1"
@@ -45,19 +42,13 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="PRJ"
-             qualifier="DIR"
              created_at="1228172400001"
              build_date="1317247200000"
              version="2.0-SNAPSHOT"
-             path="1.2."/>
+  />
   <snapshots id="2"
              uuid="u2"
              component_uuid="ABCD"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="3"
              status="P"
              islast="[false]"
              purge_status="1"
@@ -76,19 +67,13 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="DIR"
-             qualifier="DIR"
              created_at="1228172400002"
              build_date="1317247200000"
              version="2.1-SNAPSHOT"
-             path="1.2."/>
+  />
   <snapshots id="3"
              uuid="u3"
              component_uuid="ABCD"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="3"
              status="P"
              islast="[false]"
              purge_status="1"
@@ -107,13 +92,10 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="DIR"
-             qualifier="DIR"
              created_at="1228172400003"
              build_date="1317247200000"
              version="2.2-SNAPSHOT"
-             path="1.2."/>
+  />
 
   <!-- PROJECT_ID = 2 -->
   <projects id="2"
@@ -138,9 +120,6 @@
   <snapshots id="4"
              uuid="u4"
              component_uuid="EFGH"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="3"
              status="P"
              islast="[true]"
              purge_status="1"
@@ -159,20 +138,14 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="DIR"
-             qualifier="DIR"
              created_at="1228172400000"
              build_date="1317247200000"
              version="2.1-SNAPSHOT"
-             path="1.2."/>
+  />
   <!-- Unprocessed snapshot -->
   <snapshots id="5"
              uuid="u5"
              component_uuid="EFGH"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="3"
              status="U"
              islast="[true]"
              purge_status="1"
@@ -191,13 +164,10 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="DIR"
-             qualifier="DIR"
              created_at="1228172400000"
              build_date="1317247200000"
              version="2.1-SNAPSHOT"
-             path="1.2."/>
+  />
 
   <!-- PROJECT_ID = 3 - no last snapshot -->
   <projects id="3"
@@ -222,9 +192,6 @@
   <snapshots id="6"
              uuid="u6"
              component_uuid="FGHI"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="3"
              status="P"
              islast="[false]"
              purge_status="1"
@@ -243,13 +210,10 @@
              period5_mode="days5"
              period5_param="34"
              period5_date="1317160800000"
-             depth="1"
-             scope="DIR"
-             qualifier="DIR"
              created_at="1228172400000"
              build_date="1317247200000"
              version="2.1-SNAPSHOT"
-             path="1.2."/>
+  />
 
   <!-- PROJECT_ID = 4 - no snapshot -->
   <projects id="4"

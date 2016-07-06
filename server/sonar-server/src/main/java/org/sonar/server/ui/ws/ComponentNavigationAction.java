@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
@@ -115,17 +116,17 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
-      SnapshotDto analysis = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, component.uuid());
+      Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponent(json, session, component, analysis, userSession);
+      writeComponent(json, session, component, analysis.orElse(null), userSession);
 
       if (userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid()) || userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component, userSession);
       }
 
-      writeBreadCrumbs(json, session, component, analysis);
+      writeBreadCrumbs(json, session, component);
       json.endObject().close();
 
     } finally {
@@ -256,24 +257,18 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeBreadCrumbs(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto snapshot) {
+  private void writeBreadCrumbs(JsonWriter json, DbSession session, ComponentDto component) {
     json.name("breadcrumbs").beginArray();
 
-    List<ComponentDto> componentPath = Lists.newArrayList(component);
+    List<ComponentDto> breadcrumb = Lists.newArrayList();
+    breadcrumb.addAll(dbClient.componentDao().selectAncestors(session, component));
+    breadcrumb.add(component);
 
-    if (snapshot != null) {
-      SnapshotDto currentSnapshot = snapshot;
-      while (currentSnapshot.getParentId() != null) {
-        currentSnapshot = dbClient.snapshotDao().selectOrFailById(session, currentSnapshot.getParentId());
-        componentPath.add(0, dbClient.componentDao().selectOrFailByUuid(session, currentSnapshot.getComponentUuid()));
-      }
-    }
-
-    for (ComponentDto crumbComponent : componentPath) {
+    for (ComponentDto c : breadcrumb) {
       json.beginObject()
-        .prop("key", crumbComponent.key())
-        .prop("name", crumbComponent.name())
-        .prop("qualifier", crumbComponent.qualifier())
+        .prop("key", c.key())
+        .prop("name", c.name())
+        .prop("qualifier", c.qualifier())
         .endObject();
     }
 

@@ -21,8 +21,6 @@ package org.sonar.server.computation.step;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -32,7 +30,6 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
-import org.sonar.server.computation.component.MutableDbIdsRepository;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -49,16 +46,14 @@ public class PersistSnapshotsStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final MutableDbIdsRepository dbIdsRepository;
   private final PeriodsHolder periodsHolder;
 
   public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    MutableDbIdsRepository dbIdsRepository, PeriodsHolder periodsHolder) {
+    PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.dbIdsRepository = dbIdsRepository;
     this.periodsHolder = periodsHolder;
   }
 
@@ -67,7 +62,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       new PathAwareCrawler<>(
-        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate(), dbIdsRepository))
+        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate()))
           .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
@@ -79,64 +74,25 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     private final DbSession dbSession;
     private final long analysisDate;
-    private final MutableDbIdsRepository dbIdsRepository;
 
-    private String rootUuid;
-
-    public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, MutableDbIdsRepository dbIdsRepository) {
-      super(CrawlerDepthLimit.LEAVES, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
+    public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate) {
+      super(CrawlerDepthLimit.ROOTS, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
-      this.dbIdsRepository = dbIdsRepository;
     }
 
     @Override
     public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
-      this.rootUuid = project.getUuid();
-      SnapshotDto snapshot = createSnapshot(analysisMetadataHolder.getUuid(), project, path, Qualifiers.PROJECT, Scopes.PROJECT, true);
+      SnapshotDto snapshot = createSnapshot(analysisMetadataHolder.getUuid(), project, true);
       updateSnapshotPeriods(snapshot);
-      commonForAnyVisit(project, path, snapshot);
-    }
-
-    @Override
-    public void visitModule(Component module, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), module, path, Qualifiers.MODULE, Scopes.PROJECT, true);
-      updateSnapshotPeriods(snapshot);
-      commonForAnyVisit(module, path, snapshot);
-    }
-
-    @Override
-    public void visitDirectory(Component directory, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), directory, path, Qualifiers.DIRECTORY, Scopes.DIRECTORY, false);
-      commonForAnyVisit(directory, path, snapshot);
-    }
-
-    @Override
-    public void visitFile(Component file, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), file, path, getFileQualifier(file), Scopes.FILE, false);
-      commonForAnyVisit(file, path, snapshot);
+      persist(snapshot, dbSession);
     }
 
     @Override
     public void visitView(Component view, Path<SnapshotDtoHolder> path) {
-      this.rootUuid = view.getUuid();
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), view, path, Qualifiers.VIEW, Scopes.PROJECT, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), view, false);
       updateSnapshotPeriods(snapshot);
-      commonForAnyVisit(view, path, snapshot);
-    }
-
-    @Override
-    public void visitSubView(Component subView, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), subView, path, Qualifiers.SUBVIEW, Scopes.PROJECT, false);
-      updateSnapshotPeriods(snapshot);
-      commonForAnyVisit(subView, path, snapshot);
-    }
-
-    @Override
-    public void visitProjectView(Component projectView, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), projectView, path, Qualifiers.PROJECT, Scopes.FILE, false);
-      updateSnapshotPeriods(snapshot);
-      commonForAnyVisit(projectView, path, snapshot);
+      persist(snapshot, dbSession);
     }
 
     private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
@@ -148,56 +104,21 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
     }
 
-    private void commonForAnyVisit(Component project, Path<SnapshotDtoHolder> path, SnapshotDto snapshot) {
-      persist(snapshot, dbSession);
-      addToCache(project, snapshot);
-      if (path.current() != null) {
-        path.current().setSnapshotDto(snapshot);
-      }
-    }
-
-    private SnapshotDto createSnapshot(String snapshotUuid, Component component, Path<SnapshotDtoHolder> path,
-      String qualifier, String scope, boolean setVersion) {
+    private SnapshotDto createSnapshot(String snapshotUuid, Component component, boolean setVersion) {
       String componentUuid = component.getUuid();
-      SnapshotDto snapshotDto = new SnapshotDto()
+      return new SnapshotDto()
         .setUuid(snapshotUuid)
-        .setRootComponentUuid(rootUuid)
         .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
         .setComponentUuid(componentUuid)
-        .setQualifier(qualifier)
-        .setScope(scope)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)
         .setBuildDate(system2.now());
-
-      SnapshotDto parentSnapshot = path.isRoot() ? null : path.parent().getSnapshotDto();
-      if (parentSnapshot != null) {
-        snapshotDto
-          .setParentId(parentSnapshot.getId())
-          .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
-          .setDepth(parentSnapshot.getDepth() + 1)
-          .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
-      } else {
-        snapshotDto
-          // On Oracle, the path will be null
-          .setPath("")
-          .setDepth(0);
-      }
-      return snapshotDto;
-    }
-
-    private void addToCache(Component component, SnapshotDto snapshotDto) {
-      dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
     }
 
     private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
       dbClient.snapshotDao().insert(dbSession, snapshotDto);
     }
-  }
-
-  private static String getFileQualifier(Component component) {
-    return component.getFileAttributes().isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   private static final class SnapshotDtoHolder {

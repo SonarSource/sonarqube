@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
@@ -248,10 +249,11 @@ public class IssueQueryService {
   @CheckForNull
   private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
     ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
-    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
-    Long projectSnapshotId = snapshot == null ? null : snapshot.getRootId();
-    SnapshotDto projectSnapshot = projectSnapshotId == null ? snapshot : dbClient.snapshotDao().selectById(dbSession, projectSnapshotId);
-    return projectSnapshot == null ? null : longToDate(projectSnapshot.getPeriodDate(1));
+    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
+    if (snapshot.isPresent()) {
+      return longToDate(snapshot.get().getPeriodDate(1));
+    }
+    return null;
   }
 
   private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {

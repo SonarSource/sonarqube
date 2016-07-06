@@ -111,8 +111,8 @@ public class SearchMyProjectsActionTest {
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
     SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(jdk7).setCreatedAt(oneTime));
     SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(cLang).setCreatedAt(anotherTime));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7Snapshot).setData(Level.ERROR.name()));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLangSnapshot).setData(Level.OK.name()));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7, jdk7Snapshot).setData(Level.ERROR.name()));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLang, cLangSnapshot).setData(Level.OK.name()));
     insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
     insertUserPermission(UserRole.ADMIN, user.getId(), cLang.getId());
     db.commit();
@@ -207,8 +207,8 @@ public class SearchMyProjectsActionTest {
     GroupDto group = groupDb.insertGroup(newGroupDto());
     groupDb.addUserToGroup(user.getId(), group.getId());
 
-    insertGroupPermission(UserRole.ADMIN, user.getId(), group.getId(), jdk7.getId());
-    insertGroupPermission(UserRole.USER, user.getId(), group.getId(), cLang.getId());
+    insertGroupPermission(UserRole.ADMIN, group.getId(), jdk7.getId());
+    insertGroupPermission(UserRole.USER, group.getId(), cLang.getId());
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -226,10 +226,10 @@ public class SearchMyProjectsActionTest {
     groupDb.addUserToGroup(user.getId(), group.getId());
 
     insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertGroupPermission(UserRole.ADMIN, user.getId(), group.getId(), cLang.getId());
+    insertGroupPermission(UserRole.ADMIN, group.getId(), cLang.getId());
     // admin via group and user
     insertUserPermission(UserRole.ADMIN, user.getId(), sonarqube.getId());
-    insertGroupPermission(UserRole.ADMIN, user.getId(), group.getId(), sonarqube.getId());
+    insertGroupPermission(UserRole.ADMIN, group.getId(), sonarqube.getId());
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -300,30 +300,26 @@ public class SearchMyProjectsActionTest {
   }
 
   private ComponentDto insertClang() {
-    return componentDb.insertComponent(newProjectDto("project-uuid-2")
+    return componentDb.insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
-      .setKey("clang")
-      .setUuid(Uuids.UUID_EXAMPLE_01));
+      .setKey("clang"));
   }
 
   private ComponentDto insertJdk7() {
-    return componentDb.insertComponent(newProjectDto("project-uuid-1")
+    return componentDb.insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
-      .setUuid(Uuids.UUID_EXAMPLE_02)
       .setDescription("JDK"));
   }
 
   private ComponentDto insertView() {
-    return componentDb.insertComponent(newView()
-      .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
+    return componentDb.insertComponent(newView("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
   }
 
   private ComponentDto insertDeveloper() {
-    return componentDb.insertComponent(newDeveloper("Joda")
-      .setUuid("4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
+    return componentDb.insertComponent(newDeveloper("Joda", "4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
       .setKey("joda"));
   }
 
@@ -335,7 +331,7 @@ public class SearchMyProjectsActionTest {
     db.commit();
   }
 
-  private void insertGroupPermission(String permission, long userId, long groupId, long componentId) {
+  private void insertGroupPermission(String permission, long groupId, long componentId) {
     dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
       .setRole(permission)
       .setGroupId(groupId)

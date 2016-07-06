@@ -57,9 +57,9 @@ public class SearchMyProjectsDataLoader {
       SearchMyProjectsData.Builder data = builder();
       ProjectsResult searchResult = searchProjects(dbSession, request);
       List<ComponentDto> projects = searchResult.projects;
-      List<String> projectUuids = Lists.transform(projects, ComponentDto::uuid);
+      List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
       List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
-      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastSnapshotByComponentUuids(dbSession, projectUuids);
+      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastSnapshotsByRootComponentUuids(dbSession, projectUuids);
       MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
       MeasureQuery measureQuery = MeasureQuery.builder()
         .setComponentUuids(projectUuids)

@@ -27,18 +27,12 @@
              period5_param="[null]"
              period5_date="[null]"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1226379600000"
              build_date="1226379600000"
              version="0.9"
-             path=""
              status="P"
              islast="[false]"
-             depth="0"/>
+  />
 
   <!-- 2008-11-12 -->
   <!-- Version 1.0 -->
@@ -61,18 +55,12 @@
              period5_param="[null]"
              period5_date="[null]"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1226494680000"
              build_date="1226494680000"
              version="1.0"
-             path=""
              status="P"
              islast="[false]"
-             depth="0"/>
+  />
 
   <!-- 2008-11-20 -->
   <!-- version 1.1 -->
@@ -95,18 +83,12 @@
              period5_param="[null]"
              period5_date="[null]"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1227157200000"
              build_date="1227157200000"
              version="1.1"
-             path=""
              status="P"
              islast="[false]"
-             depth="0"/>
+  />
 
 
   <events id="1"

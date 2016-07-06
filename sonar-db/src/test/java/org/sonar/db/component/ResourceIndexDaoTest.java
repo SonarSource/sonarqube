@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -147,20 +146,14 @@ public class ResourceIndexDaoTest {
   @Test
   public void restrict_indexed_combinations_to_400_characters() {
     String longName = repeat("a", 2_000);
-    ComponentDto project = new ComponentDto()
-      .setUuid(ROOT_UUID)
-      .setRootUuid(ROOT_UUID)
-      .setUuidPath(ROOT_UUID + ".")
-      .setKey("the_key")
-      .setName(longName)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT);
+    ComponentDto project = ComponentTesting.newProjectDto(ROOT_UUID)
+      .setProjectUuid(ROOT_UUID)
+      .setName(longName);
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().componentDao().insert(session, project);
     dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto()
       .setUuid("u1")
       .setComponentUuid(project.uuid())
-      .setRootComponentUuid(project.uuid())
       .setLast(true));
 
     underTest.indexProject(session, project.uuid());

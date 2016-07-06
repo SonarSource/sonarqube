@@ -38,7 +38,6 @@ import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +53,6 @@ import static org.sonar.server.computation.component.ComponentFunctions.toKey;
 
 public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
-  private static final int PROJECT_KEY = 1;
   private static final String ANALYSIS_UUID = "U1";
 
   @Rule
@@ -91,7 +89,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
     when(system2.now()).thenReturn(now);
 
-    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, dbIdsRepository, periodsHolder);
+    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
     // initialize PeriodHolder to empty by default
     periodsHolder.setPeriods();
@@ -103,81 +101,40 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshots() {
+  public void persist_snapshot() {
+    ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
+    ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     ComponentDto projectDto = save(newProjectDto("proj"));
-    ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
-    ComponentDto projectViewDto = save(newProjectCopy("DEFG", projectDto, subViewDto).setKey("3"));
+    ComponentDto projectViewDto = save(newProjectCopy("UUID_PROJECT_COPY", projectDto, subViewDto).setKey("KEY_PROJECT_COPY"));
     dbTester.getSession().commit();
 
-    Component projectView = ViewsComponent.builder(PROJECT_VIEW, 3).setUuid("DEFG").build();
-    Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("CDEF").addChildren(projectView).build();
-    Component view = ViewsComponent.builder(VIEW, 1).setUuid("ABCD").addChildren(subView).build();
+    Component projectView = ViewsComponent.builder(PROJECT_VIEW, "KEY_PROJECT_COPY").setUuid("UUID_PROJECT_COPY").build();
+    Component subView = ViewsComponent.builder(SUBVIEW, "KEY_SUBVIEW").setUuid("UUID_SUBVIEW").addChildren(projectView).build();
+    Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
     underTest.execute();
 
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(3);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(viewDto.uuid());
-    assertThat(projectSnapshot.getComponentUuid()).isEqualTo(view.getUuid());
-    assertThat(projectSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
-    assertThat(projectSnapshot.getRootId()).isNull();
-    assertThat(projectSnapshot.getParentId()).isNull();
-    assertThat(projectSnapshot.getDepth()).isEqualTo(0);
-    assertThat(projectSnapshot.getPath()).isNullOrEmpty();
-    assertThat(projectSnapshot.getQualifier()).isEqualTo("VW");
-    assertThat(projectSnapshot.getScope()).isEqualTo("PRJ");
-    assertThat(projectSnapshot.getVersion()).isNull();
-    assertThat(projectSnapshot.getLast()).isFalse();
-    assertThat(projectSnapshot.getStatus()).isEqualTo("U");
-    assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
-    assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
-
-    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.uuid());
-    assertThat(subViewSnapshot.getComponentUuid()).isEqualTo(subView.getUuid());
-    assertThat(subViewSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
-    assertThat(subViewSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
-    assertThat(subViewSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
-    assertThat(subViewSnapshot.getDepth()).isEqualTo(1);
-    assertThat(subViewSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + ".");
-    assertThat(subViewSnapshot.getQualifier()).isEqualTo("SVW");
-    assertThat(subViewSnapshot.getScope()).isEqualTo("PRJ");
-    assertThat(subViewSnapshot.getVersion()).isNull();
-    assertThat(subViewSnapshot.getLast()).isFalse();
-    assertThat(subViewSnapshot.getStatus()).isEqualTo("U");
-    assertThat(subViewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
-    assertThat(subViewSnapshot.getBuildDate()).isEqualTo(now);
-
-    SnapshotDto projectViewSnapshot = getUnprocessedSnapshot(projectViewDto.uuid());
-    assertThat(projectViewSnapshot.getComponentUuid()).isEqualTo(projectView.getUuid());
-    assertThat(projectViewSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
-    assertThat(projectViewSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
-    assertThat(projectViewSnapshot.getParentId()).isEqualTo(subViewSnapshot.getId());
-    assertThat(projectViewSnapshot.getDepth()).isEqualTo(2);
-    assertThat(projectViewSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." + subViewSnapshot.getId() + ".");
-    assertThat(projectViewSnapshot.getQualifier()).isEqualTo("TRK");
-    assertThat(projectViewSnapshot.getScope()).isEqualTo("FIL");
-    assertThat(projectViewSnapshot.getVersion()).isNull();
-    assertThat(projectViewSnapshot.getLast()).isFalse();
-    assertThat(projectViewSnapshot.getStatus()).isEqualTo("U");
-    assertThat(projectViewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
-    assertThat(projectViewSnapshot.getBuildDate()).isEqualTo(now);
-
-    assertThat(dbIdsRepository.getSnapshotId(view)).isEqualTo(projectSnapshot.getId());
+    SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
+    assertThat(viewSnapshot.getComponentUuid()).isEqualTo(view.getUuid());
+    assertThat(viewSnapshot.getVersion()).isNull();
+    assertThat(viewSnapshot.getLast()).isFalse();
+    assertThat(viewSnapshot.getStatus()).isEqualTo("U");
+    assertThat(viewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
+    assertThat(viewSnapshot.getBuildDate()).isEqualTo(now);
   }
 
   @Test
   public void persist_snapshots_with_periods() {
-    ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
+    ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
+    ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 
-    Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("ABCD").build();
-    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid("CDEF").addChildren(subView).build();
+    Component subView = ViewsComponent.builder(SUBVIEW, "KEY_SUBVIEW").setUuid("UUID_SUBVIEW").build();
+    Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
-    dbIdsRepository.setComponentId(view, viewDto.getId());
-    dbIdsRepository.setComponentId(subView, subViewDto.getId());
 
     periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
@@ -187,11 +144,6 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(viewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(viewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getPeriodModeParameter(1)).isNotNull();
-
-    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.uuid());
-    assertThat(subViewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
-    assertThat(subViewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
-    assertThat(subViewSnapshot.getPeriodModeParameter(1)).isNotNull();
   }
 
   private ComponentDto save(ComponentDto componentDto) {

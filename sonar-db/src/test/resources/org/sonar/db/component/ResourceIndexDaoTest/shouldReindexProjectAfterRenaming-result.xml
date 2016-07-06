@@ -22,10 +22,7 @@
              id="1"
              uuid="u1"
              islast="[true]"
-             root_project_id="1"
-             project_id="1"
-             scope="PRJ"
-             qualifier="TRK"/>
+  />
 
   <resource_index kee="apache struts"
                   position="0"

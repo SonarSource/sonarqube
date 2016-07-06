@@ -37,16 +37,13 @@ public interface PurgeMapper {
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
-  void deleteDescendantSnapshots(@Param("snapshotIds") List<Long> snapshotIds);
-
   void deleteAnalysisDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisEvents(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
-  // FIXME remove when snapshot cardinality is changed
-  void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
+  void deleteSnapshotMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
 
@@ -55,8 +52,6 @@ public interface PurgeMapper {
   void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
 
   void updatePurgeStatusToOne(@Param("analysisUuids") List<String> analysisUuid);
-
-  void updateDescendantPurgeStatusToOne(@Param("analysisIds") List<Long> analysisIds);
 
   void disableComponent(@Param("componentUuids") List<String> componentUuids);
 

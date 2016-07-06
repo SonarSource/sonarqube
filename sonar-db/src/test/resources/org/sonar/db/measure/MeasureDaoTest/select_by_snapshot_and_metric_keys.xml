@@ -17,7 +17,6 @@
   <snapshots id="5"
              uuid="u5"
              component_uuid="ABCD"
-             root_component_uuid="ABCD"
              islast="[true]"/>
 
   <project_measures id="20"

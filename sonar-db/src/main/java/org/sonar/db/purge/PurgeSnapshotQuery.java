@@ -20,44 +20,17 @@
 package org.sonar.db.purge;
 
 public final class PurgeSnapshotQuery {
-  private String rootComponentUuid;
   private String componentUuid;
-  private String[] scopes;
   private String[] status;
   private Boolean islast;
   private Boolean notPurged;
 
-  private PurgeSnapshotQuery() {
-  }
-
-  public static PurgeSnapshotQuery create() {
-    return new PurgeSnapshotQuery();
-  }
-
-  public String getRootComponentUuid() {
-    return rootComponentUuid;
-  }
-
-  public PurgeSnapshotQuery setRootComponentUuid(String rootComponentUuid) {
-    this.rootComponentUuid = rootComponentUuid;
-    return this;
-  }
-
-  public String[] getScopes() {
-    return scopes;// NOSONAR May expose internal representation by returning reference to mutable object
-  }
-
-  public PurgeSnapshotQuery setScopes(String[] scopes) {
-    this.scopes = scopes; // NOSONAR May expose internal representation by incorporating reference to mutable object
-    return this;
-  }
-
   public String[] getStatus() {
-    return status;// NOSONAR May expose internal representation by returning reference to mutable object
+    return status;
   }
 
   public PurgeSnapshotQuery setStatus(String[] status) {
-    this.status = status; // NOSONAR org.sonar.db.purge.PurgeSnapshotQuery.setStatus(String[]) may expose internal representation
+    this.status = status;
     return this;
   }
 

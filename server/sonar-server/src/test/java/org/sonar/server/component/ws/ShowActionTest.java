@@ -33,7 +33,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -147,21 +146,18 @@ public class ShowActionTest {
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")
       .setQualifier(Qualifiers.PROJECT);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")
       .setQualifier(Qualifiers.DIRECTORY);
-    SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(
-      directory,
-      projectSnapshot);
-    componentDb.insertComponentAndSnapshot(
+    componentDb.insertComponent(directory);
+    componentDb.insertComponent(
       newFileDto(directory, "AVIF-FffA3Ax6PH2efPD")
         .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setName("Rule.java")
         .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setLanguage("java")
-        .setQualifier(Qualifiers.FILE),
-      directorySnapshot);
+        .setQualifier(Qualifiers.FILE));
   }
 }

@@ -3,10 +3,7 @@
   <!-- snapshot to keep -->
   <snapshots id="1"
              uuid="u1"
-             parent_snapshot_id="[null]"
              component_uuid="uuid_1"
-             root_component_uuid="uuid_1"
-             root_snapshot_id="[null]"
              status="P"
              islast="[false]"
              purge_status="[null]"
@@ -25,13 +22,10 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="[null]"/>
+  />
 
   <project_measures ID="1"
                     variation_value_1="[null]"

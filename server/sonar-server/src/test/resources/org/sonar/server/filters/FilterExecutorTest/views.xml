@@ -24,7 +24,7 @@
              id="1"
              uuid="u1"
              created_at="1230163200000" build_date="1230163200000" version="1.0" project_id="1" scope="PRJ" qualifier="TRK"
-             root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="true"
+             root_project_id="1"   STATUS="P" ISLAST="true"
              path=""
              depth="0"/>
 
@@ -32,7 +32,7 @@
              id="2"
              uuid="u2"
              created_at="1230163201000" build_date="1230163201000" version="1.0" project_id="3" scope="PRJ" qualifier="VW"
-             root_project_id="2" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="true"
+             root_project_id="2"   STATUS="P" ISLAST="true"
              path=""
              depth="0"/>
 
@@ -40,7 +40,7 @@
              id="3"
              uuid="u3"
              created_at="1230163201000" build_date="1230163201000" version="1.0" project_id="3" scope="PRJ" qualifier="SVW"
-             root_project_id="2" root_snapshot_id="2" parent_snapshot_id="2" STATUS="P" ISLAST="true"
+             root_project_id="2" root_snapshot_id="2"  STATUS="P" ISLAST="true"
              path="2."
              depth="1"/>
 
@@ -48,7 +48,7 @@
              id="4"
              uuid="u4"
              created_at="1230163200000" build_date="1230163200000" version="1.0" project_id="4" scope="FIL" qualifier="TRK"
-             root_project_id="2" root_snapshot_id="2" parent_snapshot_id="3" STATUS="P" ISLAST="true"
+             root_project_id="2" root_snapshot_id="2"  STATUS="P" ISLAST="true"
              path="2.3."
              depth="2"/>
 

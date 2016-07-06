@@ -30,11 +30,18 @@
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-    analysis.islast=${_true}
-    and pm.component_uuid in
+    pm.component_uuid in
     <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
       #{componentUuid}
     </foreach>
+    <choose>
+      <when test="query.getAnalysisUuid() != null">
+        and analysis.uuid in <foreach item="analysisUuid" collection="query.getAnalysisUuid()" open="(" separator="," close=")">#{analysisUuid}</foreach>
+      </when>
+      <otherwise>
+        and analysis.islast=${_true}
+      </otherwise>
+    </choose>
     <if test="query.getMetricIds() != null">
       and pm.metric_id in
       <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
@@ -68,7 +75,6 @@
     value,
     metric_id,
     component_uuid,
-    snapshot_id,
     analysis_uuid,
     text_value,
     alert_status,
@@ -85,7 +91,6 @@
     #{value, jdbcType=DOUBLE},
     #{metricId, jdbcType=INTEGER},
     #{componentUuid, jdbcType=VARCHAR},
-    #{snapshotId, jdbcType=BIGINT},
     #{analysisUuid, jdbcType=VARCHAR},
     #{textValue, jdbcType=VARCHAR},
     #{alertStatus, jdbcType=VARCHAR},

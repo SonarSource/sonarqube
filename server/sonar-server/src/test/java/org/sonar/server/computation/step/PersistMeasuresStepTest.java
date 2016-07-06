@@ -77,10 +77,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final int INTERMEDIATE_1_REF = 2;
   private static final int INTERMEDIATE_2_REF = 3;
   private static final int LEAF_REF = 4;
-  private static final long ROOT_SNAPSHOT_ID = 3L;
-  private static final long INTERMEDIATE_1_SNAPSHOT_ID = 4L;
-  private static final long INTERMEDIATE_2_SNAPSHOT_ID = 5L;
-  private static final long LEAF_SNAPSHOT_ID = 6L;
   private static final String ANALYSIS_UUID = "a1";
 
   @Rule
@@ -152,15 +148,14 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     intermediate2Dto = addComponent("intermediate2-key", "intermediate2-uuid");
     leafDto = addComponent("leaf-key", "leaf-uuid");
 
-    setDbIds(ROOT_REF, rootDto.getId(), ROOT_SNAPSHOT_ID);
-    setDbIds(INTERMEDIATE_1_REF, intermediate1Dto.getId(), INTERMEDIATE_1_SNAPSHOT_ID);
-    setDbIds(INTERMEDIATE_2_REF, intermediate2Dto.getId(), INTERMEDIATE_2_SNAPSHOT_ID);
-    setDbIds(LEAF_REF, leafDto.getId(), LEAF_SNAPSHOT_ID);
+    setDbIds(ROOT_REF, rootDto.getId());
+    setDbIds(INTERMEDIATE_1_REF, intermediate1Dto.getId());
+    setDbIds(INTERMEDIATE_2_REF, intermediate2Dto.getId());
+    setDbIds(LEAF_REF, leafDto.getId());
   }
 
-  private void setDbIds(int componentRef, Long dbId, long snapshotId) {
+  private void setDbIds(int componentRef, Long dbId) {
     dbIdsRepository.setComponentId(componentRef, dbId);
-    dbIdsRepository.setSnapshotId(componentRef, snapshotId);
   }
 
   @Test

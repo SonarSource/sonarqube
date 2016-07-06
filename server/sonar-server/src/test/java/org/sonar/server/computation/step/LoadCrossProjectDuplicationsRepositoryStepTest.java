@@ -128,8 +128,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
 
-    ComponentDto otherFIle = createFile("OTHER_FILE_KEY", otherProject);
-    SnapshotDto otherFileSnapshot = createFileSnapshot(otherFIle, otherProjectSnapshot);
+    ComponentDto otherFile = createFile("OTHER_FILE_KEY", otherProject);
 
     String hash = "a8998353e96320ec";
     DuplicationUnitDto duplicate = new DuplicationUnitDto()
@@ -138,7 +137,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setAnalysisUuid(otherProjectSnapshot.getUuid())
-      .setComponentUuid(otherFileSnapshot.getComponentUuid());
+      .setComponentUuid(otherFile.uuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
@@ -164,7 +163,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
           .build()),
       Arrays.asList(
         new Block.Builder()
-          .setResourceId(otherFIle.getKey())
+          .setResourceId(otherFile.getKey())
           .setBlockHash(new ByteArray(hash))
           .setIndexInFile(duplicate.getIndexInFile())
           .setLines(duplicate.getStartLine(), duplicate.getEndLine())
@@ -179,8 +178,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
 
-    ComponentDto otherFIle = createFile("OTHER_FILE_KEY", otherProject);
-    SnapshotDto otherFileSnapshot = createFileSnapshot(otherFIle, otherProjectSnapshot);
+    ComponentDto otherFile = createFile("OTHER_FILE_KEY", otherProject);
 
     ScannerReport.CpdTextBlock originBlock1 = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")
@@ -204,7 +202,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setAnalysisUuid(otherProjectSnapshot.getUuid())
-      .setComponentUuid(otherFileSnapshot.getComponentUuid());
+      .setComponentUuid(otherFile.uuid());
 
     DuplicationUnitDto duplicate2 = new DuplicationUnitDto()
       .setHash(originBlock2.getHash())
@@ -212,7 +210,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(35)
       .setIndexInFile(1)
       .setAnalysisUuid(otherProjectSnapshot.getUuid())
-      .setComponentUuid(otherFileSnapshot.getComponentUuid());
+      .setComponentUuid(otherFile.uuid());
     dbClient.duplicationDao().insert(dbSession, duplicate1);
     dbClient.duplicationDao().insert(dbSession, duplicate2);
     dbSession.commit();
@@ -246,14 +244,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     Map<Integer, Block> duplicationBlocksByIndex = blocksByIndexInFile(duplicationBlocks.getValue());
     assertThat(duplicationBlocksByIndex.get(0)).isEqualTo(
       new Block.Builder()
-        .setResourceId(otherFIle.getKey())
+        .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock1.getHash()))
         .setIndexInFile(duplicate1.getIndexInFile())
         .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
         .build());
     assertThat(duplicationBlocksByIndex.get(1)).isEqualTo(
       new Block.Builder()
-        .setResourceId(otherFIle.getKey())
+        .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock2.getHash()))
         .setIndexInFile(duplicate2.getIndexInFile())
         .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
@@ -269,7 +267,6 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
 
     ComponentDto otherFIle = createFile("OTHER_FILE_KEY", otherProject);
-    SnapshotDto otherFileSnapshot = createFileSnapshot(otherFIle, otherProjectSnapshot);
 
     String hash = "a8998353e96320ec";
     DuplicationUnitDto duplicate = new DuplicationUnitDto()
@@ -278,7 +275,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setAnalysisUuid(otherProjectSnapshot.getUuid())
-      .setComponentUuid(otherFileSnapshot.getComponentUuid());
+      .setComponentUuid(otherFIle.uuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
@@ -348,13 +345,6 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
     return file;
-  }
-
-  private SnapshotDto createFileSnapshot(ComponentDto file, SnapshotDto projectSnapshot) {
-    SnapshotDto fileSnapshot = SnapshotTesting.createForComponent(file, projectSnapshot);
-    dbClient.snapshotDao().insert(dbSession, fileSnapshot);
-    dbSession.commit();
-    return fileSnapshot;
   }
 
   private static Map<Integer, Block> blocksByIndexInFile(List<Block> blocks) {

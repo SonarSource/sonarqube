@@ -209,7 +209,6 @@ class MeasureFilterSql {
         appendInStatement(filter.getResourceQualifiers(), sb);
       }
       sb.append(") ");
-      // TODO filter on ROOT_COMPONENT_UUID if base
     }
   }
 

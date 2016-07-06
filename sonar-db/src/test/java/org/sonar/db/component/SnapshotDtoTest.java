@@ -30,17 +30,10 @@ public class SnapshotDtoTest {
   public void test_getter_and_setter() throws Exception {
     SnapshotDto snapshotDto = new SnapshotDto()
       .setId(10L)
-      .setParentId(2L)
-      .setRootId(3L)
-      .setRootComponentUuid("uuid_20")
       .setBuildDate(parseDate("2014-07-02").getTime())
       .setComponentUuid("uuid_21")
       .setLast(true)
-      .setScope("FIL")
-      .setQualifier("FIL")
       .setVersion("1.0")
-      .setPath("3.2.")
-      .setDepth(1)
       .setPeriodMode(1, "mode1")
       .setPeriodMode(2, "mode2")
       .setPeriodMode(3, "mode3")
@@ -58,17 +51,10 @@ public class SnapshotDtoTest {
       .setPeriodDate(5, parseDate("2014-06-05").getTime());
 
     assertThat(snapshotDto.getId()).isEqualTo(10L);
-    assertThat(snapshotDto.getParentId()).isEqualTo(2L);
-    assertThat(snapshotDto.getRootId()).isEqualTo(3L);
-    assertThat(snapshotDto.getRootComponentUuid()).isEqualTo("uuid_20");
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
-    assertThat(snapshotDto.getScope()).isEqualTo("FIL");
-    assertThat(snapshotDto.getQualifier()).isEqualTo("FIL");
     assertThat(snapshotDto.getVersion()).isEqualTo("1.0");
-    assertThat(snapshotDto.getPath()).isEqualTo("3.2.");
-    assertThat(snapshotDto.getDepth()).isEqualTo(1);
     assertThat(snapshotDto.getPeriodMode(1)).isEqualTo("mode1");
     assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("mode2");
     assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("mode3");
@@ -86,21 +72,4 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getPeriodDate(5)).isEqualTo(parseDate("2014-06-05").getTime());
   }
 
-  @Test
-  public void get_root_id_if_when_it_is_not_null() {
-    SnapshotDto snapshot = new SnapshotDto().setRootId(123L).setId(456L);
-
-    Long rootIdOrSelf = snapshot.getRootIdOrSelf();
-
-    assertThat(rootIdOrSelf).isEqualTo(123L);
-  }
-
-  @Test
-  public void getRootIdOrSelf_return_own_id_when_root_id_is_null() {
-    SnapshotDto snapshot = new SnapshotDto().setRootId(null).setId(456L);
-
-    Long rootIdOrSelf = snapshot.getRootIdOrSelf();
-
-    assertThat(rootIdOrSelf).isEqualTo(456L);
-  }
 }

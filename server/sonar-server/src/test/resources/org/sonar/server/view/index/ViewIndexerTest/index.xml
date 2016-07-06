@@ -18,19 +18,13 @@
   <snapshots id="10"
              uuid="u10"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="VW"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <projects uuid="BCDE"
             uuid_path="NOT_USED"
@@ -49,19 +43,13 @@
   <snapshots id="110"
              uuid="u110"
              component_uuid="BCDE"
-             parent_snapshot_id="[null]"
-             root_component_uuid="BCDE"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <!-- View with sub view -->
   <projects uuid="EFGH"
@@ -81,19 +69,13 @@
   <snapshots id="11"
              uuid="u11"
              component_uuid="EFGH"
-             parent_snapshot_id="[null]"
-             root_component_uuid="EFGH"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="VW"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
   <projects uuid="GHIJ"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
@@ -111,19 +93,13 @@
   <snapshots id="112"
              uuid="u112"
              component_uuid="GHIJ"
-             parent_snapshot_id="[null]"
-             root_component_uuid="GHIJ"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <!-- Sub view -->
   <projects uuid="FGHI"
@@ -143,19 +119,13 @@
   <snapshots id="13"
              uuid="u13"
              component_uuid="FGHI"
-             parent_snapshot_id="[null]"
-             root_component_uuid="FGHI"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="SVW"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <projects uuid="HIJK"
             uuid_path="NOT_USED"
@@ -174,19 +144,13 @@
   <snapshots id="113"
              uuid="u113"
              component_uuid="HIJK"
-             parent_snapshot_id="[null]"
-             root_component_uuid="HIJK"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <!-- View without project -->
   <projects uuid="IJKL"
@@ -206,19 +170,13 @@
   <snapshots id="14"
              uuid="u14"
              component_uuid="IJKL"
-             parent_snapshot_id="[null]"
-             root_component_uuid="IJKL"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="VW"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <!-- Real projects -->
 
@@ -239,19 +197,13 @@
   <snapshots id="100"
              uuid="u100"
              component_uuid="JKLM"
-             parent_snapshot_id="[null]"
-             root_component_uuid="JKLM"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
   <projects uuid="KLMN"
             uuid_path="NOT_USED"
@@ -270,18 +222,12 @@
   <snapshots id="101"
              uuid="u101"
              component_uuid="KLMN"
-             parent_snapshot_id="[null]"
-             root_component_uuid="KLMN"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+  />
 
 </dataset>

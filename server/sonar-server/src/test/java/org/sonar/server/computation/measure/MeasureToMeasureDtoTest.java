@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MeasureToMeasureDtoTest {
   private static final MetricImpl SOME_METRIC = new MetricImpl(42, "metric_key", "metric_name", Metric.MetricType.STRING);
   private static final int SOME_COMPONENT_ID = 951;
-  private static final int SOME_SNAPSHOT_ID = 753;
   private static final String SOME_DATA = "some_data";
   private static final String SOME_STRING = "some_string";
   private static final MeasureVariations SOME_VARIATIONS = new MeasureVariations(1d, 2d, 3d, 4d, 5d);
@@ -66,7 +65,6 @@ public class MeasureToMeasureDtoTest {
   @Before
   public void setUp() throws Exception {
     dbIdsRepository.setComponentId(SOME_COMPONENT, SOME_COMPONENT_ID);
-    dbIdsRepository.setSnapshotId(SOME_COMPONENT, SOME_SNAPSHOT_ID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
   }
 

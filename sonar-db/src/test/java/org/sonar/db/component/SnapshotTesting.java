@@ -19,56 +19,24 @@
  */
 package org.sonar.db.component;
 
-import org.assertj.core.util.Strings;
-
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 
 public class SnapshotTesting {
 
-  /**
-   * Can be used for modules and files
-   */
-  public static SnapshotDto createForComponent(ComponentDto component, SnapshotDto parentSnapshot) {
-    checkNotNull(parentSnapshot.getId(), "The parent snapshot need to be persisted before creating this snapshot");
-    Long parentRootId = parentSnapshot.getRootId();
-    return createBasicSnapshot(component, parentSnapshot.getRootComponentUuid())
-      .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
-      .setParentId(parentSnapshot.getId())
-      .setDepth(parentSnapshot.getDepth()+1)
-      .setPath(
-        Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
-  }
-
   public static SnapshotDto newSnapshotForProject(ComponentDto project) {
-    return createBasicSnapshot(project, project.uuid())
-      .setDepth(0)
-      .setPath("");
+    return createBasicSnapshot(project);
   }
 
-  public static SnapshotDto newSnapshotForView(ComponentDto view) {
-    return createBasicSnapshot(view, view.uuid())
-      .setDepth(0)
-      .setPath("");
-  }
-
-  public static SnapshotDto newSnapshotForDeveloper(ComponentDto developer) {
-    return createBasicSnapshot(developer, developer.uuid())
-      .setDepth(0)
-      .setPath("");
-  }
-
-  private static SnapshotDto createBasicSnapshot(ComponentDto component, String rootComponentUuid) {
-    checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
-    checkNotNull(rootComponentUuid, "Root component uuid is null");
+  private static SnapshotDto createBasicSnapshot(ComponentDto component) {
+    checkNotNull(component.uuid(), "Project UUID must be set");
+    checkArgument(component.uuid().equals(component.projectUuid()), "Component is not a tree root");
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
       .setComponentUuid(component.uuid())
-      .setRootComponentUuid(rootComponentUuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
-      .setQualifier(component.qualifier())
-      .setScope(component.scope())
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())
       .setLast(true);
@@ -78,10 +46,7 @@ public class SnapshotTesting {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
       .setComponentUuid(randomAlphanumeric(40))
-      .setRootComponentUuid(randomAlphanumeric(40))
       .setStatus(randomAscii(1))
-      .setQualifier(randomAscii(3))
-      .setScope(randomAscii(3))
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())
       .setLast(true);

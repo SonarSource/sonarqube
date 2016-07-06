@@ -97,7 +97,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistCrossProjectDuplicationIndexStep.class,
 
     // Switch snapshot and purge
-    SwitchSnapshotStep.class,
+    EnableAnalysisStep.class,
     UpdateQualityProfilesLastUsedDateStep.class,
     IndexComponentsStep.class,
     PurgeDatastoresStep.class,

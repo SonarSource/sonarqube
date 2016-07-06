@@ -99,7 +99,7 @@ public class ProjectStatusActionTest {
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(metric, snapshot)
+      newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
 
@@ -128,7 +128,7 @@ public class ProjectStatusActionTest {
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(metric, snapshot)
+      newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
 
@@ -157,7 +157,7 @@ public class ProjectStatusActionTest {
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(metric, snapshot)
+      newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
 

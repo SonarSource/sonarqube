@@ -60,7 +60,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
       handleRoot(rootUuid, context);
     }
 
-   handleOrphans(context);
+    handleOrphans(context);
   }
 
   private void handleRoot(String rootComponentUuid, Context context) throws SQLException {

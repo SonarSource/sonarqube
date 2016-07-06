@@ -6,14 +6,14 @@
              status="U"
              islast="0"
              component_uuid="0"
-             root_component_uuid="0"/>
+  />
   <snapshots purge_status="[null]"
              id="2"
              uuid="u2"
              status="U"
              islast="0"
              component_uuid="uuid_1"
-             root_component_uuid="uuid_1"/>
+  />
   <projects uuid="uuid_1"
             uuid_path="NOT_USED"
             root_uuid="uuid_root"

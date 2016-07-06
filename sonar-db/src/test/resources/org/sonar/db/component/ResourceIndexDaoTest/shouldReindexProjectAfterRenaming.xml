@@ -20,10 +20,8 @@
              id="1"
              uuid="u1"
              islast="[true]"
-             root_component_uuid="ABCD"
              component_uuid="ABCD"
-             scope="PRJ"
-             qualifier="TRK"/>
+  />
 
   <!-- the index is on the old name "Struts" but not on "Apache Struts -->
   <resource_index id="1"

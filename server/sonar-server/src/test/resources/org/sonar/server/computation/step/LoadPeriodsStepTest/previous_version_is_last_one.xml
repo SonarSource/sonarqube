@@ -28,17 +28,11 @@
              period5_param="[null]"
              period5_date="[null]"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1226379600000"
              build_date="1226379600000"
              version="0.9"
-             path=""
              status="P"
              islast="[true]"
-             depth="0"/>
+  />
 
 </dataset>

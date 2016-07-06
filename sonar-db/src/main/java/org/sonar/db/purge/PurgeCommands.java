@@ -57,7 +57,7 @@ class PurgeCommands {
   }
 
   void deleteAnalyses(String rootUuid) {
-    deleteAnalyses(purgeMapper.selectAnalysisIdsAndUuids(PurgeSnapshotQuery.create().setComponentUuid(rootUuid)));
+    deleteAnalyses(purgeMapper.selectAnalysisIdsAndUuids(new PurgeSnapshotQuery().setComponentUuid(rootUuid)));
   }
 
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
@@ -134,7 +134,6 @@ class PurgeCommands {
 
   @VisibleForTesting
   protected void deleteSnapshots(List<IdUuidPair> snapshotIds) {
-    List<List<Long>> snapshotIdsPartitions = Lists.partition(IdUuidPairs.ids(snapshotIds), MAX_SNAPSHOTS_PER_QUERY);
     List<List<String>> snapshotUuidsPartitions = Lists.partition(IdUuidPairs.uuids(snapshotIds), MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(snapshotUuidsPartitions);
@@ -145,7 +144,7 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("deleteSnapshots (project_measures)");
-    snapshotIdsPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
+    snapshotUuidsPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
     session.commit();
     profiler.stop();
 
@@ -199,8 +198,6 @@ class PurgeCommands {
 
     profiler.start("deleteAnalyses (snapshots)");
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
-    // FIXME remove this when cardinality of snapshots has been changed
-    analysisIdsPartitions.forEach(purgeMapper::deleteDescendantSnapshots);
     session.commit();
     profiler.stop();
   }
@@ -220,8 +217,6 @@ class PurgeCommands {
 
     profiler.start("updatePurgeStatusToOne (snapshots)");
     analysisUuidsPartitions.forEach(purgeMapper::updatePurgeStatusToOne);
-    // FIXME remove this when cardinality of snapshots has been changed
-    analysisIdsPartitions.forEach(purgeMapper::updateDescendantPurgeStatusToOne);
     session.commit();
     profiler.stop();
   }

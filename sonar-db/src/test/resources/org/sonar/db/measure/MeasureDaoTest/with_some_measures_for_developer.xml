@@ -24,7 +24,7 @@
              uuid="u5"
              component_uuid="uuid_1"
              islast="[true]"
-             root_component_uuid="uuid_1"/>
+  />
 
   <project_measures id="20"
                     snapshot_id="5"

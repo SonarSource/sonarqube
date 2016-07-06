@@ -102,8 +102,8 @@ public class ComponentTreeDataLoader {
     try {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, wsRequest.getBaseComponentId(), wsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
-      SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, baseComponent.projectUuid());
-      if (baseSnapshot == null) {
+      java.util.Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(dbSession, baseComponent.projectUuid());
+      if (!baseSnapshot.isPresent()) {
         return ComponentTreeData.builder()
           .setBaseComponent(baseComponent)
           .build();
@@ -114,7 +114,7 @@ public class ComponentTreeDataLoader {
       ComponentDtosAndTotal componentDtosAndTotal = searchComponents(dbSession, dbQuery, wsRequest);
       List<ComponentDto> components = componentDtosAndTotal.componentDtos;
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
-      List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot);
+      List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot.get());
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, components, metrics,
         periods, developerId);
 
