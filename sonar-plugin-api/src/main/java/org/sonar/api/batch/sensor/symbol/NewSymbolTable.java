@@ -69,7 +69,7 @@ public interface NewSymbolTable {
   NewSymbol newSymbol(int startLine, int startLineOffset, int endLine, int endLineOffset);
 
   /**
-   * Call this method only once when your are done with defining all symbols of the file.
+   * Call this method only once when your are done with defining all symbols of the file. It is not permitted to save a symbol table twice for the same file.
    * @throws IllegalStateException if you have defined overlapping symbols
    */
   void save();

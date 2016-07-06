@@ -71,7 +71,7 @@ public interface NewHighlighting {
   NewHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText);
 
   /**
-   * Call this method only once when your are done with defining highlighting of the file.
+   * Call this method only once when your are done with defining highlighting of the file. It is not supported to save highlighting twice for the same file.
    * @throws IllegalStateException if you have defined overlapping highlighting
    */
   void save();

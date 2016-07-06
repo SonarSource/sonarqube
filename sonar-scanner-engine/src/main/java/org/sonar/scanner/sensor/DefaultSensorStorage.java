@@ -58,6 +58,7 @@ import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
@@ -191,14 +192,22 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
-    writer.writeComponentSyntaxHighlighting(componentCache.get(inputFile).batchId(),
+    int componentRef = componentCache.get(inputFile).batchId();
+    if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
+      throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());
+    }
+    writer.writeComponentSyntaxHighlighting(componentRef,
       Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new BuildSyntaxHighlighting()));
   }
 
   @Override
   public void store(DefaultSymbolTable symbolTable) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    writer.writeComponentSymbols(componentCache.get(symbolTable.inputFile()).batchId(),
+    int componentRef = componentCache.get(symbolTable.inputFile()).batchId();
+    if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
+      throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().absolutePath());
+    }
+    writer.writeComponentSymbols(componentRef,
       Iterables.transform(symbolTable.getReferencesBySymbol().entrySet(), new Function<Map.Entry<TextRange, Set<TextRange>>, ScannerReport.Symbol>() {
         private ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder();
         private ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();

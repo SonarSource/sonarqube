@@ -183,38 +183,29 @@ public class SensorContextTester implements SensorContext {
 
   @CheckForNull
   public Integer lineHits(String fileKey, CoverageType type, int line) {
-    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
-    if (defaultCoverageByType == null) {
+    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
+    if (defaultCoverage == null) {
       return null;
     }
-    if (defaultCoverageByType.containsKey(type)) {
-      return defaultCoverageByType.get(type).hitsByLine().get(line);
-    }
-    return null;
+    return defaultCoverage.hitsByLine().get(line);
   }
 
   @CheckForNull
   public Integer conditions(String fileKey, CoverageType type, int line) {
-    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
-    if (defaultCoverageByType == null) {
+    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
+    if (defaultCoverage == null) {
       return null;
     }
-    if (defaultCoverageByType.containsKey(type)) {
-      return defaultCoverageByType.get(type).conditionsByLine().get(line);
-    }
-    return null;
+    return defaultCoverage.conditionsByLine().get(line);
   }
 
   @CheckForNull
   public Integer coveredConditions(String fileKey, CoverageType type, int line) {
-    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
-    if (defaultCoverageByType == null) {
+    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
+    if (defaultCoverage == null) {
       return null;
     }
-    if (defaultCoverageByType.containsKey(type)) {
-      return defaultCoverageByType.get(type).coveredConditionsByLine().get(line);
-    }
-    return null;
+    return defaultCoverage.coveredConditionsByLine().get(line);
   }
 
   @CheckForNull

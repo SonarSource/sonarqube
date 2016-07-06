@@ -40,6 +40,7 @@ import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -127,6 +128,20 @@ public class SensorContextTesterTest {
     assertThat(tester.measure("foo", "directories")).isNotNull();
   }
 
+  @Test(expected = SonarException.class)
+  public void duplicateMeasures() {
+    tester.<Integer>newMeasure()
+      .on(new DefaultInputFile("foo", "src/Foo.java"))
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(2)
+      .save();
+    tester.<Integer>newMeasure()
+      .on(new DefaultInputFile("foo", "src/Foo.java"))
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(2)
+      .save();
+  }
+
   @Test
   public void testHighlighting() {
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).isEmpty();
@@ -138,6 +153,18 @@ public class SensorContextTesterTest {
       .save();
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).containsExactly(TypeOfText.ANNOTATION);
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateHighlighting() {
+    tester.newHighlighting()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
+      .highlight(1, 0, 1, 5, TypeOfText.ANNOTATION)
+      .save();
+    tester.newHighlighting()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
+      .highlight(1, 0, 1, 5, TypeOfText.ANNOTATION)
+      .save();
   }
 
   @Test
@@ -160,6 +187,23 @@ public class SensorContextTesterTest {
     assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 8)).isEmpty();
     assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset").containsExactly(tuple(1, 6, 1, 9),
       tuple(1, 10, 1, 13));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateSymbolReferences() {
+    NewSymbolTable symbolTable = tester.newSymbolTable()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))));
+    symbolTable
+      .newSymbol(1, 8, 1, 10);
+
+    symbolTable.save();
+
+    symbolTable = tester.newSymbolTable()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))));
+    symbolTable
+      .newSymbol(1, 8, 1, 10);
+
+    symbolTable.save();
   }
 
   @Test
@@ -201,6 +245,20 @@ public class SensorContextTesterTest {
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 2)).isEqualTo(3);
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateCoverage() {
+    tester.newCoverage()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasdas"))))
+      .ofType(CoverageType.UNIT)
+      .lineHits(1, 2)
+      .save();
+    tester.newCoverage()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasdas"))))
+      .ofType(CoverageType.UNIT)
+      .lineHits(1, 2)
+      .save();
+  }
+
   @Test
   public void testConditions() {
     assertThat(tester.conditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
@@ -233,5 +291,19 @@ public class SensorContextTesterTest {
       .containsExactly(
         tuple("publicclass$IDENTIFIER{", 1, 1, 4),
         tuple("}", 3, 5, 5));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateCpdTokens() {
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("public class Foo {\n\n}")));
+    tester.newCpdTokens()
+      .onFile(inputFile)
+      .addToken(inputFile.newRange(0, 6), "public")
+      .save();
+
+    tester.newCpdTokens()
+      .onFile(inputFile)
+      .addToken(inputFile.newRange(0, 6), "public")
+      .save();
   }
 }

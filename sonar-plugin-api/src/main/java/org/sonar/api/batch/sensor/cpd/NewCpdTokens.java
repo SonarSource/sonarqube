@@ -58,7 +58,7 @@ public interface NewCpdTokens {
   NewCpdTokens addToken(int startLine, int startLineOffset, int endLine, int endLineOffset, String image);
 
   /**
-   * Call this method only once when your are done with defining tokens of the file.
+   * Call this method only once when your are done with defining tokens of the file. It is not supported to save CPD tokens twice for the same file.
    */
   void save();
 }

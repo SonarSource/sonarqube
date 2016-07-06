@@ -29,7 +29,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -39,9 +41,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +69,7 @@ public class DefaultSensorStorageTest {
   private BatchComponentCache resourceCache;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
@@ -78,8 +80,10 @@ public class DefaultSensorStorageTest {
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new BatchComponentCache();
+    ReportPublisher reportPublisher = mock(ReportPublisher.class);
+    when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache, mock(SonarCpdBlockIndex.class));
+      moduleIssues, settings, coverageExclusions, resourceCache, reportPublisher, measureCache, mock(SonarCpdBlockIndex.class));
   }
 
   @Test
@@ -129,6 +133,30 @@ public class DefaultSensorStorageTest {
     org.sonar.api.measures.Measure m = argumentCaptor.getValue();
     assertThat(m.getValue()).isEqualTo(10.0);
     assertThat(m.getMetric()).isEqualTo(CoreMetrics.NCLOC);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateHighlighting() throws Exception {
+    Resource sonarFile = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.java")
+      .setModuleBaseDir(temp.newFolder().toPath());
+    resourceCache.add(sonarFile, null).setInputComponent(inputFile);
+    DefaultHighlighting h = new DefaultHighlighting(null)
+      .onFile(inputFile);
+    underTest.store(h);
+    underTest.store(h);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateSymbolTable() throws Exception {
+    Resource sonarFile = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.java")
+      .setModuleBaseDir(temp.newFolder().toPath());
+    resourceCache.add(sonarFile, null).setInputComponent(inputFile);
+    DefaultSymbolTable st = new DefaultSymbolTable(null)
+      .onFile(inputFile);
+    underTest.store(st);
+    underTest.store(st);
   }
 
 }

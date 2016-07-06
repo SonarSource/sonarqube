@@ -23,7 +23,6 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
@@ -33,6 +32,7 @@ import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.utils.SonarException;
 
 class InMemorySensorStorage implements SensorStorage {
 
@@ -42,12 +42,18 @@ class InMemorySensorStorage implements SensorStorage {
 
   Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
-  Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
+  Table<String, CoverageType, DefaultCoverage> coverageByComponentAndType = HashBasedTable.create();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
 
   @Override
   public void store(Measure measure) {
-    measuresByComponentAndMetric.row(measure.inputComponent().key()).put(measure.metric().key(), measure);
+    // Emulate duplicate measure check
+    String componentKey = measure.inputComponent().key();
+    String metricKey = measure.metric().key();
+    if (measuresByComponentAndMetric.contains(componentKey, metricKey)) {
+      throw new SonarException("Can not add the same measure twice");
+    }
+    measuresByComponentAndMetric.row(componentKey).put(metricKey, measure);
   }
 
   @Override
@@ -57,26 +63,42 @@ class InMemorySensorStorage implements SensorStorage {
 
   @Override
   public void store(DefaultHighlighting highlighting) {
-    highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
+    String fileKey = highlighting.inputFile().key();
+    // Emulate duplicate storage check
+    if (highlightingByComponent.containsKey(fileKey)) {
+      throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + highlighting.inputFile().relativePath());
+    }
+    highlightingByComponent.put(fileKey, highlighting);
   }
 
   @Override
   public void store(DefaultCoverage defaultCoverage) {
-    String key = defaultCoverage.inputFile().key();
-    if (!coverageByComponent.containsKey(key)) {
-      coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
+    String fileKey = defaultCoverage.inputFile().key();
+    // Emulate duplicate storage check
+    if (coverageByComponentAndType.contains(fileKey, defaultCoverage.type())) {
+      throw new UnsupportedOperationException("Trying to save coverage twice for the same file is not supported: " + defaultCoverage.inputFile().relativePath());
     }
-    coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
+    coverageByComponentAndType.row(fileKey).put(defaultCoverage.type(), defaultCoverage);
   }
 
   @Override
   public void store(DefaultCpdTokens defaultCpdTokens) {
-    cpdTokensByComponent.put(defaultCpdTokens.inputFile().key(), defaultCpdTokens);
+    String fileKey = defaultCpdTokens.inputFile().key();
+    // Emulate duplicate storage check
+    if (cpdTokensByComponent.containsKey(fileKey)) {
+      throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + defaultCpdTokens.inputFile().relativePath());
+    }
+    cpdTokensByComponent.put(fileKey, defaultCpdTokens);
   }
 
   @Override
   public void store(DefaultSymbolTable symbolTable) {
-    symbolsPerComponent.put(symbolTable.inputFile().key(), symbolTable);
+    String fileKey = symbolTable.inputFile().key();
+    // Emulate duplicate storage check
+    if (symbolsPerComponent.containsKey(fileKey)) {
+      throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().relativePath());
+    }
+    symbolsPerComponent.put(fileKey, symbolTable);
   }
 
 }

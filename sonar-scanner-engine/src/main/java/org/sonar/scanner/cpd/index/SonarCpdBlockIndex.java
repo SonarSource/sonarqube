@@ -36,6 +36,7 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
@@ -57,6 +58,9 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
   public void insert(InputFile inputFile, Collection<Block> blocks) {
     if (isCrossProjectDuplicationEnabled(settings)) {
       int id = batchComponentCache.get(inputFile).batchId();
+      if (publisher.getWriter().hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, id)) {
+        throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + inputFile.absolutePath());
+      }
       final ScannerReport.CpdTextBlock.Builder builder = ScannerReport.CpdTextBlock.newBuilder();
       publisher.getWriter().writeCpdTextBlocks(id, Iterables.transform(blocks, new Function<Block, ScannerReport.CpdTextBlock>() {
         @Override
@@ -110,7 +114,7 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
   public Iterator<ResourceBlocks> iterator() {
     return mem.iterator();
   }
-  
+
   @Override
   public int noResources() {
     return mem.noResources();
