@@ -22,10 +22,13 @@ package org.sonar.db.measure;
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface MeasureMapper {
 
   List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query);
+
+  void selectByQuery(@Param("query") MeasureQuery query, ResultHandler resultHandler);
 
   List<PastMeasureDto> selectPastMeasures(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid, @Param("metricIds") List<Integer> metricIds);
 
