@@ -21,12 +21,15 @@ class Snapshot < ActiveRecord::Base
   include Resourceable
 
   belongs_to :project, :class_name => 'Project', :foreign_key => 'component_uuid',:primary_key => 'uuid'
-  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_component_uuid',:primary_key => 'uuid'
 
   has_many :events, :class_name => 'Event', :foreign_key => 'analysis_uuid', :primary_key => 'uuid', :dependent => :destroy, :order => 'event_date DESC'
 
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
+
+  def root_project
+    project
+  end
 
   def created_at
     long_to_date(:created_at)
@@ -138,7 +141,7 @@ class Snapshot < ActiveRecord::Base
   end
 
   def component_uuid_for_authorization
-    root_component_uuid
+    component_uuid
   end
 
   def period_mode(period_index)

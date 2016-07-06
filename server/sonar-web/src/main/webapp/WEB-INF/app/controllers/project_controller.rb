@@ -232,7 +232,7 @@ class ProjectController < ApplicationController
 
     sid = params[:snapshot_id]
     if sid
-      Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid.to_i, sid.to_i])
+      Snapshot.update_all("status='U'", ["id=?", sid.to_i])
       flash[:notice] = message('project_history.snapshot_deleted')
     end
 
@@ -313,7 +313,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    redirect_to :action => 'history', :id => snapshot.root_project.id
+    redirect_to :action => 'history', :id => snapshot.project.id
   end
 
   def delete_version
@@ -338,7 +338,7 @@ class ProjectController < ApplicationController
     end
 
     flash[:notice] = message('project_history.version_removed', :params => h(old_version_name))
-    redirect_to :action => 'history', :id => parent_snapshot.root_project.id
+    redirect_to :action => 'history', :id => parent_snapshot.project.id
   end
 
   def create_event
