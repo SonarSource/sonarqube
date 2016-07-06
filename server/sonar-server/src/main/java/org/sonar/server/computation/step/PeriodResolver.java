@@ -110,7 +110,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private Period findByDays(int index, int days) {
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
     long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
     if (snapshot == null) {
@@ -167,7 +167,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private SnapshotDto findFirstSnapshot(DbSession session, SnapshotQuery query) {
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, query);
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(session, query);
     if (!snapshots.isEmpty()) {
       return snapshots.get(0);
     }

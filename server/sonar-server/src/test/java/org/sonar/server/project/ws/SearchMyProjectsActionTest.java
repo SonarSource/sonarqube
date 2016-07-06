@@ -62,7 +62,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -109,8 +109,8 @@ public class SearchMyProjectsActionTest {
       new ComponentLinkDto().setComponentUuid(jdk7.uuid()).setHref("http://download.java.net/openjdk/jdk8/").setType(ComponentLinkDto.TYPE_SOURCES).setName("Sources"));
     long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
-    SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(jdk7).setCreatedAt(oneTime));
-    SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(cLang).setCreatedAt(anotherTime));
+    SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7).setCreatedAt(oneTime));
+    SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang).setCreatedAt(anotherTime));
     dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7, jdk7Snapshot).setData(Level.ERROR.name()));
     dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLang, cLangSnapshot).setData(Level.OK.name()));
     insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
@@ -242,7 +242,7 @@ public class SearchMyProjectsActionTest {
     ComponentDto sonarqube = componentDb.insertComponent(newProjectDto().setName("ONE_PROJECT_NAME"));
     ComponentDto jdk8 = componentDb.insertComponent(newProjectDto().setName("TWO_PROJECT_NAME"));
     ComponentDto ruby = componentDb.insertComponent(newProjectDto().setName("ANOTHER_42"));
-    dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(sonarqube), newSnapshotForProject(jdk8), newSnapshotForProject(ruby));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(jdk8), newAnalysis(ruby));
     componentDb.indexAllComponents();
     db.commit();
 
@@ -262,7 +262,7 @@ public class SearchMyProjectsActionTest {
   public void search_my_projects_by_exact_match_on_key() {
     ComponentDto sonarqube = componentDb.insertComponent(newProjectDto().setKey("MY_PROJECT_KEY"));
     ComponentDto ruby = componentDb.insertComponent(newProjectDto().setKey("MY_PROJECT_KEY_OR_ELSE"));
-    dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(sonarqube), newSnapshotForProject(ruby));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(ruby));
     componentDb.indexAllComponents();
     db.commit();
 

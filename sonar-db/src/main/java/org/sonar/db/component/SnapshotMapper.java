@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -39,7 +40,7 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") List<String> componentIds);
+  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") Collection<String> componentIds);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 

@@ -144,7 +144,7 @@ public class ProjectStatusAction implements QGateWsAction {
 
   private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {
     ComponentDto projectDto = componentFinder.getByUuidOrKey(dbSession, request.getProjectId(), request.getProjectKey(), ParamNames.PROJECT_ID_AND_KEY);
-    java.util.Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(dbSession, projectDto.projectUuid());
+    java.util.Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectDto.projectUuid());
     return new ProjectAndSnapshot(projectDto, snapshot.orElse(null));
   }
 

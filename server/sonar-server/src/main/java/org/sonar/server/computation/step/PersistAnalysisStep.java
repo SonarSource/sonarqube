@@ -29,7 +29,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -37,10 +36,9 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 /**
- * Persist snapshots
- * Also feed the components cache {@link DbIdsRepositoryImpl} with snapshot ids
+ * Persist analysis
  */
-public class PersistSnapshotsStep implements ComputationStep {
+public class PersistAnalysisStep implements ComputationStep {
 
   private final System2 system2;
   private final DbClient dbClient;
@@ -48,8 +46,8 @@ public class PersistSnapshotsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolder periodsHolder;
 
-  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    PeriodsHolder periodsHolder) {
+  public PersistAnalysisStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+                             PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
@@ -83,14 +81,14 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     @Override
     public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(analysisMetadataHolder.getUuid(), project, true);
+      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), project, true);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
 
     @Override
     public void visitView(Component view, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(Uuids.create(), view, false);
+      SnapshotDto snapshot = createAnalysis(Uuids.create(), view, false);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
@@ -104,7 +102,7 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
     }
 
-    private SnapshotDto createSnapshot(String snapshotUuid, Component component, boolean setVersion) {
+    private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion) {
       String componentUuid = component.getUuid();
       return new SnapshotDto()
         .setUuid(snapshotUuid)
@@ -162,6 +160,6 @@ public class PersistSnapshotsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist snapshots";
+    return "Persist analysis";
   }
 }

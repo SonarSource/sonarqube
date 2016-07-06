@@ -138,7 +138,7 @@ public class ComponentAction implements MeasuresWsAction {
       Long developerId = searchDeveloperId(dbSession, request);
       Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
       checkPermissions(component);
-      SnapshotDto analysis = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
+      SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
       List<MetricDto> metrics = searchMetrics(dbSession, request);
       List<WsMeasures.Period> periods = snapshotToWsPeriods(analysis);
       List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, periods, developerId);

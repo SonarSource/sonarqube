@@ -311,7 +311,7 @@ public class ComponentActionTest {
 
   private void insertJsonExampleData() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project)
+    SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project)
       .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode(1, "previous_version")
       .setPeriodParam(1, "1.0-SNAPSHOT")

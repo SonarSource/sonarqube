@@ -131,14 +131,14 @@ public class GhostsActionTest {
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
-    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshotForProject(hBaseProject)
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), roslynProject);
-    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshotForProject(roslynProject)
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(roslynProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     db.getSession().commit();
 
@@ -160,7 +160,7 @@ public class GhostsActionTest {
       .setName("ghost-name-" + id)
       .setKey("ghost-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project)
+    SnapshotDto snapshot = SnapshotTesting.newAnalysis(project)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
@@ -172,7 +172,7 @@ public class GhostsActionTest {
       .setName("analyzed-name-" + id)
       .setKey("analyzed-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project);
+    SnapshotDto snapshot = SnapshotTesting.newAnalysis(project);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
   }

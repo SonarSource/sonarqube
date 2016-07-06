@@ -147,9 +147,9 @@ public class ValidateProjectStep implements ComputationStep {
 
     private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
       if (baseProject.isPresent()) {
-        java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastSnapshotByRootComponentUuid(session, baseProject.get().uuid());
+        java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, baseProject.get().uuid());
         long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate();
-        Long lastAnalysisDate = snapshotDto.isPresent() ? snapshotDto.get().getCreatedAt() : null;
+        Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
         if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {
           validationMessages.add(format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
             "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",

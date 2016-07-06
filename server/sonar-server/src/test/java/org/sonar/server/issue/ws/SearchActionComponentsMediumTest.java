@@ -37,7 +37,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
@@ -66,7 +65,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class SearchActionComponentsMediumTest {
 
@@ -190,10 +189,9 @@ public class SearchActionComponentsMediumTest {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("PK1"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(newFileDto(project, "F1").setKey("FK1"));
-    SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
-      newSnapshotForProject(project)
+    db.snapshotDao().insert(session,
+      newAnalysis(project)
         .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    //db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)
@@ -220,11 +218,8 @@ public class SearchActionComponentsMediumTest {
     setDefaultProjectPermission(project);
     ComponentDto module = insertComponent(newModuleDto(project));
     ComponentDto file = insertComponent(newFileDto(module, "F1").setKey("FK1"));
-    SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
-      newSnapshotForProject(project)
-        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-//    SnapshotDto moduleSnapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, projectSnapshot));
-//    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, moduleSnapshot));
+    db.snapshotDao().insert(session,
+      newAnalysis(project).setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)

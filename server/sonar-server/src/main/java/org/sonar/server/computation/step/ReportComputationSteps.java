@@ -86,7 +86,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Persist data
     PersistComponentsStep.class,
-    PersistSnapshotsStep.class,
+    PersistAnalysisStep.class,
     PersistDevelopersStep.class,
     PersistMeasuresStep.class,
     PersistIssuesStep.class,
@@ -95,9 +95,8 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistFileSourcesStep.class,
     PersistTestsStep.class,
     PersistCrossProjectDuplicationIndexStep.class,
-
-    // Switch snapshot and purge
     EnableAnalysisStep.class,
+
     UpdateQualityProfilesLastUsedDateStep.class,
     IndexComponentsStep.class,
     PurgeDatastoresStep.class,

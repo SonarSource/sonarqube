@@ -69,7 +69,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   private void setBaseProjectSnapshot(String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      SnapshotDto snapshotDto = dbClient.snapshotDao().selectSnapshotByQuery(dbSession,
+      SnapshotDto snapshotDto = dbClient.snapshotDao().selectAnalysisByQuery(dbSession,
         new SnapshotQuery()
           .setComponentUuid(projectUuid)
           .setIsLast(true));

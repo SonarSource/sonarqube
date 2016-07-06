@@ -206,7 +206,7 @@ public class BulkDeleteActionTest {
     dbClient.ruleDao().insert(dbSession, rule);
     IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newSnapshotForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(project));
     dbClient.issueDao().insert(dbSession, issue);
     dbSession.commit();
 

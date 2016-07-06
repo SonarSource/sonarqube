@@ -62,7 +62,7 @@ import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
@@ -143,7 +143,7 @@ public class ComponentTreeActionTest {
     ComponentDto projectDto = newProjectDto("project-uuid");
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession,
-      newSnapshotForProject(projectDto)
+      newAnalysis(projectDto)
         .setPeriodDate(1, System.currentTimeMillis())
         .setPeriodMode(1, "last_version")
         .setPeriodDate(3, System.currentTimeMillis())
@@ -641,7 +641,7 @@ public class ComponentTreeActionTest {
       .setName("My Project")
       .setQualifier(Qualifiers.PROJECT);
     componentDb.insertComponent(project);
-    SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
+    SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode(1, "previous_version")
       .setPeriodParam(1, "1.0-SNAPSHOT")

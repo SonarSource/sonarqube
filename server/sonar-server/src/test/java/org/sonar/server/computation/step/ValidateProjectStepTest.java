@@ -255,7 +255,7 @@ public class ValidateProjectStepTest {
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1420088400000L)); // 2015-01-01
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
@@ -276,7 +276,7 @@ public class ValidateProjectStepTest {
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
