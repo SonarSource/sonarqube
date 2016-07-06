@@ -33,23 +33,14 @@ public final class SnapshotDto {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
   private Long id;
-  private Long parentId;
-  private Long rootId;
   private String uuid;
-
-  private String rootComponentUuid;
   private String componentUuid;
-
   private Long createdAt;
   private Long buildDate;
   private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
   private Boolean last;
-  private String scope;
-  private String qualifier;
   private String version;
-  private String path;
-  private Integer depth;
 
   private String period1Mode;
   private String period2Mode;
@@ -87,44 +78,12 @@ public final class SnapshotDto {
     return this.uuid;
   }
 
-  @CheckForNull
-  public Long getParentId() {
-    return parentId;
-  }
-
-  public SnapshotDto setParentId(@Nullable Long parentId) {
-    this.parentId = parentId;
-    return this;
-  }
-
-  /**
-   * Root id is null on project's snapshot
-   */
-  @CheckForNull
-  public Long getRootId() {
-    return rootId;
-  }
-
-  public SnapshotDto setRootId(@Nullable Long rootId) {
-    this.rootId = rootId;
-    return this;
-  }
-
   public Long getBuildDate() {
     return buildDate;
   }
 
   public SnapshotDto setBuildDate(Long buildDate) {
     this.buildDate = buildDate;
-    return this;
-  }
-
-  public String getRootComponentUuid() {
-    return rootComponentUuid;
-  }
-
-  public SnapshotDto setRootComponentUuid(String rootComponentUuid) {
-    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 
@@ -165,24 +124,6 @@ public final class SnapshotDto {
     return this;
   }
 
-  public String getScope() {
-    return scope;
-  }
-
-  public SnapshotDto setScope(String scope) {
-    this.scope = scope;
-    return this;
-  }
-
-  public String getQualifier() {
-    return qualifier;
-  }
-
-  public SnapshotDto setQualifier(String qualifier) {
-    this.qualifier = qualifier;
-    return this;
-  }
-
   /**
    * Version is only available on projects and modules
    */
@@ -193,28 +134,6 @@ public final class SnapshotDto {
 
   public SnapshotDto setVersion(@Nullable String version) {
     this.version = version;
-    return this;
-  }
-
-  /**
-   * On project's snapshot, the path is empty (or null on Oracle)
-   */
-  @CheckForNull
-  public String getPath() {
-    return path;
-  }
-
-  public SnapshotDto setPath(@Nullable String path) {
-    this.path = path;
-    return this;
-  }
-
-  public Integer getDepth() {
-    return depth;
-  }
-
-  public SnapshotDto setDepth(Integer depth) {
-    this.depth = depth;
     return this;
   }
 
@@ -348,9 +267,5 @@ public final class SnapshotDto {
 
   public Long getCreatedAt() {
     return createdAt;
-  }
-
-  public Long getRootIdOrSelf() {
-    return getRootId() == null ? getId() : getRootId();
   }
 }

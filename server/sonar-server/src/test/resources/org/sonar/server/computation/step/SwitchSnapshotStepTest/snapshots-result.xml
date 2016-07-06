@@ -3,7 +3,7 @@
   <!-- NEW SNAPSHOT -->
   <snapshots id="1"
              uuid="u1"
-             component_uuid="uuid_123" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="1"
+             component_uuid="uuid_123"  root_component_uuid="uuid_123" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -14,7 +14,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="2"
              uuid="u2"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="1"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -25,7 +25,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="3"
              uuid="u3"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="1"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -37,7 +37,7 @@
   <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="4"
              uuid="u4"
-             component_uuid="uuid_3" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="1"
+             component_uuid="uuid_3"  root_component_uuid="uuid_123" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -49,7 +49,7 @@
   <!-- Child of snapshot id=1 -->
   <snapshots id="5"
              uuid="u5"
-             component_uuid="uuid_55" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="1"
+             component_uuid="uuid_55"  root_component_uuid="uuid_123" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -62,7 +62,7 @@
   <!-- LAST FLAGGED SNAPSHOT -->
   <snapshots id="21"
              uuid="u21"
-             component_uuid="uuid_123" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="21"
+             component_uuid="uuid_123"  root_component_uuid="uuid_123" root_snapshot_id="21"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -73,7 +73,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="22"
              uuid="u22"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="21"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="21"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -84,7 +84,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="23"
              uuid="u23"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="21"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="21"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -96,7 +96,7 @@
   <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="24"
              uuid="u24"
-             component_uuid="uuid_3" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="21"
+             component_uuid="uuid_3"  root_component_uuid="uuid_123" root_snapshot_id="21"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -108,7 +108,7 @@
   <!-- Child of snapshot id=1 -->
   <snapshots id="25"
              uuid="u25"
-             component_uuid="uuid_55" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="21"
+             component_uuid="uuid_55"  root_component_uuid="uuid_123" root_snapshot_id="21"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -121,7 +121,7 @@
   <!-- OLD SNAPSHOT -->
   <snapshots id="46"
              uuid="u46"
-             component_uuid="uuid_123" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="46"
+             component_uuid="uuid_123"  root_component_uuid="uuid_123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -132,7 +132,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="47"
              uuid="u47"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="46"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -143,7 +143,7 @@
              version="2.1-SNAPSHOT" path="1.2."/>
   <snapshots id="48"
              uuid="u48"
-             component_uuid="uuid_1" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="46"
+             component_uuid="uuid_1"  root_component_uuid="uuid_123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -155,7 +155,7 @@
   <!-- PROJECT_ID = 3 - no last snapshot -->
   <snapshots id="49"
              uuid="u49"
-             component_uuid="uuid_3" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="46"
+             component_uuid="uuid_3"  root_component_uuid="uuid_123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -167,7 +167,7 @@
   <!-- Child of snapshot id=1 -->
   <snapshots id="50"
              uuid="u50"
-             component_uuid="uuid_55" parent_snapshot_id="2" root_component_uuid="uuid_123" root_snapshot_id="46"
+             component_uuid="uuid_55"  root_component_uuid="uuid_123" root_snapshot_id="46"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"

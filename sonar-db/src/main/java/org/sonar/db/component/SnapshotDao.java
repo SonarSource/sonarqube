@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -68,17 +66,16 @@ public class SnapshotDao implements Dao {
     return executeLargeInputs(snapshotIds, mapper(dbSession)::selectByIds);
   }
 
-  @CheckForNull
-  public SnapshotDto selectLastSnapshotByComponentUuid(DbSession session, String componentUuid) {
-    return mapper(session).selectLastSnapshot(componentUuid);
+  public Optional<SnapshotDto> selectLastSnapshotByComponentUuid(DbSession session, String componentUuid) {
+    return Optional.ofNullable(mapper(session).selectLastSnapshotByComponentUuid(componentUuid));
   }
 
-  public List<SnapshotDto> selectLastSnapshotByComponentUuids(DbSession dbSession, List<String> componentUuids) {
-    return componentUuids.isEmpty() ? emptyList() : mapper(dbSession).selectLastSnapshotByComponentUuids(componentUuids);
+  public Optional<SnapshotDto> selectLastSnapshotByRootComponentUuid(DbSession session, String componentUuid) {
+    return Optional.ofNullable(mapper(session).selectLastSnapshotByRootComponentUuid(componentUuid));
   }
 
-  public boolean hasLastSnapshotByComponentUuid(DbSession session, String componentUUid) {
-    return mapper(session).countLastSnapshotByComponentUuid(componentUUid) > 0;
+  public List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(DbSession dbSession, List<String> componentUuids) {
+    return componentUuids.isEmpty() ? emptyList() : mapper(dbSession).selectLastSnapshotsByRootComponentUuids(componentUuids);
   }
 
   public List<SnapshotDto> selectSnapshotsByQuery(DbSession session, SnapshotQuery query) {
@@ -108,28 +105,16 @@ public class SnapshotDao implements Dao {
     return snapshotDtos.isEmpty() ? null : snapshotDtos.get(0);
   }
 
-  public List<SnapshotDto> selectSnapshotAndChildrenOfProjectScope(DbSession session, long snapshotId) {
-    return mapper(session).selectSnapshotAndChildrenOfScope(snapshotId, Scopes.PROJECT);
-  }
-
   public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(analysisUuid));
   }
 
-  public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
-    Long rootId = snapshot.getId();
-    String path = Strings.nullToEmpty(snapshot.getPath()) + snapshot.getId() + ".%";
-    Long pathRootId = snapshot.getRootIdOrSelf();
-
-    return mapper(session).updateSnapshotAndChildrenLastFlagAndStatus(rootId, pathRootId, path, isLast, status);
+  public void unsetIsLastFlagForComponentUuid(DbSession dbSession, String componentUuid) {
+    mapper(dbSession).unsetIsLastFlagForComponentUuid(componentUuid);
   }
 
-  public int updateSnapshotAndChildrenLastFlag(DbSession session, SnapshotDto snapshot, boolean isLast) {
-    Long rootId = snapshot.getId();
-    String path = Strings.nullToEmpty(snapshot.getPath()) + snapshot.getId() + ".%";
-    Long pathRootId = snapshot.getRootIdOrSelf();
-
-    return mapper(session).updateSnapshotAndChildrenLastFlag(rootId, pathRootId, path, isLast);
+  public void setIsLastFlagForAnalysisUuid(DbSession dbSession, String analysisUuid) {
+    mapper(dbSession).setIsLastFlagForAnalysisUuid(analysisUuid);
   }
 
   public SnapshotDto insert(DbSession session, SnapshotDto item) {

@@ -9,9 +9,6 @@
     id="110"
     uuid="u110"
     project_id="10"
-    parent_snapshot_id="[null]"
-    root_project_id="10"
-    root_snapshot_id="[null]"
     purge_status="[null]"
     period1_mode="[null]"
     period1_param="[null]"
@@ -28,13 +25,10 @@
     period5_mode="[null]"
     period5_param="[null]"
     period5_date="[null]"
-    scope="PRJ"
-    qualifier="TRK"
     created_at="1225544280000"
     build_date="1225544280000"
     version="[null]"
-    path=""
     status="P"
     islast="[false]"
-    depth="0"/>
+    />
 </dataset>

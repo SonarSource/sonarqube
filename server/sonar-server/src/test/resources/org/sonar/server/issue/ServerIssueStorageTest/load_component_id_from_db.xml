@@ -10,7 +10,6 @@
   <snapshots id="10"
              uuid="u10"
              component_uuid="ABCD"
-             root_component_uuid="ABCD"
              islast="[true]"/>
 
   <projects uuid="BCDE"
@@ -24,6 +23,5 @@
   <snapshots id="100"
              uuid="u100"
              component_uuid="BCDE"
-             root_component_uuid="ABCD"
              islast="[true]"/>
 </dataset>

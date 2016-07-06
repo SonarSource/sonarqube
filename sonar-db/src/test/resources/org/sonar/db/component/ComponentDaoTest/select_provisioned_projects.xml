@@ -51,9 +51,6 @@
   <snapshots id="1"
              uuid="u1"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
              status="P"
              islast="[true]"
              purge_status="[null]"
@@ -72,19 +69,13 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path=""/>
+             />
   <snapshots id="10"
              uuid="u10"
              component_uuid="ABCD"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             root_snapshot_id="[null]"
              status="P"
              islast="[false]"
              purge_status="[null]"
@@ -103,13 +94,10 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="TRK"
              created_at="1228136280000"
              build_date="1228136280000"
              version="[null]"
-             path=""/>
+             />
 
   <!-- module -->
   <projects id="2"
@@ -133,9 +121,6 @@
   <snapshots id="2"
              uuid="u2"
              component_uuid="EFGH"
-             parent_snapshot_id="1"
-             root_component_uuid="ABCD"
-             root_snapshot_id="1"
              status="P"
              islast="[true]"
              purge_status="[null]"
@@ -154,13 +139,10 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="PRJ"
-             qualifier="BRC"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="1."/>
+             />
 
   <!-- directory -->
   <projects long_name="org.struts"
@@ -185,9 +167,6 @@
   <snapshots id="3"
              uuid="u3"
              component_uuid="GHIJ"
-             parent_snapshot_id="2"
-             root_component_uuid="ABCD"
-             root_snapshot_id="1"
              status="P"
              islast="[true]"
              purge_status="[null]"
@@ -206,13 +185,10 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="DIR"
-             qualifier="PAC"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="1.2."/>
+             />
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext"
@@ -238,9 +214,6 @@
   <snapshots id="4"
              uuid="u4"
              component_uuid="KLMN"
-             parent_snapshot_id="3"
-             root_component_uuid="ABCD"
-             root_snapshot_id="1"
              status="P"
              islast="[true]"
              purge_status="[null]"
@@ -259,13 +232,10 @@
              period5_mode="[null]"
              period5_param="[null]"
              period5_date="[null]"
-             depth="[null]"
-             scope="FIL"
-             qualifier="CLA"
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             path="1.2.3."/>
+             />
 
   <!-- Disabled projects -->
   <projects id="10"

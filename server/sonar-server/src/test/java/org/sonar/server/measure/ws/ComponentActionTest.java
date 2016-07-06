@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -54,7 +55,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -130,10 +130,10 @@ public class ComponentActionTest {
   @Test
   public void reference_uuid_in_the_response() {
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto view = newView("view-uuid");
     componentDb.insertViewAndSnapshot(view);
-    componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertProjectAndSnapshot(newProjectCopy("project-uuid-copy", project, view));
+    componentDb.insertComponent(newProjectCopy("project-uuid-copy", project, view));
     insertNclocMetric();
 
     ComponentWsResponse response = newRequest("project-uuid-copy", "ncloc");
@@ -150,11 +150,11 @@ public class ComponentActionTest {
     ComponentDto project = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto file = newFileDto(project, "file-uuid");
-    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
+    componentDb.insertComponent(file);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, fileSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
+      newMeasureDto(ncloc, file, projectSnapshot).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
     ComponentWsResponse result = call(ws.newRequest()
@@ -173,11 +173,11 @@ public class ComponentActionTest {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto file = newFileDto(project, "file-uuid");
-    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
+    componentDb.insertComponent(file);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, fileSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
+      newMeasureDto(ncloc, file, projectSnapshot).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
     ComponentWsResponse result = call(ws.newRequest()
@@ -311,17 +311,7 @@ public class ComponentActionTest {
 
   private void insertJsonExampleData() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-
-    ComponentDto file = newFileDto(project)
-      .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setKey("MY_PROJECT:ElementImpl.java")
-      .setName("ElementImpl.java")
-      .setQualifier(Qualifiers.FILE)
-      .setLanguage("java")
-      .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java");
-    componentDb.insertComponent(file);
-    SnapshotDto fileSnapshot = dbClient.snapshotDao().insert(dbSession, createForComponent(file, projectSnapshot)
+    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project)
       .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode(1, "previous_version")
       .setPeriodParam(1, "1.0-SNAPSHOT")
@@ -330,11 +320,20 @@ public class ComponentActionTest {
       .setPeriodParam(2, "2016-01-11")
       .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
       .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30"));
+      .setPeriodParam(3, "30");
+    ComponentDto file = newFileDto(project)
+      .setUuid("AVIwDXE-bJbJqrw6wFv5")
+      .setKey("MY_PROJECT:ElementImpl.java")
+      .setName("ElementImpl.java")
+      .setQualifier(Qualifiers.FILE)
+      .setLanguage("java")
+      .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java");
+    componentDb.insertComponents(project, file);
+    dbClient.snapshotDao().insert(dbSession, projectSnapshot);
 
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, fileSnapshot)
+      newMeasureDto(complexity, file, projectSnapshot)
         .setValue(12.0d)
         .setVariation(1, 2.0d)
         .setVariation(2, 0.0d)
@@ -342,7 +341,7 @@ public class ComponentActionTest {
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot)
+      newMeasureDto(ncloc, file, projectSnapshot)
         .setValue(114.0d)
         .setVariation(1, 3.0d)
         .setVariation(2, -5.0d)
@@ -350,7 +349,7 @@ public class ComponentActionTest {
 
     MetricDto newViolations = insertNewViolationMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, fileSnapshot)
+      newMeasureDto(newViolations, file, projectSnapshot)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d));

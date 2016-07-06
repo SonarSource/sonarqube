@@ -20,6 +20,7 @@
 package org.sonar.db.measure;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
@@ -33,13 +34,14 @@ public class MeasureTesting {
     // static methods only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, SnapshotDto snapshot) {
+  public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto snapshot) {
     checkNotNull(metricDto.getId());
     checkNotNull(metricDto.getKey());
-    checkNotNull(snapshot.getComponentUuid());
+    checkNotNull(component.uuid());
+    checkNotNull(snapshot.getUuid());
     return new MeasureDto()
       .setMetricId(metricDto.getId())
-      .setComponentUuid(snapshot.getComponentUuid())
+      .setComponentUuid(component.uuid())
       .setAnalysisUuid(snapshot.getUuid());
   }
 

@@ -60,26 +60,8 @@
              id="1"
              uuid="u1"
              islast="[true]"
-             root_project_id="1"
-             project_id="1"
-             scope="PRJ"
-             qualifier="TRK"/>
-  <snapshots purge_status="[null]"
-             id="2"
-             uuid="u2"
-             islast="[true]"
-             root_project_id="1"
-             project_id="2"
-             scope="DIR"
-             qualifier="PAC"/>
-  <snapshots purge_status="[null]"
-             id="3"
-             uuid="u3"
-             islast="[true]"
-             root_project_id="1"
-             project_id="3"
-             scope="CLA"
-             qualifier="CLA"/>
+
+  />
 
   <!-- RequestContext -->
   <resource_index kee="requestcontext"

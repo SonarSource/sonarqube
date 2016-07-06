@@ -26,11 +26,6 @@ public interface MutableDbIdsRepository extends DbIdsRepository {
   DbIdsRepository setComponentId(Component component, long componentId);
 
   /**
-   * @throws IllegalStateException if the snapshot id for the specified component has already been set
-   */
-  DbIdsRepository setSnapshotId(Component component, long snapshotId);
-
-  /**
    * @throws IllegalStateException if the id for the specified developer has already been set
    */
   DbIdsRepository setDeveloperId(Developer developer, long developerId);

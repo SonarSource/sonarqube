@@ -40,7 +40,6 @@ public class MeasureDto {
   private String alertText;
   private String description;
   private String componentUuid;
-  private Long snapshotId;
   private String analysisUuid;
   private int metricId;
   private Long developerId;
@@ -62,10 +61,6 @@ public class MeasureDto {
   public MeasureDto setComponentUuid(String s) {
     this.componentUuid = s;
     return this;
-  }
-
-  public void setSnapshotId(Long l) {
-    this.snapshotId = l;
   }
 
   @CheckForNull

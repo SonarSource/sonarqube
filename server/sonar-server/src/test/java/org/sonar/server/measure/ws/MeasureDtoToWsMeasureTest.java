@@ -23,13 +23,12 @@ package org.sonar.server.measure.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.TestUtils.hasOnlyPrivateConstructors;
 
@@ -44,7 +43,7 @@ public class MeasureDtoToWsMeasureTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Error while mapping a measure of metric key 'metric-key' and parameters ");
 
-    MeasureDtoToWsMeasure.measureDtoToWsMeasure(metric, newMeasureDto(metric, new SnapshotDto().setId(1L).setComponentUuid("U1")).setValue(5.5d).setData("data"));
+    MeasureDtoToWsMeasure.measureDtoToWsMeasure(metric, newMeasure());
   }
 
   @Test

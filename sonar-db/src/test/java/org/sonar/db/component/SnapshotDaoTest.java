@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -74,17 +72,10 @@ public class SnapshotDaoTest {
     assertThat(result.getId()).isEqualTo(3L);
     assertThat(result.getUuid()).isEqualTo("u3");
     assertThat(result.getComponentUuid()).isEqualTo("uuid_3");
-    assertThat(result.getRootComponentUuid()).isEqualTo("uuid_1");
-    assertThat(result.getParentId()).isEqualTo(2L);
-    assertThat(result.getRootId()).isEqualTo(1L);
     assertThat(result.getStatus()).isEqualTo("P");
     assertThat(result.getLast()).isTrue();
     assertThat(result.getPurgeStatus()).isEqualTo(1);
-    assertThat(result.getDepth()).isEqualTo(1);
-    assertThat(result.getScope()).isEqualTo("DIR");
-    assertThat(result.getQualifier()).isEqualTo("PAC");
     assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
-    assertThat(result.getPath()).isEqualTo("1.2.");
 
     assertThat(result.getPeriodMode(1)).isEqualTo("days1");
     assertThat(result.getPeriodModeParameter(1)).isEqualTo("30");
@@ -121,40 +112,39 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void lastSnapshot_returns_null_when_no_last_snapshot() {
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_123");
+  public void selectLastSnapshotByRootComponentUuid_returns_absent_when_no_last_snapshot() {
+    Optional<SnapshotDto> snapshot = underTest.selectLastSnapshotByRootComponentUuid(db.getSession(), "uuid_123");
 
-    assertThat(snapshot).isNull();
+    assertThat(snapshot).isNotPresent();
   }
 
   @Test
-  public void lastSnapshot_from_one_resource() {
+  public void selectLastSnapshotByRootComponentUuid_returns_snapshot_flagged_as_last() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_2");
+    Optional<SnapshotDto> snapshot = underTest.selectLastSnapshotByRootComponentUuid(db.getSession(), "uuid_2");
 
-    assertThat(snapshot).isNotNull();
-    assertThat(snapshot.getId()).isEqualTo(4L);
+    assertThat(snapshot.get().getId()).isEqualTo(4L);
   }
 
   @Test
-  public void lastSnapshot_from_one_resource_without_last_is_null() {
+  public void selectLastSnapshotByRootComponentUuid_returns_absent_if_only_unprocessed_snapshots() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_5");
+    Optional<SnapshotDto> snapshot = underTest.selectLastSnapshotByRootComponentUuid(db.getSession(), "uuid_5");
 
-    assertThat(snapshot).isNull();
+    assertThat(snapshot).isNotPresent();
   }
 
   @Test
-  public void lastSnapshots_with_empty_component_uuids() {
-    List<SnapshotDto> result = underTest.selectLastSnapshotByComponentUuids(dbSession, emptyList());
+  public void selectLastSnapshotsByRootComponentUuids_returns_empty_list_if_empty_input() {
+    List<SnapshotDto> result = underTest.selectLastSnapshotsByRootComponentUuids(dbSession, emptyList());
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void lastSnapshots() {
+  public void selectLastSnapshotsByRootComponentUuids_returns_snapshots_flagged_as_last() {
     ComponentDto firstProject = componentDb.insertComponent(newProjectDto("PROJECT_UUID_1"));
     dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(firstProject).setLast(false));
     SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(firstProject).setLast(true));
@@ -162,19 +152,9 @@ public class SnapshotDaoTest {
     SnapshotDto lastSnapshotOfSecondProject = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(secondProject).setLast(true));
     componentDb.insertProjectAndSnapshot(newProjectDto());
 
-    List<SnapshotDto> result = underTest.selectLastSnapshotByComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
+    List<SnapshotDto> result = underTest.selectLastSnapshotsByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 
     assertThat(result).extracting(SnapshotDto::getId).containsOnly(lastSnapshotOfFirstProject.getId(), lastSnapshotOfSecondProject.getId());
-  }
-
-  @Test
-  public void snapshot_and_child_retrieved() {
-    db.prepareDbUnit(getClass(), "snapshots.xml");
-
-    List<SnapshotDto> snapshots = underTest.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
-
-    assertThat(snapshots).isNotEmpty();
-    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
   }
 
   @Test
@@ -185,12 +165,6 @@ public class SnapshotDaoTest {
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.PROJECT).setQualifier(Qualifiers.DIRECTORY))).extracting("id")
-      .containsOnly(1L);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.DIRECTORY).setQualifier(Qualifiers.DIRECTORY))).extracting("id").containsOnly(
-      2L, 3L, 4L, 5L, 6L);
-
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD"))).hasSize(3);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("UNKOWN"))).isEmpty();
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("GHIJ"))).isEmpty();
@@ -265,40 +239,11 @@ public class SnapshotDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     underTest.insert(db.getSession(),
-      new SnapshotDto().setComponentUuid("uuid_1").setRootComponentUuid("uuid_1").setLast(false).setUuid("u5"),
-      new SnapshotDto().setComponentUuid("uuid_2").setRootComponentUuid("uuid_1").setLast(false).setUuid("u6"));
+      new SnapshotDto().setComponentUuid("uuid_1").setLast(false).setUuid("u5"),
+      new SnapshotDto().setComponentUuid("uuid_2").setLast(false).setUuid("u6"));
     db.getSession().commit();
 
     assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
-  }
-
-  @Test
-  public void set_snapshot_and_children_to_false_and_status_processed() {
-    db.prepareDbUnit(getClass(), "snapshots.xml");
-    SnapshotDto snapshot = defaultSnapshot().setId(1L);
-
-    underTest.updateSnapshotAndChildrenLastFlagAndStatus(db.getSession(), snapshot, false, SnapshotDto.STATUS_PROCESSED);
-    db.getSession().commit();
-
-    List<SnapshotDto> snapshots = underTest.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
-    assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
-    assertThat(snapshots).extracting("last").containsOnly(false);
-    assertThat(snapshots).extracting("status").containsOnly(SnapshotDto.STATUS_PROCESSED);
-  }
-
-  @Test
-  public void set_snapshot_and_children_isLast_flag_to_false() {
-    db.prepareDbUnit(getClass(), "snapshots.xml");
-    SnapshotDto snapshot = defaultSnapshot().setId(1L);
-
-    underTest.updateSnapshotAndChildrenLastFlag(db.getSession(), snapshot, false);
-    db.getSession().commit();
-
-    List<SnapshotDto> snapshots = underTest.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
-    assertThat(snapshots).hasSize(2);
-    assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
-    assertThat(snapshots).extracting("last").containsOnly(false);
   }
 
   @Test
@@ -336,30 +281,14 @@ public class SnapshotDaoTest {
     assertThat(isLast).isFalse();
   }
 
-  @Test
-  public void has_last_snapshot_by_component_uuid() throws Exception {
-    db.prepareDbUnit(getClass(), "has_last_snapshot_by_component_uuid.xml");
-
-    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "ABCD")).isTrue();
-    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "EFGH")).isFalse();
-    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "FGHI")).isFalse();
-  }
-
   private static SnapshotDto defaultSnapshot() {
     return new SnapshotDto()
       .setUuid("u1")
       .setComponentUuid("uuid_3")
-      .setRootComponentUuid("uuid_1")
-      .setParentId(2L)
-      .setRootId(1L)
       .setStatus("P")
       .setLast(true)
       .setPurgeStatus(1)
-      .setDepth(1)
-      .setScope("DIR")
-      .setQualifier("PAC")
       .setVersion("2.1-SNAPSHOT")
-      .setPath("1.2.")
       .setPeriodMode(1, "days1")
       .setPeriodMode(2, "days2")
       .setPeriodMode(3, "days3")

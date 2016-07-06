@@ -70,24 +70,20 @@
              id="1"
              uuid="u1"
              islast="[true]"
-             root_component_uuid="ABCD"
              component_uuid="ABCD"/>
   <snapshots purge_status="[null]"
              id="2"
              uuid="u2"
              islast="[true]"
-             root_component_uuid="ABCD"
              component_uuid="BCDE"/>
   <snapshots purge_status="[null]"
              id="3"
              uuid="u3"
              islast="[true]"
-             root_component_uuid="ABCD"
              component_uuid="CDEF"/>
   <snapshots purge_status="[null]"
              id="4"
              uuid="u4"
              islast="[true]"
-             root_component_uuid="ABCD"
              component_uuid="DEFG"/>
 </dataset>

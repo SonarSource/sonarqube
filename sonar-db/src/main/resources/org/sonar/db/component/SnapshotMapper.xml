@@ -5,20 +5,13 @@
   <sql id="snapshotColumns">
     s.id,
     s.uuid as uuid,
-    s.parent_snapshot_id as parentId,
-    s.root_snapshot_id as rootId,
-    s.root_component_uuid as rootComponentUuid,
     s.component_uuid as componentUuId,
     s.created_at as createdAt,
     s.build_date as buildDate,
     s.status as status,
     s.purge_status as purgeStatus,
     s.islast as last,
-    s.scope as scope,
-    s.qualifier as qualifier,
     s.version as version,
-    s.path as path,
-    s.depth as depth,
     s.period1_mode as period1Mode,
     s.period2_mode as period2Mode,
     s.period3_mode as period3Mode,
@@ -68,34 +61,31 @@
     </foreach>
   </select>
 
-  <select id="selectLastSnapshot" resultType="Snapshot">
-    select
-    <include refid="snapshotColumns" />
+  <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
+    from snapshots s
+    inner join projects p on s.component_uuid = p.project_uuid
+    where
+      s.islast=${_true}
+      and p.uuid = #{componentUuid}
+  </select>
+
+  <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
     from snapshots s
     where s.islast=${_true} and s.component_uuid = #{componentUuid}
   </select>
 
-  <select id="selectLastSnapshotByComponentUuids" resultType="Snapshot">
-    select
-    <include refid="snapshotColumns" />
+  <select id="selectLastSnapshotsByRootComponentUuids" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
     from snapshots s
-    <where>
-      and s.islast=${_true}
+    where
+      s.islast=${_true}
       and s.component_uuid in
       <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
         #{componentUuid}
       </foreach>
-    </where>
-  </select>
-
-  <select id="countLastSnapshotByComponentUuid" resultType="Integer">
-    SELECT count(1)
-    FROM snapshots s
-    <where>
-      s.component_uuid=#{componentUuid}
-      AND s.islast=${_true}
-    </where>
-  </select>
+      </select>
 
   <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
     SELECT
@@ -105,12 +95,6 @@
       INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid}
     </if>
     <where>
-      <if test="query.scope != null">
-        AND s.scope=#{query.scope}
-      </if>
-      <if test="query.qualifier != null">
-        AND s.qualifier=#{query.qualifier}
-      </if>
       <if test="query.status != null">
         AND s.status=#{query.status}
       </if>
@@ -162,14 +146,6 @@
     ORDER BY s.created_at ASC
   </select>
 
-  <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">
-    select
-    <include refid="snapshotColumns" />
-    from snapshots s
-    where s.scope = #{scope}
-    AND (s.id = #{snapshot} or s.root_snapshot_id = #{snapshot})
-  </select>
-
   <select id="selectSnapshotBefore" resultType="ViewsSnapshot">
     SELECT
     <include refid="viewsSnapshotColumns" />
@@ -182,36 +158,29 @@
     order by created_at desc
   </select>
 
-
-  <update id="updateSnapshotAndChildrenLastFlagAndStatus" parameterType="map">
+  <update id="unsetIsLastFlagForComponentUuid" parameterType="map">
     update snapshots
-    set islast = #{isLast}, status = #{status}
-    where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
+    set islast = ${_false}
+    where component_uuid = #{componentUuid}
+    and islast = ${_true}
   </update>
 
-  <update id="updateSnapshotAndChildrenLastFlag" parameterType="map">
+  <update id="setIsLastFlagForAnalysisUuid" parameterType="map">
     update snapshots
-    set islast = #{isLast}
-    where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
+    set islast = ${_true}, status = 'P'
+    where uuid = #{analysisUuid}
   </update>
 
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots (
     uuid,
-    parent_snapshot_id,
-    root_snapshot_id,
-    root_component_uuid,
     component_uuid,
     created_at,
     build_date,
     status,
     purge_status,
     islast,
-    scope,
-    qualifier,
     version,
-    path,
-    depth,
     period1_mode,
     period2_mode,
     period3_mode,
@@ -229,20 +198,13 @@
     period5_date)
     values (
     #{uuid, jdbcType=VARCHAR},
-    #{parentId, jdbcType=BIGINT},
-    #{rootId, jdbcType=BIGINT},
-    #{rootComponentUuid, jdbcType=VARCHAR},
     #{componentUuid, jdbcType=VARCHAR},
     #{createdAt, jdbcType=BIGINT},
     #{buildDate, jdbcType=BIGINT},
     #{status, jdbcType=VARCHAR},
     #{purgeStatus, jdbcType=INTEGER},
     #{last, jdbcType=BOOLEAN},
-    #{scope, jdbcType=VARCHAR},
-    #{qualifier, jdbcType=VARCHAR},
     #{version, jdbcType=VARCHAR},
-    #{path, jdbcType=VARCHAR},
-    #{depth, jdbcType=INTEGER},
     #{period1Mode, jdbcType=VARCHAR},
     #{period2Mode, jdbcType=VARCHAR},
     #{period3Mode, jdbcType=VARCHAR},

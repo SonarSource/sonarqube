@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Optional;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
@@ -35,6 +34,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -783,15 +783,15 @@ public class ComponentDaoTest {
   public void selectChildren() {
     // project has 2 children: module and file 1. Other files are part of module.
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
+    componentDb.insertComponent(module);
     ComponentDto file1 = newFileDto(project, FILE_1_UUID).setKey("file-key-1").setName("File One");
-    componentDb.insertComponentAndSnapshot(file1, projectSnapshot);
+    componentDb.insertComponent(file1);
     ComponentDto file2 = newFileDto(module, FILE_2_UUID).setKey("file-key-2").setName("File Two");
-    componentDb.insertComponentAndSnapshot(file2, moduleSnapshot);
+    componentDb.insertComponent(file2);
     ComponentDto file3 = newFileDto(module, FILE_3_UUID).setKey("file-key-3").setName("File Three");
-    componentDb.insertComponentAndSnapshot(file3, moduleSnapshot);
+    componentDb.insertComponent(file3);
     db.commit();
     componentDb.indexAllComponents();
 
@@ -802,7 +802,7 @@ public class ComponentDaoTest {
     assertThat(underTest.countChildren(dbSession, query)).isEqualTo(2);
 
     // test children of root, filtered by qualifier
-    query = newTreeQuery(PROJECT_UUID).setQualifiers(Arrays.asList(Qualifiers.MODULE)).build();
+    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.MODULE)).build();
     children = underTest.selectChildren(dbSession, query);
     assertThat(children).extracting("uuid").containsExactly(MODULE_UUID);
     assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
@@ -861,9 +861,9 @@ public class ComponentDaoTest {
   @Test
   public void selectChildren_with_pagination() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     for (int i = 1; i <= 9; i++) {
-      componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i), projectSnapshot);
+      componentDb.insertComponent(newFileDto(project, "file-uuid-" + i));
     }
     db.commit();
 
@@ -880,10 +880,10 @@ public class ComponentDaoTest {
   @Test
   public void selectChildren_ordered_by_file_path() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-1").setName("file-name-1").setPath("3"), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-2").setName("file-name-2").setPath("2"), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-3").setName("file-name-3").setPath("1"), projectSnapshot);
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponent(newFileDto(project, "file-uuid-1").setName("file-name-1").setPath("3"));
+    componentDb.insertComponent(newFileDto(project, "file-uuid-2").setName("file-name-2").setPath("2"));
+    componentDb.insertComponent(newFileDto(project, "file-uuid-3").setName("file-name-3").setPath("1"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -907,14 +907,14 @@ public class ComponentDaoTest {
   @Test
   public void selectChildren_of_a_view() {
     ComponentDto view = newView(A_VIEW_UUID);
-    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    componentDb.insertViewAndSnapshot(view);
     // one subview
     ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview-name");
-    componentDb.insertComponentAndSnapshot(subView, viewSnapshot);
+    componentDb.insertComponent(subView);
     // one project and its copy linked to the view
     ComponentDto project = newProjectDto(PROJECT_UUID).setName("project-name");
     componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
     componentDb.indexAllComponents();
     ComponentTreeQuery query = newTreeQuery(A_VIEW_UUID).build();
 
@@ -925,14 +925,14 @@ public class ComponentDaoTest {
   @Test
   public void selectChildren_of_a_view_and_filter_by_name() {
     ComponentDto view = newView(A_VIEW_UUID);
-    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    componentDb.insertViewAndSnapshot(view);
     // one subview
     ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
-    componentDb.insertComponentAndSnapshot(subView, viewSnapshot);
+    componentDb.insertComponent(subView);
     // one project and its copy linked to the view
     ComponentDto project = newProjectDto(PROJECT_UUID).setName("project name");
     componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
     componentDb.indexAllComponents();
     ComponentTreeQuery dbQuery = newTreeQuery(A_VIEW_UUID).setNameOrKeyQuery("name").build();
 
@@ -944,11 +944,11 @@ public class ComponentDaoTest {
   public void selectParent() {
     // project -> module -> file
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
+    componentDb.insertComponent(module);
     ComponentDto file = newFileDto(module, FILE_1_UUID);
-    componentDb.insertComponentAndSnapshot(file, moduleSnapshot);
+    componentDb.insertComponent(file);
     db.commit();
 
     assertThat(underTest.selectParent(dbSession, project)).isAbsent();
@@ -960,11 +960,11 @@ public class ComponentDaoTest {
   public void selectAncestors() {
     // project -> module -> file
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(module, projectSnapshot);
+    componentDb.insertComponent(module);
     ComponentDto file = newFileDto(module, FILE_1_UUID);
-    componentDb.insertComponentAndSnapshot(file, moduleSnapshot);
+    componentDb.insertComponent(file);
     db.commit();
 
     // ancestors of root
@@ -983,10 +983,10 @@ public class ComponentDaoTest {
   @Test
   public void selectDescendants() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponent(newModuleDto("module-1-uuid", project));
+    componentDb.insertComponent(newFileDto(project, "file-1-uuid"));
+    componentDb.insertComponent(newFileDto(project, "file-2-uuid"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -1009,12 +1009,12 @@ public class ComponentDaoTest {
   @Test
   public void selectDescendants_of_a_project_paginated_and_ordered() {
     ComponentDto project = newProjectDto(PROJECT_UUID).setKey("project-key");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-1").setName("file-name-1"), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "another-uuid"), projectSnapshot);
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponent(newModuleDto("module-1-uuid", project));
+    componentDb.insertComponent(newFileDto(project, "file-uuid-1").setName("file-name-1"));
+    componentDb.insertComponent(newFileDto(project, "another-uuid"));
     for (int i = 2; i <= 9; i++) {
-      componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i).setName("file-name-" + i), moduleSnapshot);
+      componentDb.insertComponent(newFileDto(project, "file-uuid-" + i).setName("file-name-" + i));
     }
     db.commit();
     componentDb.indexAllComponents();

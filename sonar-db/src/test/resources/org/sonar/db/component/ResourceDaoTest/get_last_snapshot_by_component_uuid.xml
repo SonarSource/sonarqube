@@ -29,9 +29,9 @@
   <snapshots id="1"
              uuid="u1"
              project_id="1"
-             parent_snapshot_id="[null]"
+
              root_project_id="1"
-             root_snapshot_id="[null]"
+
              status="P"
              islast="[true]"
              purge_status="[null]"
@@ -60,9 +60,9 @@
   <snapshots id="10"
              uuid="u10"
              project_id="1"
-             parent_snapshot_id="[null]"
+
              root_project_id="1"
-             root_snapshot_id="[null]"
+
              status="P"
              islast="[false]"
              purge_status="[null]"
@@ -110,7 +110,7 @@
   <snapshots id="2"
              uuid="u2"
              project_id="2"
-             parent_snapshot_id="1"
+
              root_project_id="1"
              root_snapshot_id="1"
              status="P"
@@ -161,7 +161,7 @@
   <snapshots id="3"
              uuid="u3"
              project_id="3"
-             parent_snapshot_id="2"
+
              root_project_id="1"
              root_snapshot_id="1"
              status="P"
@@ -213,7 +213,7 @@
   <snapshots id="4"
              uuid="u4"
              project_id="4"
-             parent_snapshot_id="3"
+
              root_project_id="1"
              root_snapshot_id="1"
              status="P"

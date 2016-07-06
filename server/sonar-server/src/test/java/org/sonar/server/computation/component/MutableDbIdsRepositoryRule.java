@@ -67,20 +67,9 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
     this.componentProvider.ensureInitialized();
     return delegate.setComponentId(componentProvider.getByRef(componentRef), componentId);
   }
-
-  public DbIdsRepository setSnapshotId(int componentRef, long snapshotId) {
-    this.componentProvider.ensureInitialized();
-    return delegate.setSnapshotId(componentProvider.getByRef(componentRef), snapshotId);
-  }
-
   @Override
   public DbIdsRepository setComponentId(Component component, long componentId) {
     return delegate.setComponentId(component, componentId);
-  }
-
-  @Override
-  public DbIdsRepository setSnapshotId(Component component, long snapshotId) {
-    return delegate.setSnapshotId(component, snapshotId);
   }
 
   @Override
@@ -98,8 +87,4 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
     return delegate.getComponentId(component);
   }
 
-  @Override
-  public long getSnapshotId(Component component) {
-    return delegate.getSnapshotId(component);
-  }
 }

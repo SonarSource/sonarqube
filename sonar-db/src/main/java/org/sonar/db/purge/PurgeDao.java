@@ -63,13 +63,15 @@ public class PurgeDao implements Dao {
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-    disableOrphanResources(rootUuid, session, mapper, listener);
+
+    // FIXME to be re-enabled with 
+    //disableOrphanResources(rootUuid, session, mapper, listener);
     deleteOldClosedIssues(conf, mapper, listener);
   }
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
     List<IdUuidPair> analysisUuids = commands.selectSnapshotIdUuids(
-      PurgeSnapshotQuery.create()
+      new PurgeSnapshotQuery()
         .setComponentUuid(rootUuid)
         .setIslast(false)
         .setNotPurged(true));
@@ -93,10 +95,10 @@ public class PurgeDao implements Dao {
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
     LOG.debug("<- Delete aborted builds");
-    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+    PurgeSnapshotQuery query = new PurgeSnapshotQuery()
       .setIslast(false)
       .setStatus(UNPROCESSED_STATUS)
-      .setRootComponentUuid(rootUuid);
+      .setComponentUuid(rootUuid);
     commands.deleteAnalyses(query);
   }
 
@@ -106,7 +108,7 @@ public class PurgeDao implements Dao {
     }
 
     List<String> analysisUuids = purgeCommands.selectSnapshotUuids(
-      PurgeSnapshotQuery.create()
+      new PurgeSnapshotQuery()
         .setComponentUuid(rootUuid)
         .setIslast(false)
         .setNotPurged(true));
@@ -121,12 +123,6 @@ public class PurgeDao implements Dao {
       .collect(GuavaCollectors.toList());
 
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
-    // FIXME remove this when cardinality of snapshots has been changed
-    for (String componentUuid : componentWithoutHistoricalDataUuids) {
-      purgeCommands.deleteSnapshots(PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setComponentUuid(componentUuid));
-    }
   }
 
   /**

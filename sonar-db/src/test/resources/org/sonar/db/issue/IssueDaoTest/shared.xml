@@ -48,31 +48,15 @@
 
   <snapshots id="100"
              component_uuid="ABCD"
-             root_snapshot_id="[null]"
-             parent_snapshot_id="[null]"
-             root_component_uuid="ABCD"
-             path=""
              islast="[true]"/>
   <snapshots id="101"
              component_uuid="BCDE"
-             root_snapshot_id="100"
-             parent_snapshot_id="100"
-             root_component_uuid="ABCD"
-             path="100."
              islast="[true]"/>
   <snapshots id="102"
              component_uuid="CDEF"
-             root_snapshot_id="100"
-             parent_snapshot_id="101"
-             root_component_uuid="ABCD"
-             path="100.101."
              islast="[true]"/>
   <snapshots id="103"
              component_uuid="DEFG"
-             root_snapshot_id="100"
-             parent_snapshot_id="101"
-             root_component_uuid="ABCD"
-             path="100.101."
              islast="[true]"/>
 
   <rules id="500"

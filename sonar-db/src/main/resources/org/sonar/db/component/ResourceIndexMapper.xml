@@ -13,18 +13,14 @@
     ORDER BY r.name_size
   </select>
 
-  <!--
-  The column PROJECTS.ROOT_ID is not exact on multi-modules projects. The root id must
-  be loaded from the table SNAPSHOTS
-  -->
   <select id="selectResources" parameterType="map" resultType="Resource">
     select
-    p.name as "name", p.id as "id", p.uuid as "uuid", p.scope as "scope", p.qualifier as "qualifier", root.uuid as "projectUuid"
-    from projects p, projects root, snapshots s
+    p.name as "name", p.id as "id", p.uuid as "uuid", p.scope as "scope", p.qualifier as "qualifier", p.project_uuid as "projectUuid"
+    from projects p, snapshots s
     <where>
       p.enabled=${_true}
       and p.copy_component_uuid is null
-      and p.uuid=s.component_uuid
+      and p.project_uuid=s.component_uuid
       and s.islast=${_true}
       <if test="scopes != null">
         and p.scope in
@@ -36,12 +32,11 @@
         </foreach>
       </if>
       <if test="rootComponentUuid != null">
-        and s.root_component_uuid=#{rootComponentUuid}
+        and p.project_uuid=#{rootComponentUuid}
       </if>
       <if test="nonIndexedOnly">
         and not exists(select * from resource_index ri where ri.component_uuid=p.uuid)
       </if>
-      and root.uuid = s.root_component_uuid
     </where>
     order by p.id
   </select>
@@ -53,9 +48,8 @@
   </select>
 
   <select id="selectResourceToIndex" parameterType="String" resultType="Resource">
-    select p.id, p.uuid as "uuid", p.name, root.uuid as "projectUuid", p.qualifier
+    select p.id, p.uuid as "uuid", p.name, p.project_uuid as "projectUuid", p.qualifier
     from projects p
-    join projects root on root.uuid = p.project_uuid
     where
     p.uuid=#{componentUuid}
     and p.enabled=${_true}

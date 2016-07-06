@@ -38,7 +38,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
@@ -194,7 +193,7 @@ public class SearchActionComponentsMediumTest {
     SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
       newSnapshotForProject(project)
         .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
+    //db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)
@@ -224,8 +223,8 @@ public class SearchActionComponentsMediumTest {
     SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
       newSnapshotForProject(project)
         .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    SnapshotDto moduleSnapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, projectSnapshot));
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, moduleSnapshot));
+//    SnapshotDto moduleSnapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, projectSnapshot));
+//    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, moduleSnapshot));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)

@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,7 +102,7 @@ public class SearchAction implements CustomMeasuresWsAction {
     try {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, PROJECT_ID_AND_KEY);
       checkPermissions(userSession, project);
-      Long lastAnalysisDateMs = searchLastSnapshot(dbSession, project);
+      Long lastAnalysisDateMs = searchLastSnapshotDate(dbSession, project);
       List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);
       int nbCustomMeasures = countTotalOfCustomMeasures(dbSession, project);
       Map<String, UserDto> usersByLogin = usersByLogin(dbSession, customMeasures);
@@ -114,10 +115,10 @@ public class SearchAction implements CustomMeasuresWsAction {
   }
 
   @CheckForNull
-  private Long searchLastSnapshot(DbSession dbSession, ComponentDto project) {
-    SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, project.uuid());
+  private Long searchLastSnapshotDate(DbSession dbSession, ComponentDto project) {
+    Optional<SnapshotDto> lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, project.projectUuid());
 
-    return lastSnapshot == null ? null : lastSnapshot.getBuildDate();
+    return lastSnapshot.isPresent() ? lastSnapshot.get().getBuildDate() : null;
   }
 
   private int countTotalOfCustomMeasures(DbSession dbSession, ComponentDto project) {

@@ -15,19 +15,12 @@
       <if test="notPurged != null and notPurged">
         and (s.purge_status is null or s.purge_status=0)
       </if>
-      <if test="rootComponentUuid != null">
-        and s.root_component_uuid=#{rootComponentUuid}
-      </if>
       <if test="componentUuid != null">
         and s.component_uuid=#{componentUuid}
       </if>
       <if test="status != null">
         and s.status in
         <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
-      </if>
-      <if test="scopes != null">
-        and s.scope in
-        <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
       </if>
     </where>
   </select>
@@ -40,9 +33,7 @@
     where
       s.component_uuid=#{componentUuid}
       and s.status='P'
-      and s.qualifier &lt;&gt; 'LIB'
       and exists(select e.id from events e where e.analysis_uuid=s.uuid)
-      and parent_snapshot_id is null
   </select>
 
   <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
@@ -53,9 +44,7 @@
     where
       s.component_uuid=#{componentUuid}
       and s.status='P'
-      and s.qualifier &lt;&gt; 'LIB'
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
-      and parent_snapshot_id is null
   </select>
 
   <select id="selectComponentUuidsToDisable" resultType="String" parameterType="String">
@@ -89,9 +78,9 @@
   <delete id="deleteSnapshotMeasures" parameterType="map">
     delete from project_measures
     where
-      snapshot_id in
-      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
       </foreach>
   </delete>
 
@@ -135,15 +124,6 @@
       </foreach>
   </delete>
 
-  <delete id="deleteDescendantSnapshots" parameterType="map">
-    delete from snapshots
-    where
-      root_snapshot_id in
-      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
-      </foreach>
-  </delete>
-
   <delete id="deleteAnalysisWastedMeasures" parameterType="map">
     delete from project_measures
     <where>
@@ -171,18 +151,6 @@
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
         #{analysisUuid}
-      </foreach>
-  </update>
-
-  <update id="updateDescendantPurgeStatusToOne" parameterType="map">
-    update
-      snapshots
-    set
-      purge_status = 1
-    where
-      root_snapshot_id in
-      <foreach collection="analysisIds" open="(" close=")" item="analysisId" separator=",">
-        #{analysisId}
       </foreach>
   </update>
 

@@ -34,11 +34,12 @@ public interface SnapshotMapper {
   void insert(SnapshotDto snapshot);
 
   @CheckForNull
-  SnapshotDto selectLastSnapshot(@Param("componentUuid") String componentUuid);
+  SnapshotDto selectLastSnapshotByComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<SnapshotDto> selectLastSnapshotByComponentUuids(@Param("componentUuids") List<String> componentIds);
+  @CheckForNull
+  SnapshotDto selectLastSnapshotByRootComponentUuid(@Param("componentUuid") String componentUuid);
 
-  int countLastSnapshotByComponentUuid(String componentUuid);
+  List<SnapshotDto> selectLastSnapshotsByRootComponentUuids(@Param("componentUuids") List<String> componentIds);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
@@ -46,16 +47,12 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
 
-  List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param("snapshot") Long resourceId, @Param("scope") String scope);
-
-  int updateSnapshotAndChildrenLastFlagAndStatus(@Param("root") Long rootId, @Param("pathRootId") Long pathRootId,
-    @Param("path") String path, @Param("isLast") boolean isLast, @Param("status") String status);
-
-  int updateSnapshotAndChildrenLastFlag(@Param("root") Long rootId, @Param("pathRootId") Long pathRootId,
-    @Param("path") String path, @Param("isLast") boolean isLast);
-
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
 
   @CheckForNull
   SnapshotDto selectByUuid(String analysisUuid);
+
+  void unsetIsLastFlagForComponentUuid(@Param("componentUuid") String componentUuid);
+
+  void setIsLastFlagForAnalysisUuid(@Param("analysisUuid") String analysisUuid);
 }

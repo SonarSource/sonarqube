@@ -31,10 +31,9 @@ public class DbIdsRepositoryImplTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final String SOME_COMPONENT_KEY = "SOME_COMPONENT_KEY";
-  static final Component SOME_COMPONENT = ReportComponent.builder(PROJECT, 1).setKey(SOME_COMPONENT_KEY).build();
-
-  static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
+  private static final String SOME_COMPONENT_KEY = "SOME_COMPONENT_KEY";
+  private static final Component SOME_COMPONENT = ReportComponent.builder(PROJECT, 1).setKey(SOME_COMPONENT_KEY).build();
+  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Test
   public void add_and_get_component_id() {
@@ -60,32 +59,6 @@ public class DbIdsRepositoryImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Component id '10' is already registered in repository for Component '" + SOME_COMPONENT_KEY + "', can not set new id '11'");
     cache.setComponentId(SOME_COMPONENT, 11L);
-  }
-
-  @Test
-  public void add_and_get_snapshot_id() {
-    DbIdsRepositoryImpl cache = new DbIdsRepositoryImpl();
-    cache.setSnapshotId(SOME_COMPONENT, 100L);
-
-    assertThat(cache.getSnapshotId(SOME_COMPONENT)).isEqualTo(100L);
-  }
-
-  @Test
-  public void fail_to_get_snapshot_id_on_unknown_ref() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("No snapshot id registered in repository for Component '" + SOME_COMPONENT_KEY + "'");
-
-    new DbIdsRepositoryImpl().getSnapshotId(SOME_COMPONENT);
-  }
-
-  @Test
-  public void fail_if_snapshot_id_already_set() {
-    DbIdsRepositoryImpl cache = new DbIdsRepositoryImpl();
-    cache.setSnapshotId(SOME_COMPONENT, 10L);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Snapshot id '10' is already registered in repository for Component '" + SOME_COMPONENT_KEY + "', can not set new id '11'");
-    cache.setSnapshotId(SOME_COMPONENT, 11L);
   }
 
   @Test
