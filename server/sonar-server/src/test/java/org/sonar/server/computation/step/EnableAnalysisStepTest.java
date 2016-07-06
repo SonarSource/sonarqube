@@ -19,15 +19,27 @@
  */
 package org.sonar.server.computation.step;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotTesting;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
+import org.sonar.server.computation.component.ReportComponent;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
 public class EnableAnalysisStepTest {
+
+  private static final ReportComponent REPORT_PROJECT = ReportComponent.builder(PROJECT, 1).build();
+  private static final String PREVIOUS_ANALYSIS_UUID = "ANALYSIS_1";
+  private static final String CURRENT_ANALYSIS_UUID = "ANALYSIS_2";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -35,27 +47,52 @@ public class EnableAnalysisStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
+  @Rule
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  EnableAnalysisStep underTest;
-
-//  @Before
-//  public void before() {
-//    System2 system2 = mock(System2.class);
-//    when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-//    underTest = new EnableAnalysisStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), treeRootHolder, dbIdsRepository);
-//  }
+  EnableAnalysisStep underTest = new EnableAnalysisStep(db.getDbClient(), treeRootHolder, analysisMetadataHolder);
 
   @Test
-  public void one_switch_with_a_snapshot_and_his_children() {
-//    db.prepareDbUnit(getClass(), "snapshots.xml");
-//
-//    Component project = ReportComponent.DUMB_PROJECT;
-//    treeRootHolder.setRoot(project);
-//    dbIdsRepository.setSnapshotId(project, 1);
-//
-//    underTest.execute();
-//
-//    db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
+  public void switch_islast_flag_and_mark_analysis_as_processed() {
+    ComponentDto project = ComponentTesting.newProjectDto(REPORT_PROJECT.getUuid());
+    db.getDbClient().componentDao().insert(db.getSession(), project);
+    insertAnalysis(project, PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
+    insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
+    db.commit();
+    treeRootHolder.setRoot(REPORT_PROJECT);
+    analysisMetadataHolder.setUuid(CURRENT_ANALYSIS_UUID);
+
+    underTest.execute();
+
+    verifyAnalysis(PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, false);
+    verifyAnalysis(CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
+  }
+
+  @Test
+  public void set_islast_flag_and_mark_as_processed_if_no_previous_analysis() {
+    ComponentDto project = ComponentTesting.newProjectDto(REPORT_PROJECT.getUuid());
+    db.getDbClient().componentDao().insert(db.getSession(), project);
+    insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
+    db.commit();
+    treeRootHolder.setRoot(REPORT_PROJECT);
+    analysisMetadataHolder.setUuid(CURRENT_ANALYSIS_UUID);
+
+    underTest.execute();
+
+    verifyAnalysis(CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
+  }
+
+  private void verifyAnalysis(String uuid, String expectedStatus, boolean expectedLastFlag) {
+    Optional<SnapshotDto> analysis = db.getDbClient().snapshotDao().selectByUuid(db.getSession(), uuid);
+    assertThat(analysis.get().getStatus()).isEqualTo(expectedStatus);
+    assertThat(analysis.get().getLast()).isEqualTo(expectedLastFlag);
+  }
+
+  private void insertAnalysis(ComponentDto project, String uuid, String status, boolean isLastFlag) {
+    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project)
+      .setLast(isLastFlag)
+      .setStatus(status)
+      .setUuid(uuid);
+    db.getDbClient().snapshotDao().insert(db.getSession(), snapshot);
   }
 }
