@@ -46,6 +46,8 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.Database;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
@@ -349,6 +351,16 @@ public final class JRubyFacade {
 
     Database database = container.getComponentByType(Database.class);
     return !database.getDialect().supportsMigration();
+  }
+
+  /**
+   * Used by Developer Cockpit
+   */
+  public void indexComponent(String componentUuid) {
+    DbClient dbClient = get(DbClient.class);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.componentIndexDao().indexResource(dbSession, componentUuid);
+    }
   }
 
   public List<IdentityProvider> getIdentityProviders(){
