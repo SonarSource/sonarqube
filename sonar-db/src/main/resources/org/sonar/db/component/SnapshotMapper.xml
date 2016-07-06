@@ -43,22 +43,28 @@
     </where>
   </select>
 
-  <select id="selectByUuid" parameterType="String" resultType="Snapshot">
-    SELECT
-    <include refid="snapshotColumns"/>
-    FROM snapshots s
-    WHERE s.uuid=#{uuid}
-  </select>
-
   <select id="selectByIds" parameterType="Long" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns" />
-    FROM snapshots s
+      <include refid="snapshotColumns" />
+    FROM
+      snapshots s
     WHERE
-    s.id in
-    <foreach collection="ids" item="id" separator="," open="(" close=")">
-      #{id}
-    </foreach>
+      s.id in
+      <foreach collection="ids" item="id" separator="," open="(" close=")">
+        #{id}
+      </foreach>
+  </select>
+
+  <select id="selectByUuids" parameterType="List" resultType="Snapshot">
+    SELECT
+      <include refid="snapshotColumns"/>
+    FROM
+      snapshots s
+    WHERE
+      s.uuid in
+      <foreach collection="uuids" item="uuid" separator="," open="(" close=")">
+        #{uuid}
+      </foreach>
   </select>
 
   <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">

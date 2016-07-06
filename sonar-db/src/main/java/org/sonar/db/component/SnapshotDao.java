@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import com.google.common.collect.Lists;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
@@ -66,6 +67,18 @@ public class SnapshotDao implements Dao {
     return executeLargeInputs(snapshotIds, mapper(dbSession)::selectByIds);
   }
 
+  public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {
+    List<SnapshotDto> dtos = mapper(dbSession).selectByUuids(Collections.singletonList(analysisUuid));
+    if (dtos.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(dtos.iterator().next());
+  }
+
+  public List<SnapshotDto> selectByUuids(DbSession dbSession, Collection<String> analysisUuids) {
+    return executeLargeInputs(analysisUuids, mapper(dbSession)::selectByUuids);
+  }
+
   public Optional<SnapshotDto> selectLastAnalysisByComponentUuid(DbSession session, String componentUuid) {
     return Optional.ofNullable(mapper(session).selectLastSnapshotByComponentUuid(componentUuid));
   }
@@ -106,10 +119,6 @@ public class SnapshotDao implements Dao {
   public SnapshotDto selectOldestSnapshot(DbSession session, String componentUuid) {
     List<SnapshotDto> snapshotDtos = mapper(session).selectOldestSnapshots(componentUuid, new RowBounds(0, 1));
     return snapshotDtos.isEmpty() ? null : snapshotDtos.get(0);
-  }
-
-  public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {
-    return Optional.ofNullable(mapper(dbSession).selectByUuid(analysisUuid));
   }
 
   public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {

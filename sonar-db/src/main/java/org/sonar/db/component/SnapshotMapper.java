@@ -32,6 +32,8 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectByIds(@Param("ids") List<Long> ids);
 
+  List<SnapshotDto> selectByUuids(@Param("uuids") List<String> uuids);
+
   void insert(SnapshotDto snapshot);
 
   @CheckForNull
@@ -49,9 +51,6 @@ public interface SnapshotMapper {
   List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
 
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
-
-  @CheckForNull
-  SnapshotDto selectByUuid(String analysisUuid);
 
   void unsetIsLastFlagForComponentUuid(@Param("componentUuid") String componentUuid);
 
