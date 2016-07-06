@@ -32,9 +32,9 @@ public interface PermissionMapper {
 
   int countUsers(Map<String, Object> parameters);
 
-  void selectUsersByQuery(@Param("query") PermissionQuery query, RowBounds rowBounds, ResultHandler handler);
+  List<String> selectLoginsByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countUsersByQuery(@Param("query") PermissionQuery query);
+  int countUsersByPermissionQuery(@Param("query") PermissionQuery query);
 
   List<UserPermissionDto> selectUserPermissionsByQuery(@Param("query") PermissionQuery query);
 

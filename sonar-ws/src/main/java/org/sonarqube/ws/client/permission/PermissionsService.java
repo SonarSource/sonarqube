@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.permission;
 
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
@@ -213,12 +214,22 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_PROJECT_KEY_PATTERN, request.getProjectKeyPattern()), UpdateTemplateWsResponse.parser());
   }
 
-  public UsersWsResponse users(OldUsersWsRequest request) {
+  public OldUsersWsResponse oldUsers(OldUsersWsRequest request) {
     return call(new GetRequest(path("users"))
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam("selected", request.getSelected())
+      .setParam("p", request.getPage())
+      .setParam("ps", request.getPageSize())
+      .setParam("q", request.getQuery()), OldUsersWsResponse.parser());
+  }
+
+  public UsersWsResponse users(UsersWsRequest request) {
+    return call(new GetRequest(path("users2"))
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())
       .setParam("q", request.getQuery()), UsersWsResponse.parser());

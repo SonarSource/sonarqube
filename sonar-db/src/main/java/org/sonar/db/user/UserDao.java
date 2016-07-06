@@ -102,6 +102,10 @@ public class UserDao implements Dao {
     return executeLargeInputs(logins, session.getMapper(UserMapper.class)::selectByLogins);
   }
 
+  /**
+   * @deprecated since 6.0 please use {@link #selectByLogins(DbSession, Collection)} instead
+   */
+  @Deprecated
   public List<UserDto> selectByLogins(Collection<String> logins) {
     DbSession session = mybatis.openSession(false);
     try {

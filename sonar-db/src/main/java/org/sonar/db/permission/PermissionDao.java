@@ -58,14 +58,14 @@ public class PermissionDao implements Dao {
   }
 
   /**
-   * Each row returns <code>{@link UserRef}</code>, ordered by user names
+   * Ordered by user names
    */
-  public void selectUsersByQuery(DbSession dbSession, PermissionQuery query, ResultHandler handler) {
-    mapper(dbSession).selectUsersByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()), handler);
+  public List<String> selectLoginsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectLoginsByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countUsersByQuery(query);
+    return mapper(dbSession).countUsersByPermissionQuery(query);
   }
 
   public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
