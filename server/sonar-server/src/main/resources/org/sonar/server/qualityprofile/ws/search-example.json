@@ -25,7 +25,8 @@
       "isDefault": false,
       "projectCount": 13,
       "ruleUpdatedAt": "2016-12-20T19:10:03+0100",
-      "lastUsed": "2016-12-21T16:10:03+0100"
+      "lastUsed": "2016-12-21T16:10:03+0100",
+      "userUpdatedAt": "2016-06-28T21:57:01+0200"
     },
     {
       "key": "my-company-profile-java-23456",
@@ -36,7 +37,8 @@
       "isDefault": true,
       "activeRuleCount": 42,
       "activeDeprecatedRuleCount": 3,
-      "ruleUpdatedAt": "2016-12-22T19:10:03+0100"
+      "ruleUpdatedAt": "2016-12-22T19:10:03+0100",
+      "userUpdatedAt": "2016-06-29T21:57:01+0200"
     },
     {
       "key": "sonar-way-python-01234",
