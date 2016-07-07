@@ -41,7 +41,8 @@ public class BatchPlugin implements Plugin {
       DumpSettingsInitializer.class,
       RaiseMessageException.class,
       TempFolderExtension.class,
-      WaitingSensor.class
+      WaitingSensor.class,
+      SaveDataTwiceSensor.class
       ));
   }
 }

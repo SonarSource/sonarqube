@@ -71,7 +71,7 @@ public class Category3Suite {
     // Used by IssuesModeTest
     .addPlugin(pluginArtifact("access-secured-props-plugin"))
 
-    // used by TempFolderTest and DecimalScaleMetricTest
+    // used by TempFolderTest, DecimalScaleMetricTest and SaveDataTwiceTest
     .addPlugin(pluginArtifact("batch-plugin"))
 
     // used by ExtensionLifecycleTest
