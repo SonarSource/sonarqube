@@ -93,6 +93,31 @@ public class HighlightingMediumTest {
   }
 
   @Test
+  public void saveTwice() throws IOException {
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent plop");
+
+    exception.expect(UnsupportedOperationException.class);
+    exception.expectMessage("Trying to save highlighting twice for the same file is not supported");
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.it.savedatatwice", "true")
+        .build())
+      .start();
+
+  }
+
+  @Test
   public void computeInvalidOffsets() throws IOException {
 
     File baseDir = temp.newFolder();
@@ -118,7 +143,7 @@ public class HighlightingMediumTest {
       }
     });
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")

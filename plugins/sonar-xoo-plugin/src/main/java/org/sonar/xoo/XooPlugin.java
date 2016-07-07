@@ -47,6 +47,7 @@ import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssuePerModuleSensor;
 import org.sonar.xoo.rule.OneVulnerabilityIssuePerModuleSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
+import org.sonar.xoo.rule.SaveDataTwiceSensor;
 import org.sonar.xoo.rule.Xoo2BasicProfile;
 import org.sonar.xoo.rule.XooBasicProfile;
 import org.sonar.xoo.rule.XooEmptyProfile;
@@ -97,6 +98,7 @@ public class XooPlugin implements Plugin {
       ChecksSensor.class,
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,
+      SaveDataTwiceSensor.class,
 
       OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,
