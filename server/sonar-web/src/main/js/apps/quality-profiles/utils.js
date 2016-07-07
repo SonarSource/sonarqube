@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import sortBy from 'lodash/sortBy';
+import moment from 'moment';
 
 export function sortProfiles (profiles) {
   const result = [];
@@ -58,4 +59,8 @@ export function createFakeProfile (overrides) {
     projectCount: 3,
     ...overrides
   };
+}
+
+export function isStagnant (profile) {
+  return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }

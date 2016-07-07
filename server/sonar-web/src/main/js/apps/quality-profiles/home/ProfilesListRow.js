@@ -24,6 +24,7 @@ import ProfileDate from '../components/ProfileDate';
 import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { isStagnant } from '../utils';
 
 export default class ProfilesListRow extends React.Component {
   static propTypes = {
@@ -82,7 +83,7 @@ export default class ProfilesListRow extends React.Component {
         <div>
           {profile.activeDeprecatedRuleCount > 0 && (
               <span className="spacer-right">
-                <a className="badge badge-warning"
+                <a className="badge badge-focus"
                    href={deprecatedRulesUrl}
                    title={translate('quality_profiles.deprecated_rules')}
                    data-toggle="tooltip">
@@ -99,7 +100,12 @@ export default class ProfilesListRow extends React.Component {
   }
 
   renderUpdateDate () {
-    return <ProfileDate date={this.props.profile.userUpdatedAt}/>;
+    const date = <ProfileDate date={this.props.profile.userUpdatedAt}/>;
+    if (isStagnant(this.props.profile)) {
+      return <span className="badge badge-focus">{date}</span>;
+    } else {
+      return date;
+    }
   }
 
   renderUsageDate () {

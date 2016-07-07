@@ -19,6 +19,8 @@
  */
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
+import classNames from 'classnames';
+import moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
 import RenameProfileView from '../views/RenameProfileView';
 import CopyProfileView from '../views/CopyProfileView';
@@ -28,6 +30,7 @@ import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { setDefaultProfile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
+import { isStagnant } from '../utils';
 
 export default class ProfileHeader extends React.Component {
   static propTypes = {
@@ -79,6 +82,21 @@ export default class ProfileHeader extends React.Component {
     }).render();
   }
 
+  renderUpdateDate () {
+    const { profile } = this.props;
+    const warning = isStagnant(profile);
+    const className = classNames('small spacer-right', {
+      'alert-warning': warning
+    });
+    return (
+        <li className={className}>
+          {translate('quality_profiles.updated_')}
+          {' '}
+          <ProfileDate date={profile.userUpdatedAt}/>
+        </li>
+    );
+  }
+
   render () {
     const { profile, canAdmin } = this.props;
 
@@ -115,11 +133,7 @@ export default class ProfileHeader extends React.Component {
 
           <div className="pull-right">
             <ul className="list-inline" style={{ lineHeight: '24px' }}>
-              <li className="small spacer-right">
-                {translate('quality_profiles.updated_')}
-                {' '}
-                <ProfileDate date={profile.userUpdatedAt}/>
-              </li>
+              {this.renderUpdateDate()}
               <li className="small big-spacer-right">
                 {translate('quality_profiles.used_')}
                 {' '}

@@ -22,6 +22,7 @@ import moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
 import { ProfilesListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
+import { isStagnant } from '../utils';
 
 export default class EvolutionStagnant extends React.Component {
   static propTypes = {
@@ -31,16 +32,15 @@ export default class EvolutionStagnant extends React.Component {
   render () {
     // TODO filter built-in out
 
-    const outdated = this.props.profiles.filter(profile => (
-        moment().diff(moment(profile.rulesUpdatedAt), 'years') >= 1
-    ));
+    const outdated = this.props.profiles.filter(isStagnant);
 
     if (outdated.length === 0) {
       return null;
     }
 
     return (
-        <div className="quality-profile-box quality-profiles-evolution-stagnant">
+        <div
+            className="quality-profile-box quality-profiles-evolution-stagnant">
           <div className="spacer-bottom">
             <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
           </div>
