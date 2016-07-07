@@ -21,6 +21,7 @@ package org.sonar.core.platform;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface ContainerPopulator<T extends ContainerPopulator.Container> {
   void populateContainer(T container);
 

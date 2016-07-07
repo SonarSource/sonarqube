@@ -181,7 +181,6 @@ class PurgeCommands {
 
   @VisibleForTesting
   protected void deleteAnalyses(List<IdUuidPair> analysisIdUuids) {
-    List<List<Long>> analysisIdsPartitions = Lists.partition(IdUuidPairs.ids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
     List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
@@ -203,7 +202,6 @@ class PurgeCommands {
   }
 
   public void purgeAnalyses(List<IdUuidPair> analysisUuids) {
-    List<List<Long>> analysisIdsPartitions = Lists.partition(IdUuidPairs.ids(analysisUuids), MAX_SNAPSHOTS_PER_QUERY);
     List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisUuids), MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);

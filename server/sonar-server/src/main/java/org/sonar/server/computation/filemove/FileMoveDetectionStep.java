@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.filemove;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
@@ -316,12 +314,6 @@ public class FileMoveDetectionStep implements ComputationStep {
   private static class ElectedMatches implements Iterable<Match> {
     private final List<Match> matches;
     private final Set<String> matchedFileKeys;
-    private final Predicate<Match> notAlreadyMatched = new Predicate<Match>() {
-      @Override
-      public boolean apply(@Nonnull Match input) {
-        return !(matchedFileKeys.contains(input.getDbKey()) || matchedFileKeys.contains(input.getReportKey()));
-      }
-    };
 
     public ElectedMatches(MatchesByScore matchesByScore, Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey) {
       this.matches = new ArrayList<>(matchesByScore.getSize());
@@ -335,7 +327,11 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
 
     public List<Match> filter(Iterable<Match> matches) {
-      return from(matches).filter(notAlreadyMatched).toList();
+      return from(matches).filter(this::notAlreadyMatched).toList();
+    }
+
+    private boolean notAlreadyMatched(Match input) {
+      return !(matchedFileKeys.contains(input.getDbKey()) || matchedFileKeys.contains(input.getReportKey()));
     }
 
     @Override

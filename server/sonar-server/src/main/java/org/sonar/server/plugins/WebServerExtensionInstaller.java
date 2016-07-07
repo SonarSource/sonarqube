@@ -19,13 +19,13 @@
  */
 package org.sonar.server.plugins;
 
-import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginRepository;
 
 @ServerSide
 public class WebServerExtensionInstaller extends ServerExtensionInstaller {
-  public WebServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository) {
-    super(sonarQubeVersion, pluginRepository, ServerSide.class);
+  public WebServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
+    super(sonarRuntime, pluginRepository, ServerSide.class);
   }
 }

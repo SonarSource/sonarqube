@@ -40,10 +40,10 @@ public class PopulateAnalysisUuidOnEvents extends BaseDataChange {
       " where e.snapshot_id is not null and e.analysis_uuid is null");
     massUpdate.update("UPDATE events SET analysis_uuid=? WHERE snapshot_id=? and analysis_uuid is null");
     massUpdate.rowPluralName("analysis uuid of root component events");
-    massUpdate.execute(this::handle);
+    massUpdate.execute(PopulateAnalysisUuidOnEvents::handle);
   }
 
-  private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+  private static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
     long snapshotId = row.getLong(1);
     String snapshotUuid = row.getString(2);
 

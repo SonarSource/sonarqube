@@ -60,10 +60,10 @@ public class PopulateComponentUuidColumnsOfSnapshots extends BaseDataChange {
     massUpdate.select("SELECT sn.id, sn.project_id, sn.root_project_id from snapshots sn where sn.component_uuid is null or sn.root_component_uuid is null");
     massUpdate.update("UPDATE snapshots SET component_uuid=?, root_component_uuid=? WHERE id=?");
     massUpdate.rowPluralName("snapshots");
-    massUpdate.execute((row, update) -> this.handle(componentUuidById, row, update));
+    massUpdate.execute((row, update) -> handle(componentUuidById, row, update));
   }
 
-  private boolean handle(Map<Long, String> componentUuidById, Select.Row row, SqlStatement update) throws SQLException {
+  private static boolean handle(Map<Long, String> componentUuidById, Select.Row row, SqlStatement update) throws SQLException {
     long id = row.getLong(1);
     long componentId = row.getLong(2);
     long rootProjectId = row.getLong(3);

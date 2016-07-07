@@ -19,9 +19,10 @@
  */
 package org.sonar.process;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -64,9 +65,7 @@ public class Lifecycle {
     if (states.length == 1) {
       return Collections.singleton(states[0]);
     }
-    Set<State> res = new HashSet<>(states.length);
-    Collections.addAll(res, states);
-    return res;
+    return EnumSet.copyOf(Arrays.asList(states));
   }
 
   private State state = INIT;

@@ -20,7 +20,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Strings;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -203,7 +203,7 @@ public class PeriodResolver {
   }
 
   private static String formatDate(long date) {
-    return DateUtils.formatDate(org.apache.commons.lang.time.DateUtils.truncate(new Date(date), Calendar.SECOND));
+    return DateUtils.formatDate(Date.from(new Date(date).toInstant().truncatedTo(ChronoUnit.SECONDS)));
   }
 
   private static String getPropertyValue(@Nullable String qualifier, Settings settings, int index) {

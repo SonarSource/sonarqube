@@ -23,8 +23,9 @@ import java.util.List;
 
 public interface SourceSimilarity {
 
-  // TODO verify algorithm http://stackoverflow.com/questions/6087281/similarity-score-levenshtein
-  // the higher the more similar. Order is not important (TODO to be verified). 100% = same source.
-  // Range: between 0 and 100 (TODO to be verified)
+  /**
+   * the higher the more similar. Order is not important (TODO to be verified). 100% = same source.
+   * Range: between 0 and 100
+   */
   <T extends Object> int score(List<T> left, List<T> right);
 }

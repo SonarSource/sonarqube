@@ -59,7 +59,7 @@ public class SourceSimilarityImpl implements SourceSimilarity {
       // transformation cost for each letter in s0
       for (int i = 1; i < len0; i++) {
         // matching current letters in both strings
-        int match = (left.get(i - 1).equals(right.get(j - 1))) ? 0 : 1;
+        int match = left.get(i - 1).equals(right.get(j - 1)) ? 0 : 1;
 
         // computing cost for each transformation
         int costReplace = cost[i - 1] + match;
