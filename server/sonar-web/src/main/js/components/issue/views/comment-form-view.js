@@ -33,7 +33,7 @@ export default PopupView.extend({
   },
 
   events: {
-    'click': 'handleClick',
+    'click': 'onClick',
     'keydown @ui.textarea': 'onKeydown',
     'keyup @ui.textarea': 'toggleSubmit',
     'click @ui.cancelButton': 'cancel',
