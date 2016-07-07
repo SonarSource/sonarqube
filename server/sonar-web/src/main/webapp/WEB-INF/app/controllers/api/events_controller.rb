@@ -124,7 +124,7 @@ class Api::EventsController < Api::ApiController
   def create
     begin
       load_resource(:admin, params[:resource])
-      raise "Resource must be a root project" unless @resource.scope=='PRJ'
+      raise "Resource must be a root project" unless @resource.scope=='PRJ' && (@resource.qualifier=='TRK' || @resource.qualifier=='VW' || @resource.qualifier=='DEV')
 
       analysis=nil
       if (params[:dateTime])

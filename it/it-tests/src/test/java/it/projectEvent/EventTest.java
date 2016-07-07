@@ -32,12 +32,14 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Event;
 import org.sonar.wsclient.services.EventQuery;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsResponse;
+import util.ItUtils;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 @Category(QaOnly.class)
@@ -59,9 +61,29 @@ public class EventTest {
     orchestrator.executeSelenese(
       Selenese.builder().setHtmlTestsInClasspath("events",
         "/projectEvent/EventTest/create_event_with_special_character.html",
-        "/projectEvent/EventTest/no_events_widget_on_dir.html"
-        ).build()
-      );
+        "/projectEvent/EventTest/no_events_widget_on_dir.html")
+        .build());
+  }
+
+  @Test
+  public void old_ws_events_does_not_allow_creating_events_on_modules() {
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
+    orchestrator.executeBuild(sampleProject);
+
+    WsConnector wsConnector = ItUtils.newAdminWsClient(orchestrator).wsConnector();
+    WsResponse response = wsConnector.call(newCreateEventRequest("com.sonarsource.it.samples:multi-modules-sample", "bar"));
+    assertThat(response.code())
+      .isEqualTo(200);
+
+    assertThat(wsConnector.call(newCreateEventRequest("com.sonarsource.it.samples:multi-modules-sample:module_a", "bar")).code())
+      .isEqualTo(400);
+  }
+
+  private static PostRequest newCreateEventRequest(String componentKey, String eventName) {
+    return new PostRequest("/api/events")
+      .setParam("resource", componentKey)
+      .setParam("name", eventName)
+      .setParam("category", "Foo");
   }
 
   @Test
@@ -70,8 +92,7 @@ public class EventTest {
 
     new SeleneseTest(
       Selenese.builder().setHtmlTestsInClasspath("delete-event",
-        "/projectEvent/EventTest/create_delete_standard_event.html"
-        ).build()).runOn(orchestrator);
+        "/projectEvent/EventTest/create_delete_standard_event.html").build()).runOn(orchestrator);
   }
 
   @Test
@@ -84,9 +105,7 @@ public class EventTest {
 
     orchestrator.executeSelenese(
       Selenese.builder().setHtmlTestsInClasspath("event-widget",
-        "/projectEvent/EventTest/show_events_using_filters.html"
-        ).build()
-      );
+        "/projectEvent/EventTest/show_events_using_filters.html").build());
   }
 
   /**
@@ -104,9 +123,9 @@ public class EventTest {
 
     // there should be only 1 "0.1-SNAPSHOT" event and only 1 "0.1" event
     List<Event> events = orchestrator.getServer().getWsClient().findAll(new EventQuery().setResourceKey("sample"));
-    assertThat(events.size(), is(2));
+    assertThat(events.size()).isEqualTo(2);
     List<String> eventNames = Lists.newArrayList(events.get(0).getName(), events.get(1).getName());
-    assertThat(eventNames, hasItems("1.0", "1.0-SNAPSHOT"));
+    assertThat(eventNames).contains("1.0", "1.0-SNAPSHOT");
   }
 
   private static void executeAnalysis(String... properties) {
