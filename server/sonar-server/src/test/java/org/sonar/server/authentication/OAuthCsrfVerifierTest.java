@@ -19,13 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +29,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class OAuthCsrfVerifierTest {
 
@@ -48,7 +48,7 @@ public class OAuthCsrfVerifierTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
   HttpServletRequest request = mock(HttpServletRequest.class);
 
-  OAuthCsrfVerifier underTest = new OAuthCsrfVerifier(server);
+  OAuthCsrfVerifier underTest = new OAuthCsrfVerifier();
 
   @Before
   public void setUp() throws Exception {
@@ -56,27 +56,13 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void generate_state_on_secured_server() throws Exception {
-    when(server.isSecured()).thenReturn(true);
-
-    String state = underTest.generateState(response);
+  public void generate_state() throws Exception {
+    String state = underTest.generateState(request, response);
     assertThat(state).isNotEmpty();
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
 
-    verifyCookie(cookieArgumentCaptor.getValue(), true);
-  }
-
-  @Test
-  public void generate_state_on_not_secured_server() throws Exception {
-    when(server.isSecured()).thenReturn(false);
-
-    String state = underTest.generateState(response);
-    assertThat(state).isNotEmpty();
-
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-
-    verifyCookie(cookieArgumentCaptor.getValue(), false);
+    verifyCookie(cookieArgumentCaptor.getValue());
   }
 
   @Test
@@ -93,20 +79,6 @@ public class OAuthCsrfVerifierTest {
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
     assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
-  }
-
-  @Test
-  public void verify_state_when_context() throws Exception {
-    String state = "state";
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
-    when(request.getParameter("state")).thenReturn(state);
-    when(server.getContextPath()).thenReturn("/sonarqube");
-
-    underTest.verifyState(request, response);
-
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    Cookie updatedCookie = cookieArgumentCaptor.getValue();
-    assertThat(updatedCookie.getPath()).isEqualTo("/sonarqube/");
   }
 
   @Test
@@ -136,12 +108,12 @@ public class OAuthCsrfVerifierTest {
     underTest.verifyState(request, response);
   }
 
-  private void verifyCookie(Cookie cookie, boolean isSecured) {
+  private void verifyCookie(Cookie cookie) {
     assertThat(cookie.getName()).isEqualTo("OAUTHSTATE");
     assertThat(cookie.getValue()).isNotEmpty();
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isTrue();
     assertThat(cookie.getMaxAge()).isEqualTo(-1);
-    assertThat(cookie.getSecure()).isEqualTo(isSecured);
+    assertThat(cookie.getSecure()).isFalse();
   }
 }

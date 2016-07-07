@@ -19,14 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -45,6 +37,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class OAuth2ContextFactoryTest {
 
@@ -110,7 +110,7 @@ public class OAuth2ContextFactoryTest {
 
     context.generateCsrfState();
 
-    verify(csrfVerifier).generateState(response);
+    verify(csrfVerifier).generateState(request, response);
   }
 
   @Test
@@ -151,7 +151,7 @@ public class OAuth2ContextFactoryTest {
     callback.authenticate(USER_IDENTITY);
 
     verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider);
-    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(response));
+    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
     verify(threadLocalUserSession).set(any(UserSession.class));
   }
 

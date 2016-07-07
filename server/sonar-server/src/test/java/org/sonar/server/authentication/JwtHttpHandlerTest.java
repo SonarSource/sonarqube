@@ -20,19 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.System2.INSTANCE;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;
 import java.util.Date;
@@ -48,12 +35,24 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.System2.INSTANCE;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class JwtHttpHandlerTest {
 
@@ -84,29 +83,27 @@ public class JwtHttpHandlerTest {
   HttpSession httpSession = mock(HttpSession.class);
 
   System2 system2 = mock(System2.class);
-  Server server = mock(Server.class);
   Settings settings = new Settings();
   JwtSerializer jwtSerializer = mock(JwtSerializer.class);
   JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
 
   UserDto userDto = newUserDto().setLogin(USER_LOGIN);
 
-  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
+  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(NOW);
-    when(server.isSecured()).thenReturn(true);
     when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
-    when(jwtCsrfVerifier.generateState(eq(response), anyInt())).thenReturn(CSRF_STATE);
+    when(jwtCsrfVerifier.generateState(eq(request), eq(response), anyInt())).thenReturn(CSRF_STATE);
     dbClient.userDao().insert(dbSession, userDto);
     dbSession.commit();
   }
 
   @Test
   public void create_token() throws Exception {
-    underTest.generateToken(userDto, response);
+    underTest.generateToken(userDto, request, response);
 
     Optional<Cookie> jwtCookie = findCookie("JWT-SESSION");
     assertThat(jwtCookie).isPresent();
@@ -118,9 +115,9 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void generate_csrf_state_when_creating_token() throws Exception {
-    underTest.generateToken(userDto, response);
+    underTest.generateToken(userDto, request, response);
 
-    verify(jwtCsrfVerifier).generateState(response, 3 * 24 * 60 * 60);
+    verify(jwtCsrfVerifier).generateState(request, response, 3 * 24 * 60 * 60);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     JwtSerializer.JwtSession token = jwtArgumentCaptor.getValue();
@@ -132,8 +129,8 @@ public class JwtHttpHandlerTest {
     int sessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", sessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
-    underTest.generateToken(userDto, response);
+    underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+    underTest.generateToken(userDto, request, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     verifyToken(jwtArgumentCaptor.getValue(), sessionTimeoutInHours * 60 * 60, NOW);
@@ -144,12 +141,12 @@ public class JwtHttpHandlerTest {
     int firstSessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", firstSessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
-    underTest.generateToken(userDto, response);
+    underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+    underTest.generateToken(userDto, request, response);
 
     // The property is updated, but it won't be taking into account
     settings.setProperty("sonar.auth.sessionTimeoutInHours", 15);
-    underTest.generateToken(userDto, response);
+    underTest.generateToken(userDto, request, response);
     verify(jwtSerializer, times(2)).encode(jwtArgumentCaptor.capture());
     verifyToken(jwtArgumentCaptor.getAllValues().get(0), firstSessionTimeoutInHours * 60 * 60, NOW);
     verifyToken(jwtArgumentCaptor.getAllValues().get(1), firstSessionTimeoutInHours * 60 * 60, NOW);
@@ -270,15 +267,15 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verify(jwtSerializer).refresh(any(Claims.class), anyInt());
-    verify(jwtCsrfVerifier).refreshState(response, "CSRF_STATE", 3 * 24 * 60 * 60);
+    verify(jwtCsrfVerifier).refreshState(request, response, "CSRF_STATE", 3 * 24 * 60 * 60);
   }
 
   @Test
   public void remove_token() throws Exception {
-    underTest.removeToken(response);
+    underTest.removeToken(request, response);
 
     verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
-    verify(jwtCsrfVerifier).removeState(response);
+    verify(jwtCsrfVerifier).removeState(request, response);
   }
 
   private void verifyToken(JwtSerializer.JwtSession token, int expectedExpirationTime, long expectedRefreshTime) {
@@ -298,7 +295,7 @@ public class JwtHttpHandlerTest {
     assertThat(cookie.getPath()).isEqualTo("/");
     assertThat(cookie.isHttpOnly()).isTrue();
     assertThat(cookie.getMaxAge()).isEqualTo(expiry);
-    assertThat(cookie.getSecure()).isEqualTo(true);
+    assertThat(cookie.getSecure()).isFalse();
     assertThat(cookie.getValue()).isEqualTo(value);
   }
 

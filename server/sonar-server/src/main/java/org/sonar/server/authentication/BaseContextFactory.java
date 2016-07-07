@@ -79,7 +79,7 @@ public class BaseContextFactory {
     @Override
     public void authenticate(UserIdentity userIdentity) {
       UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
-      jwtHttpHandler.generateToken(userDto, response);
+      jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
     }
   }

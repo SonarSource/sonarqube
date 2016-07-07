@@ -22,10 +22,14 @@ package org.sonar.server.authentication;
 
 import java.util.Arrays;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 public class CookieUtils {
+
+  private static final String HTTPS_HEADER = "X-Forwarded-Proto";
+  private static final String HTTPS_VALUE = "https";
 
   private CookieUtils() {
     // Only static methods
@@ -39,5 +43,21 @@ public class CookieUtils {
     return Arrays.stream(cookies)
       .filter(cookie -> cookieName.equals(cookie.getName()))
       .findFirst();
+  }
+
+  public static Cookie createCookie(String name, @Nullable String value, boolean httpOnly, int expiry, HttpServletRequest request) {
+    Cookie cookie = new Cookie(name, value);
+    // Path is set "/" in order to allow rails to be able to remove cookies
+    // TODO When logout when be implemented in Java (SONAR-7774), following line should be replaced by
+    // cookie.setPath(request.getContextPath()"/");
+    cookie.setPath("/");
+    cookie.setSecure(isHttps(request));
+    cookie.setHttpOnly(httpOnly);
+    cookie.setMaxAge(expiry);
+    return cookie;
+  }
+
+  private static boolean isHttps(HttpServletRequest request) {
+    return HTTPS_VALUE.equalsIgnoreCase(request.getHeader(HTTPS_HEADER));
   }
 }

@@ -19,19 +19,18 @@
  */
 package org.sonar.server.authentication;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
 import com.google.common.collect.ImmutableSet;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.server.authentication.CookieUtils.createCookie;
 
 public class JwtCsrfVerifier {
 
@@ -50,20 +49,13 @@ public class JwtCsrfVerifier {
     "/api/projects/create",
     "/api/properties/create",
     "/api/server",
-    "/api/user_properties"
-  );
+    "/api/user_properties");
 
-  private final Server server;
-
-  public JwtCsrfVerifier(Server server) {
-    this.server = server;
-  }
-
-  public String generateState(HttpServletResponse response, int timeoutInSeconds) {
+  public String generateState(HttpServletRequest request, HttpServletResponse response, int timeoutInSeconds) {
     // Create a state token to prevent request forgery.
     // Store it in the cookie for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    response.addCookie(createCookie(state, timeoutInSeconds));
+    response.addCookie(createCookie(CSRF_STATE_COOKIE, state, false, timeoutInSeconds, request));
     return state;
   }
 
@@ -77,12 +69,12 @@ public class JwtCsrfVerifier {
     }
   }
 
-  public void refreshState(HttpServletResponse response, String csrfState, int timeoutInSeconds){
-    response.addCookie(createCookie(csrfState, timeoutInSeconds));
+  public void refreshState(HttpServletRequest request, HttpServletResponse response, String csrfState, int timeoutInSeconds) {
+    response.addCookie(createCookie(CSRF_STATE_COOKIE, csrfState, false, timeoutInSeconds, request));
   }
 
-  public void removeState(HttpServletResponse response){
-    response.addCookie(createCookie(null, 0));
+  public void removeState(HttpServletRequest request, HttpServletResponse response) {
+    response.addCookie(createCookie(CSRF_STATE_COOKIE, null, false, 0, request));
   }
 
   private static boolean shouldRequestBeChecked(HttpServletRequest request) {
@@ -94,22 +86,8 @@ public class JwtCsrfVerifier {
     return false;
   }
 
-  private static boolean isRailsWsUrl(String uri){
-    for (String railsUrl : RAILS_UPDATE_API_URLS) {
-      if (uri.startsWith(railsUrl)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private Cookie createCookie(@Nullable String csrfState, int timeoutInSeconds){
-    Cookie cookie = new Cookie(CSRF_STATE_COOKIE, csrfState);
-    cookie.setPath("/");
-    cookie.setSecure(server.isSecured());
-    cookie.setHttpOnly(false);
-    cookie.setMaxAge(timeoutInSeconds);
-    return cookie;
+  private static boolean isRailsWsUrl(String uri) {
+    return RAILS_UPDATE_API_URLS.stream().filter(uri::startsWith).findFirst().isPresent();
   }
 
 }

@@ -19,59 +19,41 @@
  */
 package org.sonar.server.authentication;
 
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.lang.StringUtils.isBlank;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static java.lang.String.format;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.server.authentication.CookieUtils.createCookie;
+import static org.sonar.server.authentication.CookieUtils.findCookie;
 
 public class OAuthCsrfVerifier {
 
   private static final String CSRF_STATE_COOKIE = "OAUTHSTATE";
 
-  private final Server server;
-
-  public OAuthCsrfVerifier(Server server) {
-    this.server = server;
-  }
-
-  public String generateState(HttpServletResponse response) {
+  public String generateState(HttpServletRequest request, HttpServletResponse response) {
     // Create a state token to prevent request forgery.
     // Store it in the session for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    Cookie cookie = new Cookie(CSRF_STATE_COOKIE, sha256Hex(state));
-    cookie.setPath(server.getContextPath() + "/");
-    cookie.setHttpOnly(true);
-    cookie.setMaxAge(-1);
-    cookie.setSecure(server.isSecured());
-    response.addCookie(cookie);
+    response.addCookie(createCookie(CSRF_STATE_COOKIE, sha256Hex(state), true, -1, request));
     return state;
   }
 
   public void verifyState(HttpServletRequest request, HttpServletResponse response) {
-    Optional<Cookie> stateCookie = CookieUtils.findCookie(CSRF_STATE_COOKIE, request);
-    if (!stateCookie.isPresent()) {
-      throw new UnauthorizedException();
-    }
-    Cookie cookie = stateCookie.get();
-
+    Cookie cookie = findCookie(CSRF_STATE_COOKIE, request).orElseThrow(() -> new UnauthorizedException(format("Cookie '%s' is missing", CSRF_STATE_COOKIE)));
     String hashInCookie = cookie.getValue();
 
     // remove cookie
-    cookie.setValue(null);
-    cookie.setMaxAge(0);
-    cookie.setPath(server.getContextPath() + "/");
-    response.addCookie(cookie);
+    response.addCookie(createCookie(CSRF_STATE_COOKIE, null, true, 0, request));
 
     String stateInRequest = request.getParameter("state");
     if (isBlank(stateInRequest) || !sha256Hex(stateInRequest).equals(hashInCookie)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("CSRF state value is invalid");
     }
   }
 

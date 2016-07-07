@@ -20,10 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static java.util.Objects.requireNonNull;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
-import static org.sonar.server.authentication.CookieUtils.findCookie;
-
 import com.google.common.collect.ImmutableMap;
 import io.jsonwebtoken.Claims;
 import java.util.Date;
@@ -34,12 +30,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+
+import static java.util.Objects.requireNonNull;
+import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static org.sonar.server.authentication.CookieUtils.findCookie;
 
 @ServerSide
 public class JwtHttpHandler {
@@ -61,24 +60,22 @@ public class JwtHttpHandler {
 
   private final System2 system2;
   private final DbClient dbClient;
-  private final Server server;
   private final JwtSerializer jwtSerializer;
 
   // This timeout is used to disconnect the user we he has not browse any page for a while
   private final int sessionTimeoutInSeconds;
   private final JwtCsrfVerifier jwtCsrfVerifier;
 
-  public JwtHttpHandler(System2 system2, DbClient dbClient, Server server, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
+  public JwtHttpHandler(System2 system2, DbClient dbClient, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
     this.jwtSerializer = jwtSerializer;
-    this.server = server;
     this.dbClient = dbClient;
     this.system2 = system2;
     this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(settings);
     this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
-  public void generateToken(UserDto user, HttpServletResponse response) {
-    String csrfState = jwtCsrfVerifier.generateState(response, sessionTimeoutInSeconds);
+  public void generateToken(UserDto user, HttpServletRequest request, HttpServletResponse response) {
+    String csrfState = jwtCsrfVerifier.generateState(request, response, sessionTimeoutInSeconds);
 
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
       user.getLogin(),
@@ -86,7 +83,7 @@ public class JwtHttpHandler {
       ImmutableMap.of(
         LAST_REFRESH_TIME_PARAM, system2.now(),
         CSRF_JWT_PARAM, csrfState)));
-    response.addCookie(createCookie(JWT_COOKIE, token, sessionTimeoutInSeconds));
+    response.addCookie(createCookie(request, JWT_COOKIE, token, sessionTimeoutInSeconds));
   }
 
   public Optional<UserDto> validateToken(HttpServletRequest request, HttpServletResponse response) {
@@ -132,7 +129,7 @@ public class JwtHttpHandler {
     jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
 
     if (now.after(DateUtils.addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
-      refreshToken(token, response);
+      refreshToken(token, request, response);
     }
 
     Optional<UserDto> user = selectUserFromDb(token.getSubject());
@@ -148,24 +145,19 @@ public class JwtHttpHandler {
     return new Date(lastFreshTime);
   }
 
-  private void refreshToken(Claims token, HttpServletResponse response) {
+  private void refreshToken(Claims token, HttpServletRequest request, HttpServletResponse response) {
     String refreshToken = jwtSerializer.refresh(token, sessionTimeoutInSeconds);
-    response.addCookie(createCookie(JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
-    jwtCsrfVerifier.refreshState(response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
+    response.addCookie(createCookie(request, JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
+    jwtCsrfVerifier.refreshState(request, response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
   }
 
-  void removeToken(HttpServletResponse response) {
-    response.addCookie(createCookie(JWT_COOKIE, null, 0));
-    jwtCsrfVerifier.removeState(response);
+  void removeToken(HttpServletRequest request, HttpServletResponse response) {
+    response.addCookie(createCookie(request, JWT_COOKIE, null, 0));
+    jwtCsrfVerifier.removeState(request, response);
   }
 
-  private Cookie createCookie(String name, @Nullable String value, int expirationInSeconds) {
-    Cookie cookie = new Cookie(name, value);
-    cookie.setPath("/");
-    cookie.setSecure(server.isSecured());
-    cookie.setHttpOnly(true);
-    cookie.setMaxAge(expirationInSeconds);
-    return cookie;
+  private static Cookie createCookie(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
+    return CookieUtils.createCookie(name, value, true, expirationInSeconds, request);
   }
 
   private Optional<UserDto> selectUserFromDb(String userLogin) {

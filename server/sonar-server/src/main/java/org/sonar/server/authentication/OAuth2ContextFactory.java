@@ -19,10 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static java.lang.String.format;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
-
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +30,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+
+import static java.lang.String.format;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
 
 public class OAuth2ContextFactory {
 
@@ -85,7 +85,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public String generateCsrfState() {
-      return csrfVerifier.generateState(response);
+      return csrfVerifier.generateState(request, response);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class OAuth2ContextFactory {
     @Override
     public void authenticate(UserIdentity userIdentity) {
       UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
-      jwtHttpHandler.generateToken(userDto, response);
+      jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
     }
   }

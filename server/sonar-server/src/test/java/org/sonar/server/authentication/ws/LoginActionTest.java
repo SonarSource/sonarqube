@@ -20,13 +20,6 @@
 
 package org.sonar.server.authentication.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -45,6 +38,13 @@ import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ThreadLocalUserSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class LoginActionTest {
 
@@ -93,7 +93,7 @@ public class LoginActionTest {
 
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
     verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request);
-    verify(jwtHttpHandler).generateToken(user, response);
+    verify(jwtHttpHandler).generateToken(user, request, response);
     verifyZeroInteractions(chain);
   }
 

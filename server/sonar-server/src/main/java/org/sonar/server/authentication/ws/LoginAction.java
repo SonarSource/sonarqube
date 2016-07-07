@@ -20,9 +20,6 @@
 
 package org.sonar.server.authentication.ws;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
-
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -39,6 +36,9 @@ import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.elasticsearch.common.Strings.isNullOrEmpty;
 
 public class LoginAction extends ServletFilter {
 
@@ -74,7 +74,7 @@ public class LoginAction extends ServletFilter {
     }
     try {
       UserDto userDto = authenticate(request);
-      jwtHttpHandler.generateToken(userDto, response);
+      jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
       // TODO add chain.doFilter when Rack filter will not be executed after this filter (or use a Servlet)
     } catch (UnauthorizedException e) {
