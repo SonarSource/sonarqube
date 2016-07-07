@@ -66,10 +66,10 @@ public class GlobalContainerTest {
 
   @Test
   public void shouldFormatTime() {
-    assertThat(GlobalContainer.formatTime(1 * 60 * 60 * 1000 + 2 * 60 * 1000 + 3 * 1000 + 400)).isEqualTo("1:02:03.400s");
-    assertThat(GlobalContainer.formatTime(2 * 60 * 1000 + 3 * 1000 + 400)).isEqualTo("2:03.400s");
-    assertThat(GlobalContainer.formatTime(3 * 1000 + 400)).isEqualTo("3.400s");
-    assertThat(GlobalContainer.formatTime(400)).isEqualTo("0.400s");
+    assertThat(GlobalContainer.formatTime(1 * 60 * 60 * 1000 + 2 * 60 * 1000 + 3 * 1000 + 400)).isEqualTo("1:02:03.400 s");
+    assertThat(GlobalContainer.formatTime(2 * 60 * 1000 + 3 * 1000 + 400)).isEqualTo("2:03.400 s");
+    assertThat(GlobalContainer.formatTime(3 * 1000 + 400)).isEqualTo("3.400 s");
+    assertThat(GlobalContainer.formatTime(400)).isEqualTo("0.400 s");
   }
 
   @BatchSide

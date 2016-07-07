@@ -121,11 +121,11 @@ public class GlobalContainer extends ComponentContainer {
     long ms = time % 1000;
     final String format;
     if (h > 0) {
-      format = "%1$d:%2$02d:%3$02d.%4$03ds";
+      format = "%1$d:%2$02d:%3$02d.%4$03d s";
     } else if (m > 0) {
-      format = "%2$d:%3$02d.%4$03ds";
+      format = "%2$d:%3$02d.%4$03d s";
     } else {
-      format = "%3$d.%4$03ds";
+      format = "%3$d.%4$03d s";
     }
     return String.format(format, h, m, s, ms);
   }
