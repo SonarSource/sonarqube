@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan;
 
+import java.lang.reflect.Method;
+
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
@@ -50,11 +52,28 @@ public class ProjectBuildersExecutor {
         try {
           projectBuilder.build(context);
         } catch (Exception e) {
-          throw MessageException.of("Failed to execute project builder: " + projectBuilder, e);
+          throw MessageException.of("Failed to execute project builder: " + getDescription(projectBuilder), e);
         }
       }
       profiler.stopInfo();
     }
+  }
 
+  private static String getDescription(ProjectBuilder projectBuilder) {
+    if (projectBuilder == null) {
+      return null;
+    }
+    Method toString;
+    try {
+      toString = projectBuilder.getClass().getMethod("toString");
+    } catch (Exception e) {
+      // should never happen as every class has toString
+      return projectBuilder.toString();
+    }
+    if (toString.getDeclaringClass() != Object.class) {
+      return projectBuilder.toString();
+    } else {
+      return projectBuilder.getClass().getName();
+    }
   }
 }
