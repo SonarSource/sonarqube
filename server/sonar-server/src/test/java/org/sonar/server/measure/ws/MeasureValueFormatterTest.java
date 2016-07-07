@@ -50,6 +50,7 @@ public class MeasureValueFormatterTest {
     assertThat(formatNumericalValue(1_000.123d, newMetric(FLOAT))).isEqualTo("1000.123");
     assertThat(formatNumericalValue(1_000.0d, newMetric(INT))).isEqualTo("1000");
     assertThat(formatNumericalValue(1_000.0d, newMetric(WORK_DUR))).isEqualTo("1000");
+    assertThat(formatNumericalValue(6_000_000_000_000.0d, newMetric(MILLISEC))).isEqualTo("6000000000000");
   }
 
   @Test
@@ -57,8 +58,8 @@ public class MeasureValueFormatterTest {
     assertThat(formatMeasureValue(newNumericMeasure(-1.0d), newMetric(BOOL))).isEqualTo("false");
     assertThat(formatMeasureValue(newNumericMeasure(1.0d), newMetric(BOOL))).isEqualTo("true");
     assertThat(formatMeasureValue(newNumericMeasure(1000.123d), newMetric(PERCENT))).isEqualTo("1000.123");
-    assertThat(formatMeasureValue(newNumericMeasure(1000d), newMetric(MILLISEC))).isEqualTo("1000");
     assertThat(formatMeasureValue(newNumericMeasure(1000.0d), newMetric(WORK_DUR))).isEqualTo("1000");
+    assertThat(formatMeasureValue(newNumericMeasure(6_000_000_000_000.0d), newMetric(MILLISEC))).isEqualTo("6000000000000");
     assertThat(formatMeasureValue(newTextMeasure("text-value"), newMetric(DATA))).isEqualTo("text-value");
   }
 
