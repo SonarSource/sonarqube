@@ -123,6 +123,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
+    assertThat(projectSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
     assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getVersion()).isEqualTo("1.0");
     assertThat(projectSnapshot.getLast()).isFalse();

@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
-import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -55,13 +54,10 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
@@ -99,9 +95,8 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_analysis() {
     ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
-    ComponentDto projectDto = save(newProjectDto("proj"));
-    ComponentDto projectViewDto = save(newProjectCopy("UUID_PROJECT_COPY", projectDto, subViewDto).setKey("KEY_PROJECT_COPY"));
+    save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
+    save(newProjectDto("proj"));
     dbTester.getSession().commit();
 
     Component projectView = ViewsComponent.builder(PROJECT_VIEW, "KEY_PROJECT_COPY").setUuid("UUID_PROJECT_COPY").build();
@@ -114,6 +109,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
+    assertThat(viewSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
     assertThat(viewSnapshot.getComponentUuid()).isEqualTo(view.getUuid());
     assertThat(viewSnapshot.getVersion()).isNull();
     assertThat(viewSnapshot.getLast()).isFalse();
