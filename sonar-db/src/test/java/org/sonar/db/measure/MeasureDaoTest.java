@@ -20,17 +20,24 @@
 package org.sonar.db.measure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotTesting;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureDaoTest {
@@ -39,12 +46,12 @@ public class MeasureDaoTest {
   private static final int COMPLEXITY_METRIC_ID = 11;
   private static final int NCLOC_METRIC_ID = 12;
   private static final long A_PERSON_ID = 444L;
-  public static final String LAST_ANALYSIS_UUID = "A1";
-  public static final String OTHER_ANALYSIS_UUID = "A2";
+  private static final String LAST_ANALYSIS_UUID = "A1";
+  private static final String OTHER_ANALYSIS_UUID = "A2";
+  public static final String PREVIOUS_ANALYSIS_UUID = "previous analysis UUID";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -194,7 +201,8 @@ public class MeasureDaoTest {
     // multiple measures of component C1 of non last analysis
     verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(OTHER_ANALYSIS_UUID).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M1");
     // multiple measures of component C1 of last analysis by UUID
-    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M2", "M3");
+    verifyMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setAnalysisUuid(LAST_ANALYSIS_UUID).setMetricIds(asList(NCLOC_METRIC_ID, COVERAGE_METRIC_ID)), "M2",
+      "M3");
 
     // missing measure of component C1 of last analysis
     verifyZeroMeasuresWithHandler(MeasureQuery.builder().setComponentUuid("C1").setMetricId(COMPLEXITY_METRIC_ID));
@@ -244,6 +252,44 @@ public class MeasureDaoTest {
     selectSingle(MeasureQuery.builder().setComponentUuid("C1"));
   }
 
+  @Test
+  public void selectProjectMeasuresOfDeveloper() {
+    insertAnalysis(LAST_ANALYSIS_UUID, true);
+    insertAnalysis(PREVIOUS_ANALYSIS_UUID, false);
+    List<Integer> allMetricIds = Arrays.asList(NCLOC_METRIC_ID, COMPLEXITY_METRIC_ID, COVERAGE_METRIC_ID);
+    long developerId = 123L;
+    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds)).isEmpty();
+
+    String projectUuid = insertComponent(Scopes.PROJECT, Qualifiers.PROJECT, true);
+    String viewUuid = insertComponent(Scopes.PROJECT, Qualifiers.VIEW, true);
+    String disabledProjectUuid = insertComponent(Scopes.PROJECT, Qualifiers.PROJECT, false);
+    insertMeasure("M1", LAST_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
+    insertMeasure("M2", LAST_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
+    insertMeasure("M3", LAST_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
+    insertMeasure("M4", PREVIOUS_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
+    insertMeasure("M5", PREVIOUS_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
+    insertMeasure("M6", PREVIOUS_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
+    insertMeasure("M11", LAST_ANALYSIS_UUID, projectUuid, developerId, NCLOC_METRIC_ID);
+    insertMeasure("M12", LAST_ANALYSIS_UUID, projectUuid, developerId, COMPLEXITY_METRIC_ID);
+    insertMeasure("M13", LAST_ANALYSIS_UUID, projectUuid, developerId, COVERAGE_METRIC_ID);
+    insertMeasure("M14", PREVIOUS_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
+    insertMeasure("M15", PREVIOUS_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
+    insertMeasure("M16", PREVIOUS_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
+    insertMeasure("M51", LAST_ANALYSIS_UUID, viewUuid, NCLOC_METRIC_ID);
+    insertMeasure("M52", LAST_ANALYSIS_UUID, viewUuid, COMPLEXITY_METRIC_ID);
+    insertMeasure("M53", LAST_ANALYSIS_UUID, viewUuid, COVERAGE_METRIC_ID);
+    insertMeasure("M54", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, NCLOC_METRIC_ID);
+    insertMeasure("M55", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, COMPLEXITY_METRIC_ID);
+    insertMeasure("M56", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, COVERAGE_METRIC_ID);
+
+    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds))
+      .extracting(MeasureDto::getData)
+      .containsOnly("M11", "M12", "M13", "M54", "M55", "M56");
+    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, singletonList(NCLOC_METRIC_ID)))
+      .extracting(MeasureDto::getData)
+      .containsOnly("M11", "M54");
+  }
+
   private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {
     return underTest.selectSingle(db.getSession(), query.build());
   }
@@ -269,21 +315,39 @@ public class MeasureDaoTest {
 
   private List<MeasureDto> getMeasuresWithHandler(MeasureQuery.Builder query) {
     List<MeasureDto> measures = new ArrayList<>();
-    underTest.selectByQuery(db.getSession(), query.build(), resultContext ->
-      measures.add((MeasureDto) resultContext.getResultObject())
-    );
+    underTest.selectByQuery(db.getSession(), query.build(), resultContext -> measures.add((MeasureDto) resultContext.getResultObject()));
     return measures;
   }
 
   private void insertMeasure(String id, String analysisUuid, String componentUuid, int metricId) {
+    insertMeasure(id, analysisUuid, componentUuid, null, metricId);
+  }
+
+  private void insertMeasure(String id, String analysisUuid, String componentUuid, @Nullable Long developerId, int metricId) {
     MeasureDto measure = MeasureTesting.newMeasure()
       .setAnalysisUuid(analysisUuid)
       .setComponentUuid(componentUuid)
       .setMetricId(metricId)
       // as ids can't be forced when inserting measures, the field "data"
       // is used to store a virtual id. It is used then in assertions.
-      .setData(id);
+      .setData(id)
+      .setDeveloperId(developerId);
     db.getDbClient().measureDao().insert(db.getSession(), measure);
+  }
+
+  private String insertComponent(String scope, String qualifier, boolean enabled) {
+    String uuid = UuidFactoryImpl.INSTANCE.create();
+    ComponentDto componentDto = new ComponentDto()
+      .setUuid(uuid)
+      .setScope(scope)
+      .setQualifier(qualifier)
+      .setProjectUuid("don't care")
+      .setRootUuid("don't care")
+      .setUuidPath("don't care")
+      .setKey("kee_" + uuid)
+      .setEnabled(enabled);
+    db.getDbClient().componentDao().insert(db.getSession(), componentDto);
+    return uuid;
   }
 
   private void insertMeasureOnPerson(String id, String analysisUuid, String componentUuid, int metricId, long personId) {
