@@ -125,7 +125,7 @@ class Api::EventsController < Api::ApiController
     begin
       load_resource(:admin, params[:resource])
       raise "Resource must be a root project" unless @resource.scope=='PRJ'
-      
+
       analysis=nil
       if (params[:dateTime])
         # try to find a snapshot on that day
@@ -135,9 +135,9 @@ class Api::EventsController < Api::ApiController
       else
         analysis = Snapshot.find(:last, :conditions => ["component_uuid = ?", @resource.uuid], :order => :created_at)
       end
-      
+
       raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && analysis.event(EventCategory::KEY_VERSION)
-      raise "An event '#{params[:name]}' (category '#{params[:category]}') already exists on this resource." if Event.already_exists(@resource.last_analysis.id, params[:name], params[:category])
+      raise "An event '#{params[:name]}' (category '#{params[:category]}') already exists on this resource." if Event.already_exists(@resource.last_analysis.uuid, params[:name], params[:category])
       
       event_to_return = nil
       name = params[:name]
