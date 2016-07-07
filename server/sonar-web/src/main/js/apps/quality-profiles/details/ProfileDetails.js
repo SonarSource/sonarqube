@@ -21,7 +21,6 @@ import React from 'react';
 import ProfileRules from './ProfileRules';
 import ProfileProjects from './ProfileProjects';
 import ProfileInheritance from './ProfileInheritance';
-import ProfileEvolution from './ProfileEvolution';
 import ProfileExporters from './ProfileExporters';
 import { ProfileType } from '../propTypes';
 
@@ -39,7 +38,6 @@ export default class ProfileDetails extends React.Component {
             <div className="quality-profile-grid-left">
               <ProfileRules {...this.props}/>
               <ProfileExporters {...this.props}/>
-              <ProfileEvolution {...this.props}/>
             </div>
             <div className="quality-profile-grid-right">
               <ProfileInheritance {...this.props}/>

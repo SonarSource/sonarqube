@@ -177,8 +177,8 @@ export default class OverviewApp extends React.Component {
 
     return (
         <div className="page page-limited">
-          <div className="overview">
-            <div className="overview-main">
+          <div className="overview page-with-sidebar">
+            <div className="overview-main page-main">
               <QualityGate
                   component={component}
                   measures={measures}
@@ -193,7 +193,9 @@ export default class OverviewApp extends React.Component {
               </div>
             </div>
 
-            <Meta component={component}/>
+            <div className="page-sidebar-fixed">
+              <Meta component={component}/>
+            </div>
           </div>
         </div>
     );

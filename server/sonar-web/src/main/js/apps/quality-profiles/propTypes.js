@@ -32,7 +32,9 @@ export const ProfileType = shape({
   activeDeprecatedRuleCount: number.isRequired,
   projectCount: number,
   parentKey: string,
-  parentName: string
+  parentName: string,
+  userUpdatedAt: string,
+  lastUsed: string
 });
 
 export const ProfilesListType = arrayOf(ProfileType);

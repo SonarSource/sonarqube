@@ -23,6 +23,7 @@ import ProfileLink from '../components/ProfileLink';
 import RenameProfileView from '../views/RenameProfileView';
 import CopyProfileView from '../views/CopyProfileView';
 import DeleteProfileView from '../views/DeleteProfileView';
+import ProfileDate from '../components/ProfileDate';
 import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { setDefaultProfile } from '../../../api/quality-profiles';
@@ -114,6 +115,16 @@ export default class ProfileHeader extends React.Component {
 
           <div className="pull-right">
             <ul className="list-inline" style={{ lineHeight: '24px' }}>
+              <li className="small spacer-right">
+                {translate('quality_profiles.updated_')}
+                {' '}
+                <ProfileDate date={profile.userUpdatedAt}/>
+              </li>
+              <li className="small big-spacer-right">
+                {translate('quality_profiles.used_')}
+                {' '}
+                <ProfileDate date={profile.lastUsed}/>
+              </li>
               <li>
                 <Link
                     to={{ pathname: '/changelog', query: { key: this.props.profile.key } }}

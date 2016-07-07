@@ -35,17 +35,11 @@ body {
 }
 
 .page-limited {
-  max-width: 1440px;
+  max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
   padding-top: 20px;
   padding-bottom: 20px;
-}
-
-.page-limited-small {
-  .page-limited;
-  width: 1080px;
-  box-sizing: border-box;
 }
 
 .page-container {
@@ -133,4 +127,25 @@ body {
   a {
     .link-base-color;
   }
+}
+
+.page-with-sidebar {
+  display: flex;
+}
+
+.page-main {
+  flex-grow: 1;
+}
+
+.page-sidebar {
+  width: 30%;
+  min-width: 300px;
+  flex-shrink: 0;
+  padding-left: 40px;
+  box-sizing: border-box;
+}
+
+.page-sidebar-fixed {
+  .page-sidebar;
+  width: 300px;
 }

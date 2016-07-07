@@ -1,11 +1,8 @@
 .overview {
-  display: flex;
   animation: fadeIn 0.5s forwards;
 }
 
 .overview-main {
-  flex-grow: 1;
-  box-sizing: border-box;
   background-color: #f3f3f3;
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
@@ -233,9 +230,6 @@
  */
 
 .overview-meta {
-  flex-shrink: 0;
-  width: 260px;
-  padding-left: 40px;
   background-color: #f3f3f3;
 }
 
@@ -260,7 +254,7 @@
   white-space: nowrap;
 }
 
-.overview-meta-list i {
+.overview-meta-list [class^="icon-"] {
   position: relative;
   top: -1px;
 }

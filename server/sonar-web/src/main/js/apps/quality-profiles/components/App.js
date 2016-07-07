@@ -91,7 +91,7 @@ export default class App extends React.Component {
 
   render () {
     return (
-        <div className="page page-limited-small">
+        <div className="page page-limited">
           {this.renderChild()}
         </div>
     );
