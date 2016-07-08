@@ -37,6 +37,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -286,6 +287,11 @@ public class DefaultSensorStorage implements SensorStorage {
       blockSize = DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey);
     }
     return blockSize;
+  }
+
+  @Override
+  public void store(AnalysisError analysisError) {
+    // no op
   }
 
 }

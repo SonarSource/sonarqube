@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -127,4 +128,10 @@ public interface SensorContext {
    */
   NewCpdTokens newCpdTokens();
 
+  /**
+   * Builder to declare errors that happened while processing a source file.
+   * Don't forget to call {@link NewAnalisisError#save()}.
+   * @since 6.0
+   */
+  NewAnalysisError newAnalysisError();
 }

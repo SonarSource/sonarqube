@@ -32,6 +32,7 @@ import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.XooCpdMapping;
 import org.sonar.xoo.lang.XooTokenizer;
+import org.sonar.xoo.rule.AnalysisErrorSensor;
 import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
@@ -117,6 +118,9 @@ public class XooPlugin implements Plugin {
       UtCoverageSensor.class,
       ItCoverageSensor.class,
       OverallCoverageSensor.class,
+
+      // Analysis errors
+      AnalysisErrorSensor.class,
 
       // Tests
       TestExecutionSensor.class,

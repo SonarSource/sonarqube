@@ -26,14 +26,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.error.AnalysisError;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
@@ -98,6 +102,26 @@ public class SensorContextTesterTest {
       .forRule(RuleKey.of("repo", "rule"))
       .save();
     assertThat(tester.allIssues()).hasSize(2);
+  }
+
+  @Test
+  public void testAnalysisErrors() {
+    assertThat(tester.allAnalysisErrors()).isEmpty();
+    NewAnalysisError newAnalysisError = tester.newAnalysisError();
+
+    InputFile file = new DefaultInputFile("foo", "src/Foo.java");
+    newAnalysisError.onFile(file)
+      .message("error")
+      .at(new DefaultTextPointer(5, 2))
+      .save();
+
+    assertThat(tester.allAnalysisErrors()).hasSize(1);
+    AnalysisError analysisError = tester.allAnalysisErrors().iterator().next();
+
+    assertThat(analysisError.inputFile()).isEqualTo(file);
+    assertThat(analysisError.message()).isEqualTo("error");
+    assertThat(analysisError.location()).isEqualTo(new DefaultTextPointer(5, 2));
+
   }
 
   @Test

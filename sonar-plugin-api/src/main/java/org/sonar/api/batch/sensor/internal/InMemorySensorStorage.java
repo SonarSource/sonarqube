@@ -28,6 +28,7 @@ import java.util.Map;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -39,6 +40,7 @@ class InMemorySensorStorage implements SensorStorage {
   Table<String, String, Measure> measuresByComponentAndMetric = HashBasedTable.create();
 
   Collection<Issue> allIssues = new ArrayList<>();
+  Collection<AnalysisError> allAnalysisErrors = new ArrayList<>();
 
   Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
@@ -99,6 +101,11 @@ class InMemorySensorStorage implements SensorStorage {
       throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().relativePath());
     }
     symbolsPerComponent.put(fileKey, symbolTable);
+  }
+
+  @Override
+  public void store(AnalysisError analysisError) {
+    allAnalysisErrors.add(analysisError);
   }
 
 }

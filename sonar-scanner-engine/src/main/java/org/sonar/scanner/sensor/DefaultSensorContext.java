@@ -31,6 +31,7 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -42,6 +43,7 @@ import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
@@ -51,6 +53,7 @@ public class DefaultSensorContext implements SensorContext {
   private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
   private static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
   private static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
+  private static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
 
   private final Settings settings;
   private final FileSystem fs;
@@ -143,6 +146,11 @@ public class DefaultSensorContext implements SensorContext {
       return NO_OP_NEW_CPD_TOKENS;
     }
     return new DefaultCpdTokens(settings, sensorStorage);
+  }
+
+  @Override
+  public NewAnalysisError newAnalysisError() {
+    return NO_OP_NEW_ANALYSIS_ERROR;
   }
 
 }

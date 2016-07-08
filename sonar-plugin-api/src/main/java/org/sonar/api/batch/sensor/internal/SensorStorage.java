@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor.internal;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -54,5 +55,9 @@ public interface SensorStorage {
    * @since 5.6 
    */
   void store(DefaultSymbolTable symbolTable);
-
+  
+  /**
+   * @since 6.0
+   */
+  void store(AnalysisError analysisError);
 }

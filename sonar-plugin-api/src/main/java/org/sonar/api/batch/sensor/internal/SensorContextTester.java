@@ -47,6 +47,9 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.AnalysisError;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
+import org.sonar.api.batch.sensor.error.internal.DefaultAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -192,6 +195,10 @@ public class SensorContextTester implements SensorContext {
   public Collection<Issue> allIssues() {
     return sensorStorage.allIssues;
   }
+  
+  public Collection<AnalysisError> allAnalysisErrors() {
+    return sensorStorage.allAnalysisErrors;
+  }
 
   @CheckForNull
   public Integer lineHits(String fileKey, CoverageType type, int line) {
@@ -244,6 +251,11 @@ public class SensorContextTester implements SensorContext {
   @Override
   public NewSymbolTable newSymbolTable() {
     return new DefaultSymbolTable(sensorStorage);
+  }
+  
+  @Override
+  public NewAnalysisError newAnalysisError() {
+    return new DefaultAnalysisError(sensorStorage);
   }
 
   /**
