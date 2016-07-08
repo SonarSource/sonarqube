@@ -4,7 +4,7 @@ set -euo pipefail
 
 function configureTravis {
   mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v25 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v31 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -37,7 +37,7 @@ CI)
     if [[ $CURRENT_VERSION =~ "-SNAPSHOT" ]]; then
       echo "======= Found SNAPSHOT version ======="
       # Do not deploy a SNAPSHOT version but the release version related to this build
-      set_maven_build_version $TRAVIS_BUILD_NUMBER      
+      set_maven_build_version $TRAVIS_BUILD_NUMBER
     else
       echo "======= Found RELEASE version ======="
     fi
@@ -45,9 +45,9 @@ CI)
     # analysis is currently executed by SonarSource internal infrastructure
     mvn deploy \
         -Pdeploy-sonarsource \
-        -B -e -V 
+        -B -e -V
 
-    
+
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     strongEcho 'Build and analyze pull request, no deploy'
