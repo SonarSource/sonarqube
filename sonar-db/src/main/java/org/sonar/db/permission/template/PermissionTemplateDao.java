@@ -19,7 +19,6 @@
  */
 package org.sonar.db.permission.template;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,9 +29,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -41,14 +38,13 @@ import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.UserWithPermissionDto;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionTemplateDao implements Dao {
 
-  public static final String QUERY_PARAMETER = "query";
-  public static final String TEMPLATE_ID_PARAMETER = "templateId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
   private final MyBatis myBatis;
@@ -62,35 +58,12 @@ public class PermissionTemplateDao implements Dao {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(OldPermissionQuery query, Long templateId, int offset, int limit) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectUsers(session, query, templateId, offset, limit);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * @return a paginated list of users.
-   */
   public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
-    Map<String, Object> params = newHashMap();
-    params.put(QUERY_PARAMETER, query);
-    params.put(TEMPLATE_ID_PARAMETER, templateId);
-    return mapper(session).selectUsers(params, new RowBounds(offset, limit));
+    return mapper(session).selectUsers(query, templateId, new RowBounds(offset, limit));
   }
 
   public int countUsers(DbSession session, OldPermissionQuery query, Long templateId) {
-    Map<String, Object> params = newHashMap();
-    params.put(QUERY_PARAMETER, query);
-    params.put(TEMPLATE_ID_PARAMETER, templateId);
-    return mapper(session).countUsers(params);
-  }
-
-  @VisibleForTesting
-  List<UserWithPermissionDto> selectUsers(OldPermissionQuery query, Long templateId) {
-    return selectUsers(query, templateId, 0, Integer.MAX_VALUE);
+    return mapper(session).countUsers(query, templateId);
   }
 
   /**
@@ -103,8 +76,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
-    Map<String, Object> params = groupsParameters(query, templateId);
-    return mapper(session).selectGroups(params, new RowBounds(offset, limit));
+    return mapper(session).selectGroups(query, templateId, ANYONE, ADMIN, new RowBounds(offset, limit));
   }
 
   public List<GroupWithPermissionDto> selectGroups(OldPermissionQuery query, Long templateId) {
@@ -121,24 +93,11 @@ public class PermissionTemplateDao implements Dao {
   }
 
   private static int countGroups(DbSession session, OldPermissionQuery query, long templateId, @Nullable String groupName) {
-    Map<String, Object> parameters = groupsParameters(query, templateId);
-    if (groupName != null) {
-      parameters.put("groupName", groupName.toUpperCase(Locale.ENGLISH));
-    }
-    return mapper(session).countGroups(parameters);
+    return mapper(session).countGroups(query, templateId, ANYONE, ADMIN, groupName != null ? groupName.toUpperCase(Locale.ENGLISH) : null);
   }
 
   public boolean hasGroup(DbSession session, OldPermissionQuery query, long templateId, String groupName) {
     return countGroups(session, query, templateId, groupName) > 0;
-  }
-
-  private static Map<String, Object> groupsParameters(OldPermissionQuery query, Long templateId) {
-    Map<String, Object> params = newHashMap();
-    params.put(QUERY_PARAMETER, query);
-    params.put(TEMPLATE_ID_PARAMETER, templateId);
-    params.put("anyoneGroup", DefaultGroups.ANYONE);
-    params.put("projectAdminPermission", UserRole.ADMIN);
-    return params;
   }
 
   @CheckForNull
@@ -240,8 +199,7 @@ public class PermissionTemplateDao implements Dao {
    */
   public void groupsCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);
-    parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
-
+    parameters.put(ANYONE_GROUP_PARAMETER, ANYONE);
     executeLargeInputsWithoutOutput(
       templateIds,
       partitionedTemplateIds -> {
