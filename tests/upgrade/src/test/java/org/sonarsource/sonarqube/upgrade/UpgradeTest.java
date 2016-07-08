@@ -57,24 +57,24 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_4_5() {
-    testDatabaseUpgrade(Version.create("4.5.1"));
+  public void test_upgrade_from_4_5_lts() {
+    testDatabaseUpgrade(Version.create("4.5.7"), "3.14");
   }
 
   @Test
   public void test_upgrade_from_5_2() {
-    testDatabaseUpgrade(Version.create("5.2"));
+    testDatabaseUpgrade(Version.create("5.2"), "3.14");
   }
 
-  private void testDatabaseUpgrade(Version fromVersion) {
-    startServer(fromVersion, false);
+  private void testDatabaseUpgrade(Version fromVersion, String javaVersion) {
+    startServer(fromVersion, javaVersion, false);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
 
     stopServer();
     // latest version
-    startServer(Version.create(Orchestrator.builderEnv().getSonarVersion()), true);
+    startServer(Version.create(Orchestrator.builderEnv().getSonarVersion()), "LATEST_RELEASE", true);
     checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
     checkUrlsBeforeUpgrade();
 
@@ -145,7 +145,7 @@ public class UpgradeTest {
     assertThat(serverMigrationResponse.getStatus()).isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
   }
 
-  private void startServer(Version sqVersion, boolean keepDatabase) {
+  private void startServer(Version sqVersion, String javaVersion, boolean keepDatabase) {
     String jdbcUrl = MssqlConfig.fixUrl(Configuration.createEnv(), sqVersion);
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setOrchestratorProperty("sonar.jdbc.url", jdbcUrl)
@@ -154,7 +154,7 @@ public class UpgradeTest {
     if (!keepDatabase) {
       builder.restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-5.1.xml"));
     }
-    builder.setOrchestratorProperty("javaVersion", "OLDEST_COMPATIBLE").addPlugin("java");
+    builder.setOrchestratorProperty("javaVersion", javaVersion).addPlugin("java");
     orchestrator = builder.build();
     orchestrator.start();
   }
