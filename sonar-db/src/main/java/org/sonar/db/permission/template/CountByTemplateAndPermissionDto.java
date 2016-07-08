@@ -17,54 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission.template;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+public class CountByTemplateAndPermissionDto {
+  private long templateId;
+  private String permission;
+  private int count;
 
-/**
- * @since 3.2
- */
-public class UserRoleDto {
-  private Long id;
-  private Long userId;
-  private Long resourceId;
-  private String role;
-
-  public Long getId() {
-    return id;
+  public long getTemplateId() {
+    return templateId;
   }
 
-  public UserRoleDto setId(Long id) {
-    this.id = id;
-    return this;
+  public void setTemplateId(long templateId) {
+    this.templateId = templateId;
   }
 
-  public Long getUserId() {
-    return userId;
+  public String getPermission() {
+    return permission;
   }
 
-  public UserRoleDto setUserId(Long userId) {
-    this.userId = userId;
-    return this;
+  public void setPermission(String permission) {
+    this.permission = permission;
   }
 
-  @CheckForNull
-  public Long getResourceId() {
-    return resourceId;
+  public int getCount() {
+    return count;
   }
 
-  public UserRoleDto setResourceId(@Nullable Long resourceId) {
-    this.resourceId = resourceId;
-    return this;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public UserRoleDto setRole(String role) {
-    this.role = role;
-    return this;
+  public void setCount(int count) {
+    this.count = count;
   }
 }

@@ -45,6 +45,7 @@ public class PermissionsWsModule extends Module {
       AddUserAction.class,
       RemoveGroupAction.class,
       RemoveUserAction.class,
+      OldUsersAction.class,
       UsersAction.class,
       GroupsAction.class,
       SearchGlobalPermissionsAction.class,

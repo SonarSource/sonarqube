@@ -44,7 +44,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;

@@ -34,8 +34,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -53,7 +53,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -207,7 +207,7 @@ public class AddUserToTemplateActionTest {
   }
 
   private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
+    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
     return from(dbClient.permissionTemplateDao()
       .selectUsers(dbSession, permissionQuery, templateId, 0, Integer.MAX_VALUE))
       .transform(UserWithPermissionToUserLogin.INSTANCE)

@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -54,7 +52,7 @@ public class GroupWithPermissionDaoTest {
   public void select_groups_for_project_permission() {
     db.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("user").build();
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, COMPONENT_ID);
     assertThat(result).hasSize(4);
 
@@ -84,7 +82,7 @@ public class GroupWithPermissionDaoTest {
     db.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     // Anyone group has not the permission 'admin', so it's not returned
-    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("admin").build();
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, COMPONENT_ID);
     assertThat(result).hasSize(3);
 
@@ -105,7 +103,7 @@ public class GroupWithPermissionDaoTest {
   public void select_groups_for_global_permission() {
     db.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
+    OldPermissionQuery query = OldPermissionQuery.builder().permission("admin").build();
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, null);
     assertThat(result).hasSize(3);
 
@@ -126,11 +124,11 @@ public class GroupWithPermissionDaoTest {
   public void search_by_groups_name() {
     db.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").search("aDMini").build(), COMPONENT_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").search("aDMini").build(), COMPONENT_ID);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
 
-    result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").search("sonar").build(), COMPONENT_ID);
+    result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").search("sonar").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
   }
 
@@ -138,7 +136,7 @@ public class GroupWithPermissionDaoTest {
   public void search_groups_should_be_sorted_by_group_name() {
     db.prepareDbUnit(getClass(), "groups_with_permissions_should_be_sorted_by_group_name.xml");
 
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").build(), COMPONENT_ID);
     int count = underTest.countGroups(session, "user", COMPONENT_ID);
 
     assertThat(result).hasSize(4);
@@ -167,12 +165,7 @@ public class GroupWithPermissionDaoTest {
     commit();
 
     final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
-    underTest.groupsCountByComponentIdAndPermission(session, Arrays.asList(123L, 456L, 789L), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        result.add((CountByProjectAndPermissionDto) context.getResultObject());
-      }
-    });
+    underTest.groupsCountByComponentIdAndPermission(session, Arrays.asList(123L, 456L, 789L), context -> result.add((CountByProjectAndPermissionDto) context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);

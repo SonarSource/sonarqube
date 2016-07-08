@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.permission;
+package org.sonar.db.permission.template;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
@@ -36,8 +36,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
+import org.sonar.db.permission.CountByProjectAndPermissionDto;
+import org.sonar.db.permission.GroupWithPermissionDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.UserWithPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
@@ -60,7 +62,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId, int offset, int limit) {
+  public List<UserWithPermissionDto> selectUsers(OldPermissionQuery query, Long templateId, int offset, int limit) {
     DbSession session = myBatis.openSession(false);
     try {
       return selectUsers(session, query, templateId, offset, limit);
@@ -72,14 +74,14 @@ public class PermissionTemplateDao implements Dao {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, Long templateId, int offset, int limit) {
+  public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);
     return mapper(session).selectUsers(params, new RowBounds(offset, limit));
   }
 
-  public int countUsers(DbSession session, PermissionQuery query, Long templateId) {
+  public int countUsers(DbSession session, OldPermissionQuery query, Long templateId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);
@@ -87,7 +89,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @VisibleForTesting
-  List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId) {
+  List<UserWithPermissionDto> selectUsers(OldPermissionQuery query, Long templateId) {
     return selectUsers(query, templateId, 0, Integer.MAX_VALUE);
   }
 
@@ -96,16 +98,16 @@ public class PermissionTemplateDao implements Dao {
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
    * @return a non paginated list of groups.
    */
-  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId) {
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId) {
     return selectGroups(session, query, templateId, 0, Integer.MAX_VALUE);
   }
 
-  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId, int offset, int limit) {
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
     Map<String, Object> params = groupsParameters(query, templateId);
     return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
-  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, Long templateId) {
+  public List<GroupWithPermissionDto> selectGroups(OldPermissionQuery query, Long templateId) {
     DbSession session = myBatis.openSession(false);
     try {
       return selectGroups(session, query, templateId);
@@ -114,11 +116,11 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public int countGroups(DbSession session, PermissionQuery query, long templateId) {
+  public int countGroups(DbSession session, OldPermissionQuery query, long templateId) {
     return countGroups(session, query, templateId, null);
   }
 
-  private static int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
+  private static int countGroups(DbSession session, OldPermissionQuery query, long templateId, @Nullable String groupName) {
     Map<String, Object> parameters = groupsParameters(query, templateId);
     if (groupName != null) {
       parameters.put("groupName", groupName.toUpperCase(Locale.ENGLISH));
@@ -126,11 +128,11 @@ public class PermissionTemplateDao implements Dao {
     return mapper(session).countGroups(parameters);
   }
 
-  public boolean hasGroup(DbSession session, PermissionQuery query, long templateId, String groupName) {
+  public boolean hasGroup(DbSession session, OldPermissionQuery query, long templateId, String groupName) {
     return countGroups(session, query, templateId, groupName) > 0;
   }
 
-  private static Map<String, Object> groupsParameters(PermissionQuery query, Long templateId) {
+  private static Map<String, Object> groupsParameters(OldPermissionQuery query, Long templateId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);
@@ -388,7 +390,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Load permission template and load associated collections of users and groups permissions, and characteristics
    */
-  PermissionTemplate selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
+  public PermissionTemplate selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
     PermissionTemplateDto template = selectByUuid(session, templateUuid);
     if (template == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with uuid " + templateUuid);

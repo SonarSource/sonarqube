@@ -44,11 +44,11 @@ public class RoleDao implements Dao {
     mapper(session).insertGroupRole(groupRole);
   }
 
-  public void insertUserRole(DbSession session, UserRoleDto userRole) {
+  public void insertUserRole(DbSession session, UserPermissionDto userRole) {
     mapper(session).insertUserRole(userRole);
   }
 
-  public void deleteUserRole(UserRoleDto userRole, SqlSession session) {
+  public void deleteUserRole(UserPermissionDto userRole, SqlSession session) {
     mapper(session).deleteUserRole(userRole);
   }
 

@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Permission;
@@ -78,7 +78,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     Permission.Builder permission = newBuilder();
 
     for (String permissionKey : GlobalPermissions.ALL) {
-      PermissionQuery permissionQuery = permissionQuery(permissionKey);
+      OldPermissionQuery permissionQuery = permissionQuery(permissionKey);
 
       response.addPermissions(
         permission
@@ -106,12 +106,12 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     return dbClient.permissionDao().countGroups(dbSession, permissionKey, null);
   }
 
-  private int countUsers(DbSession dbSession, PermissionQuery permissionQuery) {
+  private int countUsers(DbSession dbSession, OldPermissionQuery permissionQuery) {
     return dbClient.permissionDao().countUsers(dbSession, permissionQuery, null);
   }
 
-  private static PermissionQuery permissionQuery(String permissionKey) {
-    return PermissionQuery.builder()
+  private static OldPermissionQuery permissionQuery(String permissionKey) {
+    return OldPermissionQuery.builder()
       .permission(permissionKey)
       .membership(GroupMembershipQuery.IN)
       .build();

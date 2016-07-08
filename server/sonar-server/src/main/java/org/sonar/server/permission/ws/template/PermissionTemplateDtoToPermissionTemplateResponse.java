@@ -22,7 +22,7 @@ package org.sonar.server.permission.ws.template;
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 
 public class PermissionTemplateDtoToPermissionTemplateResponse {

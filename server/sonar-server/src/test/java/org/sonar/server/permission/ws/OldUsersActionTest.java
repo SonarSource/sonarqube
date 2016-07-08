@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,8 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.PermissionDbTester;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -48,8 +47,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -59,7 +56,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
-public class UsersActionTest {
+public class OldUsersActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -69,46 +66,43 @@ public class UsersActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  UserDbTester userDb = new UserDbTester(db);
-  PermissionDbTester permissionDb = new PermissionDbTester(db);
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
-
   WsActionTester ws;
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
-
-  UsersAction underTest;
+  OldUsersAction underTest;
 
   @Before
   public void setUp() {
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
-    underTest = new UsersAction(dbClient, userSession, permissionFinder, dependenciesFinder);
+    underTest = new OldUsersAction(dbClient, userSession, permissionFinder, dependenciesFinder);
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
+  @Ignore("will be deleted")
   public void search_for_users_with_response_example() {
-    UserDto user2 = userDb.insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
-    UserDto user1 = userDb.insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
-    permissionDb.addGlobalPermissionToUser(SCAN_EXECUTION, user2.getId());
-    permissionDb.addGlobalPermissionToUser(SYSTEM_ADMIN, user1.getId());
-    permissionDb.addGlobalPermissionToUser(QUALITY_GATE_ADMIN, user1.getId());
-    permissionDb.addGlobalPermissionToUser(QUALITY_PROFILE_ADMIN, user1.getId());
+    UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
+    UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
+    dbSession.commit();
 
-    String result = ws.newRequest().execute().getInput();
+    String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
-    assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("users-example.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("users-example.json"));
   }
 
   @Test
+  @Ignore("will be deleted")
   public void search_for_users_with_one_permission() {
     insertUsers();
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
-    assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
   }
 
   @Test
@@ -146,6 +140,8 @@ public class UsersActionTest {
   public void search_for_users_with_select_as_a_parameter() {
     insertUsers();
     String result = ws.newRequest()
+      .setParam("permission", "scan")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute().getInput();
 
     assertThat(result).contains("login-1", "login-2", "login-3");
@@ -159,6 +155,13 @@ public class UsersActionTest {
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute();
+  }
+
+  @Test
+  public void fail_if_permission_parameter_is_not_filled() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    ws.newRequest().execute();
   }
 
   @Test
@@ -195,14 +198,6 @@ public class UsersActionTest {
       .execute();
   }
 
-  @Test
-  public void fail_if_search_query_is_too_short() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
-
-    ws.newRequest().setParam(Param.TEXT_QUERY, "ab").execute();
-  }
-
   private UserDto insertUser(UserDto userDto) {
     UserDto user = dbClient.userDao().insert(dbSession, userDto.setActive(true));
     dbSession.commit();
@@ -215,12 +210,12 @@ public class UsersActionTest {
   }
 
   private void insertUsers() {
-    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
-    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
+    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
+    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
     insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserPermissionDto().setPermission(SYSTEM_ADMIN).setUserId(user3.getId()));
     insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserRole(new UserPermissionDto().setPermission(SYSTEM_ADMIN).setUserId(user3.getId()));
     dbSession.commit();
   }
 }

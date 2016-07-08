@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.db.permission;
 
 import org.junit.Test;
-import org.sonar.db.permission.PermissionQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class PermissionQueryTest {
+public class OldPermissionQueryTest {
 
   @Test
   public void fail_on_null_permission() {
-    PermissionQuery.Builder builder = PermissionQuery.builder();
+    OldPermissionQuery.Builder builder = OldPermissionQuery.builder();
     builder.permission(null);
 
     try {
@@ -42,7 +41,7 @@ public class PermissionQueryTest {
 
   @Test
   public void fail_on_invalid_membership() {
-    PermissionQuery.Builder builder = PermissionQuery.builder();
+    OldPermissionQuery.Builder builder = OldPermissionQuery.builder();
     builder.permission("admin");
     builder.membership("unknwown");
 

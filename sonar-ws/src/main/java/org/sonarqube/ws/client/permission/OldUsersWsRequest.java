@@ -22,21 +22,23 @@ package org.sonarqube.ws.client.permission;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class UsersWsRequest {
+import static java.util.Objects.requireNonNull;
+
+public class OldUsersWsRequest {
   private String permission;
   private String projectId;
   private String projectKey;
+  private String selected;
   private String query;
   private Integer page;
   private Integer pageSize;
 
-  @CheckForNull
   public String getPermission() {
     return permission;
   }
 
-  public UsersWsRequest setPermission(@Nullable String permission) {
-    this.permission = permission;
+  public OldUsersWsRequest setPermission(String permission) {
+    this.permission = requireNonNull(permission);
     return this;
   }
 
@@ -45,7 +47,7 @@ public class UsersWsRequest {
     return projectId;
   }
 
-  public UsersWsRequest setProjectId(@Nullable String projectId) {
+  public OldUsersWsRequest setProjectId(@Nullable String projectId) {
     this.projectId = projectId;
     return this;
   }
@@ -55,8 +57,18 @@ public class UsersWsRequest {
     return projectKey;
   }
 
-  public UsersWsRequest setProjectKey(@Nullable String projectKey) {
+  public OldUsersWsRequest setProjectKey(@Nullable String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getSelected() {
+    return selected;
+  }
+
+  public OldUsersWsRequest setSelected(@Nullable String selected) {
+    this.selected = selected;
     return this;
   }
 
@@ -65,7 +77,7 @@ public class UsersWsRequest {
     return query;
   }
 
-  public UsersWsRequest setQuery(@Nullable String query) {
+  public OldUsersWsRequest setQuery(@Nullable String query) {
     this.query = query;
     return this;
   }
@@ -75,7 +87,7 @@ public class UsersWsRequest {
     return page;
   }
 
-  public UsersWsRequest setPage(int page) {
+  public OldUsersWsRequest setPage(int page) {
     this.page = page;
     return this;
   }
@@ -85,7 +97,7 @@ public class UsersWsRequest {
     return pageSize;
   }
 
-  public UsersWsRequest setPageSize(int pageSize) {
+  public OldUsersWsRequest setPageSize(int pageSize) {
     this.pageSize = pageSize;
     return this;
   }

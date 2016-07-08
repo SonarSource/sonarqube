@@ -17,34 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.permission;
+package org.sonar.db.user;
 
-public class CountByTemplateAndPermissionDto {
-  private long templateId;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+public class UserPermissionDto {
+  private Long userId;
+  private Long componentId;
   private String permission;
-  private int count;
 
-  public long getTemplateId() {
-    return templateId;
+  public Long getUserId() {
+    return userId;
   }
 
-  public void setTemplateId(long templateId) {
-    this.templateId = templateId;
+  public UserPermissionDto setUserId(Long userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getComponentId() {
+    return componentId;
+  }
+
+  public UserPermissionDto setComponentId(@Nullable Long componentId) {
+    this.componentId = componentId;
+    return this;
   }
 
   public String getPermission() {
     return permission;
   }
 
-  public void setPermission(String permission) {
+  public UserPermissionDto setPermission(String permission) {
     this.permission = permission;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
+    return this;
   }
 }

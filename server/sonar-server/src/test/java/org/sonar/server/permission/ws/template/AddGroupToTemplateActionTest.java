@@ -36,8 +36,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -56,7 +56,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -238,7 +238,7 @@ public class AddGroupToTemplateActionTest {
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
+    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
     return from(dbClient.permissionTemplateDao()
       .selectGroups(dbSession, permissionQuery, templateId))
       .transform(GroupWithPermissionToGroupName.INSTANCE)

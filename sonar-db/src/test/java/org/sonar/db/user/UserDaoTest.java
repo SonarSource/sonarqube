@@ -535,8 +535,8 @@ public class UserDaoTest {
     return dto;
   }
 
-  private UserRoleDto insertUserRole(UserDto user) {
-    UserRoleDto dto = new UserRoleDto().setUserId(user.getId()).setRole(randomAlphanumeric(64));
+  private UserPermissionDto insertUserRole(UserDto user) {
+    UserPermissionDto dto = new UserPermissionDto().setUserId(user.getId()).setPermission(randomAlphanumeric(64));
     dbClient.roleDao().insertUserRole(session, dto);
     return dto;
   }

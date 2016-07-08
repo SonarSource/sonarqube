@@ -21,14 +21,22 @@ package org.sonar.db.permission;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.user.UserPermissionDto;
 
 public interface PermissionMapper {
 
   List<UserWithPermissionDto> selectUsers(Map<String, Object> parameters, RowBounds rowBounds);
 
   int countUsers(Map<String, Object> parameters);
+
+  List<String> selectLoginsByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
+
+  int countUsersByPermissionQuery(@Param("query") PermissionQuery query);
+
+  List<UserPermissionDto> selectUserPermissionsByQuery(@Param("query") PermissionQuery query);
 
   List<GroupWithPermissionDto> selectGroups(Map<String, Object> parameters);
 

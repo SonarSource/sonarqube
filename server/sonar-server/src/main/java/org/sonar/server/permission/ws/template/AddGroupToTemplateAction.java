@@ -25,8 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
@@ -110,7 +110,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
   private boolean groupAlreadyAdded(DbSession dbSession, long templateId, @Nullable GroupDto group, String permission) {
     String groupName = group == null ? ANYONE : group.getName();
-    PermissionQuery permissionQuery = PermissionQuery.builder().membership(IN).permission(permission).build();
+    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().membership(IN).permission(permission).build();
     return dbClient.permissionTemplateDao().hasGroup(dbSession, permissionQuery, templateId, groupName);
   }
 

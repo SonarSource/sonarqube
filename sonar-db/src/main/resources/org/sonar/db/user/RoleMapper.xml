@@ -73,7 +73,7 @@
 
   <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO user_roles (user_id, resource_id, role)
-    VALUES (#{userId}, #{resourceId}, #{role})
+    VALUES (#{userId}, #{componentId}, #{permission})
   </insert>
 
   <delete id="deleteGroupRole" parameterType="map">
@@ -102,11 +102,11 @@
   <delete id="deleteUserRole" parameterType="map">
     DELETE FROM user_roles
     WHERE user_id=#{userId}
-    AND role=#{role}
+    AND role=#{permission}
     AND
     <choose>
-      <when test="resourceId != null">
-        resource_id=#{resourceId}
+      <when test="componentId != null">
+        resource_id=#{componentId}
       </when>
       <otherwise>
         resource_id IS NULL

@@ -20,7 +20,7 @@
 package org.sonar.server.permission;
 
 import java.util.Date;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 
 import static java.lang.String.format;
 

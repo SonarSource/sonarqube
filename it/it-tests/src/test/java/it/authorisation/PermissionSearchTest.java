@@ -106,8 +106,7 @@ public class PermissionSearchTest {
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getGroupsCount()).isEqualTo(2);
 
     WsPermissions.UsersWsResponse users = permissionsWsClient
-      .users(new UsersWsRequest()
-        .setPermission("admin"));
+      .users(new UsersWsRequest().setPermission("admin"));
     assertThat(users.getUsersList()).extracting("login").contains(LOGIN);
 
     WsPermissions.WsGroupsResponse groupsResponse = permissionsWsClient

@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
@@ -140,7 +140,7 @@ public class SearchGlobalPermissionsActionTest {
     return db.getDbClient().userDao().insert(db.getSession(), user);
   }
 
-  private void insertUserRole(UserRoleDto userRole) {
+  private void insertUserRole(UserPermissionDto userRole) {
     db.getDbClient().roleDao().insertUserRole(db.getSession(), userRole);
   }
 
@@ -169,9 +169,9 @@ public class SearchGlobalPermissionsActionTest {
     return groupRole;
   }
 
-  private static UserRoleDto newUserRoleDto(String role, long userId) {
-    return new UserRoleDto()
-      .setRole(role)
+  private static UserPermissionDto newUserRoleDto(String role, long userId) {
+    return new UserPermissionDto()
+      .setPermission(role)
       .setUserId(userId);
   }
 }

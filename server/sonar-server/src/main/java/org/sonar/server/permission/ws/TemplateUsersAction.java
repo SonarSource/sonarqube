@@ -27,22 +27,22 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.User;
-import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.WsPermissions.OldUser;
+import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class TemplateUsersAction implements PermissionsWsAction {
 
@@ -85,18 +85,18 @@ public class TemplateUsersAction implements PermissionsWsAction {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
-      PermissionQuery query = buildQuery(wsRequest, template);
-      WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(dbSession, query, template);
+      OldPermissionQuery query = buildQuery(wsRequest, template);
+      WsPermissions.OldUsersWsResponse templateUsersResponse = buildResponse(dbSession, query, template);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
+  private static OldPermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
     String permission = validateProjectPermission(wsRequest.mandatoryParam(PARAM_PERMISSION));
 
-    return PermissionQuery.builder()
+    return OldPermissionQuery.builder()
       .template(template.getUuid())
       .permission(permission)
       .membership(fromSelectionModeToMembership(wsRequest.mandatoryParam(Param.SELECTED)))
@@ -106,11 +106,11 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .build();
   }
 
-  private WsPermissions.UsersWsResponse buildResponse(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
+  private OldUsersWsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
     List<UserWithPermissionDto> usersWithPermission = dbClient.permissionTemplateDao().selectUsers(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
     int total = dbClient.permissionTemplateDao().countUsers(dbSession, query, template.getId());
 
-    UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
+    OldUsersWsResponse.Builder responseBuilder = OldUsersWsResponse.newBuilder();
     for (UserWithPermissionDto userWithPermission : usersWithPermission) {
       responseBuilder.addUsers(userDtoToUserResponse(userWithPermission));
     }
@@ -124,8 +124,8 @@ public class TemplateUsersAction implements PermissionsWsAction {
     return responseBuilder.build();
   }
 
-  private static User userDtoToUserResponse(UserWithPermissionDto userWithPermission) {
-    User.Builder userBuilder = User.newBuilder();
+  private static OldUser userDtoToUserResponse(UserWithPermissionDto userWithPermission) {
+    OldUser.Builder userBuilder = OldUser.newBuilder();
     userBuilder.setLogin(userWithPermission.getLogin());
     String email = userWithPermission.getEmail();
     if (email != null) {

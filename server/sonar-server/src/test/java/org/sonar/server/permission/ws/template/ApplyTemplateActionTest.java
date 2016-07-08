@@ -38,14 +38,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -64,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -274,10 +274,10 @@ public class ApplyTemplateActionTest {
   }
 
   private void addUserPermissionToProject(UserDto user, ComponentDto project, String permission) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(permission)
+    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
+      .setPermission(permission)
       .setUserId(user.getId())
-      .setResourceId(project.getId()));
+      .setComponentId(project.getId()));
   }
 
   private void addGroupPermissionToProject(GroupDto group, ComponentDto project, String permission) {
@@ -301,8 +301,8 @@ public class ApplyTemplateActionTest {
     dbSession.commit();
   }
 
-  private static PermissionQuery query(String permission) {
-    return PermissionQuery.builder().membership(IN).permission(permission).build();
+  private static OldPermissionQuery query(String permission) {
+    return OldPermissionQuery.builder().membership(IN).permission(permission).build();
   }
 
   private static class PermissionNotNull implements Predicate<GroupWithPermissionDto> {
