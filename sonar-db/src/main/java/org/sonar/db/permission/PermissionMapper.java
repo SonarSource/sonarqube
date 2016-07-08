@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserPermissionDto;
 
 public interface PermissionMapper {
@@ -41,6 +42,12 @@ public interface PermissionMapper {
   List<GroupWithPermissionDto> selectGroups(Map<String, Object> parameters);
 
   int countGroups(Map<String, Object> parameters);
+
+  List<String> selectGroupNamesByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
+
+  int countGroupsByPermissionQuery(@Param("query") PermissionQuery query);
+
+  List<GroupRoleDto> selectGroupPermissionByQuery(@Param("query") PermissionQuery query);
 
   void usersCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 

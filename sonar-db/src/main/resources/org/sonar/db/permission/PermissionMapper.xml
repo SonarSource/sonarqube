@@ -41,7 +41,7 @@
   </sql>
 
   <sql id="userColumns">
-    <!-- lower(u.name) and u.id are present to order by with select distinct -->
+    <!-- u.name and u.id are present to order by with select distinct -->
     u.login as login, u.name as name, u.id
   </sql>
 
@@ -201,4 +201,63 @@
     </where>
     ORDER BY groups.name
   </select>
+
+  <select id="selectGroupNamesByPermissionQuery" parameterType="map" resultType="string">
+    select distinct gr.name, lower(gr.name), gr.group_id
+    <include refid="groupsByQuery" />
+    order by lower(gr.name), gr.name, gr.group_id
+  </select>
+
+  <select id="countGroupsByPermissionQuery" parameterType="map" resultType="int">
+    select count(1)
+    from (
+      select distinct gr.group_id
+      <include refid="groupsByQuery" />) g
+  </select>
+
+  <select id="selectGroupPermissionByQuery" parameterType="map" resultType="GroupRole">
+    select distinct gr.id as id, gr.group_id as groupId, gr.resource_id as resourceId, gr.permission as role
+    <include refid="groupsByQuery" />
+  </select>
+
+  <sql id="groupsByQuery">
+    from (
+    select g.id as group_id, g.name as name, gr.role as permission, gr.resource_id as resource_id, gr.id as id
+    from groups g
+      left join group_roles gr on g.id = gr.group_id
+    UNION ALL
+    select 0 as group_id, 'Anyone' as name, gr.role as permission, gr.resource_id as resource_id, gr.id as id
+    from group_roles gr
+    <where>
+      <if test="query.withPermissionOnly()">
+        and gr.group_id is null
+      </if>
+    </where>
+    ) gr
+    left join projects p on gr.resource_id = p.id
+    <where>
+      <if test="!query.groupNames.isEmpty()">
+        and gr.name in
+        <foreach collection="query.groupNames" open="(" close=")" item="name" separator=",">
+          #{name}
+        </foreach>
+      </if>
+      <if test="query.searchQueryToSql != null">
+        and lower(gr.name) like #{query.searchQueryToSql} ESCAPE '/'
+      </if>
+      <!-- filter rows with group permissions -->
+      <if test="query.withPermissionOnly()">
+        and gr.permission is not null
+        <if test="query.componentUuid==null">
+          and gr.resource_id is null
+        </if>
+        <if test="query.componentUuid!=null">
+          and p.uuid=#{query.componentUuid}
+        </if>
+        <if test="query.permission!=null">
+          and gr.permission=#{query.permission}
+        </if>
+      </if>
+    </where>
+  </sql>
 </mapper>

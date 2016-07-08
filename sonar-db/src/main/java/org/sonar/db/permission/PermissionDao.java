@@ -30,6 +30,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserPermissionDto;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -114,6 +115,21 @@ public class PermissionDao implements Dao {
     parameters.put(COMPONENT_ID_PARAMETER, componentId);
 
     return mapper(session).countGroups(parameters);
+  }
+
+  /**
+   * ordered by group names
+   */
+  public List<String> selectGroupNamesByPermissionQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectGroupNamesByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  }
+
+  public int countGroupsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).countGroupsByPermissionQuery(query);
+  }
+
+  public List<GroupRoleDto> selectGroupPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectGroupPermissionByQuery(query);
   }
 
   /**

@@ -20,9 +20,11 @@
 
 package org.sonar.db.permission;
 
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserPermissionDto;
 
 public class PermissionDbTester {
@@ -48,6 +50,21 @@ public class PermissionDbTester {
     dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
       .setPermission(permission)
       .setUserId(userId));
+    db.commit();
+  }
+
+  public void addProjectPermissionToGroup(String permission, @Nullable Long groupId, long componentId) {
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+      .setRole(permission)
+      .setGroupId(groupId)
+      .setResourceId(componentId));
+    db.commit();
+  }
+
+  public void addGlobalPermissionToGroup(String permission, @Nullable Long groupId) {
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+      .setRole(permission)
+      .setGroupId(groupId));
     db.commit();
   }
 }
