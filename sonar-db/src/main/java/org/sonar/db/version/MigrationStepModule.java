@@ -87,6 +87,7 @@ import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToEvents;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToMeasures;
+import org.sonar.db.version.v60.AddBColumnsToProjects;
 import org.sonar.db.version.v60.AddComponentUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
@@ -310,6 +311,8 @@ public class MigrationStepModule extends Module {
 
       DropTreesOfSnapshots.class,
       DropTreeColumnsFromSnapshots.class,
-      DropSnapshotIdColumnFromMeasures.class);
+      DropSnapshotIdColumnFromMeasures.class,
+      AddBColumnsToProjects.class
+    );
   }
 }

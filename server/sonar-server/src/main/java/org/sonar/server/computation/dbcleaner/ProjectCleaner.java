@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
+import java.util.Collection;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
@@ -53,11 +54,11 @@ public class ProjectCleaner {
     this.purgeListener = purgeListener;
   }
 
-  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings) {
+  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings, Collection<String> disabledComponentUuids) {
     long start = System.currentTimeMillis();
     profiler.reset();
 
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectSettings, idUuidPair);
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectSettings, idUuidPair, disabledComponentUuids);
 
     cleanHistoricalData(session, configuration.rootProjectIdUuid().getUuid(), projectSettings);
     doPurge(session, configuration);

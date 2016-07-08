@@ -345,8 +345,16 @@ public class ComponentDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
-  public void update(DbSession session, ComponentDto item) {
-    mapper(session).update(item);
+  public void update(DbSession session, ComponentUpdateDto component) {
+    mapper(session).update(component);
+  }
+
+  public void applyBChangesForRootComponentUuid(DbSession session, String projectUuid) {
+    mapper(session).applyBChangesForRootComponentUuid(projectUuid);
+  }
+
+  public void resetBChangedForRootComponentUuid(DbSession session, String projectUuid) {
+    mapper(session).resetBChangedForRootComponentUuid(projectUuid);
   }
 
   public void delete(DbSession session, long componentId) {

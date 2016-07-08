@@ -20,12 +20,11 @@
 package org.sonar.db.purge;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -63,9 +62,7 @@ public class PurgeDao implements Dao {
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-
-    // FIXME to be re-enabled with 
-    //disableOrphanResources(rootUuid, session, mapper, listener);
+    purgeDisabledComponents(session, conf.getDisabledComponentUuids(), listener);
     deleteOldClosedIssues(conf, mapper, listener);
   }
 
@@ -135,19 +132,17 @@ public class PurgeDao implements Dao {
       .setSortFields(UUID_FIELD_SORT);
   }
 
-  private void disableOrphanResources(String rootUuid, SqlSession session, PurgeMapper mapper, PurgeListener listener) {
-    List<String> componentUuids = new ArrayList<>();
-    mapper.selectComponentUuidsToDisable(
-      rootUuid,
-      resultContext -> {
-        String componentUuid = (String) resultContext.getResultObject();
-        if (componentUuid != null) {
-          componentUuids.add(componentUuid);
-        }
+  private void purgeDisabledComponents(DbSession session, Collection<String> uuids, PurgeListener listener) {
+    PurgeMapper mapper = mapper(session);
+    executeLargeInputs(uuids,
+      input -> {
+        mapper.deleteResourceIndex(input);
+        mapper.deleteFileSourcesByUuid(input);
+        mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
+        return emptyList();
       });
 
-    disableComponents(componentUuids, mapper);
-    for (String componentUuid : componentUuids) {
+    for (String componentUuid : uuids) {
       listener.onComponentDisabling(componentUuid);
     }
 
@@ -176,18 +171,6 @@ public class PurgeDao implements Dao {
     commands.deleteComponents(childrenIds);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
-  }
-
-  private void disableComponents(List<String> uuids, PurgeMapper mapper) {
-    executeLargeInputs(uuids,
-      input -> {
-        mapper.deleteResourceIndex(input);
-        mapper.setAnalysisIsLastToFalse(input);
-        mapper.deleteFileSourcesByUuid(input);
-        mapper.disableComponent(input);
-        mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
-        return emptyList();
-      });
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<IdUuidPair> analysisIdUuids) {

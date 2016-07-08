@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.computation.component;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.google.common.base.Preconditions.checkState;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(129);
+public class DisabledComponentsHolderImpl implements MutableDisabledComponentsHolder {
+
+  private Collection<String> uuids;
+
+  @Override
+  public Collection<String> getUuids() {
+    checkState(uuids != null, "UUIDs have not been set in repository");
+    return uuids;
+  }
+
+  @Override
+  public void setUuids(Collection<String> uuids) {
+    checkState(this.uuids == null, "UUIDs have already been set in repository");
+    this.uuids = uuids;
   }
 }

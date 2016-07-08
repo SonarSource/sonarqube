@@ -378,7 +378,7 @@ public class DbTester extends ExternalResource {
         assertThat(res.getMetaData().isNullable(columnIndex)).isEqualTo(isNullable ? columnNullable : columnNoNulls);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to check column");
+      throw new IllegalStateException("Fail to check column", e);
     }
   }
 

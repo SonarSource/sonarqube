@@ -21,7 +21,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="org.apache.struts:struts"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
 
   <!-- **************** First sub project **************** -->
@@ -43,7 +55,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="org.apache.struts:struts-core"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- directory -->
   <projects long_name="org.struts"
@@ -64,7 +88,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="org.apache.struts:struts-core:org.struts"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext"
@@ -85,7 +121,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="org.apache.struts:struts-core:org.struts.RequestContext"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
 
   <!-- **************** Second sub project THAT HAS A DIFFERENT GROUP ID => MUST NOT BE UPDATED **************** -->
@@ -107,7 +155,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="foo:struts-ui"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- directory -->
   <projects long_name="org.struts"
@@ -128,7 +188,19 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="foo:struts-ui:org.struts"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext"
@@ -149,6 +221,18 @@
             created_at="[null]"
             path="[null]"
             deprecated_kee="foo:struts-ui:org.struts.RequestContext"
-            authorization_updated_at="[null]"/>
+            authorization_updated_at="[null]"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
 </dataset>

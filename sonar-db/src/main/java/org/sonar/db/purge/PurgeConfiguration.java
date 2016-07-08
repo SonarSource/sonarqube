@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.time.DateUtils;
@@ -34,25 +35,23 @@ public class PurgeConfiguration {
   private final String[] scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
   private final System2 system2;
+  private final Collection<String> disabledComponentUuids;
 
-  public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues) {
-    this(rootProjectId, scopesWithoutHistoricalData, maxAgeInDaysOfClosedIssues, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues, System2 system2) {
+  public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
+    System2 system2, Collection<String> disabledComponentUuids) {
     this.rootProjectIdUuid = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
+    this.disabledComponentUuids = disabledComponentUuids;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, IdUuidPair idUuidPair) {
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
     String[] scopes = new String[] {Scopes.FILE};
     if (settings.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)) {
       scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new PurgeConfiguration(idUuidPair, scopes, settings.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
+    return new PurgeConfiguration(idUuidPair, scopes, settings.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES), System2.INSTANCE, disabledComponentUuids);
   }
 
   public IdUuidPair rootProjectIdUuid() {
@@ -61,6 +60,10 @@ public class PurgeConfiguration {
 
   public String[] scopesWithoutHistoricalData() {
     return scopesWithoutHistoricalData;
+  }
+
+  public Collection<String> getDisabledComponentUuids() {
+    return disabledComponentUuids;
   }
 
   @CheckForNull

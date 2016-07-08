@@ -27,7 +27,19 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
             authorization_updated_at="[null]"
             id="1"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="ABCD"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- the directory -->
   <projects uuid="EFGH"
@@ -50,7 +62,19 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
             authorization_updated_at="[null]"
             id="2"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="ABCD"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- the file -->
   <projects uuid="GHIJ"
@@ -73,7 +97,19 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
             authorization_updated_at="[null]"
             id="3"
             enabled="[true]"
-            root_uuid="ABCD"/>
+            root_uuid="ABCD"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- do not purge last snapshots -->
   <snapshots id="1"

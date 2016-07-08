@@ -535,7 +535,19 @@
     developer_uuid,
     enabled,
     created_at,
-    authorization_updated_at)
+    authorization_updated_at,
+    b_changed,
+    b_copy_component_uuid,
+    b_description,
+    b_enabled,
+    b_language,
+    b_long_name,
+    b_module_uuid,
+    b_module_uuid_path,
+    b_name,
+    b_path,
+    b_qualifier
+    )
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{deprecatedKey,jdbcType=VARCHAR},
@@ -556,7 +568,19 @@
     #{developerUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP},
-    #{authorizationUpdatedAt,jdbcType=BIGINT})
+    #{authorizationUpdatedAt,jdbcType=BIGINT},
+    ${_false},
+    null,
+    null,
+    ${_false},
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+    )
   </sql>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -567,26 +591,57 @@
     <include refid="insertSql"/>
   </insert>
 
-  <update id="update" parameterType="Component" useGeneratedKeys="false">
-    UPDATE projects SET
-    kee=#{kee,jdbcType=VARCHAR},
-    deprecated_kee=#{deprecatedKey,jdbcType=VARCHAR},
-    project_uuid=#{projectUuid,jdbcType=VARCHAR},
-    module_uuid=#{moduleUuid,jdbcType=VARCHAR},
-    module_uuid_path=#{moduleUuidPath,jdbcType=VARCHAR},
-    name=#{name,jdbcType=VARCHAR},
-    long_name=#{longName,jdbcType=VARCHAR},
-    qualifier=#{qualifier,jdbcType=VARCHAR},
-    scope=#{scope,jdbcType=VARCHAR},
-    language=#{language,jdbcType=VARCHAR},
-    description=#{description,jdbcType=VARCHAR},
-    root_uuid=#{rootUuid,jdbcType=VARCHAR},
-    path=#{path,jdbcType=VARCHAR},
-    copy_component_uuid=#{copyComponentUuid,jdbcType=VARCHAR},
-    developer_uuid=#{developerUuid,jdbcType=VARCHAR},
-    enabled=#{enabled,jdbcType=BOOLEAN},
-    authorization_updated_at=#{authorizationUpdatedAt,jdbcType=BIGINT}
-    WHERE uuid=#{uuid}
+  <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
+    update projects set
+    b_changed = #{bChanged,jdbcType=BOOLEAN},
+    b_copy_component_uuid = #{bCopyComponentUuid,jdbcType=VARCHAR},
+    b_description = #{bDescription,jdbcType=VARCHAR},
+    b_enabled = #{bEnabled,jdbcType=BOOLEAN},
+    b_language = #{bLanguage,jdbcType=VARCHAR},
+    b_long_name = #{bLongName,jdbcType=VARCHAR},
+    b_module_uuid = #{bModuleUuid,jdbcType=VARCHAR},
+    b_module_uuid_path = #{bModuleUuidPath,jdbcType=VARCHAR},
+    b_name = #{bName,jdbcType=VARCHAR},
+    b_path = #{bPath,jdbcType=VARCHAR},
+    b_qualifier = #{bQualifier,jdbcType=VARCHAR}
+    where
+    uuid = #{uuid}
+  </update>
+
+  <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
+    update projects set
+    copy_component_uuid = b_copy_component_uuid,
+    description = b_description,
+    enabled = b_enabled,
+    language = b_language,
+    long_name = b_long_name,
+    module_uuid = b_module_uuid,
+    module_uuid_path = b_module_uuid_path,
+    name = b_name,
+    path = b_path,
+    qualifier = b_qualifier,
+    b_changed = ${_false},
+    b_copy_component_uuid = null,
+    b_description = null,
+    b_enabled = ${_false},
+    b_language = null,
+    b_long_name = null,
+    b_module_uuid = null,
+    b_module_uuid_path = null,
+    b_name = null,
+    b_path = null,
+    b_qualifier = null
+    where
+    project_uuid = #{projectUuid} and
+    b_changed = ${_true}
+  </update>
+
+  <update id="resetBChangedForRootComponentUuid" parameterType="map" >
+    update projects
+    set b_changed = ${_false}
+    where
+    project_uuid = #{projectUuid} and
+    b_changed = ${_true}
   </update>
 
   <delete id="delete" parameterType="long">

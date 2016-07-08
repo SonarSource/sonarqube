@@ -21,7 +21,19 @@
             path="[null]"
             deprecated_kee="[null]"
             authorization_updated_at="[null]"
-            id="1"/>
+            id="1"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
 
   <!-- snapshot already purged -->

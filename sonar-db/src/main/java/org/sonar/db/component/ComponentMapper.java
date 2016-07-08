@@ -141,7 +141,12 @@ public interface ComponentMapper {
 
   void insertBatch(ComponentDto componentDto);
 
-  void update(ComponentDto componentDto);
+  void update(ComponentUpdateDto component);
+
+  void applyBChangesForRootComponentUuid(@Param("projectUuid") String projectUuid);
+
+  void resetBChangedForRootComponentUuid(@Param("projectUuid") String projectUuid);
 
   void delete(long componentId);
+
 }

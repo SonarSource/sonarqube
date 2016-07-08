@@ -22,7 +22,6 @@ package org.sonar.db.purge;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 
 public interface PurgeMapper {
 
@@ -32,8 +31,6 @@ public interface PurgeMapper {
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
    */
   List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
-
-  void selectComponentUuidsToDisable(@Param("rootUuid") String rootUuid, ResultHandler resultHandler);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
@@ -53,13 +50,9 @@ public interface PurgeMapper {
 
   void updatePurgeStatusToOne(@Param("analysisUuids") List<String> analysisUuid);
 
-  void disableComponent(@Param("componentUuids") List<String> componentUuids);
-
   void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuids") List<String> componentUuids, @Param("dateAsLong") Long dateAsLong);
 
   void deleteResourceIndex(@Param("componentUuids") List<String> componentUuids);
-
-  void setAnalysisIsLastToFalse(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentLinks(@Param("componentUuids") List<String> componentUuids);
 

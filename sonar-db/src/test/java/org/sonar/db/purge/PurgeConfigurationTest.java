@@ -19,11 +19,13 @@
  */
 package org.sonar.db.purge;
 
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,10 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PurgeConfigurationTest {
   @Test
   public void should_delete_all_closed_issues() {
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0);
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0, System2.INSTANCE, Collections.emptyList());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
 
-    conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], -1);
+    conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], -1, System2.INSTANCE, Collections.emptyList());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
   }
 
@@ -42,7 +44,7 @@ public class PurgeConfigurationTest {
   public void should_delete_only_old_closed_issues() {
     Date now = DateUtils.parseDate("2013-05-18");
 
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
+    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, System2.INSTANCE, Collections.emptyList());
     Date toDate = conf.maxLiveDateOfClosedIssues(now);
 
     assertThat(toDate.getYear()).isEqualTo(113);// =2013
@@ -57,7 +59,7 @@ public class PurgeConfigurationTest {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
     Date now = new Date();
 
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
 
     assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.FILE)
       .doesNotContain(Scopes.DIRECTORY);
@@ -69,7 +71,7 @@ public class PurgeConfigurationTest {
     Settings settings = new Settings();
     settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, true);
 
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
 
     assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.DIRECTORY, Scopes.FILE);
   }

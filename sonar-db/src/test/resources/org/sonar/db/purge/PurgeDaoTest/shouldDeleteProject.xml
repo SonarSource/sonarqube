@@ -18,7 +18,18 @@
             authorization_updated_at="[null]"
             id="1"
             enabled="[true]"
-            root_uuid="A"/>
+            root_uuid="A"
+            b_changed="[false]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <snapshots id="1"
              uuid="u1"
@@ -119,7 +130,18 @@
             authorization_updated_at="[null]"
             id="2"
             enabled="[true]"
-            root_uuid="A"/>
+            root_uuid="A"
+            b_changed="[false]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <projects uuid="C"
             uuid_path="NOT_USED"
@@ -138,7 +160,18 @@
             authorization_updated_at="[null]"
             id="3"
             enabled="[false]"
-            root_uuid="A"/>
+            root_uuid="A"
+            b_changed="[false]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <!-- file of module 2-->
   <projects uuid="D"
@@ -158,7 +191,18 @@
             authorization_updated_at="[null]"
             id="4"
             enabled="[false]"
-            root_uuid="C"/>
+            root_uuid="C"
+            b_changed="[false]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"
+  />
 
   <file_sources id="1"
                 project_uuid="A"

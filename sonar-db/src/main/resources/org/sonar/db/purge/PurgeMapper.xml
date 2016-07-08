@@ -47,17 +47,6 @@
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
-  <select id="selectComponentUuidsToDisable" resultType="String" parameterType="String">
-    select
-      p.uuid
-    from
-      projects p
-    where
-      p.project_uuid=#{rootUuid}
-      and p.enabled=${_true}
-      and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
-  </select>
-
   <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
     select id from metrics where delete_historical_data=${_true}
   </select>
@@ -151,18 +140,6 @@
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
         #{analysisUuid}
-      </foreach>
-  </update>
-
-  <update id="disableComponent" parameterType="string">
-    update
-      projects
-    set
-      enabled=${_false}
-    where
-      uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
       </foreach>
   </update>
 
@@ -261,18 +238,6 @@
         #{resourceId}
       </foreach>
   </delete>
-
-  <update id="setAnalysisIsLastToFalse" parameterType="String">
-    update
-      snapshots
-    set
-      islast=${_false}
-    where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
-      </foreach>
-  </update>
 
   <delete id="deleteComponentIssueChanges" parameterType="map">
     delete from issue_changes ic

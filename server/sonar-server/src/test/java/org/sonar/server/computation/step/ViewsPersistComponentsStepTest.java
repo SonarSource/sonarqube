@@ -34,10 +34,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
+import org.sonar.server.computation.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.component.ProjectViewAttributes;
 import org.sonar.server.computation.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -69,22 +71,19 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
-  System2 system2 = mock(System2.class);
-
-  DbClient dbClient = dbTester.getDbClient();
-
-  Date now;
-
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-
-  PersistComponentsStep underTest;
+  private System2 system2 = mock(System2.class);
+  private DbClient dbClient = dbTester.getDbClient();
+  private Date now;
+  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
+  private PersistComponentsStep underTest;
 
   @Before
   public void setup() throws Exception {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder);
   }
 
   @Override
@@ -231,8 +230,11 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    assertRowsCountInTableProjects(1);
+    // commit functional transaction -> copies B-fields to A-fields
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), viewDto.uuid());
+    dbTester.commit();
 
+    assertRowsCountInTableProjects(1);
     ComponentDto newViewDto = getComponentFromDb(VIEW_KEY);
     assertDtoIsView(newViewDto);
   }
@@ -255,20 +257,23 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    assertRowsCountInTableProjects(3);
+    // commit functional transaction -> copies B-fields to A-fields
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbTester.commit();
 
+    assertRowsCountInTableProjects(3);
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
     assertDtoIsProjectView1(pv1Dto, view, view, project);
   }
 
   @Test
-  public void update_copy_resource_id_of_project_view() {
+  public void update_copy_component_uuid_of_project_view() {
     ComponentDto view = newViewDto();
-    ComponentDto project1 = newProjectDto();
-    ComponentDto project2 = newProjectDto();
+    ComponentDto project1 = newProjectDto("P1");
+    ComponentDto project2 = newProjectDto("P2");
     persistComponents(view, project1, project2);
 
-    // Project view in DB is linked to project1
+    // Project view in DB is associated to project1
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project1, view)
       .setKey(PROJECT_VIEW_1_KEY)
       .setCreatedAt(now);
@@ -281,6 +286,10 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .build());
 
     underTest.execute();
+
+    // commit functional transaction -> copies B-fields to A-fields
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbTester.commit();
 
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
     // Project view should now be linked to project2

@@ -19,16 +19,17 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.server.computation.component.DisabledComponentsHolder;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -42,14 +43,16 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final DbIdsRepository dbIdsRepository;
   private final TreeRootHolder treeRootHolder;
   private final SettingsRepository settingsRepository;
+  private final DisabledComponentsHolder disabledComponentsHolder;
 
   public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
-    SettingsRepository settingsRepository) {
+    SettingsRepository settingsRepository, DisabledComponentsHolder disabledComponentsHolder) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
     this.settingsRepository = settingsRepository;
+    this.disabledComponentsHolder = disabledComponentsHolder;
   }
 
   @Override
@@ -71,7 +74,8 @@ public class PurgeDatastoresStep implements ComputationStep {
   private void execute(Component root) {
     DbSession session = dbClient.openSession(true);
     try {
-      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(root), root.getUuid()), settingsRepository.getSettings(root));
+      IdUuidPair idUuidPair = new IdUuidPair(dbIdsRepository.getComponentId(root), root.getUuid());
+      projectCleaner.purge(session, idUuidPair, settingsRepository.getSettings(root), disabledComponentsHolder.getUuids());
       session.commit();
     } finally {
       dbClient.closeSession(session);

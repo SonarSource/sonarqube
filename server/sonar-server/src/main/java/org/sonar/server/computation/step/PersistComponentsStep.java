@@ -20,22 +20,28 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Predicate;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.GuavaCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.MutableDbIdsRepository;
+import org.sonar.server.computation.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitor;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
@@ -44,7 +50,6 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -56,12 +61,16 @@ public class PersistComponentsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MutableDbIdsRepository dbIdsRepository;
   private final System2 system2;
+  private final MutableDisabledComponentsHolder disabledComponentsHolder;
 
-  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, MutableDbIdsRepository dbIdsRepository, System2 system2) {
+  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
+    MutableDbIdsRepository dbIdsRepository, System2 system2,
+    MutableDisabledComponentsHolder disabledComponentsHolder) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.dbIdsRepository = dbIdsRepository;
     this.system2 = system2;
+    this.disabledComponentsHolder = disabledComponentsHolder;
   }
 
   @Override
@@ -71,20 +80,47 @@ public class PersistComponentsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      Map<String, ComponentDto> existingComponentDtosByKey = indexExistingDtosByKey(session);
-      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingComponentDtosByKey, session))
+      String projectUuid = treeRootHolder.getRoot().getUuid();
+
+      // safeguard, reset all rows to b-changed=false
+      dbClient.componentDao().resetBChangedForRootComponentUuid(dbSession, projectUuid);
+
+      Map<String, ComponentDto> existingDtosByKeys = indexExistingDtosByKey(dbSession);
+      // Insert or update the components in database. They are removed from existingDtosByKeys
+      // at the same time.
+      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession))
         .visit(treeRootHolder.getRoot());
-      session.commit();
+
+      disableRemainingComponents(dbSession, existingDtosByKeys.values());
+
+      dbSession.commit();
     } finally {
-      dbClient.closeSession(session);
+      dbClient.closeSession(dbSession);
     }
   }
 
+  private void disableRemainingComponents(DbSession dbSession, Collection<ComponentDto> dtos) {
+    dtos.stream()
+      .filter(ComponentDto::isEnabled)
+      .forEach(c -> {
+        ComponentUpdateDto update = ComponentUpdateDto.copyFrom(c)
+          .setBChanged(true)
+          .setBEnabled(false);
+        dbClient.componentDao().update(dbSession, update);
+      });
+    disabledComponentsHolder.setUuids(dtos.stream().map(ComponentDto::uuid).collect(GuavaCollectors.toList(dtos.size())));
+  }
+
+  /**
+   * Returns a mutable map of the components currently persisted in database for the project, including
+   * disabled components.
+   */
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
-    return from(dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey()))
-      .uniqueIndex(toKey());
+    return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
+      .stream()
+      .collect(Collectors.toMap(ComponentDto::key, Function.identity()));
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {
@@ -167,16 +203,30 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     private ComponentDto persistComponent(ComponentDto componentDto) {
-      ComponentDto existingComponent = existingComponentDtosByKey.get(componentDto.getKey());
+      ComponentDto existingComponent = existingComponentDtosByKey.remove(componentDto.getKey());
       if (existingComponent == null) {
         dbClient.componentDao().insert(dbSession, componentDto);
         return componentDto;
-      } else {
-        if (updateExisting(existingComponent, componentDto)) {
-          dbClient.componentDao().update(dbSession, existingComponent);
-        }
-        return existingComponent;
       }
+      Optional<ComponentUpdateDto> update = compareForUpdate(existingComponent, componentDto);
+      if (update.isPresent()) {
+        ComponentUpdateDto updateDto = update.get();
+        dbClient.componentDao().update(dbSession, updateDto);
+
+        // update the fields in memory in order the PathAwareVisitor.Path
+        // to be up-to-date
+        existingComponent.setCopyComponentUuid(updateDto.getBCopyComponentUuid());
+        existingComponent.setDescription(updateDto.getBDescription());
+        existingComponent.setEnabled(updateDto.isBEnabled());
+        existingComponent.setLanguage(updateDto.getBLanguage());
+        existingComponent.setLongName(updateDto.getBLongName());
+        existingComponent.setModuleUuid(updateDto.getBModuleUuid());
+        existingComponent.setModuleUuidPath(updateDto.getBModuleUuidPath());
+        existingComponent.setName(updateDto.getBName());
+        existingComponent.setPath(updateDto.getBPath());
+        existingComponent.setQualifier(updateDto.getBQualifier());
+      }
+      return existingComponent;
     }
 
     private void addToCache(Component component, ComponentDto componentDto) {
@@ -335,46 +385,25 @@ public class PersistComponentsStep implements ComputationStep {
 
   }
 
-  private static boolean updateExisting(ComponentDto existingComponent, ComponentDto newComponent) {
-    boolean modified = false;
-    if (!StringUtils.equals(existingComponent.name(), newComponent.name())) {
-      existingComponent.setName(newComponent.name());
-      modified = true;
+  private static Optional<ComponentUpdateDto> compareForUpdate(ComponentDto existing, ComponentDto target) {
+    boolean hasDifferences = !StringUtils.equals(existing.getCopyResourceUuid(), target.getCopyResourceUuid()) ||
+      !StringUtils.equals(existing.description(), target.description()) ||
+      !existing.isEnabled() ||
+      !StringUtils.equals(existing.language(), target.language()) ||
+      !StringUtils.equals(existing.longName(), target.longName()) ||
+      !StringUtils.equals(existing.moduleUuid(), target.moduleUuid()) ||
+      !StringUtils.equals(existing.moduleUuidPath(), target.moduleUuidPath()) ||
+      !StringUtils.equals(existing.name(), target.name()) ||
+      !StringUtils.equals(existing.path(), target.path()) ||
+      !StringUtils.equals(existing.qualifier(), target.qualifier());
+
+    ComponentUpdateDto update = null;
+    if (hasDifferences) {
+      update = ComponentUpdateDto
+        .copyFrom(target)
+        .setBChanged(true);
     }
-    if (!StringUtils.equals(existingComponent.longName(), newComponent.longName())) {
-      existingComponent.setLongName(newComponent.longName());
-      modified = true;
-    }
-    if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {
-      existingComponent.setDescription(newComponent.description());
-      modified = true;
-    }
-    if (!StringUtils.equals(existingComponent.path(), newComponent.path())) {
-      existingComponent.setPath(newComponent.path());
-      modified = true;
-    }
-    if (!StringUtils.equals(existingComponent.moduleUuid(), newComponent.moduleUuid())) {
-      existingComponent.setModuleUuid(newComponent.moduleUuid());
-      modified = true;
-    }
-    if (!existingComponent.moduleUuidPath().equals(newComponent.moduleUuidPath())) {
-      existingComponent.setModuleUuidPath(newComponent.moduleUuidPath());
-      modified = true;
-    }
-    if (!ObjectUtils.equals(existingComponent.getRootUuid(), newComponent.getRootUuid())) {
-      existingComponent.setRootUuid(newComponent.getRootUuid());
-      modified = true;
-    }
-    if (!ObjectUtils.equals(existingComponent.getCopyResourceUuid(), newComponent.getCopyResourceUuid())) {
-      existingComponent.setCopyComponentUuid(newComponent.getCopyResourceUuid());
-      modified = true;
-    }
-    if (!existingComponent.isEnabled()) {
-      // If component was previously removed, re-enable it
-      existingComponent.setEnabled(true);
-      modified = true;
-    }
-    return modified;
+    return Optional.ofNullable(update);
   }
 
   private static String getFileQualifier(Component component) {

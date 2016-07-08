@@ -36,6 +36,7 @@ import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
+import org.sonar.server.computation.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.ViewsComponent;
@@ -44,6 +45,8 @@ import org.sonar.server.util.WrapInSingleElementArray;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -62,10 +65,11 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.standalone();
 
-  ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
-  SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  private ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
+  private SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
 
-  PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, settingsRepository);
+  private PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, settingsRepository, disabledComponentsHolder);
 
   @Test
   public void call_purge_method_of_the_purge_task_for_project() {
@@ -133,7 +137,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
     underTest.execute();
 
     ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
-    verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Settings.class));
+    verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Settings.class), anyList());
     assertThat(argumentCaptor.getValue().getId()).isEqualTo(PROJECT_ID);
     assertThat(argumentCaptor.getValue().getUuid()).isEqualTo(PROJECT_UUID);
   }

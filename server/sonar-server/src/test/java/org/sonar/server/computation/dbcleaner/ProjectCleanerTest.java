@@ -33,6 +33,7 @@ import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
+import static java.util.Collections.emptyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
@@ -59,7 +60,7 @@ public class ProjectCleanerTest {
   public void no_profiling_when_property_is_false() {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
+    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings, emptyList());
 
     verify(profiler, never()).dump(anyLong(), any(Logger.class));
   }
@@ -68,7 +69,7 @@ public class ProjectCleanerTest {
   public void profiling_when_property_is_true() {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
+    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings, emptyList());
 
     verify(profiler).dump(anyLong(), any(Logger.class));
   }
@@ -77,7 +78,7 @@ public class ProjectCleanerTest {
   public void call_period_cleaner_index_client_and_purge_dao() {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
+    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings, emptyList());
 
     verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
@@ -87,7 +88,7 @@ public class ProjectCleanerTest {
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() {
     doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
+    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings, emptyList());
 
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
   }
@@ -96,7 +97,7 @@ public class ProjectCleanerTest {
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() {
     doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
+    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings, emptyList());
 
     verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
   }
