@@ -245,7 +245,7 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  private void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
+  private static void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
     esSearch.setFrom(options.getOffset()).setSize(options.getLimit());
   }
 

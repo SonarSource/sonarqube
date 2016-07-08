@@ -42,10 +42,10 @@ public class PopulateAnalysisUuidOnMeasures extends BaseDataChange {
       "where m.analysis_uuid is null");
     massUpdate.update("update project_measures set analysis_uuid=? where snapshot_id=? and analysis_uuid is null");
     massUpdate.rowPluralName("measures");
-    massUpdate.execute(this::handle);
+    massUpdate.execute(PopulateAnalysisUuidOnMeasures::handle);
   }
 
-  private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+  private static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
     long snapshotId = row.getLong(1);
     String analysisUuid = row.getString(2);
 
