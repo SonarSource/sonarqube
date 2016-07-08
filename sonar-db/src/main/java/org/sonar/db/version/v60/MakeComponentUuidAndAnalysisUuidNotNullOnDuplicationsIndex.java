@@ -27,17 +27,18 @@ import org.sonar.db.version.DdlChange;
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MakeAnalysisUuidNotNullOnDuplicationsIndex extends DdlChange {
+public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex extends DdlChange {
 
   private static final String TABLE_DUPLICATIONS_INDEX = "duplications_index";
 
-  public MakeAnalysisUuidNotNullOnDuplicationsIndex(Database db) {
+  public MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_DUPLICATIONS_INDEX)
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .build());
   }

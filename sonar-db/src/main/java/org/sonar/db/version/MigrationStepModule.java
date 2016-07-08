@@ -84,11 +84,10 @@ import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
-import org.sonar.db.version.v60.AddAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToEvents;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddBColumnsToProjects;
-import org.sonar.db.version.v60.AddComponentUuidColumnToDuplicationsIndex;
+import org.sonar.db.version.v60.AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
 import org.sonar.db.version.v60.AddLastUsedColumnToRulesProfiles;
@@ -105,8 +104,7 @@ import org.sonar.db.version.v60.CleanOrphanRowsInProjects;
 import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInSnapshots;
 import org.sonar.db.version.v60.CleanUsurperRootComponents;
-import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutAnalysis;
-import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutComponent;
+import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis;
 import org.sonar.db.version.v60.DeleteOrphanMeasuresWithoutComponent;
 import org.sonar.db.version.v60.DropIdColumnsFromProjects;
 import org.sonar.db.version.v60.DropIdColumnsFromResourceIndex;
@@ -121,11 +119,10 @@ import org.sonar.db.version.v60.DropTreeColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropTreesOfSnapshots;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
 import org.sonar.db.version.v60.FixProjectUuidOfDeveloperProjects;
-import org.sonar.db.version.v60.MakeAnalysisUuidNotNullOnDuplicationsIndex;
 import org.sonar.db.version.v60.MakeAnalysisUuidNotNullOnEvents;
 import org.sonar.db.version.v60.MakeAnalysisUuidNotNullOnMeasures;
+import org.sonar.db.version.v60.MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex;
 import org.sonar.db.version.v60.MakeComponentUuidColumnsNotNullOnSnapshots;
-import org.sonar.db.version.v60.MakeComponentUuidNotNullOnDuplicationsIndex;
 import org.sonar.db.version.v60.MakeComponentUuidNotNullOnMeasures;
 import org.sonar.db.version.v60.MakeProfileKeyNotNullOnActivities;
 import org.sonar.db.version.v60.MakeUuidColumnNotNullOnSnapshots;
@@ -133,11 +130,10 @@ import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnProjects;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex;
 import org.sonar.db.version.v60.MakeUuidPathColumnNotNullOnProjects;
 import org.sonar.db.version.v60.PopulateAnalysisUuidColumnOnCeActivity;
-import org.sonar.db.version.v60.PopulateAnalysisUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateAnalysisUuidOnEvents;
 import org.sonar.db.version.v60.PopulateAnalysisUuidOnMeasures;
+import org.sonar.db.version.v60.PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
-import org.sonar.db.version.v60.PopulateComponentUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
 import org.sonar.db.version.v60.PopulateLastUsedColumnOfRulesProfiles;
 import org.sonar.db.version.v60.PopulateProfileKeyOfActivities;
@@ -273,16 +269,10 @@ public class MigrationStepModule extends Module {
       DropSnapshotIdColumnFromCeActivity.class,
 
       // UUID columns of DUPLICATION_INDEX
-      AddComponentUuidColumnToDuplicationsIndex.class,
-      PopulateComponentUuidOfDuplicationsIndex.class,
-      DeleteOrphanDuplicationsIndexRowsWithoutComponent.class,
-      MakeComponentUuidNotNullOnDuplicationsIndex.class,
-
-      // analysis_uuid in duplications_index
-      AddAnalysisUuidColumnToDuplicationsIndex.class,
-      PopulateAnalysisUuidOfDuplicationsIndex.class,
-      DeleteOrphanDuplicationsIndexRowsWithoutAnalysis.class,
-      MakeAnalysisUuidNotNullOnDuplicationsIndex.class,
+      AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex.class,
+      PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex.class,
+      DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis.class,
+      MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex.class,
       DropSnapshotIdColumnsFromDuplicationsIndex.class,
 
       // EVENTS.ANALYSIS_UUID

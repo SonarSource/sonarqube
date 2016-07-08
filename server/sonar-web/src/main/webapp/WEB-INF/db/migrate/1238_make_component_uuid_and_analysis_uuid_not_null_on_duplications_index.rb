@@ -21,9 +21,11 @@
 #
 # SonarQube 6.0
 #
-class AddAnalysisUuidToDuplicationsIndex < ActiveRecord::Migration
+class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.AddAnalysisUuidColumnToDuplicationsIndex')
+    execute_java_migration('org.sonar.db.version.v60.MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex')
+
+    add_index :duplications_index, [:analysis_uuid, :component_uuid], :name => 'duplication_analysis_component'
   end
 end

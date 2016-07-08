@@ -26,29 +26,54 @@ import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
-public class PopulateComponentUuidOfDuplicationsIndex extends BaseDataChange {
+public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex extends BaseDataChange {
 
-  public PopulateComponentUuidOfDuplicationsIndex(Database db) {
+  public PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
+    populateComponentUuid(context);
+    populateAnalysisUuid(context);
+  }
+
+  private void populateComponentUuid(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select distinct di.snapshot_id, s.component_uuid from duplications_index di" +
       " inner join snapshots s on s.id=di.snapshot_id" +
       " where di.component_uuid is null");
     massUpdate.update("UPDATE duplications_index SET component_uuid=? WHERE snapshot_id=? and component_uuid is null");
     massUpdate.rowPluralName("component uuid of duplications_index entries");
-    massUpdate.execute(PopulateComponentUuidOfDuplicationsIndex::handle);
+    massUpdate.execute(PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex::handleComponentUuid);
   }
 
-  public static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+  private static boolean handleComponentUuid(Select.Row row, SqlStatement update) throws SQLException {
     long snapshotId = row.getLong(1);
     String componentUuid = row.getString(2);
 
     update.setString(1, componentUuid);
     update.setLong(2, snapshotId);
+
+    return true;
+  }
+  
+  public void populateAnalysisUuid(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select distinct di.project_snapshot_id, s.uuid from duplications_index di" +
+        " inner join snapshots s on s.id=di.project_snapshot_id" +
+        " where di.analysis_uuid is null");
+    massUpdate.update("UPDATE duplications_index SET analysis_uuid=? WHERE project_snapshot_id=? and analysis_uuid is null");
+    massUpdate.rowPluralName("analysis uuid of duplications_index entries");
+    massUpdate.execute(PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex::handleAnalysisUuid);
+  }
+
+  private static boolean handleAnalysisUuid(Select.Row row, SqlStatement update) throws SQLException {
+    long projectSnapshotId = row.getLong(1);
+    String snapshotUuid = row.getString(2);
+
+    update.setString(1, snapshotUuid);
+    update.setLong(2, projectSnapshotId);
 
     return true;
   }

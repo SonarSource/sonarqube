@@ -19,8 +19,6 @@
  */
 package org.sonar.db.version.v60;
 
-import static java.lang.String.valueOf;
-
 import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
@@ -29,17 +27,19 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-public class AddComponentUuidColumnToDuplicationsIndexTest {
+import static java.lang.String.valueOf;
+
+public class AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest {
 
   private static final String TABLE = "duplications_index";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidColumnToDuplicationsIndexTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndexTest.class,
     "duplications_index_5.6.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddComponentUuidColumnToDuplicationsIndex underTest = new AddComponentUuidColumnToDuplicationsIndex(db.database());
+  private AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex underTest = new AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex(db.database());
 
   @Test
   public void migration_adds_column_to_empty_table() throws SQLException {
@@ -79,6 +79,7 @@ public class AddComponentUuidColumnToDuplicationsIndexTest {
 
   private void verifyAddedColumns() {
     db.assertColumnDefinition(TABLE, "component_uuid", Types.VARCHAR, 50, true);
+    db.assertColumnDefinition(TABLE, "analysis_uuid", Types.VARCHAR, 50, true);
   }
 
 }

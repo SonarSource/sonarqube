@@ -24,18 +24,34 @@ import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 
-public class DeleteOrphanDuplicationsIndexRowsWithoutAnalysis extends BaseDataChange {
+public class DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis extends BaseDataChange {
 
-  public DeleteOrphanDuplicationsIndexRowsWithoutAnalysis(Database db) {
+  public DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
+    deleteRowsWithoutComponentUuid(context);
+    deleteRowsWithoutAnalysisUuid(context);
+  }
+
+  private static void deleteRowsWithoutComponentUuid(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT id from duplications_index where component_uuid is null");
+    massUpdate.update("DELETE from duplications_index WHERE id=?");
+    massUpdate.rowPluralName("duplications index rows without component");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
+  }
+
+  private static void deleteRowsWithoutAnalysisUuid(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT distinct project_snapshot_id from duplications_index where analysis_uuid is null");
     massUpdate.update("DELETE from duplications_index WHERE project_snapshot_id=?");
-    massUpdate.rowPluralName("no analysis duplication index entries");
+    massUpdate.rowPluralName("duplications index rows without analysis");
     massUpdate.execute((row, update) -> {
       update.setLong(1, row.getLong(1));
       return true;

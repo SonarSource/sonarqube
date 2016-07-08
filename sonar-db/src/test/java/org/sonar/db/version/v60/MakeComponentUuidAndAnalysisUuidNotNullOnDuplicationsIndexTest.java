@@ -32,15 +32,15 @@ import org.sonar.db.DbTester;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MakeComponentUuidNotNullOnDuplicationsIndexTest {
+public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeComponentUuidNotNullOnDuplicationsIndexTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest.class,
     "in_progress_duplications_index.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MakeComponentUuidNotNullOnDuplicationsIndex underTest = new MakeComponentUuidNotNullOnDuplicationsIndex(db.database());
+  private MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex underTest = new MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex(db.database());
 
   @Test
   public void migration_sets_uuid_columns_not_nullable_on_empty_table() throws SQLException {
@@ -51,8 +51,8 @@ public class MakeComponentUuidNotNullOnDuplicationsIndexTest {
 
   @Test
   public void migration_sets_uuid_columns_not_nullable_on_populated_table() throws SQLException {
-    insertDuplicationIndex(1L, true);
-    insertDuplicationIndex(2L, true);
+    insertDuplicationIndex(1L, true, true);
+    insertDuplicationIndex(2L, true, true);
 
     underTest.execute();
 
@@ -61,8 +61,18 @@ public class MakeComponentUuidNotNullOnDuplicationsIndexTest {
   }
 
   @Test
-  public void migration_fails_if_some_uuid_columns_are_null() throws SQLException {
-    insertDuplicationIndex(1L, false);
+  public void migration_fails_if_some_component_uuid_columns_are_null() throws SQLException {
+    insertDuplicationIndex(1L, false, true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to execute");
+
+    underTest.execute();
+  }
+
+  @Test
+  public void migration_fails_if_some_analysis_uuid_columns_are_null() throws SQLException {
+    insertDuplicationIndex(1L, true, false);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to execute");
@@ -72,20 +82,22 @@ public class MakeComponentUuidNotNullOnDuplicationsIndexTest {
 
   private void verifyColumnDefinitions() {
     db.assertColumnDefinition("duplications_index", "component_uuid", Types.VARCHAR, 50, false);
+    db.assertColumnDefinition("duplications_index", "analysis_uuid", Types.VARCHAR, 50, false);
   }
 
   private List<Long> idsOfRowsInDuplicationsIndex() {
     return db.select("select ID from duplications_index").stream().map(map -> (Long) map.get("ID")).collect(Collectors.toList());
   }
 
-  private void insertDuplicationIndex(long id, boolean hasComponentUuid) {
+  private void insertDuplicationIndex(long id, boolean hasComponentUuid, boolean hasAnalysisUuid) {
     db.executeInsert(
       "duplications_index",
       "ID", valueOf(id),
       "PROJECT_SNAPSHOT_ID", valueOf(10 + id),
       "SNAPSHOT_ID", valueOf(20 + id),
-      "COMPONENT_UUID", hasComponentUuid ? valueOf(30 + id) : null,
-      "HASH", "some_hash_" + id,
+        "ANALYSIS_UUID", hasAnalysisUuid ? valueOf(30 + id) : null,
+        "COMPONENT_UUID", hasComponentUuid ? valueOf(40 + id) : null,
+        "HASH", "some_hash_" + id,
       "INDEX_IN_FILE", "2",
       "START_LINE", "3",
       "END_LINE", "4");

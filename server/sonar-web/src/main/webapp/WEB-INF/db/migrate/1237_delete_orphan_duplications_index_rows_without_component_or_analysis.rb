@@ -21,9 +21,9 @@
 #
 # SonarQube 6.0
 #
-class PopulateComponentUuidOfDuplicationsIndex < ActiveRecord::Migration
+class DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.PopulateComponentUuidOfDuplicationsIndex')
+    execute_java_migration('org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis')
   end
 end

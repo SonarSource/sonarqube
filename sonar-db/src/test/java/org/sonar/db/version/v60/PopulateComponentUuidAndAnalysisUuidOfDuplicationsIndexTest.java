@@ -31,13 +31,13 @@ import org.sonar.db.DbTester;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PopulateComponentUuidOfDuplicationsIndexTest {
+public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidOfDuplicationsIndexTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndexTest.class,
     "in_progress_measures_with_snapshots.sql");
 
-  private PopulateComponentUuidOfDuplicationsIndex underTest = new PopulateComponentUuidOfDuplicationsIndex(db.database());
+  private PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex underTest = new PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex(db.database());
 
   @Test
   public void migration_has_no_effect_on_empty_tables() throws SQLException {
@@ -49,66 +49,68 @@ public class PopulateComponentUuidOfDuplicationsIndexTest {
 
   @Test
   public void migration_updates_component_uuid_with_values_from_table_snapshots_when_they_exist() throws SQLException {
-    String uuid1 = insertSnapshot(40);
-    insertSnapshot(50);
-    String uuid3 = insertSnapshot(60);
-    insertSnapshot(70);
+    insertSnapshot(40, "cpt1");
+    String rootUuid1 = insertSnapshot(50, "cpt2");
+    insertSnapshot(60, "cpt3");
+    String rootUuid2 = insertSnapshot(70, "cpt4");
 
-    insertDuplicationIndex(1, 40);
-    insertDuplicationIndex(2, 40);
-    insertDuplicationIndex(3, 40);
-    insertDuplicationIndex(4, 60);
-    insertDuplicationIndex(5, 90); // 90 does not exist
-    insertDuplicationIndex(6, 100); // 100 does not exist
+    insertDuplicationIndex(1, 40, 50);
+    insertDuplicationIndex(2, 40, 50);
+    insertDuplicationIndex(3, 40, 70);
+    insertDuplicationIndex(4, 60, 110); // 110 doesn't exist
+    insertDuplicationIndex(5, 90, 120); // 90 and 120 does not exist
+    insertDuplicationIndex(6, 100, 70); // 100 does not exist
     db.commit();
 
     underTest.execute();
 
-    verifyDuplicationsIndex(1, 40, uuid1);
-    verifyDuplicationsIndex(2, 40, uuid1);
-    verifyDuplicationsIndex(3, 40, uuid1);
-    verifyDuplicationsIndex(4, 60, uuid3);
-    verifyDuplicationsIndex(5, 90, null);
-    verifyDuplicationsIndex(6, 100, null);
+    verifyDuplicationsIndex(1, 40, "cpt1", rootUuid1);
+    verifyDuplicationsIndex(2, 40, "cpt1", rootUuid1);
+    verifyDuplicationsIndex(3, 40, "cpt1", rootUuid2);
+    verifyDuplicationsIndex(4, 60, "cpt3", null);
+    verifyDuplicationsIndex(5, 90, null, null);
+    verifyDuplicationsIndex(6, 100, null, rootUuid2);
   }
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    String uuid1 = insertSnapshot(40);
-    insertSnapshot(50);
-    insertDuplicationIndex(1, 40);
+    insertSnapshot(40, "cpt1");
+    String rootUuid = insertSnapshot(50, "cp2");
+    insertDuplicationIndex(1, 40, 50);
 
     underTest.execute();
-    verifyDuplicationsIndex(1, 40, uuid1);
+    verifyDuplicationsIndex(1, 40, "cpt1", rootUuid);
 
     underTest.execute();
-    verifyDuplicationsIndex(1, 40, uuid1);
+    verifyDuplicationsIndex(1, 40, "cpt1", rootUuid);
 
   }
 
-  private void verifyDuplicationsIndex(long id, long snapshotId, @Nullable String componentUuid) {
-    List<Map<String, Object>> rows = db.select("select SNAPSHOT_ID, COMPONENT_UUID from duplications_index where ID=" + id);
+  private void verifyDuplicationsIndex(long id, long snapshotId, @Nullable String componentUuid, @Nullable String analysisUuid) {
+    List<Map<String, Object>> rows = db.select("select SNAPSHOT_ID, COMPONENT_UUID,ANALYSIS_UUID from duplications_index where ID=" + id);
     assertThat(rows).hasSize(1);
     Map<String, Object> row = rows.get(0);
     assertThat(row.get("SNAPSHOT_ID")).isEqualTo(snapshotId);
     assertThat(row.get("COMPONENT_UUID")).isEqualTo(componentUuid);
+    assertThat(row.get("ANALYSIS_UUID")).isEqualTo(analysisUuid);
   }
 
-  private String insertSnapshot(long id) {
+  private String insertSnapshot(long id, String componentUuid) {
     String uuid = "uuid_" + id;
     db.executeInsert(
       "snapshots",
+      "uuid", uuid,
       "id", valueOf(id),
-      "component_uuid", uuid,
+      "component_uuid", componentUuid,
       "root_component_uuid", valueOf(id + 100));
     return uuid;
   }
 
-  private void insertDuplicationIndex(long id, long snapshotId) {
+  private void insertDuplicationIndex(long id, long snapshotId, long projectSnapshotId) {
     db.executeInsert(
       "duplications_index",
       "ID", valueOf(id),
-      "PROJECT_SNAPSHOT_ID", valueOf(10 + id),
+      "PROJECT_SNAPSHOT_ID", valueOf(projectSnapshotId),
       "SNAPSHOT_ID", valueOf(snapshotId),
       "HASH", "some_hash_" + id,
       "INDEX_IN_FILE", "2",
