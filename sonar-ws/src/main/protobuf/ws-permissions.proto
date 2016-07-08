@@ -26,15 +26,13 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "WsPermissions";
 option optimize_for = SPEED;
 
-// WS api/permissions/users for internal use only
-// and WS api/permissions/template_users for internal use only
+// WS api/permissions/template_users for internal use only
 message OldUsersWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated OldUser users = 2;
 }
 
 // WS api/permissions/users for internal use only
-// and WS api/permissions/template_users for internal use only
 message UsersWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated User users = 2;

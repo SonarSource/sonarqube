@@ -73,7 +73,7 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("users2")
+    WebService.NewAction action = context.createAction("users")
       .setSince("5.2")
       .setDescription("Lists the users with their permissions as individual users rather than through group affiliation.<br>" +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +

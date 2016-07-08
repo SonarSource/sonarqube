@@ -22,7 +22,6 @@ package org.sonarqube.ws.client.permission;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -427,32 +426,6 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_ID, TEMPLATE_ID_VALUE)
       .hasParam(PARAM_NAME, TEMPLATE_NAME_VALUE)
       .hasParam(PARAM_PROJECT_KEY_PATTERN, PROJECT_KEY_PATTERN_VALUE)
-      .andNoOtherParam();
-  }
-
-  @Test
-  public void users_does_GET_on_Ws_users() {
-    underTest.oldUsers(new OldUsersWsRequest()
-      .setPermission(PERMISSION_VALUE)
-      .setProjectId(PROJECT_ID_VALUE)
-      .setProjectKey(PROJECT_KEY_VALUE)
-      .setSelected(SELECTED_VALUE)
-      .setPage(PAGE_VALUE)
-      .setPageSize(PAGE_SIZE_VALUE)
-      .setQuery(QUERY_VALUE)
-      );
-
-    assertThat(serviceTester.getGetParser()).isSameAs(OldUsersWsResponse.parser());
-    GetRequest getRequest = serviceTester.getGetRequest();
-    serviceTester.assertThat(getRequest)
-      .hasPath("users")
-      .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
-      .hasParam(PARAM_PROJECT_ID, PROJECT_ID_VALUE)
-      .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
-      .hasParam(PARAM_SELECTED, SELECTED_VALUE)
-      .hasParam(PARAM_P, PAGE_VALUE)
-      .hasParam(PARAM_PS, PAGE_SIZE_VALUE)
-      .hasParam(PARAM_Q, QUERY_VALUE)
       .andNoOtherParam();
   }
 
