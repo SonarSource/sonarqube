@@ -163,6 +163,9 @@ public final class CoreMetrics {
     .create();
 
   public static final String FILES_KEY = "files";
+  /**
+   * Computed by the platform.
+   */
   public static final Metric<Integer> FILES = new Metric.Builder(FILES_KEY, "Files", Metric.ValueType.INT)
     .setDescription("Number of files")
     .setDirection(Metric.DIRECTION_WORST)
@@ -171,6 +174,9 @@ public final class CoreMetrics {
     .create();
 
   public static final String DIRECTORIES_KEY = "directories";
+  /**
+   * Computed by the platform.
+   */
   public static final Metric<Integer> DIRECTORIES = new Metric.Builder(DIRECTORIES_KEY, "Directories", Metric.ValueType.INT)
     .setDescription("Directories")
     .setDirection(Metric.DIRECTION_WORST)
