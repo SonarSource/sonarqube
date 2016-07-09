@@ -26,11 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -49,7 +45,10 @@ import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -60,7 +59,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
-
 public class GroupsActionTest {
 
   @Rule
@@ -69,6 +67,7 @@ public class GroupsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(db);
   ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
@@ -97,6 +96,7 @@ public class GroupsActionTest {
     GroupDto group3 = insertGroup(new GroupDto().setName("group-3-name").setDescription("group-3-description"));
     insertGroupRole(new GroupRoleDto().setGroupId(group1.getId()).setRole(SCAN_EXECUTION));
     insertGroupRole(new GroupRoleDto().setGroupId(group2.getId()).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupRoleDto().setGroupId(null).setRole(SCAN_EXECUTION));
     insertGroupRole(new GroupRoleDto().setGroupId(group3.getId()).setRole(SYSTEM_ADMIN));
   }
 
@@ -112,30 +112,18 @@ public class GroupsActionTest {
   @Test
   public void search_with_selection() {
     String result = ws.newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.SCAN_EXECUTION)
-      .setParam(SELECTED, SelectionMode.ALL.value())
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .execute().getInput();
 
-    assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2", "group-3");
-  }
-
-  @Test
-  public void search_with_admin_does_not_return_anyone() {
-    String result = ws.newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.SYSTEM_ADMIN)
-      .setParam(SELECTED, SelectionMode.ALL.value())
-      .execute().getInput();
-
-    assertThat(result).containsSequence("group-1", "group-2", "group-3")
-      .doesNotContain(DefaultGroups.ANYONE);
+    assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2");
   }
 
   @Test
   public void search_groups_with_pagination() {
     String result = ws.newRequest()
-      .setParam(PARAM_PERMISSION, "scan")
-      .setParam(Param.PAGE_SIZE, "1")
-      .setParam(Param.PAGE, "2")
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PAGE_SIZE, "1")
+      .setParam(PAGE, "3")
       .execute().getInput();
 
     assertThat(result).contains("group-2")
@@ -146,8 +134,8 @@ public class GroupsActionTest {
   @Test
   public void search_groups_with_query() {
     String result = ws.newRequest()
-      .setParam(PARAM_PERMISSION, "scan")
-      .setParam(Param.TEXT_QUERY, "group-")
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(TEXT_QUERY, "group-")
       .execute().getInput();
 
     assertThat(result)
@@ -157,14 +145,71 @@ public class GroupsActionTest {
 
   @Test
   public void search_groups_with_project_permissions() {
-    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
+    userSession.login().addProjectUuidPermissions(ADMIN, "project-uuid");
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
     insertGroupRole(new GroupRoleDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(project.getId()));
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+
+    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto());
+    GroupDto anotherGroup = insertGroup(new GroupDto().setName("another-project-group-name"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(anotherGroup.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(anotherProject.getId()));
+
+    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .execute().getInput();
+
+    assertThat(result).contains(group.getName())
+      .doesNotContain(anotherGroup.getName())
+      .doesNotContain(groupWithoutPermission.getName());
+  }
+
+  @Test
+  public void return_only_for_groups_with_permission_when_no_search_query() {
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(group.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(project.getId()));
+
+    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
+    GroupDto anotherGroup = insertGroup(new GroupDto().setName("another-group"));
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(TEXT_QUERY, "group-with")
+      .execute().getInput();
+
+    assertThat(result).contains(group.getName())
+      .doesNotContain(groupWithoutPermission.getName())
+      .doesNotContain(anotherGroup.getName());
+  }
+
+  @Test
+  public void return_also_for_groups_without_permission_when_search_query() {
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(group.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(project.getId()));
+
+    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
 
     String result = ws.newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -172,9 +217,7 @@ public class GroupsActionTest {
       .execute().getInput();
 
     assertThat(result).contains("project-group-name")
-      .doesNotContain("group-1")
-      .doesNotContain("group-2")
-      .doesNotContain("group-3");
+      .doesNotContain(groupWithoutPermission.getName());
   }
 
   @Test
@@ -202,7 +245,7 @@ public class GroupsActionTest {
     expectedException.expect(BadRequestException.class);
 
     ws.newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
   }
 
@@ -223,14 +266,6 @@ public class GroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, "scan")
-      .execute();
-  }
-
-  @Test
-  public void fail_if_permission_is_not_specified() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest()
       .execute();
   }
 

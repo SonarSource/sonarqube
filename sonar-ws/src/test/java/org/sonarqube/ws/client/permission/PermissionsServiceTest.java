@@ -84,7 +84,6 @@ public class PermissionsServiceTest {
       .setProjectKey(PROJECT_KEY_VALUE)
       .setPage(PAGE_VALUE)
       .setPageSize(PAGE_SIZE_VALUE)
-      .setSelected(SELECTED_VALUE)
       .setQuery(QUERY_VALUE));
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.WsGroupsResponse.parser());
@@ -96,7 +95,6 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
       .hasParam(PARAM_P, PAGE_VALUE)
       .hasParam(PARAM_PS, PAGE_SIZE_VALUE)
-      .hasParam(PARAM_SELECTED, SELECTED_VALUE)
       .hasParam(PARAM_Q, QUERY_VALUE)
       .andNoOtherParam();
   }

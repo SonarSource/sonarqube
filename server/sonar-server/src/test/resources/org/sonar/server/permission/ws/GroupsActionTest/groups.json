@@ -1,19 +1,29 @@
 {
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 20,
+    "total": 3
+  },
   "groups": [
+    {
+      "name": "Anyone",
+      "permissions": [
+        "scan"
+      ]
+    },
     {
       "name": "group-1-name",
       "description": "group-1-description",
-      "selected": true
+      "permissions": [
+        "scan"
+      ]
     },
     {
       "name": "group-2-name",
       "description": "group-2-description",
-      "selected": true
+      "permissions": [
+        "scan"
+      ]
     }
-  ],
-  "paging": {
-    "pageIndex": 1,
-    "pageSize": 100,
-    "total": 2
-  }
+  ]
 }

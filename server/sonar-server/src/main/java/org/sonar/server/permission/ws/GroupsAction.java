@@ -20,30 +20,32 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.common.io.Resources;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
 import org.sonarqube.ws.client.permission.GroupsWsRequest;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
+import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
+import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
-import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
@@ -70,18 +72,18 @@ public class GroupsAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction("groups")
       .setSince("5.2")
       .setInternal(true)
-      .setDescription(String.format("Lists the groups that have been explicitly granted the specified permission. <br />" +
-        "This service defaults to global permissions, but can be limited to project permissions by providing a project id or project key. <br />" +
-        "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'. <br />" +
-        "It requires administration permissions to access.",
-        Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
-      .addPagingParams(100)
-      .addSearchQuery("sonar", "names")
-      .addSelectionModeParam()
+      .setDescription("Lists the groups with their permissions.<br>" +
+        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +
+        "This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>" +
+        "It requires administration permissions to access.")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
+      .addSearchQuery("sonar", "names").setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
+        "When this parameter is not set, only groups having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
 
-    createPermissionParameter(action);
+    createPermissionParameter(action)
+      .setRequired(false);
     createProjectParameters(action);
   }
 
@@ -98,77 +100,67 @@ public class GroupsAction implements PermissionsWsAction {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey()));
       checkProjectAdminUserByComponentDto(userSession, project);
 
-      OldPermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
-      int total = dbClient.permissionDao().countGroups(dbSession, permissionQuery.permission(), projectIdIfPresent);
-      List<GroupWithPermissionDto> groupsWithPermission = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
-      return buildResponse(groupsWithPermission, request, total);
+      PermissionQuery.Builder dbQuery = buildPermissionQuery(request, project);
+      List<GroupDto> groups = permissionFinder.findGroups(dbSession, dbQuery);
+      int total = dbClient.permissionDao().countGroupsByPermissionQuery(dbSession, dbQuery.build());
+      List<GroupRoleDto> groupsWithPermission = permissionFinder.findGroupPermissions(dbSession, dbQuery, groups);
+      return buildResponse(groups, groupsWithPermission, Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(total));
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
   private static GroupsWsRequest toGroupsWsRequest(Request request) {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String projectUuid = request.param(PARAM_PROJECT_ID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
-    if (newOptionalWsProjectRef(projectUuid, projectKey).isPresent()) {
-      validateProjectPermission(permission);
-    } else {
-      validateGlobalPermission(permission);
-    }
-
-    return new GroupsWsRequest()
-      .setPermission(permission)
-      .setProjectId(projectUuid)
-      .setProjectKey(projectKey)
+    GroupsWsRequest groupsRequest = new GroupsWsRequest()
+      .setPermission(request.param(PARAM_PERMISSION))
+      .setProjectId(request.param(PARAM_PROJECT_ID))
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setQuery(request.param(Param.TEXT_QUERY))
-      .setSelected(request.mandatoryParam(Param.SELECTED));
+      .setQuery(request.param(Param.TEXT_QUERY));
+
+    Optional<WsProjectRef> wsProjectRef = newOptionalWsProjectRef(groupsRequest.getProjectId(), groupsRequest.getProjectKey());
+    validatePermission(groupsRequest.getPermission(), wsProjectRef);
+    return groupsRequest;
   }
 
-  private static OldPermissionQuery buildPermissionQuery(GroupsWsRequest request, Optional<ComponentDto> project) {
-    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
-      .permission(request.getPermission())
-      .pageIndex(request.getPage())
-      .pageSize(request.getPageSize())
-      .membership(fromSelectionModeToMembership(firstNonNull(request.getSelected(), SelectionMode.SELECTED.value())))
-      .search(request.getQuery());
+  private static PermissionQuery.Builder buildPermissionQuery(GroupsWsRequest request, Optional<ComponentDto> project) {
+    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .setPermission(request.getPermission())
+      .setPageIndex(request.getPage())
+      .setPageSize(request.getPageSize())
+      .setSearchQuery(request.getQuery());
     if (project.isPresent()) {
-      permissionQuery.component(project.get().getKey());
+      permissionQuery.setComponentUuid(project.get().uuid());
     }
-
-    return permissionQuery.build();
+    if (request.getQuery() == null) {
+      permissionQuery.withPermissionOnly();
+    }
+    return permissionQuery;
   }
 
-  private static WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, GroupsWsRequest permissionRequest, int total) {
-    WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
-    Group.Builder group = Group.newBuilder();
-    Common.Paging.Builder paging = Common.Paging.newBuilder();
+  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupRoleDto> groupPermissions, Paging paging) {
+    Multimap<Long, String> permissionsByGroupId = TreeMultimap.create();
+    groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getRole()));
+    WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
 
-    for (GroupWithPermissionDto groupWithPermission : groupsWithPermission) {
-      group
-        .clear()
-        .setName(groupWithPermission.getName())
-        .setSelected(groupWithPermission.getPermission() != null);
-      // anyone group return with id = 0
-      if (groupWithPermission.getId() != 0) {
-        group.setId(String.valueOf(groupWithPermission.getId()));
+    groups.forEach(group -> {
+      Group.Builder wsGroup = response.addGroupsBuilder()
+        .setName(group.getName());
+      if (group.getId() != 0L) {
+        wsGroup.setId(String.valueOf(group.getId()));
       }
-      if (groupWithPermission.getDescription() != null) {
-        group.setDescription(groupWithPermission.getDescription());
+      if (group.getDescription() != null) {
+        wsGroup.setDescription(group.getDescription());
       }
+      wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
+    });
 
-      groupsResponse.addGroups(group);
-    }
+    response.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total());
 
-    groupsResponse.setPaging(
-      paging
-        .setPageIndex(permissionRequest.getPage())
-        .setPageSize(permissionRequest.getPageSize())
-        .setTotal(total));
-
-    return groupsResponse.build();
+    return response.build();
   }
 }

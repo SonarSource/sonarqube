@@ -22,8 +22,6 @@ package org.sonarqube.ws.client.permission;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static java.util.Objects.requireNonNull;
-
 public class GroupsWsRequest {
   private String permission;
   private String projectId;
@@ -31,14 +29,14 @@ public class GroupsWsRequest {
   private Integer page;
   private Integer pageSize;
   private String query;
-  private String selected;
 
+  @CheckForNull
   public String getPermission() {
     return permission;
   }
 
-  public GroupsWsRequest setPermission(String permission) {
-    this.permission = requireNonNull(permission, "permission must not be null");
+  public GroupsWsRequest setPermission(@Nullable String permission) {
+    this.permission = permission;
     return this;
   }
 
@@ -89,15 +87,6 @@ public class GroupsWsRequest {
 
   public GroupsWsRequest setQuery(@Nullable String query) {
     this.query = query;
-    return this;
-  }
-
-  public String getSelected() {
-    return selected;
-  }
-
-  public GroupsWsRequest setSelected(String selected) {
-    this.selected = requireNonNull(selected, "selected must not be null");
     return this;
   }
 }

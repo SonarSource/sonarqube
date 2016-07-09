@@ -31,16 +31,16 @@ import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.Group;
-import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
+import org.sonarqube.ws.WsPermissions.OldGroup;
+import org.sonarqube.ws.WsPermissions.WsTemplateGroupsResponse;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class TemplateGroupsAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -82,7 +82,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
       OldPermissionQuery query = buildQuery(wsRequest, template);
-      WsGroupsResponse groupsResponse = buildResponse(dbSession, query, template);
+      WsTemplateGroupsResponse groupsResponse = buildResponse(dbSession, query, template);
 
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
     } finally {
@@ -90,11 +90,11 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     }
   }
 
-  private WsGroupsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
+  private WsTemplateGroupsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
     int total = dbClient.permissionTemplateDao().countGroups(dbSession, query, template.getId());
     List<GroupWithPermissionDto> groupsWithPermission = dbClient.permissionTemplateDao().selectGroups(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
 
-    WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
+    WsTemplateGroupsResponse.Builder groupsResponse = WsTemplateGroupsResponse.newBuilder();
 
     for (GroupWithPermissionDto groupWithPermission : groupsWithPermission) {
       groupsResponse.addGroups(groupDtoToGroupResponse(groupWithPermission));
@@ -123,8 +123,8 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     return permissionQuery.build();
   }
 
-  private static Group groupDtoToGroupResponse(GroupWithPermissionDto groupDto) {
-    Group.Builder groupBuilder = Group.newBuilder();
+  private static OldGroup groupDtoToGroupResponse(GroupWithPermissionDto groupDto) {
+    OldGroup.Builder groupBuilder = OldGroup.newBuilder();
     groupBuilder
       .setName(groupDto.getName())
       .setSelected(groupDto.getPermission() != null);

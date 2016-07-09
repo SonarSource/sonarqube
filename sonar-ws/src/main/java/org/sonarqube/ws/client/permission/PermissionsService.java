@@ -58,7 +58,6 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())
-      .setParam("selected", request.getSelected())
       .setParam("q", request.getQuery());
     return call(get, WsPermissions.WsGroupsResponse.parser());
   }

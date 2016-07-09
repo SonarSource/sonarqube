@@ -39,10 +39,15 @@ message UsersWsResponse {
 }
 
 // WS api/permissions/groups for internal use only
-// and WS api/permissions/template_groups for internal use only
 message WsGroupsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Group groups = 2;
+}
+
+// WS api/permissions/template_groups for internal use only
+message WsTemplateGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated OldGroup groups = 2;
 }
 
 message WsSearchGlobalPermissionsResponse {
@@ -117,9 +122,16 @@ message User {
   repeated string permissions = 4;
 }
 
-message Group {
+message OldGroup {
   optional string id = 1;
   optional string name = 2;
   optional string description = 3;
   optional bool selected = 4;
+}
+
+message Group {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  repeated string permissions = 4;
 }

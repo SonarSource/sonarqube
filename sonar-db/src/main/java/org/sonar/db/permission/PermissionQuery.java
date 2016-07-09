@@ -134,6 +134,7 @@ public class PermissionQuery {
     }
 
     public Builder setPermission(@Nullable String permission) {
+      this.withPermissionOnly = permission != null;
       this.permission = permission;
       return this;
     }

@@ -19,128 +19,52 @@
  */
 package org.sonar.server.permission;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import java.util.Collection;
+import com.google.common.collect.Ordering;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.Paging;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionDao;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.user.GroupDao;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupRoleDto;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.sonar.api.utils.Paging.forPageIndex;
+import static java.util.Collections.emptyList;
 
 @ServerSide
 public class PermissionFinder {
 
   private final PermissionDao permissionDao;
-  private final ResourceDao resourceDao;
+  private final GroupDao groupDao;
 
   public PermissionFinder(DbClient dbClient) {
-    this.resourceDao = dbClient.resourceDao();
     this.permissionDao = dbClient.permissionDao();
+    this.groupDao = dbClient.groupDao();
   }
 
-  /**
-   * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
-   */
-  public List<GroupWithPermissionDto> findGroupsWithPermission(DbSession dbSession, OldPermissionQuery query) {
-    Long componentId = componentId(query.component());
-    return toGroupQueryResult(permissionDao.selectGroups(dbSession, query, componentId), query);
-  }
+  public List<GroupDto> findGroups(DbSession dbSession, PermissionQuery.Builder dbQuery) {
+    List<String> orderedNames = permissionDao.selectGroupNamesByPermissionQuery(dbSession, dbQuery.build());
 
-  @Nullable
-  private Long componentId(@Nullable String componentKey) {
-    if (componentKey == null) {
-      return null;
-    } else {
-      ResourceDto resourceDto = resourceDao.selectResource(ResourceQuery.create().setKey(componentKey));
-      if (resourceDto == null) {
-        throw new NotFoundException(String.format("Project '%s' does not exist", componentKey));
-      }
-      return resourceDto.getId();
-    }
-  }
-
-  private static List<GroupWithPermissionDto> toGroupQueryResult(List<GroupWithPermissionDto> dtos, OldPermissionQuery query) {
-    addAnyoneGroup(dtos, query);
-    List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
-
-    Paging paging = forPageIndex(query.pageIndex())
-      .withPageSize(query.pageSize())
-      .andTotal(filteredDtos.size());
-
-    return pagedGroups(filteredDtos, paging);
-  }
-
-  private static List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, OldPermissionQuery query) {
-    return newArrayList(Iterables.filter(dtos, new GroupWithPermissionMatchQuery(query)));
-  }
-
-  /**
-   * As the anyone group does not exists in db, it's not returned when it has not the permission.
-   * We have to manually add it at the begin of the list, if it matched the search text
-   */
-  private static void addAnyoneGroup(List<GroupWithPermissionDto> groups, OldPermissionQuery query) {
-    boolean hasAnyoneGroup = Iterables.any(groups, IsAnyoneGroup.INSTANCE);
-    if (!hasAnyoneGroup
-      && !GlobalPermissions.SYSTEM_ADMIN.equals(query.permission())
-      && (query.search() == null || containsIgnoreCase(DefaultGroups.ANYONE, query.search()))) {
-      groups.add(0, new GroupWithPermissionDto().setName(DefaultGroups.ANYONE));
-    }
-  }
-
-  private static List<GroupWithPermissionDto> pagedGroups(Collection<GroupWithPermissionDto> dtos, Paging paging) {
-    List<GroupWithPermissionDto> groups = newArrayList();
-    int index = 0;
-    for (GroupWithPermissionDto dto : dtos) {
-      if (index >= paging.offset() && groups.size() < paging.pageSize()) {
-        groups.add(dto);
-      } else if (groups.size() >= paging.pageSize()) {
-        break;
-      }
-      index++;
-    }
-    return groups;
-  }
-
-  private static class GroupWithPermissionMatchQuery implements Predicate<GroupWithPermissionDto> {
-    private final OldPermissionQuery query;
-
-    public GroupWithPermissionMatchQuery(OldPermissionQuery query) {
-      this.query = query;
+    List<GroupDto> groups = groupDao.selectByNames(dbSession, orderedNames);
+    if (orderedNames.contains(DefaultGroups.ANYONE)) {
+      groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));
     }
 
-    @Override
-    public boolean apply(@Nonnull GroupWithPermissionDto dto) {
-      if (OldPermissionQuery.IN.equals(query.membership())) {
-        return dto.getPermission() != null;
-      } else if (OldPermissionQuery.OUT.equals(query.membership())) {
-        return dto.getPermission() == null;
-      }
-      return true;
-    }
+    return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private enum IsAnyoneGroup implements Predicate<GroupWithPermissionDto> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull GroupWithPermissionDto group) {
-      return group.getName().equals(DefaultGroups.ANYONE);
+  public List<GroupRoleDto> findGroupPermissions(DbSession dbSession, PermissionQuery.Builder dbQuery, List<GroupDto> groups) {
+    if (groups.isEmpty()) {
+      return emptyList();
     }
+
+    List<String> names = groups.stream().map(GroupDto::getName).collect(Collectors.toList());
+    return permissionDao.selectGroupPermissionsByQuery(dbSession, dbQuery
+      .setGroupNames(names)
+      .withPermissionOnly()
+      .build());
   }
 }
