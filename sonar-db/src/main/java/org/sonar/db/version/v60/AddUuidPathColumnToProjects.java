@@ -24,7 +24,6 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddUuidPathColumnToProjects extends DdlChange {
@@ -38,7 +37,7 @@ public class AddUuidPathColumnToProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDialect(), TABLE_PROJECTS)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(MAX_SIZE).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(1500).setIsNullable(true).build())
       .build());
   }
 

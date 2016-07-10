@@ -24,7 +24,6 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class MakeUuidPathColumnNotNullOnProjects extends DdlChange {
@@ -38,7 +37,7 @@ public class MakeUuidPathColumnNotNullOnProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDialect(), TABLE_PROJECTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(MAX_SIZE).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(1500).setIsNullable(false).build())
       .build());
   }
 

@@ -43,10 +43,10 @@ public class AddBColumnsToProjects extends DdlChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_description").setLimit(2000).setIsNullable(true).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName("b_enabled").build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_language").setLimit(20).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_long_name").setLimit(2000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_long_name").setLimit(500).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid").setLimit(50).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid_path").setLimit(4000).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_name").setLimit(2000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid_path").setLimit(1500).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_name").setLimit(500).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_path").setLimit(2000).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_qualifier").setLimit(3).setIsNullable(true).build())
       .build());
