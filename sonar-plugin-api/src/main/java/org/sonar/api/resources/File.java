@@ -39,18 +39,8 @@ public class File extends Resource {
   private Directory parent;
   private String qualifier = Qualifiers.FILE;
 
-  private final String relativePathFromSourceDir;
-
-  private File() {
+  protected File() {
     // Used by factory method
-    this.relativePathFromSourceDir = null;
-  }
-
-  /**
-   * Internal.
-   */
-  public String relativePathFromSourceDir() {
-    return relativePathFromSourceDir;
   }
 
   /**
