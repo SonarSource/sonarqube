@@ -20,6 +20,7 @@
 package org.sonar.xoo;
 
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarProduct;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -92,13 +93,11 @@ public class XooPlugin implements Plugin {
 
       // sensors
       HasTagSensor.class,
-      MeasureSensor.class,
       LineMeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
       ChecksSensor.class,
       RandomAccessSensor.class,
-      DeprecatedResourceApiSensor.class,
       SaveDataTwiceSensor.class,
 
       OneBlockerIssuePerFileSensor.class,
@@ -129,6 +128,11 @@ public class XooPlugin implements Plugin {
       // Other
       XooProjectBuilder.class,
       XooPostJob.class);
+    
+    if(context.getRuntimeProduct() != SonarProduct.SONARLINT) {
+      context.addExtensions(MeasureSensor.class,
+        DeprecatedResourceApiSensor.class);
+    }
 
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(V5_5)) {
       context.addExtension(CpdTokenizerSensor.class);
