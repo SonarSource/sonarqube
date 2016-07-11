@@ -39,14 +39,7 @@ import {
     getSelectedPermission
 } from '../../shared/store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
-
-export const PERMISSIONS_ORDER = [
-  'user',
-  'codeviewer',
-  'issueadmin',
-  'admin',
-  'scan'
-];
+import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
 
 class AllHoldersList extends React.Component {
   static propTypes = {
@@ -106,7 +99,8 @@ class AllHoldersList extends React.Component {
   }
 
   render () {
-    const permissions = PERMISSIONS_ORDER.map(p => ({
+    const order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.project.qualifier];
+    const permissions = order.map(p => ({
       key: p,
       name: translate('projects_role', p),
       description: translate('projects_role', p, 'desc')
