@@ -62,6 +62,7 @@ public class XooRulesDefinition implements RulesDefinition {
     new RulesDefinitionAnnotationLoader().load(repo, Check.ALL);
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
+      .setActivatedByDefault(true)
       .setHtmlDescription("Search for a given tag in Xoo files");
     hasTag
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().constantPerIssue("2min"));
@@ -80,7 +81,7 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
     oneIssuePerLine
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
+      .setDebtRemediationFunction(oneIssuePerLine.debtRemediationFunctions().linear("1min"))
       .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
     repo.createRule(OneIssueOnDirPerFileSensor.RULE_KEY).setName("One Issue On Dir Per File")
@@ -88,16 +89,16 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerFile = repo.createRule(OneIssuePerFileSensor.RULE_KEY).setName("One Issue Per File")
       .setHtmlDescription("Generate an issue on each file");
-    oneIssuePerFile.setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("10min"));
+    oneIssuePerFile.setDebtRemediationFunction(oneIssuePerFile.debtRemediationFunctions().linear("10min"));
 
     NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
       .setHtmlDescription("Generate an issue on each file with a debt of one day");
-    oneDayDebtPerFile.setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1d"));
+    oneDayDebtPerFile.setDebtRemediationFunction(oneDayDebtPerFile.debtRemediationFunctions().linear("1d"));
 
     NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module")
       .setHtmlDescription("Generate an issue on each module");
     oneIssuePerModule
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setDebtRemediationFunction(oneIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
       .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
 
@@ -120,13 +121,13 @@ public class XooRulesDefinition implements RulesDefinition {
       .setHtmlDescription("Generate a bug issue on each line of a file. It requires the metric \"lines\".")
       .setType(RuleType.BUG);
     oneBugIssuePerLine
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("5min"));
+      .setDebtRemediationFunction(oneBugIssuePerLine.debtRemediationFunctions().linear("5min"));
 
     NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
       .setHtmlDescription("Generate an issue on each module")
       .setType(RuleType.VULNERABILITY);
     oneVulnerabilityIssuePerModule
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setDebtRemediationFunction(oneVulnerabilityIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
       .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
 

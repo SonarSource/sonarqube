@@ -67,6 +67,7 @@
           <pluginKey>xoo</pluginKey>
           <pluginName>Xoo</pluginName>
           <pluginClass>org.sonar.xoo.XooPlugin</pluginClass>
+          <sonarLintSupported>true</sonarLintSupported>
         </configuration>
       </plugin>
     </plugins>

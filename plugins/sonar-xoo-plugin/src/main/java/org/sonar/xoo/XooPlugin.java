@@ -40,6 +40,7 @@ import org.sonar.xoo.rule.CustomMessageSensor;
 import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
+import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
 import org.sonar.xoo.rule.OneBugIssuePerLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
@@ -62,7 +63,7 @@ import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
 import org.sonar.xoo.test.TestExecutionSensor;
 
-import static org.sonar.api.SonarQubeVersion.V5_5;
+import static org.sonar.api.SonarRuntime.V5_5;
 
 /**
  * Plugin entry-point, as declared in pom.xml.
@@ -99,6 +100,7 @@ public class XooPlugin implements Plugin {
       ChecksSensor.class,
       RandomAccessSensor.class,
       SaveDataTwiceSensor.class,
+      NoSonarSensor.class,
 
       OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,
@@ -128,8 +130,8 @@ public class XooPlugin implements Plugin {
       // Other
       XooProjectBuilder.class,
       XooPostJob.class);
-    
-    if(context.getRuntimeProduct() != SonarProduct.SONARLINT) {
+
+    if (context.getRuntimeProduct() != SonarProduct.SONARLINT) {
       context.addExtensions(MeasureSensor.class,
         DeprecatedResourceApiSensor.class);
     }
