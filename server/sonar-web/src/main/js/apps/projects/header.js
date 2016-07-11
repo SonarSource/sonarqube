@@ -19,34 +19,65 @@
  */
 import React from 'react';
 import CreateView from './create-view';
+import BulkApplyTemplateView from './views/BulkApplyTemplateView';
 
-export default React.createClass({
-  propTypes: {
+export default class Header extends React.Component {
+  static propTypes = {
     hasProvisionPermission: React.PropTypes.bool.isRequired
-  },
+  };
 
-  createProject() {
+  createProject () {
     new CreateView({
       refresh: this.props.refresh
     }).render();
-  },
+  }
 
-  renderCreateButton() {
+  bulkApplyTemplate () {
+    new BulkApplyTemplateView({
+      total: this.props.total,
+      selection: this.props.selection,
+      query: this.props.query,
+      qualifier: this.props.qualifier
+    }).render();
+  }
+
+  renderCreateButton () {
     if (!this.props.hasProvisionPermission) {
       return null;
     }
-    return <button onClick={this.createProject}>Create Project</button>;
-  },
+    return (
+        <li>
+          <button onClick={this.createProject.bind(this)}>
+            Create Project
+          </button>
+        </li>
+    );
+  }
 
-  render() {
+  renderBulkApplyTemplateButton () {
+    return (
+        <li>
+          <button onClick={this.bulkApplyTemplate.bind(this)}>
+            Bulk Apply Permission Template
+          </button>
+        </li>
+    );
+  }
+
+  render () {
     return (
         <header className="page-header">
           <h1 className="page-title">Projects Management</h1>
-          <div className="page-actions">{this.renderCreateButton()}</div>
+          <div className="page-actions">
+            <ul className="list-inline">
+              {this.renderCreateButton()}
+              {this.renderBulkApplyTemplateButton()}
+            </ul>
+          </div>
           <p className="page-description">Use this page to delete multiple projects at once, or to provision projects
             if you would like to configure them before the first analysis. Note that once a project is provisioned, you
             have access to perform all project configurations on it.</p>
         </header>
     );
   }
-});
+}

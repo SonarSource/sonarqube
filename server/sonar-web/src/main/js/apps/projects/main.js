@@ -23,7 +23,12 @@ import Header from './header';
 import Search from './search';
 import Projects from './projects';
 import { PAGE_SIZE, TYPE } from './constants';
-import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
+import {
+    getComponents,
+    getProvisioned,
+    getGhosts,
+    deleteComponents
+} from '../../api/components';
 import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
@@ -77,7 +82,7 @@ export default React.createClass({
         break;
       default:
 
-      // should never happen
+        // should never happen
     }
   },
 
@@ -120,7 +125,8 @@ export default React.createClass({
   },
 
   loadMore() {
-    this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
+    this.setState({ ready: false, page: this.state.page + 1 },
+        this.requestProjects);
   },
 
   onSearch(query) {
@@ -187,6 +193,10 @@ export default React.createClass({
         <div className="page">
           <Header
               hasProvisionPermission={this.props.hasProvisionPermission}
+              selection={this.state.selection}
+              total={this.state.total}
+              query={this.state.query}
+              qualifier={this.state.qualifiers}
               refresh={this.requestProjects}/>
 
           <Search {...this.props} {...this.state}

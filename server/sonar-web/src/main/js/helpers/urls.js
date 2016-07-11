@@ -85,6 +85,15 @@ export function getComponentDashboardManagementUrl (componentKey) {
 }
 
 /**
+ * Generate URL for a component's permissions page
+ * @param {string} componentKey
+ * @returns {string}
+ */
+export function getComponentPermissionsUrl (componentKey) {
+  return window.baseUrl + '/project_roles?id=' + encodeURIComponent(componentKey);
+}
+
+/**
  * Generate URL for a quality profile
  * @param {string} key
  * @returns {string}

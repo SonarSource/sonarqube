@@ -19,30 +19,47 @@
  */
 import classNames from 'classnames';
 import React from 'react';
-import { getComponentUrl } from '../../helpers/urls';
+import {
+    getComponentUrl,
+    getComponentPermissionsUrl
+} from '../../helpers/urls';
+import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/qualifier-icon';
+import { translate } from '../../helpers/l10n';
 
-export default React.createClass({
-  propTypes: {
+export default class Projects extends React.Component {
+  static propTypes = {
     projects: React.PropTypes.array.isRequired,
     selection: React.PropTypes.array.isRequired,
     refresh: React.PropTypes.func.isRequired
-  },
+  };
 
-  onProjectCheck(project, checked) {
+  componentWillMount () {
+    this.renderProject = this.renderProject.bind(this);
+  }
+
+  onProjectCheck (project, checked) {
     if (checked) {
       this.props.onProjectSelected(project);
     } else {
       this.props.onProjectDeselected(project);
     }
-  },
+  }
 
-  isProjectSelected(project) {
+  onApplyTemplateClick (project, e) {
+    e.preventDefault();
+    e.target.blur();
+    new ApplyTemplateView({ project }).render();
+  }
+
+  isProjectSelected (project) {
     return this.props.selection.indexOf(project.id) !== -1;
-  },
+  }
 
-  renderProject(project) {
+  renderProject (project) {
+    const permissionsUrl = getComponentPermissionsUrl(project.key);
+
     return (
         <tr key={project.id}>
           <td className="thin">
@@ -50,25 +67,51 @@ export default React.createClass({
                 checked={this.isProjectSelected(project)}
                 onCheck={this.onProjectCheck.bind(this, project)}/>
           </td>
-          <td className="thin">
-            <QualifierIcon qualifier={project.qualifier}/>
-          </td>
           <td className="nowrap">
-            <a href={getComponentUrl(project.key)}>{project.name}</a>
+            <a className="link-with-icon" href={getComponentUrl(project.key)}>
+              <QualifierIcon qualifier={project.qualifier}/>
+              {' '}
+              <span>{project.name}</span>
+            </a>
           </td>
           <td className="nowrap">
             <span className="note">{project.key}</span>
           </td>
+          <td className="thin nowrap">
+            <div className="dropdown">
+              <button className="dropdown-toggle" data-toggle="dropdown">
+                {translate('actions')}
+                {' '}
+                <i className="icon-dropdown"/>
+              </button>
+              <ul className="dropdown-menu dropdown-menu-right">
+                <li>
+                  <a href={permissionsUrl}>
+                    {translate('edit_permissions')}
+                  </a>
+                </li>
+                <li>
+                  <a href={permissionsUrl}
+                     onClick={this.onApplyTemplateClick.bind(this, project)}>
+                    {translate('projects_role.apply_template')}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
         </tr>
     );
-  },
+  }
 
-  render() {
-    const className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
+  render () {
+    const className = classNames('data', 'zebra',
+        { 'new-loading': !this.props.ready }
+    );
+
     return (
         <table className={className}>
           <tbody>{this.props.projects.map(this.renderProject)}</tbody>
         </table>
     );
   }
-});
+}

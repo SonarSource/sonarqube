@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../../../components/common/modal-form';
+import ModalForm from '../../../components/common/modal-form';
 import {
     applyTemplateToProject,
+    bulkApplyTemplate,
     getPermissionTemplates
-} from '../../../../api/permissions';
-import Template from '../templates/ApplyTemplateTemplate.hbs';
+} from '../../../api/permissions';
+import Template from '../templates/BulkApplyTemplateTemplate.hbs';
 
 export default ModalForm.extend({
   template: Template,
@@ -47,15 +48,43 @@ export default ModalForm.extend({
     });
   },
 
+  bulkApplyToAll (permissionTemplate) {
+    const data = { templateId: permissionTemplate };
+
+    if (this.options.query) {
+      data.q = this.options.query;
+    }
+
+    if (this.options.qualifier) {
+      data.qualifier = this.options.qualifier;
+    }
+
+    return bulkApplyTemplate(data);
+  },
+
+  bulkApplyToSelected(permissionTemplate) {
+    const { selection } = this.options;
+    let lastRequest = Promise.resolve();
+
+    selection.forEach(projectId => {
+      const data = { templateId: permissionTemplate, projectId };
+      lastRequest = lastRequest.then(() => applyTemplateToProject(data));
+    });
+
+    return lastRequest;
+  },
+
   onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const permissionTemplate = this.$('#project-permissions-template').val();
+    const applyTo = this.$('[name="apply-to"]:checked').val();
     this.disableForm();
 
-    applyTemplateToProject({
-      projectKey: this.options.project.key,
-      templateId: permissionTemplate
-    }).then(() => {
+    const request = applyTo === 'all' ?
+        this.bulkApplyToAll(permissionTemplate) :
+        this.bulkApplyToSelected(permissionTemplate);
+
+    request.then(() => {
       this.trigger('done');
       this.done = true;
       this.render();
@@ -70,7 +99,9 @@ export default ModalForm.extend({
   serializeData () {
     return {
       permissionTemplates: this.permissionTemplates,
-      project: this.options.project,
+      selection: this.options.selection,
+      selectionTotal: this.options.selection.length,
+      total: this.options.total,
       done: this.done
     };
   }

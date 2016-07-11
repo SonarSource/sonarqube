@@ -114,9 +114,9 @@ export function applyTemplateToProject (data) {
   return post(url, data);
 }
 
-export function bulkApplyTemplateToProject (options) {
-  const url = window.baseUrl + '/api/permissions/bulk_apply_template';
-  return request(_.extend({ type: 'POST', url }, options));
+export function bulkApplyTemplate (data) {
+  const url = '/api/permissions/bulk_apply_template';
+  return post(url, data);
 }
 
 export function addProjectCreatorToTemplate (templateName, permission) {

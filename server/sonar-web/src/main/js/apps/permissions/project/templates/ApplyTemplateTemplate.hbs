@@ -5,26 +5,37 @@
 
   <div class="modal-body">
     <div class="js-modal-messages"></div>
-    {{#notNull permissionTemplates}}
-      <div class="modal-field">
-        <label for="project-permissions-template">
-          Template<em class="mandatory">*</em>
-        </label>
-        <select id="project-permissions-template">
-          {{#each permissionTemplates}}
-            <option value="{{id}}">{{name}}</option>
-          {{/each}}
-        </select>
+
+    {{#if done}}
+      <div class="alert alert-success">
+        {{t 'projects_role.apply_template.success'}}
       </div>
-    {{else}}
-      <i class="spinner"></i>
-    {{/notNull}}
+    {{/if}}
+
+    {{#unless done}}
+      {{#notNull permissionTemplates}}
+        <div class="modal-field">
+          <label for="project-permissions-template">
+            Template<em class="mandatory">*</em>
+          </label>
+          <select id="project-permissions-template">
+            {{#each permissionTemplates}}
+              <option value="{{id}}">{{name}}</option>
+            {{/each}}
+          </select>
+        </div>
+      {{else}}
+        <i class="spinner"></i>
+      {{/notNull}}
+    {{/unless}}
   </div>
 
   <div class="modal-foot">
-    {{#notNull permissionTemplates}}
-      <button id="project-permissions-apply-template">Apply</button>
-    {{/notNull}}
-    <a href="#" class="js-modal-close">Cancel</a>
+    {{#unless done}}
+      {{#notNull permissionTemplates}}
+        <button id="project-permissions-apply-template">Apply</button>
+      {{/notNull}}
+    {{/unless}}
+    <a href="#" class="js-modal-close">Close</a>
   </div>
 </form>
