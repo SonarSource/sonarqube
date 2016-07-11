@@ -21,9 +21,10 @@
 #
 # SonarQube 6.0
 #
-class FixProjectUuidOfDeveloperProjects < ActiveRecord::Migration
+class CleanSomeDataInTableProjects < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v60.FixProjectUuidOfDeveloperProjects')
+    execute_java_migration('org.sonar.db.version.v60.CleanUsurperRootComponents')
   end
 end

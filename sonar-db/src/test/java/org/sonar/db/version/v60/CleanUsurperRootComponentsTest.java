@@ -62,7 +62,7 @@ public class CleanUsurperRootComponentsTest {
       insertComponent("sc3", "qu3"),
       insertComponent("sc4", "qu4")
     };
-    String[] snapshotUuids = {
+    Long[] snapshotIds = {
       insertSnapshot(componentUuids[0], "sc1", "qu1"),
       insertSnapshot(componentUuids[1], "sc2", "quW"),
       insertSnapshot(componentUuids[2], "scX", "qu3"),
@@ -71,10 +71,10 @@ public class CleanUsurperRootComponentsTest {
 
     underTest.execute();
 
-    assertSnapshot(snapshotUuids[0], "sc1", "qu1");
-    assertSnapshot(snapshotUuids[1], "sc2", "qu2");
-    assertSnapshot(snapshotUuids[2], "sc3", "qu3");
-    assertSnapshot(snapshotUuids[3], "sc4", "qu4");
+    assertSnapshot(snapshotIds[0], "sc1", "qu1");
+    assertSnapshot(snapshotIds[1], "sc2", "qu2");
+    assertSnapshot(snapshotIds[2], "sc3", "qu3");
+    assertSnapshot(snapshotIds[3], "sc4", "qu4");
   }
 
   @Test
@@ -101,13 +101,13 @@ public class CleanUsurperRootComponentsTest {
     long usurperId = 12L;
     String usurperUuid = "usurper_uuid";
     insertComponent(Scopes.PROJECT, Qualifiers.MODULE, usurperId, usurperUuid, usurperUuid);
-    insertDuplicationsIndex(usurperUuid);
-    insertProjectMeasures(usurperUuid, dontCare());
-    insertCeActivity(usurperUuid, dontCare());
-    insertEvent(usurperUuid, dontCare());
+    Long snapshotId = insertSnapshot(usurperUuid, usurperUuid);
+    insertDuplicationsIndex(snapshotId);
+    insertProjectMeasures(usurperUuid, dontCareLong());
+    insertCeActivity(usurperUuid, dontCareLong());
+    insertEvent(usurperUuid, dontCareLong());
     insertSnapshot(usurperUuid, dontCare());
     insertSnapshot(dontCare(), usurperUuid);
-    insertSnapshot(usurperUuid, usurperUuid);
     insertProjectLinks(usurperUuid);
     insertIssue(usurperUuid, null);
     insertIssue(null, usurperUuid);
@@ -142,7 +142,7 @@ public class CleanUsurperRootComponentsTest {
       insertComponent(Scopes.PROJECT, "DEV"),
       insertComponent(Scopes.PROJECT, "DEV_PRJ"),
     };
-    String[] snapshotUuids = {
+    Long[] snapshotIds = {
       insertSnapshot(dontCare(), componentUuids[0]),
       insertSnapshot(dontCare(), componentUuids[1]),
       insertSnapshot(dontCare(), componentUuids[2]),
@@ -156,16 +156,16 @@ public class CleanUsurperRootComponentsTest {
 
     underTest.execute();
 
-    assertUuidsInTableProjects("snapshots", snapshotUuids[0], snapshotUuids[4], snapshotUuids[7]);
+    assertIdsInTableProjects("snapshots", snapshotIds[0], snapshotIds[4], snapshotIds[7]);
   }
 
   @Test
   public void execute_deletes_children_tables_of_snapshots_when_root_of_snapshot_is_not_root() throws SQLException {
     String componentUuid = insertComponent(Scopes.FILE, Scopes.FILE);
-    String snapshotUuid = insertSnapshot(dontCare(), componentUuid);
-    insertProjectMeasures(dontCare(), snapshotUuid);
-    insertCeActivity(componentUuid, snapshotUuid);
-    insertEvent(componentUuid, snapshotUuid);
+    Long snapshotId = insertSnapshot(dontCare(), componentUuid);
+    insertProjectMeasures(dontCare(), snapshotId);
+    insertCeActivity(componentUuid, snapshotId);
+    insertEvent(componentUuid, snapshotId);
 
     underTest.execute();
 
@@ -174,11 +174,11 @@ public class CleanUsurperRootComponentsTest {
       .forEach(s -> assertThat(db.countRowsOfTable(s)).describedAs("table " + s).isEqualTo(0));
   }
 
-  private void insertDuplicationsIndex(String componentUuid) {
+  private void insertDuplicationsIndex(Long snapshotId) {
     db.executeInsert(
       "duplications_index",
-      "COMPONENT_UUID", componentUuid,
-      "ANALYSIS_UUID", dontCare(),
+      "PROJECT_SNAPSHOT_ID", valueOf(dontCareLong()),
+      "SNAPSHOT_ID", valueOf(snapshotId),
       "HASH", dontCare(),
       "INDEX_IN_FILE", valueOf(0),
       "START_LINE", valueOf(0),
@@ -186,22 +186,22 @@ public class CleanUsurperRootComponentsTest {
     db.commit();
   }
 
-  private void insertProjectMeasures(String componentUuid, String analysisUuid) {
+  private void insertProjectMeasures(String componentUuid, Long snapshotId) {
     db.executeInsert(
       "project_measures",
       "METRIC_ID", valueOf(123L),
       "COMPONENT_UUID", componentUuid,
-      "ANALYSIS_UUID", analysisUuid);
+      "SNAPSHOT_ID", valueOf(snapshotId));
     db.commit();
   }
 
-  private void insertCeActivity(String componentUuid, String analysisUuid) {
+  private void insertCeActivity(String componentUuid, Long snapshotId) {
     db.executeInsert(
       "ce_activity",
       "UUID", dontCare(),
       "TASK_TYPE", dontCare(),
       "COMPONENT_UUID", componentUuid,
-      "ANALYSIS_UUID", analysisUuid,
+      "SNAPSHOT_ID", valueOf(snapshotId),
       "STATUS", dontCare(),
       "IS_LAST", "true",
       "IS_LAST_KEY", dontCare(),
@@ -211,25 +211,25 @@ public class CleanUsurperRootComponentsTest {
     db.commit();
   }
 
-  private void insertEvent(String componentUuid, String analysisUuid) {
+  private void insertEvent(String componentUuid, Long snapshotId) {
     db.executeInsert(
       "events",
-      "ANALYSIS_UUID", analysisUuid,
+      "SNAPSHOT_ID", valueOf(snapshotId),
       "COMPONENT_UUID", componentUuid,
       "CREATED_AT", valueOf(122L),
       "EVENT_DATE", valueOf(123L));
     db.commit();
   }
 
-  private String insertSnapshot(String componentUuid, String rootComponentUuid) {
-    String uuid = "uuid_" + idGenerator++;
+  private Long insertSnapshot(String componentUuid, String rootComponentUuid) {
+    Long id = idGenerator++;
     db.executeInsert(
       "snapshots",
-      "UUID", uuid,
+      "ID", valueOf(id),
       "COMPONENT_UUID", componentUuid,
       "ROOT_COMPONENT_UUID", rootComponentUuid);
     db.commit();
-    return uuid;
+    return id;
   }
 
   private void insertProjectLinks(String componentUuid) {
@@ -311,37 +311,40 @@ public class CleanUsurperRootComponentsTest {
       "projects",
       "ID", valueOf(id),
       "UUID", uuid,
-      "ROOT_UUID", dontCare(),
       "PROJECT_UUID", projectUuid,
-      "UUID_PATH", dontCare(),
       "SCOPE", scope,
       "QUALIFIER", qualifier);
     db.commit();
     return uuid;
   }
 
-  private String insertSnapshot(String componentUuid, String scope, String qualifier) {
+  private Long insertSnapshot(String componentUuid, String scope, String qualifier) {
     long id = idGenerator++;
-    String uuid = "uuid_" + id;
 
     db.executeInsert(
       "snapshots",
-      "ID", valueOf(id),
-      "UUID", uuid,
+      "id", valueOf(id),
       "component_uuid", componentUuid,
       "root_component_uuid", dontCare(),
       "scope", scope,
       "qualifier", qualifier);
     db.commit();
-    return uuid;
+    return id;
   }
 
-  private void assertSnapshot(String snapshotUuid, String scope, String qualifier) {
-    List<Map<String, Object>> rows = db.select("select SCOPE, QUALIFIER from snapshots where UUID='" + snapshotUuid + "'");
+  private void assertSnapshot(Long snapshotId, String scope, String qualifier) {
+    List<Map<String, Object>> rows = db.select("select SCOPE, QUALIFIER from snapshots where ID=" + snapshotId);
     assertThat(rows).hasSize(1);
     Map<String, Object> row = rows.get(0);
     assertThat(row.get("SCOPE")).isEqualTo(scope);
     assertThat(row.get("QUALIFIER")).isEqualTo(qualifier);
+  }
+
+  private void assertIdsInTableProjects(String tableName, Long... expected) {
+    assertThat(db.select("select id from " + tableName)
+      .stream()
+      .map(stringObjectMap -> (Long) stringObjectMap.entrySet().iterator().next().getValue()))
+        .containsOnly(expected);
   }
 
   private void assertUuidsInTableProjects(String tableName, String... expected) {
@@ -355,5 +358,9 @@ public class CleanUsurperRootComponentsTest {
 
   private String dontCare() {
     return "DC_" + dontCareGenerator++;
+  }
+
+  private Long dontCareLong() {
+    return dontCareGenerator++;
   }
 }

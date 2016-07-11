@@ -35,15 +35,18 @@ public class FixProjectUuidOfDeveloperProjects extends BaseDataChange {
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select distinct developer_uuid from projects where qualifier = 'DEV_PRJ' and project_uuid != developer_uuid");
-    massUpdate.update("update projects set project_uuid = developer_uuid where developer_uuid = ? and qualifier = 'DEV_PRJ' and project_uuid != developer_uuid");
-    massUpdate.rowPluralName("developers in project");
+    massUpdate.select("select distinct p.person_id,d.uuid from projects p, projects d where p.qualifier = 'DEV_PRJ' and p.project_uuid != d.uuid and d.id = p.person_id");
+    massUpdate.update("update projects set project_uuid = ? where person_id = ? and qualifier = 'DEV_PRJ' and project_uuid != ?");
+    massUpdate.rowPluralName("developers with incorrect project_uuid");
     massUpdate.execute(FixProjectUuidOfDeveloperProjects::handleComponent);
   }
 
   private static boolean handleComponent(Select.Row row, SqlStatement update) throws SQLException {
-    String developerUuid = row.getString(1);
+    long personId = row.getLong(1);
+    String developerUuid = row.getString(2);
     update.setString(1, developerUuid);
+    update.setLong(2, personId);
+    update.setString(3, developerUuid);
 
     return true;
   }

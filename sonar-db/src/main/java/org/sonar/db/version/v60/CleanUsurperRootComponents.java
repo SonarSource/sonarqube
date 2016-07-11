@@ -73,7 +73,7 @@ public class CleanUsurperRootComponents extends BaseDataChange {
       " p.scope = 'PRJ'" +
       " and p.qualifier in ('TRK', 'VW', 'DEV')" +
       " )");
-    massUpdate.update("delete from duplications_index where component_uuid=?");
+    massUpdate.update("delete from duplications_index where snapshot_id in (select id from snapshots where component_uuid=?)");
     massUpdate.update("delete from project_measures where component_uuid=?");
     massUpdate.update("delete from ce_activity where component_uuid=?");
     massUpdate.update("delete from events where component_uuid=?");
@@ -122,7 +122,7 @@ public class CleanUsurperRootComponents extends BaseDataChange {
   private void cleanSnapshotWithIncorrectRoot(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select" +
-      " sn.uuid,sn.id" +
+      " sn.id" +
       " from " +
       " projects p, snapshots sn" +
       " where" +
@@ -131,22 +131,19 @@ public class CleanUsurperRootComponents extends BaseDataChange {
       " p.scope = 'PRJ'" +
       " and p.qualifier in ('TRK', 'VW', 'DEV')" +
       " )");
-    massUpdate.update("DELETE from duplications_index WHERE analysis_uuid=?");
-    massUpdate.update("DELETE from project_measures WHERE analysis_uuid=?");
-    massUpdate.update("DELETE from ce_activity WHERE analysis_uuid=?");
-    massUpdate.update("DELETE from events WHERE analysis_uuid=?");
+    massUpdate.update("DELETE from ce_activity WHERE snapshot_id=?");
+    massUpdate.update("DELETE from events WHERE snapshot_id=?");
+    massUpdate.update("DELETE from project_measures WHERE snapshot_id=?");
+    massUpdate.update("DELETE from duplications_index WHERE project_snapshot_id=?");
     massUpdate.update("DELETE from snapshots WHERE id=?");
     massUpdate.rowPluralName("snapshots with incorrect root");
     massUpdate.execute((row, update, updateIndex) -> {
-      String analysisUuid = row.getString(1);
-      long snapshotId = row.getLong(2);
+      long snapshotId = row.getLong(1);
       switch (updateIndex) {
         case 0:
         case 1:
         case 2:
         case 3:
-          update.setString(1, analysisUuid);
-          return true;
         case 4:
           update.setLong(1, snapshotId);
           return true;

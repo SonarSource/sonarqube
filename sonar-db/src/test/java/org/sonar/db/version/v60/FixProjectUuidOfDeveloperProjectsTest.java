@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FixProjectUuidOfDeveloperProjectsTest {
@@ -40,7 +41,7 @@ public class FixProjectUuidOfDeveloperProjectsTest {
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FixProjectUuidOfDeveloperProjectsTest.class,
-    "in_progress_projects.sql");
+    "projects_5.6.sql");
 
   private FixProjectUuidOfDeveloperProjects underTest = new FixProjectUuidOfDeveloperProjects(db.database());
 
@@ -84,9 +85,9 @@ public class FixProjectUuidOfDeveloperProjectsTest {
     insert(PROJECT_UUID, "TRK", null, PROJECT_UUID);
     insert(FILE_UUID, "FIL", null, PROJECT_UUID);
     // developer
-    insert(DEVELOPER_UUID, "DEV", DEVELOPER_UUID, DEVELOPER_UUID);
-    insert(DEV1_IN_PROJECT_UUID, "DEV_PRJ", DEVELOPER_UUID, /* not correct */PROJECT_UUID);
-    insert(DEV2_IN_PROJECT_UUID, "DEV_PRJ", DEVELOPER_UUID, /* not correct */PROJECT_UUID);
+    Long personId = insert(DEVELOPER_UUID, "DEV", null, DEVELOPER_UUID);
+    insert(DEV1_IN_PROJECT_UUID, "DEV_PRJ", personId, /* not correct */PROJECT_UUID);
+    insert(DEV2_IN_PROJECT_UUID, "DEV_PRJ", personId, /* not correct */PROJECT_UUID);
     db.commit();
   }
 
@@ -95,14 +96,17 @@ public class FixProjectUuidOfDeveloperProjectsTest {
     assertThat(rows.get("projectUuid")).isEqualTo(expectedProjectUuid);
   }
 
-  private String insert(String uuid, String qualifier, @Nullable String developerUuid, String projectUuid) {
+  private Long insert(String uuid, String qualifier, @Nullable Long personId, String projectUuid) {
     db.executeInsert(
       TABLE_PROJECTS,
       "UUID", uuid,
-      "DEVELOPER_UUID", developerUuid,
+      "PERSON_ID", personId == null ? null : valueOf(personId),
       "PROJECT_UUID", projectUuid,
-      "ROOT_UUID", "NOT_USED",
       "QUALIFIER", qualifier);
-    return uuid;
+    db.commit();
+    return db.select("select ID from projects where UUID='" + uuid + "'").stream()
+      .findFirst()
+      .map(f -> (Long) f.get("ID"))
+      .orElseThrow(() -> new IllegalStateException("NO ID??"));
   }
 }
