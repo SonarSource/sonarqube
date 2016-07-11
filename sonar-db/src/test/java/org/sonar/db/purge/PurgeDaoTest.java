@@ -21,9 +21,9 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -77,15 +77,6 @@ public class PurgeDaoTest {
   }
 
   @Test
-  @Ignore("TODO")
-  public void delete_file_sources_of_disabled_resources() {
-    dbTester.prepareDbUnit(getClass(), "delete_file_sources_of_disabled_resources.xml");
-    underTest.purge(dbSession, newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
-    dbSession.commit();
-    dbTester.assertDbUnit(getClass(), "delete_file_sources_of_disabled_resources-result.xml", "file_sources");
-  }
-
-  @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
     PurgeConfiguration conf = new PurgeConfiguration(
@@ -98,13 +89,12 @@ public class PurgeDaoTest {
   }
 
   @Test
-  @Ignore("TODO")
-  public void disable_resources_without_last_snapshot() {
-    dbTester.prepareDbUnit(getClass(), "disable_resources_without_last_snapshot.xml");
+  public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
+    dbTester.prepareDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components.xml");
     when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(dbSession, newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
-    dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml",
+    dbTester.assertDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components-result.xml",
       new String[] {"issue_close_date", "issue_update_date"},
       "projects", "snapshots", "issues");
   }
@@ -245,7 +235,7 @@ public class PurgeDaoTest {
     return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, System2.INSTANCE, Collections.emptyList());
   }
 
-  private static PurgeConfiguration newConfigurationWith30Days(System2 system2) {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, Collections.emptyList());
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String... disabledComponentUuids) {
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, Arrays.asList(disabledComponentUuids));
   }
 }

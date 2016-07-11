@@ -1,3 +1,11 @@
+<!--
+
+What has been changed :
+* enabled=false on projects
+* purge_status=1 on snapshots
+* resolve not already resolved issues on all components
+
+-->
 <dataset>
 
   <!-- the project -->
@@ -20,8 +28,19 @@
             deprecated_kee="[null]"
             authorization_updated_at="[null]"
             id="1"
-            enabled="[true]"
-            root_uuid="P1"/>
+            enabled="[false]"
+            root_uuid="P1"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"/>
 
   <!-- the directory -->
   <projects uuid="EFGH"
@@ -43,8 +62,19 @@
             deprecated_kee="[null]"
             authorization_updated_at="[null]"
             id="2"
-            enabled="[true]"
-            root_uuid="P1"/>
+            enabled="[false]"
+            root_uuid="P1"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"/>
 
   <!-- the file -->
   <projects uuid="GHIJ"
@@ -66,15 +96,26 @@
             deprecated_kee="[null]"
             authorization_updated_at="[null]"
             id="3"
-            enabled="[true]"
-            root_uuid="P1"/>
+            enabled="[false]"
+            root_uuid="P1"
+            b_changed="[false]"
+            b_copy_component_uuid="[null]"
+            b_description="[null]"
+            b_enabled="[false]"
+            b_language="[null]"
+            b_long_name="[null]"
+            b_module_uuid="[null]"
+            b_module_uuid_path="[null]"
+            b_name="[null]"
+            b_path="[null]"
+            b_qualifier="[null]"/>
 
   <snapshots id="1"
              uuid="u1"
              component_uuid="P1"
              status="P"
              islast="[false]"
-             purge_status="[null]"
+             purge_status="1"
              period1_mode="[null]"
              period1_param="[null]"
              period1_date="[null]"
@@ -93,16 +134,16 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-  />
+      />
 
   <!-- Open issue on file -->
   <issues id="1"
           kee="ISSUE-1"
           component_uuid="GHIJ"
           project_uuid="P1"
-          status="OPEN"
-          issue_close_date="[null]"
-          resolution="[null]"
+          status="CLOSED"
+          issue_close_date="1396994400000"
+          resolution="REMOVED"
           line="200"
           severity="BLOCKER"
           reporter="[null]"
@@ -116,21 +157,23 @@
           issue_attributes="[null]"
           checksum="[null]"
           author_login="[null]"
-          updated_at="[null]"
+          updated_at="1450000000000"
           issue_creation_date="1366063200000"
-          issue_update_date="1366063200000"
+          issue_update_date="1396994400000"
           created_at="1450000000000"
+          tags="[null]"
           locations="[null]"
-          issue_type="[null]"/>
+          issue_type="[null]"
+      />
 
   <!-- Open issue on directory -->
   <issues id="2"
           kee="ISSUE-2"
           component_uuid="EFGH"
           project_uuid="P1"
-          status="OPEN"
-          issue_close_date="[null]"
-          resolution="[null]"
+          status="CLOSED"
+          issue_close_date="1396994400000"
+          resolution="REMOVED"
           line="[null]"
           severity="BLOCKER"
           reporter="[null]"
@@ -144,10 +187,11 @@
           issue_attributes="[null]"
           checksum="[null]"
           author_login="[null]"
-          updated_at="[null]"
+          updated_at="1450000000000"
           issue_creation_date="1366063200000"
-          issue_update_date="1366063200000"
+          issue_update_date="1396994400000"
           created_at="1450000000000"
+          tags="[null]"
           locations="[null]"
           issue_type="[null]"/>
 
@@ -156,9 +200,9 @@
           kee="ISSUE-3"
           component_uuid="P1"
           project_uuid="P1"
-          status="CONFIRM"
-          issue_close_date="[null]"
-          resolution="[null]"
+          status="CLOSED"
+          issue_close_date="1396994400000"
+          resolution="REMOVED"
           line="[null]"
           severity="BLOCKER"
           reporter="[null]"
@@ -172,10 +216,11 @@
           issue_attributes="[null]"
           checksum="[null]"
           author_login="[null]"
-          updated_at="[null]"
+          updated_at="1450000000000"
           issue_creation_date="1366063200000"
-          issue_update_date="1366063200000"
+          issue_update_date="1396994400000"
           created_at="1450000000000"
+          tags="[null]"
           locations="[null]"
           issue_type="[null]"/>
 
@@ -204,6 +249,7 @@
           issue_creation_date="1366063200000"
           issue_update_date="1396908000000"
           created_at="1450000000000"
+          tags="[null]"
           locations="[null]"
           issue_type="[null]"/>
 
