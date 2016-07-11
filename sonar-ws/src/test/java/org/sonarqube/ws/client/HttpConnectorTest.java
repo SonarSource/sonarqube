@@ -19,13 +19,13 @@
  */
 package org.sonarqube.ws.client;
 
+import java.io.File;
+import java.util.List;
+import javax.net.ssl.SSLSocketFactory;
 import okhttp3.ConnectionSpec;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import java.io.File;
-import java.util.List;
-import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +40,6 @@ import static okhttp3.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonarqube.ws.client.HttpConnector.newBuilder;
 
 public class HttpConnectorTest {
@@ -50,7 +49,6 @@ public class HttpConnectorTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  HttpConnector.JavaVersion javaVersion = mock(HttpConnector.JavaVersion.class);
   MockWebServer server;
   String serverUrl;
 
@@ -281,19 +279,8 @@ public class HttpConnectorTest {
   }
 
   @Test
-  public void support_tls_1_2_on_java7() {
-    when(javaVersion.isJava7()).thenReturn(true);
-    underTest = HttpConnector.newBuilder().url(serverUrl).build(javaVersion);
-
-    assertTlsAndClearTextSpecifications(underTest);
-    // enable TLS 1.0, 1.1 and 1.2
-    assertThat(underTest.okHttpClient().sslSocketFactory()).isNotNull().isInstanceOf(Tls12Java7SocketFactory.class);
-  }
-
-  @Test
   public void support_tls_versions_of_java8() {
-    when(javaVersion.isJava7()).thenReturn(false);
-    underTest = HttpConnector.newBuilder().url(serverUrl).build(javaVersion);
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
 
     assertTlsAndClearTextSpecifications(underTest);
     assertThat(underTest.okHttpClient().sslSocketFactory()).isInstanceOf(SSLSocketFactory.getDefault().getClass());

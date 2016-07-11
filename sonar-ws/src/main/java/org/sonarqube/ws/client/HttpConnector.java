@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.Map;
@@ -65,7 +64,7 @@ public class HttpConnector implements WsConnector {
   private final String proxyCredentials;
   private final OkHttpClient okHttpClient;
 
-  private HttpConnector(Builder builder, JavaVersion javaVersion) {
+  private HttpConnector(Builder builder) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
     checkArgument(this.baseUrl!=null, "Malformed URL: '%s'", builder.url);
     this.userAgent = builder.userAgent;
@@ -84,10 +83,10 @@ public class HttpConnector implements WsConnector {
     } else {
       this.proxyCredentials = Credentials.basic(builder.proxyLogin, nullToEmpty(builder.proxyPassword));
     }
-    this.okHttpClient = buildClient(builder, javaVersion);
+    this.okHttpClient = buildClient(builder);
   }
 
-  private static OkHttpClient buildClient(Builder builder, JavaVersion javaVersion) {
+  private static OkHttpClient buildClient(Builder builder) {
     OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
     if (builder.proxy != null) {
       okHttpClientBuilder.proxy(builder.proxy);
@@ -102,31 +101,17 @@ public class HttpConnector implements WsConnector {
       .supportsTlsExtensions(true)
       .build();
     okHttpClientBuilder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
-    okHttpClientBuilder.sslSocketFactory(createSslSocketFactory(javaVersion));
+    okHttpClientBuilder.sslSocketFactory(createSslSocketFactory());
 
     return okHttpClientBuilder.build();
   }
 
-  private static SSLSocketFactory createSslSocketFactory(JavaVersion javaVersion) {
+  private static SSLSocketFactory createSslSocketFactory() {
     try {
-      SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-      return enableTls12InJava7(sslSocketFactory, javaVersion);
+      return (SSLSocketFactory) SSLSocketFactory.getDefault();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to init TLS context", e);
     }
-  }
-
-  private static SSLSocketFactory enableTls12InJava7(SSLSocketFactory sslSocketFactory, JavaVersion javaVersion) {
-    if (javaVersion.isJava7()) {
-      // OkHttp executes SSLContext.getInstance("TLS") by default (see
-      // https://github.com/square/okhttp/blob/c358656/okhttp/src/main/java/com/squareup/okhttp/OkHttpClient.java#L616)
-      // As only TLS 1.0 is enabled by default in Java 7, the SSLContextFactory must be changed
-      // in order to support all versions from 1.0 to 1.2.
-      // Note that this is not overridden for Java 8 as TLS 1.2 is enabled by default.
-      // Keeping getInstance("TLS") allows to support potential future versions of TLS on Java 8.
-      return new Tls12Java7SocketFactory(sslSocketFactory);
-    }
-    return sslSocketFactory;
   }
 
   @Override
@@ -309,19 +294,9 @@ public class HttpConnector implements WsConnector {
     }
 
     public HttpConnector build() {
-      return build(new JavaVersion());
-    }
-
-    @VisibleForTesting
-    HttpConnector build(JavaVersion javaVersion) {
       checkArgument(!isNullOrEmpty(url), "Server URL is not defined");
-      return new HttpConnector(this, javaVersion);
+      return new HttpConnector(this);
     }
   }
 
-  static class JavaVersion {
-    boolean isJava7() {
-      return System.getProperty("java.version").startsWith("1.7.");
-    }
-  }
 }
