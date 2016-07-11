@@ -64,7 +64,11 @@ public class AnalysisErrorSensorTest {
     Path baseDir = temp.newFolder().toPath().toAbsolutePath();
     createErrorFile(baseDir);
 
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    int[] offsets = {10, 20, 30, 40};
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo")
+      .setLanguage("xoo")
+      .setOriginalLineOffsets(offsets)
+      .setLines(4);
     context = SensorContextTester.create(baseDir);
     context.fileSystem().add(inputFile);
 
