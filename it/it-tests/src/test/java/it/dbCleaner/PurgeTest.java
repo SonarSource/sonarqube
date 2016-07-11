@@ -32,7 +32,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -48,11 +47,10 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
-@Ignore("FIXME https://jira.sonarsource.com/browse/SONAR-7700")
 public class PurgeTest {
 
-  private static final String COUNT_FILE_MEASURES = "project_measures pm, snapshots s where pm.snapshot_id = s.id and s.scope='FIL'";
-  private static final String COUNT_DIR_MEASURES = "project_measures pm, snapshots s where pm.snapshot_id = s.id and s.scope='DIR'";
+  private static final String COUNT_FILE_MEASURES = "project_measures pm, projects p where p.uuid = pm.component_uuid and p.scope='FIL'";
+  private static final String COUNT_DIR_MEASURES = "project_measures pm, projects p where p.uuid = pm.component_uuid and p.scope='DIR'";
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
   private static final String PROJECT_SAMPLE_PATH = "dbCleaner/xoo-multi-modules-sample";
 
@@ -160,13 +158,13 @@ public class PurgeTest {
   public void should_keep_only_one_snapshot_per_day() {
     scan(PROJECT_SAMPLE_PATH);
 
-    int snapshotsCount = count("snapshots where qualifier<>'LIB'");
+    int snapshotsCount = count("snapshots");
     int measuresCount = count("project_measures");
     // Using the "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay" property set to '0' is the way
     // to keep only 1 snapshot per day
     setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0");
     scan(PROJECT_SAMPLE_PATH);
-    assertThat(count("snapshots where qualifier<>'LIB'")).as("Different number of snapshots").isEqualTo(snapshotsCount);
+    assertThat(count("snapshots")).as("Different number of snapshots").isEqualTo(snapshotsCount);
 
     int measureOnNewMetrics = count("project_measures, metrics where metrics.id = project_measures.metric_id and metrics.name like 'new_%'");
     // Number of measures should be the same as previous, with the measures on new metrics
@@ -220,16 +218,16 @@ public class PurgeTest {
   @Test
   public void should_delete_removed_modules() {
     scan("dbCleaner/modules/before");
-    assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_b");
-    assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
+    assertExists("com.sonarsource.it.samples:multi-modules-sample:module_b");
+    assertExists("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
 
     // we want the previous snapshot to be purged
     setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0");
 
     scan("dbCleaner/modules/after");
-    assertDeleted("com.sonarsource.it.samples:multi-modules-sample:module_b");
-    assertDeleted("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
-    assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_c:module_c1");
+    assertDisabled("com.sonarsource.it.samples:multi-modules-sample:module_b");
+    assertDisabled("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
+    assertExists("com.sonarsource.it.samples:multi-modules-sample:module_c:module_c1");
   }
 
   /**
@@ -237,12 +235,13 @@ public class PurgeTest {
    */
   @Test
   public void should_delete_removed_files() {
+    String fileKey = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo";
     scan("dbCleaner/files/before");
-    assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo");
+    assertExists(fileKey);
 
     scan("dbCleaner/files/after");
-    assertDeleted("src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo");
-    assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/NewHelloA1.xoo");
+    assertDisabled(fileKey);
+    assertExists("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/NewHelloA1.xoo");
   }
 
   /**
@@ -297,14 +296,33 @@ public class PurgeTest {
     assertThat(count(selectComplexityInClasses)).isEqualTo(complexitInClassesCount);
   }
 
-  private void assertDeleted(String key) {
-    assertThat(count("snapshots s where s.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
+  private void assertDisabled(String key) {
+    assertThat(enabledStatusOfComponent(key)).isFalse();
     assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
   }
 
-  private void assertSingleSnapshot(String key) {
-    assertThat(count("snapshots s where s.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isEqualTo(1);
+  private void assertExists(String key) {
+    assertThat(enabledStatusOfComponent(key)).isTrue();
     assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isGreaterThan(1);
+  }
+
+  private Boolean enabledStatusOfComponent(String key) {
+    return orchestrator.getDatabase().executeSql("select enabled from projects p where p.kee='" + key + "'")
+      .stream()
+      .findFirst()
+      .map(PurgeTest::toBoolean)
+      .orElse(null);
+  }
+
+  private static Boolean toBoolean(Map<String, String> s) {
+    String value = s.get("ENABLED");
+    if (value.equalsIgnoreCase("true") || value.equals("1")) {
+      return true;
+    }
+    if (value.equalsIgnoreCase("false") || value.equals("0")) {
+      return false;
+    }
+    throw new IllegalArgumentException("Unsupported value can not be converted to boolean " + value);
   }
 
   private BuildResult scan(String path, String date) {
@@ -334,7 +352,7 @@ public class PurgeTest {
   }
 
   private int countMeasures(String qualifier) {
-    String sql = "SELECT count(1) FROM project_measures pm, snapshots s, metrics m where pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='" + qualifier + "'";
+    String sql = "SELECT count(1) FROM project_measures pm, projects p, metrics m where p.uuid=pm.component_uuid and pm.metric_id=m.id and p.qualifier='" + qualifier + "'";
     return orchestrator.getDatabase().countSql(sql);
   }
 
