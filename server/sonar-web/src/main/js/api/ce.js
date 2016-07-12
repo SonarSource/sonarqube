@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import { getJSON, post } from '../helpers/request.js';
+import { getJSON, post } from '../helpers/request';
 
 export function getQueue (data) {
   const url = window.baseUrl + '/api/ce/queue';
@@ -58,9 +58,9 @@ export function cancelAllTasks () {
 }
 
 export function getTasksForComponent (componentId) {
-  const url = window.baseUrl + '/api/ce/component';
+  const url = '/api/ce/component';
   const data = { componentId };
-  return new Promise(resolve => $.get(url, data).done(resolve));
+  return getJSON(url, data);
 }
 
 export function getTypes () {

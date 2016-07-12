@@ -364,6 +364,20 @@ public class ComponentNavigationActionTest {
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
   }
 
+  @Test
+  public void work_with_only_system_admin() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop").setLanguage("xoo");
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project));
+    dbTester.getSession().commit();
+
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    WsTester wsTester = newdWsTester(createViews());
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute();
+  }
+
   private WsTester newdWsTester(View... views) {
     return new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule,
       new ComponentFinder(dbClient))));

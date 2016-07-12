@@ -24,7 +24,7 @@ class ProjectRolesController < ApplicationController
 
   def index
     @project = Project.by_key(params[:id])
-    access_denied unless is_admin?(@project)
+    access_denied unless is_admin? || is_admin?(@project)
   end
 
 end
