@@ -28,6 +28,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class PermissionsWsTest {
 
@@ -62,7 +63,7 @@ public class PermissionsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION).isRequired()).isTrue();
+    assertThat(action.param(PARAM_PERMISSION).isRequired()).isFalse();
   }
 
   @Test
@@ -73,7 +74,7 @@ public class PermissionsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION).isRequired()).isTrue();
+    assertThat(action.param(PARAM_PERMISSION).isRequired()).isTrue();
   }
 
   private WebService.Controller controller() {

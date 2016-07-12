@@ -1,7 +1,7 @@
 {
   "paging": {
     "pageIndex": 1,
-    "pageSize": 100,
+    "pageSize": 20,
     "total": 2
   },
   "users": [
@@ -9,14 +9,18 @@
       "login": "admin",
       "name": "Administrator",
       "email": "admin@admin.com",
-      "selected": true
+      "permissions": [
+        "codeviewer"
+      ]
     },
     {
       "login": "george.orwell",
       "name": "George Orwell",
       "email": "george.orwell@1984.net",
-      "selected": true
+      "permissions": [
+        "admin",
+        "codeviewer"
+      ]
     }
   ]
 }
-

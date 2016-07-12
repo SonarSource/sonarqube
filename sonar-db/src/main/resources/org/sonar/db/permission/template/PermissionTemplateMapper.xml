@@ -66,15 +66,42 @@
     WHERE group_id = #{groupId}
   </delete>
 
+  <select id="selectUserLoginsByQueryAndTemplate" parameterType="map" resultType="string">
+    SELECT u.login FROM
+      (SELECT DISTINCT u.login AS login, u.name AS name
+      <include refid="userLoginsByQueryAndTemplate"/>
+      ) u
+    ORDER BY u.name
+  </select>
+
+  <select id="countUserLoginsByQueryAndTemplate" parameterType="map" resultType="int">
+    SELECT count(1)
+      FROM (
+      SELECT DISTINCT u.login AS login, u.name AS name
+      <include refid="userLoginsByQueryAndTemplate"/>) u
+  </select>
+
+  <sql id="userLoginsByQueryAndTemplate">
+    FROM users u
+    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id AND ptu.template_id=#{templateId}
+    <where>
+      u.active = ${_true}
+      <if test="query.getSearchQueryToSql() != null">
+        AND lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
+      </if>
+      <if test="query.withPermissionOnly()">
+        and ptu.permission_reference is not null
+        <if test="query.getPermission()!=null">
+          and ptu.permission_reference=#{query.permission}
+        </if>
+      </if>
+    </where>
+  </sql>
+
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, u.email, ptu.permission_reference as permission
     <include refid="usersSelection"/>
     ORDER BY u.name
-  </select>
-
-  <select id="countUsers" parameterType="map" resultType="int">
-    SELECT count(u.login)
-    <include refid="usersSelection"/>
   </select>
 
   <sql id="usersSelection">
@@ -107,9 +134,9 @@
     AND ptg.template_id=#{templateId}
 
     <if test="!query.permission().equals(projectAdminPermission)">
-    UNION
-    -- Add Anyone group permission
-    SELECT
+      UNION
+      -- Add Anyone group permission
+      SELECT
       #{anyoneGroup} as name,
       NULL as description,
       (select ptg.permission_reference
@@ -119,7 +146,7 @@
         AND ptg.template_id=#{templateId}
         AND ptg.group_id IS NULL
       </where>) as permission
-    FROM groups g
+      FROM groups g
     </if>
 
     ) groups
@@ -218,8 +245,7 @@
     WHERE UPPER(name)=#{templateName}
   </select>
 
-  <select id="selectUserPermissionsByTemplateId" parameterType="Long" resultType="PermissionTemplateUser">
-    SELECT
+  <sql id="permissionTemplateUserColumns">
     ptu.id,
     ptu.template_id as templateId,
     ptu.permission_reference AS permission,
@@ -228,9 +254,21 @@
     u.login AS userLogin,
     ptu.created_at AS createdAt,
     ptu.updated_at AS updatedAt
+  </sql>
+
+  <select id="selectUserPermissionsByTemplateIdAndUserLogins" parameterType="Long" resultType="PermissionTemplateUser">
+    SELECT
+    <include refid="permissionTemplateUserColumns"/>
     FROM perm_templates_users ptu
     INNER JOIN users u ON u.id = ptu.user_id AND u.active = ${_true}
-    WHERE ptu.template_id = #{templateId}
+    <where>
+      AND ptu.template_id = #{templateId}
+      <if test="!logins.isEmpty()">
+        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">
+          #{login}
+        </foreach>
+      </if>
+    </where>
   </select>
 
   <select id="selectGroupPermissionsByTemplateId" parameterType="Long" resultType="PermissionTemplateGroup">

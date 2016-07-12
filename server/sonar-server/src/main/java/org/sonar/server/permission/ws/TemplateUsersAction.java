@@ -19,25 +19,33 @@
  */
 package org.sonar.server.permission.ws;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.permission.UserWithPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.OldUser;
-import org.sonarqube.ws.WsPermissions.OldUsersWsResponse;
+import org.sonarqube.ws.WsPermissions.UsersWsResponse;
 
-import static java.lang.String.format;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
+import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
+import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
@@ -61,19 +69,19 @@ public class TemplateUsersAction implements PermissionsWsAction {
     WebService.NewAction action = context
       .createAction("template_users")
       .setSince("5.2")
-      .setDescription(
-        format("Lists the users that have been granted the specified permission as individual users rather than through group affiliation on the chosen template. <br />" +
-          "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'.<br />" +
-          "It requires administration permissions to access.<br />",
-          Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
-      .addPagingParams(100)
-      .addSearchQuery("stas", "names")
-      .addSelectionModeParam()
+      .setDescription("Lists the users with their permission as individual users rather than through group affiliation on the chosen template. <br />" +
+        "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
+        "It requires administration permissions to access.<br />")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("template_users-example.json"))
       .setHandler(this);
 
-    createProjectPermissionParameter(action);
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
+        "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setExampleValue("eri");
+    createProjectPermissionParameter(action).setRequired(false);
     createTemplateParameters(action);
   }
 
@@ -85,58 +93,61 @@ public class TemplateUsersAction implements PermissionsWsAction {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
-      OldPermissionQuery query = buildQuery(wsRequest, template);
-      WsPermissions.OldUsersWsResponse templateUsersResponse = buildResponse(dbSession, query, template);
+      PermissionQuery query = buildQuery(wsRequest, template);
+      int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
+      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
+      List<UserDto> users = findUsers(dbSession, query, template);
+      List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getId(),
+        users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
+      WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static OldPermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
-    String permission = validateProjectPermission(wsRequest.mandatoryParam(PARAM_PERMISSION));
-
-    return OldPermissionQuery.builder()
-      .template(template.getUuid())
-      .permission(permission)
-      .membership(fromSelectionModeToMembership(wsRequest.mandatoryParam(Param.SELECTED)))
-      .pageIndex(wsRequest.mandatoryParamAsInt(Param.PAGE))
-      .pageSize(wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .search(wsRequest.param(Param.TEXT_QUERY))
-      .build();
+  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
+    String textQuery = wsRequest.param(TEXT_QUERY);
+    String permission = wsRequest.param(PARAM_PERMISSION);
+    PermissionQuery.Builder query = PermissionQuery.builder()
+      .setTemplate(template.getUuid())
+      .setPermission(permission != null ? validateProjectPermission(permission) : null)
+      .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
+      .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
+      .setSearchQuery(textQuery);
+    if (textQuery == null) {
+      query.withPermissionOnly();
+    }
+    return query.build();
   }
 
-  private OldUsersWsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
-    List<UserWithPermissionDto> usersWithPermission = dbClient.permissionTemplateDao().selectUsers(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
-    int total = dbClient.permissionTemplateDao().countUsers(dbSession, query, template.getId());
+  private WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
+    Multimap<Long, String> permissionsByUserId = TreeMultimap.create();
+    permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
-    OldUsersWsResponse.Builder responseBuilder = OldUsersWsResponse.newBuilder();
-    for (UserWithPermissionDto userWithPermission : usersWithPermission) {
-      responseBuilder.addUsers(userDtoToUserResponse(userWithPermission));
-    }
-
+    UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
+    users.forEach(user -> {
+      WsPermissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
+        .setLogin(user.getLogin())
+        .addAllPermissions(permissionsByUserId.get(user.getId()));
+      if (user.getEmail() != null) {
+        userResponse.setEmail(user.getEmail());
+      }
+      if (user.getName() != null) {
+        userResponse.setName(user.getName());
+      }
+    });
     responseBuilder.getPagingBuilder()
-      .setPageIndex(query.pageIndex())
-      .setPageSize(query.pageSize())
-      .setTotal(total)
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total())
       .build();
-
     return responseBuilder.build();
   }
 
-  private static OldUser userDtoToUserResponse(UserWithPermissionDto userWithPermission) {
-    OldUser.Builder userBuilder = OldUser.newBuilder();
-    userBuilder.setLogin(userWithPermission.getLogin());
-    String email = userWithPermission.getEmail();
-    if (email != null) {
-      userBuilder.setEmail(email);
-    }
-    String name = userWithPermission.getName();
-    if (name != null) {
-      userBuilder.setName(name);
-    }
-    userBuilder.setSelected(userWithPermission.getPermission() != null);
-
-    return userBuilder.build();
+  public List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
+    List<String> orderedLogins = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
+    return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }
+
 }
