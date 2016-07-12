@@ -114,12 +114,7 @@ public class CpdExecutor {
     List<CloneGroup> duplications;
     Future<List<CloneGroup>> futureResult = null;
     try {
-      futureResult = executorService.submit(new Callable<List<CloneGroup>>() {
-        @Override
-        public List<CloneGroup> call() throws Exception {
-          return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
-        }
-      });
+      futureResult = executorService.submit(() -> SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks));
       duplications = futureResult.get(TIMEOUT, TimeUnit.SECONDS);
     } catch (TimeoutException e) {
       LOG.warn("Timeout during detection of duplications for " + inputFile.absolutePath());

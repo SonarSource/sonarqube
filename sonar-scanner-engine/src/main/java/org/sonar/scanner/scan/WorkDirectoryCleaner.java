@@ -53,11 +53,6 @@ public class WorkDirectoryCleaner {
   }
 
   private DirectoryStream<Path> list() throws IOException {
-    return Files.newDirectoryStream(workDir, new DirectoryStream.Filter<Path>() {
-      @Override
-      public boolean accept(Path entry) throws IOException {
-        return !DirectoryLock.LOCK_FILE_NAME.equals(entry.getFileName().toString());
-      }
-    });
+    return Files.newDirectoryStream(workDir, entry -> !DirectoryLock.LOCK_FILE_NAME.equals(entry.getFileName().toString()));
   }
 }

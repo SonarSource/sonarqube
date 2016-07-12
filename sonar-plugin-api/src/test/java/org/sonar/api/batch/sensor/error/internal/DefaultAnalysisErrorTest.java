@@ -31,8 +31,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class DefaultAnalysisErrorTest {
   private InputFile inputFile;
@@ -71,8 +73,42 @@ public class DefaultAnalysisErrorTest {
   }
 
   @Test
-  public void test_must_have_file() {
+  public void test_no_storage() {
     exception.expect(NullPointerException.class);
-    new DefaultAnalysisError(storage).save();
+    DefaultAnalysisError analysisError = new DefaultAnalysisError();
+    analysisError.onFile(inputFile).save();
+  }
+
+  @Test
+  public void test_validation() {
+    try {
+      new DefaultAnalysisError(storage).onFile(null);
+      fail("Expected exception");
+    } catch (IllegalArgumentException e) {
+      // expected
+    }
+
+    NewAnalysisError error = new DefaultAnalysisError(storage).onFile(inputFile);
+    try {
+      error.onFile(inputFile);
+      fail("Expected exception");
+    } catch (IllegalStateException e) {
+      // expected
+    }
+
+    error = new DefaultAnalysisError(storage).at(textPointer);
+    try {
+      error.at(textPointer);
+      fail("Expected exception");
+    } catch (IllegalStateException e) {
+      // expected
+    }
+
+    try {
+      new DefaultAnalysisError(storage).save();
+      fail("Expected exception");
+    } catch (NullPointerException e) {
+      // expected
+    }
   }
 }

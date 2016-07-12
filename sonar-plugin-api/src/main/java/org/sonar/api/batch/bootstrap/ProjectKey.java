@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+@FunctionalInterface
 public interface ProjectKey {
   String get();
 }
