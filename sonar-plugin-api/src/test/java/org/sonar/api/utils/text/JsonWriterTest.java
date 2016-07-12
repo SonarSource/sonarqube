@@ -20,17 +20,16 @@
 package org.sonar.api.utils.text;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.DateUtils;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.DateUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -208,7 +207,7 @@ public class JsonWriterTest {
     com.google.gson.stream.JsonWriter gson = mock(com.google.gson.stream.JsonWriter.class);
     when(gson.beginArray()).thenThrow(new IOException("the reason"));
     thrown.expect(WriterException.class);
-    thrown.expectMessage("Fail to write JSON: the reason");
+    thrown.expectMessage("Fail to write JSON");
 
     new JsonWriter(gson).beginArray();
   }
