@@ -95,7 +95,6 @@ export default React.createClass({
                 {this.renderLink('/groups', translate('user_groups.page'))}
                 {this.renderLink('/roles/global',
                     translate('global_permissions.page'))}
-                {this.renderLink('/roles/projects', translate('roles.page'))}
                 {this.renderLink('/permission_templates',
                     translate('permission_templates'))}
               </ul>

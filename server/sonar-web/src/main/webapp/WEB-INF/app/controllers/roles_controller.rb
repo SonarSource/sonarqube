@@ -29,8 +29,4 @@ class RolesController < ApplicationController
   # GET /roles/global
   def global
   end
-
-  # GET /roles/projects
-  def projects
-  end
 end
