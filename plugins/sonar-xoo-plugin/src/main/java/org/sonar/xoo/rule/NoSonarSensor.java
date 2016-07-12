@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -57,12 +58,14 @@ public class NoSonarSensor implements Sensor {
     try {
       Set<Integer> noSonarLines = new HashSet<>();
       int[] lineCounter = {1};
-      Files.lines(inputFile.path(), context.fileSystem().encoding()).forEachOrdered(lineStr -> {
-        if (lineStr.contains("//NOSONAR")) {
-          noSonarLines.add(lineCounter[0]);
-        }
-        lineCounter[0]++;
-      });
+      try (Stream<String> stream = Files.lines(inputFile.path(), context.fileSystem().encoding())) {
+        stream.forEachOrdered(lineStr -> {
+          if (lineStr.contains("//NOSONAR")) {
+            noSonarLines.add(lineCounter[0]);
+          }
+          lineCounter[0]++;
+        });
+      }
       noSonarFilter.noSonarInFile(inputFile, noSonarLines);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to process " + inputFile, e);
