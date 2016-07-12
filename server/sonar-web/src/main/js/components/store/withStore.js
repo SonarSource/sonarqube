@@ -18,27 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
-import App from './components/App';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+const withStore = (ComposedComponent, initial = {}) => {
+  let store = initial;
 
-  const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/permission_templates'
-  });
+  const updateStore = changes => {
+    store = { ...store, ...changes };
+  };
 
-  const EnhancedApp = props => (
-      <App
-          {...props}
-          topQualifiers={options.rootQualifiers}/>
-  );
+  const getStore = () => ({ ...store });
 
-  render((
-      <Router history={history}>
-        <Route path="/" component={EnhancedApp}/>
-      </Router>
-  ), el);
-});
+  return class extends React.Component {
+    static displayName = `withStore(${ComposedComponent.displayName})}`;
+
+    componentWillMount () {
+      this.handleUpdateStore = this.handleUpdateStore.bind(this);
+    }
+
+    handleUpdateStore (changes) {
+      updateStore(changes);
+      this.forceUpdate();
+    }
+
+    render () {
+      return (
+          <ComposedComponent
+              {...this.props}
+              getStore={getStore}
+              updateStore={this.handleUpdateStore}/>
+      );
+    }
+  };
+};
+
+export default withStore;

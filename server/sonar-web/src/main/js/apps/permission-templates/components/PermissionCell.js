@@ -42,55 +42,20 @@ export default class PermissionCell extends React.Component {
     const { permission: p } = this.props;
 
     return (
-        <td
-            className="permission-column"
-            data-permission={p.key}>
-          <table>
-            <tbody>
-              <tr>
-                <td className="spacer-right">
-                  Users
-                </td>
-                <td className="spacer-left bordered-left">
-                  {p.usersCount}
-                </td>
-                <td className="spacer-left">
-                  <a
-                      onClick={this.handleShowUsers.bind(this)}
-                      className="icon-bullet-list js-update-users"
-                      title="Update Users"
-                      data-toggle="tooltip"
-                      href="#"/>
-                </td>
-              </tr>
-              <tr>
-                <td className="spacer-right">
-                  Groups
-                </td>
-                <td className="spacer-left bordered-left">
-                  {p.groupsCount}
-                </td>
-                <td className="spacer-left">
-                  <a
-                      onClick={this.handleShowGroups.bind(this)}
-                      className="icon-bullet-list js-update-groups"
-                      title="Update Users"
-                      data-toggle="tooltip"
-                      href="#"/>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          {p.withProjectCreator && (
-              <div className="spacer-top">
-                <span className="js-project-creators"
-                      title={translate('permission_templates.project_creators.explanation')}
-                      data-toggle="tooltip">
+        <td className="permission-column" data-permission={p.key}>
+          <ul>
+            {p.withProjectCreator && (
+                <li className="little-spacer-bottom">
                   {translate('permission_templates.project_creators')}
-                </span>
-              </div>
-          )}
+                </li>
+            )}
+            <li className="little-spacer-bottom">
+              <strong>{p.usersCount}</strong>{'  user(s)'}
+            </li>
+            <li>
+              <strong>{p.groupsCount}</strong>{' group(s)'}
+            </li>
+          </ul>
         </td>
     );
   }

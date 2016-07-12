@@ -19,42 +19,43 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-import Defaults from './Defaults';
-import { PermissionTemplateType } from '../propTypes';
+import ActionsCell from './ActionsCell';
+import { translate } from '../../../helpers/l10n';
 
-export default class NameCell extends React.Component {
+export default class TemplateHeader extends React.Component {
   static propTypes = {
-    permissionTemplate: PermissionTemplateType.isRequired,
+    template: React.PropTypes.object.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    refresh: React.PropTypes.func.isRequired,
     topQualifiers: React.PropTypes.array.isRequired
   };
 
   render () {
-    const { permissionTemplate: t } = this.props;
+    const { template } = this.props;
 
     return (
-        <td>
-          <Link to={{ pathname: '/', query: { id: t.id } }}>
-            <strong className="js-name">{t.name}</strong>
-          </Link>
+        <header id="project-permissions-header" className="page-header">
+          <div className="note spacer-bottom">
+            <Link to="/" className="text-muted">
+              {translate('permission_templates.page')}
+            </Link>
+          </div>
 
-          {t.defaultFor.length > 0 && (
-              <div className="spacer-top js-defaults">
-                <Defaults permissionTemplate={this.props.permissionTemplate}/>
-              </div>
+          <h1 className="page-title">
+            {template.name}
+          </h1>
+
+          {this.props.loading && (
+              <i className="spinner"/>
           )}
 
-          {!!t.description && (
-              <div className="spacer-top js-description">
-                {t.description}
-              </div>
-          )}
-
-          {!!t.projectKeyPattern && (
-              <div className="spacer-top js-project-key-pattern">
-                Project Key Pattern: <code>{t.projectKeyPattern}</code>
-              </div>
-          )}
-        </td>
+          <div className="pull-right">
+            <ActionsCell
+                permissionTemplate={this.props.template}
+                topQualifiers={this.props.topQualifiers}
+                refresh={this.props.refresh}/>
+          </div>
+        </header>
     );
   }
 }

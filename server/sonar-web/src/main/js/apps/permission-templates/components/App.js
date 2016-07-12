@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Helmet from 'react-helmet';
-import Header from './Header';
-import List from './List';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import Home from './Home';
+import Template from './Template';
 import { getPermissionTemplates } from '../../../api/permissions';
-import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
-import { translate } from '../../../helpers/l10n';
+import {
+    sortPermissions,
+    mergePermissionsToTemplates,
+    mergeDefaultsToTemplates
+} from '../utils';
 import '../styles.css';
 
 export default class App extends React.Component {
@@ -52,7 +53,7 @@ export default class App extends React.Component {
   }
 
   requestPermissions () {
-    getPermissionTemplates().then(r => {
+    return getPermissionTemplates().then(r => {
       if (this.mounted) {
         const permissions = sortPermissions(r.permissions);
         const permissionTemplates = mergeDefaultsToTemplates(
@@ -68,25 +69,34 @@ export default class App extends React.Component {
     });
   }
 
-  render () {
+  renderTemplate (id) {
+    if (!this.state.ready) {
+      return null;
+    }
+
+    const template = this.state.permissionTemplates.find(t => t.id === id);
     return (
-        <div className="page page-limited">
-          <Helmet
-              title={translate('permission_templates.page')}
-              titleTemplate="SonarQube - %s"/>
+        <Template
+            template={template}
+            refresh={this.requestPermissions}
+            topQualifiers={this.props.topQualifiers}/>
+    );
+  }
 
-          <Header
-              ready={this.state.ready}
-              refresh={this.requestPermissions}/>
+  render () {
+    const { id } = this.props.location.query;
 
-          <TooltipsContainer>
-            <List
-                permissionTemplates={this.state.permissionTemplates}
-                permissions={this.state.permissions}
-                topQualifiers={this.props.topQualifiers}
-                refresh={this.requestPermissions}/>
-          </TooltipsContainer>
-        </div>
+    if (id) {
+      return this.renderTemplate(id);
+    }
+
+    return (
+        <Home
+            topQualifiers={this.props.topQualifiers}
+            permissions={this.state.permissions}
+            permissionTemplates={this.state.permissionTemplates}
+            ready={this.state.ready}
+            refresh={this.requestPermissions}/>
     );
   }
 }

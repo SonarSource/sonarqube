@@ -19,8 +19,11 @@
  */
 import React from 'react';
 import difference from 'lodash/difference';
+import Backbone from 'backbone';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
+import UpdateView from '../views/UpdateView';
+import DeleteView from '../views/DeleteView';
 import { translate } from '../../../helpers/l10n';
 import { setDefaultPermissionTemplate } from '../../../api/permissions';
 
@@ -28,19 +31,29 @@ export default class ActionsCell extends React.Component {
   static propTypes = {
     permissionTemplate: PermissionTemplateType.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
-    onUpdate: CallbackType,
-    onDelete: CallbackType,
     refresh: CallbackType
+  };
+
+  static contextTypes = {
+    router: React.PropTypes.object
   };
 
   handleUpdateClick (e) {
     e.preventDefault();
-    this.props.onUpdate();
+    new UpdateView({
+      model: new Backbone.Model(this.props.permissionTemplate),
+      refresh: this.props.refresh
+    }).render();
   }
 
   handleDeleteClick (e) {
     e.preventDefault();
-    this.props.onDelete();
+    new DeleteView({
+      model: new Backbone.Model(this.props.permissionTemplate)
+    }).on('done', () => {
+      this.context.router.replace('/');
+      this.props.refresh();
+    }).render();
   }
 
   setDefault (qualifier, e) {
@@ -121,39 +134,37 @@ export default class ActionsCell extends React.Component {
     const { permissionTemplate: t } = this.props;
 
     return (
-        <td className="actions-column">
-          <div className="dropdown">
-            <button className="dropdown-toggle" data-toggle="dropdown">
-              {translate('actions')}
-              {' '}
-              <i className="icon-dropdown"></i>
-            </button>
+        <div className="dropdown">
+          <button className="dropdown-toggle" data-toggle="dropdown">
+            {translate('actions')}
+            {' '}
+            <i className="icon-dropdown"></i>
+          </button>
 
-            <ul className="dropdown-menu dropdown-menu-right">
-              {this.renderSetDefaultsControl()}
+          <ul className="dropdown-menu dropdown-menu-right">
+            {this.renderSetDefaultsControl()}
 
-              <li>
-                <a href="#"
-                   className="js-update"
-                   onClick={this.handleUpdateClick.bind(this)}>
-                  {this.renderDropdownIcon(<i className="icon-edit"/>)}
-                  {translate('update_verb')}
-                </a>
-              </li>
+            <li>
+              <a href="#"
+                 className="js-update"
+                 onClick={this.handleUpdateClick.bind(this)}>
+                {this.renderDropdownIcon(<i className="icon-edit"/>)}
+                Update Details
+              </a>
+            </li>
 
-              {t.defaultFor.length === 0 && (
-                  <li>
-                    <a href="#"
-                       className="js-delete"
-                       onClick={this.handleDeleteClick.bind(this)}>
-                      {this.renderDropdownIcon(<i className="icon-delete"/>)}
-                      {translate('delete')}
-                    </a>
-                  </li>
-              )}
-            </ul>
-          </div>
-        </td>
+            {t.defaultFor.length === 0 && (
+                <li>
+                  <a href="#"
+                     className="js-delete"
+                     onClick={this.handleDeleteClick.bind(this)}>
+                    {this.renderDropdownIcon(<i className="icon-delete"/>)}
+                    {translate('delete')}
+                  </a>
+                </li>
+            )}
+          </ul>
+        </div>
     );
   }
 }

@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
 import React from 'react';
 import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
 import ActionsCell from './ActionsCell';
 import UsersView from '../views/UsersView';
 import GroupsView from '../views/GroupsView';
-import UpdateView from '../views/UpdateView';
-import DeleteView from '../views/DeleteView';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 
 export default class ListItem extends React.Component {
@@ -56,20 +53,6 @@ export default class ListItem extends React.Component {
     }).render();
   }
 
-  onUpdate () {
-    new UpdateView({
-      model: new Backbone.Model(this.props.permissionTemplate),
-      refresh: this.props.refresh
-    }).render();
-  }
-
-  onDelete () {
-    new DeleteView({
-      model: new Backbone.Model(this.props.permissionTemplate),
-      refresh: this.props.refresh
-    }).render();
-  }
-
   render () {
     const permissions = this.props.permissionTemplate.permissions.map(p => (
         <PermissionCell
@@ -89,12 +72,12 @@ export default class ListItem extends React.Component {
 
           {permissions}
 
-          <ActionsCell
-              permissionTemplate={this.props.permissionTemplate}
-              topQualifiers={this.props.topQualifiers}
-              onUpdate={this.onUpdate.bind(this)}
-              onDelete={this.onDelete.bind(this)}
-              refresh={this.props.refresh}/>
+          <td className="actions-column">
+            <ActionsCell
+                permissionTemplate={this.props.permissionTemplate}
+                topQualifiers={this.props.topQualifiers}
+                refresh={this.props.refresh}/>
+          </td>
         </tr>
     );
   }

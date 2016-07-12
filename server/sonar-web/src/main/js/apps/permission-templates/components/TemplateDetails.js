@@ -18,43 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
 import Defaults from './Defaults';
-import { PermissionTemplateType } from '../propTypes';
 
-export default class NameCell extends React.Component {
+export default class TemplateDetails extends React.Component {
   static propTypes = {
-    permissionTemplate: PermissionTemplateType.isRequired,
-    topQualifiers: React.PropTypes.array.isRequired
+    template: React.PropTypes.object.isRequired
   };
 
   render () {
-    const { permissionTemplate: t } = this.props;
+    const { template } = this.props;
 
     return (
-        <td>
-          <Link to={{ pathname: '/', query: { id: t.id } }}>
-            <strong className="js-name">{t.name}</strong>
-          </Link>
-
-          {t.defaultFor.length > 0 && (
+        <div className="big-spacer-bottom">
+          {template.defaultFor.length > 0 && (
               <div className="spacer-top js-defaults">
-                <Defaults permissionTemplate={this.props.permissionTemplate}/>
+                <Defaults permissionTemplate={template}/>
               </div>
           )}
 
-          {!!t.description && (
+          {!!template.description && (
               <div className="spacer-top js-description">
-                {t.description}
+                {template.description}
               </div>
           )}
 
-          {!!t.projectKeyPattern && (
+          {!!template.projectKeyPattern && (
               <div className="spacer-top js-project-key-pattern">
-                Project Key Pattern: <code>{t.projectKeyPattern}</code>
+                Project Key Pattern: <code>{template.projectKeyPattern}</code>
               </div>
           )}
-        </td>
+        </div>
     );
   }
 }

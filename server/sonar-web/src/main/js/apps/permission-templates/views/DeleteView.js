@@ -30,18 +30,17 @@ export default ModalForm.extend({
   },
 
   sendRequest () {
-    const that = this;
     return deletePermissionTemplate({
       data: { templateId: this.model.id },
       statusCode: {
         // do not show global error
         400: null
       }
-    }).done(function () {
-      that.options.refresh();
-      that.destroy();
-    }).fail(function (jqXHR) {
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+    }).done(() => {
+      this.trigger('done');
+      this.destroy();
+    }).fail(jqXHR => {
+      this.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });
   }
 });

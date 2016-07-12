@@ -38,52 +38,12 @@ function renderActionsCell (props) {
       <ActionsCell
           permissionTemplate={SAMPLE}
           topQualifiers={['TRK', 'VW']}
-          onUpdate={() => true}
-          onDelete={() => true}
           refresh={() => true}
           {...props}/>
   );
 }
 
-function simulateClick (element) {
-  element.simulate('click', {
-    preventDefault() {}
-  });
-}
-
 describe('Permission Templates :: ActionsCell', () => {
-  it('should update', () => {
-    const onUpdate = sinon.spy();
-    const updateButton = renderActionsCell({ onUpdate }).find('.js-update');
-
-    expect(updateButton).have.length(1);
-    expect(onUpdate).to.not.have.been.called;
-
-    simulateClick(updateButton);
-
-    expect(onUpdate).to.have.been.called;
-  });
-
-  it('should delete', () => {
-    const onDelete = sinon.spy();
-    const deleteButton = renderActionsCell({ onDelete }).find('.js-delete');
-
-    expect(deleteButton).have.length(1);
-    expect(onDelete).to.not.have.been.called;
-
-    simulateClick(deleteButton);
-
-    expect(onDelete).to.have.been.called;
-  });
-
-  it('should not delete', () => {
-    const permissionTemplate = { ...SAMPLE, defaultFor: ['VW'] };
-    const deleteButton = renderActionsCell({ permissionTemplate })
-        .find('.js-delete');
-
-    expect(deleteButton).to.have.length(0);
-  });
-
   it('should set default', () => {
     const setDefault = renderActionsCell()
         .find('.js-set-default');

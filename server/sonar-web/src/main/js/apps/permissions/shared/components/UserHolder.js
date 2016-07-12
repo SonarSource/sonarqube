@@ -60,19 +60,27 @@ export default class UserHolder extends React.Component {
 
     const { user } = this.props;
 
+    const isCreator = user.login === '<creator>';
+
     return (
         <tr>
           <td className="nowrap">
-            <Avatar
-                email={user.email}
-                size={36}
-                className="text-middle big-spacer-right"/>
+            {!isCreator && (
+                <Avatar
+                    email={user.email}
+                    size={36}
+                    className="text-middle big-spacer-right"/>
+            )}
             <div className="display-inline-block text-middle">
               <div>
                 <strong>{user.name}</strong>
-                <span className="note spacer-left">{user.login}</span>
+                {!isCreator && (
+                    <span className="note spacer-left">{user.login}</span>
+                )}
               </div>
-              <div className="little-spacer-top">{user.email}</div>
+              {!isCreator && (
+                  <div className="little-spacer-top">{user.email}</div>
+              )}
             </div>
           </td>
           {permissionCells}

@@ -119,6 +119,30 @@ export function bulkApplyTemplate (data) {
   return post(url, data);
 }
 
+export function grantTemplatePermissionToUser (templateName, login, permission) {
+  const url = '/api/permissions/add_user_to_template';
+  const data = { templateName, login, permission };
+  return post(url, data);
+}
+
+export function revokeTemplatePermissionFromUser (templateName, login, permission) {
+  const url = '/api/permissions/remove_user_from_template';
+  const data = { templateName, login, permission };
+  return post(url, data);
+}
+
+export function grantTemplatePermissionToGroup (templateName, groupName, permission) {
+  const url = '/api/permissions/add_group_to_template';
+  const data = { templateName, groupName, permission };
+  return post(url, data);
+}
+
+export function revokeTemplatePermissionFromGroup (templateName, groupName, permission) {
+  const url = '/api/permissions/remove_group_from_template';
+  const data = { templateName, groupName, permission };
+  return post(url, data);
+}
+
 export function addProjectCreatorToTemplate (templateName, permission) {
   const url = '/api/permissions/add_project_creator_to_template';
   const data = { templateName, permission };
@@ -170,6 +194,30 @@ export function getGlobalPermissionsUsers (query = '', permission = null) {
 export function getGlobalPermissionsGroups (query = '', permission = null) {
   const url = '/api/permissions/groups';
   const data = { ps: PAGE_SIZE };
+  if (query) {
+    data.q = query;
+  }
+  if (permission) {
+    data.permission = permission;
+  }
+  return getJSON(url, data).then(r => r.groups);
+}
+
+export function getPermissionTemplateUsers (templateId, query = '', permission = null) {
+  const url = '/api/permissions/template_users';
+  const data = { templateId, ps: PAGE_SIZE };
+  if (query) {
+    data.q = query;
+  }
+  if (permission) {
+    data.permission = permission;
+  }
+  return getJSON(url, data).then(r => r.users);
+}
+
+export function getPermissionTemplateGroups (templateId, query = '', permission = null) {
+  const url = '/api/permissions/template_groups';
+  const data = { templateId, ps: PAGE_SIZE };
   if (query) {
     data.q = query;
   }
