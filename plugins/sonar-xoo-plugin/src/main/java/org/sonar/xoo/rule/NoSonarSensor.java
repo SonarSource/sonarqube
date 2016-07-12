@@ -50,15 +50,15 @@ public class NoSonarSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     for (InputFile inputFile : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguage(Xoo.KEY))) {
-      processFile(inputFile, context);
+      processFile(inputFile);
     }
   }
 
-  private void processFile(InputFile inputFile, SensorContext context) {
+  private void processFile(InputFile inputFile) {
     try {
       Set<Integer> noSonarLines = new HashSet<>();
       int[] lineCounter = {1};
-      try (Stream<String> stream = Files.lines(inputFile.path(), context.fileSystem().encoding())) {
+      try (Stream<String> stream = Files.lines(inputFile.path(), inputFile.charset())) {
         stream.forEachOrdered(lineStr -> {
           if (lineStr.contains("//NOSONAR")) {
             noSonarLines.add(lineCounter[0]);

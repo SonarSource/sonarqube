@@ -42,7 +42,7 @@ public class CpdTokenizerSensor implements Sensor {
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(inputFile);
     try {
       StringBuilder sb = new StringBuilder();
-      for (String line : FileUtils.readLines(inputFile.file(), context.fileSystem().encoding())) {
+      for (String line : FileUtils.readLines(inputFile.file(), inputFile.charset())) {
         int startOffset = 0;
         int endOffset = 0;
         for (int i = 0; i < line.length(); i++) {

@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +44,8 @@ public class DefaultInputFileTest {
       .setLines(42)
       .setLanguage("php")
       .setStatus(InputFile.Status.ADDED)
-      .setType(InputFile.Type.TEST);
+      .setType(InputFile.Type.TEST)
+      .setCharset(StandardCharsets.ISO_8859_1);
 
     assertThat(inputFile.relativePath()).isEqualTo("src/Foo.php");
     assertThat(new File(inputFile.relativePath())).isRelative();
@@ -53,6 +55,7 @@ public class DefaultInputFileTest {
     assertThat(inputFile.status()).isEqualTo(InputFile.Status.ADDED);
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
     assertThat(inputFile.lines()).isEqualTo(42);
+    assertThat(inputFile.charset()).isEqualTo(StandardCharsets.ISO_8859_1);
   }
 
   @Test

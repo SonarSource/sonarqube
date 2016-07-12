@@ -84,7 +84,7 @@ public class MultilineIssuesSensor implements Sensor {
     Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions) {
     int currentLine = 0;
     try {
-      for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
+      for (String lineStr : Files.readAllLines(file.path(), file.charset())) {
         currentLine++;
 
         Matcher m = START_FLOW_PATTERN.matcher(lineStr);
@@ -159,7 +159,7 @@ public class MultilineIssuesSensor implements Sensor {
     Map<Integer, TextPointer> endPositions) {
     int currentLine = 0;
     try {
-      for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
+      for (String lineStr : Files.readAllLines(file.path(), file.charset())) {
         currentLine++;
 
         Matcher m = START_ISSUE_PATTERN.matcher(lineStr);

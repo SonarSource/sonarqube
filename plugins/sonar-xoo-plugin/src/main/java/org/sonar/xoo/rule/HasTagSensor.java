@@ -58,7 +58,7 @@ public class HasTagSensor extends AbstractXooRuleSensor {
     }
     try {
       int[] lineCounter = {1};
-      Files.lines(inputFile.path(), context.fileSystem().encoding()).forEachOrdered(lineStr -> {
+      Files.lines(inputFile.path(), inputFile.charset()).forEachOrdered(lineStr -> {
         int startIndex = -1;
         while ((startIndex = lineStr.indexOf(tag, startIndex + 1)) != -1) {
           NewIssue newIssue = context.newIssue();

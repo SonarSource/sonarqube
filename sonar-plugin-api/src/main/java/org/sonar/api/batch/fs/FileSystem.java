@@ -60,8 +60,9 @@ public interface FileSystem {
   File baseDir();
 
   /**
-   * Default encoding of input files. If it's not defined, then
-   * the platform default encoding is returned
+   * Default encoding of files in this project. If it's not defined, then
+   * the platform default encoding is returned.
+   * When reading an {@link InputFile} it is preferable to use {@link InputFile#charset()} 
    */
   Charset encoding();
 

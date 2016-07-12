@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -156,4 +157,10 @@ public interface InputFile extends InputPath {
    * @since 5.2
    */
   TextRange selectLine(int line);
+
+  /**
+   * Charset to be used to decode this specific file.
+   * @since 6.0
+   */
+  Charset charset();
 }
