@@ -19,9 +19,6 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -50,8 +47,6 @@ public class PermissionQuery {
   private final String searchQuery;
   private final String searchQueryToSql;
   private final boolean withPermissionOnly;
-  private final List<String> logins;
-  private final List<String> groupNames;
 
   private final int pageSize;
   private final int pageOffset;
@@ -65,8 +60,6 @@ public class PermissionQuery {
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
-    this.logins = builder.logins == null ? Collections.emptyList() : ImmutableList.copyOf(builder.logins);
-    this.groupNames = builder.groupNames == null ? Collections.emptyList() : ImmutableList.copyOf(builder.groupNames);
   }
 
   @CheckForNull
@@ -105,14 +98,6 @@ public class PermissionQuery {
     return pageOffset;
   }
 
-  public List<String> getLogins() {
-    return logins;
-  }
-
-  public List<String> getGroupNames() {
-    return groupNames;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -123,8 +108,6 @@ public class PermissionQuery {
     private String template;
     private String searchQuery;
     private boolean withPermissionOnly;
-    private List<String> logins;
-    private List<String> groupNames;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
@@ -169,22 +152,10 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder setLogins(@Nullable List<String> logins) {
-      this.logins = logins;
-      return this;
-    }
-
-    public Builder setGroupNames(@Nullable List<String> groupNames) {
-      this.groupNames = groupNames;
-      return this;
-    }
-
     public PermissionQuery build() {
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
       checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH);
-      checkArgument(logins == null || !logins.isEmpty());
-      checkArgument(groupNames == null || !groupNames.isEmpty());
       return new PermissionQuery(this);
     }
   }

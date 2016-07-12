@@ -39,7 +39,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
@@ -81,11 +80,9 @@ public class GroupsActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     underTest = new GroupsAction(
       dbClient,
       userSession,
-      permissionFinder,
       new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes));
     ws = new WsActionTester(underTest);
 

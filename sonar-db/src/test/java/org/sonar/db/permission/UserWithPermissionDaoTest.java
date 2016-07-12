@@ -20,6 +20,7 @@
 package org.sonar.db.permission;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,6 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -197,26 +199,55 @@ public class UserWithPermissionDaoTest {
   }
 
   @Test
-  public void select_user_permissions_by_logins() {
+  public void select_user_permissions_by_logins_with_global_permissions() {
     UserDto firstUser = userDb.insertUser(newUserDto());
-    UserDto secondUser = userDb.insertUser(newUserDto());
-    UserDto thirdUser = userDb.insertUser(newUserDto());
+    permissionDb.addGlobalPermissionToUser(ADMIN, firstUser.getId());
 
+    UserDto secondUser = userDb.insertUser(newUserDto());
+    permissionDb.addGlobalPermissionToUser(USER, secondUser.getId());
+
+    UserDto thirdUser = userDb.insertUser(newUserDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    permissionDb.addProjectPermissionToUser(ADMIN, thirdUser.getId(), project.getId());
+
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, (asList(firstUser.getLogin(), secondUser.getLogin(), thirdUser.getLogin())), null))
+      .extracting(UserPermissionDto::getUserId, UserPermissionDto::getPermission, UserPermissionDto::getComponentId)
+      .containsOnly(
+        tuple(firstUser.getId(), ADMIN, null),
+        tuple(secondUser.getId(), USER, null));
+
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, singletonList(thirdUser.getLogin()), null)).isEmpty();
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, singletonList("unknown"), null)).isEmpty();
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, Collections.emptyList(), null)).isEmpty();
+  }
+
+  @Test
+  public void select_user_permissions_by_logins_with_project_permissions() {
+    UserDto firstUser = userDb.insertUser(newUserDto());
     ComponentDto project = componentDb.insertComponent(newProjectDto());
     permissionDb.addProjectPermissionToUser(ADMIN, firstUser.getId(), project.getId());
+
+    UserDto secondUser = userDb.insertUser(newUserDto());
     permissionDb.addProjectPermissionToUser(USER, secondUser.getId(), project.getId());
 
+    UserDto thirdUser = userDb.insertUser(newUserDto());
     ComponentDto anotherProject = componentDb.insertComponent(newProjectDto());
     permissionDb.addProjectPermissionToUser(ADMIN, thirdUser.getId(), anotherProject.getId());
 
-    List<UserPermissionDto> result = underTest.selectUserPermissionsByLogins(session, (asList(firstUser.getLogin(), secondUser.getLogin(), thirdUser.getLogin())));
-
-    assertThat(result)
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, (asList(firstUser.getLogin(), secondUser.getLogin(), thirdUser.getLogin())), project.getId()))
       .extracting(UserPermissionDto::getUserId, UserPermissionDto::getPermission, UserPermissionDto::getComponentId)
       .containsOnly(
         tuple(firstUser.getId(), ADMIN, project.getId()),
-        tuple(secondUser.getId(), USER, project.getId()),
+        tuple(secondUser.getId(), USER, project.getId()));
+
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, (asList(firstUser.getLogin(), secondUser.getLogin(), thirdUser.getLogin())), anotherProject.getId()))
+      .extracting(UserPermissionDto::getUserId, UserPermissionDto::getPermission, UserPermissionDto::getComponentId)
+      .containsOnly(
         tuple(thirdUser.getId(), ADMIN, anotherProject.getId()));
+
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, singletonList(thirdUser.getLogin()), project.getId())).isEmpty();
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, singletonList("unknown"), project.getId())).isEmpty();
+    assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, Collections.emptyList(), project.getId())).isEmpty();
   }
 
   @Test

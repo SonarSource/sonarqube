@@ -51,7 +51,7 @@ public class PermissionDao implements Dao {
 
   /**
    * @return a paginated list of users.
-   * @deprecated
+   * @deprecated use {@link #selectLoginsByPermissionQuery(DbSession, PermissionQuery)} or {@link #selectUserPermissionsByLoginsAnProject(DbSession, List, Long)} instead
    */
   @Deprecated
   public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId, int offset, int limit) {
@@ -71,10 +71,14 @@ public class PermissionDao implements Dao {
     return mapper(dbSession).countUsersByPermissionQuery(query);
   }
 
-  public List<UserPermissionDto> selectUserPermissionsByLogins(DbSession dbSession, List<String> logins) {
-    return executeLargeInputs(logins, mapper(dbSession)::selectUserPermissionsByLogins);
+  public List<UserPermissionDto> selectUserPermissionsByLoginsAnProject(DbSession dbSession, List<String> logins, @Nullable Long projectId) {
+    return executeLargeInputs(logins, l -> mapper(dbSession).selectUserPermissionsByLogins(l, projectId));
   }
 
+  /**
+   * @deprecated use {@link #countUsersByQuery(DbSession, PermissionQuery)} instead
+   */
+  @Deprecated
   public int countUsers(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = usersParameters(query, componentId);
 
@@ -93,7 +97,9 @@ public class PermissionDao implements Dao {
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
    *
    * @return a non paginated list of groups.
+   * @deprecated use {@link #selectGroupNamesByPermissionQuery(DbSession, PermissionQuery)} or {@link #selectGroupPermissionsByGroupNamesAndProject(DbSession, List, Long)} instead
    */
+  @Deprecated
   public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, @Nullable Long componentId) {
     Map<String, Object> params = groupsParameters(query, componentId);
     return mapper(session).selectGroups(params);
@@ -128,8 +134,8 @@ public class PermissionDao implements Dao {
     return mapper(dbSession).countGroupsByPermissionQuery(query);
   }
 
-  public List<GroupRoleDto> selectGroupPermissionsByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectGroupPermissionByQuery(query);
+  public List<GroupRoleDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
+    return executeLargeInputs(groupNames, groups -> mapper(dbSession).selectGroupPermissionByGroupNames(groups, projectId));
   }
 
   /**

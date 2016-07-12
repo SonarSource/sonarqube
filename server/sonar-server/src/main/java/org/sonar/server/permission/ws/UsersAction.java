@@ -36,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
-import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
@@ -61,13 +60,11 @@ public class UsersAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionFinder permissionFinder;
   private final PermissionDependenciesFinder dependenciesFinder;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, PermissionFinder permissionFinder, PermissionDependenciesFinder dependenciesFinder) {
+  public UsersAction(DbClient dbClient, UserSession userSession, PermissionDependenciesFinder dependenciesFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.permissionFinder = permissionFinder;
     this.dependenciesFinder = dependenciesFinder;
   }
 
@@ -108,7 +105,7 @@ public class UsersAction implements PermissionsWsAction {
       PermissionQuery dbQuery = buildPermissionQuery(request, project);
       List<UserDto> users = findUsers(dbSession, dbQuery);
       int total = dbClient.permissionDao().countUsersByQuery(dbSession, dbQuery);
-      List<UserPermissionDto> userPermissions = findUserPermissions(dbSession, users);
+      List<UserPermissionDto> userPermissions = findUserPermissions(dbSession, users, project);
       Paging paging = Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(total);
       return buildResponse(users, userPermissions, paging);
     } finally {
@@ -179,11 +176,11 @@ public class UsersAction implements PermissionsWsAction {
     return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }
 
-  private List<UserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users) {
+  private List<UserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, Optional<ComponentDto> project) {
     if (users.isEmpty()) {
       return emptyList();
     }
     List<String> logins = users.stream().map(UserDto::getLogin).collect(Collectors.toList());
-    return dbClient.permissionDao().selectUserPermissionsByLogins(dbSession, logins);
+    return dbClient.permissionDao().selectUserPermissionsByLoginsAnProject(dbSession, logins, project.isPresent() ? project.get().getId() : null);
   }
 }

@@ -140,7 +140,6 @@ import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
-import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionsWsModule;
@@ -520,7 +519,6 @@ public class PlatformLevel4 extends PlatformLevel {
       PermissionRepository.class,
       PermissionService.class,
       PermissionUpdater.class,
-      PermissionFinder.class,
       PermissionsWsModule.class,
 
       // components
