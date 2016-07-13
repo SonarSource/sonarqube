@@ -77,4 +77,12 @@ class OkHttpResponse extends BaseResponse {
   private RuntimeException fail(Exception e) {
     throw new IllegalStateException("Fail to read response of " + requestUrl(), e);
   }
+
+  /**
+   * Equivalent to closing contentReader or contentStream.
+   */
+  @Override
+  public void close() {
+    okResponse.close();
+  }
 }

@@ -39,9 +39,8 @@ public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader
   @Override
   public GlobalRepositories load() {
     GetRequest getRequest = new GetRequest(BATCH_GLOBAL_URL);
-    Reader reader = wsClient.call(getRequest).contentReader();
     String str;
-    try {
+    try (Reader reader = wsClient.call(getRequest).contentReader()) {
       str = IOUtils.toString(reader);
     } catch (IOException e) {
       throw new IllegalStateException(e);

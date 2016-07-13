@@ -19,13 +19,14 @@
  */
 package org.sonarqube.ws.client;
 
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.Reader;
 
 /**
  * @since 5.3
  */
-public interface WsResponse {
+public interface WsResponse extends Closeable {
 
   /**
    * The absolute requested URL
@@ -57,5 +58,8 @@ public interface WsResponse {
   Reader contentReader();
 
   String content();
+  
+  @Override
+  void close();
 
 }
