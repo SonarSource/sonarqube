@@ -34,11 +34,6 @@ import org.sonar.api.rules.RuleQuery;
 
 import static org.sonar.core.util.stream.Collectors.toList;
 
-/**
- * FIXME Waiting for the list of all server rules on batch side this is implemented by redirecting on ActiveRules. This is not correct
- * since there is a difference between a rule that doesn't exists and a rule that is not activated in project quality profile.
- *
- */
 public class RuleFinderCompatibility implements RuleFinder {
 
   private final Rules rules;

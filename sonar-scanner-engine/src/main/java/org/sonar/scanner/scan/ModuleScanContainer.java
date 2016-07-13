@@ -33,7 +33,6 @@ import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.DefaultProjectTree;
 import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.BatchPerspectives;
@@ -174,12 +173,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
-    installer.install(this, new ExtensionMatcher() {
-      @Override
-      public boolean accept(Object extension) {
-        return ExtensionUtils.isScannerSide(extension) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT);
-      }
-    });
+    installer.install(this, e -> ExtensionUtils.isScannerSide(e) && ExtensionUtils.isInstantiationStrategy(e, InstantiationStrategy.PER_PROJECT));
   }
 
   @Override

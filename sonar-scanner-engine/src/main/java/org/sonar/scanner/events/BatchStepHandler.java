@@ -24,6 +24,7 @@ import org.sonar.api.batch.events.EventHandler;
 /**
  * @since 3.7
  */
+@FunctionalInterface
 public interface BatchStepHandler extends EventHandler {
 
   /**

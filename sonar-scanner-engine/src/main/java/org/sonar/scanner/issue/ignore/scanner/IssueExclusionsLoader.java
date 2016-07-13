@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
+import java.nio.charset.Charset;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.resources.Project;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import java.nio.charset.Charset;
 
 public final class IssueExclusionsLoader {
 
@@ -43,7 +42,7 @@ public final class IssueExclusionsLoader {
     this.fileSystem = fileSystem;
   }
 
-  public boolean shouldExecuteOnProject(Project project) {
+  public boolean shouldExecute() {
     return inclusionPatternInitializer.hasConfiguredPatterns()
       || exclusionPatternInitializer.hasConfiguredPatterns();
   }

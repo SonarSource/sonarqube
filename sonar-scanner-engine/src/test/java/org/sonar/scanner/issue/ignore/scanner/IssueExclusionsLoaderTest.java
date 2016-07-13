@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
+import java.io.File;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,10 +34,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-import java.io.File;
-import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,19 +83,19 @@ public class IssueExclusionsLoaderTest {
   public void shouldExecute() {
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    assertThat(scanner.shouldExecuteOnProject(null)).isTrue();
+    assertThat(scanner.shouldExecute()).isTrue();
 
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    assertThat(scanner.shouldExecuteOnProject(null)).isTrue();
+    assertThat(scanner.shouldExecute()).isTrue();
 
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
-    assertThat(scanner.shouldExecuteOnProject(null)).isTrue();
+    assertThat(scanner.shouldExecute()).isTrue();
 
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(false);
-    assertThat(scanner.shouldExecuteOnProject(null)).isFalse();
+    assertThat(scanner.shouldExecute()).isFalse();
 
   }
 

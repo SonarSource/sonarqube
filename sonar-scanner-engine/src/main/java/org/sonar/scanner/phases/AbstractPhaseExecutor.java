@@ -88,10 +88,12 @@ public abstract class AbstractPhaseExecutor {
   protected abstract void executeOnRoot();
 
   private void initIssueExclusions() {
-    String stepName = "Init issue exclusions";
-    eventBus.fireEvent(new BatchStepEvent(stepName, true));
-    issueExclusionsLoader.execute();
-    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+    if (issueExclusionsLoader.shouldExecute()) {
+      String stepName = "Init issue exclusions";
+      eventBus.fireEvent(new BatchStepEvent(stepName, true));
+      issueExclusionsLoader.execute();
+      eventBus.fireEvent(new BatchStepEvent(stepName, false));
+    }
   }
 
   private void indexFs() {

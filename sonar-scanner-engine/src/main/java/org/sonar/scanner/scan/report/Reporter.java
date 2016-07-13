@@ -22,6 +22,7 @@ package org.sonar.scanner.scan.report;
 import org.sonar.api.batch.ScannerSide;
 
 @ScannerSide
+@FunctionalInterface
 public interface Reporter {
 
   void execute();

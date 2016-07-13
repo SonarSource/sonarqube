@@ -278,14 +278,6 @@ public class DefaultIndex {
     return bucket;
   }
 
-  public boolean isExcluded(@Nullable Resource reference) {
-    return false;
-  }
-
-  public boolean isIndexed(@Nullable Resource reference, boolean acceptExcluded) {
-    return getBucket(reference) != null;
-  }
-
   private Bucket getBucket(@Nullable Resource reference) {
     if (reference == null) {
       return null;

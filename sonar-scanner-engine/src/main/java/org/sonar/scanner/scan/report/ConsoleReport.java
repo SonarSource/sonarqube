@@ -126,17 +126,17 @@ public class ConsoleReport implements Reporter {
     int newIssues = r.totalNewIssues;
     if (newIssues > 0) {
       sb.append(StringUtils.leftPad("+" + newIssues, LEFT_PAD)).append(" issue" + (newIssues > 1 ? "s" : "")).append("\n\n");
-      printNewIssues(sb, r.newBlockerIssues, Severity.BLOCKER, "blocker");
-      printNewIssues(sb, r.newCriticalIssues, Severity.CRITICAL, "critical");
-      printNewIssues(sb, r.newMajorIssues, Severity.MAJOR, "major");
-      printNewIssues(sb, r.newMinorIssues, Severity.MINOR, "minor");
-      printNewIssues(sb, r.newInfoIssues, Severity.INFO, "info");
+      printNewIssues(sb, r.newBlockerIssues, "blocker");
+      printNewIssues(sb, r.newCriticalIssues, "critical");
+      printNewIssues(sb, r.newMajorIssues, "major");
+      printNewIssues(sb, r.newMinorIssues, "minor");
+      printNewIssues(sb, r.newInfoIssues, "info");
     } else {
       sb.append("  No new issue").append("\n");
     }
   }
 
-  private static void printNewIssues(StringBuilder sb, int issueCount, String severity, String severityLabel) {
+  private static void printNewIssues(StringBuilder sb, int issueCount, String severityLabel) {
     if (issueCount > 0) {
       sb.append(StringUtils.leftPad("+" + issueCount, LEFT_PAD)).append(" ").append(severityLabel).append("\n");
     }

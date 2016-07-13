@@ -63,7 +63,7 @@ public class ReportSummary {
     return totalByRuleKey;
   }
 
-  public void addResolvedIssue(TrackedIssue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssue(Rule rule, RulePriority severity) {
     ReportRuleKey reportRuleKey = new ReportRuleKey(rule, severity);
     initMaps(reportRuleKey);
     total.incrementResolvedIssuesCount();

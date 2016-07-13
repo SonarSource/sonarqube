@@ -24,6 +24,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 /**
  * Adds a sub-part of data to output report
  */
+@FunctionalInterface
 public interface ReportPublisherStep {
 
   void publish(ScannerReportWriter writer);

@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan.report;
 
 import javax.annotation.CheckForNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
@@ -75,7 +74,7 @@ public class IssuesReportBuilder {
         continue;
       }
       if (issue.resolution() != null) {
-        issuesReport.addResolvedIssueOnResource(resource, issue, rule, severity);
+        issuesReport.addResolvedIssueOnResource(resource, rule, severity);
       } else {
         issuesReport.addIssueOnResource(resource, issue, rule, severity);
       }

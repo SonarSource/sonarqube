@@ -120,6 +120,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return moduleKey;
   }
 
+  @Override
   public Charset charset() {
     return charset;
   }

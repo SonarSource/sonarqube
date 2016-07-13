@@ -20,12 +20,10 @@
 package org.sonar.scanner.scan.report;
 
 import com.google.common.collect.Maps;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.scanner.index.BatchComponent;
@@ -83,13 +81,13 @@ public class IssuesReport {
   public void addIssueOnResource(BatchComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addIssue(issue, rule, severity);
-    resourceReportsByResource.get(resource).addIssue(issue, rule, RulePriority.valueOf(issue.severity()));
+    resourceReportsByResource.get(resource).addIssue(issue, rule, severity);
   }
 
-  public void addResolvedIssueOnResource(BatchComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssueOnResource(BatchComponent resource, Rule rule, RulePriority severity) {
     addResource(resource);
-    getSummary().addResolvedIssue(issue, rule, severity);
-    resourceReportsByResource.get(resource).addResolvedIssue(rule, RulePriority.valueOf(issue.severity()));
+    getSummary().addResolvedIssue(rule, severity);
+    resourceReportsByResource.get(resource).addResolvedIssue(rule, severity);
   }
 
   private void addResource(BatchComponent resource) {

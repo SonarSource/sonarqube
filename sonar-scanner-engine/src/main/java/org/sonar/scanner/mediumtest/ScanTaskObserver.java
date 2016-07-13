@@ -19,12 +19,13 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.scan.ProjectScanContainer;
-import org.sonar.api.ExtensionPoint;
 
 @ScannerSide
 @ExtensionPoint
+@FunctionalInterface
 public interface ScanTaskObserver {
 
   void scanTaskCompleted(ProjectScanContainer container);

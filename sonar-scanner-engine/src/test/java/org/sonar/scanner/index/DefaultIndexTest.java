@@ -34,10 +34,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.scanner.FakeJava;
 import org.sonar.scanner.DefaultProjectTree;
-import org.sonar.scanner.index.BatchComponentCache;
-import org.sonar.scanner.index.DefaultIndex;
+import org.sonar.scanner.FakeJava;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 
@@ -93,8 +91,6 @@ public class DefaultIndexTest {
 
     Directory reference = Directory.create("src/org/foo");
     assertThat(index.getResource(reference).getName()).isEqualTo("src/org/foo");
-    assertThat(index.isIndexed(reference, true)).isTrue();
-    assertThat(index.isExcluded(reference)).isFalse();
     assertThat(index.getChildren(reference)).hasSize(1);
     assertThat(index.getParent(reference)).isInstanceOf(Project.class);
   }
@@ -110,8 +106,6 @@ public class DefaultIndexTest {
     File fileRef = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.getResource(fileRef).getKey()).isEqualTo("src/org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getLanguage().getKey()).isEqualTo("java");
-    assertThat(index.isIndexed(fileRef, true)).isTrue();
-    assertThat(index.isExcluded(fileRef)).isFalse();
     assertThat(index.getChildren(fileRef)).isEmpty();
     assertThat(index.getParent(fileRef)).isInstanceOf(Directory.class);
   }
@@ -137,9 +131,6 @@ public class DefaultIndexTest {
     assertThat(index.index(file, directory)).isFalse();
 
     File fileRef = File.create("src/org/foo/Bar.java", null, false);
-    assertThat(index.isIndexed(directory, true)).isFalse();
-    assertThat(index.isIndexed(fileRef, true)).isFalse();
-    assertThat(index.isExcluded(fileRef)).isFalse();
     assertThat(index.getChildren(fileRef)).isEmpty();
     assertThat(index.getParent(fileRef)).isNull();
   }
@@ -149,7 +140,6 @@ public class DefaultIndexTest {
     Resource dir = Directory.create("src/org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
-    assertThat(index.isIndexed(dir, true)).isFalse();
     assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc"))).isNull();
   }
 
