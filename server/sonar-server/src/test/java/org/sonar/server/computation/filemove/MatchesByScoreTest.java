@@ -66,14 +66,14 @@ public class MatchesByScoreTest {
 
     assertThat(matchesByScore.getSize()).isEqualTo(2);
     assertThat(Lists.newArrayList(matchesByScore)).isEqualTo(Arrays.asList(
-      ImmutableList.of(new Match("C", "1")), // 85
+      ImmutableList.of(new Match("A", "1")), // 92
       NO_MATCH,
       NO_MATCH,
       NO_MATCH,
       NO_MATCH,
       NO_MATCH,
       NO_MATCH,
-      ImmutableList.of(new Match("A", "1")) // 92
+      ImmutableList.of(new Match("C", "1")) // 85
     ));
   }
 

@@ -19,10 +19,17 @@
  */
 package org.sonar.server.computation.filemove;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,6 +87,7 @@ public class FileMoveDetectionStepTest {
     "  }",
     "}"
   };
+
   private static final String[] LESS_CONTENT1 = {
     "package org.sonar.server.computation.filemove;",
     "",
@@ -310,7 +318,7 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     ComponentDto[] dtos = mockComponents(FILE_1.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
 
@@ -327,7 +335,7 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     mockComponents(FILE_1.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, LESS_CONTENT1);
 
@@ -340,7 +348,7 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     mockComponents(FILE_1.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT_EMPTY);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
 
@@ -353,7 +361,7 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     mockComponents(FILE_1.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT_EMPTY);
 
@@ -366,7 +374,7 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     mockComponents(FILE_1.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2, FILE_3);
     setFileContentInReport(FILE_2_REF, CONTENT1);
     setFileContentInReport(FILE_3_REF, CONTENT1);
@@ -380,8 +388,8 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     mockComponents(FILE_1.getKey(), FILE_2.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
-    mockContentOfFileIdDb(FILE_2.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_2.getKey(), CONTENT1);
     setFilesInReport(FILE_3);
     setFileContentInReport(FILE_3_REF, CONTENT1);
 
@@ -402,10 +410,10 @@ public class FileMoveDetectionStepTest {
     Component file5 = fileComponent(6);
     Component file6 = fileComponent(7);
     ComponentDto[] dtos = mockComponents(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
-    mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
-    mockContentOfFileIdDb(FILE_2.getKey(), LESS_CONTENT1);
-    mockContentOfFileIdDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
-    mockContentOfFileIdDb(file5.getKey(), CONTENT2);
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    mockContentOfFileInDb(FILE_2.getKey(), LESS_CONTENT1);
+    mockContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
+    mockContentOfFileInDb(file5.getKey(), CONTENT2);
     setFilesInReport(FILE_3, file4, file6);
     setFileContentInReport(FILE_3_REF, CONTENT1);
     setFileContentInReport(file4.getReportAttributes().getRef(), new String[] {"a", "b"});
@@ -424,11 +432,60 @@ public class FileMoveDetectionStepTest {
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
   }
 
+  /**
+   * JH: A bug was encountered in the algorithm and I didn't manage to forge a simpler test case.
+   */
+  @Test
+  public void real_life_use_case() throws Exception {
+    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    List<String> componentDtoKey = new ArrayList<>();
+    for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/filemove/FileMoveDetectionStepTest/v1"), null, false)) {
+      componentDtoKey.add(f.getName());
+      mockContentOfFileInDb(f.getName(), readLines(f));
+    }
+    mockComponents(componentDtoKey.toArray(new String[0]));
+
+    Map<String, Component> comps = new HashMap<>();
+    int i = 1;
+    for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/filemove/FileMoveDetectionStepTest/v2"), null, false)) {
+      comps.put(f.getName(), builder(Component.Type.FILE, i)
+        .setKey(f.getName())
+        .setPath(f.getName())
+        .build());
+      setFileContentInReport(i++, readLines(f));
+    }
+
+    setFilesInReport(comps.values().toArray(new Component[0]));
+
+    underTest.execute();
+
+    Component makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex = comps.get("MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex.java");
+    Component migrationRb1238 = comps.get("1238_make_component_uuid_and_analysis_uuid_not_null_on_duplications_index.rb");
+    Component addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex = comps.get("AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex.java");
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(
+      makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex,
+      migrationRb1238,
+      addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex);
+
+    assertThat(movedFilesRepository.getOriginalFile(makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex).get().getKey())
+      .isEqualTo("MakeComponentUuidNotNullOnDuplicationsIndex.java");
+    assertThat(movedFilesRepository.getOriginalFile(migrationRb1238).get().getKey())
+      .isEqualTo("1242_make_analysis_uuid_not_null_on_duplications_index.rb");
+    assertThat(movedFilesRepository.getOriginalFile(addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex).get().getKey())
+      .isEqualTo("AddComponentUuidColumnToDuplicationsIndex.java");
+  }
+
+  private String[] readLines(File filename) throws IOException {
+    return FileUtils
+      .readLines(filename, StandardCharsets.UTF_8)
+      .toArray(new String[0]);
+  }
+
   private void setFileContentInReport(int ref, String[] content) {
     sourceLinesRepository.addLines(ref, content);
   }
 
-  private void mockContentOfFileIdDb(String key, String[] content) {
+  private void mockContentOfFileInDb(String key, String[] content) {
     SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
     SourceHashComputer sourceHashComputer = new SourceHashComputer();
     Iterator<String> lineIterator = Arrays.asList(content).iterator();

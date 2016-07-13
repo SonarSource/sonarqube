@@ -60,7 +60,8 @@ abstract class MatchesByScore implements Iterable<List<Match>> {
         return;
       }
 
-      int index = score - MIN_REQUIRED_SCORE;
+      // Store higher score first so that iterator get higher score first
+      int index = scoreMatrix.getMaxScore() - score;
       if (matches[index] == null) {
         matches[index] = new ArrayList<>(1);
       }
@@ -68,7 +69,6 @@ abstract class MatchesByScore implements Iterable<List<Match>> {
       matches[index].add(match);
       totalMatches++;
     }
-
 
     private static boolean isAcceptableScore(int score) {
       return score >= MIN_REQUIRED_SCORE;

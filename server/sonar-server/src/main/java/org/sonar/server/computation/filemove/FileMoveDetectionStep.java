@@ -150,7 +150,8 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   private Map<String, DbComponent> getDbFilesByKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated mapper method
+      // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated
+      // mapper method
       return from(dbClient.componentDao().selectDescendants(
         dbSession,
         ComponentTreeQuery.builder()
@@ -251,15 +252,15 @@ public class FileMoveDetectionStep implements ComputationStep {
       }
 
       List<Match> matchesToValidate = electedMatches.filter(matches);
-      if (matches.isEmpty()) {
+      if (matchesToValidate.isEmpty()) {
         continue;
       }
-      if (matches.size() == 1) {
+      if (matchesToValidate.size() == 1) {
         Match match = matches.get(0);
         electedMatches.add(match);
       } else {
         matchesPerFileForScore.clear();
-        for (Match match : matches) {
+        for (Match match : matchesToValidate) {
           matchesPerFileForScore.put(match.getDbKey(), match);
           matchesPerFileForScore.put(match.getReportKey(), match);
         }

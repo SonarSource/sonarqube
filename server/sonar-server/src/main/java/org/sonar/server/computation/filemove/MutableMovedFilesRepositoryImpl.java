@@ -39,7 +39,7 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
 
     OriginalFile existingOriginalFile = originalFiles.get(file.getKey());
     checkState(existingOriginalFile == null || existingOriginalFile.equals(originalFile),
-      "Original file %s already registered for file %s", existingOriginalFile, file);
+      "Original file %s already registered for file %s. Unable to register %s.", existingOriginalFile, file, originalFile);
     if (existingOriginalFile == null) {
       originalFiles.put(file.getKey(), originalFile);
     }
