@@ -41,6 +41,7 @@ import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsResponse;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
@@ -53,9 +54,9 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
   @Override
   public ProjectRepositories load(String projectKey, boolean issuesMode) {
-    try {
-      GetRequest request = new GetRequest(getUrl(projectKey, issuesMode));
-      InputStream is = wsClient.call(request).contentStream();
+    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode));
+    try (WsResponse response = wsClient.call(request)) {
+      InputStream is = response.contentStream();
       return processStream(is, projectKey);
     } catch (RuntimeException e) {
       if (shouldThrow(e)) {

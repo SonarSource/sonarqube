@@ -56,6 +56,8 @@ public class BatchWsClient {
   }
 
   /**
+   * If an exception is not thrown, the response needs to be closed by either calling close() directly, or closing the 
+   * body content's stream/reader.
    * @throws IllegalStateException if the request could not be executed due to
    *     a connectivity problem or timeout. Because networks can
    *     fail during an exchange, it is possible that the remote server
@@ -82,6 +84,7 @@ public class BatchWsClient {
   private void failIfUnauthorized(WsResponse response) {
     int code = response.code();
     if (code == HTTP_UNAUTHORIZED) {
+      response.close();
       if (hasCredentials) {
         // credentials are not valid
         throw MessageException.of(format("Not authorized. Please check the properties %s and %s.",
@@ -94,6 +97,7 @@ public class BatchWsClient {
     }
     if (code == HTTP_FORBIDDEN || code == HTTP_BAD_REQUEST) {
       // SONAR-4397 Details are in response content
+      response.close();
       throw MessageException.of(tryParseAsJsonError(response.content()));
     }
     response.failIfNotSuccessful();

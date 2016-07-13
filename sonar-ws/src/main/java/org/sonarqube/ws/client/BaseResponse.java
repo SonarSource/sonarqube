@@ -31,6 +31,7 @@ abstract class BaseResponse implements WsResponse {
   @Override
   public WsResponse failIfNotSuccessful() {
     if (!isSuccessful()) {
+      close();
       throw new HttpException(requestUrl(), code());
     }
     return this;
@@ -39,5 +40,10 @@ abstract class BaseResponse implements WsResponse {
   @Override
   public boolean hasContent() {
     return code() != HTTP_NO_CONTENT;
+  }
+  
+  @Override
+  public void close() {
+    // override if needed
   }
 }
