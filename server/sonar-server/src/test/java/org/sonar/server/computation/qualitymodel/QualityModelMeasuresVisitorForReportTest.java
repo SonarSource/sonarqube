@@ -175,6 +175,7 @@ public class QualityModelMeasuresVisitorForReportTest {
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1111),
                 createFileComponent(LANGUAGE_KEY_2, 1112),
+                // Unit test should not be ignored
                 builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1)).build())
               .build(),
             builder(DIRECTORY, 112)
@@ -198,8 +199,11 @@ public class QualityModelMeasuresVisitorForReportTest {
     int ncloc1111 = 10;
     addRawMeasure(NCLOC_KEY, 1111, ncloc1111);
 
-    int ncloc1112 = 10;
+    int ncloc1112 = 12;
     addRawMeasure(NCLOC_KEY, 1112, ncloc1112);
+
+    int ncloc1113 = 15;
+    addRawMeasure(NCLOC_KEY, 1113, ncloc1113);
 
     int nclocValue1121 = 30;
     addRawMeasure(NCLOC_KEY, 1121, nclocValue1121);
@@ -211,8 +215,8 @@ public class QualityModelMeasuresVisitorForReportTest {
 
     // verify measures on files
     verifyAddedRawMeasure(1111, DEVELOPMENT_COST_KEY, Long.toString(ncloc1111 * DEV_COST_LANGUAGE_1));
-    verifyAddedRawMeasure(1112, DEVELOPMENT_COST_KEY, Long.toString(ncloc1111 * DEV_COST_LANGUAGE_2));
-    verifyNoAddedRawMeasure(1113);
+    verifyAddedRawMeasure(1112, DEVELOPMENT_COST_KEY, Long.toString(ncloc1112 * DEV_COST_LANGUAGE_2));
+    verifyAddedRawMeasure(1113, DEVELOPMENT_COST_KEY, Long.toString(ncloc1113 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(1121, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(1211, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
 
@@ -222,7 +226,8 @@ public class QualityModelMeasuresVisitorForReportTest {
     // directory has children => dev cost is aggregated
     verifyAddedRawMeasure(111, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
-        ncloc1112 * DEV_COST_LANGUAGE_2));
+        ncloc1112 * DEV_COST_LANGUAGE_2 +
+        ncloc1113 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(112, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(121, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
 
@@ -230,12 +235,14 @@ public class QualityModelMeasuresVisitorForReportTest {
     verifyAddedRawMeasure(11, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
         ncloc1112 * DEV_COST_LANGUAGE_2 +
+        ncloc1113 * DEV_COST_LANGUAGE_1 +
         nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(12, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(13, DEVELOPMENT_COST_KEY, "0");
     verifyAddedRawMeasure(1, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
         ncloc1112 * DEV_COST_LANGUAGE_2 +
+        ncloc1113 * DEV_COST_LANGUAGE_1 +
         nclocValue1121 * DEV_COST_LANGUAGE_2 +
         ncloc1211 * DEV_COST_LANGUAGE_1));
   }
@@ -482,10 +489,6 @@ public class QualityModelMeasuresVisitorForReportTest {
 
   private void verifyAddedRawMeasure(int componentRef, String metricKey, String value) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(value)));
-  }
-
-  private void verifyNoAddedRawMeasure(int componentRef) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).isEmpty();
   }
 
   private static ReportComponent createFileComponent(String languageKey1, int fileRef) {

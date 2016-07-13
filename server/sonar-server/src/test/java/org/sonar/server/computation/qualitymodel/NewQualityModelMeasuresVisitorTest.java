@@ -195,29 +195,16 @@ public class NewQualityModelMeasuresVisitorTest {
   }
 
   @Test
-  public void no_new_debt_ratio_when_file_is_unit_test() {
+  public void new_debt_ratio_when_file_is_unit_test() {
     setTwoPeriods();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(500, 120, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200, 820));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNoNewDebtRatioMeasure(LANGUAGE_1_FILE_REF);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
-  }
-
-  @Test
-  public void new_debt_ratio_is_0_on_non_file_level_when_all_files_are_unit_test() {
-    setTwoPeriods();
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    assertNoNewDebtRatioMeasure(LANGUAGE_1_FILE_REF);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33, 0);
+    assertNewDebtRatioValues(ROOT_REF, 833.33, 0);
   }
 
   @Test

@@ -116,10 +116,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
 
   @Override
   public void visitFile(Component file, Path<QualityModelCounter> path) {
-    if (!file.getFileAttributes().isUnitTest()) {
-      path.current().addDevCosts(computeDevelopmentCost(file));
-      computeAndSaveMeasures(file, path);
-    }
+    path.current().addDevCosts(computeDevelopmentCost(file));
+    computeAndSaveMeasures(file, path);
   }
 
   private long computeDevelopmentCost(Component file) {

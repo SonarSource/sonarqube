@@ -104,10 +104,6 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
 
   @Override
   public void visitFile(Component file, Path<NewTechDebtRatioCounter> path) {
-    if (file.getFileAttributes().isUnitTest()) {
-      return;
-    }
-
     initNewDebtRatioCounter(file, path);
     computeAndSaveNewDebtRatioMeasure(file, path);
     increaseNewDebtAndDevCostOfParent(path);
