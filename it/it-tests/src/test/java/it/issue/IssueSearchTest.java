@@ -19,9 +19,6 @@
  */
 package it.issue;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
@@ -42,12 +39,13 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonarqube.ws.Issues.SearchWsResponse;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
@@ -305,30 +303,23 @@ public class IssueSearchTest extends AbstractIssueTest {
     assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
   }
 
+  @Test
+  public void search_issues_by_types() throws IOException {
+    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
+    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
+    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
+  }
+
   private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
-    WsResponse response = newAdminWsClient(ORCHESTRATOR)
-      .wsConnector()
-      .call(new GetRequest("api/issues/search")
-        .setParam("rules", Joiner.on(",").join(ruleKey))
-        .setMediaType(MediaTypes.PROTOBUF));
-    org.sonarqube.ws.Issues.SearchWsResponse searchWsResponse = org.sonarqube.ws.Issues.SearchWsResponse.parseFrom(response.contentStream());
-    return searchWsResponse.getIssuesList();
+    return searchIssues(new SearchWsRequest().setRules(asList(ruleKey))).getIssuesList();
+  }
+
+  private SearchWsResponse searchIssues(SearchWsRequest request) throws IOException {
+    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
   }
 
   private static Component findComponent(Collection<Component> components, final String key) {
-    return Iterables.find(components, new Predicate<Component>() {
-      @Override
-      public boolean apply(Component input) {
-        return key.equals(input.key());
-      }
-    });
-  }
-
-  private static void createManualRule() {
-    ORCHESTRATOR.getServer().adminWsClient().post("/api/rules/create", ImmutableMap.<String, Object>of(
-      "manual_key", "invalidclassname",
-      "name", "InvalidClassName",
-      "markdown_description", "Invalid class name"));
+    return Iterables.find(components, input -> key.equals(input.key()));
   }
 
 }
