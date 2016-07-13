@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
+import some from 'lodash/some';
 import LinksMixin from '../links-mixin';
 import { translate } from '../../../helpers/l10n';
 
@@ -28,7 +30,38 @@ export default React.createClass({
     return { extensions: [] };
   },
 
+  isSomethingActive(urls) {
+    const path = window.location.pathname;
+    return some(urls, url => path.indexOf(window.baseUrl + url) === 0);
+  },
+
+  isSecurityActive() {
+    const urls = ['/users', '/groups', '/roles/global', '/permission_templates'];
+    return this.isSomethingActive(urls);
+  },
+
+  isProjectsActive() {
+    const urls = ['/projects', '/background_tasks'];
+    return this.isSomethingActive(urls);
+  },
+
+  isSystemActive() {
+    const urls = ['/updatecenter', '/system'];
+    return this.isSomethingActive(urls);
+  },
+
   render() {
+    const isSecurity = this.isSecurityActive();
+    const isProjects = this.isProjectsActive();
+    const isSystem = this.isSystemActive();
+
+    const securityClassName = classNames('dropdown', { active: isSecurity });
+    const projectsClassName = classNames('dropdown', { active: isProjects });
+    const systemClassName = classNames('dropdown', { active: isSystem });
+    const configurationClassNames = classNames('dropdown', {
+      active: !isSecurity && !isProjects && !isSystem
+    });
+
     return (
         <div className="container">
           <ul className="nav navbar-nav nav-crumbs">
@@ -36,47 +69,60 @@ export default React.createClass({
           </ul>
 
           <ul className="nav navbar-nav nav-tabs">
-            <li className="dropdown">
+            <li className={configurationClassNames}>
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {translate('sidebar.project_settings')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.project_settings')}
+                {' '}
+                <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/settings', translate('settings.page'))}
                 {this.renderLink('/metrics', 'Custom Metrics')}
-                {this.renderLink('/admin_dashboards', translate('default_dashboards.page'))}
+                {this.renderLink('/admin_dashboards',
+                    translate('default_dashboards.page'))}
                 {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
               </ul>
             </li>
 
-            <li className="dropdown">
+            <li className={securityClassName}>
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {translate('sidebar.security')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.security')}
+                {' '}
+                <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/users', translate('users.page'))}
                 {this.renderLink('/groups', translate('user_groups.page'))}
-                {this.renderLink('/roles/global', translate('global_permissions.page'))}
+                {this.renderLink('/roles/global',
+                    translate('global_permissions.page'))}
                 {this.renderLink('/roles/projects', translate('roles.page'))}
-                {this.renderLink('/permission_templates', translate('permission_templates'))}
+                {this.renderLink('/permission_templates',
+                    translate('permission_templates'))}
               </ul>
             </li>
 
-            <li className="dropdown">
+            <li className={projectsClassName}>
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {translate('sidebar.projects')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.projects')}
+                {' '}
+                <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/projects', 'Management')}
-                {this.renderLink('/background_tasks', translate('background_tasks.page'))}
+                {this.renderLink('/background_tasks',
+                    translate('background_tasks.page'))}
               </ul>
             </li>
 
-            <li className="dropdown">
+            <li className={systemClassName}>
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {translate('sidebar.system')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.system')}
+                {' '}
+                <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/updatecenter', translate('update_center.page'))}
+                {this.renderLink('/updatecenter',
+                    translate('update_center.page'))}
                 {this.renderLink('/system', translate('system_info.page'))}
               </ul>
             </li>
