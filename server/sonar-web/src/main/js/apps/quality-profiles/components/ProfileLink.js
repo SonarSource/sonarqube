@@ -29,7 +29,10 @@ export default class ProfileLink extends React.Component {
     const { profileKey, children, ...other } = this.props;
     const query = { key: profileKey };
     return (
-        <Link to={{ pathname: '/show', query }} {...other}>
+        <Link
+            to={{ pathname: '/show', query }}
+            activeClassName="link-no-underline"
+            {...other}>
           {children}
         </Link>
     );
