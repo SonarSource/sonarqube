@@ -104,7 +104,7 @@ class Api::TimemachineController < Api::ApiController
 
         measures.each do |m|
           @analysis_uuids << m.analysis_uuid
-          @dates_by_analysis_uuid[m.analysis_uuid] = date_column.type_cast(m.attributes['created_at'])
+          @dates_by_analysis_uuid[m.analysis_uuid] = date_column.type_cast(m.attributes['created_at']).to_i
           @measures_by_analysis_uuid[m.analysis_uuid] ||= {}
           @measures_by_analysis_uuid[m.analysis_uuid][MetadataId.new(m.metric_id)] = m
         end
