@@ -66,7 +66,9 @@ public abstract class Server {
    * Return whether or not the {#getPublicRootUrl} is started with https.
    *
    * @since 5.4
+   * @deprecated since 5.6, use instead {@link javax.servlet.http.HttpServletRequest#getHeader(String)} and check that X-Forwarded-Proto header is set to "https".
    */
+  @Deprecated
   public abstract boolean isSecured();
 
   /**
