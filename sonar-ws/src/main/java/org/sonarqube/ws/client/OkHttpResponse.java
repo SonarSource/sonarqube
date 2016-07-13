@@ -20,6 +20,8 @@
 package org.sonarqube.ws.client;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -65,12 +67,18 @@ class OkHttpResponse extends BaseResponse {
     return okResponse.body().charStream();
   }
 
+  /**
+   * Get body content as a String. This response will be automatically closed.
+   */
   @Override
   public String content() {
+    ResponseBody body = okResponse.body();
     try {
-      return okResponse.body().string();
+      return body.string();
     } catch (IOException e) {
       throw fail(e);
+    } finally {
+      body.close();
     }
   }
 
