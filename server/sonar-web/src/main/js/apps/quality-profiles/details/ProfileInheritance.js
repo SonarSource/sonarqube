@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentView from '../views/ChangeParentView';
 import { ProfileType } from '../propTypes';
@@ -78,6 +79,12 @@ export default class ProfileInheritance extends React.Component {
   }
 
   render () {
+    const highlightCurrent = !this.state.loading &&
+        (this.state.ancestors.length > 0 || this.state.children.length > 0);
+    const currentClassName = classNames('js-inheritance-current', {
+      selected: highlightCurrent
+    });
+
     return (
         <div className="quality-profile-inheritance">
           <header className="big-spacer-bottom clearfix">
@@ -108,7 +115,7 @@ export default class ProfileInheritance extends React.Component {
                       profile={this.state.profile}
                       depth={this.state.ancestors.length}
                       displayLink={false}
-                      className="js-inheritance-current"/>
+                      className={currentClassName}/>
 
                   {this.state.children.map(child => (
                       <ProfileInheritanceBox
