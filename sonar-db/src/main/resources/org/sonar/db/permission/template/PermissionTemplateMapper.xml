@@ -205,6 +205,47 @@
     </where>
   </select>
 
+  <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
+    SELECT DISTINCT groups.name, LOWER(groups.name), groups.group_id
+    <include refid="groupNamesByQueryAndTemplate" />
+    ORDER BY LOWER(groups.name), groups.name, groups.group_id
+  </select>
+
+  <select id="countGroupNamesByQueryAndTemplate" parameterType="map" resultType="int">
+    SELECT COUNT(1)
+    FROM (
+      SELECT DISTINCT group_id
+      <include refid="groupNamesByQueryAndTemplate" />) g
+  </select>
+
+  <sql id="groupNamesByQueryAndTemplate">
+    FROM
+    (SELECT g.id AS group_id, g.name AS name, ptg.permission_reference AS permission
+    FROM groups g
+    LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id AND ptg.template_id=#{templateId}
+    UNION ALL
+    SELECT 0 AS group_id, 'Anyone' AS name, ptg.permission_reference AS permission
+    FROM perm_templates_groups ptg
+    <where>
+      AND ptg.template_id=#{templateId}
+      <if test="query.withPermissionOnly()">
+        AND ptg.group_id IS NULL
+      </if>
+    </where>
+    ) groups
+    <where>
+      <if test="query.searchQueryToSql != null">
+        AND LOWER(groups.name) LIKE #{query.searchQueryToSql} ESCAPE '/'
+      </if>
+      <if test="query.withPermissionOnly()">
+        AND groups.permission IS NOT NULL
+        <if test="query.permission != null">
+          AND groups.permission=#{query.permission}
+        </if>
+      </if>
+    </where>
+  </sql>
+
   <sql id="templateColumns">
     id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
   </sql>
@@ -271,19 +312,46 @@
     </where>
   </select>
 
-  <select id="selectGroupPermissionsByTemplateId" parameterType="Long" resultType="PermissionTemplateGroup">
+  <select id="selectGroupPermissionsByTemplateIdAndGroupNames" parameterType="Long" resultType="PermissionTemplateGroup">
     SELECT
-    ptg.id,
-    ptg.template_id as templateId,
-    ptg.permission_reference AS permission,
-    ptg.group_id AS groupId,
-    g.name AS groupName,
-    ptg.created_at as createdAt,
-    ptg.updated_at as updatedAt
-    FROM perm_templates_groups ptg
-    LEFT OUTER JOIN groups g ON g.id=ptg.group_id
-    WHERE ptg.template_id=#{templateId}
-    AND (g.name IS NOT NULL OR ptg.group_id IS NULL)
+      sub.id,
+      sub.templateId,
+      sub.permission,
+      sub.groupId,
+      sub.groupName,
+      sub.createdAt,
+      sub.updatedAt
+    FROM  (
+      SELECT
+        ptg.id,
+        ptg.template_id as templateId,
+        ptg.permission_reference AS permission,
+        ptg.group_id AS groupId,
+        g.name AS groupName,
+        ptg.created_at as createdAt,
+        ptg.updated_at as updatedAt
+        FROM perm_templates_groups ptg
+      INNER JOIN groups g ON g.id=ptg.group_id
+      UNION ALL
+        SELECT
+          ptg.id,
+          ptg.template_id as templateId,
+          ptg.permission_reference AS permission,
+          0 AS groupId,
+          'Anyone' AS groupName,
+          ptg.created_at as createdAt,
+          ptg.updated_at as updatedAt
+        FROM perm_templates_groups ptg
+        WHERE ptg.group_id IS NULL
+    ) sub
+    <where>
+      sub.templateId=#{templateId}
+      <if test="!groups.isEmpty()">
+        AND sub.groupName IN <foreach collection="groups" open="(" close=")" item="group" separator=",">
+        #{group}
+        </foreach>
+      </if>
+    </where>
   </select>
 
   <select id="selectPotentialPermissionsByUserIdAndTemplateId" parameterType="map" resultType="String">

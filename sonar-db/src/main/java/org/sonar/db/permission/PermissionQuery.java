@@ -71,6 +71,8 @@ public class PermissionQuery {
     return withPermissionOnly;
   }
 
+  // TODO remove it, it should not be in the query, but set as a separate parameter
+  @Deprecated
   public String template() {
     return template;
   }
@@ -155,7 +157,7 @@ public class PermissionQuery {
     public PermissionQuery build() {
       this.pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
       this.pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
-      checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH);
+      checkArgument(searchQuery == null || searchQuery.length() >= SEARCH_QUERY_MIN_LENGTH, "Search query should contains at least %s characters", SEARCH_QUERY_MIN_LENGTH);
       return new PermissionQuery(this);
     }
   }

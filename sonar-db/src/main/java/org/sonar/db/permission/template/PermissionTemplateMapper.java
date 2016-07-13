@@ -53,16 +53,13 @@ public interface PermissionTemplateMapper {
 
   List<PermissionTemplateUserDto> selectUserPermissionsByTemplateIdAndUserLogins(@Param("templateId") long templateId, @Param("logins") List<String> logins);
 
-  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateId(long templateId);
+  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateIdAndGroupNames(@Param("templateId") long templateId, @Param("groups") List<String> groups);
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   void deleteByGroupId(long groupId);
-
-  List<GroupWithPermissionDto> selectGroups(@Param("query") OldPermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
-    @Param("projectAdminPermission") String projectAdminPermission, RowBounds rowBounds);
 
   List<UserWithPermissionDto> selectUsers(@Param("query") OldPermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
 
@@ -72,8 +69,15 @@ public interface PermissionTemplateMapper {
 
   int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
+  List<GroupWithPermissionDto> selectGroups(@Param("query") OldPermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
+                                            @Param("projectAdminPermission") String projectAdminPermission, RowBounds rowBounds);
+
   int countGroups(@Param("query") OldPermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
     @Param("projectAdminPermission") String projectAdminPermission, @Nullable @Param("groupName") String groupName);
+
+  List<String> selectGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
+
+  int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
   List<PermissionTemplateDto> selectAll(@Param("nameMatch") String nameMatch);
 

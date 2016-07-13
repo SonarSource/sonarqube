@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -40,6 +39,8 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserPermissionDto;
+
+import static org.sonar.api.security.DefaultGroups.isAnyone;
 
 /**
  * This facade wraps db operations related to permissions
@@ -104,7 +105,7 @@ public class PermissionRepository {
   }
 
   public void insertGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
-    if (DefaultGroups.isAnyone(groupName)) {
+    if (isAnyone(groupName)) {
       insertGroupPermission(resourceId, (Long) null, permission, session);
     } else {
       GroupDto group = dbClient.groupDao().selectByName(session, groupName);
@@ -124,7 +125,7 @@ public class PermissionRepository {
   }
 
   public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
-    if (DefaultGroups.isAnyone(groupName)) {
+    if (isAnyone(groupName)) {
       deleteGroupPermission(resourceId, (Long) null, permission, session);
     } else {
       GroupDto group = dbClient.groupDao().selectByName(session, groupName);
@@ -156,7 +157,8 @@ public class PermissionRepository {
     usersPermissions.forEach(userPermission -> insertUserPermission(componentId, userPermission.getUserId(), userPermission.getPermission(), false, session));
 
     List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupPermissions();
-    groupsPermissions.forEach(groupPermission -> insertGroupPermission(componentId, groupPermission.getGroupId(), groupPermission.getPermission(), false, session));
+    groupsPermissions.forEach(groupPermission -> insertGroupPermission(componentId, isAnyone(groupPermission.getGroupName()) ? null : groupPermission.getGroupId(),
+      groupPermission.getPermission(), false, session));
 
     List<PermissionTemplateCharacteristicDto> characteristics = permissionTemplate.getCharacteristics();
     if (currentUserId != null) {

@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -90,7 +91,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_permission_template() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
-    PermissionTemplate result = underTest.selectByUuidWithUserAndGroupPermissions("my_template_20130102_030405");
+    PermissionTemplate result = underTest.selectByUuidWithUserAndGroupPermissions(dbSession, "my_template_20130102_030405");
 
     assertThat(result).isNotNull();
     PermissionTemplateDto template = result.getTemplate();
@@ -105,8 +106,8 @@ public class PermissionTemplateDaoTest {
     assertThat(usersPermissions).extracting("permission").containsOnly("user_permission1", "user_permission1", "user_permission2");
     List<PermissionTemplateGroupDto> groupsPermissions = result.getGroupPermissions();
     assertThat(groupsPermissions).hasSize(3);
-    assertThat(groupsPermissions).extracting("groupId").containsOnly(1L, 2L, null);
-    assertThat(groupsPermissions).extracting("groupName").containsOnly("group1", "group2", null);
+    assertThat(groupsPermissions).extracting("groupId").containsOnly(1L, 2L, 0L);
+    assertThat(groupsPermissions).extracting("groupName").containsOnly("group1", "group2", "Anyone");
     assertThat(groupsPermissions).extracting("permission").containsOnly("group_permission1", "group_permission1", "group_permission2");
   }
 
@@ -249,6 +250,7 @@ public class PermissionTemplateDaoTest {
     GroupDto group = groupDb.insertGroup(newGroupDto());
     UserDto user = userDb.insertUser(newUserDto());
     templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.ADMIN);
+    templateDb.addGroupToTemplate(template.getId(), null, UserRole.USER);
     templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.CODEVIEWER);
     templateDb.addProjectCreatorToTemplate(template.getId(), UserRole.USER);
 
@@ -259,9 +261,12 @@ public class PermissionTemplateDaoTest {
     assertThat(result.getCharacteristics()).hasSize(1)
       .extracting(PermissionTemplateCharacteristicDto::getPermission, PermissionTemplateCharacteristicDto::getWithProjectCreator)
       .containsExactly(tuple(UserRole.USER, true));
-    assertThat(result.getGroupPermissions()).hasSize(1)
+    assertThat(result.getGroupPermissions())
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
-      .containsExactly(tuple(group.getId(), group.getName(), UserRole.ADMIN));
+      .containsOnly(
+        tuple(group.getId(), group.getName(), UserRole.ADMIN),
+        tuple(0L, ANYONE, UserRole.USER)
+      );
     assertThat(result.getUserPermissions()).hasSize(1)
       .extracting(PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsExactly(tuple(user.getId(), user.getLogin(), UserRole.CODEVIEWER));

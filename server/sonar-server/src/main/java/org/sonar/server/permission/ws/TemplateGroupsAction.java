@@ -19,23 +19,32 @@
  */
 package org.sonar.server.permission.ws;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.server.ws.WebService.SelectionMode;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.OldGroup;
-import org.sonarqube.ws.WsPermissions.WsTemplateGroupsResponse;
+import org.sonarqube.ws.WsPermissions;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
+import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
+import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
@@ -58,15 +67,17 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction("template_groups")
       .setSince("5.2")
       .setInternal(true)
-      .setDescription(String.format("Lists the groups that have been explicitly granted the specified project permission on a permission template. <br />" +
-        "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'. <br />" +
-        "It requires administration permissions to access.",
-        Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
-      .addPagingParams(100)
-      .addSearchQuery("sonar", "names")
-      .addSelectionModeParam()
+      .setDescription("Lists the groups with their permission as individual groups rather than through user affiliation on the chosen template.<br />" +
+        "This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>" +
+        "It requires administration permissions to access.")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setResponseExample(getClass().getResource("template_groups-example.json"))
       .setHandler(this);
+
+    action.createParam(WebService.Param.TEXT_QUERY)
+      .setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
+        "When this parameter is not set, only group having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setExampleValue("eri");
 
     createProjectPermissionParameter(action);
     createTemplateParameters(action);
@@ -75,67 +86,72 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
 
-      OldPermissionQuery query = buildQuery(wsRequest, template);
-      WsTemplateGroupsResponse groupsResponse = buildResponse(dbSession, query, template);
-
+      PermissionQuery query = buildPermissionQuery(wsRequest);
+      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getId());
+      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
+      List<GroupDto> groups = findGroups(dbSession, query, template);
+      List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
+      WsPermissions.WsGroupsResponse groupsResponse = buildResponse(groups, groupPermissions, paging);
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private WsTemplateGroupsResponse buildResponse(DbSession dbSession, OldPermissionQuery query, PermissionTemplateDto template) {
-    int total = dbClient.permissionTemplateDao().countGroups(dbSession, query, template.getId());
-    List<GroupWithPermissionDto> groupsWithPermission = dbClient.permissionTemplateDao().selectGroups(dbSession, query, template.getId(), query.pageOffset(), query.pageSize());
-
-    WsTemplateGroupsResponse.Builder groupsResponse = WsTemplateGroupsResponse.newBuilder();
-
-    for (GroupWithPermissionDto groupWithPermission : groupsWithPermission) {
-      groupsResponse.addGroups(groupDtoToGroupResponse(groupWithPermission));
+  private static PermissionQuery buildPermissionQuery(Request request) {
+    String textQuery = request.param(TEXT_QUERY);
+    String permission = request.param(PARAM_PERMISSION);
+    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .setPermission(permission != null ? validateProjectPermission(permission) : null)
+      .setPageIndex(request.mandatoryParamAsInt(PAGE))
+      .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
+      .setSearchQuery(textQuery);
+    if (textQuery == null) {
+      permissionQuery.withPermissionOnly();
     }
-
-    groupsResponse.getPagingBuilder()
-      .setPageIndex(query.pageIndex())
-      .setPageSize(query.pageSize())
-      .setTotal(total)
-      .build();
-
-    return groupsResponse.build();
-  }
-
-  private static OldPermissionQuery buildQuery(Request request, PermissionTemplateDto template) {
-    String permission = validateProjectPermission(request.mandatoryParam(PARAM_PERMISSION));
-
-    OldPermissionQuery.Builder permissionQuery = OldPermissionQuery.builder()
-      .permission(permission)
-      .pageIndex(request.mandatoryParamAsInt(Param.PAGE))
-      .pageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .membership(fromSelectionModeToMembership(request.mandatoryParam(Param.SELECTED)))
-      .template(template.getUuid())
-      .search(request.param(Param.TEXT_QUERY));
-
     return permissionQuery.build();
   }
 
-  private static OldGroup groupDtoToGroupResponse(GroupWithPermissionDto groupDto) {
-    OldGroup.Builder groupBuilder = OldGroup.newBuilder();
-    groupBuilder
-      .setName(groupDto.getName())
-      .setSelected(groupDto.getPermission() != null);
-    // anyone group return with id = 0
-    if (groupDto.getId() != 0) {
-      groupBuilder.setId(String.valueOf(groupDto.getId()));
-    }
-    if (groupDto.getDescription() != null) {
-      groupBuilder.setDescription(groupDto.getDescription());
-    }
+  private static WsPermissions.WsGroupsResponse buildResponse(List<GroupDto> groups, List<PermissionTemplateGroupDto> groupPermissions, Paging paging) {
+    Multimap<Long, String> permissionsByGroupId = TreeMultimap.create();
+    groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getPermission()));
+    WsPermissions.WsGroupsResponse.Builder response = WsPermissions.WsGroupsResponse.newBuilder();
 
-    return groupBuilder.build();
+    groups.forEach(group -> {
+      WsPermissions.Group.Builder wsGroup = response.addGroupsBuilder()
+        .setName(group.getName());
+      if (group.getId() != 0L) {
+        wsGroup.setId(String.valueOf(group.getId()));
+      }
+      if (group.getDescription() != null) {
+        wsGroup.setDescription(group.getDescription());
+      }
+      wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
+    });
+
+    response.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total());
+    return response.build();
+  }
+
+  private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
+    List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getId());
+    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
+    if (orderedNames.contains(DefaultGroups.ANYONE)) {
+      groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));
+    }
+    return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
+  }
+
+  private List<PermissionTemplateGroupDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, PermissionTemplateDto template) {
+    List<String> names = groups.stream().map(GroupDto::getName).collect(Collectors.toList());
+    return dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateIdAndGroupNames(dbSession, template.getId(), names);
   }
 }

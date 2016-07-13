@@ -82,19 +82,38 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
+  public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, long templateId) {
+    return mapper(session).selectGroupNamesByQueryAndTemplate(query, templateId, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  }
+
+  public int countGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, long templateId) {
+    return mapper(session).countGroupNamesByQueryAndTemplate(query, templateId);
+  }
+
+  public List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateIdAndGroupNames(DbSession dbSession, long templateId, List<String> groups) {
+    return executeLargeInputs(groups, g -> mapper(dbSession).selectGroupPermissionsByTemplateIdAndGroupNames(templateId, g));
+  }
+
+  public List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateId(DbSession dbSession, long templateId) {
+    return mapper(dbSession).selectGroupPermissionsByTemplateIdAndGroupNames(templateId, Collections.emptyList());
+  }
+
   /**
    * 'Anyone' group is not returned when it has not the asked permission.
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
    * @return a non paginated list of groups.
    */
+  @Deprecated
   public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId) {
     return selectGroups(session, query, templateId, 0, Integer.MAX_VALUE);
   }
 
+  @Deprecated
   public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
     return mapper(session).selectGroups(query, templateId, ANYONE, ADMIN, new RowBounds(offset, limit));
   }
 
+  @Deprecated
   public List<GroupWithPermissionDto> selectGroups(OldPermissionQuery query, Long templateId) {
     DbSession session = myBatis.openSession(false);
     try {
@@ -104,6 +123,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
+  @Deprecated
   public int countGroups(DbSession session, OldPermissionQuery query, long templateId) {
     return countGroups(session, query, templateId, null);
   }
@@ -141,21 +161,11 @@ public class PermissionTemplateDao implements Dao {
     }
 
     List<PermissionTemplateUserDto> userPermissions = selectUserPermissionsByTemplateId(session, template.getId());
-    List<PermissionTemplateGroupDto> groupPermissions = mapper.selectGroupPermissionsByTemplateId(template.getId());
+    List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissionsByTemplateId(session, template.getId());
     PermissionTemplateCharacteristicMapper characteristicMapper = session.getMapper(PermissionTemplateCharacteristicMapper.class);
     List<PermissionTemplateCharacteristicDto> characteristics = characteristicMapper.selectByTemplateId(template.getId());
 
     return new PermissionTemplate(template, userPermissions, groupPermissions, characteristics);
-  }
-
-  @CheckForNull
-  public PermissionTemplate selectByUuidWithUserAndGroupPermissions(String templateUuid) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectByUuidWithUserAndGroupPermissions(session, templateUuid);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public List<PermissionTemplateDto> selectAll(DbSession session, String nameMatch) {
