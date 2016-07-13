@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
@@ -412,7 +413,7 @@ public class IssueIndex extends BaseIndex {
       }
       addAssignedToMeFacetIfNeeded(esSearch, options, query, filters, esQuery);
       if (options.getFacets().contains(CREATED_AT)) {
-        esSearch.addAggregation(getCreatedAtFacet(query, filters, esQuery));
+        getCreatedAtFacet(query, filters, esQuery).ifPresent(a -> esSearch.addAggregation(a));
       }
     }
 
@@ -446,17 +447,23 @@ public class IssueIndex extends BaseIndex {
     return FACET_MODE_EFFORT.equals(query.facetMode()) || DEPRECATED_FACET_MODE_DEBT.equals(query.facetMode());
   }
 
-  private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
-    long now = system.now();
-
-    DateHistogramInterval bucketSize = DateHistogramInterval.YEAR;
+  private Optional<AggregationBuilder> getCreatedAtFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
+    long startTime;
     Date createdAfter = query.createdAfter();
-    long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
+    if (createdAfter == null) {
+      Optional<Long> minDate = getMinCreatedAt(filters, esQuery);
+      if (!minDate.isPresent()) {
+        return Optional.empty();
+      }
+      startTime = minDate.get();
+    } else {
+      startTime = createdAfter.getTime();
+    }
     Date createdBefore = query.createdBefore();
-    long endTime = createdBefore == null ? now : createdBefore.getTime();
+    long endTime = createdBefore == null ? system.now() : createdBefore.getTime();
 
     Duration timeSpan = new Duration(startTime, endTime);
-
+    DateHistogramInterval bucketSize = DateHistogramInterval.YEAR;
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
       bucketSize = DateHistogramInterval.DAY;
     } else if (timeSpan.isShorterThan(TWENTY_WEEKS)) {
@@ -478,10 +485,10 @@ public class IssueIndex extends BaseIndex {
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
       .extendedBounds(startTime, endTime - 1_000L);
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
-    return dateHistogram;
+    return Optional.of(dateHistogram);
   }
 
-  private long getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
+  private Optional<Long> getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
     SearchRequestBuilder esRequest = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
@@ -500,12 +507,13 @@ public class IssueIndex extends BaseIndex {
     }
     esRequest.addAggregation(AggregationBuilders.min(facetNameAndField).field(facetNameAndField));
     Min minValue = esRequest.get().getAggregations().get(facetNameAndField);
+
     Double actualValue = minValue.getValue();
+    System.out.println("min=" + actualValue);
     if (actualValue.isInfinite()) {
-      return Long.MIN_VALUE;
-    } else {
-      return actualValue.longValue();
+      return Optional.empty();
     }
+    return Optional.of(actualValue.longValue());
   }
 
   private AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

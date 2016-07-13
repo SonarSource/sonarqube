@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Fail;
-import org.elasticsearch.test.ESTestCase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -868,7 +867,7 @@ public class IssueIndexTest {
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder(userSessionRule).build(),
       SearchOptions).getFacets().get("createdAt");
-    assertThat(createdAt).isEmpty();
+    assertThat(createdAt).isNull();
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {
