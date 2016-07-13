@@ -323,9 +323,13 @@ public class SearchResponseFormat {
         // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
         if (!uuid.equals(dto.getRootUuid())) {
           ComponentDto project = data.getComponentByUuid(dto.projectUuid());
-          builder.setProjectId(project.getId());
+          if (project != null) {
+            builder.setProjectId(project.getId());
+          }
           ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
-          builder.setSubProjectId(subProject.getId());
+          if (subProject != null) {
+            builder.setSubProjectId(subProject.getId());
+          }
         }
         result.add(builder.build());
       }
