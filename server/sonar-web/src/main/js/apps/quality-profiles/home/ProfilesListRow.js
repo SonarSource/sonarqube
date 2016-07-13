@@ -21,6 +21,7 @@ import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import ProfileLink from '../components/ProfileLink';
 import ProfileDate from '../components/ProfileDate';
+import ProfileActions from '../components/ProfileActions';
 import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
@@ -28,7 +29,9 @@ import { isStagnant } from '../utils';
 
 export default class ProfilesListRow extends React.Component {
   static propTypes = {
-    profile: ProfileType.isRequired
+    profile: ProfileType.isRequired,
+    canAdmin: React.PropTypes.bool.isRequired,
+    updateProfiles: React.PropTypes.func.isRequired
   };
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -132,6 +135,19 @@ export default class ProfilesListRow extends React.Component {
           <td className="quality-profiles-table-date thin nowrap text-right">
             {this.renderUsageDate()}
           </td>
+          {this.props.canAdmin && (
+              <td className="quality-profiles-table-actions thin nowrap text-right">
+                <div className="dropdown">
+                  <button className="dropdown-toggle" data-toggle="dropdown">
+                    <i className="icon-dropdown"/>
+                  </button>
+                  <ProfileActions
+                      profile={this.props.profile}
+                      canAdmin={this.props.canAdmin}
+                      updateProfiles={this.props.updateProfiles}/>
+                </div>
+              </td>
+          )}
         </tr>
     );
   }

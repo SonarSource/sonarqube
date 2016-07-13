@@ -20,16 +20,11 @@
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
 import classNames from 'classnames';
-import moment from 'moment';
 import ProfileLink from '../components/ProfileLink';
-import RenameProfileView from '../views/RenameProfileView';
-import CopyProfileView from '../views/CopyProfileView';
-import DeleteProfileView from '../views/DeleteProfileView';
+import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
 import { ProfileType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
-import { setDefaultProfile } from '../../../api/quality-profiles';
-import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
 
 export default class ProfileHeader extends React.Component {
@@ -38,49 +33,6 @@ export default class ProfileHeader extends React.Component {
     canAdmin: React.PropTypes.bool.isRequired,
     updateProfiles: React.PropTypes.func.isRequired
   };
-
-  static contextTypes = {
-    router: React.PropTypes.object
-  };
-
-  handleRenameClick (e) {
-    e.preventDefault();
-    new RenameProfileView({
-      profile: this.props.profile
-    }).on('done', () => {
-      this.props.updateProfiles();
-    }).render();
-  }
-
-  handleCopyClick (e) {
-    e.preventDefault();
-    new CopyProfileView({
-      profile: this.props.profile
-    }).on('done', profile => {
-      this.props.updateProfiles().then(() => {
-        this.context.router.push({
-          pathname: '/show',
-          query: { key: profile.key }
-        });
-      });
-    }).render();
-  }
-
-  handleSetDefaultClick (e) {
-    e.preventDefault();
-    setDefaultProfile(this.props.profile.key)
-        .then(this.props.updateProfiles);
-  }
-
-  handleDeleteClick (e) {
-    e.preventDefault();
-    new DeleteProfileView({
-      profile: this.props.profile
-    }).on('done', () => {
-      this.context.router.replace('/');
-      this.props.updateProfiles();
-    }).render();
-  }
 
   renderUpdateDate () {
     const { profile } = this.props;
@@ -98,16 +50,7 @@ export default class ProfileHeader extends React.Component {
   }
 
   render () {
-    const { profile, canAdmin } = this.props;
-
-    const backupUrl = window.baseUrl +
-        '/api/qualityprofiles/backup?profileKey=' +
-        encodeURIComponent(profile.key);
-
-    const activateMoreUrl = getRulesUrl({
-      qprofile: this.props.profile.key,
-      activation: 'false'
-    });
+    const { profile } = this.props;
 
     return (
         <header className="page-header quality-profile-header">
@@ -125,7 +68,7 @@ export default class ProfileHeader extends React.Component {
 
           <h1 className="page-title">
             <ProfileLink
-                profileKey={this.props.profile.key}
+                profileKey={profile.key}
                 className="link-base-color">
               {profile.name}
             </ProfileLink>
@@ -141,7 +84,7 @@ export default class ProfileHeader extends React.Component {
               </li>
               <li>
                 <Link
-                    to={{ pathname: '/changelog', query: { key: this.props.profile.key } }}
+                    to={{ pathname: '/changelog', query: { key: profile.key } }}
                     className="button">
                   {translate('changelog')}
                 </Link>
@@ -154,63 +97,10 @@ export default class ProfileHeader extends React.Component {
                     {' '}
                     <i className="icon-dropdown"/>
                   </button>
-                  <ul className="dropdown-menu dropdown-menu-right">
-                    {canAdmin && (
-                        <li>
-                          <a href={activateMoreUrl}>
-                            {translate('quality_profiles.activate_more_rules')}
-                          </a>
-                        </li>
-                    )}
-                    <li>
-                      <a id="quality-profile-backup" href={backupUrl}>
-                        {translate('backup_verb')}
-                      </a>
-                    </li>
-                    <li>
-                      <Link
-                          to={{ pathname: '/compare', query: { key: profile.key } }}
-                          id="quality-profile-compare">
-                        {translate('compare')}
-                      </Link>
-                    </li>
-                    {canAdmin && (
-                        <li>
-                          <a id="quality-profile-copy"
-                             href="#"
-                             onClick={this.handleCopyClick.bind(this)}>
-                            {translate('copy')}
-                          </a>
-                        </li>
-                    )}
-                    {canAdmin && (
-                        <li>
-                          <a id="quality-profile-rename"
-                             href="#"
-                             onClick={this.handleRenameClick.bind(this)}>
-                            {translate('rename')}
-                          </a>
-                        </li>
-                    )}
-                    {canAdmin && !profile.isDefault && (
-                        <li>
-                          <a id="quality-profile-set-as-default"
-                             href="#"
-                             onClick={this.handleSetDefaultClick.bind(this)}>
-                            {translate('set_as_default')}
-                          </a>
-                        </li>
-                    )}
-                    {canAdmin && !profile.isDefault && (
-                        <li>
-                          <a id="quality-profile-delete"
-                             href="#"
-                             onClick={this.handleDeleteClick.bind(this)}>
-                            {translate('delete')}
-                          </a>
-                        </li>
-                    )}
-                  </ul>
+                  <ProfileActions
+                      profile={profile}
+                      canAdmin={this.props.canAdmin}
+                      updateProfiles={this.props.updateProfiles}/>
                 </div>
               </li>
             </ul>

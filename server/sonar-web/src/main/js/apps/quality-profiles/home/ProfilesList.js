@@ -32,12 +32,18 @@ export default class ProfilesList extends React.Component {
   static propTypes = {
     profiles: ProfilesListType,
     languages: LanguagesListType,
-    location: RouterPropTypes.location
+    location: RouterPropTypes.location,
+    canAdmin: React.PropTypes.bool.isRequired,
+    updateProfiles: React.PropTypes.func.isRequired
   };
 
   renderProfiles (profiles) {
     return profiles.map(profile => (
-        <ProfilesListRow key={profile.key} profile={profile}/>
+        <ProfilesListRow
+            key={profile.key}
+            profile={profile}
+            canAdmin={this.props.canAdmin}
+            updateProfiles={this.props.updateProfiles}/>
     ));
   }
 
@@ -66,6 +72,9 @@ export default class ProfilesList extends React.Component {
             <th className="text-right nowrap">
               {translate('quality_profiles.list.used')}
             </th>
+            {this.props.canAdmin && (
+                <th>&nbsp;</th>
+            )}
           </tr>
         </thead>
     );
