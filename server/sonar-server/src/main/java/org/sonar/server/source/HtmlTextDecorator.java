@@ -129,7 +129,6 @@ class HtmlTextDecorator {
     return to != null && to < currentLine;
   }
 
-
   private char[] normalize(char currentChar) {
     char[] normalizedChars;
     if (currentChar == HTML_OPENING) {
@@ -139,7 +138,7 @@ class HtmlTextDecorator {
     } else if (currentChar == AMPERSAND) {
       normalizedChars = ENCODED_AMPERSAND.toCharArray();
     } else {
-      normalizedChars = new char[]{currentChar};
+      normalizedChars = new char[] {currentChar};
     }
     return normalizedChars;
   }
@@ -176,7 +175,7 @@ class HtmlTextDecorator {
   private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
     return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
       || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
-      && charactersReader.getCurrentValue() != LF_END_OF_LINE);
+        && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private boolean shouldStartNewLine(CharactersReader charactersReader) {
@@ -185,7 +184,7 @@ class HtmlTextDecorator {
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
-                                  StringBuilder decoratedText) {
+    StringBuilder decoratedText) {
     for (int i = 0; i < numberOfTagsToClose; i++) {
       injectClosingHtml(decoratedText);
       charactersReader.removeLastOpenTag();
@@ -193,7 +192,7 @@ class HtmlTextDecorator {
   }
 
   private void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
-                           StringBuilder decoratedText) {
+    StringBuilder decoratedText) {
     for (String tagToOpen : tagsToOpen) {
       injectOpeningHtmlForRule(tagToOpen, decoratedText);
       charactersReader.registerOpenTag(tagToOpen);

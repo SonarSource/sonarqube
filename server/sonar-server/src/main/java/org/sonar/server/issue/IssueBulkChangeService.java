@@ -72,7 +72,7 @@ public class IssueBulkChangeService {
   private final UserSession userSession;
 
   public IssueBulkChangeService(DbClient dbClient, IssueIndex issueIndex, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
-                                NotificationManager notificationService, List<Action> actions, UserSession userSession) {
+    NotificationManager notificationService, List<Action> actions, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.issueStorage = issueStorage;
@@ -100,26 +100,27 @@ public class IssueBulkChangeService {
       for (Action action : bulkActions) {
         applyAction(action, actionContext, issueBulkChangeQuery, result);
       }
-      if (result.issuesChanged().contains(issue)) {
-        // Apply comment action only on changed issues
-        if (issueBulkChangeQuery.hasComment()) {
-          applyAction(getAction(CommentAction.COMMENT_KEY), actionContext, issueBulkChangeQuery, result);
-        }
-        issueStorage.save((DefaultIssue) issue);
-        if (issueBulkChangeQuery.sendNotifications()) {
-          String projectKey = issue.projectKey();
-          if (projectKey != null) {
-            Rule rule = repository.rule(issue.ruleKey());
-            notificationService.scheduleForSending(new IssueChangeNotification()
-              .setIssue((DefaultIssue) issue)
-              .setChangeAuthorLogin(issueChangeContext.login())
-              .setRuleName(rule != null ? rule.getName() : null)
-              .setProject(projectKey, repository.project(projectKey).name())
-              .setComponent(repository.component(issue.componentKey())));
-          }
-        }
-        concernedProjects.add(issue.projectKey());
+      if (!result.issuesChanged().contains(issue)) {
+        continue;
       }
+      if (issueBulkChangeQuery.hasComment()) {
+        applyAction(getAction(CommentAction.COMMENT_KEY), actionContext, issueBulkChangeQuery, result);
+      }
+      issueStorage.save((DefaultIssue) issue);
+      if (!issueBulkChangeQuery.sendNotifications()) {
+        continue;
+      }
+      String projectKey = issue.projectKey();
+      if (projectKey != null) {
+        Rule rule = repository.rule(issue.ruleKey());
+        notificationService.scheduleForSending(new IssueChangeNotification()
+          .setIssue((DefaultIssue) issue)
+          .setChangeAuthorLogin(issueChangeContext.login())
+          .setRuleName(rule != null ? rule.getName() : null)
+          .setProject(projectKey, repository.project(projectKey).name())
+          .setComponent(repository.component(issue.componentKey())));
+      }
+      concernedProjects.add(issue.projectKey());
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;

@@ -126,20 +126,21 @@ public class ActiveRuleIndex extends BaseIndex {
     return stats;
   }
 
-  private Multimap<String, FacetValue> processAggregations(@Nullable Aggregations aggregations) {
+  private static Multimap<String, FacetValue> processAggregations(@Nullable Aggregations aggregations) {
     Multimap<String, FacetValue> stats = ArrayListMultimap.create();
-    if (aggregations != null) {
-      for (Aggregation aggregation : aggregations.asList()) {
-        if (aggregation instanceof StringTerms) {
-          for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-            FacetValue facetValue = new FacetValue(value.getKeyAsString(), value.getDocCount());
-            stats.put(aggregation.getName(), facetValue);
-          }
-        } else if (aggregation instanceof InternalValueCount) {
-          InternalValueCount count = (InternalValueCount) aggregation;
-          FacetValue facetValue = new FacetValue(count.getName(), count.getValue());
-          stats.put(count.getName(), facetValue);
+    if (aggregations == null) {
+      return stats;
+    }
+    for (Aggregation aggregation : aggregations.asList()) {
+      if (aggregation instanceof StringTerms) {
+        for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
+          FacetValue facetValue = new FacetValue(value.getKeyAsString(), value.getDocCount());
+          stats.put(aggregation.getName(), facetValue);
         }
+      } else if (aggregation instanceof InternalValueCount) {
+        InternalValueCount count = (InternalValueCount) aggregation;
+        FacetValue facetValue = new FacetValue(count.getName(), count.getValue());
+        stats.put(count.getName(), facetValue);
       }
     }
     return stats;

@@ -59,29 +59,29 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
       final Multimap<Long, String> authorsByPersonId = ArrayListMultimap.create();
       context.prepareSelect("SELECT a.person_id, a.login FROM authors a," +
         "  (SELECT person_id, COUNT(*) AS nb FROM authors GROUP BY person_id HAVING COUNT(*) > 1) group_by_person" +
-        "     WHERE a.person_id = group_by_person.person_id "
-        ).scroll(new AuthorsByPersonIdHandler(authorsByPersonId));
+        "     WHERE a.person_id = group_by_person.person_id ").scroll(new AuthorsByPersonIdHandler(authorsByPersonId));
 
       Upsert update = context.prepareUpsert("UPDATE users SET scm_accounts = ?, updated_at = ? WHERE id = ?");
       for (Long personId : authorsByPersonId.keySet()) {
         List<String> authors = newArrayList(authorsByPersonId.get(personId));
         List<User> users = selectUsersFromLoginOrEmail(context, authors);
-        if (users.size() == 1) {
-          User user = users.get(0);
-          if (authors.contains(user.login)) {
-            authors.remove(user.login);
-          }
-          if (authors.contains(user.email)) {
-            authors.remove(user.email);
-          }
-          if (!authors.isEmpty()) {
-            update
-              .setString(1, encodeScmAccounts(authors))
-              .setLong(2, now)
-              .setLong(3, user.id)
-              .addBatch();
-            counter.getAndIncrement();
-          }
+        if (users.size() != 1) {
+          continue;
+        }
+        User user = users.get(0);
+        if (authors.contains(user.login)) {
+          authors.remove(user.login);
+        }
+        if (authors.contains(user.email)) {
+          authors.remove(user.email);
+        }
+        if (!authors.isEmpty()) {
+          update
+            .setString(1, encodeScmAccounts(authors))
+            .setLong(2, now)
+            .setLong(3, user.id)
+            .addBatch();
+          counter.getAndIncrement();
         }
       }
       if (((UpsertImpl) update).getBatchCount() > 0L) {

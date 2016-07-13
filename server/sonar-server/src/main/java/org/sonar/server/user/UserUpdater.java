@@ -19,10 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.db.user.UserDto.encryptPassword;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -50,6 +46,10 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.user.UserDto.encryptPassword;
 
 @ServerSide
 public class UserUpdater {
@@ -336,9 +336,10 @@ public class UserUpdater {
         List<UserDto> matchingUsers = dbClient.userDao().selectByScmAccountOrLoginOrEmail(dbSession, scmAccount);
         List<String> matchingUsersWithoutExistingUser = newArrayList();
         for (UserDto matchingUser : matchingUsers) {
-          if (existingUser == null || !matchingUser.getId().equals(existingUser.getId())) {
-            matchingUsersWithoutExistingUser.add(matchingUser.getName() + " (" + matchingUser.getLogin() + ")");
+          if (existingUser != null && matchingUser.getId().equals(existingUser.getId())) {
+            continue;
           }
+          matchingUsersWithoutExistingUser.add(matchingUser.getName() + " (" + matchingUser.getLogin() + ")");
         }
         if (!matchingUsersWithoutExistingUser.isEmpty()) {
           messages.add(Message.of("user.scm_account_already_used", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));

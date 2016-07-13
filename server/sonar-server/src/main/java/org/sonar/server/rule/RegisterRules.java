@@ -303,20 +303,22 @@ public class RegisterRules implements Startable {
     // Create newly parameters
     for (RulesDefinition.Param param : ruleDef.params()) {
       RuleParamDto paramDto = existingParamsByName.get(param.key());
-      if (paramDto == null) {
-        paramDto = RuleParamDto.createFor(rule)
-          .setName(param.key())
-          .setDescription(param.description())
-          .setDefaultValue(param.defaultValue())
-          .setType(param.type().toString());
-        dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
-        if (!StringUtils.isEmpty(param.defaultValue())) {
-          // Propagate the default value to existing active rule parameters
-          for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleId(session, rule.getId())) {
-            ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
-            dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
-          }
-        }
+      if (paramDto != null) {
+        continue;
+      }
+      paramDto = RuleParamDto.createFor(rule)
+        .setName(param.key())
+        .setDescription(param.description())
+        .setDefaultValue(param.defaultValue())
+        .setType(param.type().toString());
+      dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
+      if (StringUtils.isEmpty(param.defaultValue())) {
+        continue;
+      }
+      // Propagate the default value to existing active rule parameters
+      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleId(session, rule.getId())) {
+        ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
+        dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
       }
     }
   }
@@ -451,8 +453,7 @@ public class RegisterRules implements Startable {
       public String apply(@Nonnull RulesDefinition.Repository input) {
         return input.key();
       }
-    }
-      ));
+    }));
 
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleDto rule : removedRules) {

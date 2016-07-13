@@ -89,11 +89,12 @@ public class DebtModelBackup {
     try {
       List<RuleDebt> rules = newArrayList();
       for (RuleDto rule : dbClient.ruleDao().selectEnabled(session)) {
-        if (languageKey == null || languageKey.equals(rule.getLanguage())) {
-          RuleDebt ruleDebt = toRuleDebt(rule);
-          if (ruleDebt != null) {
-            rules.add(ruleDebt);
-          }
+        if (languageKey != null && !languageKey.equals(rule.getLanguage())) {
+          continue;
+        }
+        RuleDebt ruleDebt = toRuleDebt(rule);
+        if (ruleDebt != null) {
+          rules.add(ruleDebt);
         }
       }
       return debtModelXMLExporter.export(rules);

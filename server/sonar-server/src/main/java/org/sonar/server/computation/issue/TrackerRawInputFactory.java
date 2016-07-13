@@ -98,13 +98,13 @@ public class TrackerRawInputFactory {
         // as late as possible
         while (reportIssues.hasNext()) {
           ScannerReport.Issue reportIssue = reportIssues.next();
-          if (isIssueOnUnsupportedCommonRule(reportIssue)) {
-            DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
-            if (issueFilter.accept(issue, component)) {
-              result.add(issue);
-            }
-          } else {
+          if (!isIssueOnUnsupportedCommonRule(reportIssue)) {
             Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+            continue;
+          }
+          DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
+          if (issueFilter.accept(issue, component)) {
+            result.add(issue);
           }
         }
       }

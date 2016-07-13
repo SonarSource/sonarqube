@@ -20,15 +20,14 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.DbClient;
-import org.sonar.db.ResultSetIterator;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ResultSetIterator;
+import org.sonar.db.user.UserDto;
 
 /**
  * Scrolls over table USERS and reads documents to populate the user index
@@ -50,6 +49,10 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where u.updated_at>?";
 
+  private UserResultSetIterator(PreparedStatement stmt) throws SQLException {
+    super(stmt);
+  }
+
   static UserResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
@@ -61,10 +64,6 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all users", e);
     }
-  }
-
-  private UserResultSetIterator(PreparedStatement stmt) throws SQLException {
-    super(stmt);
   }
 
   @Override
