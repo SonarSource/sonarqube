@@ -51,18 +51,14 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    // warning - do not enable large mode, else disabling of replicas
-    // will impact the type "issue" which is much bigger than issueAuthorization
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      // warning - do not enable large mode, else disabling of replicas
+      // will impact the type "issue" which is much bigger than issueAuthorization
+      BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
       IssueAuthorizationDao dao = new IssueAuthorizationDao();
       Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
       return doIndex(bulk, authorizations);
-
-    } finally {
-      dbSession.close();
     }
   }
 
@@ -91,7 +87,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
       .get();
   }
 
-  private ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
+  private static ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),

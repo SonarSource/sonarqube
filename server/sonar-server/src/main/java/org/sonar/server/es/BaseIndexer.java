@@ -57,23 +57,20 @@ public abstract class BaseIndexer implements Startable {
     this.dateFieldName = dateFieldName;
     this.esClient = client;
     this.executor = new ThreadPoolExecutor(0, 1,
-      threadKeepAliveSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+      threadKeepAliveSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
   }
 
   public void index(final IndexerTask task) {
     if (enabled) {
       final long requestedAt = System.currentTimeMillis();
-      Future submit = executor.submit(new Runnable() {
-        @Override
-        public void run() {
-          if (lastUpdatedAt == -1L) {
-            lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
-          }
-          if (requestedAt > lastUpdatedAt) {
-            long l = task.index(lastUpdatedAt);
-            // l can be 0 if no documents were indexed
-            lastUpdatedAt = Math.max(l, lastUpdatedAt);
-          }
+      Future submit = executor.submit(() -> {
+        if (lastUpdatedAt == -1L) {
+          lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
+        }
+        if (requestedAt > lastUpdatedAt) {
+          long l = task.index(lastUpdatedAt);
+          // l can be 0 if no documents were indexed
+          lastUpdatedAt = Math.max(l, lastUpdatedAt);
         }
       });
       try {
@@ -85,12 +82,7 @@ public abstract class BaseIndexer implements Startable {
   }
 
   public void index() {
-    index(new IndexerTask() {
-      @Override
-      public long index(long lastUpdatedAt) {
-        return doIndex(lastUpdatedAt);
-      }
-    });
+    index(lastUpdatedAtParam -> doIndex(lastUpdatedAtParam));
   }
 
   protected abstract long doIndex(long lastUpdatedAt);
@@ -110,6 +102,7 @@ public abstract class BaseIndexer implements Startable {
     executor.shutdown();
   }
 
+  @FunctionalInterface
   public interface IndexerTask {
     long index(long lastUpdatedAt);
   }

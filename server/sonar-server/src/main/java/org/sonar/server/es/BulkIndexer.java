@@ -164,7 +164,7 @@ public class BulkIndexer implements Startable {
         DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.index(), hit.type(), hit.getId());
         SearchHitField routing = hit.field("_routing");
         if (routing != null) {
-          deleteRequestBuilder.setRouting((String) routing.getValue());
+          deleteRequestBuilder.setRouting(routing.getValue());
         }
         add(deleteRequestBuilder.request());
       }
@@ -235,7 +235,7 @@ public class BulkIndexer implements Startable {
   private class BulkResponseActionListener implements ActionListener<BulkResponse> {
     private final BulkRequestBuilder req;
 
-    public BulkResponseActionListener(BulkRequestBuilder req) {
+    BulkResponseActionListener(BulkRequestBuilder req) {
       this.req = req;
     }
 

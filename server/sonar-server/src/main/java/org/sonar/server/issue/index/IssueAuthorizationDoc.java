@@ -25,7 +25,7 @@ import org.sonar.server.es.BaseDoc;
 public class IssueAuthorizationDoc extends BaseDoc {
 
   public IssueAuthorizationDoc() {
-    super(Maps.<String, Object>newHashMap());
+    super(Maps.newHashMap());
   }
 
   @Override

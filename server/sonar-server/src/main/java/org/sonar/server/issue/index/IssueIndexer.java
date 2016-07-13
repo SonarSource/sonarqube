@@ -61,13 +61,8 @@ public class IssueIndexer extends BaseIndexer {
     doIndex(createBulkIndexer(true), 0L, null);
   }
 
-  public void index(final String projectUuid) {
-    super.index(new IndexerTask() {
-      @Override
-      public long index(long lastUpdatedAt) {
-        return doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid);
-      }
-    });
+  public void index(String projectUuid) {
+    super.index(lastUpdatedAt -> doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid));
   }
 
   /**
@@ -78,15 +73,11 @@ public class IssueIndexer extends BaseIndexer {
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
-    DbSession dbSession = dbClient.openSession(false);
-    long maxDate;
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
-      maxDate = doIndex(bulk, rowIt);
+      long maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;
-    } finally {
-      dbSession.close();
     }
   }
 
@@ -144,7 +135,7 @@ public class IssueIndexer extends BaseIndexer {
     return bulk;
   }
 
-  private IndexRequest newIndexRequest(IssueDoc issue) {
+  private static IndexRequest newIndexRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
 
     return new IndexRequest(INDEX, TYPE_ISSUE, issue.key())

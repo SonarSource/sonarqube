@@ -151,7 +151,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
 
   @Override
   protected IssueDoc read(ResultSet rs) throws SQLException {
-    IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMapWithExpectedSize(30));
+    IssueDoc doc = new IssueDoc(Maps.newHashMapWithExpectedSize(30));
 
     String key = rs.getString(1);
     String projectUuid = rs.getString(2);

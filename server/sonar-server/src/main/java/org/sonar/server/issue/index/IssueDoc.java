@@ -44,7 +44,7 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   public IssueDoc() {
-    super(Maps.<String, Object>newHashMap());
+    super(Maps.newHashMap());
   }
 
   @Override

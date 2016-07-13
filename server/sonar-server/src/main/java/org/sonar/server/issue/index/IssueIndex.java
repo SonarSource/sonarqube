@@ -21,18 +21,18 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -66,6 +66,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
@@ -315,7 +316,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   @CheckForNull
-  private QueryBuilder createViewFilter(Collection<String> viewUuids) {
+  private static QueryBuilder createViewFilter(Collection<String> viewUuids) {
     if (viewUuids.isEmpty()) {
       return null;
     }
@@ -368,7 +369,7 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  private void validateCreationDateBounds(Date createdBefore, Date createdAfter) {
+  private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {
     Preconditions.checkArgument(createdAfter == null || createdAfter.before(new Date(system.now())),
       "Start bound cannot be in the future");
     Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
@@ -413,7 +414,7 @@ public class IssueIndex extends BaseIndex {
       }
       addAssignedToMeFacetIfNeeded(esSearch, options, query, filters, esQuery);
       if (options.getFacets().contains(CREATED_AT)) {
-        getCreatedAtFacet(query, filters, esQuery).ifPresent(a -> esSearch.addAggregation(a));
+        getCreatedAtFacet(query, filters, esQuery).ifPresent(esSearch::addAggregation);
       }
     }
 
@@ -495,11 +496,7 @@ public class IssueIndex extends BaseIndex {
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSize(0);
     BoolQueryBuilder esFilter = boolQuery();
-    for (QueryBuilder filter : filters.values()) {
-      if (filter != null) {
-        esFilter.must(filter);
-      }
-    }
+    filters.values().stream().filter(Objects::nonNull).forEach(esFilter::must);
     if (esFilter.hasClauses()) {
       esRequest.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
     } else {
@@ -509,14 +506,13 @@ public class IssueIndex extends BaseIndex {
     Min minValue = esRequest.get().getAggregations().get(facetNameAndField);
 
     Double actualValue = minValue.getValue();
-    System.out.println("min=" + actualValue);
     if (actualValue.isInfinite()) {
       return Optional.empty();
     }
     return Optional.of(actualValue.longValue());
   }
 
-  private AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
+  private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
     String facetName = ASSIGNEES;
 
@@ -545,12 +541,10 @@ public class IssueIndex extends BaseIndex {
   }
 
   private static Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
-    return values == null ? Arrays.<String>asList() : Collections2.transform(values, new Function<String, String>() {
-      @Override
-      public String apply(String input) {
-        return Pattern.quote(input);
-      }
-    });
+    if (values == null) {
+      return Collections.emptyList();
+    }
+    return values.stream().map(Pattern::quote).collect(Collectors.toList(values.size()));
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
@@ -602,12 +596,8 @@ public class IssueIndex extends BaseIndex {
   }
 
   @CheckForNull
-  private QueryBuilder createTermsFilter(String field, Collection<?> values) {
-    if (!values.isEmpty()) {
-      return termsQuery(field, values);
-    } else {
-      return null;
-    }
+  private static QueryBuilder createTermsFilter(String field, Collection<?> values) {
+    return values.isEmpty() ? null : termsQuery(field, values);
   }
 
   public List<String> listTags(IssueQuery query, @Nullable String textQuery, int maxNumberOfTags) {
