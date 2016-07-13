@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { ProfilesListType } from '../propTypes';
@@ -40,6 +41,9 @@ export default class EvolutionDeprecated extends React.Component {
         .map(p => p.activeDeprecatedRuleCount)
         .reduce((p, c) => p + c, 0);
 
+    const sortedProfiles =
+        sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
+
     return (
         <div
             className="quality-profile-box quality-profiles-evolution-deprecated">
@@ -54,7 +58,7 @@ export default class EvolutionDeprecated extends React.Component {
             )}
           </div>
           <ul>
-            {profilesWithDeprecations.map(profile => (
+            {sortedProfiles.map(profile => (
                 <li key={profile.key} className="spacer-top">
                   <div className="text-ellipsis">
                     <ProfileLink

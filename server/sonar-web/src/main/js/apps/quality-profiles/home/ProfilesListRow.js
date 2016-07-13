@@ -86,7 +86,7 @@ export default class ProfilesListRow extends React.Component {
         <div>
           {profile.activeDeprecatedRuleCount > 0 && (
               <span className="spacer-right">
-                <a className="badge badge-focus"
+                <a className="badge badge-danger-light"
                    href={deprecatedRulesUrl}
                    title={translate('quality_profiles.deprecated_rules')}
                    data-toggle="tooltip">

@@ -111,7 +111,12 @@
   padding-top: 55px;
 }
 
-.quality-profiles-evolution-deprecated,
+.quality-profiles-evolution-deprecated {
+  margin-bottom: 20px;
+  border-color: #ebccd1;
+  background-color: #f2dede;
+}
+
 .quality-profiles-evolution-stagnant {
   margin-bottom: 20px;
   border-color: #faebcc;
