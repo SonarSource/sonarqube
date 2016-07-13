@@ -48,7 +48,7 @@ public class AddBColumnsToProjects extends DdlChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid_path").setLimit(1500).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_name").setLimit(500).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("b_path").setLimit(2000).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_qualifier").setLimit(3).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_qualifier").setLimit(10).setIsNullable(true).build())
       .build());
   }
 
