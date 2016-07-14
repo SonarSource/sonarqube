@@ -76,12 +76,16 @@ export default class MeasureDetails extends React.Component {
                 className="text-muted">
               {translate('component_measures.all_measures')}
             </IndexLink>
-            {' / '}
-            <Link
-                to={{ pathname: `domain/${metric.domain}`, query: { id: component.key } }}
-                className="text-muted">
-              {translateWithParameters('component_measures.domain_measures', metric.domain)}
-            </Link>
+            {!!metric.domain && (
+                <span>
+                  {' / '}
+                  <Link
+                      to={{ pathname: `domain/${metric.domain}`, query: { id: component.key } }}
+                      className="text-muted">
+                    {translateWithParameters('component_measures.domain_measures', metric.domain)}
+                  </Link>
+                </span>
+            )}
           </div>
 
           <MeasureDetailsHeader
