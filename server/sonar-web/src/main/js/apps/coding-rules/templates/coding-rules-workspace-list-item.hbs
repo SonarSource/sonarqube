@@ -4,7 +4,7 @@
       <td class="coding-rule-table-meta-cell coding-rule-activation">
         {{severityIcon activation.severity}}
         {{#eq activation.inherit 'OVERRIDES'}}
-          <i class="icon-inheritance"
+          <i class="icon-inheritance icon-inheritance-overridden"
              title="{{tp 'coding_rules.overrides' activation.profile.name activation.parentProfile.name}}"></i>
         {{/eq}}
         {{#eq activation.inherit 'INHERITED'}}
