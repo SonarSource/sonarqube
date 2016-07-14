@@ -28,6 +28,7 @@ import EventsList from './../events/EventsList';
 const Meta = ({ component }) => {
   const { qualifier, description, links, profiles, gate } = component;
 
+  const isProject = qualifier === 'TRK';
   const isView = qualifier === 'VW' || qualifier === 'SVW';
   const isDeveloper = qualifier === 'DEV';
 
@@ -38,6 +39,8 @@ const Meta = ({ component }) => {
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
+
+  const showShowEvents = isProject || isView || isDeveloper;
 
   return (
       <div className="overview-meta">
@@ -67,7 +70,9 @@ const Meta = ({ component }) => {
             </div>
         )}
 
-        <EventsList component={component}/>
+        {showShowEvents && (
+            <EventsList component={component}/>
+        )}
       </div>
   );
 };
