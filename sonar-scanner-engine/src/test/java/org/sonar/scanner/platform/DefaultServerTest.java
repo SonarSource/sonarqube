@@ -48,5 +48,34 @@ public class DefaultServerTest {
     assertThat(metadata.getStartedAt()).isNotNull();
     assertThat(metadata.getURL()).isEqualTo("http://foo.com");
     assertThat(metadata.getPermanentServerId()).isEqualTo("abcde");
+
+    assertThat(metadata.getRootDir()).isNull();
+    assertThat(metadata.getDeployDir()).isNull();
+    assertThat(metadata.getContextPath()).isNull();
+    assertThat(metadata.isDev()).isFalse();
+    assertThat(metadata.isSecured()).isFalse();
+  }
+
+  @Test
+  public void publicRootUrl() {
+    Settings settings = new Settings();
+    BatchWsClient client = mock(BatchWsClient.class);
+    when(client.baseUrl()).thenReturn("http://foo.com/");
+    DefaultServer metadata = new DefaultServer(settings, client);
+
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://server.com/");
+    assertThat(metadata.getPublicRootUrl()).isEqualTo("http://server.com");
+
+    settings.removeProperty(CoreProperties.SERVER_BASE_URL);
+    assertThat(metadata.getPublicRootUrl()).isEqualTo("http://foo.com");
+  }
+
+  @Test
+  public void invalidDate() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
+    BatchWsClient client = mock(BatchWsClient.class);
+    DefaultServer metadata = new DefaultServer(settings, client);
+    assertThat(metadata.getStartedAt()).isNull();
   }
 }
