@@ -27,14 +27,12 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -63,15 +61,11 @@ public class AppAction implements RequestHandler {
 
   private final DbClient dbClient;
 
-  private final Durations durations;
-  private final I18n i18n;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public AppAction(DbClient dbClient, Durations durations, I18n i18n, UserSession userSession, ComponentFinder componentFinder) {
+  public AppAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.durations = durations;
-    this.i18n = i18n;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
@@ -163,9 +157,6 @@ public class AppAction implements RequestHandler {
     json.prop("duplicationDensity", formatMeasure(measuresByMetricKey, CoreMetrics.DUPLICATED_LINES_DENSITY));
     json.prop("issues", formatMeasure(measuresByMetricKey, CoreMetrics.VIOLATIONS));
     json.prop("tests", formatMeasure(measuresByMetricKey, CoreMetrics.TESTS));
-    json.prop("debt", formatMeasure(measuresByMetricKey, CoreMetrics.TECHNICAL_DEBT));
-    json.prop("sqaleRating", formatMeasure(measuresByMetricKey, CoreMetrics.SQALE_RATING));
-    json.prop("debtRatio", formatMeasure(measuresByMetricKey, CoreMetrics.SQALE_DEBT_RATIO));
     json.endObject();
   }
 
@@ -210,23 +201,9 @@ public class AppAction implements RequestHandler {
     if (measure == null) {
       return null;
     }
-    Metric.ValueType metricType = metric.getType();
     Double value = getDoubleValue(measure, metric);
-    String data = measure.getData();
     if (value != null) {
-      switch (metricType) {
-        case FLOAT:
-          return i18n.formatDouble(userSession.locale(), value);
-        case INT:
-          return i18n.formatInteger(userSession.locale(), value.intValue());
-        case PERCENT:
-          return i18n.formatDouble(userSession.locale(), value) + "%";
-        case WORK_DUR:
-          return durations.format(userSession.locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
-      }
-    }
-    if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
-      return data;
+      return Double.toString(value);
     }
     return null;
   }

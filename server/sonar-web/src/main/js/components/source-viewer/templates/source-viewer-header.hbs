@@ -34,14 +34,14 @@
   <div class="source-viewer-header-measures">
     {{#if isUnitTest}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{measures.tests}}</span>
+        <span class="source-viewer-header-measure-value">{{formatMeasure measures.tests 'SHORT_INT'}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
       </div>
     {{/if}}
 
     {{#unless isUnitTest}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.lines}}</span>
+        <span class="source-viewer-header-measure-value">{{formatMeasure measures.lines 'SHORT_INT'}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.lines.name'}}</span>
       </div>
     {{/unless}}
@@ -50,7 +50,7 @@
       <span class="source-viewer-header-measure-value">
         <a class="source-viewer-header-external-link" target="_blank"
            href="{{link '/issues/search#resolved=false|fileUuids=' uuid}}">
-          {{default measures.issues 0}}&nbsp;<i class="icon-detach"></i>
+          {{#if measures.issues}}{{formatMeasure measures.issues 'SHORT_INT'}}{{else}}0{{/if}}&nbsp;<i class="icon-detach"></i>
         </a>
       </span>
       <span class="source-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
@@ -58,14 +58,14 @@
 
     {{#notNull measures.coverage}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.coverage}}</span>
+        <span class="source-viewer-header-measure-value">{{formatMeasure measures.coverage 'PERCENT'}}</span>
         <span class="source-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
       </div>
     {{/notNull}}
 
     {{#notNull measures.duplicationDensity}}
       <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.duplicationDensity}}</span>
+        <span class="source-viewer-header-measure-value">{{formatMeasure measures.duplicationDensity 'PERCENT'}}</span>
         <span class="source-viewer-header-measure-label">{{t 'duplications'}}</span>
       </div>
     {{/notNull}}
