@@ -117,14 +117,19 @@ class Coverage extends React.Component {
     const newCoverageMeasure = this.getNewCoverageMeasure(coverageMetricPrefix);
     const newLinesToCover = this.getNewLinesToCover(coverageMetricPrefix);
 
-    const value = newCoverageMeasure ? (
+    const newCoverageValue = newCoverageMeasure ?
+        getPeriodValue(newCoverageMeasure, leakPeriod.index) : null;
+    const newLinesToCoverValue = newLinesToCover ?
+        getPeriodValue(newLinesToCover, leakPeriod.index) : null;
+
+    const formattedValue = newCoverageValue != null ? (
         <div>
           <DrilldownLink
               component={component.key}
               metric={newCoverageMeasure.metric.key}
               period={leakPeriod.index}>
             <span className="js-overview-main-new-coverage">
-              {formatMeasure(getPeriodValue(newCoverageMeasure, leakPeriod.index), 'PERCENT')}
+              {formatMeasure(newCoverageValue, 'PERCENT')}
             </span>
           </DrilldownLink>
         </div>
@@ -132,7 +137,7 @@ class Coverage extends React.Component {
         <span>—</span>
     );
 
-    const label = newLinesToCover ? (
+    const label = newLinesToCoverValue != null ? (
         <div className="overview-domain-measure-label">
           {translate('overview.coverage_on')}
           <br/>
@@ -142,7 +147,7 @@ class Coverage extends React.Component {
               metric={newLinesToCover.metric.key}
               period={leakPeriod.index}>
             <span className="js-overview-main-new-coverage">
-              {formatMeasure(getPeriodValue(newLinesToCover, leakPeriod.index), 'SHORT_INT')}
+              {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
             </span>
           </DrilldownLink>
           {getMetricName('new_ncloc')}
@@ -156,7 +161,7 @@ class Coverage extends React.Component {
     return (
         <div className="overview-domain-measure">
           <div className="overview-domain-measure-value">
-            {value}
+            {formattedValue}
           </div>
           {label}
         </div>
