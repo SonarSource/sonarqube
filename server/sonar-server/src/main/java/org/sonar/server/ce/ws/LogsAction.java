@@ -61,8 +61,8 @@ public class LogsAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Logs of a task. Format of response is plain text. HTTP code 404 is returned if the task does not " +
-        "exist or if logs are not available. Requires system administration permission.")
+      .setDescription("Logs of a task. Format of response is plain text. HTTP code 404 is returned if the task does not exist or if logs are not available. <br/>" +
+        "Requires system administration permission or project administration permission.")
       .setResponseExample(getClass().getResource("logs-example.log"))
       .setInternal(true)
       .setSince("5.2")
