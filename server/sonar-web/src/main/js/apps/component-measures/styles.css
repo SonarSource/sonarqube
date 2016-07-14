@@ -102,9 +102,12 @@
 }
 
 .domain-measures .domain-measures-value {
-  width: 80px;
+  min-width: 80px;
   color: #444;
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .domain-measures .domain-measures-leak {
