@@ -31,9 +31,10 @@ import {
     getPeriodValue,
     getShortType
 } from '../../../helpers/measures';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getMaintainabilityRatingGrid } from '../../../helpers/measures';
 
 export default function enhance (ComposedComponent) {
   return class extends React.Component {
@@ -131,6 +132,23 @@ export default function enhance (ComposedComponent) {
       );
     }
 
+    getMaintainabilityRatingTooltip (rating) {
+      if (rating < 2) {
+        return '';
+      }
+
+      const ratingLetter = formatMeasure(rating, 'RATING');
+      const maintainabilityGrid = getMaintainabilityRatingGrid();
+      const maintainabilityRatingThreshold =
+          maintainabilityGrid[Math.floor(rating) - 2];
+
+      return translateWithParameters(
+          'metric.sqale_rating.tooltip',
+          ratingLetter,
+          formatMeasure(maintainabilityRatingThreshold, 'PERCENT')
+      );
+    }
+
     renderRating (metricKey) {
       const { component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
@@ -139,8 +157,16 @@ export default function enhance (ComposedComponent) {
         return null;
       }
 
+      const ratingLetter = formatMeasure(measure.value, 'RATING');
+
+      const title = metricKey === 'sqale_rating' ?
+          this.getMaintainabilityRatingTooltip(measure.value) :
+          translate('metric', metricKey, 'tooltip', ratingLetter);
+
       return (
-          <div className="overview-domain-measure-sup">
+          <div className="overview-domain-measure-sup"
+               title={title}
+               data-toggle="tooltip">
             <DrilldownLink component={component.key} metric={metricKey}>
               <Rating value={measure.value}/>
             </DrilldownLink>
