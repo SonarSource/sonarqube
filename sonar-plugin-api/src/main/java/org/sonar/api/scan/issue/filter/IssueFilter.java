@@ -24,6 +24,7 @@ import org.sonar.api.batch.ScannerSide;
 
 @ScannerSide
 @ExtensionPoint
+@FunctionalInterface
 /**
  * @since 5.3
  */

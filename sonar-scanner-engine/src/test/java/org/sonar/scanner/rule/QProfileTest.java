@@ -17,9 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.issue;
+package org.sonar.scanner.rule;
 
-@FunctionalInterface
-public interface IssueCallback {
-  void execute();
+import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
+
+public class QProfileTest {
+  @Test
+  public void testEquals() {
+    QProfile q1 = new QProfile();
+    QProfile q2 = new QProfile();
+    QProfile q3 = new QProfile();
+
+    q1.setKey("k1");
+    q1.setName("name1");
+
+    q2.setKey("k1");
+    q2.setName("name2");
+
+    q3.setKey("k3");
+    q3.setName("name3");
+
+    assertThat(q1).isEqualTo(q2);
+    assertThat(q1).isNotEqualTo(q3);
+    assertThat(q2).isNotEqualTo(q3);
+    assertThat(q1).isNotEqualTo(null);
+    assertThat(q1).isNotEqualTo("str");
+
+    assertThat(q1.hashCode()).isEqualTo(q2.hashCode());
+    assertThat(q1.hashCode()).isNotEqualTo(q3.hashCode());
+    assertThat(q2.hashCode()).isNotEqualTo(q3.hashCode());
+  }
 }

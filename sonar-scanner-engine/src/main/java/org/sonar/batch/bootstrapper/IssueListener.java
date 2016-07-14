@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrapper;
 
+@FunctionalInterface
 public interface IssueListener {
   void handle(Issue issue);
 
