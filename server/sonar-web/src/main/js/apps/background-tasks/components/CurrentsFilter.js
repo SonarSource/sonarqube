@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
 
 import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
 
-const CurrentsFilter = ({ value, onChange }) => {
+const CurrentsFilter = ({ value, onChange } : { value: ?string, onChange: any }) => {
   function handleChange (value) {
     const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
     onChange(newValue);

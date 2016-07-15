@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
@@ -24,7 +25,7 @@ import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
 import Template from './templates/source-viewer-header.hbs';
 
-const API_FAVORITE = window.baseUrl + '/api/favourites';
+const API_FAVORITE: string = window.baseUrl + '/api/favourites';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -96,4 +97,3 @@ export default Marionette.ItemView.extend({
     });
   }
 });
-
