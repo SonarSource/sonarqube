@@ -20,9 +20,8 @@
 import React from 'react';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getQualityProfileUrl } from '../../../helpers/urls';
+import { getQualityProfileUrl, getRulesUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
-import { getRulesUrl } from '../../../helpers/urls';
 
 export default class MetaQualityProfiles extends React.Component {
   state = {
@@ -64,6 +63,11 @@ export default class MetaQualityProfiles extends React.Component {
     return searchRules(data).then(r => r.total);
   }
 
+  getDeprecatedRulesCount (profile) {
+    const count = this.state.deprecatedByKey[profile.key];
+    return count || 0;
+  }
+
   renderDeprecated (profile) {
     const count = this.state.deprecatedByKey[profile.key];
     if (!count) {
@@ -84,8 +88,49 @@ export default class MetaQualityProfiles extends React.Component {
     );
   }
 
+  renderProfile (profile) {
+    const inner = (
+        <div>
+          <span className="note spacer-right">
+            {'(' + profile.language + ')'}
+          </span>
+          <a href={getQualityProfileUrl(profile.key)}>
+            {profile.name}
+          </a>
+        </div>
+    );
+
+    const count = this.getDeprecatedRulesCount(profile);
+
+    if (count > 0) {
+      const tooltip =
+          translateWithParameters('overview.deprecated_profile', count);
+      return (
+          <li key={profile.key}
+              className="overview-deprecated-rules"
+              title={tooltip}
+              data-toggle="tooltip">
+            {inner}
+          </li>
+      );
+    }
+
+    return (
+        <li key={profile.key}>
+          {inner}
+        </li>
+    );
+  }
+
   render () {
     const { profiles } = this.props;
+
+    const deprecatedStyles = {
+      padding: '3px 6px',
+      border: '1px solid #ebccd1',
+      borderRadius: '3px',
+      backgroundColor: '#f2dede'
+    };
 
     return (
         <TooltipsContainer>
@@ -95,17 +140,7 @@ export default class MetaQualityProfiles extends React.Component {
             </h4>
 
             <ul className="overview-meta-list">
-              {profiles.map(profile => (
-                  <li key={profile.key}>
-                    {this.renderDeprecated(profile)}
-                    <span className="note spacer-right">
-                      {'(' + profile.language + ')'}
-                    </span>
-                    <a href={getQualityProfileUrl(profile.key)}>
-                      {profile.name}
-                    </a>
-                  </li>
-              ))}
+              {profiles.map(profile => this.renderProfile(profile))}
             </ul>
           </div>
         </TooltipsContainer>

@@ -21,7 +21,6 @@ import React from 'react';
 import keyBy from 'lodash/keyBy';
 import ProfileRulesRow from './ProfileRulesRow';
 import { ProfileType } from '../propTypes';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';

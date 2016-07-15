@@ -23,10 +23,11 @@ import sortBy from 'lodash/sortBy';
 import { searchRules } from '../../../api/rules';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../helpers/measures';
 
-const RULES_LIMIT = 3;
+const RULES_LIMIT = 10;
 
-const PERIOD_START_MOMENT = moment().subtract(1, 'month');
+const PERIOD_START_MOMENT = moment().subtract(1, 'year');
 
 function parseRules (r) {
   const { rules, actives } = r;
@@ -82,13 +83,6 @@ export default class EvolutionRules extends React.Component {
             <strong className="pull-left">
               {translate('quality_profiles.latest_new_rules')}
             </strong>
-
-            {this.state.latestRulesTotal > RULES_LIMIT && (
-                <a className="pull-right small text-muted"
-                   href={newRulesUrl}>
-                  {translate('see_all')}
-                </a>
-            )}
           </div>
           <ul>
             {this.state.latestRules.map(rule => (
@@ -117,6 +111,16 @@ export default class EvolutionRules extends React.Component {
                 </li>
             ))}
           </ul>
+          {this.state.latestRulesTotal > RULES_LIMIT && (
+              <div className="spacer-top">
+                <a className="small"
+                   href={newRulesUrl}>
+                  {translate('see_all')}
+                  {' '}
+                  {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
+                </a>
+              </div>
+          )}
         </div>
     );
   }

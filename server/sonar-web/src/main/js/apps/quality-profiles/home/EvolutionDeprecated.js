@@ -37,10 +37,6 @@ export default class EvolutionDeprecated extends React.Component {
       return null;
     }
 
-    const totalRules = profilesWithDeprecations
-        .map(p => p.activeDeprecatedRuleCount)
-        .reduce((p, c) => p + c, 0);
-
     const sortedProfiles =
         sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
 
@@ -52,8 +48,7 @@ export default class EvolutionDeprecated extends React.Component {
           </div>
           <div className="spacer-bottom">
             {translateWithParameters(
-                'quality_profiles.x_deprecated_rules_are_still_activated',
-                totalRules,
+                'quality_profiles.deprecated_rules_are_still_activated',
                 profilesWithDeprecations.length
             )}
           </div>

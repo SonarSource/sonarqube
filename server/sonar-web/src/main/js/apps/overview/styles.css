@@ -283,6 +283,14 @@
   background-color: transparent !important;
 }
 
+.overview-deprecated-rules {
+  margin: 4px -6px 4px;
+  padding: 3px 6px;
+  border: 1px solid #ebccd1;
+  border-radius: 3px;
+  background-color: #f2dede;
+}
+
 /*
  * Animations
  */
