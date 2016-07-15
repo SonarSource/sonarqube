@@ -304,7 +304,7 @@ public class PendingActionTest {
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     List<Plugin> plugins = new ArrayList<>();
     for (String pluginKey : pluginKeys) {
-      plugins.add(new Plugin(pluginKey).setCategory("cat_1"));
+      plugins.add(Plugin.factory(pluginKey).setCategory("cat_1"));
     }
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(plugins);
     return updateCenter;

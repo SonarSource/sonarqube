@@ -109,7 +109,7 @@ public class UpgradesActionTest {
   }
 
   private static SonarUpdate createSonar_51_update() {
-    Plugin brandingPlugin = new Plugin("branding")
+    Plugin brandingPlugin = Plugin.factory("branding")
       .setCategory("Integration")
       .setName("Branding")
       .setDescription("Allows to add your own logo to the SonarQube UI.")
@@ -119,7 +119,7 @@ public class UpgradesActionTest {
       .setOrganizationUrl("http://www.sonarsource.com")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARPLUGINS/component/14663")
       .setSourcesUrl("https://github.com/SonarCommunity/sonar-branding");
-    Plugin viewsPlugin = new Plugin("views")
+    Plugin viewsPlugin = Plugin.factory("views")
       .setName("Views")
       .setCategory("Governance")
       .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.")

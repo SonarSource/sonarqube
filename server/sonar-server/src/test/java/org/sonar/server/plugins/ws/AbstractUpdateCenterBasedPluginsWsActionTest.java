@@ -20,6 +20,7 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
+import java.net.URL;
 import org.junit.Before;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
@@ -30,8 +31,6 @@ import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
-
-import java.net.URL;
 
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -45,8 +44,8 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
     "{" +
       "  \"plugins\":" + "[]" +
       "}";
-  protected static final Plugin PLUGIN_1 = new Plugin("p_key_1").setName("p_name_1");
-  protected static final Plugin PLUGIN_2 = new Plugin("p_key_2").setName("p_name_2").setDescription("p_desc_2");
+  protected static final Plugin PLUGIN_1 = Plugin.factory("pkey1").setName("p_name_1");
+  protected static final Plugin PLUGIN_2 = Plugin.factory("pkey2").setName("p_name_2").setDescription("p_desc_2");
 
   protected UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   protected UpdateCenter updateCenter = mock(UpdateCenter.class);
@@ -68,7 +67,7 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
 
   protected static PluginUpdate pluginUpdate(String key, String name) {
     return PluginUpdate.createWithStatus(
-      new Release(new Plugin(key).setName(name), Version.create("1.0")),
+      new Release(Plugin.factory(key).setName(name), Version.create("1.0")),
       COMPATIBLE
       );
   }

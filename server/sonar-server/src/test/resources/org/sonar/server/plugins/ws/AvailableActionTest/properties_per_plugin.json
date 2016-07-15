@@ -1,16 +1,16 @@
 {
   "plugins": [
     {
-      "key": "p_key",
+      "key": "pkey",
       "name": "p_name",
       "category": "p_category",
       "description": "p_description",
       "license": "p_license",
+      "termsAndConditionsUrl": "p_t_and_c_url",
       "organizationName": "p_orga_name",
       "organizationUrl": "p_orga_url",
       "homepageUrl": "p_homepage_url",
       "issueTrackerUrl": "p_issue_url",
-      "termsAndConditionsUrl": "p_t_and_c_url",
       "release": {
         "version": "1.12.1",
         "date": "2015-04-16"
@@ -19,11 +19,11 @@
         "status": "COMPATIBLE",
         "requires": [
           {
-            "key": "p_key_1",
+            "key": "pkey1",
             "name": "p_name_1"
           },
           {
-            "key": "p_key_2",
+            "key": "pkey2",
             "name": "p_name_2",
             "description": "p_desc_2"
           }

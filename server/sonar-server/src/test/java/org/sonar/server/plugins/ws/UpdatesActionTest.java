@@ -34,10 +34,10 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
 
 public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
-  private static final Plugin JAVA_PLUGIN = new Plugin("java")
+  private static final Plugin JAVA_PLUGIN = Plugin.factory("java")
     .setName("Java")
     .setDescription("SonarQube rule engine.");
-  private static final Plugin ABAP_PLUGIN = new Plugin("abap")
+  private static final Plugin ABAP_PLUGIN = Plugin.factory("abap")
     .setName("ABAP")
     .setCategory("Languages")
     .setDescription("Enable analysis and reporting on ABAP projects")
@@ -55,7 +55,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
     .setDescription("14 new rules, most of them designed to detect potential performance hotspots.")
     .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar")
     .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10054&version=10575");
-  private static final Plugin ANDROID_PLUGIN = new Plugin("android")
+  private static final Plugin ANDROID_PLUGIN = Plugin.factory("android")
     .setName("Android")
     .setCategory("Languages")
     .setDescription("Import Android Lint reports.")

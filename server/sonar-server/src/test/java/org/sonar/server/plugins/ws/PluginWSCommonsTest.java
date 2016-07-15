@@ -86,7 +86,7 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
-      "  \"key\": \"p_key\"," +
+      "  \"key\": \"pkey\"," +
       "  \"name\": \"p_name\"," +
       "  \"description\": \"p_description\"," +
       "  \"category\": \"p_category\"," +
@@ -109,7 +109,7 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
-      "  \"key\": \"p_key\"," +
+      "  \"key\": \"pkey\"," +
       "  \"name\": \"p_name\"," +
       "  \"description\": \"p_description\"," +
       "  \"category\": \"p_category\"," +
@@ -140,7 +140,7 @@ public class PluginWSCommonsTest {
   @Test
   public void writeArtifact_from_release_writes_artifact_object_and_file_name() {
     jsonWriter.beginObject();
-    underTest.writeArtifact(jsonWriter, release("p_key").setDownloadUrl("http://toto.com/file.jar"));
+    underTest.writeArtifact(jsonWriter, release("pkey").setDownloadUrl("http://toto.com/file.jar"));
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -188,7 +188,7 @@ public class PluginWSCommonsTest {
       "  \"update\": {" +
       "    \"requires\": [" +
       "      {" +
-      "        \"key\": \"p_key\"," +
+      "        \"key\": \"pkey\"," +
       "        \"name\": \"p_name\"," +
       "        \"description\": \"p_description\"" +
       "      }" +
@@ -202,7 +202,7 @@ public class PluginWSCommonsTest {
   }
 
   private static Release release(String key) {
-    return new Release(new Plugin(key), version("1.0"));
+    return new Release(Plugin.factory(key), version("1.0"));
   }
 
   private PluginInfo gitPluginInfo() {
@@ -218,7 +218,7 @@ public class PluginWSCommonsTest {
   }
 
   private Plugin newPlugin() {
-    return new Plugin("p_key")
+    return Plugin.factory("pkey")
       .setName("p_name")
       .setCategory("p_category")
       .setDescription("p_description")

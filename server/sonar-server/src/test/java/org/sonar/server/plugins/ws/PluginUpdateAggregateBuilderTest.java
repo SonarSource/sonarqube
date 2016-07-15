@@ -28,8 +28,8 @@ import org.sonar.updatecenter.common.Version;
 
 public class PluginUpdateAggregateBuilderTest {
 
-  private static final Plugin PLUGIN_1 = new Plugin("key1");
-  private static final Plugin PLUGIN_2 = new Plugin("key2");
+  private static final Plugin PLUGIN_1 = Plugin.factory("key1");
+  private static final Plugin PLUGIN_2 = Plugin.factory("key2");
   private static final Version SOME_VERSION = Version.create("1.0");
   private static final PluginUpdate.Status SOME_STATUS = PluginUpdate.Status.COMPATIBLE;
 
@@ -49,7 +49,7 @@ public class PluginUpdateAggregateBuilderTest {
   public void add_uses_equals_which_takes_only_key_into_account() {
     PluginUpdateAggregateBuilder builder = PluginUpdateAggregateBuilder.builderFor(PLUGIN_1);
 
-    builder.add(createPluginUpdate(new Plugin(PLUGIN_1.getKey())));
+    builder.add(createPluginUpdate(Plugin.factory(PLUGIN_1.getKey())));
   }
 
   private static PluginUpdate createPluginUpdate(Plugin plugin) {

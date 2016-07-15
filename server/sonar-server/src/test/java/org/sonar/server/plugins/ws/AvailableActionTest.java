@@ -41,7 +41,7 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UP
 
 public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
 
-  private static final Plugin FULL_PROPERTIES_PLUGIN = new Plugin("p_key")
+  private static final Plugin FULL_PROPERTIES_PLUGIN = Plugin.factory("pkey")
     .setName("p_name")
     .setCategory("p_category")
     .setDescription("p_description")

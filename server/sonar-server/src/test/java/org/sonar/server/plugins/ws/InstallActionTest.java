@@ -137,7 +137,7 @@ public class InstallActionTest {
   public void if_plugin_is_found_available_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
     Version version = Version.create("1.0");
     when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
-      PluginUpdate.createWithStatus(new Release(new Plugin(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)
       ));
 
     WsTester.Result result = validRequest.execute();

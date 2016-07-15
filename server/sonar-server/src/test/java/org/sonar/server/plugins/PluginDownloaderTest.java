@@ -112,7 +112,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void download_from_url() {
-    Plugin test = new Plugin("test");
+    Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
 
@@ -132,7 +132,7 @@ public class PluginDownloaderTest {
   public void download_when_update_center_is_unavailable_with_no_exception_thrown() {
     when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
 
-    Plugin test = new Plugin("test");
+    Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
 
@@ -145,7 +145,7 @@ public class PluginDownloaderTest {
    */
   @Test
   public void download_from_redirect_url() {
-    Plugin test = new Plugin("plugin-test");
+    Plugin test = Plugin.factory("plugintest");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
     test.addRelease(test10);
 
@@ -156,9 +156,9 @@ public class PluginDownloaderTest {
 
     // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
     // The JAR file is downloaded in a temp file
-    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("plugin-test-1.0.jar.tmp")));
-    assertThat(new File(downloadDir, "plugin-test-1.0.jar")).exists();
-    assertThat(new File(downloadDir, "plugin-test-1.0.jar.tmp")).doesNotExist();
+    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("plugintest-1.0.jar.tmp")));
+    assertThat(new File(downloadDir, "plugintest-1.0.jar")).exists();
+    assertThat(new File(downloadDir, "plugintest-1.0.jar.tmp")).doesNotExist();
   }
 
   @Test
@@ -186,7 +186,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void download_from_file() throws Exception {
-    Plugin test = new Plugin("test");
+    Plugin test = Plugin.factory("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + separatorsToUnix(file.getCanonicalPath()));
@@ -202,7 +202,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void throw_exception_if_could_not_download() {
-    Plugin test = new Plugin("test");
+    Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://not_found");
     test.addRelease(test10);
 
@@ -219,7 +219,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void throw_exception_if_download_fail() {
-    Plugin test = new Plugin("test");
+    Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
     when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
@@ -279,15 +279,15 @@ public class PluginDownloaderTest {
   // SONAR-5011
   @Test
   public void download_common_transitive_dependency() {
-    Plugin test1 = new Plugin("test1");
+    Plugin test1 = Plugin.factory("test1");
     Release test1R = new Release(test1, "1.0").setDownloadUrl("http://server/test1-1.0.jar");
     test1.addRelease(test1R);
 
-    Plugin test2 = new Plugin("test2");
+    Plugin test2 = Plugin.factory("test2");
     Release test2R = new Release(test2, "1.0").setDownloadUrl("http://server/test2-1.0.jar");
     test2.addRelease(test2R);
 
-    Plugin testDep = new Plugin("testdep");
+    Plugin testDep = Plugin.factory("testdep");
     Release testDepR = new Release(testDep, "1.0").setDownloadUrl("http://server/testdep-1.0.jar");
     testDep.addRelease(testDepR);
 

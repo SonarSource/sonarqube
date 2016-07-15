@@ -169,7 +169,7 @@ public class InstalledActionTest {
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(
       Arrays.asList(
-        new Plugin("plugKey")
+        Plugin.factory("plugKey")
           .setCategory("cat_1")
       )
     );

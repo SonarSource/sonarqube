@@ -139,7 +139,7 @@ public class UpdateActionTest {
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
-      PluginUpdate.createWithStatus(new Release(new Plugin(PLUGIN_KEY), version), Status.COMPATIBLE)
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)
     ));
 
     underTest.handle(validRequest, response);
