@@ -12,11 +12,8 @@
   "fav": false,
   "canMarkAsFavourite": true,
   "measures": {
-    "lines": "200",
-    "coverage": "95.4%",
-    "duplicationDensity": "7.4%",
-    "debt": "3h 2min",
-    "sqaleRating": "C",
-    "debtRatio": "35.0%"
+    "lines": "200.0",
+    "coverage": "95.4",
+    "duplicationDensity": "7.4"
   }
 }

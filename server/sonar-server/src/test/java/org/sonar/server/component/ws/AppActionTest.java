@@ -26,10 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -41,15 +38,11 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class AppActionTest {
 
@@ -69,17 +62,13 @@ public class AppActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private I18n i18n = new I18nRule();
-
-  private Durations durations = mock(Durations.class);
-
   private WsTester wsTester;
 
   @Before
   public void setUp() {
     insertMetrics();
     wsTester = new WsTester(new ComponentsWs(
-      new AppAction(dbTester.getDbClient(), durations, i18n, userSessionRule, new ComponentFinder(dbTester.getDbClient())), mock(SearchViewComponentsAction.class)));
+      new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient())), mock(SearchViewComponentsAction.class)));
   }
 
   @Test
@@ -107,7 +96,6 @@ public class AppActionTest {
       .login("john")
       .setLocale(Locale.ENGLISH)
       .addComponentPermission(UserRole.USER, PROJECT_KEY, FILE_KEY);
-    when(durations.format(eq(Locale.ENGLISH), any(Duration.class), any())).thenReturn("3h 2min");
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
   }
