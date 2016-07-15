@@ -17,19 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+package it.issue;
 
-export default Backbone.Model.extend({
-  url () {
-    return window.baseUrl + '/api/issue_filters/show?id=' + this.id;
-  },
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.selenium.Selenese;
+import it.Category2Suite;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import util.QaOnly;
+import util.selenium.SeleneseTest;
 
-  parse (r) {
-    if (r.filter != null) {
-      return r.filter;
-    } else {
-      return r;
-    }
+@Category(QaOnly.class)
+public class IssuesPageTest {
+
+  @ClassRule
+  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+
+  @Test
+  public void save_new_issue_filter() throws Exception {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("save_new_issue_filter",
+      "/issue/IssuesPageTest/save_new_issue_filter.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
-});
-
+}
