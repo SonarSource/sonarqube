@@ -23,6 +23,7 @@ import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { ProfileType } from '../propTypes';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
+import { getComponentUrl } from '../../../helpers/urls';
 
 export default class ProfileProjects extends React.Component {
   static propTypes = {
@@ -111,9 +112,12 @@ export default class ProfileProjects extends React.Component {
               <li key={project.uuid}
                   className="spacer-top js-profile-project"
                   data-key={project.key}>
-                <QualifierIcon qualifier="TRK"/>
-                {' '}
-                {project.name}
+                <a className="link-with-icon"
+                   href={getComponentUrl(project.key)}>
+                  <QualifierIcon qualifier="TRK"/>
+                  {' '}
+                  <span>{project.name}</span>
+                </a>
               </li>
           ))}
         </ul>
