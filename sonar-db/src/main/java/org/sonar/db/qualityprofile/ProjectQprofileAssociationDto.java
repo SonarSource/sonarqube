@@ -25,6 +25,7 @@ public class ProjectQprofileAssociationDto {
 
   private Long projectId;
   private String projectUuid;
+  private String projectKey;
   private String projectName;
   private String profileKey;
 
@@ -34,6 +35,10 @@ public class ProjectQprofileAssociationDto {
 
   public String getProjectUuid() {
     return projectUuid;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
   }
 
   public String getProjectName() {

@@ -66,7 +66,9 @@ public class ProjectsAction implements QProfileWsAction {
     NewAction projects = controller.createAction("projects")
       .setSince("5.2")
       .setHandler(this)
-      .setDescription("List projects with their association status regarding a quality profile.")
+      .setDescription("List projects with their association status regarding a quality profile.<br/>" +
+        "Since 6.0, 'uuid' response field is deprecated and replaced by 'id'<br/>" +
+        "Since 6.0, 'key' reponse field has been added to return the project key")
       .setResponseExample(getClass().getResource("example-projects.json"));
     projects.createParam(PARAM_KEY)
       .setDescription("A quality profile key.")
@@ -163,6 +165,7 @@ public class ProjectsAction implements QProfileWsAction {
     for (ProjectQprofileAssociationDto project : projects) {
       json.beginObject()
         .prop("uuid", project.getProjectUuid())
+        .prop("key", project.getProjectKey())
         .prop("name", project.getProjectName())
         .prop("selected", project.isAssociated())
         .endObject();

@@ -3,11 +3,13 @@
   [
     {
       "uuid": "CDEF",
+      "key": "KEY_CDEF",
       "name": "Project Three",
       "selected": false
     },
     {
       "uuid": "BCDE",
+      "key": "KEY_BCDE",
       "name": "Project Two",
       "selected": true
     }
