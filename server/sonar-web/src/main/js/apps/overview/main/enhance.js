@@ -133,20 +133,24 @@ export default function enhance (ComposedComponent) {
     }
 
     getMaintainabilityRatingTooltip (rating) {
-      if (rating < 2) {
-        return '';
-      }
-
-      const ratingLetter = formatMeasure(rating, 'RATING');
       const maintainabilityGrid = getMaintainabilityRatingGrid();
       const maintainabilityRatingThreshold =
           maintainabilityGrid[Math.floor(rating) - 2];
 
+      console.log(maintainabilityGrid[0]);
+
+      if (rating < 2) {
+        return translateWithParameters(
+            'metric.sqale_rating.tooltip.A',
+            `${maintainabilityGrid[0]}%`);
+      }
+
+      const ratingLetter = formatMeasure(rating, 'RATING');
+
       return translateWithParameters(
           'metric.sqale_rating.tooltip',
           ratingLetter,
-          formatMeasure(maintainabilityRatingThreshold, 'PERCENT')
-      );
+          `${maintainabilityRatingThreshold}%`);
     }
 
     renderRating (metricKey) {
