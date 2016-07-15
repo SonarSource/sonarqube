@@ -1,25 +1,25 @@
 {
   "results": [
     {
-      "uuid": "5eab015a-1f76-4ba4-bd89-bf547132d673",
+      "id": "5eab015a-1f76-4ba4-bd89-bf547132d673",
       "key": "org.sonarsource.javascript:javascript",
       "name": "JavaScript Plugin",
       "selected": true
     },
     {
-      "uuid": "f1ab623e-d00d-401b-bf9e-c45e91976bf0",
+      "id": "f1ab623e-d00d-401b-bf9e-c45e91976bf0",
       "key": "org.jenkins-ci.plugins:sonar",
       "name": "Jenkins SonarQube Plugin",
       "selected": false
     },
     {
-      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+      "id": "69e57151-be0d-4157-adff-c06741d88879",
       "key": "org.sonarsource.sonarqube:sonarqube",
       "name": "SonarQube",
       "selected": false
     },
     {
-      "uuid": "c355a0fe-9b77-4d39-9837-8364a41ce10d",
+      "id": "c355a0fe-9b77-4d39-9837-8364a41ce10d",
       "key": "org.sonarsource.android:sonar-android",
       "name": "SonarQube Android Plugin",
       "selected": false

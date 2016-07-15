@@ -164,7 +164,9 @@ public class ProjectsAction implements QProfileWsAction {
     json.name("results").beginArray();
     for (ProjectQprofileAssociationDto project : projects) {
       json.beginObject()
+        // uuid is deprecated since 6.0
         .prop("uuid", project.getProjectUuid())
+        .prop("id", project.getProjectUuid())
         .prop("key", project.getProjectKey())
         .prop("name", project.getProjectName())
         .prop("selected", project.isAssociated())

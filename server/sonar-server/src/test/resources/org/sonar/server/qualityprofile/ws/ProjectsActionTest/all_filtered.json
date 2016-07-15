@@ -2,13 +2,13 @@
   "results":
   [
     {
-      "uuid": "CDEF",
+      "id": "CDEF",
       "key": "KEY_CDEF",
       "name": "Project Three",
       "selected": false
     },
     {
-      "uuid": "BCDE",
+      "id": "BCDE",
       "key": "KEY_BCDE",
       "name": "Project Two",
       "selected": true

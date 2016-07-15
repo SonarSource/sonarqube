@@ -212,6 +212,25 @@ public class ProjectsActionTest {
     newRequest().setParam("key", "unknown").setParam("selected", "all").execute();
   }
 
+  @Test
+  public void return_deprecated_uuid_field() throws Exception {
+    project1 = newProject("ABCD", "Project One");
+    project2 = newProject("BCDE", "Project Two");
+    project3 = newProject("CDEF", "Project Three");
+    project4 = newProject("DEFA", "Project Four");
+    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+
+    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+
+    associateProjectsWithProfile(session, xooP1, project1, project2);
+    // project3 is associated with P2, must appear as not associated with xooP1
+    associateProjectsWithProfile(session, xooP2, project3);
+
+    session.commit();
+
+    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
+  }
+
   private void createProfiles() {
     xooP1 = QProfileTesting.newXooP1();
     xooP2 = QProfileTesting.newXooP2();

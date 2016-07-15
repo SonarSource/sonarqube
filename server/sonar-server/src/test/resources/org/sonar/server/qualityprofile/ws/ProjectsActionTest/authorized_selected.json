@@ -2,7 +2,7 @@
   "results":
   [
     {
-      "uuid": "ABCD",
+      "id": "ABCD",
       "key": "KEY_ABCD",
       "name": "Project One",
       "selected": true

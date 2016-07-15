@@ -2,7 +2,7 @@
   "results":
   [
     {
-      "uuid": "BCDE",
+      "id": "BCDE",
       "key": "KEY_BCDE",
       "name": "Project Two",
       "selected": true
