@@ -39,6 +39,10 @@ public interface UserSession {
 
   boolean isLoggedIn();
 
+  /**
+   * @deprecated Always returning {@link Locale#ENGLISH}
+   */
+  @Deprecated
   Locale locale();
 
   /**
