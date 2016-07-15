@@ -126,7 +126,7 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown web service: api/xxx\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown controller: api/xxx\"}]}");
   }
 
   @Test

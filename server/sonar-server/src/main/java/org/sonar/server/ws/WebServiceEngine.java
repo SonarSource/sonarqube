@@ -128,7 +128,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private WebService.Action getAction(String controllerPath, String actionKey) {
     WebService.Controller controller = context.controller(controllerPath);
     if (controller == null) {
-      throw new BadRequestException(format("Unknown web service: %s", controllerPath));
+      throw new BadRequestException(format("Unknown controller: %s", controllerPath));
     }
     WebService.Action action = controller.action(actionKey);
     if (action == null) {
