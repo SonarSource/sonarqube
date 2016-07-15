@@ -20,6 +20,7 @@
 import React from 'react';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
+import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
 
 export default class HoldersList extends React.Component {
   static propTypes = {
@@ -86,13 +87,15 @@ export default class HoldersList extends React.Component {
     ));
 
     return (
-        <table className="data zebra permissions-table">
-          {this.renderTableHeader()}
-          <tbody>
-            {users}
-            {groups}
-          </tbody>
-        </table>
+        <TooltipsContainer>
+          <table className="data zebra permissions-table">
+            {this.renderTableHeader()}
+            <tbody>
+              {users}
+              {groups}
+            </tbody>
+          </table>
+        </TooltipsContainer>
     );
   }
 }
