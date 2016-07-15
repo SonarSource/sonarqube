@@ -19,12 +19,9 @@
  */
 package org.sonar.server.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.Locale;
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -36,13 +33,22 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.MediaTypes;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class WebServiceEngineTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -282,6 +288,16 @@ public class WebServiceEngineTest {
     assertThat(response.getHeader(name)).isEqualTo(value);
   }
 
+  @Test
+  public void does_not_fail_when_request_is_aborted() throws Exception {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_client_abort_exception");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN)).isNotEmpty();
+  }
+
   static class SystemWs implements WebService {
     @Override
     public void define(Context context) {
@@ -380,6 +396,12 @@ public class WebServiceEngineTest {
           }
         }
       });
+
+      createNewDefaultAction(newController, "fail_with_client_abort_exception")
+        .setHandler((request, response) -> {
+          throw new IllegalStateException("fail!", new ClientAbortException());
+        });
+
       newController.done();
     }
 

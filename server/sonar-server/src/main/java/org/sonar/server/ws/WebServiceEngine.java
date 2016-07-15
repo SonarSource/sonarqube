@@ -19,21 +19,13 @@
  */
 package org.sonar.server.ws;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.substring;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.apache.commons.lang.StringUtils.substringBeforeLast;
-import static org.sonar.server.ws.RequestVerifier.verifyRequest;
-import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
-
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.catalina.connector.ClientAbortException;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
@@ -42,6 +34,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
@@ -51,11 +44,22 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.substring;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
+import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
+
 /**
  * @since 4.2
  */
 @ServerSide
 public class WebServiceEngine implements LocalConnector, Startable {
+
+  private static final Logger LOGGER = Loggers.get(WebServiceEngine.class);
 
   private final WebService.Context context;
   private final I18n i18n;
@@ -110,7 +114,13 @@ public class WebServiceEngine implements LocalConnector, Startable {
     } catch (ServerException e) {
       sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
-      Loggers.get(getClass()).error("Fail to process request " + request, e);
+      Throwable cause = e.getCause();
+      if (cause != null && cause instanceof ClientAbortException) {
+        // Request has been aborted by the client, nothing can been done as Tomcat has committed the response
+        LOGGER.warn("Request {} has been aborted by client, error is '{}'", request, e.getMessage());
+        return;
+      }
+      LOGGER.error("Fail to process request " + request, e);
       sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
     }
   }
