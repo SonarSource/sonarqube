@@ -367,3 +367,24 @@ function shortDurationVariationFormatter (value) {
   const formatted = shortDurationFormatter(value);
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
+
+
+let maintainabilityRatingGrid;
+export function getMaintainabilityRatingGrid () {
+  if (maintainabilityRatingGrid) {
+    return maintainabilityRatingGrid;
+  }
+
+  const str = window.SS['sonar.technicalDebt.ratingGrid'];
+  const numbers = str.split(',')
+      .map(s => parseFloat(s))
+      .filter(n => !isNaN(n));
+
+  if (numbers.length === 4) {
+    maintainabilityRatingGrid = numbers;
+  } else {
+    maintainabilityRatingGrid = [0, 0, 0, 0];
+  }
+
+  return maintainabilityRatingGrid;
+}

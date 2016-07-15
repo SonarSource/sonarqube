@@ -33,6 +33,7 @@ import { getTimeMachineData } from '../../../api/time-machine';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { ComponentType } from '../propTypes';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 import '../styles.css';
 
@@ -184,13 +185,15 @@ export default class OverviewApp extends React.Component {
                   measures={measures}
                   periods={periods}/>
 
-              <div className="overview-domains-list">
-                <BugsAndVulnerabilities {...domainProps}/>
-                <CodeSmells {...domainProps}/>
-                <Coverage {...domainProps}/>
-                <Duplications {...domainProps}/>
-                <Size {...domainProps}/>
-              </div>
+              <TooltipsContainer>
+                <div className="overview-domains-list">
+                  <BugsAndVulnerabilities {...domainProps}/>
+                  <CodeSmells {...domainProps}/>
+                  <Coverage {...domainProps}/>
+                  <Duplications {...domainProps}/>
+                  <Size {...domainProps}/>
+                </div>
+              </TooltipsContainer>
             </div>
 
             <div className="page-sidebar-fixed">
