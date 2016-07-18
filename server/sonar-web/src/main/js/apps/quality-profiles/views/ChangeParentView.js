@@ -27,6 +27,7 @@ export default ModalFormView.extend({
   onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
+      allowClear: false,
       width: '250px',
       minimumResultsForSearch: 50
     });
@@ -39,7 +40,10 @@ export default ModalFormView.extend({
   },
 
   sendRequest () {
-    const parent = this.$('#change-profile-parent').val();
+    let parent = this.$('#change-profile-parent').val();
+    if (parent === '#none') {
+      parent = '';
+    }
     changeProfileParent(this.options.profile.key, parent)
         .then(() => {
           this.destroy();
