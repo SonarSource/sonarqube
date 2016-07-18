@@ -24,15 +24,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
@@ -41,13 +40,12 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.metric.Metric.MetricType;
-import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
@@ -59,34 +57,33 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   private QualityProfileDto myQualityProfile = newQualityProfileDto().setKey("my-qp");
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
+
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(ANALYSIS_DATE);
+
   @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
+
   @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(QUALITY_PROFILES);
+
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  UpdateQualityProfilesLastUsedDateStep underTest;
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+  QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
 
-  @Before
-  public void setUp() {
-    underTest = new UpdateQualityProfilesLastUsedDateStep(dbClient, analysisMetadataHolder, treeRootHolder, metricRepository, measureRepository);
-    analysisMetadataHolder.setAnalysisDate(ANALYSIS_DATE);
-    treeRootHolder.setRoot(PROJECT);
-    Metric<String> metric = CoreMetrics.QUALITY_PROFILES;
-    metricRepository.add(new MetricImpl(1, metric.getKey(), metric.getName(), MetricType.STRING));
-
-    qualityProfileDb.insertQualityProfiles(sonarWayJava, sonarWayPhp, myQualityProfile);
-  }
+  UpdateQualityProfilesLastUsedDateStep underTest = new UpdateQualityProfilesLastUsedDateStep(dbClient, analysisMetadataHolder, treeRootHolder, metricRepository, measureRepository);
 
   @Test
-  public void project_without_quality_profiles() {
+  public void doest_not_update_profiles_when_no_measure() {
+    qualityProfileDb.insertQualityProfiles(sonarWayJava, sonarWayPhp, myQualityProfile);
+
     underTest.execute();
 
     assertQualityProfileIsTheSame(sonarWayJava);
@@ -95,7 +92,9 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   }
 
   @Test
-  public void analysis_quality_profiles_are_updated() {
+  public void update_profiles_defined_in_quality_profiles_measure() {
+    qualityProfileDb.insertQualityProfiles(sonarWayJava, sonarWayPhp, myQualityProfile);
+
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(
       toJson(sonarWayJava.getKey(), myQualityProfile.getKey())));
 
@@ -107,8 +106,40 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   }
 
   @Test
-  public void description() {
-    assertThat(underTest.getDescription()).isEqualTo("Update quality profiles");
+  public void ancestor_profiles_are_updated() throws Exception {
+    // Parent profiles should be updated
+    QualityProfileDto rootProfile = newQualityProfileDto().setKey("root");
+    QualityProfileDto parentProfile = newQualityProfileDto().setKey("parent").setParentKee(rootProfile.getKey());
+    // Current profile => should be updated
+    QualityProfileDto currentProfile = newQualityProfileDto().setKey("current").setParentKee(parentProfile.getKey());
+    // Child of current profile => should not be updated
+    QualityProfileDto childProfile = newQualityProfileDto().setKey("child").setParentKee(currentProfile.getKey());
+    qualityProfileDb.insertQualityProfiles(rootProfile, parentProfile, currentProfile, childProfile);
+
+    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKey())));
+
+    underTest.execute();
+
+    assertQualityProfileIsUpdated(rootProfile);
+    assertQualityProfileIsUpdated(parentProfile);
+    assertQualityProfileIsUpdated(currentProfile);
+    assertQualityProfileIsTheSame(childProfile);
+  }
+
+  @Test
+  public void fail_when_profile_is_linked_to_unknown_parent() throws Exception {
+    QualityProfileDto currentProfile = newQualityProfileDto().setKey("current").setParentKee("unknown");
+    qualityProfileDb.insertQualityProfiles(currentProfile);
+
+    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKey())));
+
+    expectedException.expect(RowNotFoundException.class);
+    underTest.execute();
+  }
+
+  @Test
+  public void test_description() {
+    assertThat(underTest.getDescription()).isEqualTo("Update last usage date of quality profiles");
   }
 
   private void assertQualityProfileIsUpdated(QualityProfileDto qp) {

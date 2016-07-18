@@ -21,10 +21,10 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -39,6 +39,7 @@ import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static java.util.Collections.emptySet;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 
 public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
 
@@ -49,7 +50,7 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
   private final MeasureRepository measureRepository;
 
   public UpdateQualityProfilesLastUsedDateStep(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
+                                               MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.treeRootHolder = treeRootHolder;
@@ -62,13 +63,14 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
     DbSession dbSession = dbClient.openSession(true);
     try {
       Component root = treeRootHolder.getRoot();
-      Metric metric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
+      Metric metric = metricRepository.getByKey(QUALITY_PROFILES_KEY);
       Set<QualityProfile> qualityProfiles = parseQualityProfiles(measureRepository.getRawMeasure(root, metric));
       if (qualityProfiles.isEmpty()) {
         return;
       }
 
       List<QualityProfileDto> dtos = dbClient.qualityProfileDao().selectByKeys(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()));
+      dtos.addAll(getAncestors(dbSession, dtos));
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
       dtos.forEach(dto -> {
         dto.setLastUsed(analysisDate);
@@ -81,9 +83,24 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
     }
   }
 
+  private List<QualityProfileDto> getAncestors(DbSession dbSession, List<QualityProfileDto> dtos) {
+    List<QualityProfileDto> ancestors = new ArrayList<>();
+    dtos.forEach(dto -> incrementAncestors(dbSession, dto, ancestors));
+    return ancestors;
+  }
+
+  private void incrementAncestors(DbSession session, QualityProfileDto profile, List<QualityProfileDto> ancestors) {
+    String parentKey = profile.getParentKee();
+    if (parentKey != null) {
+      QualityProfileDto parentDto = dbClient.qualityProfileDao().selectOrFailByKey(session, parentKey);
+      ancestors.add(parentDto);
+      incrementAncestors(session, parentDto, ancestors);
+    }
+  }
+
   @Override
   public String getDescription() {
-    return "Update quality profiles";
+    return "Update last usage date of quality profiles";
   }
 
   private static Set<QualityProfile> parseQualityProfiles(Optional<Measure> measure) {
