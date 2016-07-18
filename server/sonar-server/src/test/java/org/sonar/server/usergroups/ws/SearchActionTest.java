@@ -23,15 +23,17 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,10 +44,16 @@ public class SearchActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private WsTester ws;
 
   private GroupDao groupDao;
-  private GroupMembershipDao groupMembershipDao;
   private UserGroupDao userGroupDao;
   private DbSession dbSession;
 
@@ -53,21 +61,22 @@ public class SearchActionTest {
   public void setUp() {
     DbClient dbClient = db.getDbClient();
     groupDao = dbClient.groupDao();
-    groupMembershipDao = dbClient.groupMembershipDao();
     userGroupDao = dbClient.userGroupDao();
 
-    ws = new WsTester(new UserGroupsWs(new SearchAction(dbClient)));
+    ws = new WsTester(new UserGroupsWs(new SearchAction(dbClient, userSession)));
 
     dbSession = dbClient.openSession(false);
   }
 
   @Test
   public void search_empty() throws Exception {
+    loginAsSimpleUser();
     newRequest().execute().assertJson(getClass(), "empty.json");
   }
 
   @Test
   public void search_without_parameters() throws Exception {
+    loginAsSimpleUser();
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
     dbSession.commit();
 
@@ -76,6 +85,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_members() throws Exception {
+    loginAsSimpleUser();
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
     insertMembers("users", 5);
     insertMembers("admins", 1);
@@ -87,6 +97,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_query() throws Exception {
+    loginAsSimpleUser();
     insertGroups("users", "admins", "customer%_%/1", "customer%_%/2", "customer%_%/3");
     dbSession.commit();
 
@@ -95,6 +106,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_paging() throws Exception {
+    loginAsSimpleUser();
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
     dbSession.commit();
 
@@ -108,6 +120,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_fields() throws Exception {
+    loginAsSimpleUser();
     insertGroups("sonar-users");
     dbSession.commit();
 
@@ -142,6 +155,14 @@ public class SearchActionTest {
       .contains("membersCount");
   }
 
+  @Test
+  public void fail_when_not_logged() throws Exception {
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    newRequest().execute();
+  }
+
   private WsTester.TestRequest newRequest() {
     return ws.newGetRequest("api/user_groups", "search");
   }
@@ -160,4 +181,9 @@ public class SearchActionTest {
       userGroupDao.insert(dbSession, new UserGroupDto().setGroupId(groupId).setUserId((long) i + 1));
     }
   }
+
+  private void loginAsSimpleUser() {
+    userSession.login("user");
+  }
+
 }

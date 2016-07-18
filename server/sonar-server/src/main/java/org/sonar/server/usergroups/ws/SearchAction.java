@@ -38,6 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
@@ -49,16 +50,19 @@ public class SearchAction implements UserGroupsWsAction {
   private static final String FIELD_MEMBERS_COUNT = "membersCount";
   private static final List<String> ALL_FIELDS = Arrays.asList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_MEMBERS_COUNT);
 
-  private DbClient dbClient;
+  private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public SearchAction(DbClient dbClient) {
+  public SearchAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
   public void define(NewController context) {
     context.createAction("search")
-      .setDescription("Search for user groups")
+      .setDescription("Search for user groups <br>." +
+        "Require to be logged.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")
@@ -69,6 +73,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
     int page = request.mandatoryParamAsInt(Param.PAGE);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     SearchOptions options = new SearchOptions()
