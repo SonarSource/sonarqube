@@ -45,9 +45,6 @@ class SessionsController < ApplicationController
     # else the original uri can be set by ApplicationController#access_denied
     end
     @return_to = get_redirect_back_or_default(home_url)
-
-    # Needed to bypass session fixation vulnerability (https://jira.sonarsource.com/browse/SONAR-6880)
-    reset_session
   end
 
   private
