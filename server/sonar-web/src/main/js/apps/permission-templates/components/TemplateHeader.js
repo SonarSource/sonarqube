@@ -53,7 +53,8 @@ export default class TemplateHeader extends React.Component {
             <ActionsCell
                 permissionTemplate={this.props.template}
                 topQualifiers={this.props.topQualifiers}
-                refresh={this.props.refresh}/>
+                refresh={this.props.refresh}
+                fromDetails={true}/>
           </div>
         </header>
     );

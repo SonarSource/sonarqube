@@ -26,7 +26,7 @@ import {
     mergePermissionsToTemplates,
     mergeDefaultsToTemplates
 } from '../utils';
-import '../styles.css';
+import '../../permissions/styles.css';
 
 export default class App extends React.Component {
   static propTypes = {

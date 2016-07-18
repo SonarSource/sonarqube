@@ -44,19 +44,27 @@ export default class HoldersList extends React.Component {
     const cells = this.props.permissions.map(p => (
         <th key={p.key}
             className="permission-column text-center"
-            style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
-          <a href="#" onClick={this.handlePermissionClick.bind(this, p.key)}>
-            {p.name}
-          </a>
-          <i className="icon-help little-spacer-left"
-             title={p.description}
-             data-toggle="tooltip"/>
+            style={{
+              backgroundColor: p.key === selectedPermission ? '#d9edf7' :
+                  'transparent'
+            }}>
+          <div className="permission-column-inner">
+            <a href="#"
+               title={`Filter by "${p.name}" permission` }
+               data-toggle="tooltip"
+               onClick={this.handlePermissionClick.bind(this, p.key)}>
+              {p.name}
+            </a>
+            <i className="icon-help little-spacer-left"
+               title={p.description}
+               data-toggle="tooltip"/>
+          </div>
         </th>
     ));
     return (
         <thead>
           <tr>
-            <td className="bordered-bottom">
+            <td className="nowrap bordered-bottom">
               {this.props.children}
             </td>
             {cells}

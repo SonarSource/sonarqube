@@ -1,5 +1,5 @@
 .permissions-table {
-  table-layout: fixed;
+
 }
 
 .permissions-table > tbody > tr > td {
@@ -7,11 +7,9 @@
 }
 
 .permissions-table .permission-column {
-  width: 12%;
-  min-width: 112px;
+  width: 1px;
 }
 
-.permissions-table .actions-column {
-  width: 130px;
-  text-align: right;
+.permissions-table .permission-column-inner {
+  width: 112px;
 }

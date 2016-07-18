@@ -40,7 +40,7 @@ export default class ListHeader extends React.Component {
         <tr>
           <th>&nbsp;</th>
           {cells}
-          <th className="actions-column">&nbsp;</th>
+          <th className="thin nowrap text-right">&nbsp;</th>
         </tr>
         </thead>
     );

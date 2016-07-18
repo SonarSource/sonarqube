@@ -18,44 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { PermissionType, CallbackType } from '../propTypes';
+import { PermissionType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 
 export default class PermissionCell extends React.Component {
   static propTypes = {
-    permission: PermissionType.isRequired,
-    onShowUsers: CallbackType,
-    onShowGroups: CallbackType
+    permission: PermissionType.isRequired
   };
-
-  handleShowUsers (e) {
-    e.preventDefault();
-    this.props.onShowUsers(this.props.permission);
-  }
-
-  handleShowGroups (e) {
-    e.preventDefault();
-    this.props.onShowGroups(this.props.permission);
-  }
 
   render () {
     const { permission: p } = this.props;
 
     return (
         <td className="permission-column" data-permission={p.key}>
-          <ul>
-            {p.withProjectCreator && (
-                <li className="little-spacer-bottom">
-                  {translate('permission_templates.project_creators')}
-                </li>
-            )}
-            <li className="little-spacer-bottom">
-              <strong>{p.usersCount}</strong>{'  user(s)'}
-            </li>
-            <li>
-              <strong>{p.groupsCount}</strong>{' group(s)'}
-            </li>
-          </ul>
+          <div className="permission-column-inner">
+            <ul>
+              {p.withProjectCreator && (
+                  <li className="little-spacer-bottom">
+                    {translate('permission_templates.project_creators')}
+                  </li>
+              )}
+              <li className="little-spacer-bottom">
+                <strong>{p.usersCount}</strong>{'  user(s)'}
+              </li>
+              <li>
+                <strong>{p.groupsCount}</strong>{' group(s)'}
+              </li>
+            </ul>
+          </div>
         </td>
     );
   }

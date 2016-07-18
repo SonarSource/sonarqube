@@ -55,11 +55,7 @@ export default class ListItem extends React.Component {
 
   render () {
     const permissions = this.props.permissionTemplate.permissions.map(p => (
-        <PermissionCell
-            key={p.key}
-            permission={p}
-            onShowUsers={this.handleShowUsers}
-            onShowGroups={this.handleShowGroups}/>
+        <PermissionCell key={p.key} permission={p}/>
     ));
 
     return (
@@ -72,7 +68,7 @@ export default class ListItem extends React.Component {
 
           {permissions}
 
-          <td className="actions-column">
+          <td className="nowrap thin text-right">
             <ActionsCell
                 permissionTemplate={this.props.permissionTemplate}
                 topQualifiers={this.props.topQualifiers}

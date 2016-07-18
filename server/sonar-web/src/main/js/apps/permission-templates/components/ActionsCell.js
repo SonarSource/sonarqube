@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import difference from 'lodash/difference';
 import Backbone from 'backbone';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
@@ -31,7 +32,12 @@ export default class ActionsCell extends React.Component {
   static propTypes = {
     permissionTemplate: PermissionTemplateType.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
-    refresh: CallbackType
+    refresh: CallbackType,
+    fromDetails: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    fromDetails: false
   };
 
   static contextTypes = {
@@ -138,11 +144,20 @@ export default class ActionsCell extends React.Component {
           <button className="dropdown-toggle" data-toggle="dropdown">
             {translate('actions')}
             {' '}
-            <i className="icon-dropdown"></i>
+            <i className="icon-dropdown"/>
           </button>
 
           <ul className="dropdown-menu dropdown-menu-right">
             {this.renderSetDefaultsControl()}
+
+            {!this.props.fromDetails && (
+              <li>
+                <Link to={{ pathname: '/', query: { id: t.id } }}>
+                  {this.renderDropdownIcon(<i className="icon-edit"/>)}
+                  Edit Permissions
+                </Link>
+              </li>
+            )}
 
             <li>
               <a href="#"

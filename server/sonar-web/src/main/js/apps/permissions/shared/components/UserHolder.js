@@ -20,6 +20,7 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import Avatar from '../../../../components/ui/Avatar';
+import { translate } from '../../../../helpers/l10n';
 
 export default class UserHolder extends React.Component {
   static propTypes = {
@@ -80,6 +81,11 @@ export default class UserHolder extends React.Component {
               </div>
               {!isCreator && (
                   <div className="little-spacer-top">{user.email}</div>
+              )}
+              {isCreator && (
+                  <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+                    {translate('permission_templates.project_creators.explanation')}
+                  </div>
               )}
             </div>
           </td>
