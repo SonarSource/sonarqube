@@ -285,6 +285,27 @@ public class TemplateGroupsActionTest {
   }
 
   @Test
+  public void search_with_text_query_return_anyone_group_even_when_no_permission_set() throws IOException {
+    logAsSysAdminUser();
+
+    PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setUuid("template-uuid-1"));
+    GroupDto group = insertGroup(new GroupDto().setName("group"));
+    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group.getId()));
+    commit();
+
+    InputStream responseStream = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .setParam(TEXT_QUERY, "nyo")
+      .execute()
+      .getInputStream();
+    WsGroupsResponse response = WsGroupsResponse.parseFrom(responseStream);
+
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone");
+    assertThat(response.getGroups(0).getPermissionsList()).isEmpty();
+  }
+
+  @Test
   public void fail_if_not_logged_in() {
     userSession.anonymous();
 

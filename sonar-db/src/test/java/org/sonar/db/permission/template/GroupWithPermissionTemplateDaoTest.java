@@ -184,6 +184,17 @@ public class GroupWithPermissionTemplateDaoTest {
   }
 
   @Test
+  public void select_group_names_by_query_and_template_returns_anyone() {
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+
+    GroupDto group = groupDb.insertGroup(newGroupDto().setName("Group"));
+    PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate();
+    permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getId(), group.getId(), USER);
+
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nyo").build(), template.getId())).containsExactly("Anyone");
+  }
+
+  @Test
   public void count_group_names_by_query_and_template() {
     GroupDto group1 = groupDb.insertGroup(newGroupDto().setName("Group-1"));
     GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));

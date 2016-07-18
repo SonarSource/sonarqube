@@ -171,7 +171,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_only_for_groups_with_permission_when_no_search_query() {
+  public void return_also_groups_without_permission_when_search_query() {
     userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
@@ -196,7 +196,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_also_for_groups_without_permission_when_search_query() {
+  public void return_only_groups_with_permission_when_no_search_query() {
     userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
@@ -215,6 +215,25 @@ public class GroupsActionTest {
 
     assertThat(result).contains("project-group-name")
       .doesNotContain(groupWithoutPermission.getName());
+  }
+
+  @Test
+  public void return_anyone_group_when_search_query_and_no_param_permission() {
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(group.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(project.getId()));
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(TEXT_QUERY, "nyo")
+      .execute().getInput();
+
+    assertThat(result).contains("Anyone");
   }
 
   @Test
