@@ -22,7 +22,10 @@ package org.sonar.server.startup;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -46,6 +49,11 @@ public class FeedUsersLocalStartupTaskTest {
   static final String USER1_LOGIN = "USER1";
   static final String USER2_LOGIN = "USER2";
 
+  static final String REALM_NAME = "LDAP";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   System2 system2 = mock(System2.class);
 
   @Rule
@@ -62,7 +70,7 @@ public class FeedUsersLocalStartupTaskTest {
 
   Settings settings = new Settings();
 
-  FeedUsersLocalStartupTask underTest = new FeedUsersLocalStartupTask(system2, dbTester.getDbClient(), settings);
+  FeedUsersLocalStartupTask underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -71,7 +79,8 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void set_user_local_when_id_provider_is_sonarqube_and_realm_exists_and_local_users_property_contains_user_login() throws Exception {
-    settings.setProperty("sonar.security.realm", "LDAP");
+    initTaskWithRealm();
+    settings.setProperty("sonar.security.realm", REALM_NAME);
     settings.setProperty("sonar.security.localUsers", USER1_LOGIN);
     UserDto user = addUser(USER1_LOGIN, false, "sonarqube");
 
@@ -83,7 +92,8 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void set_user_as_not_local_when_id_provider_is_sonarqube_and_ream_exists_and_no_local_users_property() throws Exception {
-    settings.setProperty("sonar.security.realm", "LDAP");
+    initTaskWithRealm();
+    settings.setProperty("sonar.security.realm", REALM_NAME);
     UserDto user = addUser(USER1_LOGIN, false, "sonarqube");
 
     underTest.start();
@@ -94,7 +104,8 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void set_user_as_not_local_when_id_provider_is_sonarqube_and_ream_exists_and_local_users_property_does_not_contain_user_login() throws Exception {
-    settings.setProperty("sonar.security.realm", "LDAP");
+    initTaskWithRealm();
+    settings.setProperty("sonar.security.realm", REALM_NAME);
     settings.setProperty("sonar.security.localUsers", USER2_LOGIN);
     UserDto user = addUser(USER1_LOGIN, true, "sonarqube");
 
@@ -106,6 +117,7 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void set_user_as_local_when_id_provider_is_sonarqube_and_no_realm() throws Exception {
+    initTaskWithNoRealm();
     settings.setProperty("sonar.security.realm", (String) null);
     UserDto user = addUser(USER1_LOGIN, false, "sonarqube");
 
@@ -116,7 +128,8 @@ public class FeedUsersLocalStartupTaskTest {
   }
 
   @Test
-  public void set_user_as_not_local_when_external_identiy_is_not_sonarqube() throws Exception {
+  public void set_user_as_not_local_when_external_identity_is_not_sonarqube() throws Exception {
+    initTaskWithNoRealm();
     UserDto user = addUser(USER1_LOGIN, false, "github");
 
     underTest.start();
@@ -127,7 +140,8 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void does_not_update_removed_user() throws Exception {
-    settings.setProperty("sonar.security.realm", "LDAP");
+    initTaskWithRealm();
+    settings.setProperty("sonar.security.realm", REALM_NAME);
 
     UserDto user = UserTesting.newUserDto()
       .setLogin(USER1_LOGIN)
@@ -148,7 +162,8 @@ public class FeedUsersLocalStartupTaskTest {
 
   @Test
   public void does_nothing_when_task_has_already_been_executed() throws Exception {
-    settings.setProperty("sonar.security.realm", "LDAP");
+    initTaskWithRealm();
+    settings.setProperty("sonar.security.realm", REALM_NAME);
     settings.setProperty("sonar.security.localUsers", USER1_LOGIN);
     UserDto user = addUser(USER1_LOGIN, false, "github");
 
@@ -166,6 +181,16 @@ public class FeedUsersLocalStartupTaskTest {
     userReloaded = userDao.selectUserById(dbSession, user.getId());
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
     verifyEmptyLog();
+  }
+
+  @Test
+  public void fail_when_realm_found_but_no_configuration() throws Exception {
+    initTask(createRealm("REALM1"), createRealm("REALM2"));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("External authentication plugin [REALM1, REALM2] has been found, but no related configuration has been set. " +
+      "Either update your configuration or remove the plugin");
+    underTest.start();
   }
 
   private UserDto addUser(String login, boolean local, String externalIdentityProvider) {
@@ -202,4 +227,25 @@ public class FeedUsersLocalStartupTaskTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
 
+  private void initTask(SecurityRealm... realms) {
+    if (realms.length == 0) {
+      underTest = new FeedUsersLocalStartupTask(system2, dbTester.getDbClient(), settings);
+    } else {
+      underTest = new FeedUsersLocalStartupTask(system2, dbTester.getDbClient(), settings, realms);
+    }
+  }
+
+  private void initTaskWithRealm() {
+    initTask(createRealm(REALM_NAME));
+  }
+
+  private void initTaskWithNoRealm() {
+    initTask();
+  }
+
+  private static SecurityRealm createRealm(String name) {
+    SecurityRealm realm = mock(SecurityRealm.class);
+    when(realm.getName()).thenReturn(name);
+    return realm;
+  }
 }

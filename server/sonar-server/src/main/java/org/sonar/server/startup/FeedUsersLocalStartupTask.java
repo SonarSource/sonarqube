@@ -19,11 +19,16 @@
  */
 package org.sonar.server.startup;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
+import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.user.UserQuery;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,9 +46,9 @@ import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
  * Feed users local property.
  * If a realm is defined, then users are set as local only if their login are found in the property "sonar.security.localUsers",
  * otherwise user are all set as local.
- *
+ * <p>
  * See <a href="https://jira.sonarsource.com/browse/SONAR-7254">SONAR-7254</a>.
- *
+ * <p>
  * Should be removed after LTS 5.X
  *
  * @since 5.5
@@ -59,11 +64,23 @@ public class FeedUsersLocalStartupTask implements Startable {
 
   private final DbClient dbClient;
   private final Settings settings;
+  private final SecurityRealm[] realms;
 
+  /**
+   * Used when no realm plugin
+   */
   public FeedUsersLocalStartupTask(System2 system2, DbClient dbClient, Settings settings) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.settings = settings;
+    this.realms = new SecurityRealm[]{};
+  }
+
+  public FeedUsersLocalStartupTask(System2 system2, DbClient dbClient, Settings settings, SecurityRealm[] realms) {
+    this.system2 = system2;
+    this.dbClient = dbClient;
+    this.settings = settings;
+    this.realms = realms;
   }
 
   @Override
@@ -86,17 +103,26 @@ public class FeedUsersLocalStartupTask implements Startable {
   }
 
   private void updateUsersLocal(DbSession dbSession) {
+    boolean realmConfExists = settings.getString(CORE_AUTHENTICATOR_REALM) != null;
+    checkConfigurationIfRealmExists(realmConfExists);
     long now = system2.now();
     Set<String> localUsers = new HashSet<>(asList(settings.getStringArray(LOCAL_USERS_PROPERTY)));
-    boolean isRealmExist = settings.getString(CORE_AUTHENTICATOR_REALM) != null;
     for (UserDto user : dbClient.userDao().selectUsers(dbSession, UserQuery.ALL_ACTIVES)) {
       if (user.getExternalIdentityProvider().equals(UserUpdater.SQ_AUTHORITY)) {
-        user.setLocal(!isRealmExist || localUsers.contains(user.getLogin()));
+        user.setLocal(!realmConfExists || localUsers.contains(user.getLogin()));
       } else {
         user.setLocal(false);
       }
       user.setUpdatedAt(now);
       dbClient.userDao().update(dbSession, user);
+    }
+  }
+
+  private void checkConfigurationIfRealmExists(boolean realmConfExists) {
+    List<String> realmNames = Arrays.stream(realms).map(SecurityRealm::getName).collect(Collectors.toList());
+    if (!realmNames.isEmpty() && !realmConfExists) {
+      throw MessageException.of(String.format("External authentication plugin %s has been found, but no related configuration has been set. " +
+        "Either update your configuration or remove the plugin", realmNames));
     }
   }
 
