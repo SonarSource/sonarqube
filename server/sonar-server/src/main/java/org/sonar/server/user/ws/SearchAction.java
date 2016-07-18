@@ -58,7 +58,9 @@ public class SearchAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
-      .setDescription("Get a list of active users. Administer System permission is required to show the 'groups' field.")
+      .setDescription("Get a list of active users. <br/>" +
+        "Administer System permission is required to show the 'groups' field.<br/>" +
+        "When accessed anonymously, only logins and names are returned.")
       .setSince("3.6")
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
