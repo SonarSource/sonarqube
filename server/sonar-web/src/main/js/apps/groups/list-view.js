@@ -19,10 +19,12 @@
  */
 import Marionette from 'backbone.marionette';
 import ListItemView from './list-item-view';
+import Template from './templates/groups-list.hbs';
 
-export default Marionette.CollectionView.extend({
-  tagName: 'ul',
+export default Marionette.CompositeView.extend({
   childView: ListItemView,
+  childViewContainer: '.js-list',
+  template: Template,
 
   collectionEvents: {
     'request': 'showLoading',
@@ -35,6 +37,10 @@ export default Marionette.CollectionView.extend({
 
   hideLoading () {
     this.$el.removeClass('new-loading');
+
+    const query = this.collection.q || '';
+    const shouldHideAnyone = !'anyone'.includes(query.toLowerCase());
+    this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
   }
 });
 
