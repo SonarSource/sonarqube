@@ -189,7 +189,7 @@ export default class BackgroundTasksApp extends React.Component {
     const query = this.props.location.query.query || '';
 
     return (
-        <div className="page">
+        <div className="page page-limited">
           <Header/>
 
           <Stats

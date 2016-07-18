@@ -190,7 +190,7 @@ export default React.createClass({
 
   render() {
     return (
-        <div className="page">
+        <div className="page page-limited">
           <Header
               hasProvisionPermission={this.props.hasProvisionPermission}
               selection={this.state.selection}
