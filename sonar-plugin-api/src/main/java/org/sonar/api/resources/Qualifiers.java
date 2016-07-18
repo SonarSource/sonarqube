@@ -29,10 +29,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class Qualifiers {
 
-  private Qualifiers() {
-    // only static methods
-  }
-
   /**
    * Root views. Scope of views is Scopes.PROJECT
    */
@@ -68,6 +64,10 @@ public final class Qualifiers {
 
   // ugly, should be replaced by "natures"
   public static final String UNIT_TEST_FILE = "UTS";
+
+  private Qualifiers() {
+    // only static methods
+  }
 
   /**
    * @param resource not nullable

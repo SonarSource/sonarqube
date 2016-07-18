@@ -57,6 +57,17 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 @ComputeEngineSide
 public class UserIndex {
 
+  /**
+   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
+   * used for {@link org.sonar.server.es.SearchResult}.
+   */
+  private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
+    @Override
+    protected UserDoc doApply(Map<String, Object> input) {
+      return new UserDoc(input);
+    }
+  };
+
   private final EsClient esClient;
 
   public UserIndex(EsClient esClient) {
@@ -146,14 +157,4 @@ public class UserIndex {
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }
 
-  /**
-   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
-   * used for {@link org.sonar.server.es.SearchResult}.
-   */
-  private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
-    @Override
-    protected UserDoc doApply(Map<String, Object> input) {
-      return new UserDoc(input);
-    }
-  };
 }

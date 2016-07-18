@@ -46,6 +46,7 @@ import static org.sonar.process.ProcessProperties.PATH_WEB;
 public class AppFileSystem implements FileSystem {
   private static final Logger LOG = LoggerFactory.getLogger(AppFileSystem.class);
 
+  private static final EnumSet<FileVisitOption> FOLLOW_LINKS = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
   private static final String DEFAULT_DATA_DIRECTORY_NAME = "data";
   private static final String DEFAULT_WEB_DIRECTORY_NAME = "web";
   private static final String DEFAULT_LOGS_DIRECTORY_NAME = "logs";
@@ -117,8 +118,6 @@ public class AppFileSystem implements FileSystem {
         propKey, dir.getAbsolutePath()));
     }
   }
-
-  private static final EnumSet<FileVisitOption> FOLLOW_LINKS = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
 
   private static void createOrCleanTempDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);

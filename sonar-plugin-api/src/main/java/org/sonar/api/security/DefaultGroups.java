@@ -27,12 +27,14 @@ import javax.annotation.Nullable;
  * @since 3.2
  */
 public final class DefaultGroups {
-  private DefaultGroups() {
-  }
 
   public static final String ANYONE = "Anyone";
   public static final String ADMINISTRATORS = "sonar-administrators";
   public static final String USERS = "sonar-users";
+
+  private DefaultGroups() {
+    // only statics
+  }
 
   public static boolean isAnyone(@Nullable String groupName) {
     return ANYONE.equalsIgnoreCase(groupName);

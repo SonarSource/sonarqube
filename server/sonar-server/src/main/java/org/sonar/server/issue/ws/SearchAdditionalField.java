@@ -44,19 +44,17 @@ public enum SearchAdditionalField {
 
   public static final String ALL_ALIAS = "_all";
   static final EnumSet<SearchAdditionalField> ALL_ADDITIONAL_FIELDS = EnumSet.allOf(SearchAdditionalField.class);
+  private static final Map<String, SearchAdditionalField> BY_LABELS = new HashMap<>();
+  static {
+    for (SearchAdditionalField f : values()) {
+      BY_LABELS.put(f.label, f);
+    }
+  }
 
   private final String label;
 
   SearchAdditionalField(String label) {
     this.label = label;
-  }
-
-  private static final Map<String, SearchAdditionalField> BY_LABELS = new HashMap<>();
-
-  static {
-    for (SearchAdditionalField f : values()) {
-      BY_LABELS.put(f.label, f);
-    }
   }
 
   @CheckForNull

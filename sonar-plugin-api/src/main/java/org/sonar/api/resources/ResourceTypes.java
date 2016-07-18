@@ -20,7 +20,6 @@
 package org.sonar.api.resources;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -192,12 +191,7 @@ public class ResourceTypes {
   }
 
   public List<ResourceType> getChildren(String qualifier) {
-    return Lists.transform(getChildrenQualifiers(qualifier), new Function<String, ResourceType>() {
-      @Override
-      public ResourceType apply(String s) {
-        return typeByQualifier.get(s);
-      }
-    });
+    return Lists.transform(getChildrenQualifiers(qualifier), typeByQualifier::get);
   }
 
   public List<String> getLeavesQualifiers(String qualifier) {

@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-class ListInterceptor extends LogInterceptor {
+class ListInterceptor implements LogInterceptor {
 
   private final List<String> logs = new ArrayList<>();
   private final ListMultimap<LoggerLevel, String> logsByLevel = ArrayListMultimap.create();

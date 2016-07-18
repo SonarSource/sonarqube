@@ -22,7 +22,7 @@ package org.sonar.api.utils.log;
 /**
  * Log interceptor that does nothing, so production-ready!
  */
-class NullInterceptor extends LogInterceptor {
+class NullInterceptor implements LogInterceptor {
 
   static final NullInterceptor NULL_INSTANCE = new NullInterceptor();
 
@@ -30,27 +30,27 @@ class NullInterceptor extends LogInterceptor {
   }
 
   @Override
-  void log(LoggerLevel level, String msg) {
+  public void log(LoggerLevel level, String msg) {
     // nothing
   }
 
   @Override
-  void log(LoggerLevel level, String msg, Object arg) {
+  public void log(LoggerLevel level, String msg, Object arg) {
     // nothing
   }
 
   @Override
-  void log(LoggerLevel level, String msg, Object arg1, Object arg2) {
+  public void log(LoggerLevel level, String msg, Object arg1, Object arg2) {
     // nothing
   }
 
   @Override
-  void log(LoggerLevel level, String msg, Object... args) {
+  public void log(LoggerLevel level, String msg, Object... args) {
     // nothing
   }
 
   @Override
-  void log(LoggerLevel level, String msg, Throwable thrown) {
+  public void log(LoggerLevel level, String msg, Throwable thrown) {
     // nothing
   }
 }

@@ -93,16 +93,6 @@ public class Views {
     return widgetsPerId.get(id);
   }
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
-    List<ViewProxy<Widget>> result = Lists.newArrayList();
-    for (ViewProxy<Widget> proxy : widgets) {
-      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage)) {
-        result.add(proxy);
-      }
-    }
-    return result;
-  }
-
   public List<ViewProxy<Widget>> getWidgets() {
     return Lists.newArrayList(widgets);
   }

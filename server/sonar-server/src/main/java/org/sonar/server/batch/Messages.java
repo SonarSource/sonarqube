@@ -20,10 +20,10 @@
 package org.sonar.server.batch;
 
 public class Messages {
+  public static final String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
+
   private Messages() {
     // constants
   }
-
-  public static final String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
 
 }

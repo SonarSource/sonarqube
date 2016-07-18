@@ -19,7 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
@@ -288,13 +287,10 @@ public class ActiveRule implements Cloneable {
     final ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
     clone.setInheritance(getInheritance());
     if (activeRuleParams != null && !activeRuleParams.isEmpty()) {
-      clone.setActiveRuleParams(Lists.transform(activeRuleParams, new Function<ActiveRuleParam, ActiveRuleParam>() {
-        @Override
-        public ActiveRuleParam apply(ActiveRuleParam input) {
-          ActiveRuleParam activeRuleParamClone = (ActiveRuleParam) input.clone();
-          activeRuleParamClone.setActiveRule(clone);
-          return activeRuleParamClone;
-        }
+      clone.setActiveRuleParams(Lists.transform(activeRuleParams, input -> {
+        ActiveRuleParam activeRuleParamClone = (ActiveRuleParam) input.clone();
+        activeRuleParamClone.setActiveRule(clone);
+        return activeRuleParamClone;
       }));
     }
     return clone;

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.command;
 
+@FunctionalInterface
 public interface StreamConsumer {
 
   void consumeLine(String line);

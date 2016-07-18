@@ -53,98 +53,6 @@ import java.util.Map;
 @Immutable
 public class ResourceType {
 
-  /**
-   * Builder used to create {@link ResourceType} objects.
-   */
-  public static class Builder {
-    private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
-    private String qualifier;
-    private String iconPath;
-    private boolean hasSourceCode = false;
-    private final Map<String, String> properties = Maps.newHashMap();
-
-    /**
-     * Creates a new {@link Builder}
-     *
-     * @param qualifier
-     */
-    public Builder(String qualifier) {
-      this.qualifier = qualifier;
-    }
-
-    /**
-     * Relative path of the icon used to represent the resource type.
-     *
-     * @param iconPath path to icon, relative to context of web-application (e.g. "/images/q/DIR.png")
-     */
-    public Builder setIconPath(@Nullable String iconPath) {
-      this.iconPath = iconPath;
-      return this;
-    }
-
-    /**
-     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "supportsMeasureFilters" set to "true".
-     */
-    @Deprecated
-    public Builder availableForFilters() {
-      setProperty(SUPPORTS_MEASURE_FILTERS, "true");
-      return this;
-    }
-
-    /**
-     * Tells that the resources of this type will have source code.
-     */
-    public Builder hasSourceCode() {
-      this.hasSourceCode = true;
-      return this;
-    }
-
-    /**
-     * Sets a property on the resource type. See the description of {@link ResourceType} class for more information.
-     *
-     * @since 3.0
-     */
-    public Builder setProperty(String key, String value) {
-      Preconditions.checkNotNull(key);
-      Preconditions.checkNotNull(value);
-      properties.put(key, value);
-
-      // for backward-compatibility since version 3.4
-      if ("availableForFilters".equals(key)) {
-        properties.put(SUPPORTS_MEASURE_FILTERS, value);
-      }
-      return this;
-    }
-
-    /**
-     * @since 3.2
-     */
-    public Builder setProperty(String key, boolean value) {
-      return setProperty(key, String.valueOf(value));
-    }
-
-    /**
-     * Creates an instance of {@link ResourceType} based on all information given to the builder.
-     */
-    public ResourceType build() {
-      if (Strings.isNullOrEmpty(iconPath)) {
-        iconPath = "/images/q/" + qualifier + ".png";
-      }
-      return new ResourceType(this);
-    }
-  }
-
-  /**
-   * Creates a new {@link Builder}
-   *
-   * @param qualifier
-   */
-  public static Builder builder(String qualifier) {
-    Preconditions.checkNotNull(qualifier);
-    Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
-    return new Builder(qualifier);
-  }
-
   private final String qualifier;
   private final String iconPath;
   private final boolean hasSourceCode;
@@ -233,5 +141,93 @@ public class ResourceType {
   @Override
   public String toString() {
     return qualifier;
+  }
+
+  /**
+   * Creates a new {@link Builder}
+   */
+  public static Builder builder(String qualifier) {
+    Preconditions.checkNotNull(qualifier);
+    Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
+    return new Builder(qualifier);
+  }
+
+  /**
+   * Builder used to create {@link ResourceType} objects.
+   */
+  public static class Builder {
+    private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
+    private String qualifier;
+    private String iconPath;
+    private boolean hasSourceCode = false;
+    private final Map<String, String> properties = Maps.newHashMap();
+
+    /**
+     * Creates a new {@link Builder}
+     */
+    public Builder(String qualifier) {
+      this.qualifier = qualifier;
+    }
+
+    /**
+     * Relative path of the icon used to represent the resource type.
+     *
+     * @param iconPath path to icon, relative to context of web-application (e.g. "/images/q/DIR.png")
+     */
+    public Builder setIconPath(@Nullable String iconPath) {
+      this.iconPath = iconPath;
+      return this;
+    }
+
+    /**
+     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "supportsMeasureFilters" set to "true".
+     */
+    @Deprecated
+    public Builder availableForFilters() {
+      setProperty(SUPPORTS_MEASURE_FILTERS, "true");
+      return this;
+    }
+
+    /**
+     * Tells that the resources of this type will have source code.
+     */
+    public Builder hasSourceCode() {
+      this.hasSourceCode = true;
+      return this;
+    }
+
+    /**
+     * Sets a property on the resource type. See the description of {@link ResourceType} class for more information.
+     *
+     * @since 3.0
+     */
+    public Builder setProperty(String key, String value) {
+      Preconditions.checkNotNull(key);
+      Preconditions.checkNotNull(value);
+      properties.put(key, value);
+
+      // for backward-compatibility since version 3.4
+      if ("availableForFilters".equals(key)) {
+        properties.put(SUPPORTS_MEASURE_FILTERS, value);
+      }
+      return this;
+    }
+
+    /**
+     * @since 3.2
+     */
+    public Builder setProperty(String key, boolean value) {
+      return setProperty(key, String.valueOf(value));
+    }
+
+    /**
+     * Creates an instance of {@link ResourceType} based on all information given to the builder.
+     */
+    public ResourceType build() {
+      if (Strings.isNullOrEmpty(iconPath)) {
+        iconPath = "/images/q/" + qualifier + ".png";
+      }
+      return new ResourceType(this);
+    }
   }
 }

@@ -102,7 +102,7 @@ public class SearchOptions {
    */
   @Deprecated
   public SearchOptions disableLimit() {
-    this.limit = 999999;
+    this.limit = 999_999;
     return this;
   }
 

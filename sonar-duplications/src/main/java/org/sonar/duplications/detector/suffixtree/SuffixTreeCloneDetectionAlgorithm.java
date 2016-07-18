@@ -35,16 +35,12 @@ import org.sonar.duplications.index.CloneIndex;
 
 public final class SuffixTreeCloneDetectionAlgorithm {
   
+  private static final Comparator<Block> BLOCK_COMPARATOR = (o1, o2) -> o1.getIndexInFile() - o2.getIndexInFile();
+
   private SuffixTreeCloneDetectionAlgorithm() {
+    // only statics
   }
-  
-  private static final Comparator<Block> BLOCK_COMPARATOR = new Comparator<Block>() {
-    @Override
-    public int compare(Block o1, Block o2) {
-      return o1.getIndexInFile() - o2.getIndexInFile();
-    }
-  };
-  
+
   public static List<CloneGroup> detect(CloneIndex cloneIndex, Collection<Block> fileBlocks) {
     if (fileBlocks.isEmpty()) {
       return Collections.emptyList();

@@ -25,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
 
 /**
  * See http://jira.sonarsource.com/browse/SONAR-5758
@@ -44,16 +42,13 @@ public class DeleteUnescapedActivities extends BaseDataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select id,data_field from activities where log_type='QPROFILE'");
     massUpdate.update("delete from activities where id=?");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        String csv = row.getNullableString(2);
-        if (isUnescaped(csv)) {
-          update.setLong(1, row.getNullableLong(1));
-          return true;
-        }
-        return false;
+    massUpdate.execute((row, update) -> {
+      String csv = row.getNullableString(2);
+      if (isUnescaped(csv)) {
+        update.setLong(1, row.getNullableLong(1));
+        return true;
       }
+      return false;
     });
   }
 

@@ -25,8 +25,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
 
 public class FeedIssueLongDates extends BaseDataChange {
 
@@ -45,26 +43,23 @@ public class FeedIssueLongDates extends BaseDataChange {
     massUpdate.select("SELECT i.id, i.created_at, i.updated_at FROM issues i WHERE created_at_ms IS NULL");
     massUpdate.update("UPDATE issues SET created_at_ms=?, updated_at_ms=? WHERE id=?");
     massUpdate.rowPluralName("issues");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getNullableLong(1);
-        Date createdAt = row.getNullableDate(2);
-        Date updatedAt = row.getNullableDate(3);
+    massUpdate.execute((row, update) -> {
+      Long id = row.getNullableLong(1);
+      Date createdAt = row.getNullableDate(2);
+      Date updatedAt = row.getNullableDate(3);
 
-        if (createdAt == null) {
-          update.setLong(1, now);
-        } else {
-          update.setLong(1, Math.min(now, createdAt.getTime()));
-        }
-        if (updatedAt == null) {
-          update.setLong(2, now);
-        } else {
-          update.setLong(2, Math.min(now, updatedAt.getTime()));
-        }
-        update.setLong(3, id);
-        return true;
+      if (createdAt == null) {
+        update.setLong(1, now);
+      } else {
+        update.setLong(1, Math.min(now, createdAt.getTime()));
       }
+      if (updatedAt == null) {
+        update.setLong(2, now);
+      } else {
+        update.setLong(2, Math.min(now, updatedAt.getTime()));
+      }
+      update.setLong(3, id);
+      return true;
     });
   }
 

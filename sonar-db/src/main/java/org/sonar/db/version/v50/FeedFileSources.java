@@ -238,12 +238,9 @@ public class FeedFileSources extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    RowReader<Long> simpleLongReader = new RowReader<Long>() {
-      @Override
-      public Long read(Row row) throws SQLException {
-        Long longValue = row.getNullableLong(1);
-        return longValue == null ? Long.valueOf(0L) : longValue;
-      }
+    RowReader<Long> simpleLongReader = row -> {
+      Long longValue = row.getNullableLong(1);
+      return longValue == null ? Long.valueOf(0L) : longValue;
     };
     Long revisionMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'revisions_by_line'").get(simpleLongReader);
     Long authorMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'authors_by_line'").get(simpleLongReader);
@@ -287,6 +284,6 @@ public class FeedFileSources extends BaseDataChange {
   }
 
   private static long zeroIfNull(@Nullable Long value) {
-    return value == null ? 0L : value.longValue();
+    return value == null ? 0L : value;
   }
 }

@@ -192,12 +192,12 @@ public class AppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasure(Map<String, MeasureDto> measuresByMetricKey, Metric metric) {
+  private static String formatMeasure(Map<String, MeasureDto> measuresByMetricKey, Metric metric) {
     MeasureDto measure = measuresByMetricKey.get(metric.getKey());
     return formatMeasure(measure, metric);
   }
 
-  private String formatMeasure(@Nullable MeasureDto measure, Metric metric) {
+  private static String formatMeasure(@Nullable MeasureDto measure, Metric metric) {
     if (measure == null) {
       return null;
     }

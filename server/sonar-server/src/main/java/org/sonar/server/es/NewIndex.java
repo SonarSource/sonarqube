@@ -42,8 +42,49 @@ public class NewIndex {
 
   public static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
+  private final String indexName;
+  private final Settings.Builder settings = DefaultIndexSettings.defaults();
+  private final Map<String, NewIndexType> types = new LinkedHashMap<>();
+
+  NewIndex(String indexName) {
+    Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
+    this.indexName = indexName;
+  }
+
   public void refreshHandledByIndexer() {
     getSettings().put("index.refresh_interval", "-1");
+  }
+
+  public String getName() {
+    return indexName;
+  }
+
+  public Settings.Builder getSettings() {
+    return settings;
+  }
+
+  public NewIndexType createType(String typeName) {
+    NewIndexType type = new NewIndexType(typeName);
+    types.put(typeName, type);
+    return type;
+  }
+
+  public Map<String, NewIndexType> getTypes() {
+    return types;
+  }
+
+  public void configureShards(org.sonar.api.config.Settings settings) {
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
+    int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
+    if (shards == 0) {
+      shards = DEFAULT_NUMBER_OF_SHARDS;
+    }
+    int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
+    if (replicas == 0) {
+      replicas = clusterMode ? 1 : 0;
+    }
+    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
+    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
   }
 
   public static class NewIndexType {
@@ -268,44 +309,5 @@ public class NewIndex {
     }
   }
 
-  private final String indexName;
-  private final Settings.Builder settings = DefaultIndexSettings.defaults();
-  private final Map<String, NewIndexType> types = new LinkedHashMap<>();
 
-  NewIndex(String indexName) {
-    Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
-    this.indexName = indexName;
-  }
-
-  public String getName() {
-    return indexName;
-  }
-
-  public Settings.Builder getSettings() {
-    return settings;
-  }
-
-  public NewIndexType createType(String typeName) {
-    NewIndexType type = new NewIndexType(typeName);
-    types.put(typeName, type);
-    return type;
-  }
-
-  public Map<String, NewIndexType> getTypes() {
-    return types;
-  }
-
-  public void configureShards(org.sonar.api.config.Settings settings) {
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
-    int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
-    if (shards == 0) {
-      shards = DEFAULT_NUMBER_OF_SHARDS;
-    }
-    int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
-    if (replicas == 0) {
-      replicas = clusterMode ? 1 : 0;
-    }
-    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
-    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
-  }
 }

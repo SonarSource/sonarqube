@@ -34,10 +34,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class Scopes {
 
-  private Scopes() {
-    // only static methods
-  }
-
   /**
    * For example view, subview, project, module or library. Persisted in database.
    */
@@ -70,6 +66,10 @@ public final class Scopes {
   public static final String BLOCK_UNIT = "BLU";
 
   public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, PROGRAM_UNIT, BLOCK_UNIT};
+
+  private Scopes() {
+    // only static methods
+  }
 
   public static boolean isProject(final Resource resource) {
     return StringUtils.equals(PROJECT, resource.getScope());

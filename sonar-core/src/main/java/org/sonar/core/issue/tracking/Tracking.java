@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
@@ -39,19 +38,9 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   private final Collection<RAW> raws;
   private final Collection<BASE> bases;
 
-  private final Predicate<RAW> unmatchedRawPredicate = new Predicate<RAW>() {
-    @Override
-    public boolean apply(@Nonnull RAW raw) {
-      return !rawToBase.containsKey(raw);
-    }
-  };
+  private final Predicate<RAW> unmatchedRawPredicate = raw -> !rawToBase.containsKey(raw);
 
-  private final Predicate<BASE> unmatchedBasePredicate = new Predicate<BASE>() {
-    @Override
-    public boolean apply(@Nonnull BASE raw) {
-      return !baseToRaw.containsKey(raw);
-    }
-  };
+  private final Predicate<BASE> unmatchedBasePredicate = raw -> !baseToRaw.containsKey(raw);
 
   public Tracking(Input<RAW> rawInput, Input<BASE> baseInput) {
     this.raws = rawInput.getIssues();

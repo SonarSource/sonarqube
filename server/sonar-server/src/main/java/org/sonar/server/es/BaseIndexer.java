@@ -82,7 +82,7 @@ public abstract class BaseIndexer implements Startable {
   }
 
   public void index() {
-    index(lastUpdatedAtParam -> doIndex(lastUpdatedAtParam));
+    index(this::doIndex);
   }
 
   protected abstract long doIndex(long lastUpdatedAt);

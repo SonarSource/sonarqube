@@ -22,7 +22,6 @@ package org.sonar.db.purge;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,12 +66,7 @@ public class PurgeProfiler {
 
   public void dump(long totalTime, Logger logger) {
     List<Entry<String, Long>> data = new ArrayList<>(durations.entrySet());
-    Collections.sort(data, new Comparator<Entry<String, Long>>() {
-      @Override
-      public int compare(Entry<String, Long> o1, Entry<String, Long> o2) {
-        return o2.getValue().compareTo(o1.getValue());
-      }
-    });
+    Collections.sort(data, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
     double percent = totalTime / 100.0;
     for (Entry<String, Long> entry : truncateList(data)) {
       StringBuilder sb = new StringBuilder();

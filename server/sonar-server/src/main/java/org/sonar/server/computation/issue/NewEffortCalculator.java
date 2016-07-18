@@ -48,6 +48,17 @@ import static com.google.common.collect.FluentIterable.from;
  */
 public class NewEffortCalculator {
 
+  /**
+   * Changelog have to be sorted from newest to oldest.
+   * Null date should be the first as this happen when technical debt has changed since previous analysis.
+   */
+  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
+    @Override
+    public Date apply(@Nonnull FieldDiffs dto) {
+      return dto.creationDate();
+    }
+  });
+
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
       return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
@@ -99,17 +110,6 @@ public class NewEffortCalculator {
   private static FieldDiffs.Diff debtDiff(FieldDiffs diffs) {
     return diffs.diffs().get(IssueUpdater.TECHNICAL_DEBT);
   }
-
-  /**
-   * Changelog have to be sorted from newest to oldest.
-   * Null date should be the first as this happen when technical debt has changed since previous analysis.
-   */
-  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
-    @Override
-    public Date apply(@Nonnull FieldDiffs dto) {
-      return dto.creationDate();
-    }
-  });
 
   private enum ToFieldDiffs implements Function<IssueChangeDto, FieldDiffs> {
     INSTANCE;

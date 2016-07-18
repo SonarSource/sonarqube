@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -28,14 +27,12 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.io.FilenameUtils;
@@ -50,6 +47,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -668,7 +666,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      */
     public NewParam setPossibleValues(@Nullable Object... values) {
-      return setPossibleValues(values == null ? Collections.emptyList() : Arrays.asList(values));
+      return setPossibleValues(values == null ? Collections.emptyList() : asList(values));
     }
 
     /**
@@ -715,12 +713,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     private final String paramValue;
 
-    private static final Map<String, SelectionMode> BY_VALUE = Maps.uniqueIndex(Arrays.asList(values()), new Function<SelectionMode, String>() {
-      @Override
-      public String apply(@Nonnull SelectionMode input) {
-        return input.paramValue;
-      }
-    });
+    private static final Map<String, SelectionMode> BY_VALUE = Maps.uniqueIndex(asList(values()), input -> input.paramValue);
 
     SelectionMode(String paramValue) {
       this.paramValue = paramValue;

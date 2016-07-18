@@ -19,7 +19,7 @@
  */
 package org.sonar.api.config;
 
-abstract class Cipher {
-  abstract String encrypt(String clearText);
-  abstract String decrypt(String encryptedText);
+interface Cipher {
+  String encrypt(String clearText);
+  String decrypt(String encryptedText);
 }

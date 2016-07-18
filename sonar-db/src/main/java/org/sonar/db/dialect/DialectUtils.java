@@ -23,7 +23,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 
@@ -45,22 +44,12 @@ public final class DialectUtils {
 
   @CheckForNull
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
-    return findDialect(new Predicate<Dialect>() {
-      @Override
-      public boolean apply(@Nullable Dialect dialect) {
-        return dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl));
-      }
-    });
+    return findDialect(dialect -> dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl)));
   }
 
   @CheckForNull
   private static Dialect findById(final String dialectId) {
-    return findDialect(new Predicate<Dialect>() {
-      @Override
-      public boolean apply(@Nullable Dialect dialect) {
-        return dialect != null && dialect.getId().equals(dialectId);
-      }
-    });
+    return findDialect(dialect -> dialect != null && dialect.getId().equals(dialectId));
   }
 
   @CheckForNull

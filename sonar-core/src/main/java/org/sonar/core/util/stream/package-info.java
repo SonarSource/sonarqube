@@ -17,19 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils.log;
+@ParametersAreNonnullByDefault
+package org.sonar.core.util.stream;
 
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-interface LogInterceptor {
-
-  void log(LoggerLevel level, String msg);
-
-  void log(LoggerLevel level, String msg, @Nullable Object arg);
-
-  void log(LoggerLevel level, String msg, @Nullable Object arg1, @Nullable Object arg2);
-
-  void log(LoggerLevel level, String msg, Object... args);
-
-  void log(LoggerLevel level, String msg, Throwable thrown);
-}

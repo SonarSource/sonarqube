@@ -37,12 +37,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 
-final class AesCipher extends Cipher {
+final class AesCipher implements Cipher {
 
   // Can't be increased because of Java 6 policy files :
   // https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps
   // http://java.sun.com/javase/6/webnotes/install/jre/README
-  public static final int KEY_SIZE_IN_BITS = 128;
+  static final int KEY_SIZE_IN_BITS = 128;
 
   private static final String CRYPTO_KEY = "AES";
 
@@ -53,18 +53,18 @@ final class AesCipher extends Cipher {
   }
 
   @Override
-  String encrypt(String clearText) {
+  public String encrypt(String clearText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes("UTF-8")));
+      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes(StandardCharsets.UTF_8.name())));
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
 
   @Override
-  String decrypt(String encryptedText) {
+  public String decrypt(String encryptedText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
