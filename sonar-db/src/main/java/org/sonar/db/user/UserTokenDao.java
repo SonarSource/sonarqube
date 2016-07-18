@@ -59,14 +59,14 @@ public class UserTokenDao implements Dao {
   public Map<String, Integer> countTokensByLogins(DbSession dbSession, List<String> logins) {
     Map<String, Integer> result = new HashMap<>(logins.size());
     executeLargeInputs(
-        logins,
-        input -> {
-          List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByLogins(input);
-          for (UserTokenCount userTokenCount : userTokenCounts) {
-            result.put(userTokenCount.getLogin(), userTokenCount.tokenCount());
-          }
-          return userTokenCounts;
-        });
+      logins,
+      input -> {
+        List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByLogins(input);
+        for (UserTokenCount userTokenCount : userTokenCounts) {
+          result.put(userTokenCount.getLogin(), userTokenCount.tokenCount());
+        }
+        return userTokenCounts;
+      });
 
     return result;
   }
