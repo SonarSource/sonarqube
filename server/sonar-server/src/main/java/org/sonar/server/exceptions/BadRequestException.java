@@ -30,7 +30,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  */
 public class BadRequestException extends ServerException {
 
-  private final Errors errors;
+  private final transient Errors errors;
 
   public BadRequestException(String l10nKey, Object... l10nParams) {
     super(HTTP_BAD_REQUEST);

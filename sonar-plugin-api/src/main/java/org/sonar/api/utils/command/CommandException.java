@@ -21,7 +21,7 @@ package org.sonar.api.utils.command;
 
 public class CommandException extends RuntimeException {
 
-  private final Command command;
+  private final transient Command command;
 
   public CommandException(Command command, String message, Throwable throwable) {
     super(message + " [command: " + command + "]", throwable);

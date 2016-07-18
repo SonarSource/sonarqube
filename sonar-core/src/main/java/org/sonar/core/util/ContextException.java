@@ -69,7 +69,7 @@ public class ContextException extends RuntimeException {
   private static final Joiner COMMA_JOINER = Joiner.on(',');
 
   // LinkedListMultimap is used to keep order of keys and values
-  private final ListMultimap<String, Object> context = LinkedListMultimap.create();
+  private final transient ListMultimap<String, Object> context = LinkedListMultimap.create();
 
   private ContextException(Throwable t) {
     super(t);
