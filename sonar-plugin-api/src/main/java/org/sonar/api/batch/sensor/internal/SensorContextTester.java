@@ -93,6 +93,7 @@ public class SensorContextTester implements SensorContext {
   private InMemorySensorStorage sensorStorage;
   private InputModule module;
   private SonarQubeVersion sqVersion;
+  private boolean cancelled;
 
   private SensorContextTester(Path moduleBaseDir) {
     this.settings = new Settings();
@@ -166,6 +167,15 @@ public class SensorContextTester implements SensorContext {
   }
 
   @Override
+  public boolean isCancelled() {
+    return cancelled;
+  }
+
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
+
+  @Override
   public InputModule module() {
     return module;
   }
@@ -195,7 +205,7 @@ public class SensorContextTester implements SensorContext {
   public Collection<Issue> allIssues() {
     return sensorStorage.allIssues;
   }
-  
+
   public Collection<AnalysisError> allAnalysisErrors() {
     return sensorStorage.allAnalysisErrors;
   }
@@ -252,7 +262,7 @@ public class SensorContextTester implements SensorContext {
   public NewSymbolTable newSymbolTable() {
     return new DefaultSymbolTable(sensorStorage);
   }
-  
+
   @Override
   public NewAnalysisError newAnalysisError() {
     return new DefaultAnalysisError(sensorStorage);

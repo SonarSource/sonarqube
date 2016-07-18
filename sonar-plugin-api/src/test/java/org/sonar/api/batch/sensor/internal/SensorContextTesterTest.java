@@ -330,4 +330,11 @@ public class SensorContextTesterTest {
       .addToken(inputFile.newRange(0, 6), "public")
       .save();
   }
+
+  @Test
+  public void testCacnellation() {
+    assertThat(tester.isCancelled()).isFalse();
+    tester.setCancelled(true);
+    assertThat(tester.isCancelled()).isTrue();
+  }
 }

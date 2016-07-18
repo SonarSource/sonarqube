@@ -82,6 +82,13 @@ public interface SensorContext {
    */
   SonarProduct getRuntimeProduct();
 
+  /**
+   * Test if a cancellation of the analysis was requested. Sensors should periodically test this flag
+   * and gracefully stop if value is true. For example it could be tested between each processed file.
+   * @since 6.0
+   */
+  boolean isCancelled();
+
   // ----------- MEASURES --------------
 
   /**
@@ -111,7 +118,7 @@ public interface SensorContext {
    */
   NewSymbolTable newSymbolTable();
 
-  // ------------ TESTS ------------
+  // ------------ COVERAGE ------------
 
   /**
    * Builder to define coverage in a file.
@@ -128,10 +135,13 @@ public interface SensorContext {
    */
   NewCpdTokens newCpdTokens();
 
+  // ------------ ANALYSIS ERROR ------------
+
   /**
    * Builder to declare errors that happened while processing a source file.
    * Don't forget to call {@link NewAnalisisError#save()}.
    * @since 6.0
    */
   NewAnalysisError newAnalysisError();
+
 }

@@ -37,7 +37,6 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.sensor.DefaultSensorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -83,6 +82,8 @@ public class DefaultSensorContextTest {
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
+
+    assertThat(adaptor.isCancelled()).isFalse();
   }
 
 }

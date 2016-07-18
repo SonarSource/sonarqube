@@ -153,4 +153,9 @@ public class DefaultSensorContext implements SensorContext {
     return NO_OP_NEW_ANALYSIS_ERROR;
   }
 
+  @Override
+  public boolean isCancelled() {
+    return false;
+  }
+
 }
