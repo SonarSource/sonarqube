@@ -23,6 +23,7 @@ import ChangelogSearch from './ChangelogSearch';
 import ChangelogEmpty from './ChangelogEmpty';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { ProfileType } from '../propTypes';
+import { translate } from '../../../helpers/l10n';
 
 export default class ChangelogContainer extends React.Component {
   static propTypes = {
@@ -82,6 +83,35 @@ export default class ChangelogContainer extends React.Component {
     });
   }
 
+  loadMore (e) {
+    e.preventDefault();
+    e.target.blur();
+
+    this.setState({ loading: true });
+    const { query } = this.props.location;
+    const data = {
+      profileKey: this.props.profile.key,
+      p: this.state.page + 1
+    };
+    if (query.since) {
+      data.since = query.since;
+    }
+    if (query.to) {
+      data.to = query.to;
+    }
+
+    getProfileChangelog(data).then(r => {
+      if (this.mounted) {
+        this.setState({
+          events: [...this.state.events, ...r.events],
+          total: r.total,
+          page: r.p,
+          loading: false
+        });
+      }
+    });
+  }
+
   handleFromDateChange (fromDate) {
     const query = { ...this.props.location.query, since: fromDate };
     this.context.router.push({ pathname: '/changelog', query });
@@ -99,6 +129,9 @@ export default class ChangelogContainer extends React.Component {
 
   render () {
     const { query } = this.props.location;
+
+    const shouldDisplayFooter = this.state.events != null &&
+        this.state.events.length < this.state.total;
 
     return (
         <div className="quality-profile-box js-profile-changelog">
@@ -121,6 +154,14 @@ export default class ChangelogContainer extends React.Component {
 
           {this.state.events != null && this.state.events.length > 0 && (
               <Changelog events={this.state.events}/>
+          )}
+
+          {shouldDisplayFooter && (
+              <footer className="text-center spacer-top small">
+                <a href="#" onClick={this.loadMore.bind(this)}>
+                  {translate('show_more')}
+                </a>
+              </footer>
           )}
         </div>
     );
