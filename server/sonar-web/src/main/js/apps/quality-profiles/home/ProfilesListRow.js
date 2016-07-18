@@ -112,7 +112,13 @@ export default class ProfilesListRow extends React.Component {
   }
 
   renderUsageDate () {
-    return <ProfileDate date={this.props.profile.lastUsed}/>;
+    const { lastUsed } = this.props.profile;
+    const date = <ProfileDate date={lastUsed}/>;
+    if (!lastUsed) {
+      return <span className="badge badge-focus">{date}</span>;
+    } else {
+      return date;
+    }
   }
 
   render () {

@@ -36,7 +36,7 @@ export default class ProfileDate extends React.Component {
 
     if (!date) {
       return (
-          <span className="text-muted">{translate('never')}</span>
+          <span>{translate('never')}</span>
       );
     }
 

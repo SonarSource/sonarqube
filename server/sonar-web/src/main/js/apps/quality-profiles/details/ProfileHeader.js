@@ -49,6 +49,21 @@ export default class ProfileHeader extends React.Component {
     );
   }
 
+  renderUsageDate () {
+    const { profile } = this.props;
+    const warning = !profile.lastUsed;
+    const className = classNames('small big-spacer-right', {
+      'alert-warning': warning
+    });
+    return (
+        <li className={className}>
+          {translate('quality_profiles.used_')}
+          {' '}
+          <ProfileDate date={profile.lastUsed}/>
+        </li>
+    );
+  }
+
   render () {
     const { profile } = this.props;
 
@@ -77,11 +92,7 @@ export default class ProfileHeader extends React.Component {
           <div className="pull-right">
             <ul className="list-inline" style={{ lineHeight: '24px' }}>
               {this.renderUpdateDate()}
-              <li className="small big-spacer-right">
-                {translate('quality_profiles.used_')}
-                {' '}
-                <ProfileDate date={profile.lastUsed}/>
-              </li>
+              {this.renderUsageDate()}
               <li>
                 <Link
                     to={{ pathname: '/changelog', query: { key: profile.key } }}
