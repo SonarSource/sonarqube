@@ -28,7 +28,7 @@ CI)
         -Pdeploy-sonarsource \
         -B -e -V
 
-  elif [[ "${TRAVIS_BRANCH}" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  elif [[ "${TRAVIS_BRANCH}" == "feature/jl/5.6_Fix_SSF-48"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     strongEcho 'Build and deploy'
 
     # get current version from pom
