@@ -24,13 +24,16 @@ import java.io.File;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -43,6 +46,8 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class InstalledActionTest {
@@ -55,16 +60,25 @@ public class InstalledActionTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
 
-  InstalledAction underTest = new InstalledAction(pluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
+  InstalledAction underTest = new InstalledAction(userSession, pluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
 
   Request request = mock(Request.class);
   WsTester.TestResponse response = new WsTester.TestResponse();
 
+
+
   @Test
   public void action_installed_is_defined() {
+    loggedAsSystemAdmin();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -82,6 +96,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
+    loggedAsSystemAdmin();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -89,6 +104,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_when_update_center_is_unavailable() throws Exception {
+    loggedAsSystemAdmin();
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -98,6 +114,7 @@ public class InstalledActionTest {
 
   @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
+    loggedAsSystemAdmin();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(new PluginInfo("").setName("")));
 
@@ -108,6 +125,7 @@ public class InstalledActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
+    loggedAsSystemAdmin();
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     when(pluginRepository.getPluginInfos()).thenReturn(of(
       new PluginInfo("plugKey")
@@ -122,7 +140,7 @@ public class InstalledActionTest {
         .setImplementationBuild("sou_rev_sha1")
         .setJarFile(new File(getClass().getResource(jarFilename).toURI()))
       )
-      );
+    );
 
     underTest.handle(request, response);
 
@@ -145,11 +163,12 @@ public class InstalledActionTest {
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
   @Test
   public void category_is_returned_when_in_additional_fields() throws Exception {
+    loggedAsSystemAdmin();
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     when(pluginRepository.getPluginInfos()).thenReturn(of(
       new PluginInfo("plugKey")
@@ -201,6 +220,7 @@ public class InstalledActionTest {
 
   @Test
   public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws Exception {
+    loggedAsSystemAdmin();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
@@ -208,7 +228,7 @@ public class InstalledActionTest {
         plugin("C", "name0"),
         plugin("D", "name0")
       )
-      );
+    );
 
     underTest.handle(request, response);
 
@@ -222,17 +242,18 @@ public class InstalledActionTest {
         "    {\"key\": \"A\"}" +
         "  ]" +
         "}"
-      );
+    );
   }
 
   @Test
   public void only_one_plugin_can_have_a_specific_name_and_key() throws Exception {
+    loggedAsSystemAdmin();
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
         plugin("A", "name2")
       )
-      );
+    );
 
     underTest.handle(request, response);
 
@@ -243,11 +264,24 @@ public class InstalledActionTest {
         "    {\"key\": \"A\"}" +
         "  ]" +
         "}"
-      );
+    );
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
+  }
+
+  @Test
+  public void fail_when_user_is_not_sys_admin() throws Exception {
+    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.handle(request, response);
   }
 
   private PluginInfo plugin(String key, String name) {
     return new PluginInfo(key).setName(name).setVersion(Version.create("1.0"));
   }
+
+  private void loggedAsSystemAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  }
+
 }

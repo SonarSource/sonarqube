@@ -20,9 +20,13 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -33,6 +37,8 @@ import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.DEPENDENCIES_REQUIRE_SONAR_UPGRADE;
@@ -57,10 +63,17 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
     .addOutgoingDependency(release(PLUGIN_1, "0.3.6"))
     .addOutgoingDependency(release(PLUGIN_2, "1.0.0"));
 
-  private AvailableAction underTest = new AvailableAction(updateCenterFactory, new PluginWSCommons());
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AvailableAction underTest = new AvailableAction(userSession, updateCenterFactory, new PluginWSCommons());
 
   @Test
   public void action_available_is_defined() {
+    loggedAsAdmin();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -78,6 +91,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
+    loggedAsAdmin();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -85,6 +99,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void empty_array_is_returned_when_update_center_is_not_accessible() throws Exception {
+    loggedAsAdmin();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -94,9 +109,10 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
+    loggedAsAdmin();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -105,28 +121,40 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
+    loggedAsAdmin();
     checkStatusDisplayedInJson(COMPATIBLE, "COMPATIBLE");
   }
 
   @Test
   public void status_INCOMPATIBLE_is_displayed_INCOMPATIBLE_in_JSON() throws Exception {
+    loggedAsAdmin();
     checkStatusDisplayedInJson(INCOMPATIBLE, "INCOMPATIBLE");
   }
 
   @Test
   public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_SYSTEM_UPGRADE_in_JSON() throws Exception {
+    loggedAsAdmin();
     checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_SYSTEM_UPGRADE");
   }
 
   @Test
   public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() throws Exception {
+    loggedAsAdmin();
     checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_SYSTEM_UPGRADE");
+  }
+
+  @Test
+  public void fail_when_user_is_not_admin() throws Exception {
+    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.handle(request, response);
   }
 
   private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), status)
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -140,17 +168,11 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
-  @Test
-  public void plugins_are_sorted_by_name_then_key_and_made_unique() {
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
-      pluginUpdate("key2", "name2"),
-      pluginUpdate("key1", "name2"),
-      pluginUpdate("key2", "name2"),
-      pluginUpdate("key0", "name0"),
-      pluginUpdate("key1", "name1")
-      ));
+  private void loggedAsAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
+
 }

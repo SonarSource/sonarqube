@@ -19,9 +19,13 @@
  */
 package org.sonar.server.plugins.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -29,6 +33,8 @@ import org.sonar.updatecenter.common.Release;
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
@@ -70,12 +76,19 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
     .addOutgoingDependency(release(JAVA_PLUGIN, "1.0"));
 
-  private UpdatesAction underTest = new UpdatesAction(updateCenterFactory,
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private UpdatesAction underTest = new UpdatesAction(userSession, updateCenterFactory,
     new PluginWSCommons(), new PluginUpdateAggregator()
     );
 
   @Test
   public void action_updatable_is_defined() {
+    loggedAsSystemAdmin();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -93,6 +106,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
+    loggedAsSystemAdmin();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -100,6 +114,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void verify_response_against_example() throws Exception {
+    loggedAsSystemAdmin();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(ABAP_32, COMPATIBLE),
       pluginUpdate(ABAP_31, INCOMPATIBLE),
@@ -113,6 +128,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
+    loggedAsSystemAdmin();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)
       ));
@@ -136,6 +152,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void plugins_are_sorted_by_name_and_made_unique() throws Exception {
+    loggedAsSystemAdmin();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate("key2", "name2"),
       pluginUpdate("key2", "name2"),
@@ -163,5 +180,17 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
         "  ]" +
         "}"
       );
+  }
+
+  @Test
+  public void fail_when_user_is_not_sys_admin() throws Exception {
+    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.handle(request, response);
+  }
+
+  private void loggedAsSystemAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

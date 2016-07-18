@@ -28,9 +28,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
 
 public class AvailableAction implements PluginsWsAction {
@@ -38,10 +40,12 @@ public class AvailableAction implements PluginsWsAction {
   private static final boolean DO_NOT_FORCE_REFRESH = false;
   private static final String ARRAY_PLUGINS = "plugins";
 
+  private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterFactory;
   private final PluginWSCommons pluginWSCommons;
 
-  public AvailableAction(UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
+  public AvailableAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
+    this.userSession = userSession;
     this.updateCenterFactory = updateCenterFactory;
     this.pluginWSCommons = pluginWSCommons;
   }
@@ -59,7 +63,8 @@ public class AvailableAction implements PluginsWsAction {
         "<li>INCOMPATIBLE: plugin is not compatible with current SonarQube instance.</li>" +
         "<li>REQUIRES_SYSTEM_UPGRADE: plugin requires SonarQube to be upgraded before being installed.</li>" +
         "<li>DEPS_REQUIRE_SYSTEM_UPGRADE: at least one plugin on which the plugin is dependent requires SonarQube to be upgraded.</li>" +
-        "</ul>")
+        "</ul>.<br/>" +
+        "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-available_plugins.json"));
@@ -67,6 +72,7 @@ public class AvailableAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkPermission(SYSTEM_ADMIN);
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 
@@ -93,7 +99,7 @@ public class AvailableAction implements PluginsWsAction {
     return ImmutableSortedSet.copyOf(
       NAME_KEY_PLUGIN_UPDATE_ORDERING,
       updateCenter.findAvailablePlugins()
-      );
+    );
   }
 
 }

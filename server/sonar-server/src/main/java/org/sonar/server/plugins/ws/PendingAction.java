@@ -35,11 +35,13 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.io.Resources.getResource;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
@@ -51,14 +53,16 @@ public class PendingAction implements PluginsWsAction {
   private static final String ARRAY_REMOVING = "removing";
   private static final String ARRAY_UPDATING = "updating";
 
+  private final UserSession userSession;
   private final PluginDownloader pluginDownloader;
   private final ServerPluginRepository installer;
   private final PluginWSCommons pluginWSCommons;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
-  public PendingAction(PluginDownloader pluginDownloader,
-    ServerPluginRepository installer,
-    PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+  public PendingAction(UserSession userSession, PluginDownloader pluginDownloader,
+                       ServerPluginRepository installer,
+                       PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    this.userSession = userSession;
     this.pluginDownloader = pluginDownloader;
     this.installer = installer;
     this.pluginWSCommons = pluginWSCommons;
@@ -68,7 +72,8 @@ public class PendingAction implements PluginsWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("pending")
-      .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name")
+      .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name.<br/>" +
+        "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(getResource(this.getClass(), "example-pending_plugins.json"));
@@ -76,6 +81,7 @@ public class PendingAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkPermission(SYSTEM_ADMIN);
     ImmutableMap<String, Plugin> compatiblePluginsByKey = compatiblePluginsByKey(updateCenterMatrixFactory);
 
     JsonWriter jsonWriter = response.newJsonWriter();

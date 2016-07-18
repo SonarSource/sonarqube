@@ -33,9 +33,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.PluginUpdateAggregator.PluginUpdateAggregate;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
+
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -55,13 +58,15 @@ public class UpdatesAction implements PluginsWsAction {
     }
   });
 
+  private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginWSCommons pluginWSCommons;
   private final PluginUpdateAggregator aggregator;
 
-  public UpdatesAction(UpdateCenterMatrixFactory updateCenterMatrixFactory,
-    PluginWSCommons pluginWSCommons,
-    PluginUpdateAggregator aggregator) {
+  public UpdatesAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory,
+                       PluginWSCommons pluginWSCommons,
+                       PluginUpdateAggregator aggregator) {
+    this.userSession = userSession;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.pluginWSCommons = pluginWSCommons;
     this.aggregator = aggregator;
@@ -76,7 +81,8 @@ public class UpdatesAction implements PluginsWsAction {
         "<br/>" +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
         "<br/>" +
-        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]")
+        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]<br/>." +
+        "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-updates_plugins.json"));
@@ -84,6 +90,7 @@ public class UpdatesAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkPermission(SYSTEM_ADMIN);
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 

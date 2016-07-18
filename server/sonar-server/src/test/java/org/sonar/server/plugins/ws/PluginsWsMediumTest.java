@@ -28,10 +28,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class PluginsWsMediumTest {
   private static final String ENCODING = "UTF-8";
@@ -52,6 +53,7 @@ public class PluginsWsMediumTest {
     WsTester wsTester = new WsTester(serverTester.get(PluginsWs.class));
 
     // 1 - check what's installed, available and pending
+    userSessionRule.login().setGlobalPermissions(SYSTEM_ADMIN);
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +
@@ -79,8 +81,7 @@ public class PluginsWsMediumTest {
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{\"installing\":[],\"removing\":[],\"updating\":[]}");
 
-    // 2 - login as admin and install one plugin, update another, verify pending status in the process
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    // 2 - install one plugin, update another, verify pending status in the process
     wsTester.newPostRequest("api/plugins", "update").setParam("key", "decoy").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
@@ -116,6 +117,7 @@ public class PluginsWsMediumTest {
     wsTester = restartServerTester();
 
     // 4 - make sure plugin is installed
+    userSessionRule.login().setGlobalPermissions(SYSTEM_ADMIN);
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +
@@ -130,8 +132,7 @@ public class PluginsWsMediumTest {
       "}"
       );
 
-    // 5 - login as admin again and uninstall a plugin, verify pending status in the process
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    // 5 - uninstall a plugin, verify pending status in the process
     wsTester.newPostRequest("api/plugins", "uninstall").setParam("key", "foo").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
@@ -149,6 +150,7 @@ public class PluginsWsMediumTest {
     wsTester = restartServerTester();
 
     // 7 - make sure plugin has been uninstalled
+    userSessionRule.login().setGlobalPermissions(SYSTEM_ADMIN);
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
       "  \"plugins\": [" +
       "    {" +

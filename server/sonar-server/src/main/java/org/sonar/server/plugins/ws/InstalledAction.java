@@ -32,11 +32,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
@@ -47,11 +49,13 @@ public class InstalledAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
   private static final String FIELD_CATEGORY = "category";
 
+  private final UserSession userSession;
   private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
-  public InstalledAction(ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+  public InstalledAction(UserSession userSession, ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    this.userSession = userSession;
     this.pluginRepository = pluginRepository;
     this.pluginWSCommons = pluginWSCommons;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
@@ -60,7 +64,8 @@ public class InstalledAction implements PluginsWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("installed")
-      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name")
+      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.<br/>" +
+        "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
@@ -75,6 +80,7 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkPermission(SYSTEM_ADMIN);
     Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
 
     JsonWriter jsonWriter = response.newJsonWriter();
