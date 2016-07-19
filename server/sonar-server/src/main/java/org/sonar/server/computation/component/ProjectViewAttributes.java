@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -26,19 +28,28 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class ProjectViewAttributes {
   private final String projectUuid;
+  @CheckForNull
+  private final Long analysisDate;
 
-  public ProjectViewAttributes(String projectUuid) {
+  public ProjectViewAttributes(String projectUuid, @Nullable Long analysisDate) {
     this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
+    this.analysisDate = analysisDate;
   }
 
   public String getProjectUuid() {
     return projectUuid;
   }
 
+  @CheckForNull
+  public Long getAnalysisDate() {
+    return analysisDate;
+  }
+
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
-        ", projectUuid='" + projectUuid + '\'' +
-        '}';
+      ", projectUuid='" + projectUuid + '\'' +
+      ", analysisDate=" + analysisDate +
+      '}';
   }
 }
