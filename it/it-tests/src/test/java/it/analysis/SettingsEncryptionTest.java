@@ -30,11 +30,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.ItUtils;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class SettingsEncryptionTest {
 
   @ClassRule

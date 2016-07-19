@@ -6,13 +6,7 @@ script: ./travis.sh
 
 env:
   - TARGET=CI
-  - TARGET=IT IT_CATEGORY=Category1
-  - TARGET=IT IT_CATEGORY=Category2
-  - TARGET=IT IT_CATEGORY=Category3
-  - TARGET=IT IT_CATEGORY=Category4
-  - TARGET=IT IT_CATEGORY=Category5
   - TARGET=WEB
-
 
 matrix:
   fast_finish: true
@@ -21,8 +15,8 @@ cache:
   directories:
     - $HOME/.m2/repository
     - $HOME/.sonar
-    - 'server/sonar-web/node'
-    - 'server/sonar-web/node_modules'
+    - server/sonar-web/node
+    - server/sonar-web/node_modules
 
 before_cache:
   # remove all the artifacts (JAR, ZIP) that are installed in local repo because of mvn deploy

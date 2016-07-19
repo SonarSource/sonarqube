@@ -42,14 +42,12 @@ import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
-@Category(QaOnly.class)
 public class QualityGateNotificationTest {
 
   private static long DEFAULT_QUALITY_GATE;

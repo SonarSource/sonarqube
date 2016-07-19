@@ -23,24 +23,19 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.UpdateCenterQuery;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
-import static util.ItUtils.xooPlugin;
 
 /**
  * This class start its own orchestrator
  */
-@Category(QaOnly.class)
 public class UpdateCenterTest {
 
   @ClassRule

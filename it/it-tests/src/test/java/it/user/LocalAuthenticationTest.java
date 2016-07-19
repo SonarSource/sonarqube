@@ -47,7 +47,6 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
@@ -57,7 +56,6 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
-@Category(QaOnly.class)
 public class LocalAuthenticationTest {
 
   @ClassRule

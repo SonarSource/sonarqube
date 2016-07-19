@@ -31,12 +31,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class UiExtensionsTest {
 
   @ClassRule

@@ -30,13 +30,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
-import util.QaOnly;
 import util.user.UserRule;
 
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
-@Category(QaOnly.class)
 public class DashboardSharingPermissionTest {
 
   @ClassRule

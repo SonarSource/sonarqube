@@ -30,11 +30,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.skyscreamer.jsonassert.JSONAssert;
-import util.QaOnly;
 
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class CoverageTrackingTest {
 
   @ClassRule

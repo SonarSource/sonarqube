@@ -27,13 +27,11 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.PropertyQuery;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class SubCategoriesTest {
 
   @ClassRule

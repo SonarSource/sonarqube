@@ -54,7 +54,6 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 /**
@@ -62,7 +61,6 @@ import util.selenium.SeleneseTest;
  *
  * It starts its own server as it's using a different authentication system
  */
-@Category(QaOnly.class)
 public class RailsExternalAuthenticationTest {
 
   @Rule

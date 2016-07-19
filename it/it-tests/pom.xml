@@ -14,7 +14,6 @@
   <properties>
     <category>*</category>
     <skipIts>false</skipIts>
-    <excludeJunitGroups></excludeJunitGroups>
   </properties>
 
   <dependencies>
@@ -122,7 +121,6 @@
           <includes>
             <include>*/${category}Suite.java</include>
           </includes>
-          <excludedGroups>${excludeJunitGroups}</excludedGroups>
         </configuration>
       </plugin>
     </plugins>
@@ -199,19 +197,6 @@
         </dependency>
       </dependencies>
     </profile>
-    <profile>
-      <!-- SonarSource internal use -->
-      <id>exclude-qa-tests</id>
-      <activation>
-        <property>
-          <name>exclude-qa-tests</name>
-        </property>
-      </activation>
-      <properties>
-        <excludeJunitGroups>util.QaOnly</excludeJunitGroups>
-      </properties>
-    </profile>
-
   </profiles>
 
 

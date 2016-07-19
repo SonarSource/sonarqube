@@ -29,11 +29,9 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class IssuePurgeTest extends AbstractIssueTest {
 
   @Rule

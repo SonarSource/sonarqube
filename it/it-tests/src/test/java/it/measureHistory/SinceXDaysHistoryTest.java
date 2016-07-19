@@ -36,13 +36,11 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
-@Category(QaOnly.class)
 public class SinceXDaysHistoryTest {
 
   @ClassRule

@@ -29,14 +29,12 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the ability for a web service to call another web services.
  */
-@Category(QaOnly.class)
 public class WsLocalCallTest {
 
   @ClassRule

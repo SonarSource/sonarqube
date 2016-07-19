@@ -38,13 +38,11 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class ProjectAdministrationTest {
 
   private static final String DELETE_WS_ENDPOINT = "api/projects/bulk_delete";

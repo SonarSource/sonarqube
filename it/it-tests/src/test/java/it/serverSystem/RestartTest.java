@@ -32,7 +32,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -42,7 +41,6 @@ import static util.ItUtils.newWsClient;
 /**
  * This class starts a new orchestrator on each test case
  */
-@Category(QaOnly.class)
 public class RestartTest {
 
   Orchestrator orchestrator;

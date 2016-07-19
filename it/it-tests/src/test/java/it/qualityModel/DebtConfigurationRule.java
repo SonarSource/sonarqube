@@ -25,7 +25,6 @@ import com.sonar.orchestrator.Orchestrator;
 import java.util.Set;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExternalResource;
-import util.QaOnly;
 
 import static com.google.common.base.Preconditions.checkState;
 import static util.ItUtils.setServerProperty;
@@ -33,7 +32,6 @@ import static util.ItUtils.setServerProperty;
 /**
  * This rule should be used when dealing with technical debt properties, in order to always be sure that the properties are correctly reset between each tests.
  */
-@Category(QaOnly.class)
 public class DebtConfigurationRule extends ExternalResource {
 
   private static final String HOURS_IN_DAY_PROPERTY = "sonar.technicalDebt.hoursInDay";

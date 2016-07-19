@@ -27,14 +27,12 @@ import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import util.QaOnly;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
-@Category(QaOnly.class)
 public class CommonRulesTest extends AbstractIssueTest {
 
   public static final String FILE_KEY = "common-rules-project:src/Sample.xoo";
