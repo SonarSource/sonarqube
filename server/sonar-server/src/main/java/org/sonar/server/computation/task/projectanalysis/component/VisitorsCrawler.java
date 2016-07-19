@@ -155,8 +155,11 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   private static class MatchVisitorMaxDepth implements Predicate<VisitorWrapper> {
     private static final Map<Component.Type, MatchVisitorMaxDepth> INSTANCES = buildInstances();
-
     private final Component.Type type;
+
+    private MatchVisitorMaxDepth(Component.Type type) {
+      this.type = requireNonNull(type);
+    }
 
     private static Map<Component.Type, MatchVisitorMaxDepth> buildInstances() {
       ImmutableMap.Builder<Component.Type, MatchVisitorMaxDepth> builder = ImmutableMap.builder();
@@ -164,10 +167,6 @@ public class VisitorsCrawler implements ComponentCrawler {
         builder.put(type, new MatchVisitorMaxDepth(type));
       }
       return builder.build();
-    }
-
-    private MatchVisitorMaxDepth(Component.Type type) {
-      this.type = requireNonNull(type);
     }
 
     public static MatchVisitorMaxDepth forComponent(Component component) {

@@ -23,9 +23,18 @@ package org.sonar.api.ce.posttask;
  * @since 5.5
  */
 public interface Project {
+  /**
+   * The UUID of the project.
+   */
   String getUuid();
 
+  /**
+   * The key of the project.
+   */
   String getKey();
 
+  /**
+   * The name of the project.
+   */
   String getName();
 }

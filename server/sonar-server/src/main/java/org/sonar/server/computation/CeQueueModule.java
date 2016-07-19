@@ -26,7 +26,6 @@ import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
 import org.sonar.server.computation.queue.CeQueueCleaner;
 import org.sonar.server.computation.queue.CeQueueInitializer;
 import org.sonar.server.computation.queue.InternalCeQueueImpl;
-import org.sonar.server.computation.task.projectanalysis.queue.CleanReportQueueListener;
 
 public class CeQueueModule extends Module {
   @Override

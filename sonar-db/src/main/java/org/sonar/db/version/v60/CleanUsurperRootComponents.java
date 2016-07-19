@@ -119,7 +119,7 @@ public class CleanUsurperRootComponents extends BaseDataChange {
     });
   }
 
-  private void cleanSnapshotWithIncorrectRoot(Context context) throws SQLException {
+  private static void cleanSnapshotWithIncorrectRoot(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select" +
       " sn.id" +

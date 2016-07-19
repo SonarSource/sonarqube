@@ -19,11 +19,16 @@
  */
 package org.sonar.server.computation.task.projectanalysis.api.developer;
 
+import org.sonar.server.computation.task.step.ComputationStep;
+
 /**
  * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
  */
 public interface PersistDevelopersDelegate {
 
+  /**
+   * The delegate's implementation of {@link ComputationStep#execute()}.
+   */
   void execute();
 
 }

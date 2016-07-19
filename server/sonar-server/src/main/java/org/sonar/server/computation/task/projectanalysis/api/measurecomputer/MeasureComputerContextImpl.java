@@ -190,7 +190,8 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
         ? new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest()) : null);
   }
 
-  private class ComponentToMeasure implements Function<org.sonar.server.computation.task.projectanalysis.component.Component, Optional<org.sonar.server.computation.task.projectanalysis.measure.Measure>> {
+  private class ComponentToMeasure implements Function<org.sonar.server.computation.task.projectanalysis.component.Component,
+      Optional<org.sonar.server.computation.task.projectanalysis.measure.Measure>> {
 
     private final Metric metric;
 

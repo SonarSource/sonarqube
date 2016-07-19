@@ -170,7 +170,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     String pluginKey = info.getKey();
     if (blacklistedPluginKeys.contains(pluginKey)) {
       LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled.", info.getName(), pluginKey);
-      org.sonar.core.util.FileUtils.deleteQuietly(info.getNonNullJarFile());
+      deleteQuietly(info.getNonNullJarFile());
       return;
     }
     if (FORBIDDEN_COMPATIBLE_PLUGINS.contains(pluginKey)) {

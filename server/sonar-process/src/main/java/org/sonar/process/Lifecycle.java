@@ -46,6 +46,8 @@ public class Lifecycle {
 
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
+  private State state = INIT;
+
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
@@ -67,8 +69,6 @@ public class Lifecycle {
     }
     return EnumSet.copyOf(Arrays.asList(states));
   }
-
-  private State state = INIT;
 
   public State getState() {
     return state;
