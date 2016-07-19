@@ -19,6 +19,8 @@
  */
 package org.sonar.core.util.stream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,27 +32,57 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CollectorsTest {
   @Test
-  public void toList_builds_an_ArrayList() {
+  public void toList_builds_an_ImmutableList() {
     List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toList());
-    assertThat(res).isInstanceOf(ArrayList.class)
+    assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
+
   @Test
-  public void toList_with_size_builds_an_ArrayList() {
+  public void toList_with_size_builds_an_ImmutableList() {
     List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toList(30));
+    assertThat(res).isInstanceOf(ImmutableList.class)
+      .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toSet_builds_an_ImmutableSet() {
+    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toSet());
+    assertThat(res).isInstanceOf(ImmutableSet.class)
+      .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toSet_with_size_builds_an_ImmutableSet() {
+    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toSet(30));
+    assertThat(res).isInstanceOf(ImmutableSet.class)
+      .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toArrayList_builds_an_ArrayList() {
+    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toArrayList());
     assertThat(res).isInstanceOf(ArrayList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
 
   @Test
-  public void toSet_builds_an_HashSet() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toSet());
+  public void toArrayList_with_size_builds_an_ArrayList() {
+    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toArrayList(30));
+    assertThat(res).isInstanceOf(ArrayList.class)
+      .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toHashSet_builds_an_HashSet() {
+    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toHashSet());
     assertThat(res).isInstanceOf(HashSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
+
   @Test
-  public void toSet_with_size_builds_an_ArrayList() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toSet(30));
+  public void toHashSet_with_size_builds_an_ArrayList() {
+    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(Collectors.toHashSet(30));
     assertThat(res).isInstanceOf(HashSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }

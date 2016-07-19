@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.core.util.stream.Collectors;
 
 import static org.sonar.core.util.stream.Collectors.toList;
 
@@ -88,7 +89,7 @@ public class RuleFinderCompatibility implements RuleFinder {
   private Collection<Rule> byRepository(RuleQuery query) {
     return rules.findByRepository(query.getRepositoryKey()).stream()
       .map(RuleFinderCompatibility::toRule)
-      .collect(toList());
+      .collect(Collectors.toArrayList());
   }
 
   private Collection<Rule> byKey(RuleQuery query) {
@@ -99,7 +100,7 @@ public class RuleFinderCompatibility implements RuleFinder {
   private Collection<Rule> byInternalKey(RuleQuery query) {
     return rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()).stream()
       .map(RuleFinderCompatibility::toRule)
-      .collect(toList());
+      .collect(Collectors.toArrayList());
   }
 
   @CheckForNull

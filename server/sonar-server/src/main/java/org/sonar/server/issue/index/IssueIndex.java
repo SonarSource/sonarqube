@@ -544,7 +544,7 @@ public class IssueIndex extends BaseIndex {
     if (values == null) {
       return Collections.emptyList();
     }
-    return values.stream().map(Pattern::quote).collect(Collectors.toList(values.size()));
+    return values.stream().map(Pattern::quote).collect(Collectors.toArrayList(values.size()));
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

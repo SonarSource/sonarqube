@@ -34,7 +34,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static org.sonar.core.util.stream.GuavaCollectors.toList;
+import static org.sonar.core.util.stream.Collectors.toList;
 
 public class DefaultPeriodCleaner {
 
@@ -67,11 +67,11 @@ public class DefaultPeriodCleaner {
         Joiner.on(", ").join(
           snapshots.stream()
             .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
-            .collect(Collectors.toList(snapshots.size()))));
+            .collect(Collectors.toArrayList(snapshots.size()))));
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(toList(snapshots.size())));
+      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(Collectors.toList(snapshots.size())));
     return snapshots;
   }
 

@@ -28,7 +28,7 @@ import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.GuavaCollectors;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -117,7 +117,7 @@ public class PurgeDao implements Dao {
           .setQualifiers(Arrays.asList(scopesWithoutHistoricalData))
           .build())
       .stream().map(ComponentDto::uuid)
-      .collect(GuavaCollectors.toList());
+      .collect(Collectors.toList());
 
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
   }
