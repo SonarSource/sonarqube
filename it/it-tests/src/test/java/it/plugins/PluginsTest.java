@@ -72,7 +72,11 @@ public class PluginsTest {
     // status 1.0 is built for Java 8 so it is temporarily disabled
     "status",
     // temporary incompatibility with cobol 3.1 java.lang.NoClassDefFoundError: com/sonarsource/cobol/api/pp/EnterPreprocessorEvent
-    "maifcobolplugin");
+    "maifcobolplugin",
+
+    // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
+    "crowd","ldap","pam"
+  );
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "report", "rpg",
