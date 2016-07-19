@@ -32,14 +32,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class UserGroupsWsTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   WebService.Controller controller;
 
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UserGroupsWs(
-      new SearchAction(mock(DbClient.class)),
+      new SearchAction(mock(DbClient.class), mock(UserSession.class)),
       new CreateAction(mock(DbClient.class), mock(UserSession.class), mock(UserGroupUpdater.class))));
     controller = tester.controller("api/user_groups");
   }

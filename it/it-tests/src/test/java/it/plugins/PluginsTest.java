@@ -48,6 +48,7 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.fail;
 
@@ -98,10 +99,11 @@ public class PluginsTest {
 
     // install latest compatible releases of plugins
     org.sonar.updatecenter.common.Version sonarVersion = org.sonar.updatecenter.common.Version.create(builder.getSonarVersion());
-    builder.getUpdateCenter().setInstalledSonarVersion(sonarVersion);
+    Version sonarVersionWithoutPatch = Version.create(sonarVersion.getMajor() + "." + sonarVersion.getMinor());
+    builder.getUpdateCenter().setInstalledSonarVersion(sonarVersionWithoutPatch);
     for (Plugin plugin : builder.getUpdateCenter().findAllCompatiblePlugins()) {
       if (!DISABLED_PLUGINS.contains(plugin.getKey())) {
-        Release release = plugin.getLastCompatibleRelease(sonarVersion);
+        Release release = plugin.getLastCompatibleRelease(sonarVersionWithoutPatch);
         if (release != null) {
           builder.setOrchestratorProperty(plugin.getKey() + "Version", release.getVersion().toString());
           builder.addPlugin(plugin.getKey());

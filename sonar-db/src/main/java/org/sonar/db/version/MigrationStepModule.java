@@ -83,6 +83,7 @@ import org.sonar.db.version.v55.FeedRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
+import org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToEvents;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToMeasures;
@@ -226,6 +227,7 @@ public class MigrationStepModule extends Module {
       // 5.6
       FixTypeOfRuleTypeOnMysql.class,
       FixLengthOfIssuesMessageOnOracle.class,
+      UpdateUsersExternalIdentityWhenEmpty.class,
 
       // 6.0
       AddUuidColumnsToResourceIndex.class,

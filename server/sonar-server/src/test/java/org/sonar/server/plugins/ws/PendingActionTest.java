@@ -22,13 +22,17 @@ package org.sonar.server.plugins.ws;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -39,21 +43,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class PendingActionTest {
 
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
 
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
-  PendingAction underTest = new PendingAction(pluginDownloader, serverPluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
+  PendingAction underTest = new PendingAction(userSession, pluginDownloader, serverPluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
   Request request = mock(Request.class);
   WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Test
   public void action_pending_is_defined() {
+    loggedAsSystemAdmin();
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -71,6 +84,7 @@ public class PendingActionTest {
 
   @Test
   public void empty_arrays_are_returned_when_there_nothing_pending() throws Exception {
+    loggedAsSystemAdmin();
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
@@ -79,11 +93,12 @@ public class PendingActionTest {
         "  \"removing\": []," +
         "  \"updating\": []" +
         "}"
-      );
+    );
   }
 
   @Test
   public void empty_arrays_are_returned_when_update_center_is_unavailable() throws Exception {
+    loggedAsSystemAdmin();
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
 
     underTest.handle(request, response);
@@ -94,11 +109,12 @@ public class PendingActionTest {
         "  \"removing\": []," +
         "  \"updating\": []" +
         "}"
-      );
+    );
   }
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
+    loggedAsSystemAdmin();
     newUpdateCenter("scmgit");
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
@@ -125,11 +141,12 @@ public class PendingActionTest {
         "  \"removing\": []," +
         "  \"updating\": []" +
         "}"
-      );
+    );
   }
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
+    loggedAsSystemAdmin();
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
     underTest.handle(request, response);
@@ -154,11 +171,12 @@ public class PendingActionTest {
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
   @Test
   public void verify_properties_displayed_in_json_per_updating_plugin() throws Exception {
+    loggedAsSystemAdmin();
     newUpdateCenter("scmgit");
     when(serverPluginRepository.getPluginInfos()).thenReturn(of(newScmGitPluginInfo()));
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
@@ -181,6 +199,7 @@ public class PendingActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_removing_and_updating_plugins() throws Exception {
+    loggedAsSystemAdmin();
     PluginInfo installed = newPluginInfo("java");
     PluginInfo removedPlugin = newPluginInfo("js");
     PluginInfo newPlugin = newPluginInfo("php");
@@ -218,11 +237,12 @@ public class PendingActionTest {
 
   @Test
   public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() throws Exception {
+    loggedAsSystemAdmin();
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -246,16 +266,17 @@ public class PendingActionTest {
         "  \"removing\": []," +
         "  \"updating\": []" +
         "}"
-      );
+    );
   }
 
   @Test
   public void removing_plugins_are_sorted_and_unique() throws Exception {
+    loggedAsSystemAdmin();
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -279,10 +300,18 @@ public class PendingActionTest {
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
-  public PluginInfo newScmGitPluginInfo() {
+  @Test
+  public void fail_when_user_is_not_sys_admin() throws Exception {
+    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.handle(request, response);
+  }
+
+  private PluginInfo newScmGitPluginInfo() {
     return new PluginInfo("scmgit")
       .setName("Git")
       .setDescription("Git SCM Provider.")
@@ -295,11 +324,11 @@ public class PendingActionTest {
       .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   }
 
-  public PluginInfo newPluginInfo(String key){
+  private PluginInfo newPluginInfo(String key) {
     return new PluginInfo(key);
   }
 
-  private UpdateCenter newUpdateCenter(String... pluginKeys){
+  private UpdateCenter newUpdateCenter(String... pluginKeys) {
     UpdateCenter updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     List<Plugin> plugins = new ArrayList<>();
@@ -310,7 +339,11 @@ public class PendingActionTest {
     return updateCenter;
   }
 
-  public PluginInfo newPluginInfo(int id) {
+  private PluginInfo newPluginInfo(int id) {
     return new PluginInfo("key" + id).setName("name" + id);
+  }
+
+  private void loggedAsSystemAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

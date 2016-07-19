@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -36,11 +37,13 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -68,14 +71,9 @@ public class SearchActionTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  WsTester ws;
-  UserIndex index;
-
-  @Before
-  public void setUp() {
-    index = new UserIndex(esTester.client());
-    ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
-  }
+  UserIndex index = new UserIndex(esTester.client());
+  UserIndexer userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
+  WsTester ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
 
   @Test
   public void search_json_example() throws Exception {
@@ -100,7 +98,7 @@ public class SearchActionTest {
     }
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
     db.commit();
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, toUserDoc(fmallet), toUserDoc(simon));
+    userIndexer.index();
     loginAsAdmin();
 
     String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
@@ -110,11 +108,13 @@ public class SearchActionTest {
 
   @Test
   public void search_empty() throws Exception {
+    loginAsSimpleUser();
     ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "empty.json");
   }
 
   @Test
   public void search_without_parameters() throws Exception {
+    loginAsSimpleUser();
     injectUsers(5);
 
     ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "five_users.json");
@@ -122,6 +122,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_query() throws Exception {
+    loginAsSimpleUser();
     injectUsers(5);
     UserDto user = userDb.insertUser(
       newUserDto("user-%_%-login", "user-name", "user@mail.com")
@@ -141,6 +142,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_paging() throws Exception {
+    loginAsSimpleUser();
     injectUsers(10);
 
     ws.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").execute().assertJson(getClass(), "page_one.json");
@@ -149,6 +151,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_fields() throws Exception {
+    loginAsSimpleUser();
     injectUsers(1);
 
     assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
@@ -198,6 +201,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_groups() throws Exception {
+    loginAsAdmin();
     List<UserDto> users = injectUsers(1);
 
     GroupDto group1 = dbClient.groupDao().insert(dbSession, new GroupDto().setName("sonar-users"));
@@ -206,14 +210,31 @@ public class SearchActionTest {
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(group2.getId()).setUserId(users.get(0).getId()));
     dbSession.commit();
 
-    loginAsAdmin();
     ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
+  }
+
+  @Test
+  public void only_return_login_and_name_when_not_logged() throws Exception {
+    userSession.anonymous();
+
+    dbClient.userDao().insert(dbSession, UserTesting.newUserDto("john", "John", "john@email.com"));
+    dbSession.commit();
+    userIndexer.index();
+
+    ws.newGetRequest("api/users", "search").execute().assertJson(
+      "{" +
+        "  \"users\": [" +
+        "    {" +
+        "      \"login\": \"john\"," +
+        "      \"name\": \"John\"" +
+        "    }" +
+        "  ]" +
+        "}");
   }
 
   private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
     List<UserDto> userDtos = Lists.newArrayList();
     long createdAt = System.currentTimeMillis();
-    UserDoc[] users = new UserDoc[numberOfUsers];
     for (int index = 0; index < numberOfUsers; index++) {
       String email = String.format("user-%d@mail.com", index);
       String login = String.format("user-%d", index);
@@ -233,8 +254,6 @@ public class SearchActionTest {
         .setUpdatedAt(createdAt));
       userDtos.add(userDto);
 
-      users[index] = toUserDoc(userDto);
-
       for (int tokenIndex = 0; tokenIndex < index; tokenIndex++) {
         dbClient.userTokenDao().insert(dbSession, newUserToken()
           .setLogin(login)
@@ -242,22 +261,16 @@ public class SearchActionTest {
       }
     }
     dbSession.commit();
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, users);
+    userIndexer.index();
     return userDtos;
-  }
-
-  private static UserDoc toUserDoc(UserDto dto) {
-    return new UserDoc()
-      .setActive(dto.isActive())
-      .setCreatedAt(dto.getCreatedAt())
-      .setEmail(dto.getEmail())
-      .setLogin(dto.getLogin())
-      .setName(dto.getName())
-      .setScmAccounts(dto.getScmAccountsAsList())
-      .setUpdatedAt(dto.getUpdatedAt());
   }
 
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
+
+  private void loginAsSimpleUser() {
+    userSession.login("user");
+  }
+
 }
