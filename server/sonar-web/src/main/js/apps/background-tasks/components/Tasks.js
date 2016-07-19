@@ -57,6 +57,7 @@ export default class Tasks extends React.Component {
             <th>{translate('background_tasks.table.finished')}</th>
             <th>{translate('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
+            <th>&nbsp;</th>
           </tr>
           </thead>
           <tbody>
