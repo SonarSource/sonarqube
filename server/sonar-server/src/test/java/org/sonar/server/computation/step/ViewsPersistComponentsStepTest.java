@@ -127,7 +127,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(
       createViewBuilder()
-        .addChildren(createProjectView1Builder(project).build())
+        .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
     underTest.execute();
@@ -208,7 +208,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .addChildren(
           createSubView1Builder()
             .addChildren(
-              createProjectView1Builder(project).build())
+              createProjectView1Builder(project, null).build())
             .build())
         .build());
 
@@ -252,7 +252,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(
       createViewBuilder()
-        .addChildren(createProjectView1Builder(project).build())
+        .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
     underTest.execute();
@@ -279,7 +279,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       createViewBuilder()
         // Project view in the View is linked to the first project2
-        .addChildren(createProjectView1Builder(project2).build())
+        .addChildren(createProjectView1Builder(project2, null).build())
         .build());
 
     underTest.execute();
@@ -297,12 +297,12 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     return builder(SUBVIEW, SUBVIEW_1_KEY).setUuid(SUBVIEW_1_UUID).setName(SUBVIEW_1_NAME).setDescription(SUBVIEW_1_DESCRIPTION);
   }
 
-  private static ViewsComponent.Builder createProjectView1Builder(ComponentDto project) {
+  private static ViewsComponent.Builder createProjectView1Builder(ComponentDto project, Long analysisDate) {
     return builder(PROJECT_VIEW, PROJECT_VIEW_1_KEY)
       .setUuid(PROJECT_VIEW_1_UUID)
       .setName(PROJECT_VIEW_1_NAME)
       .setDescription("project view description is not persisted")
-      .setProjectViewAttributes(new ProjectViewAttributes(project.getId()));
+      .setProjectViewAttributes(new ProjectViewAttributes(project.getId(), analysisDate));
   }
 
   private void persistComponents(ComponentDto... componentDtos) {
@@ -345,7 +345,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   /**
-   * Assertions to verify the DTO created from {@link #createProjectView1Builder(ComponentDto)}
+   * Assertions to verify the DTO created from {@link #createProjectView1Builder(ComponentDto, Long)}
    */
   private void assertDtoIsSubView1(ComponentDto viewDto, ComponentDto sv1Dto) {
     assertThat(sv1Dto.name()).isEqualTo(SUBVIEW_1_NAME);

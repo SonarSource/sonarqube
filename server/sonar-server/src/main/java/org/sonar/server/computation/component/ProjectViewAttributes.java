@@ -19,24 +19,44 @@
  */
 package org.sonar.server.computation.component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class ProjectViewAttributes {
   private final long projectId;
+  @CheckForNull
+  private final Long analysisDate;
 
+  /**
+   * Compatibility with Governance 1.0.
+   *
+   * FIXME: remove in SQ 6.0
+   */
   public ProjectViewAttributes(long projectId) {
+    this(projectId, null);
+  }
+
+  public ProjectViewAttributes(long projectId, @Nullable Long analysisDate) {
     this.projectId = projectId;
+    this.analysisDate = analysisDate;
   }
 
   public long getProjectId() {
     return projectId;
   }
 
+  @CheckForNull
+  public Long getAnalysisDate() {
+    return analysisDate;
+  }
+
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
         "projectId=" + projectId +
+        ", analysisDate=" + analysisDate +
         '}';
   }
 }

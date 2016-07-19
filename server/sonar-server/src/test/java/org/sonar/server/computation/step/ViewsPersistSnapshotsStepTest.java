@@ -34,6 +34,7 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MapBasedDbIdsRepository;
+import org.sonar.server.computation.component.ProjectViewAttributes;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
@@ -111,7 +112,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     ComponentDto projectViewDto = save(newProjectCopy("DEFG", projectDto, subViewDto).setKey("3"));
     dbTester.getSession().commit();
 
-    Component projectView = ViewsComponent.builder(PROJECT_VIEW, 3).setUuid("DEFG").build();
+    Component projectView = ViewsComponent.builder(PROJECT_VIEW, 3).setProjectViewAttributes(new ProjectViewAttributes(6845L, null)).setUuid("DEFG").build();
     Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("CDEF").addChildren(projectView).build();
     Component view = ViewsComponent.builder(VIEW, 1).setUuid("ABCD").addChildren(subView).build();
     treeRootHolder.setRoot(view);
@@ -175,11 +176,31 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void use_ProjectViewAttribute_analysisDate_as_createdAt_when_non_null() {
+    ComponentDto projectDto = save(newProjectDto("proj"));
+    ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
+    ComponentDto projectViewDto = save(newProjectCopy("DEFG", projectDto, viewDto).setKey("3"));
+
+    long projectAnalysisDate = 946543544L;
+    Component projectView = ViewsComponent.builder(PROJECT_VIEW, 3).setProjectViewAttributes(new ProjectViewAttributes(6845L, projectAnalysisDate)).setUuid("DEFG").build();
+    Component view = ViewsComponent.builder(VIEW, 1).setUuid("ABCD").addChildren(projectView).build();
+    treeRootHolder.setRoot(view);
+
+    dbIdsRepository.setComponentId(view, viewDto.getId());
+    dbIdsRepository.setComponentId(projectView, projectViewDto.getId());
+
+    underTest.execute();
+
+    SnapshotDto projectViewSnapshot = getUnprocessedSnapshot(projectViewDto.getId());
+    assertThat(projectViewSnapshot.getCreatedAt()).isEqualTo(projectAnalysisDate);
+  }
+
+  @Test
   public void persist_snapshots_with_periods() {
     ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
     ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
-    SnapshotDto viewSnapshotDto = save(newSnapshotForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
-    SnapshotDto subViewSnapshotDto = save(newSnapshotForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
+    save(newSnapshotForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
+    save(newSnapshotForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
     dbTester.getSession().commit();
 
     Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("ABCD").build();

@@ -166,7 +166,7 @@ public class PersistSnapshotsStep implements ComputationStep {
         .setScope(scope)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
-        .setCreatedAt(analysisDate)
+        .setCreatedAt(computeSnapshotAnalysisDate(component, analysisDate))
         .setBuildDate(system2.now());
 
       SnapshotDto parentSnapshot = path.isRoot() ? null : path.parent().getSnapshotDto();
@@ -183,6 +183,16 @@ public class PersistSnapshotsStep implements ComputationStep {
           .setDepth(0);
       }
       return snapshotDto;
+    }
+
+    private long computeSnapshotAnalysisDate(Component component, long analysisDate) {
+      if (component.getType() == Component.Type.PROJECT_VIEW) {
+        Long projectViewAnalysisDate = component.getProjectViewAttributes().getAnalysisDate();
+        if (projectViewAnalysisDate != null) {
+          return projectViewAnalysisDate;
+        }
+      }
+      return analysisDate;
     }
 
     private void addToCache(Component component, SnapshotDto snapshotDto) {
