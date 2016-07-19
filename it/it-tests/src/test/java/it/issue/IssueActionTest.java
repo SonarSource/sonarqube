@@ -32,13 +32,11 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.verifyHttpException;
 
-@Category(QaOnly.class)
 public class IssueActionTest extends AbstractIssueTest {
 
   @Rule

@@ -28,7 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @since 2.9
  */
-@Category(QaOnly.class)
 public class ProjectBuilderTest {
 
   @ClassRule

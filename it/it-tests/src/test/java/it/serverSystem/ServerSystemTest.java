@@ -45,14 +45,12 @@ import org.sonar.wsclient.services.ServerQuery;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
 
-@Category(QaOnly.class)
 public class ServerSystemTest {
 
   @ClassRule

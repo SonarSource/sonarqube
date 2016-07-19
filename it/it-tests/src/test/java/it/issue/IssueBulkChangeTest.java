@@ -32,14 +32,12 @@ import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * SONAR-4421
  */
-@Category(QaOnly.class)
 public class IssueBulkChangeTest extends AbstractIssueTest {
 
   private static final int BULK_EDITED_ISSUE_COUNT = 3;

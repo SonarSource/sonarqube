@@ -38,11 +38,9 @@ import util.ItUtils;
 
 import java.io.File;
 import java.io.IOException;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class CrossModuleDuplicationsTest {
   private static final String PROJECT_KEY = "cross-module";
   private static final String PROJECT_DIR = "duplications/" + PROJECT_KEY;

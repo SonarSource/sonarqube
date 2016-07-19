@@ -31,13 +31,11 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 import util.ItUtils;
-import util.QaOnly;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class CeWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;

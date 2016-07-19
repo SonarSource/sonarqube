@@ -33,7 +33,6 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -43,7 +42,6 @@ import static util.ItUtils.runProjectAnalysis;
 /**
  * SONAR-4397
  */
-@Category(QaOnly.class)
 public class ExecuteAnalysisPermissionTest {
 
   @ClassRule

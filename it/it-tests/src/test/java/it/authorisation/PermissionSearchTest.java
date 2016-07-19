@@ -46,14 +46,12 @@ import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequ
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class PermissionSearchTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;

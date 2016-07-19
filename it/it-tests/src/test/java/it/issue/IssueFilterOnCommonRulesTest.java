@@ -28,7 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import util.QaOnly;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +35,6 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperties;
 
-@Category(QaOnly.class)
 public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
 
   private static WsClient adminWsClient;

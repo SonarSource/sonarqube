@@ -30,14 +30,12 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the extension point IssueFilter
  */
-@Category(QaOnly.class)
 public class IssueFilterExtensionTest extends AbstractIssueTest {
 
   @Rule

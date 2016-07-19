@@ -25,13 +25,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperties;
 
-@Category(QaOnly.class)
 public class IssueFilterTest extends AbstractIssueTest {
 
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-exclusions";

@@ -29,11 +29,9 @@ import org.sonar.wsclient.issue.IssueChange;
 import org.sonar.wsclient.issue.IssueChangeDiff;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class IssueChangelogTest extends AbstractIssueTest {
 
   @Rule

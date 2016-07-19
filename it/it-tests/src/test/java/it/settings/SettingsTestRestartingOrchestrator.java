@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.pluginArtifact;
@@ -38,7 +37,6 @@ import static util.ItUtils.xooPlugin;
 /**
  * This class start a new orchestrator on each test case
  */
-@Category(QaOnly.class)
 public class SettingsTestRestartingOrchestrator {
 
   Orchestrator orchestrator;

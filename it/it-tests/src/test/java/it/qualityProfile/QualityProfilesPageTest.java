@@ -27,13 +27,11 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class QualityProfilesPageTest {
 
   @ClassRule

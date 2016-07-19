@@ -27,12 +27,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(QaOnly.class)
 public class PropertySetsTest {
 
   @ClassRule

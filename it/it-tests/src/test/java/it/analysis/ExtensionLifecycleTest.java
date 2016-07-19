@@ -27,9 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.ItUtils;
-import util.QaOnly;
 
-@Category(QaOnly.class)
 public class ExtensionLifecycleTest {
 
   @ClassRule

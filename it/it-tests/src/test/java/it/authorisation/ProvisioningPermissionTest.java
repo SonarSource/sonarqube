@@ -38,14 +38,12 @@ import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
-@Category(QaOnly.class)
 public class ProvisioningPermissionTest {
 
   @Rule

@@ -36,13 +36,11 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-@Category(QaOnly.class)
 public class EventTest {
 
   @ClassRule

@@ -24,11 +24,8 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
-@Category(QaOnly.class)
 public class UsersPageTest {
 
   @ClassRule

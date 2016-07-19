@@ -36,13 +36,11 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
 import util.ItUtils;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
-@Category(QaOnly.class)
 public class QualityGateUiTest {
 
   @ClassRule

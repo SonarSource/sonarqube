@@ -34,7 +34,6 @@ import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
-import util.QaOnly;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -48,7 +47,6 @@ import static util.ItUtils.setServerProperty;
  * - creating new user using email already used
  * - display multiple identity provider plugins (probably in another class)
  */
-@Category(QaOnly.class)
 public class BaseIdentityProviderTest {
 
   @ClassRule

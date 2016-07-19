@@ -27,14 +27,12 @@ import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
-import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * SONAR-6939
  */
-@Category(QaOnly.class)
 public class DecimalScaleMetricTest {
 
   /**

@@ -29,14 +29,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.runProjectAnalysis;
 
-@Category(QaOnly.class)
 public class CrossProjectDuplicationsOnRemoveFileTest {
 
   static final String ORIGIN_PROJECT = "origin-project";
