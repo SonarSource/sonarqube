@@ -178,7 +178,7 @@ public class AppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatCoverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
+  private static String formatCoverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
     MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
     if (overallCoverage != null) {
       return formatMeasure(overallCoverage, CoreMetrics.OVERALL_COVERAGE);

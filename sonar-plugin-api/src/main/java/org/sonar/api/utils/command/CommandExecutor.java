@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -79,7 +80,7 @@ public class CommandExecutor {
 
       final Process finalProcess = process;
       executorService = Executors.newSingleThreadExecutor();
-      Future<Integer> ft = executorService.submit(() -> finalProcess.waitFor());
+      Future<Integer> ft = executorService.submit((Callable<Integer>) finalProcess::waitFor);
       int exitCode;
       if (timeoutMilliseconds < 0) {
         exitCode = ft.get();
