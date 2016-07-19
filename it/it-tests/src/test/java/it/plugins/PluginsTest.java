@@ -68,7 +68,11 @@ public class PluginsTest {
     "citymodel",
     // temporary incompatibility with cobol 3.1
     // https://jira.sonarsource.com/browse/MAIF-213
-    "maifcobolplugin");
+    "maifcobolplugin",
+
+    // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
+    "crowd","ldap","pam"
+  );
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "report", "rpg",
