@@ -77,7 +77,7 @@ public class UpdatesAction implements PluginsWsAction {
         "<br/>" +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
         "<br/>" +
-        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]<br/>." +
+        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE].<br/>" +
         "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)

@@ -61,8 +61,8 @@ public class SearchAction implements UserGroupsWsAction {
   @Override
   public void define(NewController context) {
     context.createAction("search")
-      .setDescription("Search for user groups <br>." +
-        "Require to be logged.")
+      .setDescription("Search for user groups.<br>" +
+        "Requires to be logged.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")
