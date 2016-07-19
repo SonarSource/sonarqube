@@ -78,9 +78,8 @@ public class CommandExecutor {
       outputGobbler.start();
       errorGobbler.start();
 
-      final Process finalProcess = process;
       executorService = Executors.newSingleThreadExecutor();
-      Future<Integer> ft = executorService.submit((Callable<Integer>) finalProcess::waitFor);
+      Future<Integer> ft = executorService.submit((Callable<Integer>) process::waitFor);
       int exitCode;
       if (timeoutMilliseconds < 0) {
         exitCode = ft.get();
