@@ -10,32 +10,30 @@ function configureTravis {
 configureTravis
 . installJDK8
 
-function strongEcho {
-  echo ""
-  echo "================ $1 ================="
-}
-
 case "$TARGET" in
 
 CI)
-  if [ "${TRAVIS_BRANCH}" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    strongEcho 'Build and deploy'
+  export MAVEN_OPTS="-Xmx1G -Xms128m"
+  INITIAL_VERSION=`maven_expression "project.version"`
+
+  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'Analyse and trigger QA of master branch'
 
     # Do not deploy a SNAPSHOT version but the release version related to this build
     set_maven_build_version $TRAVIS_BUILD_NUMBER
 
-    # analysis is currently executed by SonarSource internal infrastructure
-    mvn deploy \
-        -Pdeploy-sonarsource \
-        -B -e -V
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+          -Pdeploy-sonarsource \
+          -Dmaven.test.redirectTestOutputToFile=false \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.projectVersion=$INITIAL_VERSION \
+          -B -e -V
 
-  elif [[ "${TRAVIS_BRANCH}" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    strongEcho 'Build and deploy'
+  elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'release branch: trigger QA, no analysis'
 
-    # get current version from pom
-    CURRENT_VERSION=`maven_expression "project.version"`
-
-    if [[ $CURRENT_VERSION =~ "-SNAPSHOT" ]]; then
+    if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
       echo "======= Found SNAPSHOT version ======="
       # Do not deploy a SNAPSHOT version but the release version related to this build
       set_maven_build_version $TRAVIS_BUILD_NUMBER
@@ -43,21 +41,19 @@ CI)
       echo "======= Found RELEASE version ======="
     fi
 
-    # analysis is currently executed by SonarSource internal infrastructure
     mvn deploy \
         -Pdeploy-sonarsource \
+        -Dmaven.test.redirectTestOutputToFile=false \
         -B -e -V
 
-
-
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
-    strongEcho 'Build and analyze pull request, no deploy'
+    echo 'Internal pull request: trigger QA and analysis'
 
-    # No need for Maven phase "install" as the generated JAR file does not need to be installed
-    # in Maven local repository. Phase "verify" is enough.
+    set_maven_build_version $TRAVIS_BUILD_NUMBER
 
-    export MAVEN_OPTS="-Xmx1G -Xms128m"
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+        -Pdeploy-sonarsource \
+        -Dmaven.test.redirectTestOutputToFile=false \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
@@ -67,15 +63,16 @@ CI)
         -B -e -V
 
   else
-    strongEcho 'Build, no analysis, no deploy'
+    echo 'Feature branch or external pull request: no QA, no analysis'
 
     # No need for Maven phase "install" as the generated JAR file does not need to be installed
     # in Maven local repository. Phase "verify" is enough.
-
     mvn verify \
         -Dmaven.test.redirectTestOutputToFile=false \
         -B -e -V
   fi
+
+  ./run-integration-tests.sh "Lite" ""
   ;;
 
 WEB)
@@ -83,12 +80,6 @@ WEB)
   source ~/.nvm/nvm.sh && nvm install 4
   npm install -g npm@3.5.2
   cd server/sonar-web && npm install && npm test
-  ;;
-
-IT)
-  start_xvfb
-  mvn install -DskipTests=true -Dsource.skip=true -Denforcer.skip=true -B -e -V
-  ./run-integration-tests.sh "$IT_CATEGORY" "" -Dmaven.test.redirectTestOutputToFile=false -Dexclude-qa-tests=true
   ;;
 
 *)
