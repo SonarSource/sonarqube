@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
-import classNames from 'classnames';
 import ProfileLink from '../components/ProfileLink';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
@@ -36,30 +35,47 @@ export default class ProfileHeader extends React.Component {
 
   renderUpdateDate () {
     const { profile } = this.props;
-    const warning = isStagnant(profile);
-    const className = classNames('small spacer-right', {
-      'alert-warning': warning
-    });
-    return (
-        <li className={className}>
+    let inner = (
+        <span>
           {translate('quality_profiles.updated_')}
           {' '}
           <ProfileDate date={profile.userUpdatedAt}/>
+        </span>
+    );
+    if (isStagnant(profile)) {
+      inner = (
+          <span className="badge badge-normal-size badge-focus">
+            {inner}
+          </span>
+      );
+    }
+    return (
+        <li className="small spacer-right">
+          {inner}
         </li>
     );
   }
 
   renderUsageDate () {
     const { profile } = this.props;
-    const warning = !profile.lastUsed;
-    const className = classNames('small big-spacer-right', {
-      'alert-warning': warning
-    });
-    return (
-        <li className={className}>
+    let inner = (
+        <span>
           {translate('quality_profiles.used_')}
           {' '}
           <ProfileDate date={profile.lastUsed}/>
+        </span>
+    );
+    if (!profile.lastUsed) {
+      inner = (
+          <span className="badge badge-normal-size badge-focus">
+            {inner}
+          </span>
+      );
+    }
+
+    return (
+        <li className="small big-spacer-right">
+          {inner}
         </li>
     );
   }
