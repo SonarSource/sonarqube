@@ -19,6 +19,13 @@ CI)
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Analyse and trigger QA of master branch'
 
+    # Fetch all commit history so that SonarQube has exact blame information
+    # for issue auto-assignment
+    # This command can fail with "fatal: --unshallow on a complete repository does not make sense" 
+    # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
+    # For this reason errors are ignored with "|| true"
+    git fetch --unshallow || true
+  
     # Do not deploy a SNAPSHOT version but the release version related to this build
     set_maven_build_version $TRAVIS_BUILD_NUMBER
 
