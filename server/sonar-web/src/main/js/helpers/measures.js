@@ -370,7 +370,7 @@ function shortDurationVariationFormatter (value) {
 
 
 let maintainabilityRatingGrid;
-export function getMaintainabilityRatingGrid () {
+function getMaintainabilityRatingGrid () {
   if (maintainabilityRatingGrid) {
     return maintainabilityRatingGrid;
   }
@@ -387,4 +387,31 @@ export function getMaintainabilityRatingGrid () {
   }
 
   return maintainabilityRatingGrid;
+}
+
+function getMaintainabilityRatingTooltip (rating) {
+  const maintainabilityGrid = getMaintainabilityRatingGrid();
+  const maintainabilityRatingThreshold =
+      maintainabilityGrid[Math.floor(rating) - 2];
+
+  if (rating < 2) {
+    return translateWithParameters(
+        'metric.sqale_rating.tooltip.A',
+        `${maintainabilityGrid[0]}%`);
+  }
+
+  const ratingLetter = formatMeasure(rating, 'RATING');
+
+  return translateWithParameters(
+      'metric.sqale_rating.tooltip',
+      ratingLetter,
+      `${maintainabilityRatingThreshold}%`);
+}
+
+export function getRatingTooltip (metricKey, value) {
+  const ratingLetter = formatMeasure(value, 'RATING');
+
+  return metricKey === 'sqale_rating' ?
+      getMaintainabilityRatingTooltip(value) :
+      translate('metric', metricKey, 'tooltip', ratingLetter);
 }

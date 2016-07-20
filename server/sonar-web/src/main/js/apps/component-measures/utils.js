@@ -18,7 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import bubbles from './config/bubbles';
-import { formatMeasure, formatMeasureVariation } from '../../helpers/measures';
+import {
+    formatMeasure,
+    formatMeasureVariation,
+    getRatingTooltip as nextGetRatingTooltip
+} from '../../helpers/measures';
 
 export function isDiffMetric (metric) {
   return metric.key.indexOf('new_') === 0;
@@ -112,4 +116,12 @@ export function hasTreemap (metric) {
 
 export function filterOutEmptyMeasures (components) {
   return components.filter(component => component.value !== null || component.leak !== null);
+}
+
+export function getRatingTooltip (metricKey, value) {
+  const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
+  if (KNOWN_RATINGS.includes(metricKey)) {
+    return nextGetRatingTooltip(metricKey, value);
+  }
+  return null;
 }
