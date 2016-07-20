@@ -24,20 +24,6 @@ class UsersController < ApplicationController
   before_filter :admin_required, :except => ['new', 'signup', 'autocomplete']
   skip_before_filter :check_authentication, :only => ['new', 'signup', 'autocomplete']
 
-  def create
-    return unless request.post?
-
-    call_backend do
-      isUserReactivated = Internal.users_api.create(params[:user])
-      if !isUserReactivated
-        flash[:notice] = 'User is created.'
-      else
-        flash[:notice] = Api::Utils.message('user.reactivated', :params => params[:user][:login])
-      end
-      render :text => 'ok', :status => 200
-    end
-  end
-
   def signup
     access_denied unless request.post? && Property.value('sonar.allowUsersToSignUp')=='true'
 
