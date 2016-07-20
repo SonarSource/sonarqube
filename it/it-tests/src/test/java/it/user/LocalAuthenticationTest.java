@@ -86,6 +86,8 @@ public class LocalAuthenticationTest {
     userRule.createUser(LOGIN, "123456");
     addUserPermission(LOGIN, "admin");
     addUserPermission(LOGIN, "scan");
+
+    userRule.createUser("simple-user", "password");
   }
 
   @AfterClass
@@ -204,18 +206,18 @@ public class LocalAuthenticationTest {
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("authentication",
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
+      "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html",
+      "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
       // SONAR-2132
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
       // SONAR-2009
-      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html"
-      ).build()).runOn(ORCHESTRATOR);
+      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html").build()).runOn(ORCHESTRATOR);
 
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("force-authentication",
       // SONAR-3473
-      "/user/LocalAuthenticationTest/force-authentication.html"
-      ).build()).runOn(ORCHESTRATOR);
+      "/user/LocalAuthenticationTest/force-authentication.html").build()).runOn(ORCHESTRATOR);
   }
 
   @Test
@@ -238,19 +240,19 @@ public class LocalAuthenticationTest {
    */
   @Test
   public void authentication_with_any_ws() throws Exception {
-    assertThat(checkAuthenticationWithAnyWebService("admin", "admin").code()).isEqualTo(200);
-    assertThat(checkAuthenticationWithAnyWebService("wrong", "admin").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService("admin", "wrong").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService("admin", null).code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService(null, null).code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWS("admin", "admin").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWS("wrong", "admin").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("admin", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("admin", null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(200);
 
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
-    assertThat(checkAuthenticationWithAnyWebService("admin", "admin").code()).isEqualTo(200);
-    assertThat(checkAuthenticationWithAnyWebService("wrong", "admin").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService("admin", "wrong").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService("admin", null).code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWebService(null, null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("admin", "admin").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWS("wrong", "admin").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("admin", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("admin", null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(401);
   }
 
   private boolean checkAuthenticationWithAuthenticateWebService(String login, String password) {
@@ -258,7 +260,7 @@ public class LocalAuthenticationTest {
     return result.contains("{\"valid\":true}");
   }
 
-  private WsResponse checkAuthenticationWithAnyWebService(String login, String password) {
+  private WsResponse checkAuthenticationWithAnyWS(String login, String password) {
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
     // Call any WS
     return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
