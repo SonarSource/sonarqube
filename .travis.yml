@@ -2,17 +2,23 @@ language: java
 sudo: false
 install: true
 jdk: oraclejdk8
+addons:
+  sonarqube: true
 script: ./travis.sh
 
 env:
-  - TARGET=CI
-  - TARGET=IT IT_CATEGORY=Category1
-  - TARGET=IT IT_CATEGORY=Category2
-  - TARGET=IT IT_CATEGORY=Category3
-  - TARGET=IT IT_CATEGORY=Category4
-  - TARGET=IT IT_CATEGORY=Category5
-  - TARGET=WEB
-
+  matrix:
+    - TARGET=CI
+    - TARGET=IT IT_CATEGORY=Category1
+    - TARGET=IT IT_CATEGORY=Category2
+    - TARGET=IT IT_CATEGORY=Category3
+    - TARGET=IT IT_CATEGORY=Category4
+    - TARGET=IT IT_CATEGORY=Category5
+    - TARGET=WEB
+    - TARGET=SQ_COM
+  global:
+    # Token for SonarQube.com analysis
+    secure: Lz6LjxvQiAzCa/c2e0iHk24fvzr/hogaz1fA5UNjClHqZJWye0MumjXau5PvjyY8pqSqtg7hVKpXoQuGm+uq2NwGs26TGdxFA6vB/IiMpIOc+wmqt37zdXlvUteSXRzUi8qxLGSpiMuRiwNCxg4SkB27v9bwHk7ES1CtdWmNZvCSDmAibsxscKxhZffi6uotm//NQNhI2YfkwOWAQJaUCwg+n5hv+WMOrH35RZlFAv0TAxKUtczaVdkKMjKin2lE8Pe7WFH0fVhkqRTDtfxJp+t0zFrs8eZUWObZJBtwGVDbrBkDlkhvoDP+OyUkKQWMOx1JKmyMYF6TA7GiHyZC9nySpLf3bGIDwKPyQpb+CmbHqF37ePCSKw6Osj3las68ArfWGp5pg4Q8YwPyi7VAcXB2kB+MKBak9GUmHC+qeCARIEr8R1epqXigPsF0MV/UZXXHOhrTZS8X6UWwSGTqRjvUHY+8mf+TagOtOgJIYCcgkcy6/uyojwkxqu/o75DzS+aQawzBovetw3mQh4+xOl7PF6KlE9ZXlXGs5jp3fd8MbxOd3jvufTeEAUNVqsdnL7juaT5OKJdl7wMUcOIXEn/8bBKS+6Txx0yys9LdwojMHVkTuUuZOA68eIOMZf3WbtoRKWZSdjxcnjVWqDSUwQG1sejLSyYrelxNcguxwCc=
 
 matrix:
   fast_finish: true

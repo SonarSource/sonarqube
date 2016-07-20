@@ -91,6 +91,16 @@ IT)
   ./run-integration-tests.sh "$IT_CATEGORY" "" -Dmaven.test.redirectTestOutputToFile=false -Dexclude-qa-tests=true
   ;;
 
+SQ_COM)
+  if [ "${TRAVIS_BRANCH}" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    strongEcho 'Analysis on SonarQube.com'
+
+    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar \
+       -B -e -V \
+       -Dsonar.login=$SONARQUBE_TOKEN
+  fi
+  ;;
+
 *)
   echo "Unexpected TARGET value: $TARGET"
   exit 1
