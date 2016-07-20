@@ -26,8 +26,10 @@ import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.Condition.text;
 import static util.ItUtils.projectDir;
 
 public class ProjectOverviewTest {
@@ -51,10 +53,11 @@ public class ProjectOverviewTest {
   }
 
   @Test
-  public void should_display_a_nice_error_when_requesting_unknown_project() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_a_nice_error_when_requesting_unknown_project",
-      "/measure/ProjectOverviewTest/should-display-nice-error-on-unknown-project.html").build();
-    orchestrator.executeSelenese(selenese);
+  public void display_a_nice_error_when_requesting_unknown_project() {
+    Navigation nav = Navigation.get(orchestrator);
+    nav.open("/dashboard/index?id=unknown");
+    nav.getErrorMessage().should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
+    // TODO verify that on global homepage
   }
 
   private void executeBuild(String projectLocation, String projectKey, String projectName) {

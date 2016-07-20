@@ -17,41 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.ui;
+package it.user;
 
+import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
-import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
+import pageobjects.LoginPage;
 import pageobjects.Navigation;
-import util.ItUtils;
 
-import static com.codeborne.selenide.Condition.hasText;
-
-public class UiTest {
+public class AuthenticationTest {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
 
   @Test
-  public void footer_contains_information() {
-    nav.getFooter()
-      .should(hasText("Documentation"))
-      .should(hasText("SonarSource SA"));
+  public void log_in_with_correct_credentials_then_log_out() {
+    nav.shouldNotBeLoggedIn();
+
+    Navigation page = nav.logIn().submitCredentials("admin", "admin");
+    page.getRightBar().shouldHave(Condition.text("Administrator"));
+    nav.shouldBeLoggedIn();
+
+    nav.logOut();
+    nav.shouldNotBeLoggedIn();
   }
 
   @Test
-  public void footer_contains_version() {
-    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/system/status"));
-    Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
+  public void log_in_with_wrong_credentials() {
+    LoginPage page = nav
+      .logIn()
+      .submitWrongCredentials("admin", "wrong");
+    page.getErrorMessage().shouldHave(Condition.text("Authentication failed"));
 
-    nav.getFooter().should(hasText((String) statusMap.get("version")));
+    nav.openHomepage();
+    nav.shouldNotBeLoggedIn();
   }
 }

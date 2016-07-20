@@ -24,6 +24,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -31,10 +33,12 @@ import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -280,18 +284,24 @@ public class ItUtils {
   public static List<String> extractCeTaskIds(BuildResult buildResult) {
     String logs = buildResult.getLogs();
     return from(LINE_SPLITTER.split(logs))
-        .filter(new Predicate<String>() {
-          @Override
-          public boolean apply(String s) {
-            return s.contains("More about the report processing at");
-          }
-        }).transform(new Function<String, String>() {
-          @Nullable
-          @Override
-          public String apply(String s) {
-            return s.substring(s.length() - 20, s.length());
-          }
-        }).toList();
+      .filter(new Predicate<String>() {
+        @Override
+        public boolean apply(String s) {
+          return s.contains("More about the report processing at");
+        }
+      }).transform(new Function<String, String>() {
+        @Nullable
+        @Override
+        public String apply(String s) {
+          return s.substring(s.length() - 20, s.length());
+        }
+      }).toList();
   }
 
+  public static Map<String, Object> jsonToMap(String json) {
+    Gson gson = new Gson();
+    Type type = new TypeToken<Map<String, Object>>() {
+    }.getType();
+    return gson.fromJson(json, type);
+  }
 }

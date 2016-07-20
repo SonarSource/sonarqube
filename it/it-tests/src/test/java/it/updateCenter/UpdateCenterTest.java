@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.UpdateCenterQuery;
 import util.selenium.SeleneseTest;

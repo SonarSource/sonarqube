@@ -2,6 +2,20 @@
 
 set -euo pipefail
 
+function installPhantomJs {
+  echo "Setup PhantomJS 2.1"
+  mkdir -p ~/phantomjs
+  pushd ~/phantomjs > /dev/null
+  if [ ! -d "phantomjs-2.1.1-linux-x86_64" ]; then
+    wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O phantomjs-2.1.1-linux-x86_64.tar.bz2
+    tar -xf phantomjs-2.1.1-linux-x86_64.tar.bz2
+    rm phantomjs-2.1.1-linux-x86_64.tar.bz2
+  fi
+  popd > /dev/null
+  export PHANTOMJS_HOME=~/phantomjs/phantomjs-2.1.1-linux-x86_64
+  export PATH=$PHANTOMJS_HOME/bin:$PATH
+}
+
 function configureTravis {
   mkdir ~/.local
   curl -sSL https://github.com/SonarSource/travis-utils/tarball/v31 | tar zx --strip-components 1 -C ~/.local
@@ -19,6 +33,14 @@ CI)
   INITIAL_VERSION=`maven_expression "project.version"`
   if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
     set_maven_build_version $TRAVIS_BUILD_NUMBER
+  fi
+
+  if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
+    echo "======= Found SNAPSHOT version ======="
+    # Do not deploy a SNAPSHOT version but the release version related to this build
+    set_maven_build_version $TRAVIS_BUILD_NUMBER
+  else
+    echo "======= Found RELEASE version ======="
   fi
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -68,7 +90,9 @@ CI)
         -Dsource.skip=true
   fi
 
-  ./run-integration-tests.sh "Lite" ""
+
+  installPhantomJs
+  ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs
   ;;
 
 WEB)

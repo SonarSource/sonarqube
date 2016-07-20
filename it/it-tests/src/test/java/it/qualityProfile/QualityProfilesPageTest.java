@@ -19,16 +19,23 @@
  */
 package it.qualityProfile;
 
+import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
-import org.junit.*;
-import org.junit.experimental.categories.Category;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -82,9 +89,9 @@ public class QualityProfilesPageTest {
 
   @Test
   public void testNotFound() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_not_found",
-      "/qualityProfile/QualityProfilesPageTest/not_found.html").build();
-    orchestrator.executeSelenese(selenese);
+    Navigation nav = Navigation.get(orchestrator);
+    nav.open("/profiles/show?key=unknown");
+    $(".quality-profile-not-found").should(Condition.visible);
   }
 
   @Test

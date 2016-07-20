@@ -37,6 +37,7 @@ import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.ServerSystemTest;
 import it.ui.UiTest;
 import it.uiExtension.UiExtensionsTest;
+import it.user.AuthenticationTest;
 import it.user.BaseIdentityProviderTest;
 import it.user.FavouriteTest;
 import it.user.ForceAuthenticationTest;
@@ -60,6 +61,7 @@ import static util.ItUtils.xooPlugin;
   MyAccountPageTest.class,
   FavouriteTest.class,
   // authentication
+  AuthenticationTest.class,
   ForceAuthenticationTest.class,
   LocalAuthenticationTest.class,
   BaseIdentityProviderTest.class,

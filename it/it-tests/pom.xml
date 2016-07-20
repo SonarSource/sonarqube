@@ -45,6 +45,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.codeborne</groupId>
+      <artifactId>selenide</artifactId>
+      <version>3.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>18.0</version>
@@ -116,7 +122,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-Xmx128m -Dsonar.runtimeVersion=${project.version} -Dmaven.localRepository=${settings.localRepository}</argLine>
+          <argLine>-Xmx128m -Dsonar.runtimeVersion=${project.version}
+            -Dmaven.localRepository=${settings.localRepository}
+          </argLine>
           <skipTests>${skipIts}</skipTests>
           <includes>
             <include>*/${category}Suite.java</include>
