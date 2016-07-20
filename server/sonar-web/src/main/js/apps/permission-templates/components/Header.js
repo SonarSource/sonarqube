@@ -28,6 +28,10 @@ export default class Header extends React.Component {
     refresh: CallbackType
   };
 
+  static contextTypes = {
+    router: React.PropTypes.object
+  };
+
   componentWillMount () {
     this.handleCreateClick = this.handleCreateClick.bind(this);
   }
@@ -35,9 +39,16 @@ export default class Header extends React.Component {
   handleCreateClick (e) {
     e.preventDefault();
 
-    new CreateView({
-      refresh: this.props.refresh
-    }).render();
+    new CreateView()
+        .on('done', r => {
+          this.props.refresh().then(() => {
+            this.context.router.push({
+              pathname: '/',
+              query: { id: r.permissionTemplate.id }
+            })
+          });
+        })
+        .render();
   }
 
   render () {
