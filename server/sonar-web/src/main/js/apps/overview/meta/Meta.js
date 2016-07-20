@@ -34,7 +34,7 @@ const Meta = ({ component }) => {
 
   const hasDescription = !!description;
   const hasLinks = Array.isArray(links) && !!links.length;
-  const hasQualityProfiles = Array.isArray(profiles) && profiles.length;
+  const hasQualityProfiles = Array.isArray(profiles) && profiles.length > 0;
   const hasQualityGate = !!gate;
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
