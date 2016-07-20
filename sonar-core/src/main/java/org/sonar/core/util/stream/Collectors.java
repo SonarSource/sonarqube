@@ -19,6 +19,7 @@
  */
 package org.sonar.core.util.stream;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -321,5 +322,27 @@ public final class Collectors {
       accumulator,
       merger,
       ImmutableListMultimap.Builder::build);
+  }
+
+  /**
+   * Applies the specified {@link Joiner} to the current stream.
+   *
+   * @throws NullPointerException of {@code joiner} is {@code null}
+   * @throws IllegalStateException if a merge operation happens because parallel processing has been enabled on the current stream
+   */
+  public static <E> Collector<E, List<E>, String> join(Joiner joiner) {
+    requireNonNull(joiner, "Joiner can't be null");
+
+    return Collector.of(
+      ArrayList::new,
+      List::add,
+      mergeNotSupportedMerger(),
+      joiner::join);
+  }
+
+  private static <R> BinaryOperator<R> mergeNotSupportedMerger() {
+    return (m1, m2) -> {
+      throw new IllegalStateException("Parallel processing is not supported");
+    };
   }
 }

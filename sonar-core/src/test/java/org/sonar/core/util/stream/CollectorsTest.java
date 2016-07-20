@@ -19,6 +19,7 @@
  */
 package org.sonar.core.util.stream;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.core.util.stream.Collectors.index;
+import static org.sonar.core.util.stream.Collectors.join;
 import static org.sonar.core.util.stream.Collectors.toArrayList;
 import static org.sonar.core.util.stream.Collectors.toHashSet;
 import static org.sonar.core.util.stream.Collectors.toList;
@@ -349,6 +351,34 @@ public class CollectorsTest {
 
     assertThat(multimap).hasSize(3);
     assertThat(multimap).contains(entry(1, "A"), entry(2, "B"), entry(3, "C"));
+  }
+
+  @Test
+  public void join_on_empty_stream_returns_empty_string() {
+    assertThat(Collections.emptyList().stream().collect(join(Joiner.on(",")))).isEmpty();
+  }
+
+  @Test
+  public void join_fails_with_NPE_if_joiner_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Joiner can't be null");
+
+    join(null);
+  }
+
+  @Test
+  public void join_applies_joiner_to_stream() {
+    assertThat(Arrays.asList("1", "2", "3", "4").stream().collect(join(Joiner.on(","))))
+      .isEqualTo("1,2,3,4");
+  }
+
+  @Test
+  public void join_supports_null_if_joiner_does() {
+    Stream<String> stream = Arrays.asList("1", null).stream();
+
+    expectedException.expect(NullPointerException.class);
+
+    stream.collect(join(Joiner.on(",")));
   }
 
   private void expectedDuplicateKey1IAE() {
