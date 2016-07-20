@@ -21,21 +21,20 @@ package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
-import java.io.IOException;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.services.PropertyDeleteQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newWsClient;
+import static util.ItUtils.setServerProperty;
 
 @Category(QaOnly.class)
 public class ForceAuthenticationTest {
@@ -43,48 +42,43 @@ public class ForceAuthenticationTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  /**
-   * SONAR-5542
-   */
+  static WsClient wsClient;
+  static WsClient adminWsClient;
+
+  @BeforeClass
+  public static void setUp() throws Exception {
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
+    wsClient = newWsClient(orchestrator);
+    adminWsClient = newAdminWsClient(orchestrator);
+  }
+
+  @AfterClass
+  public static void tearDown() throws Exception {
+    setServerProperty(orchestrator, "sonar.forceAuthentication", null);
+  }
+
   @Test
-  public void force_authentication_should_be_used_on_java_web_services_but_not_on_batch_index_and_file() throws IOException {
-    try {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
+  public void batch_ws_does_not_require_authentication() throws Exception {
+    WsResponse batchIndex = wsClient.wsConnector().call(new GetRequest("/batch/index")).failIfNotSuccessful();
+    String batchIndexContent = batchIndex.content();
 
-      // /batch/index should never need authentication
-      String batchIndex = orchestrator.getServer().wsClient().get("/batch/index");
-      assertThat(batchIndex).isNotEmpty();
+    assertThat(batchIndexContent).isNotEmpty();
+    String jar = batchIndexContent.split("\\|")[0];
 
-      String jar = batchIndex.split("\\|")[0];
+    assertThat(wsClient.wsConnector().call(
+      new GetRequest("/batch/file").setParam("name", jar)).failIfNotSuccessful().contentStream()).isNotNull();
 
-      // /batch/file should never need authentication
-      HttpClient httpclient = new DefaultHttpClient();
-      try {
-        HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/batch/file?name=" + jar);
-        HttpResponse response = httpclient.execute(get);
-        assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-        EntityUtils.consume(response.getEntity());
+    // As sonar-runner is still using deprecated /batch/key, we have to also verify it
+    assertThat(wsClient.wsConnector().call(new GetRequest("/batch/" + jar)).failIfNotSuccessful().contentStream()).isNotNull();
+  }
 
-        // As Sonar runner is still using /batch/key, we have to also verify it
-        get = new HttpGet(orchestrator.getServer().getUrl() + "/batch/" + jar);
-        response = httpclient.execute(get);
-        assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-        EntityUtils.consume(response.getEntity());
+  @Test
+  public void other_ws_require_authentication() throws Exception {
+    assertThat(wsClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(401);
+    assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(200);
 
-      } finally {
-        httpclient.getConnectionManager().shutdown();
-      }
-
-      // but other java web services should need authentication
-      try {
-        orchestrator.getServer().wsClient().get("/api");
-      } catch (HttpException e) {
-        assertThat(e.getMessage()).contains("401");
-      }
-
-    } finally {
-      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery("sonar.forceAuthentication"));
-    }
+    assertThat(wsClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(401);
+    assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(200);
   }
 
 }

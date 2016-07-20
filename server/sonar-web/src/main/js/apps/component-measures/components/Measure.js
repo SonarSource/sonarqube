@@ -18,17 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Rating from '../../../components/ui/Rating';
 import Level from '../../../components/ui/Level';
 import { formatMeasure } from '../../../helpers/measures';
-import { formatLeak, isDiffMetric } from '../utils';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import { formatLeak, isDiffMetric, getRatingTooltip } from '../utils';
 
 const Measure = ({ measure, metric }) => {
   const finalMetric = metric || measure.metric;
 
   if (finalMetric.type === 'RATING') {
-    return <Rating value={measure.value}/>;
+    const tooltip = getRatingTooltip(finalMetric.key, measure.value);
+    const rating = <Rating value={measure.value}/>;
+    if (tooltip) {
+      return (
+          <TooltipsContainer>
+            <span>
+              <span title={tooltip} data-toggle="tooltip">
+                {rating}
+              </span>
+            </span>
+          </TooltipsContainer>
+      );
+    }
+    return rating;
   }
 
   if (finalMetric.type === 'LEVEL') {

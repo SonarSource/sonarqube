@@ -22,7 +22,13 @@
 <form id="login_form" action="<%= ApplicationController.root_context -%>/api/authentication/login" method="post">
   <input type="hidden" name="return_to_anchor" value="<%= h @return_to_anchor %>">
 
-  <div class="alert alert-danger hidden"><%= message('session.flash_notice.authentication_failed') %></div>
+  <div class="alert alert-danger alert-authentication-failed hidden"><%= message('session.flash_notice.authentication_failed') %></div>
+  <% if flash[:loginerror] %>
+    <div class="alert alert-danger alert-flash"> <%= flash[:loginerror] %></div>
+  <% end %>
+  <% if flash[:notice] %>
+    <div class="alert alert-info alert-flash"><%= flash[:notice] %></div>
+  <% end %>
 
   <div class="big-spacer-bottom">
     <label for="login" class="login-label"><%= message('login') %></label>
@@ -62,7 +68,8 @@
         window.location = '<%= h(@return_to) -%>' + $('[name="return_to_anchor"]').val();
       },
       error: function () {
-        $('.alert').removeClass('hidden');
+        $('.alert-flash').addClass('hidden');
+        $('.alert-authentication-failed').removeClass('hidden');
         $('button').prop('disabled', false);
       },
       statusCode: {
