@@ -22,7 +22,6 @@ package org.sonar.server.computation.analysis;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.server.computation.snapshot.Snapshot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +30,7 @@ public class AnalysisMetadataHolderImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  static Snapshot BASE_PROJECT_SNAPSHOT = new Snapshot.Builder()
+  static Analysis baseProjectAnalysis = new Analysis.Builder()
     .setId(1)
     .setUuid("uuid_1")
     .setCreatedAt(123456789L)
@@ -79,7 +78,7 @@ public class AnalysisMetadataHolderImplTest {
   public void isFirstAnalysis_return_false() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
+    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
     assertThat(underTest.isFirstAnalysis()).isFalse();
   }
 
@@ -102,11 +101,11 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBaseProjectSnapshot_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
+    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Base project snapshot has already been set");
-    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
+    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
   }
 
   @Test

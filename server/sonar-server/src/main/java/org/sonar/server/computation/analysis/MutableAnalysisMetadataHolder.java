@@ -22,7 +22,6 @@ package org.sonar.server.computation.analysis;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
@@ -37,9 +36,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   MutableAnalysisMetadataHolder setAnalysisDate(long date);
 
   /**
-   * @throws IllegalStateException if baseProjectSnapshot has already been set
+   * @throws IllegalStateException if baseProjectAnalysis has already been set
    */
-  MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot);
+  MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis);
 
   /**
    * @throws IllegalStateException if cross project duplication flag has already been set

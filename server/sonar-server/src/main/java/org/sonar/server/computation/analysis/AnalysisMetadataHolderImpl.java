@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -35,7 +34,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private final InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
+  private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
 
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
@@ -77,15 +76,15 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
     checkState(!this.baseProjectSnapshot.isInitialized(), "Base project snapshot has already been set");
-    this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
+    this.baseProjectSnapshot.setProperty(baseProjectAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Snapshot getBaseProjectSnapshot() {
+  public Analysis getBaseProjectSnapshot() {
     checkState(baseProjectSnapshot.isInitialized(), "Base project snapshot has not been set");
     return baseProjectSnapshot.getProperty();
   }

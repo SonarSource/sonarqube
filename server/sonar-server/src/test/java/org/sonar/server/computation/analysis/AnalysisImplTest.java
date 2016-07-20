@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.snapshot;
+package org.sonar.server.computation.analysis;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SnapshotImplTest {
+public class AnalysisImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -36,15 +36,15 @@ public class SnapshotImplTest {
 
   @Test
   public void build_snapshot() throws Exception {
-    Snapshot snapshot = new Snapshot.Builder()
+    Analysis analysis = new Analysis.Builder()
       .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
 
-    assertThat(snapshot.getId()).isEqualTo(ID);
-    assertThat(snapshot.getUuid()).isEqualTo(UUID);
-    assertThat(snapshot.getCreatedAt()).isEqualTo(CREATED_AT);
+    assertThat(analysis.getId()).isEqualTo(ID);
+    assertThat(analysis.getUuid()).isEqualTo(UUID);
+    assertThat(analysis.getCreatedAt()).isEqualTo(CREATED_AT);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class SnapshotImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("id cannot be null");
 
-    new Snapshot.Builder()
+    new Analysis.Builder()
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
@@ -63,7 +63,7 @@ public class SnapshotImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("uuid cannot be null");
 
-    new Snapshot.Builder()
+    new Analysis.Builder()
       .setId(ID)
       .setCreatedAt(CREATED_AT)
       .build();
@@ -74,7 +74,7 @@ public class SnapshotImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("createdAt cannot be null");
 
-    new Snapshot.Builder()
+    new Analysis.Builder()
       .setId(ID)
       .setUuid(UUID)
       .build();
@@ -82,46 +82,46 @@ public class SnapshotImplTest {
 
   @Test
   public void test_toString() throws Exception {
-    assertThat(new Snapshot.Builder()
+    assertThat(new Analysis.Builder()
       .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build().toString())
-        .isEqualTo("Snapshot{id=10, uuid='uuid ', createdAt=123456789}");
+        .isEqualTo("Analysis{id=10, uuid='uuid ', createdAt=123456789}");
   }
 
   @Test
   public void test_equals_and_hascode() throws Exception {
-    Snapshot snapshot = new Snapshot.Builder()
+    Analysis analysis = new Analysis.Builder()
       .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
-    Snapshot sameSnapshot = new Snapshot.Builder()
+    Analysis sameAnalysis = new Analysis.Builder()
       .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
-    Snapshot sameSnapshotNotSameUuid = new Snapshot.Builder()
+    Analysis sameAnalysisNotSameUuid = new Analysis.Builder()
       .setId(ID)
       .setUuid("other uuid")
       .setCreatedAt(CREATED_AT)
       .build();
-    Snapshot otherSnapshot = new Snapshot.Builder()
+    Analysis otherAnalysis = new Analysis.Builder()
       .setId(11L)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
 
-    assertThat(snapshot).isEqualTo(snapshot);
-    assertThat(snapshot).isEqualTo(sameSnapshot);
-    assertThat(snapshot).isEqualTo(sameSnapshotNotSameUuid);
-    assertThat(snapshot).isNotEqualTo(otherSnapshot);
-    assertThat(snapshot).isNotEqualTo(null);
+    assertThat(analysis).isEqualTo(analysis);
+    assertThat(analysis).isEqualTo(sameAnalysis);
+    assertThat(analysis).isEqualTo(sameAnalysisNotSameUuid);
+    assertThat(analysis).isNotEqualTo(otherAnalysis);
+    assertThat(analysis).isNotEqualTo(null);
 
-    assertThat(snapshot.hashCode()).isEqualTo(snapshot.hashCode());
-    assertThat(snapshot.hashCode()).isEqualTo(sameSnapshot.hashCode());
-    assertThat(snapshot.hashCode()).isEqualTo(sameSnapshotNotSameUuid.hashCode());
-    assertThat(snapshot.hashCode()).isNotEqualTo(otherSnapshot.hashCode());
+    assertThat(analysis.hashCode()).isEqualTo(analysis.hashCode());
+    assertThat(analysis.hashCode()).isEqualTo(sameAnalysis.hashCode());
+    assertThat(analysis.hashCode()).isEqualTo(sameAnalysisNotSameUuid.hashCode());
+    assertThat(analysis.hashCode()).isNotEqualTo(otherAnalysis.hashCode());
   }
 }

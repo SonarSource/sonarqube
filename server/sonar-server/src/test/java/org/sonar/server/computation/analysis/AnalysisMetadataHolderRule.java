@@ -25,7 +25,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -37,7 +36,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private final InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
+  private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
 
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
@@ -85,14 +84,14 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public AnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
-    this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
+  public AnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
+    this.baseProjectSnapshot.setProperty(baseProjectAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Snapshot getBaseProjectSnapshot() {
+  public Analysis getBaseProjectSnapshot() {
     checkState(baseProjectSnapshot.isInitialized(), "Base project snapshot has not been set");
     return baseProjectSnapshot.getProperty();
   }

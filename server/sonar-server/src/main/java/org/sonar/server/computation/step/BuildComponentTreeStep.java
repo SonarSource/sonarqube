@@ -34,7 +34,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.UuidFactory;
-import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.analysis.Analysis;
 
 import static com.google.common.collect.Iterables.toArray;
 import static org.sonar.server.computation.component.ComponentImpl.builder;
@@ -73,15 +73,15 @@ public class BuildComponentTreeStep implements ComputationStep {
         new SnapshotQuery()
           .setComponentUuid(projectUuid)
           .setIsLast(true));
-      analysisMetadataHolder.setBaseProjectSnapshot(toSnapshot(snapshotDto));
+      analysisMetadataHolder.setBaseProjectSnapshot(toAnalysis(snapshotDto));
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
   @CheckForNull
-  private static Snapshot toSnapshot(@Nullable SnapshotDto snapshotDto) {
-    return snapshotDto == null ? null : new Snapshot.Builder()
+  private static Analysis toAnalysis(@Nullable SnapshotDto snapshotDto) {
+    return snapshotDto == null ? null : new Analysis.Builder()
       .setId(snapshotDto.getId())
       .setUuid(snapshotDto.getUuid())
       .setCreatedAt(snapshotDto.getCreatedAt())

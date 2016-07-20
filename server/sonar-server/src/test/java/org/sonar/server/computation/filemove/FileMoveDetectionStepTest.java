@@ -47,7 +47,7 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.analysis.Analysis;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 
 import static com.google.common.base.Joiner.on;
@@ -65,7 +65,7 @@ import static org.sonar.server.computation.component.ReportComponent.builder;
 public class FileMoveDetectionStepTest {
 
   private static final long SNAPSHOT_ID = 98765;
-  private static final Snapshot SNAPSHOT = new Snapshot.Builder()
+  private static final Analysis ANALYSIS = new Analysis.Builder()
     .setId(SNAPSHOT_ID)
     .setUuid("uuid_1")
     .setCreatedAt(86521)
@@ -258,7 +258,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_baseSnapshot_has_no_file_and_report_has_no_file() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
 
     underTest.execute();
 
@@ -267,7 +267,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_baseSnapshot_has_no_file() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     setFilesInReport(FILE_1, FILE_2);
 
     underTest.execute();
@@ -277,7 +277,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_retrieves_only_file_and_unit_tests_from_last_snapshot() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     ArgumentCaptor<ComponentTreeQuery> captor = ArgumentCaptor.forClass(ComponentTreeQuery.class);
     when(componentDao.selectDescendants(eq(dbSession), captor.capture()))
       .thenReturn(Collections.emptyList());
@@ -294,7 +294,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_there_is_no_file_in_report() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents( /* no components */);
     setFilesInReport();
 
@@ -305,7 +305,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_file_key_exists_in_both_DB_and_report() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey(), FILE_2.getKey());
     setFilesInReport(FILE_2, FILE_1);
 
@@ -316,7 +316,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     ComponentDto[] dtos = mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
@@ -333,7 +333,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
@@ -346,7 +346,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
     setFilesInReport(FILE_2);
@@ -359,7 +359,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
@@ -372,7 +372,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2, FILE_3);
@@ -386,7 +386,7 @@ public class FileMoveDetectionStepTest {
 
   @Test
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey(), FILE_2.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     mockContentOfFileInDb(FILE_2.getKey(), CONTENT1);
@@ -405,7 +405,7 @@ public class FileMoveDetectionStepTest {
     // - file2 deleted
     // - file4 untouched
     // - file5 renamed to file6 with a small change
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     Component file4 = fileComponent(5);
     Component file5 = fileComponent(6);
     Component file6 = fileComponent(7);
@@ -437,7 +437,7 @@ public class FileMoveDetectionStepTest {
    */
   @Test
   public void real_life_use_case() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     List<String> componentDtoKey = new ArrayList<>();
     for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/filemove/FileMoveDetectionStepTest/v1"), null, false)) {
       componentDtoKey.add(f.getName());

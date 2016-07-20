@@ -50,7 +50,7 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.filemove.FileSimilarity.File;
-import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.analysis.Analysis;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.computation.step.ComputationStep;
 
@@ -92,8 +92,8 @@ public class FileMoveDetectionStep implements ComputationStep {
   @Override
   public void execute() {
     // do nothing if no files in db (first analysis)
-    Snapshot baseProjectSnapshot = analysisMetadataHolder.getBaseProjectSnapshot();
-    if (baseProjectSnapshot == null) {
+    Analysis baseProjectAnalysis = analysisMetadataHolder.getBaseProjectSnapshot();
+    if (baseProjectAnalysis == null) {
       LOG.debug("First analysis. Do nothing.");
       return;
     }

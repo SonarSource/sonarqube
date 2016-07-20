@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.snapshot;
+package org.sonar.server.computation.analysis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -26,13 +26,13 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public class Snapshot {
+public class Analysis {
 
   private long id;
   private String uuid;
   private long createdAt;
 
-  private Snapshot(Builder builder) {
+  private Analysis(Builder builder) {
     this.id = builder.id;
     this.uuid = builder.uuid;
     this.createdAt = builder.createdAt;
@@ -73,11 +73,11 @@ public class Snapshot {
       return this;
     }
 
-    public Snapshot build() {
+    public Analysis build() {
       checkNotNull(id, "id cannot be null");
       checkNotNull(uuid, "uuid cannot be null");
       checkNotNull(createdAt, "createdAt cannot be null");
-      return new Snapshot(this);
+      return new Analysis(this);
     }
   }
 
@@ -90,8 +90,8 @@ public class Snapshot {
       return false;
     }
 
-    Snapshot snapshot = (Snapshot) o;
-    return id == snapshot.id;
+    Analysis analysis = (Analysis) o;
+    return id == analysis.id;
   }
 
   @Override
@@ -101,7 +101,7 @@ public class Snapshot {
 
   @Override
   public String toString() {
-    return "Snapshot{" +
+    return "Analysis{" +
       "id=" + id +
       ", uuid='" + uuid + '\'' +
       ", createdAt=" + createdAt +

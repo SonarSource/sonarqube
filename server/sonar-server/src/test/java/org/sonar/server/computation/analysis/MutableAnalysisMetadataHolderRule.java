@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.computation.snapshot.Snapshot;
 
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
@@ -61,14 +60,14 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public MutableAnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
-    delegate.setBaseProjectSnapshot(baseProjectSnapshot);
+  public MutableAnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
+    delegate.setBaseProjectSnapshot(baseProjectAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Snapshot getBaseProjectSnapshot() {
+  public Analysis getBaseProjectSnapshot() {
     return delegate.getBaseProjectSnapshot();
   }
 

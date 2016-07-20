@@ -50,7 +50,7 @@ import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
-import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.analysis.Analysis;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +100,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   IntegrateCrossProjectDuplications integrateCrossProjectDuplications = mock(IntegrateCrossProjectDuplications.class);
 
-  Snapshot baseProjectSnapshot;
+  Analysis baseProjectAnalysis;
 
   ComputationStep underTest = new LoadCrossProjectDuplicationsRepositoryStep(treeRootHolder, batchReportReader, analysisMetadataHolder, crossProjectDuplicationStatusHolder,
     integrateCrossProjectDuplications, dbClient);
@@ -113,7 +113,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.snapshotDao().insert(dbSession, projectSnapshot);
     dbSession.commit();
 
-    baseProjectSnapshot = new Snapshot.Builder()
+    baseProjectAnalysis = new Analysis.Builder()
       .setId(projectSnapshot.getId())
       .setUuid(projectSnapshot.getUuid())
       .setCreatedAt(projectSnapshot.getCreatedAt())
@@ -123,7 +123,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void call_compute_cpd_on_one_duplication() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -173,7 +173,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void call_compute_cpd_on_many_duplication() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -261,7 +261,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_cross_project_duplication_is_disabled() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -296,7 +296,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_no_cpd_text_blocks_found() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
 
     batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
 
@@ -308,7 +308,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
 
     ScannerReport.CpdTextBlock originBlock = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")

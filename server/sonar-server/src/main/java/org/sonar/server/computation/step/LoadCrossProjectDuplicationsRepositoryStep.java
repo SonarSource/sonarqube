@@ -40,7 +40,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
-import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.analysis.Analysis;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
@@ -117,8 +117,8 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     private List<DuplicationUnitDto> selectDuplicates(Component file, Collection<String> hashes) {
       DbSession dbSession = dbClient.openSession(false);
       try {
-        Snapshot projectSnapshot = analysisMetadataHolder.getBaseProjectSnapshot();
-        String analysisUuid = projectSnapshot == null ? null : projectSnapshot.getUuid();
+        Analysis projectAnalysis = analysisMetadataHolder.getBaseProjectSnapshot();
+        String analysisUuid = projectAnalysis == null ? null : projectAnalysis.getUuid();
         return dbClient.duplicationDao().selectCandidates(dbSession, analysisUuid, file.getFileAttributes().getLanguageKey(), hashes);
       } finally {
         dbClient.closeSession(dbSession);

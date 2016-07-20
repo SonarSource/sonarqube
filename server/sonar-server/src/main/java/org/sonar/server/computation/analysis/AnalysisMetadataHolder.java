@@ -22,7 +22,6 @@ package org.sonar.server.computation.analysis;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface AnalysisMetadataHolder {
 
@@ -51,7 +50,7 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   @CheckForNull
-  Snapshot getBaseProjectSnapshot();
+  Analysis getBaseProjectSnapshot();
 
   /**
    * @throws IllegalStateException if cross project duplication flag has not been set
