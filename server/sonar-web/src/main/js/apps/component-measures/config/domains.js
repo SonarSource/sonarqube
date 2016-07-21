@@ -180,7 +180,8 @@ export const domains = {
 
   'Releasability': {
     main: [
-      'alert_status'
+      'alert_status',
+      'releasability_rating'
     ],
     order: [
       'alert_status'
