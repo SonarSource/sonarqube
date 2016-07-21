@@ -20,7 +20,6 @@
 package org.sonar.db;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,6 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.GuavaCollectors;
 import org.sonar.db.dialect.Oracle;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,7 +52,6 @@ import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 import static org.sonar.db.WildcardPosition.AFTER;
 import static org.sonar.db.WildcardPosition.BEFORE;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
-
 
 public class DatabaseUtilsTest {
 
@@ -167,8 +166,8 @@ public class DatabaseUtilsTest {
   public void toUniqueAndSortedList_removes_duplicates_and_apply_natural_order_of_any_Comparable() {
     assertThat(
       toUniqueAndSortedList(asList(myComparable(2), myComparable(5), myComparable(2), myComparable(4), myComparable(-1), myComparable(10))))
-      .containsExactly(
-        myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
+        .containsExactly(
+          myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
   }
 
   private static DatabaseUtilsTest.MyComparable myComparable(int ordinal) {
@@ -256,7 +255,7 @@ public class DatabaseUtilsTest {
   }
 
   @Test
-  public void execute_large_inputs() {
+  public void executeLargeInputs() {
     List<Integer> inputs = newArrayList();
     List<String> expectedOutputs = newArrayList();
     for (int i = 0; i < 2010; i++) {
@@ -264,26 +263,18 @@ public class DatabaseUtilsTest {
       expectedOutputs.add(Integer.toString(i));
     }
 
-    List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, new Function<List<Integer>, List<String>>() {
-      @Override
-      public List<String> apply(List<Integer> input) {
-        // Check that each partition is only done on 1000 elements max
-        assertThat(input.size()).isLessThanOrEqualTo(1000);
-        return newArrayList(Iterables.transform(input, new Function<Integer, String>() {
-          @Override
-          public String apply(Integer input) {
-            return Integer.toString(input);
-          }
-        }));
-      }
+    List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
+      // Check that each partition is only done on 1000 elements max
+      assertThat(input.size()).isLessThanOrEqualTo(1000);
+      return input.stream().map(String::valueOf).collect(GuavaCollectors.toList());
     });
 
     assertThat(outputs).isEqualTo(expectedOutputs);
   }
 
   @Test
-  public void execute_large_inputs_on_empty_list() {
-    List<String> outputs = DatabaseUtils.executeLargeInputs(Collections.<Integer>emptyList(), new Function<List<Integer>, List<String>>() {
+  public void executeLargeInputs_on_empty_list() {
+    List<String> outputs = DatabaseUtils.executeLargeInputs(Collections.emptyList(), new Function<List<Integer>, List<String>>() {
       @Override
       public List<String> apply(List<Integer> input) {
         fail("No partition should be made on empty list");
@@ -292,6 +283,28 @@ public class DatabaseUtilsTest {
     });
 
     assertThat(outputs).isEmpty();
+  }
+
+  @Test
+  public void executeLargeUpdates() {
+    List<Integer> inputs = newArrayList();
+    for (int i = 0; i < 2010; i++) {
+      inputs.add(i);
+    }
+
+    List<Integer> processed = newArrayList();
+    DatabaseUtils.executeLargeUpdates(inputs, input -> {
+      assertThat(input.size()).isLessThanOrEqualTo(1000);
+      processed.addAll(input);
+    });
+    assertThat(processed).containsExactlyElementsOf(inputs);
+  }
+
+  @Test
+  public void executeLargeUpdates_on_empty_list() {
+    DatabaseUtils.executeLargeUpdates(Collections.<Integer>emptyList(), input -> {
+      fail("No partition should be made on empty list");
+    });
   }
 
   @Test

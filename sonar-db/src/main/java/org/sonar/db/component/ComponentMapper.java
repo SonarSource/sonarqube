@@ -143,10 +143,11 @@ public interface ComponentMapper {
 
   void update(ComponentUpdateDto component);
 
+  void updateBEnabledToFalse(@Param("uuids") List<String> uuids);
+
   void applyBChangesForRootComponentUuid(@Param("projectUuid") String projectUuid);
 
   void resetBChangedForRootComponentUuid(@Param("projectUuid") String projectUuid);
 
   void delete(long componentId);
-
 }

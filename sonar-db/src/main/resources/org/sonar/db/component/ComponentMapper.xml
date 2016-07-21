@@ -608,6 +608,24 @@
     uuid = #{uuid}
   </update>
 
+  <update id="updateBEnabledToFalse" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
+    update projects set
+    b_changed = ${_true},
+    b_copy_component_uuid = copy_component_uuid,
+    b_description = description,
+    b_enabled = ${_false},
+    b_language = language,
+    b_long_name = long_name,
+    b_module_uuid = module_uuid,
+    b_module_uuid_path = module_uuid_path,
+    b_name = name,
+    b_path = path,
+    b_qualifier = qualifier
+    where
+    uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+  </update>
+
+
   <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
     update projects set
     copy_component_uuid = b_copy_component_uuid,

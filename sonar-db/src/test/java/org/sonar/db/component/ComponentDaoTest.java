@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -657,36 +658,91 @@ public class ComponentDaoTest {
     db.assertDbUnit(getClass(), "insert_disabled_component-result.xml", "projects");
   }
 
-  // FIXME
-//  @Test
-//  public void update() {
-//    db.prepareDbUnit(getClass(), "update.xml");
-//
-//    ComponentDto componentDto = new ComponentDto()
-//      .setUuid("GHIJ")
-//      .setProjectUuid("DCBA")
-//      .setModuleUuid("HGFE")
-//      .setModuleUuidPath(".DCBA.HGFE.")
-//      .setKey("org.struts:struts-core:src/org/struts/RequestContext2.java")
-//      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext2.java")
-//      .setName("RequestContext2.java")
-//      .setLongName("org.struts.RequestContext2")
-//      .setQualifier("LIF")
-//      .setScope("LIF")
-//      .setLanguage("java2")
-//      .setDescription("description2")
-//      .setPath("src/org/struts/RequestContext2.java")
-//      .setRootUuid("uuid_4")
-//      .setCopyComponentUuid("uuid_6")
-//      .setDeveloperUuid("uuid_9")
-//      .setEnabled(false)
-//      .setAuthorizationUpdatedAt(12345678910L);
-//
-//    underTest.update(dbSession, componentDto);
-//    dbSession.commit();
-//
-//    db.assertDbUnit(getClass(), "update-result.xml", "projects");
-//  }
+  @Test
+  public void update() {
+    ComponentDto dto = ComponentTesting.newProjectDto("U1");
+    underTest.insert(dbSession, dto);
+    dbSession.commit();
+
+    underTest.update(dbSession, new ComponentUpdateDto()
+      .setUuid("U1")
+      .setBCopyComponentUuid("copy")
+      .setBChanged(true)
+      .setBDescription("desc")
+      .setBEnabled(true)
+      .setBLanguage("lang")
+      .setBLongName("longName")
+      .setBModuleUuid("moduleUuid")
+      .setBModuleUuidPath("moduleUuidPath")
+      .setBName("name")
+      .setBPath("path")
+      .setBQualifier("qualifier")
+    );
+    dbSession.commit();
+
+    Map<String, Object> row = db.selectFirst(
+      "select  B_CHANGED, B_COPY_COMPONENT_UUID, B_DESCRIPTION, B_ENABLED, B_LANGUAGE, B_LONG_NAME," +
+        "B_MODULE_UUID, B_MODULE_UUID_PATH, B_NAME, B_PATH, B_QUALIFIER " +
+      "from projects where uuid='U1'");
+    assertThat(row.get("B_CHANGED")).isEqualTo(true);
+    assertThat(row.get("B_COPY_COMPONENT_UUID")).isEqualTo("copy");
+    assertThat(row.get("B_DESCRIPTION")).isEqualTo("desc");
+    assertThat(row.get("B_ENABLED")).isEqualTo(true);
+    assertThat(row.get("B_LANGUAGE")).isEqualTo("lang");
+    assertThat(row.get("B_LONG_NAME")).isEqualTo("longName");
+    assertThat(row.get("B_MODULE_UUID")).isEqualTo("moduleUuid");
+    assertThat(row.get("B_MODULE_UUID_PATH")).isEqualTo("moduleUuidPath");
+    assertThat(row.get("B_NAME")).isEqualTo("name");
+    assertThat(row.get("B_PATH")).isEqualTo("path");
+    assertThat(row.get("B_QUALIFIER")).isEqualTo("qualifier");
+  }
+
+  @Test
+  public void updateBEnabledToFalse() {
+    ComponentDto dto1 = ComponentTesting.newProjectDto("U1");
+    ComponentDto dto2 = ComponentTesting.newProjectDto("U2");
+    ComponentDto dto3 = ComponentTesting.newProjectDto("U3");
+    underTest.insert(dbSession, dto1, dto2, dto3);
+
+    underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
+    dbSession.commit();
+
+    Map<String, Object> row1 = selectBColumnsForUuid("U1");
+    assertThat(row1.get("B_CHANGED")).isEqualTo(true);
+    assertThat(row1.get("B_COPY_COMPONENT_UUID")).isEqualTo(dto1.getCopyResourceUuid());
+    assertThat(row1.get("B_DESCRIPTION")).isEqualTo(dto1.description());
+    assertThat(row1.get("B_ENABLED")).isEqualTo(false);
+    assertThat(row1.get("B_LANGUAGE")).isEqualTo(dto1.language());
+    assertThat(row1.get("B_LONG_NAME")).isEqualTo(dto1.longName());
+    assertThat(row1.get("B_MODULE_UUID")).isEqualTo(dto1.moduleUuid());
+    assertThat(row1.get("B_MODULE_UUID_PATH")).isEqualTo(dto1.moduleUuidPath());
+    assertThat(row1.get("B_NAME")).isEqualTo(dto1.name());
+    assertThat(row1.get("B_PATH")).isEqualTo(dto1.path());
+    assertThat(row1.get("B_QUALIFIER")).isEqualTo(dto1.qualifier());
+
+    Map<String, Object> row2 = selectBColumnsForUuid("U2");
+    assertThat(row2.get("B_CHANGED")).isEqualTo(true);
+    assertThat(row2.get("B_COPY_COMPONENT_UUID")).isEqualTo(dto2.getCopyResourceUuid());
+    assertThat(row2.get("B_DESCRIPTION")).isEqualTo(dto2.description());
+    assertThat(row2.get("B_ENABLED")).isEqualTo(false);
+    assertThat(row2.get("B_LANGUAGE")).isEqualTo(dto2.language());
+    assertThat(row2.get("B_LONG_NAME")).isEqualTo(dto2.longName());
+    assertThat(row2.get("B_MODULE_UUID")).isEqualTo(dto2.moduleUuid());
+    assertThat(row2.get("B_MODULE_UUID_PATH")).isEqualTo(dto2.moduleUuidPath());
+    assertThat(row2.get("B_NAME")).isEqualTo(dto2.name());
+    assertThat(row2.get("B_PATH")).isEqualTo(dto2.path());
+    assertThat(row2.get("B_QUALIFIER")).isEqualTo(dto2.qualifier());
+
+    Map<String, Object> row3 = selectBColumnsForUuid("U3");
+    assertThat(row3.get("B_CHANGED")).isEqualTo(false);
+  }
+
+  private Map<String, Object> selectBColumnsForUuid(String uuid) {
+    return db.selectFirst(
+        "select B_CHANGED, B_COPY_COMPONENT_UUID, B_DESCRIPTION, B_ENABLED, B_LANGUAGE, B_LONG_NAME," +
+          "B_MODULE_UUID, B_MODULE_UUID_PATH, B_NAME, B_PATH, B_QUALIFIER " +
+          "from projects where uuid='" + uuid + "'");
+  }
 
   @Test
   public void delete() throws Exception {

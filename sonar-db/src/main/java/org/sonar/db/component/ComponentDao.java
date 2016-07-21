@@ -44,6 +44,7 @@ import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class ComponentDao implements Dao {
 
@@ -347,6 +348,10 @@ public class ComponentDao implements Dao {
 
   public void update(DbSession session, ComponentUpdateDto component) {
     mapper(session).update(component);
+  }
+
+  public void updateBEnabledToFalse(DbSession session, Collection<String> uuids) {
+    executeLargeUpdates(uuids, mapper(session)::updateBEnabledToFalse);
   }
 
   public void applyBChangesForRootComponentUuid(DbSession session, String projectUuid) {
