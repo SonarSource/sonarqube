@@ -8,13 +8,21 @@
 </div>
 <!--<![endif]-->
 
-<% if flash[:notice] || flash[:warning] || flash[:error] %>
+<% if cookies['flash'] %>
   <script>
-    <% if flash[:notice] %>info('<%= escape_javascript(flash[:notice])-%>');<% end %>
-    <% if flash[:warning] %>warning('<%= escape_javascript(flash[:warning])-%>');<% end %>
-    <% if flash[:error] %>error('<%= escape_javascript(flash[:error])-%>');<% end %>
+    var data = JSON.parse(unescape('<%= escape_javascript(cookies['flash']) -%>'));
+    if (data['notice']) {
+      info(data['notice'].toString().replace(/\+/g, ' '));
+    }
+    if (data['warning']) {
+      warning(data['warning'].toString().replace(/\+/g, ' '));
+    }
+    if (data['error']) {
+      error(data['error'].toString().replace(/\+/g, ' '));
+    }
   </script>
 <% end %>
+<% cookies.delete 'flash' %>
 
 <script src="<%= ApplicationController.root_context -%>/js/bundles/main.js?v=<%= sonar_version -%>"></script>
 <%= yield :extra_script -%>

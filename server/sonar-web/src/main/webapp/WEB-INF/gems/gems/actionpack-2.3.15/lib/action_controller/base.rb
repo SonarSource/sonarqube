@@ -1241,9 +1241,6 @@ module ActionController #:nodoc:
 
       # Resets the session by clearing out all the objects stored within and initializing a new session object.
       def reset_session #:doc:
-        cookies.delete 'JWT-SESSION'
-        cookies.delete 'XSRF-TOKEN'
-
         request.reset_session
         @_session = request.session
       end

@@ -127,7 +127,7 @@ module ActionController #:nodoc:
 
       def store(session, key = "flash")
         return if self.empty?
-        session[key] = self
+        raise "Session are disabled"
       end
 
       private
@@ -181,7 +181,7 @@ module ActionController #:nodoc:
         # to put a new one.
         def flash #:doc:
           if !defined?(@_flash)
-            @_flash = session["flash"] || FlashHash.new
+            @_flash = FlashHash.new
             @_flash.sweep
           end
 

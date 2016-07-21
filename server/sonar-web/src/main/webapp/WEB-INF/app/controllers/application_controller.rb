@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
 
   include AuthenticatedSystem
   include NeedAuthorization::Helper
+  include CookieFlash
 
   before_filter :check_database_version, :set_i18n, :check_authentication
 

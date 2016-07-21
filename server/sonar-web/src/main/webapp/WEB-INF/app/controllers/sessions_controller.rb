@@ -32,8 +32,8 @@ class SessionsController < ApplicationController
     if logged_in?
       self.current_user.on_logout
     end
-    flash[:notice]=message('session.flash_notice.logged_out')
-    reset_session
+    cookies.delete 'JWT-SESSION'
+    cookies.delete 'XSRF-TOKEN'
     redirect_to(home_path)
   end
 

@@ -78,6 +78,7 @@ module AuthenticatedSystem
         if logged_in?
           flash[:loginerror]='You are not authorized to access this page. Please log in with more privileges and try again.'
         end
+        write_flash_to_cookie
         redirect_to url_for :controller => '/sessions', :action => 'new'
       end
       # format.any doesn't work in rails version < http://dev.rubyonrails.org/changeset/8987
