@@ -24,14 +24,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -48,7 +49,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -103,15 +103,12 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private void disableRemainingComponents(DbSession dbSession, Collection<ComponentDto> dtos) {
-    dtos.stream()
+    Set<String> uuids = dtos.stream()
       .filter(ComponentDto::isEnabled)
-      .forEach(c -> {
-        ComponentUpdateDto update = ComponentUpdateDto.copyFrom(c)
-          .setBChanged(true)
-          .setBEnabled(false);
-        dbClient.componentDao().update(dbSession, update);
-      });
-    disabledComponentsHolder.setUuids(dtos.stream().map(ComponentDto::uuid).collect(toList(dtos.size())));
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toSet(dtos.size()));
+    dbClient.componentDao().updateBEnabledToFalse(dbSession, uuids);
+    disabledComponentsHolder.setUuids(uuids);
   }
 
   /**
@@ -121,7 +118,7 @@ public class PersistComponentsStep implements ComputationStep {
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
     return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
       .stream()
-      .collect(Collectors.toMap(ComponentDto::key, Function.identity()));
+      .collect(java.util.stream.Collectors.toMap(ComponentDto::key, Function.identity()));
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {

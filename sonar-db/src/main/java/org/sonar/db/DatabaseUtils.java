@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -133,6 +134,19 @@ public class DatabaseUtils {
       }
     }
     return results;
+  }
+
+  /**
+   * Partition by 1000 elements a list of input and execute a consumer on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <INPUT extends Comparable<INPUT>> void executeLargeUpdates(Collection<INPUT> inputs, Consumer<List<INPUT>> consumer) {
+    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs);
+    for (List<INPUT> partition : partitions) {
+      consumer.accept(partition);
+    }
   }
 
   /**
