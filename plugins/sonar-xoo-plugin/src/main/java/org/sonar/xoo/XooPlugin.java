@@ -21,6 +21,8 @@ package org.sonar.xoo;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -73,6 +75,13 @@ public class XooPlugin implements Plugin {
   @Override
   public void define(Context context) {
     context.addExtensions(
+      PropertyDefinition.builder(Xoo.FILE_SUFFIXES_KEY)
+        .defaultValue(Xoo.DEFAULT_FILE_SUFFIXES)
+        .name("File suffixes")
+        .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
+        .subCategory("General")
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
       Xoo.class,
       Xoo2.class,
       XooRulesDefinition.class,
