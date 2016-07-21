@@ -14,7 +14,11 @@ case "$TARGET" in
 
 CI)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
+
   INITIAL_VERSION=`maven_expression "project.version"`
+  if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
+    set_maven_build_version $TRAVIS_BUILD_NUMBER
+  fi
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Analyse and trigger QA of master branch'
@@ -26,9 +30,6 @@ CI)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
   
-    # Do not deploy a SNAPSHOT version but the release version related to this build
-    set_maven_build_version $TRAVIS_BUILD_NUMBER
-
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
           -Pdeploy-sonarsource \
           -Dmaven.test.redirectTestOutputToFile=false \
@@ -40,14 +41,6 @@ CI)
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'release branch: trigger QA, no analysis'
 
-    if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
-      echo "======= Found SNAPSHOT version ======="
-      # Do not deploy a SNAPSHOT version but the release version related to this build
-      set_maven_build_version $TRAVIS_BUILD_NUMBER
-    else
-      echo "======= Found RELEASE version ======="
-    fi
-
     mvn deploy \
         -Pdeploy-sonarsource \
         -Dmaven.test.redirectTestOutputToFile=false \
@@ -55,8 +48,6 @@ CI)
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Internal pull request: trigger QA and analysis'
-
-    set_maven_build_version $TRAVIS_BUILD_NUMBER
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
         -Pdeploy-sonarsource \
@@ -72,9 +63,7 @@ CI)
   else
     echo 'Feature branch or external pull request: no QA, no analysis'
 
-    # No need for Maven phase "install" as the generated JAR file does not need to be installed
-    # in Maven local repository. Phase "verify" is enough.
-    mvn verify \
+    mvn install \
         -Dmaven.test.redirectTestOutputToFile=false \
         -B -e -V
   fi
