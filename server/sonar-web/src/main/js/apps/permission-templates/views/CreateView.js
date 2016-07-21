@@ -34,8 +34,8 @@ export default FormView.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
-      that.options.refresh();
+    }).done(function (r) {
+      that.trigger('done', r);
       that.destroy();
     }).fail(function (jqXHR) {
       that.enableForm();
