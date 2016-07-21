@@ -36,6 +36,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
@@ -70,6 +71,7 @@ import org.sonar.api.server.ServerSide;
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
+@SonarLintSide
 @ExtensionPoint
 public final class PropertyDefinition {
 

@@ -22,6 +22,7 @@ package org.sonar.api.issue.batch;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.issue.Issue;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * <p>An issue filter is an object that allows filtering of {@link Issue}s on batch side, preventing them from being persisted.
@@ -29,6 +30,7 @@ import org.sonar.api.issue.Issue;
  * @deprecated since 5.3. Use {@link org.sonar.api.scan.issue.filter.IssueFilter} instead.
  */
 @ScannerSide
+@SonarLintSide
 @ExtensionPoint
 @Deprecated
 public interface IssueFilter {
