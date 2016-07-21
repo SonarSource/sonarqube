@@ -68,8 +68,8 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.computation.CeModule;
-import org.sonar.server.computation.container.ReportProcessingModule;
-import org.sonar.server.computation.queue.CeQueueModule;
+import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
+import org.sonar.server.computation.CeQueueModule;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
@@ -551,7 +551,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // Compute engine (must be after Views and Developer Cockpit)
     CeModule.class,
     CeQueueModule.class,
-    ReportProcessingModule.class,
+    ProjectAnalysisTaskModule.class,
     CeTaskProcessorModule.class,
     // CeWsModule.class, no Web Service in CE
 

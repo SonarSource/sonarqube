@@ -20,10 +20,11 @@
 package org.sonar.ce.settings;
 
 import org.picocontainer.Startable;
-import org.sonar.server.computation.container.EagerStart;
+import org.sonar.server.computation.task.container.EagerStart;
+import org.sonar.server.computation.task.container.TaskContainerImpl;
 
 /**
- * Add this class as the first components in the {@link org.sonar.server.computation.container.ComputeEngineContainerImpl}
+ * Add this class as the first components in the {@link TaskContainerImpl}
  * to trigger loading of Thread local specific {@link org.sonar.api.config.Settings} in {@link ThreadLocalSettings}.
  */
 @EagerStart

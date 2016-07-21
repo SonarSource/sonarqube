@@ -33,7 +33,7 @@ import org.sonar.ce.queue.CeTask;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.queue.InternalCeQueue;
-import org.sonar.server.computation.taskprocessor.report.ReportTaskProcessor;
+import org.sonar.server.computation.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
