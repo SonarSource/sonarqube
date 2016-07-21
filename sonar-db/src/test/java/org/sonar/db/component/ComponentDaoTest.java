@@ -680,21 +680,18 @@ public class ComponentDaoTest {
     );
     dbSession.commit();
 
-    Map<String, Object> row = db.selectFirst(
-      "select  B_CHANGED, B_COPY_COMPONENT_UUID, B_DESCRIPTION, B_ENABLED, B_LANGUAGE, B_LONG_NAME," +
-        "B_MODULE_UUID, B_MODULE_UUID_PATH, B_NAME, B_PATH, B_QUALIFIER " +
-      "from projects where uuid='U1'");
-    assertThat(row.get("B_CHANGED")).isEqualTo(true);
-    assertThat(row.get("B_COPY_COMPONENT_UUID")).isEqualTo("copy");
-    assertThat(row.get("B_DESCRIPTION")).isEqualTo("desc");
-    assertThat(row.get("B_ENABLED")).isEqualTo(true);
-    assertThat(row.get("B_LANGUAGE")).isEqualTo("lang");
-    assertThat(row.get("B_LONG_NAME")).isEqualTo("longName");
-    assertThat(row.get("B_MODULE_UUID")).isEqualTo("moduleUuid");
-    assertThat(row.get("B_MODULE_UUID_PATH")).isEqualTo("moduleUuidPath");
-    assertThat(row.get("B_NAME")).isEqualTo("name");
-    assertThat(row.get("B_PATH")).isEqualTo("path");
-    assertThat(row.get("B_QUALIFIER")).isEqualTo("qualifier");
+    Map<String, Object> row = selectBColumnsForUuid("U1");
+    assertThat(row.get("bChanged")).isEqualTo(true);
+    assertThat(row.get("bCopyComponentUuid")).isEqualTo("copy");
+    assertThat(row.get("bDescription")).isEqualTo("desc");
+    assertThat(row.get("bEnabled")).isEqualTo(true);
+    assertThat(row.get("bLanguage")).isEqualTo("lang");
+    assertThat(row.get("bLongName")).isEqualTo("longName");
+    assertThat(row.get("bModuleUuid")).isEqualTo("moduleUuid");
+    assertThat(row.get("bModuleUuidPath")).isEqualTo("moduleUuidPath");
+    assertThat(row.get("bName")).isEqualTo("name");
+    assertThat(row.get("bPath")).isEqualTo("path");
+    assertThat(row.get("bQualifier")).isEqualTo("qualifier");
   }
 
   @Test
@@ -708,39 +705,41 @@ public class ComponentDaoTest {
     dbSession.commit();
 
     Map<String, Object> row1 = selectBColumnsForUuid("U1");
-    assertThat(row1.get("B_CHANGED")).isEqualTo(true);
-    assertThat(row1.get("B_COPY_COMPONENT_UUID")).isEqualTo(dto1.getCopyResourceUuid());
-    assertThat(row1.get("B_DESCRIPTION")).isEqualTo(dto1.description());
-    assertThat(row1.get("B_ENABLED")).isEqualTo(false);
-    assertThat(row1.get("B_LANGUAGE")).isEqualTo(dto1.language());
-    assertThat(row1.get("B_LONG_NAME")).isEqualTo(dto1.longName());
-    assertThat(row1.get("B_MODULE_UUID")).isEqualTo(dto1.moduleUuid());
-    assertThat(row1.get("B_MODULE_UUID_PATH")).isEqualTo(dto1.moduleUuidPath());
-    assertThat(row1.get("B_NAME")).isEqualTo(dto1.name());
-    assertThat(row1.get("B_PATH")).isEqualTo(dto1.path());
-    assertThat(row1.get("B_QUALIFIER")).isEqualTo(dto1.qualifier());
+    assertThat(row1.get("bChanged")).isEqualTo(true);
+    assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyResourceUuid());
+    assertThat(row1.get("bDescription")).isEqualTo(dto1.description());
+    assertThat(row1.get("bEnabled")).isEqualTo(false);
+    assertThat(row1.get("bLanguage")).isEqualTo(dto1.language());
+    assertThat(row1.get("bLongName")).isEqualTo(dto1.longName());
+    assertThat(row1.get("bModuleUuid")).isEqualTo(dto1.moduleUuid());
+    assertThat(row1.get("bModuleUuidPath")).isEqualTo(dto1.moduleUuidPath());
+    assertThat(row1.get("bName")).isEqualTo(dto1.name());
+    assertThat(row1.get("bPath")).isEqualTo(dto1.path());
+    assertThat(row1.get("bQualifier")).isEqualTo(dto1.qualifier());
 
     Map<String, Object> row2 = selectBColumnsForUuid("U2");
-    assertThat(row2.get("B_CHANGED")).isEqualTo(true);
-    assertThat(row2.get("B_COPY_COMPONENT_UUID")).isEqualTo(dto2.getCopyResourceUuid());
-    assertThat(row2.get("B_DESCRIPTION")).isEqualTo(dto2.description());
-    assertThat(row2.get("B_ENABLED")).isEqualTo(false);
-    assertThat(row2.get("B_LANGUAGE")).isEqualTo(dto2.language());
-    assertThat(row2.get("B_LONG_NAME")).isEqualTo(dto2.longName());
-    assertThat(row2.get("B_MODULE_UUID")).isEqualTo(dto2.moduleUuid());
-    assertThat(row2.get("B_MODULE_UUID_PATH")).isEqualTo(dto2.moduleUuidPath());
-    assertThat(row2.get("B_NAME")).isEqualTo(dto2.name());
-    assertThat(row2.get("B_PATH")).isEqualTo(dto2.path());
-    assertThat(row2.get("B_QUALIFIER")).isEqualTo(dto2.qualifier());
+    assertThat(row2.get("bChanged")).isEqualTo(true);
+    assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyResourceUuid());
+    assertThat(row2.get("bDescription")).isEqualTo(dto2.description());
+    assertThat(row2.get("bEnabled")).isEqualTo(false);
+    assertThat(row2.get("bLanguage")).isEqualTo(dto2.language());
+    assertThat(row2.get("bLongName")).isEqualTo(dto2.longName());
+    assertThat(row2.get("bModuleUuid")).isEqualTo(dto2.moduleUuid());
+    assertThat(row2.get("bModuleUuidPath")).isEqualTo(dto2.moduleUuidPath());
+    assertThat(row2.get("bName")).isEqualTo(dto2.name());
+    assertThat(row2.get("bPath")).isEqualTo(dto2.path());
+    assertThat(row2.get("bQualifier")).isEqualTo(dto2.qualifier());
 
     Map<String, Object> row3 = selectBColumnsForUuid("U3");
-    assertThat(row3.get("B_CHANGED")).isEqualTo(false);
+    assertThat(row3.get("bChanged")).isEqualTo(false);
   }
 
   private Map<String, Object> selectBColumnsForUuid(String uuid) {
     return db.selectFirst(
-        "select B_CHANGED, B_COPY_COMPONENT_UUID, B_DESCRIPTION, B_ENABLED, B_LANGUAGE, B_LONG_NAME," +
-          "B_MODULE_UUID, B_MODULE_UUID_PATH, B_NAME, B_PATH, B_QUALIFIER " +
+        "select B_CHANGED as \"bChanged\", B_COPY_COMPONENT_UUID as \"bCopyComponentUuid\", B_DESCRIPTION as \"bDescription\", " +
+          "B_ENABLED as \"bEnabled\", B_LANGUAGE as \"bLanguage\", B_LONG_NAME as \"bLongName\"," +
+          "B_MODULE_UUID as \"bModuleUuid\", B_MODULE_UUID_PATH as \"bModuleUuidPath\", B_NAME as \"bName\", " +
+          "B_PATH as \"bPath\", B_QUALIFIER as \"bQualifier\" " +
           "from projects where uuid='" + uuid + "'");
   }
 
