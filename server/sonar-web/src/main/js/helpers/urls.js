@@ -50,32 +50,6 @@ export function getComponentDrilldownUrl (componentKey, metric) {
 }
 
 /**
- * Generate URL for a component's dashboard
- * @param {string} componentKey
- * @param {string} dashboardKey
- * @param {string} [period]
- * @returns {string}
- */
-export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
-  let url = window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) +
-      '&did=' + encodeURIComponent(dashboardKey);
-  if (period) {
-    url += '&period=' + period;
-  }
-  return url;
-}
-
-/**
- * Generate URL for a fixed component's dashboard (overview)
- * @param {string} componentKey
- * @param {string} dashboardKey
- * @returns {string}
- */
-export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
-  return window.baseUrl + '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
-}
-
-/**
  * Generate URL for a component's permissions page
  * @param {string} componentKey
  * @returns {string}

@@ -50,7 +50,8 @@ class DashboardController < ApplicationController
         if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
           return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
         else
-          return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+          @snapshot = @resource.last_snapshot
+          render :action => 'overview'
         end
       end
     else

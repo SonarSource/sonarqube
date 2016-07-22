@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import React from 'react';
 import LinksMixin from '../links-mixin';
 import { translate } from '../../../helpers/l10n';
-import { getComponentFixedDashboardUrl } from '../../../helpers/urls';
+import { getComponentUrl } from '../../../helpers/urls';
 
 const SETTINGS_URLS = [
   '/project/settings',
@@ -63,11 +63,11 @@ export default React.createClass({
 
   isFixedDashboardActive() {
     const path = window.location.pathname;
-    return path.indexOf(window.baseUrl + '/overview') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
+    return path.indexOf(window.baseUrl + '/dashboard') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
   },
 
-  renderOverviewLink() {
-    const url = getComponentFixedDashboardUrl(this.props.component.key, '');
+  renderDashboardLink() {
+    const url = getComponentUrl(this.props.component.key);
     const name = <i className="icon-home"/>;
     const className = classNames({ active: this.isFixedDashboardActive() });
     return (
@@ -250,7 +250,7 @@ export default React.createClass({
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
-          {this.renderOverviewLink()}
+          {this.renderDashboardLink()}
           {this.renderComponentIssuesLink()}
           {this.renderComponentMeasuresLink()}
           {this.renderCodeLink()}
