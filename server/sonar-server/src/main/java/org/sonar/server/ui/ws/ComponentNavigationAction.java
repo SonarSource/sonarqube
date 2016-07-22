@@ -46,8 +46,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.dashboard.ActiveDashboardDao;
-import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.ce.ws.ActivityAction;
@@ -63,8 +61,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 
-  private static final String ANONYMOUS = null;
-
   private static final String PROPERTY_COMPARABLE = "comparable";
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -73,7 +69,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private static final String PROPERTY_DELETABLE = "deletable";
 
   private final DbClient dbClient;
-  private final ActiveDashboardDao activeDashboardDao;
   private final Views views;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
@@ -83,7 +78,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
   public ComponentNavigationAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
     ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.activeDashboardDao = dbClient.activeDashboardDao();
     this.views = views;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
@@ -146,12 +140,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .prop("canBeFavorite", userSession.isLoggedIn())
       .prop("isFavorite", isFavourite(session, component, userSession));
 
-    List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.getLogin());
-    if (dashboards.isEmpty()) {
-      dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, ANONYMOUS);
-    }
-    writeDashboards(json, dashboards);
-
     if (analysis != null) {
       json.prop("version", analysis.getVersion())
         .prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
@@ -199,17 +187,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
       throw new IllegalStateException(unknownEncoding);
     }
     return componentKey;
-  }
-
-  private static void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
-    json.name("dashboards").beginArray();
-    for (DashboardDto dashboard : dashboards) {
-      json.beginObject()
-        .prop("key", dashboard.getId())
-        .prop("name", dashboard.getName())
-        .endObject();
-    }
-    json.endArray();
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component, UserSession userSession) {

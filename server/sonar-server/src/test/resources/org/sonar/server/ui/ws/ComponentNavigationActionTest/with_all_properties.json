@@ -5,7 +5,6 @@
   "isComparable": true,
   "canBeFavorite": true,
   "isFavorite": false,
-  "dashboards": [],
   "configuration": {
     "showSettings": true,
     "showQualityProfiles": true,

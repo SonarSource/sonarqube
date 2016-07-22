@@ -47,8 +47,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.dashboard.ActiveDashboardDto;
-import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -159,36 +157,6 @@ public class ComponentNavigationActionTest {
 
     WsTester wsTester = newdWsTester();
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_snapshot_and_connected_user.json");
-  }
-
-  @Test
-  public void with_dashboards() throws Exception {
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop"));
-    DashboardDto dashboard = new DashboardDto().setGlobal(false).setName("Anon Dashboard").setShared(true).setColumnLayout("100%");
-    dbClient.dashboardDao().insert(dashboard);
-    dbClient.activeDashboardDao().insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
-    dbTester.getSession().commit();
-
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
-
-    WsTester wsTester = newdWsTester();
-    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_dashboards.json");
-  }
-
-  @Test
-  public void with_default_dashboards() throws Exception {
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop"));
-    DashboardDto dashboard = new DashboardDto().setGlobal(false).setName("Anon Dashboard").setShared(true).setColumnLayout("100%");
-    dbClient.dashboardDao().insert(dashboard);
-    dbClient.activeDashboardDao().insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
-    dbTester.getSession().commit();
-
-    userSessionRule.login("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
-
-    WsTester wsTester = newdWsTester();
-    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_default_dashboards.json");
   }
 
   @Test
