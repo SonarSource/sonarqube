@@ -21,13 +21,11 @@ import qs from 'querystring';
 import _ from 'underscore';
 import classNames from 'classnames';
 import React from 'react';
-
 import LinksMixin from '../links-mixin';
 import { translate, getLocalizedDashboardName } from '../../../helpers/l10n';
 import {
     getComponentDashboardUrl,
-    getComponentFixedDashboardUrl,
-    getComponentDashboardManagementUrl
+    getComponentFixedDashboardUrl
 } from '../../../helpers/urls';
 
 const SETTINGS_URLS = [
@@ -80,18 +78,12 @@ export default React.createClass({
   isCustomDashboardsActive () {
     const dashboards = this.props.component.dashboards;
     return _.any(dashboards, this.isCustomDashboardActive) ||
-        this.isDashboardManagementActive() ||
         this.isDefaultDeveloperDashboardActive();
   },
 
   isDefaultDeveloperDashboardActive() {
     const path = window.location.pathname;
     return this.isDeveloper() && path.indexOf(window.baseUrl + '/dashboard') === 0;
-  },
-
-  isDashboardManagementActive () {
-    const path = window.location.pathname;
-    return path.indexOf(window.baseUrl + '/dashboards') === 0;
   },
 
   renderOverviewLink() {
@@ -118,7 +110,6 @@ export default React.createClass({
   renderCustomDashboards() {
     const dashboards = this.props.component.dashboards.map(this.renderCustomDashboard);
     const className = classNames('dropdown', { active: this.isCustomDashboardsActive() });
-    const managementLink = this.renderDashboardsManagementLink();
     return <li className={className}>
       <a className="dropdown-toggle" data-toggle="dropdown" href="#">
         {translate('layout.dashboards')}&nbsp;
@@ -126,22 +117,7 @@ export default React.createClass({
       </a>
       <ul className="dropdown-menu">
         {dashboards}
-        {managementLink && <li className="divider"/>}
-        {managementLink}
       </ul>
-    </li>;
-  },
-
-  renderDashboardsManagementLink() {
-    if (!window.SS.user) {
-      return null;
-    }
-    const key = 'dashboard-management';
-    const url = getComponentDashboardManagementUrl(this.props.component.key);
-    const name = translate('dashboard.manage_dashboards');
-    const className = classNames('pill-right', { active: this.isDashboardManagementActive() });
-    return <li key={key} className={className}>
-      <a className="note" href={url}>{name}</a>
     </li>;
   },
 

@@ -24,36 +24,24 @@ class DashboardsController < ApplicationController
   before_filter :login_required
 
   def index
-    @global = !params[:resource]
+    @global = true
 
     @actives=ActiveDashboard.user_dashboards(current_user, @global)
     @shared_dashboards=Dashboard.all(:conditions => ['(shared=? or user_id=?) and is_global=?', true, current_user.id, @global])
     active_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_ids.include?(d.id) }
     @shared_dashboards=Api::Utils.insensitive_sort(@shared_dashboards, &:name)
-
-    if params[:resource]
-      @resource=Project.by_key(params[:resource])
-      if @resource.nil?
-        # TODO display error page
-        redirect_to home_path
-        return false
-      end
-      access_denied unless has_role?(:user, @resource)
-      @snapshot = @resource.last_snapshot
-      @project=@resource # variable name used in old widgets
-    end
   end
 
   def create_form
-    @global = !params[:resource]
+    @global = true
     @dashboard = Dashboard.new
-    render :partial => 'create_form', :resource => params[:resource]
+    render :partial => 'create_form'
   end
 
   def create
     verify_post_request
-    @global = !params[:resource]
+    @global = true
     @dashboard = Dashboard.new()
     @dashboard.user_id = current_user.id
     load_dashboard_from_params(@dashboard)
@@ -61,21 +49,21 @@ class DashboardsController < ApplicationController
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
       @dashboard.errors.add_to_base(Api::Utils.message('dashboard.error_create_existing_name'))
-      render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
+      render :partial => 'dashboards/create_form', :status => 400
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
       last_index=current_user.active_dashboards.max_by(&:order_index).order_index
       current_user.active_dashboards.create(:dashboard => @dashboard, :user => current_user, :order_index => (last_index+1))
       render :text => CGI.escapeHTML(params[:resource]), :highlight => @dashboard.id, :status => 200
     else
-      render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
+      render :partial => 'dashboards/create_form', :status => 400
     end
   end
 
   def edit_form
     @dashboard = Dashboard.find(params[:id])
     if @dashboard.editable_by?(current_user)
-      render :partial => 'edit_form', :resource => params[:resource]
+      render :partial => 'edit_form'
     else
       access_denied
     end
@@ -98,7 +86,7 @@ class DashboardsController < ApplicationController
         render :text => CGI.escapeHTML(params[:resource]), :status => 200
       else
         @dashboard.user = dashboard_owner
-        render :partial => 'dashboards/edit_form', :status => 400, :resource => params[:resource]
+        render :partial => 'dashboards/edit_form', :status => 400
       end
     else
       access_denied
@@ -108,7 +96,7 @@ class DashboardsController < ApplicationController
   def delete_form
     @dashboard = Dashboard.find(params[:id])
     if @dashboard.editable_by?(current_user)
-      render :partial => 'delete_form', :resource => params[:resource]
+      render :partial => 'delete_form'
     else
       access_denied
     end
@@ -125,7 +113,7 @@ class DashboardsController < ApplicationController
       render :text => CGI.escapeHTML(params[:resource]), :status => 200
     else
       @dashboard.errors.add(message('dashboard.error_delete_default'), ' ')
-      render :partial => 'dashboards/delete_form', :status => 400, :resource => params[:resource]
+      render :partial => 'dashboards/delete_form', :status => 400
     end
   end
 
@@ -152,7 +140,7 @@ class DashboardsController < ApplicationController
       current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
     end
 
-    redirect_to :action => 'index', :resource => params[:resource]
+    redirect_to :action => 'index'
   end
 
   def unfollow
@@ -166,7 +154,7 @@ class DashboardsController < ApplicationController
       flash[:notice]=Api::Utils.message('dashboard.default_restored')
     end
 
-    redirect_to :action => 'index', :resource => params[:resource]
+    redirect_to :action => 'index'
   end
 
 
@@ -188,7 +176,7 @@ class DashboardsController < ApplicationController
       end
     end
 
-    redirect_to :action => 'index', :resource => params[:resource]
+    redirect_to :action => 'index'
   end
 
   def load_dashboard_from_params(dashboard)

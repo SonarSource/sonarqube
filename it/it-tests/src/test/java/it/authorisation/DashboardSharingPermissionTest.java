@@ -32,7 +32,6 @@ import org.sonarqube.ws.client.permission.PermissionsService;
 import util.user.UserRule;
 
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.runProjectAnalysis;
 
 public class DashboardSharingPermissionTest {
 
@@ -82,20 +81,6 @@ public class DashboardSharingPermissionTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("global-dashboard-sharing-permission",
       "/authorisation/DashboardSharingPermissionTest/global-dashboard-sharing-allowed.html",
       "/authorisation/DashboardSharingPermissionTest/global-dashboard-sharing-denied.html")
-      .build();
-    orchestrator.executeSelenese(selenese);
-  }
-
-  /**
-   * SONAR-4136
-   */
-  @Test
-  public void share_project_dashboard() throws Exception {
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-dashboard-sharing-permission",
-      "/authorisation/DashboardSharingPermissionTest/project-dashboard-sharing-allowed.html",
-      "/authorisation/DashboardSharingPermissionTest/project-dashboard-sharing-denied.html")
       .build();
     orchestrator.executeSelenese(selenese);
   }

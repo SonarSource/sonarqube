@@ -52,16 +52,6 @@ public class DashboardTest {
       "/componentDashboard/DashboardTest/dashboard_extension/xss.html");
   }
 
-  /**
-   * SONAR-3103
-   */
-  @Test
-  public void share_dashboard() {
-    seleniumSuite("share_dashboard",
-      "/componentDashboard/DashboardTest/share_dashboard/follow-unfollow.html",
-      "/componentDashboard/DashboardTest/share_dashboard/should-not-unshare-default-dashboard.html");
-  }
-
   @Test
   public void configure_dashboard() {
     seleniumSuite("configure_dashboard",
@@ -84,9 +74,6 @@ public class DashboardTest {
 
       // SONAR-4630
       "/componentDashboard/DashboardTest/global_dashboard/create-global-dashboards-error.html",
-
-      // SONAR-3462
-      "/componentDashboard/DashboardTest/global_dashboard/edit-project-dashboards.html",
 
       // SONAR-3461
       "/componentDashboard/DashboardTest/global_dashboard/order-project-default-dashboards.html",

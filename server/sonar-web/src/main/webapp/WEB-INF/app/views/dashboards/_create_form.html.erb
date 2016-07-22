@@ -1,9 +1,5 @@
 <form id="create-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/create">
-  <% if @global %>
-    <input type="hidden" name="global" value="true" />
-  <% else %>
-    <input type="hidden" name="resource" value="<%= h params[:resource] %>"/>
-  <% end %>
+  <input type="hidden" name="global" value="true" />
   <fieldset>
     <div class="modal-head">
       <h2><%= message('dashboard.new_dashboard') -%></h2>
@@ -38,8 +34,6 @@
 
 <script>
   $j("#create-dashboard-form").modalForm({success: function (data) {
-    var contextParams = data.trim().length > 0 ? '?resource=' + data.trim() : '';
-    window.location = window.baseUrl + '/dashboards' + contextParams;
+    window.location = window.baseUrl + '/dashboards';
   }});
 </script>
-

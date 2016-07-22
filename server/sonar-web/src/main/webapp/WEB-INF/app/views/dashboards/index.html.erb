@@ -6,7 +6,7 @@
     </li>
   </ul>
 
-  <h1><%= message(@global ? 'dashboard.my_global_dashboards' : 'dashboard.my_project_dashboards') -%></h1>
+  <h1><%= message('dashboard.my_global_dashboards') -%></h1>
   <%= render_partial :partial => 'my_dashboards', :locals => { :is_admin => is_admin? } %>
 
   <h1><%= message('dashboard.available_dashboards') -%></h1>

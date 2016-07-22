@@ -76,15 +76,6 @@ export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
 }
 
 /**
- * Generate URL for a component's dashboards management page
- * @param {string} componentKey
- * @returns {string}
- */
-export function getComponentDashboardManagementUrl (componentKey) {
-  return window.baseUrl + '/dashboards?resource=' + encodeURIComponent(componentKey);
-}
-
-/**
  * Generate URL for a component's permissions page
  * @param {string} componentKey
  * @returns {string}

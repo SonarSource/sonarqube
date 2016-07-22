@@ -31,7 +31,6 @@ import org.sonarqube.ws.client.permission.PermissionsService;
 import util.user.UserRule;
 
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.runProjectAnalysis;
 
 public class SystemAdminPermissionTest {
 
@@ -80,18 +79,6 @@ public class SystemAdminPermissionTest {
     seleniumSuite("change-global-dashboard-ownership",
       "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner.html",
       "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner-failure.html");
-  }
-
-  /**
-   * SONAR-4136
-   */
-  @Test
-  public void should_change_ownership_of_shared_project_dashboard() throws Exception {
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-
-    seleniumSuite("change-project-dashboard-ownership",
-      "/authorisation/SystemAdminPermissionTest/change-shared-project-dashboard-owner.html",
-      "/authorisation/SystemAdminPermissionTest/change-shared-project-dashboard-owner-failure.html");
   }
 
   private void seleniumSuite(String suiteName, String... tests) {

@@ -15,10 +15,9 @@
     </tr>
   <% else %>
     <% @actives.map(&:dashboard).each_with_index do |dashboard, index| %>
-      <% resource_id = @resource.id if @resource %>
       <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'dashboard') -%>">
         <td>
-          <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},
+          <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id},
                       :id => "view-#{u dashboard.name}" %>
           <div class="description"><%= h dashboard.description -%></div>
         </td>
@@ -30,12 +29,12 @@
         </td>
         <td class="order">
           <% if index > 0 %>
-            <%= link_to '', {:action => :up, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "up-#{u dashboard.name}", :class => "icon-move-up" %>
+            <%= link_to '', {:action => :up, :id => dashboard.id}, :method => :post, :id => "up-#{u dashboard.name}", :class => "icon-move-up" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
           <% if index < @actives.size-1 %>
-            <%= link_to '', {:action => :down, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "down-#{u dashboard.name}", :class => "icon-move-down" %>
+            <%= link_to '', {:action => :down, :id => dashboard.id}, :method => :post, :id => "down-#{u dashboard.name}", :class => "icon-move-down" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
         <% end %>
