@@ -50,6 +50,7 @@ CI)
     echo 'Internal pull request: trigger QA and analysis'
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+        -Dsource.skip=true \
         -Pdeploy-sonarsource \
         -Dmaven.test.redirectTestOutputToFile=false \
         -Dsonar.analysis.mode=issues \
@@ -61,9 +62,10 @@ CI)
         -B -e -V
 
   else
-    echo 'Feature branch or external pull request: no QA, no analysis'
+    echo 'Feature branch or external pull request: no QA, no analysis. Skip sources'
 
     mvn install \
+        -Dsource.skip=true \
         -Dmaven.test.redirectTestOutputToFile=false \
         -B -e -V
   fi
