@@ -14,6 +14,7 @@ case "$TARGET" in
 
 CI)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
+  MAVEN_OPTIONS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -DdisableXmlReport=true -B -e -V"
 
   INITIAL_VERSION=`maven_expression "project.version"`
   if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
@@ -31,43 +32,39 @@ CI)
     git fetch --unshallow || true
   
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+          $MAVEN_OPTIONS \
           -Pdeploy-sonarsource \
-          -Dmaven.test.redirectTestOutputToFile=false \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION \
-          -B -e -V
+          -Dsonar.projectVersion=$INITIAL_VERSION
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'release branch: trigger QA, no analysis'
 
     mvn deploy \
-        -Pdeploy-sonarsource \
-        -Dmaven.test.redirectTestOutputToFile=false \
-        -B -e -V
+        $MAVEN_OPTIONS \
+        -Pdeploy-sonarsource
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Internal pull request: trigger QA and analysis'
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+        $MAVEN_OPTIONS \
         -Dsource.skip=true \
         -Pdeploy-sonarsource \
-        -Dmaven.test.redirectTestOutputToFile=false \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.github.oauth=$GITHUB_TOKEN \
         -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -B -e -V
+        -Dsonar.login=$SONAR_TOKEN
 
   else
     echo 'Feature branch or external pull request: no QA, no analysis. Skip sources'
 
     mvn install \
-        -Dsource.skip=true \
-        -Dmaven.test.redirectTestOutputToFile=false \
-        -B -e -V
+        $MAVEN_OPTIONS \
+        -Dsource.skip=true
   fi
 
   ./run-integration-tests.sh "Lite" ""
