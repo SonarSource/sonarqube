@@ -21,8 +21,10 @@ package org.sonar.api.scan.issue.filter;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
+@SonarLintSide
 @ExtensionPoint
 @FunctionalInterface
 /**

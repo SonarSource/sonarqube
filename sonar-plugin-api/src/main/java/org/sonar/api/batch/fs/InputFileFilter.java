@@ -19,8 +19,8 @@
  */
 package org.sonar.api.batch.fs;
 
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Extension point to exclude some files from inspection

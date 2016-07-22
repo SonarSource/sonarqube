@@ -90,7 +90,7 @@ export default class MetaQualityProfiles extends React.Component {
 
   renderProfile (profile) {
     const inner = (
-        <div>
+        <div className="text-ellipsis">
           <span className="note spacer-right">
             {'(' + profile.language + ')'}
           </span>
