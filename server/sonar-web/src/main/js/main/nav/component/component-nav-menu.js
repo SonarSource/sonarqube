@@ -22,11 +22,8 @@ import _ from 'underscore';
 import classNames from 'classnames';
 import React from 'react';
 import LinksMixin from '../links-mixin';
-import { translate, getLocalizedDashboardName } from '../../../helpers/l10n';
-import {
-    getComponentDashboardUrl,
-    getComponentFixedDashboardUrl
-} from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
+import { getComponentFixedDashboardUrl } from '../../../helpers/urls';
 
 const SETTINGS_URLS = [
   '/project/settings',
@@ -69,23 +66,6 @@ export default React.createClass({
     return path.indexOf(window.baseUrl + '/overview') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
   },
 
-  isCustomDashboardActive(customDashboard) {
-    const path = window.location.pathname;
-    const params = qs.parse(window.location.search.substr(1));
-    return path.indexOf(window.baseUrl + '/dashboard') === 0 && params.did === `${customDashboard.key}`;
-  },
-
-  isCustomDashboardsActive () {
-    const dashboards = this.props.component.dashboards;
-    return _.any(dashboards, this.isCustomDashboardActive) ||
-        this.isDefaultDeveloperDashboardActive();
-  },
-
-  isDefaultDeveloperDashboardActive() {
-    const path = window.location.pathname;
-    return this.isDeveloper() && path.indexOf(window.baseUrl + '/dashboard') === 0;
-  },
-
   renderOverviewLink() {
     const url = getComponentFixedDashboardUrl(this.props.component.key, '');
     const name = <i className="icon-home"/>;
@@ -95,30 +75,6 @@ export default React.createClass({
           <a href={url}>{name}</a>
         </li>
     );
-  },
-
-  renderCustomDashboard(customDashboard) {
-    const key = 'custom-dashboard-' + customDashboard.key;
-    const url = getComponentDashboardUrl(this.props.component.key, customDashboard.key, this.getPeriod());
-    const name = getLocalizedDashboardName(customDashboard.name);
-    const className = classNames({ active: this.isCustomDashboardActive(customDashboard) });
-    return <li key={key} className={className}>
-      <a href={url}>{name}</a>
-    </li>;
-  },
-
-  renderCustomDashboards() {
-    const dashboards = this.props.component.dashboards.map(this.renderCustomDashboard);
-    const className = classNames('dropdown', { active: this.isCustomDashboardsActive() });
-    return <li className={className}>
-      <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-        {translate('layout.dashboards')}&nbsp;
-        <i className="icon-dropdown"/>
-      </a>
-      <ul className="dropdown-menu">
-        {dashboards}
-      </ul>
-    </li>;
   },
 
   renderCodeLink() {
@@ -265,17 +221,14 @@ export default React.createClass({
 
   renderExtensions() {
     const extensions = this.props.conf.extensions || [];
-    return extensions.map(e => {
-      return this.renderLink(e.url, e.name, e.url);
-    });
+    return extensions.map(e => this.renderLink(e.url, e.name, e.url));
   },
 
   renderTools() {
     const extensions = this.props.component.extensions || [];
     const withoutGovernance = extensions.filter(ext => ext.name !== 'Governance');
-    const tools = withoutGovernance.map(extension => {
-      return this.renderLink(extension.url, extension.name);
-    });
+    const tools = withoutGovernance
+        .map(extension => this.renderLink(extension.url, extension.name));
 
     if (!tools.length) {
       return null;
@@ -295,29 +248,15 @@ export default React.createClass({
   },
 
   render() {
-    if (this.isDeveloper()) {
-      return (
-          <ul className="nav navbar-nav nav-tabs">
-            {this.renderCustomDashboards()}
-            {this.renderComponentIssuesLink()}
-            {this.renderComponentMeasuresLink()}
-            {this.renderCodeLink()}
-            {this.renderTools()}
-            {this.renderAdministration()}
-          </ul>
-      );
-    } else {
-      return (
-          <ul className="nav navbar-nav nav-tabs">
-            {this.renderOverviewLink()}
-            {this.renderComponentIssuesLink()}
-            {this.renderComponentMeasuresLink()}
-            {this.renderCodeLink()}
-            {this.renderCustomDashboards()}
-            {this.renderTools()}
-            {this.renderAdministration()}
-          </ul>
-      );
-    }
+    return (
+        <ul className="nav navbar-nav nav-tabs">
+          {this.renderOverviewLink()}
+          {this.renderComponentIssuesLink()}
+          {this.renderComponentMeasuresLink()}
+          {this.renderCodeLink()}
+          {this.renderTools()}
+          {this.renderAdministration()}
+        </ul>
+    );
   }
 });

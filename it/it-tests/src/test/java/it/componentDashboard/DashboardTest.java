@@ -45,25 +45,8 @@ public class DashboardTest {
   @Test
   public void dashboard_extension() {
     seleniumSuite("dashboard_extension",
-      "/componentDashboard/DashboardTest/dashboard_extension/dashboard-should-be-registered.html",
-      "/componentDashboard/DashboardTest/dashboard_extension/test-location-of-widgets.html",
-
       // SSF-19
       "/componentDashboard/DashboardTest/dashboard_extension/xss.html");
-  }
-
-  @Test
-  public void configure_dashboard() {
-    seleniumSuite("configure_dashboard",
-      "/componentDashboard/DashboardTest/configure_dashboard/main_dashboard.html",
-      "/componentDashboard/DashboardTest/configure_dashboard/filter_widgets.html",
-      "/componentDashboard/DashboardTest/configure_dashboard/keep_filter_after_adding_widget.html");
-  }
-
-  @Test
-  public void configure_widget() {
-    seleniumSuite("configure_widget",
-      "/componentDashboard/DashboardTest/configure_widget/add_project_widget_with_mandatory_properties.html");
   }
 
   @Test

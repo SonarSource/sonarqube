@@ -25,46 +25,41 @@ class DashboardController < ApplicationController
   before_filter :login_required, :except => [:index]
 
   def index
-    load_resource()
-      if !@resource || @resource.display_dashboard?
-        if params[:id]
-          unless @resource
-            return project_not_found
-          end
-          unless @snapshot
-            return project_not_analyzed
-          end
-        end
+    if params[:id]
+      @resource = Project.by_key(params[:id])
+      return project_not_found unless @resource
+      @resource = @resource.permanent_resource
 
-        # redirect to the project overview
-        if params[:id] && !params[:did] && !params[:name] && @resource.qualifier != 'DEV'
-          # if governance plugin is installed and we are opening a view
-          if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
-            return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
-          else
-            return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
-          end
-        end
+      access_denied unless has_role?(:user, @resource)
 
-        load_dashboard()
-        load_authorized_widget_definitions()
+      # for backward compatibility with old widgets
+      @project = @resource
+
+      # if file
+      if !@resource.display_dashboard?
+        @snapshot = @resource.last_snapshot
+        return project_not_analyzed unless @snapshot
+        @hide_sidebar = true
+        @file = @resource
+        @project = @resource.root_project
+        @metric=params[:metric]
+        render :action => 'no_dashboard'
       else
-        if !@resource || !@snapshot
-          redirect_if_bad_component()
+        # it is a project dashboard
+        # if governance plugin is installed and we are opening a view
+        if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
+          return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
         else
-          # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
-          @hide_sidebar = true
-          @file = @resource
-          @project = @resource.root_project
-          @metric=params[:metric]
-          render :action => 'no_dashboard'
+          return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+        end
       end
+    else
+      load_dashboard()
+      load_authorized_widget_definitions()
     end
   end
 
   def configure
-    load_resource()
-    redirect_if_bad_component()
     load_dashboard()
 
     @category=params[:category]
@@ -159,8 +154,6 @@ class DashboardController < ApplicationController
 
   def widget_definitions
     @category=params[:category]
-    load_resource()
-    # redirect_if_bad_component()
     load_dashboard()
     load_widget_definitions(@category)
     render :partial => 'widget_definitions', :locals => {:category => @category}
@@ -177,8 +170,6 @@ class DashboardController < ApplicationController
         @dashboard=Dashboard.first(:conditions => ['id=? AND user_id=?', params[:did].to_i, current_user.id])
       elsif params[:name]
         @dashboard=Dashboard.first(:conditions => ['name=? AND user_id=?', params[:name], current_user.id])
-      elsif params[:id]
-        active=ActiveDashboard.user_dashboards(current_user, false).first
       else
         active=ActiveDashboard.user_dashboards(current_user, true).first
       end
@@ -190,8 +181,6 @@ class DashboardController < ApplicationController
         @dashboard=Dashboard.first(:conditions => ['id=? AND shared=?', params[:did].to_i, true])
       elsif params[:name]
         @dashboard=Dashboard.first(:conditions => ['name=? AND shared=?', params[:name], true])
-      elsif params[:id]
-        active=ActiveDashboard.user_dashboards(nil, false).first
       else
         active=ActiveDashboard.user_dashboards(nil, true).first
       end
@@ -204,32 +193,6 @@ class DashboardController < ApplicationController
     not_found('dashboard') unless @dashboard
 
     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot) if @dashboard && @snapshot
-  end
-
-  def load_resource
-    if params[:id]
-      @resource = Project.by_key(params[:id])
-      return unless @resource
-      @resource=@resource.permanent_resource
-
-      @snapshot=@resource.last_snapshot
-      return unless @snapshot
-
-      access_denied unless has_role?(:user, @resource)
-
-      @project=@resource # for backward compatibility with old widgets
-    end
-  end
-
-  def redirect_if_bad_component
-    if params[:id]
-      unless @resource
-        return project_not_found
-      end
-      unless @snapshot
-        project_not_analyzed
-      end
-    end
   end
 
   def project_not_found

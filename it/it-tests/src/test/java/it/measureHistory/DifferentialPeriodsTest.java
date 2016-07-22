@@ -139,26 +139,6 @@ public class DifferentialPeriodsTest {
   }
 
   /**
-   * SONAR-4700
-   */
-  @Test
-  public void not_display_periods_selection_dropdown_on_first_analysis() {
-    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-
-    // Use old way to execute Selenium because 'assertSelectOptions' action is not supported by SeleneseTest
-    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("not-display-periods-selection-dropdown-on-first-analysis",
-      "/measureHistory/DifferentialPeriodsTest/not-display-periods-selection-dropdown-on-dashboard.html"
-      ).build());
-
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display-periods-selection-dropdown-after-first-analysis",
-      "/measureHistory/DifferentialPeriodsTest/display-periods-selection-dropdown-on-dashboard.html"
-      ).build());
-  }
-
-  /**
    * SONAR-7237
    */
   @Test
