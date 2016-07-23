@@ -19,8 +19,6 @@
  */
 package it.user;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
@@ -28,14 +26,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Favourite;
 import org.sonar.wsclient.services.FavouriteCreateQuery;
 import org.sonar.wsclient.services.FavouriteDeleteQuery;
 import org.sonar.wsclient.services.FavouriteQuery;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
@@ -69,20 +65,12 @@ public class FavouriteTest {
 
     // GET (created favourites)
     favourites = adminWsClient.findAll(new FavouriteQuery());
-    assertThat(favourites).hasSize(2);
-    List<String> keys = newArrayList(Iterables.transform(favourites, new Function<Favourite, String>() {
-      @Override
-      public String apply(Favourite input) {
-        return input.getKey();
-      }
-    }));
-    assertThat(keys).containsOnly("sample", "sample:src/main/xoo/sample/Sample.xoo");
+    assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample", "sample:src/main/xoo/sample/Sample.xoo");
 
     // DELETE (a favourite)
     adminWsClient.delete(new FavouriteDeleteQuery("sample"));
     favourites = adminWsClient.findAll(new FavouriteQuery());
-    assertThat(favourites).hasSize(1);
-    assertThat(favourites.get(0).getKey()).isEqualTo("sample:src/main/xoo/sample/Sample.xoo");
+    assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample:src/main/xoo/sample/Sample.xoo");
   }
 
 }
