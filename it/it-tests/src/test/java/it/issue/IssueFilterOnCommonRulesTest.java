@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;

@@ -26,7 +26,6 @@ import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
 import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;

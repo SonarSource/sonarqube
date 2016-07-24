@@ -21,21 +21,20 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import it.Category3Suite;
-import org.apache.commons.io.FileUtils;
-import org.junit.ClassRule;
-import org.junit.Test;
-import util.ItUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.apache.commons.io.FileUtils;
+import org.junit.ClassRule;
+import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

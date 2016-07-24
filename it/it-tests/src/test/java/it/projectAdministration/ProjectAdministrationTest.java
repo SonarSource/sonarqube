@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
@@ -117,7 +116,7 @@ public class ProjectAdministrationTest {
 
       new SeleneseTest(
         Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/projectAdministration/ProjectAdministrationTest/project-deletion/project-deletion.html").build())
-        .runOn(orchestrator);
+          .runOn(orchestrator);
     } finally {
       wsClient.userClient().deactivate(projectAdminUser);
     }
@@ -142,16 +141,16 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("modify_version_of_multimodule_project",
-        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html"
-      ).build();
+        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html")
+      .build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(2);
 
     selenese = Selenese.builder()
       .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
-        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html"
-      ).build();
+        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html")
+      .build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
@@ -168,8 +167,7 @@ public class ProjectAdministrationTest {
       // SONAR-3425
       "/projectAdministration/ProjectAdministrationTest/project-settings/override-global-settings.html",
 
-      "/projectAdministration/ProjectAdministrationTest/project-settings/only-on-project-settings.html"
-      ).build();
+      "/projectAdministration/ProjectAdministrationTest/project-settings/only-on-project-settings.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
     // GET /api/properties/sonar.exclusions?resource=sample
@@ -193,8 +191,8 @@ public class ProjectAdministrationTest {
       .setHtmlTestsInClasspath("project-bulk-update-keys",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-success.html"
-      ).build();
+        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-success.html")
+      .build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -209,8 +207,8 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("project-fine-grained-update-keys",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/fine-grained-update-impossible.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html"
-      ).build();
+        "/projectAdministration/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html")
+      .build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -223,8 +221,7 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("module-settings",
       // SONAR-3425
-      "/projectAdministration/ProjectAdministrationTest/module-settings/display-module-settings.html"
-      ).build();
+      "/projectAdministration/ProjectAdministrationTest/module-settings/display-module-settings.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 

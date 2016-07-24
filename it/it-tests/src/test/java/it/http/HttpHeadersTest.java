@@ -22,15 +22,14 @@ package it.http;
 
 import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
+import it.Category4Suite;
+import java.io.IOException;
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import it.Category4Suite;
-import java.io.IOException;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

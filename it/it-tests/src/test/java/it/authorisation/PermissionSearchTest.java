@@ -27,7 +27,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;

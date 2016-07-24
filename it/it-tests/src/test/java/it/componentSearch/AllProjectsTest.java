@@ -26,7 +26,6 @@ import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;

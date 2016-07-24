@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.client.WsClient;

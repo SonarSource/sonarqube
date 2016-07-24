@@ -26,7 +26,6 @@ import it.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;

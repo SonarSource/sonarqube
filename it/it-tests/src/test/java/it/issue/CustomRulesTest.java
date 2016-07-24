@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.Issue;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;

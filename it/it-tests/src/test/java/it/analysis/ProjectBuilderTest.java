@@ -24,7 +24,6 @@ import com.sonar.orchestrator.build.MavenBuild;
 import it.Category3Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;

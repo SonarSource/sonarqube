@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Set;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExternalResource;
 
 import static com.google.common.base.Preconditions.checkState;

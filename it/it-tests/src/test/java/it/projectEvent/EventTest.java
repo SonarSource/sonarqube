@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Event;
 import org.sonar.wsclient.services.EventQuery;
 import org.sonarqube.ws.client.PostRequest;

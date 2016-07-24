@@ -28,7 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static util.ItUtils.projectDir;

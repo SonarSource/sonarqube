@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;

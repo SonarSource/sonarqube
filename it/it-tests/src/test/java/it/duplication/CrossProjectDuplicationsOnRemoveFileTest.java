@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.selenium.SeleneseTest;
 

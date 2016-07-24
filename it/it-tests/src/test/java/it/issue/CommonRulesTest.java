@@ -23,7 +23,6 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;

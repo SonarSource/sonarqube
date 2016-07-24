@@ -39,7 +39,6 @@ import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
 import org.sonarqube.ws.client.GetRequest;

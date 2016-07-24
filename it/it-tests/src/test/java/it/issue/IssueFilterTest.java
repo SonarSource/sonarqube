@@ -22,7 +22,6 @@ package it.issue;
 import com.sonar.orchestrator.locator.FileLocation;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 

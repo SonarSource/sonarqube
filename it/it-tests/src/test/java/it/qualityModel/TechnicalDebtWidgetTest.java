@@ -24,15 +24,13 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category2Suite;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import util.selenium.SeleneseTest;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static util.ItUtils.projectDir;
 
