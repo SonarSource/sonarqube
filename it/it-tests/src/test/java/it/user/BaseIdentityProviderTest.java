@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import util.selenium.SeleneseTest;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -105,9 +106,9 @@ public class BaseIdentityProviderTest {
     enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("authenticate_through_ui",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("authenticate_through_ui",
       "/user/BaseIdentityProviderTest/authenticate_user.html"
-      ).build());
+      ).build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
@@ -118,9 +119,9 @@ public class BaseIdentityProviderTest {
     // As this property is null, the plugin will throw an exception
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
 
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display_unauthorized_page_when_authentication_failed",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("display_unauthorized_page_when_authentication_failed",
       "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html"
-      ).build());
+      ).build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -131,9 +132,9 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.allowsUsersToSignUp", "false");
 
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
       "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
-      ).build());
+      ).build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -194,9 +195,9 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
 
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
       "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
-    ).build());
+    ).build()).runOn(ORCHESTRATOR);
 
     File logFile = ORCHESTRATOR.getServer().getLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
