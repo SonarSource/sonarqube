@@ -31,7 +31,8 @@ CI)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
   
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    #mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn deploy \
           $MAVEN_OPTIONS \
           -Pdeploy-sonarsource \
           -Dsonar.host.url=$SONAR_HOST_URL \
