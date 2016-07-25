@@ -26,9 +26,9 @@ import {
     postJSON
 } from '../helpers/request';
 
-export function getQualityProfiles () {
+export function getQualityProfiles (data) {
   const url = '/api/qualityprofiles/search';
-  return getJSON(url).then(r => r.profiles);
+  return getJSON(url, data).then(r => r.profiles);
 }
 
 export function createQualityProfile (data) {
@@ -162,4 +162,16 @@ export function compareProfiles (leftKey, rightKey) {
   const url = '/api/qualityprofiles/compare';
   const data = { leftKey, rightKey };
   return getJSON(url, data);
+}
+
+export function associateProject (profileKey, projectKey) {
+  const url = '/api/qualityprofiles/add_project';
+  const data = { profileKey, projectKey };
+  return post(url, data);
+}
+
+export function dissociateProject (profileKey, projectKey) {
+  const url = '/api/qualityprofiles/remove_project';
+  const data = { profileKey, projectKey };
+  return post(url, data);
 }

@@ -19,9 +19,13 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
+import { Provider } from 'react-redux';
 import { Router, Route, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import Deletion from './deletion/Deletion';
+import QualityProfiles from './quality-profiles/QualityProfiles';
+import rootReducer from './store/rootReducer';
+import configureStore from '../../components/store/configureStore';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
@@ -30,12 +34,21 @@ window.sonarqube.appStarted.then(options => {
     basename: window.baseUrl + '/project'
   });
 
+  const store = configureStore(rootReducer);
+
   const withComponent = ComposedComponent => props =>
       <ComposedComponent {...props} component={options.component}/>;
 
   render((
-      <Router history={history}>
-        <Route path="/deletion" component={withComponent(Deletion)}/>
-      </Router>
+      <Provider store={store}>
+        <Router history={history}>
+          <Route
+              path="/deletion"
+              component={withComponent(Deletion)}/>
+          <Route
+              path="/quality_profiles"
+              component={withComponent(QualityProfiles)}/>
+        </Router>
+      </Provider>
   ), el);
 });
