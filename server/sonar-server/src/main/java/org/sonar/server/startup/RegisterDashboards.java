@@ -75,15 +75,17 @@ public class RegisterDashboards implements Startable {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register dashboards");
 
     List<DashboardDto> registeredDashboards = Lists.newArrayList();
-    for (DashboardTemplate template : dashboardTemplates) {
-      if (shouldRegister(template.getName())) {
+    dashboardTemplates.stream()
+      .filter(template -> shouldRegister(template.getName()))
+      .forEach(template -> {
         Dashboard dashboard = template.createDashboard();
-        DashboardDto dto = register(template.getName(), dashboard);
-        if ((dto != null) && (dashboard.isActivated())) {
-          registeredDashboards.add(dto);
+        if (dashboard.isGlobal()) {
+          DashboardDto dto = register(template.getName(), dashboard);
+          if ((dto != null) && dashboard.isActivated() && dashboard.isGlobal()) {
+            registeredDashboards.add(dto);
+          }
         }
-      }
-    }
+      });
 
     activate(registeredDashboards);
     profiler.stopDebug();

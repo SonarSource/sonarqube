@@ -22,7 +22,6 @@ package org.sonar.api.web;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,8 @@ public final class Dashboard {
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
   private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
-  private boolean global = false;
   private boolean activated = true;
+  private boolean global = false;
 
   private Dashboard() {
   }
@@ -118,8 +117,9 @@ public final class Dashboard {
   }
 
   /**
-   * A dashboard is global when it doesn't display information from a projet but rather more general information.
+   * A dashboard is global when it doesn't display information from a project but rather more general information.
    * <p>Before version 3.1 no dashboard was global.
+   * <p>Since version 6.1, project dashboards are dropped. Project dashboards (global=false) are ignored.</p>
    *
    * @since 3.1
    */
@@ -128,8 +128,9 @@ public final class Dashboard {
   }
 
   /**
-   * A dashboard is global when it doesn't display information from a projet but rather more general information.
-   * <p>Before version 3.1 no dashboard was global.
+   * A dashboard is global when it doesn't display information from a project but rather more general information.
+   * <p>Before version 3.1 no dashboard was global.</p>
+   * <p>Since version 6.1, project dashboards are dropped. Project dashboards (global=false) are ignored.</p>
    *
    * @since 3.1
    */

@@ -20,6 +20,9 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Iterables;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.hamcrest.BaseMatcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,18 +30,14 @@ import org.mockito.ArgumentMatcher;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.dashboard.WidgetDto;
 import org.sonar.db.dashboard.WidgetPropertyDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -63,13 +62,13 @@ public class RegisterDashboardsTest {
     loadedTemplateDao = mock(LoadedTemplateDao.class);
     fakeDashboardTemplate = mock(DashboardTemplate.class);
 
-    task = new RegisterDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
+    task = new RegisterDashboards(new DashboardTemplate[] {fakeDashboardTemplate}, dashboardDao,
       activeDashboardDao, loadedTemplateDao, null);
   }
 
   @Test
   public void testStart() {
-    when(fakeDashboardTemplate.createDashboard()).thenReturn(Dashboard.create());
+    when(fakeDashboardTemplate.createDashboard()).thenReturn(newGlobalDashboard());
 
     task.start();
 
@@ -96,7 +95,7 @@ public class RegisterDashboardsTest {
 
   @Test
   public void should_register_and_activate_dashboard() {
-    when(fakeDashboardTemplate.createDashboard()).thenReturn(Dashboard.create());
+    when(fakeDashboardTemplate.createDashboard()).thenReturn(newGlobalDashboard());
 
     DashboardDto dashboardDto = task.register("Fake", fakeDashboardTemplate.createDashboard());
 
@@ -106,8 +105,7 @@ public class RegisterDashboardsTest {
 
   @Test
   public void should_activate_dashboard() {
-    Dashboard dashboard = Dashboard.create();
-    when(fakeDashboardTemplate.createDashboard()).thenReturn(dashboard);
+    when(fakeDashboardTemplate.createDashboard()).thenReturn(newGlobalDashboard());
 
     task.start();
 
@@ -115,8 +113,19 @@ public class RegisterDashboardsTest {
   }
 
   @Test
+  public void should_not_activate_project_dashboards() {
+    Dashboard dashboard = Dashboard.create().setGlobal(false);
+    when(fakeDashboardTemplate.createDashboard()).thenReturn(dashboard);
+
+    task.start();
+
+    verify(activeDashboardDao, never()).insert(any(ActiveDashboardDto.class));
+    verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
+  }
+
+  @Test
   public void should_disable_activation() {
-    Dashboard dashboard = Dashboard.create();
+    Dashboard dashboard = newGlobalDashboard();
     dashboard.setActivated(false);
     when(fakeDashboardTemplate.createDashboard()).thenReturn(dashboard);
 
@@ -127,8 +136,7 @@ public class RegisterDashboardsTest {
 
   @Test
   public void shouldCreateDtoFromExtension() {
-    Dashboard dashboard = Dashboard.create()
-      .setGlobal(true)
+    Dashboard dashboard = newGlobalDashboard()
       .setLayout(DashboardLayout.TWO_COLUMNS_30_70);
     Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
     widget.setProperty("fake-property", "fake_metric");
@@ -182,5 +190,9 @@ public class RegisterDashboardsTest {
         return dto.getDashboardId() == dashboardId && dto.getOrderIndex() == orderId;
       }
     };
+  }
+
+  private Dashboard newGlobalDashboard() {
+    return Dashboard.create().setGlobal(true);
   }
 }
