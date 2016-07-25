@@ -51,7 +51,6 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
-import org.sonar.server.dashboard.template.ProjectCustomDashboard;
 import org.sonar.server.dashboard.widget.AlertsWidget;
 import org.sonar.server.dashboard.widget.BubbleChartWidget;
 import org.sonar.server.dashboard.widget.ComplexityWidget;
@@ -331,7 +330,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // Dashboard
       DashboardsWs.class,
       org.sonar.server.dashboard.ws.ShowAction.class,
-      ProjectCustomDashboard.class,
       GlobalDefaultDashboard.class,
       AlertsWidget.class,
       CoverageWidget.class,

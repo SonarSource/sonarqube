@@ -58,9 +58,6 @@ public class DashboardTest {
       // SONAR-4630
       "/componentDashboard/DashboardTest/global_dashboard/create-global-dashboards-error.html",
 
-      // SONAR-3461
-      "/componentDashboard/DashboardTest/global_dashboard/order-project-default-dashboards.html",
-
       // SONAR-3462
       "/componentDashboard/DashboardTest/global_dashboard/order-global-dashboard.html",
 
