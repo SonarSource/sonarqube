@@ -39,6 +39,12 @@ export function deleteComponents (data) {
   return post(url, data);
 }
 
+export function deleteProject (key) {
+  const url = '/api/projects/delete';
+  const data = { key };
+  return post(url, data);
+}
+
 export function createProject (data) {
   const url = '/api/projects/create';
   return postJSON(url, data);
