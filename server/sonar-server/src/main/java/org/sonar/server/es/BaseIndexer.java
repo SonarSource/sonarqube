@@ -27,9 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 
-@ServerSide
 public abstract class BaseIndexer implements Startable {
 
   private final ThreadPoolExecutor executor;

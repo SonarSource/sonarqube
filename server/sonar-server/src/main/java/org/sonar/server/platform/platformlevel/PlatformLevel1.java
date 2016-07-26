@@ -40,14 +40,17 @@ import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
-import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;
-import org.sonar.server.platform.ServerFileSystemImpl;
+import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerImpl;
+import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerSettingsImpl;
 import org.sonar.server.platform.TempFolderProvider;
+import org.sonar.server.platform.UrlSettings;
+import org.sonar.server.platform.cluster.ClusterImpl;
+import org.sonar.server.platform.cluster.ClusterProperties;
+import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
@@ -75,11 +78,12 @@ public class PlatformLevel1 extends PlatformLevel {
     add(
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
+      LogServerVersion.class,
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       ServerSettingsImpl.class,
-      ServerImpl.class,
       UuidFactoryImpl.INSTANCE,
+      UrlSettings.class,
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
@@ -119,6 +123,10 @@ public class PlatformLevel1 extends PlatformLevel {
       org.sonar.core.properties.PropertiesDao.class);
     addAll(CorePropertyDefinitions.all());
     addAll(CePropertyDefinitions.all());
+
+    // cluster
+    addAll(ClusterProperties.definitions());
+    add(ClusterImpl.class);
   }
 
   private void addExtraRootComponents() {

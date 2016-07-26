@@ -38,11 +38,11 @@ import java.util.Properties;
  */
 public class ServerSettingsImpl extends Settings implements ServerSettings {
 
-  private final Properties properties;
+  private final Properties bootstrapProperties;
 
-  public ServerSettingsImpl(PropertyDefinitions definitions, Properties properties) {
+  public ServerSettingsImpl(PropertyDefinitions definitions, Properties bootstrapProperties) {
     super(definitions);
-    this.properties = properties;
+    this.bootstrapProperties = bootstrapProperties;
     load(Collections.emptyMap());
     // Secret key is loaded from conf/sonar.properties
     getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
@@ -63,7 +63,7 @@ public class ServerSettingsImpl extends Settings implements ServerSettings {
 
     // order is important : the last override the first
     addProperties(databaseSettings);
-    addProperties(properties);
+    addProperties(bootstrapProperties);
 
     return this;
   }

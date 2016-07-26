@@ -17,28 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+package org.sonar.server.platform.cluster;
 
-import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerIdLoader;
-import org.sonar.server.platform.StartupMetadataPersister;
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
-public class PlatformLevel3 extends PlatformLevel {
-  public PlatformLevel3(PlatformLevel parent) {
-    super("level3", parent);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ClusterPropertiesTest {
+
+  @Test
+  public void test_Definitions() {
+    assertThat(ClusterProperties.definitions()).isNotEmpty();
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ClusterProperties.class)).isTrue();
   }
 
-  @Override
-  protected void configureLevel() {
-    addIfStartupLeader(StartupMetadataPersister.class);
-    add(
-      PersistentSettings.class,
-      DefaultHttpDownloader.class,
-      UriReader.class,
-      ServerIdLoader.class,
-      ServerIdGenerator.class);
-  }
 }

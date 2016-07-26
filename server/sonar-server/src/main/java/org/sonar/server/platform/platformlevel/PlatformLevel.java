@@ -21,12 +21,16 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
+import org.sonar.server.platform.cluster.Cluster;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 public abstract class PlatformLevel {
   private final String name;
@@ -105,20 +109,40 @@ public abstract class PlatformLevel {
     return this;
   }
 
-  protected void add(@Nullable Object object, boolean singleton) {
-    if (object != null) {
-      container.addComponent(object, singleton);
-    }
+  protected <T> T get(Class<T> tClass) {
+    return requireNonNull(container.getComponentByType(tClass));
   }
 
-  protected <T> T getComponentByType(Class<T> tClass) {
-    return container.getComponentByType(tClass);
+  protected <T> List<T> getAll(Class<T> tClass) {
+    return container.getComponentsByType(tClass);
+  }
+
+  protected <T> Optional<T> getOptional(Class<T> tClass) {
+    return Optional.ofNullable(container.getComponentByType(tClass));
   }
 
   protected void add(Object... objects) {
     for (Object object : objects) {
       if (object != null) {
         container.addComponent(object, true);
+      }
+    }
+  }
+
+  /**
+   * Add a component to container only if the server node is marked as "startupLeader" (cluster disabled
+   * or first node of the cluster to be started).
+   *
+   * @throws IllegalStateException if called from PlatformLevel1, when cluster settings are not loaded
+   */
+  protected void addIfStartupLeader(Object... objects) {
+    Optional<Cluster> cluster = getOptional(Cluster.class);
+    checkState(cluster.isPresent(), "Cluster settings not loaded yet");
+    if (cluster.get().isStartupLeader()) {
+      for (Object object : objects) {
+        if (object != null) {
+          container.addComponent(object, true);
+        }
       }
     }
   }

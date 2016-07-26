@@ -21,16 +21,17 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.picocontainer.MutablePicoContainer;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
@@ -41,7 +42,6 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.ProcessProperties.STARTED_AT;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -65,7 +65,6 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(STARTED_AT, valueOf(new Date().getTime()));
     properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
@@ -75,6 +74,8 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(DatabaseProperties.PROP_URL, url);
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+    insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
+    insertProperty("sonar.core.startedAt", "123456789");
 
     underTest
       .start(new Props(properties));
@@ -91,7 +92,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-        + 2 // level 3
+        + 4 // level 3
     );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
@@ -99,7 +100,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-        + 23 // level 1
+        + 26 // level 1
         + 46 // content of DaoModule
         + 1 // content of EsSearchModule
         + 55 // content of CorePropertyDefinitions
@@ -111,5 +112,11 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
     assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
     assertThat(picoContainer.getLifecycleState().isDisposed()).isTrue();
+  }
+
+  private void insertProperty(String key, String value) {
+    PropertyDto dto = new PropertyDto().setKey(key).setValue(value);
+    dbTester.getDbClient().propertiesDao().insertProperty(dbTester.getSession(), dto);
+    dbTester.commit();
   }
 }

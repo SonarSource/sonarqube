@@ -105,7 +105,11 @@ import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.TempFolderProvider;
+import org.sonar.server.platform.UrlSettings;
+import org.sonar.server.platform.cluster.ClusterImpl;
+import org.sonar.server.platform.cluster.ClusterProperties;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
@@ -150,7 +154,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(props.rawProperties())
       .add(level1Components())
       .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(CePropertyDefinitions.all()));
+      .add(toArray(CePropertyDefinitions.all()))
+      .add(toArray(ClusterProperties.definitions()));
     configureFromModules(this.level1);
     this.level1.startComponents();
 
@@ -205,9 +210,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ComputeEngineSettings.class,
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
-      ServerImpl.class,
       UuidFactoryImpl.INSTANCE,
-      // no EmbeddedDatabaseFactory.class, creating H2 DB if responsibility of WebServer
+      UrlSettings.class,
+      ClusterImpl.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
       // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
@@ -273,11 +278,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] level3Components() {
     return new Object[] {
+      new StartupMetadataProvider(),
       PersistentSettings.class,
-      // ServerMetadataPersister.class, server id is the responsibility of Web Server
-      // DefaultHttpDownloader.class, does not make sense to use it from Compute Engine
       UriReader.class,
-      // ServerIdGenerator.class, server id is the responsibility of Web Server
+      ServerImpl.class
     };
   }
 

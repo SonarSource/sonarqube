@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -103,7 +102,6 @@ public class ServerTester extends ExternalResource {
       Properties properties = new Properties();
       properties.putAll(initialProps);
       esServerHolder = EsServerHolder.get();
-      properties.setProperty(ProcessProperties.STARTED_AT, String.valueOf(new Date().getTime()));
       properties.setProperty(ProcessProperties.CLUSTER_NAME, esServerHolder.getClusterName());
       properties.setProperty(ProcessProperties.CLUSTER_NODE_NAME, esServerHolder.getNodeName());
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
