@@ -7,13 +7,6 @@
   <%= render :partial => 'list', :locals => {:active_dashboards => @actives.select(&:global?), :group => 'activeGlobal'} %>
 
   <header class="page-header huge-spacer-top">
-    <h1 class="page-title"><%= message('dashboard.project_dashboards') -%></h1>
-    <p class="page-description"><%= message('dashboard.project_dashboards.description') -%></p>
-  </header>
-
-  <%= render :partial => 'list', :locals => {:active_dashboards => @actives.reject(&:global?), :group => 'activeProject'} %>
-
-  <header class="page-header huge-spacer-top">
     <h1 class="page-title"><%= message('dashboard.shared_dashboards') -%></h1>
     <p class="page-description"><%= message('dashboard.shared_dashboards.description') -%></p>
   </header>
