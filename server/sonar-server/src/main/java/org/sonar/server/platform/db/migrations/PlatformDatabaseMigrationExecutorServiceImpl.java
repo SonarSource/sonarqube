@@ -17,7 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.db;
+package org.sonar.server.platform.db.migrations;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.sonar.server.util.AbstractStoppableExecutorService;
+
+import java.util.concurrent.Executors;
+
+/**
+ * Since only one DB migration can run at a time, this implementation of PlatformDatabaseMigrationExecutorService
+ * wraps a single thread executor from the JDK.
+ */
+public class PlatformDatabaseMigrationExecutorServiceImpl
+  extends AbstractStoppableExecutorService
+  implements PlatformDatabaseMigrationExecutorService {
+
+  public PlatformDatabaseMigrationExecutorServiceImpl() {
+    super(
+      Executors.newSingleThreadExecutor(
+        new ThreadFactoryBuilder()
+          .setDaemon(false)
+          .setNameFormat("DB_migration-%d")
+          .build()
+        ));
+  }
+}

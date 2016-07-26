@@ -17,43 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.platform.db;
 
-import org.picocontainer.Startable;
+import org.junit.After;
+import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
-/**
- * Checks charset of all existing database columns at startup, before executing db migrations. This requires
- * to be defined in platform level 2 ({@link org.sonar.server.platform.platformlevel.PlatformLevel2}).
- */
-public class CheckDatabaseCharsetAtStartup implements Startable {
+public class CheckDatabaseCharsetAtStartupTest {
 
-  private final ServerUpgradeStatus upgradeStatus;
-  private final DatabaseCharsetChecker charsetChecker;
+  ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
+  DatabaseCharsetChecker charsetChecker = mock(DatabaseCharsetChecker.class);
+  CheckDatabaseCharsetAtStartup underTest = new CheckDatabaseCharsetAtStartup(upgradeStatus, charsetChecker);
 
-  public CheckDatabaseCharsetAtStartup(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
-    this.upgradeStatus = upgradeStatus;
-    this.charsetChecker = charsetChecker;
+  @After
+  public void tearDown() {
+    underTest.stop();
   }
 
-  @Override
-  public void start() {
-    check();
+  @Test
+  public void enforce_utf8_if_fresh_install() {
+    when(upgradeStatus.isFreshInstall()).thenReturn(true);
+
+    underTest.start();
+
+    verify(charsetChecker).check(ENFORCE_UTF8);
   }
 
-  @Override
-  public void stop() {
-    // do nothing
-  }
+  @Test
+  public void do_not_enforce_utf8_and_do_not_repair_at_startup_if_not_fresh_install() {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
 
-  protected final void check() {
-    if (upgradeStatus.isFreshInstall()) {
-      charsetChecker.check(ENFORCE_UTF8);
-    } else if (!upgradeStatus.isUpgraded()) {
-      charsetChecker.check();
-    }
+    underTest.start();
+
+    verify(charsetChecker).check();
   }
 }

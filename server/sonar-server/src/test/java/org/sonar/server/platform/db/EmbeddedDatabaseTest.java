@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.platform.db;
 
 import java.io.IOException;
 import java.sql.DriverManager;
@@ -31,6 +31,7 @@ import org.junit.rules.Timeout;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.process.NetworkUtils;
+import org.sonar.server.platform.db.EmbeddedDatabase;
 
 import static junit.framework.Assert.fail;
 import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
