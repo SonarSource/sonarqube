@@ -40,12 +40,12 @@ function createPrivateClone() {
 }
 
 function showHelp() {
-  echo "Usage: $0 -d DIR_PATH [ -l integer ] [ -h URL ] [ -u string ] [ -p string ]"
-  echo " -d : path to directory where batch report bumpds will be created"
-  echo " -l : number of commit in the past (optional: default is $HISTORY_LENGTH)"
-  echo " -h : URL of the SQ instance (optional: default is $SONAR_HOST)"
-  echo " -u : username to authentication on the SQ instance (optional: default is $SONAR_USER)"
-  echo " -p : password to authentication on the SQ instance (optional: default is $SONAR_USER)"
+  echo "Usage: $0 -d DIR_PATH [ -l integer ] [ -h URL ] [ -u string ] [ -p string ]
+ -d : path to directory where batch report bumpds will be created
+ -l : number of commit in the past (optional: default is $HISTORY_LENGTH)
+ -h : URL of the SQ instance (optional: default is $SONAR_HOST)
+ -u : username to authentication on the SQ instance (optional: default is $SONAR_USER)
+ -p : password to authentication on the SQ instance (optional: default is $SONAR_USER)"
 }
 
 function checkOptions() {
