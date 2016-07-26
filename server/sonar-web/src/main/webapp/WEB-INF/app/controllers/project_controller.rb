@@ -32,36 +32,16 @@ class ProjectController < ApplicationController
     @project = get_current_project(params[:id])
   end
 
-  # GET /project/profile?id=<project id>
-  def profile
-    require_parameters :id
-    @project_id = Api::Utils.project_id(params[:id])
-    @project = Project.by_key(@project_id)
+  def quality_profiles
+    # since 6.1
+    @project = Project.by_key(params[:id])
+    not_found("Project not found") unless @project
     access_denied unless (is_admin?(@project.uuid) || has_role?(:profileadmin))
-
-    call_backend do
-      @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
-    end
   end
 
-  # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
-  def set_profile
-    verify_post_request
-
-    language = params[:language]
-    project = get_current_project(params[:id])
-    profile_id = params[:profile_id]
-
-    call_backend do
-      if profile_id.blank?
-        Internal.quality_profiles.removeProjectByLanguage(language, project.id())
-      else
-        profile = Internal.quality_profiles.profile(profile_id.to_i)
-        Internal.quality_profiles.addProject(profile.key(), project.uuid())
-      end
-    end
-
-    redirect_to :action => 'profile', :id => project
+  def profile
+    # redirect to another url since 6.1
+    redirect_to(url_for({:action => 'quality_profiles'}) + '?id=' + url_encode(params[:id]))
   end
 
   # GET /project/qualitygate?id=<project id>

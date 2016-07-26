@@ -27,7 +27,7 @@ import { getComponentUrl } from '../../../helpers/urls';
 
 const SETTINGS_URLS = [
   '/project/settings',
-  '/project/profile',
+  '/project/quality_profiles',
   '/project/qualitygate',
   '/custom_measures',
   '/project/links',
@@ -149,8 +149,8 @@ export default React.createClass({
     if (!this.props.conf.showQualityProfiles) {
       return null;
     }
-    const url = `/project/profile?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_quality_profiles.page'), '/project/profile');
+    const url = `/project/quality_profiles?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, translate('project_quality_profiles.page'), '/project/quality_profiles');
   },
 
   renderQualityGatesLink() {
