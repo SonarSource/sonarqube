@@ -11,6 +11,10 @@ message SearchWsResponse {
   repeated Link links = 1;
 }
 
+message CreateWsResponse {
+  optional Link link = 1;
+}
+
 message Link {
   optional string id = 1;
   optional string name = 2;

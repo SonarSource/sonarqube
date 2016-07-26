@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -35,8 +36,14 @@ public class ComponentLinkDao implements Dao {
     return componentUuids.isEmpty() ? emptyList() : mapper(dbSession).selectByComponentUuids(componentUuids);
   }
 
-  public void insert(DbSession session, ComponentLinkDto dto) {
+  @CheckForNull
+  public ComponentLinkDto selectById(DbSession session, long id) {
+    return session.getMapper(ComponentLinkMapper.class).selectById(id);
+  }
+
+  public ComponentLinkDto insert(DbSession session, ComponentLinkDto dto) {
     session.getMapper(ComponentLinkMapper.class).insert(dto);
+    return dto;
   }
 
   public void update(DbSession session, ComponentLinkDto dto) {

@@ -28,6 +28,8 @@ public interface ComponentLinkMapper {
 
   List<ComponentLinkDto> selectByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
+  ComponentLinkDto selectById(@Param("id") String id);
+
   void insert(ComponentLinkDto dto);
 
   void update(ComponentLinkDto dto);

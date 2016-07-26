@@ -19,19 +19,50 @@
  */
 package org.sonarqube.ws.client.projectlinks;
 
-public class ProjectLinksWsParameters {
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-  //actions
-  public static final String ACTION_SEARCH = "search";
-  public static final String ACTION_CREATE = "create";
+public class CreateWsRequest {
+  private String projectId;
+  private String projectKey;
+  private String name;
+  private String url;
 
-  // parameters
-  public static final String PARAM_PROJECT_ID = "projectId";
-  public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_NAME = "name";
-  public static final String PARAM_URL = "url";
+  @CheckForNull
+  public String getProjectId() {
+    return projectId;
+  }
 
-  private ProjectLinksWsParameters() {
-    // static utility class
+  public CreateWsRequest setProjectId(@Nullable String projectId) {
+    this.projectId = projectId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public CreateWsRequest setProjectKey(@Nullable String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public CreateWsRequest setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public CreateWsRequest setUrl(String url) {
+    this.url = url;
+    return this;
   }
 }

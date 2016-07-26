@@ -33,6 +33,14 @@
     order by p.id
   </select>
 
+  <select id="selectById" parameterType="String" resultType="ComponentLink">
+    SELECT
+    <include refid="componentLinkColumns"/>
+    FROM project_links p
+    <where>
+      p.id=#{id}
+    </where>
+  </select>
 
   <insert id="insert" parameterType="ComponentLink" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO project_links (component_uuid, link_type, name, href)

@@ -28,7 +28,8 @@ public class ProjectLinksModule extends Module {
     add(
       ProjectLinksWs.class,
       // actions
-      SearchAction.class);
+      SearchAction.class,
+      CreateAction.class);
   }
 
 }

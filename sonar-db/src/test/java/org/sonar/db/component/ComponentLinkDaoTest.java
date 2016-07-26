@@ -85,6 +85,15 @@ public class ComponentLinkDaoTest {
   }
 
   @Test
+  public void select_by_id() {
+    ComponentLinkDto link = underTest.insert(dbSession, newComponentLinkDto());
+    db.commit();
+
+    ComponentLinkDto candidate = underTest.selectById(dbSession, link.getId());
+    assertThat(candidate.getId()).isNotNull();
+  }
+
+  @Test
   public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
