@@ -79,7 +79,6 @@ import org.sonar.server.dashboard.widget.TimeMachineWidget;
 import org.sonar.server.dashboard.widget.TimelineWidget;
 import org.sonar.server.dashboard.widget.TreemapWidget;
 import org.sonar.server.dashboard.widget.WelcomeWidget;
-import org.sonar.server.dashboard.ws.DashboardsWs;
 import org.sonar.server.debt.DebtModelBackup;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
@@ -328,8 +327,6 @@ public class PlatformLevel4 extends PlatformLevel {
       BatchWsModule.class,
 
       // Dashboard
-      DashboardsWs.class,
-      org.sonar.server.dashboard.ws.ShowAction.class,
       GlobalDefaultDashboard.class,
       AlertsWidget.class,
       CoverageWidget.class,
