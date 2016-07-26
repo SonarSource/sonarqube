@@ -45,6 +45,7 @@ module.exports = {
     'metrics': './src/main/js/apps/metrics/app.js',
     'overview': './src/main/js/apps/overview/app.js',
     'permission-templates': './src/main/js/apps/permission-templates/app.js',
+    'project-admin': './src/main/js/apps/project-admin/app.js',
     'project-permissions': './src/main/js/apps/permissions/project/app.js',
     'projects': './src/main/js/apps/projects/app.js',
     'quality-gates': './src/main/js/apps/quality-gates/app.js',

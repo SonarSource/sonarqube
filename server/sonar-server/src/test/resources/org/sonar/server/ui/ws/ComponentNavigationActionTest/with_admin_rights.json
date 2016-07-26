@@ -15,7 +15,6 @@
     "showPermissions": false,
     "showHistory": false,
     "showUpdateKey": false,
-    "showDeletion": false,
     "extensions": [
       {
         "name": "First Page",

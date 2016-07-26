@@ -20,7 +20,6 @@
 class ProjectController < ApplicationController
   verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update],
          :redirect_to => {:action => :index}
-  verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
   SECTION=Navigation::SECTION_RESOURCE
 
@@ -29,56 +28,8 @@ class ProjectController < ApplicationController
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'}
   end
 
-  def delete_form
-    @project = get_current_project(params[:id])
-    render :partial => 'delete_form'
-  end
-
-  def delete
-    @project = get_current_project(params[:id])
-
-    # Ask the resource deletion manager to start the migration
-    # => this is an asynchronous AJAX call
-    ResourceDeletionManager.instance.delete_resources([@project.id])
-
-    # and return some text that will actually never be displayed
-    render :text => ResourceDeletionManager.instance.message
-  end
-
   def deletion
     @project = get_current_project(params[:id])
-
-    if java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
-      deletion_manager = ResourceDeletionManager.instance
-      if deletion_manager.currently_deleting_resources? ||
-          (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
-        # a deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
-        render :template => 'project/pending_deletion'
-      else
-        @snapshot=@project.last_snapshot
-      end
-    else
-      redirect_to :action => 'index', :id => params[:id]
-    end
-  end
-
-  def pending_deletion
-    deletion_manager = ResourceDeletionManager.instance
-
-    if deletion_manager.currently_deleting_resources? ||
-        (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
-      # display the same page again and again
-      # => implicit render "pending_deletion.html.erb"
-    else
-      redirect_to_default
-    end
-  end
-
-  def dismiss_deletion_message
-    # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
-    ResourceDeletionManager.instance.reinit
-
-    redirect_to :action => 'deletion', :id => params[:id]
   end
 
   # GET /project/profile?id=<project id>
@@ -225,18 +176,6 @@ class ProjectController < ApplicationController
 
   def background_tasks
     @project = get_current_project(params[:id])
-  end
-
-  def delete_snapshot_history
-    @project = get_current_project(params[:id])
-
-    sid = params[:snapshot_id]
-    if sid
-      Snapshot.update_all("status='U'", ["id=?", sid.to_i])
-      flash[:notice] = message('project_history.snapshot_deleted')
-    end
-
-    redirect_to :action => 'history', :id => @project.id
   end
 
   def links

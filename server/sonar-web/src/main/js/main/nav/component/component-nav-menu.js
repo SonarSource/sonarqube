@@ -42,12 +42,11 @@ export default React.createClass({
   mixins: [LinksMixin],
 
   isDeveloper() {
-    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
-    return qualifier === 'DEV';
+    return this.props.component.qualifier === 'DEV';
   },
 
   isView() {
-    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
+    const { qualifier } = this.props.component;
     return qualifier === 'VW' || qualifier === 'SVW';
   },
 
@@ -100,7 +99,6 @@ export default React.createClass({
   renderAdministration() {
     const shouldShowAdministration =
         this.props.conf.showBackgroundTasks ||
-        this.props.conf.showDeletion ||
         this.props.conf.showHistory ||
         this.props.conf.showLinks ||
         this.props.conf.showManualMeasures ||
@@ -132,8 +130,8 @@ export default React.createClass({
             {this.renderHistoryLink()}
             {this.renderBackgroundTasksLink()}
             {this.renderUpdateKeyLink()}
-            {this.renderDeletionLink()}
             {this.renderExtensions()}
+            {this.renderDeletionLink()}
           </ul>
         </li>
     );
@@ -212,9 +210,12 @@ export default React.createClass({
   },
 
   renderDeletionLink() {
-    if (!this.props.conf.showDeletion) {
+    const { qualifier } = this.props.component;
+
+    if (qualifier !== 'TRK' && qualifier !== 'VW') {
       return null;
     }
+
     const url = `/project/deletion?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, translate('deletion.page'), '/project/deletion');
   },

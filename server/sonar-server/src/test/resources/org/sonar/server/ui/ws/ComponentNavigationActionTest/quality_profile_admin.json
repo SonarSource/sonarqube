@@ -14,8 +14,7 @@
     "showLinks": false,
     "showPermissions": false,
     "showHistory": false,
-    "showUpdateKey": false,
-    "showDeletion": false
+    "showUpdateKey": false
   },
   "breadcrumbs": [
     {

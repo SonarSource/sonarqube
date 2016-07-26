@@ -66,7 +66,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
   private static final String PROPERTY_MODIFIABLE_HISTORY = "modifiable_history";
   private static final String PROPERTY_UPDATABLE_KEY = "updatable_key";
-  private static final String PROPERTY_DELETABLE = "deletable";
 
   private final DbClient dbClient;
   private final Views views;
@@ -221,7 +220,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
-    json.prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
     json.prop("showBackgroundTasks", ActivityAction.isAllowedOnComponentUuid(userSession, component.uuid()));
   }
 

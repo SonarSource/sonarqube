@@ -67,8 +67,12 @@ export default class App {
   static renderComponentNav (options) {
     return getComponentNavigation(options.componentKey).then(component => {
       const el = document.getElementById('context-navigation');
+      const nextComponent = {
+        ...component,
+        qualifier: _.last(component.breadcrumbs).qualifier
+      };
       if (el) {
-        ReactDOM.render(<ComponentNav component={component} conf={component.configuration || {}}/>, el);
+        ReactDOM.render(<ComponentNav component={nextComponent} conf={component.configuration || {}}/>, el);
       }
       return component;
     });
