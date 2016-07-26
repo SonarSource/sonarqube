@@ -19,8 +19,6 @@
  */
 package org.sonar.server.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.io.File;
@@ -29,6 +27,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.annotation.Nullable;
@@ -37,9 +37,6 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 
-/**
- * @since 3.0
- */
 public class ClassLoaderUtils {
 
   private ClassLoaderUtils() {
@@ -105,7 +102,7 @@ public class ClassLoaderUtils {
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
           String name = entries.nextElement().getName();
-          if (name.startsWith(rootDirectory) && predicate.apply(name)) {
+          if (name.startsWith(rootDirectory) && predicate.test(name)) {
             paths.add(name);
           }
         }

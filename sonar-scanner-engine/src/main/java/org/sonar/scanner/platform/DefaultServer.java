@@ -37,8 +37,8 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 @ScannerSide
 public class DefaultServer extends Server {
 
-  private Settings settings;
-  private BatchWsClient client;
+  private final Settings settings;
+  private final BatchWsClient client;
 
   public DefaultServer(Settings settings, BatchWsClient client) {
     this.settings = settings;

@@ -29,6 +29,10 @@ public class ClusterProperties {
   public static final String ENABLED = "sonar.cluster.enabled";
   public static final String STARTUP_LEADER = "sonar.cluster.startupLeader";
 
+  private ClusterProperties() {
+    // only statics
+  }
+
   public static List<PropertyDefinition> definitions() {
     return ImmutableList.of(
       PropertyDefinition.builder(ENABLED)

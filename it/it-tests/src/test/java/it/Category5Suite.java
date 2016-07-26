@@ -19,6 +19,7 @@
  */
 package it;
 
+import it.serverSystem.ClusterTest;
 import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.settings.SettingsTestRestartingOrchestrator;
@@ -34,6 +35,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  ClusterTest.class,
   ServerSystemRestartingOrchestrator.class,
   RestartTest.class,
   SettingsTestRestartingOrchestrator.class,

@@ -85,13 +85,13 @@ public class RailsAppsDeployer implements Startable {
     if (hasRailsApp(pluginKey, appClassLoader)) {
       LOG.info("Deploying app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
-      ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, relativePath -> {
+      ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, relativePath ->
         // Relocate the deployed files :
         // relativePath format is: org/sonar/ror/sqale/app/controllers/foo_controller.rb
         // app path is: org/sonar/ror/sqale
         // -> deployed file is app/controllers/foo_controller.rb
-        return StringUtils.substringAfter(relativePath, pluginKey + "/");
-      });
+        StringUtils.substringAfter(relativePath, pluginKey + "/")
+      );
     }
   }
 

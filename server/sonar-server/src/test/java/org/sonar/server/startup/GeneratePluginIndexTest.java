@@ -44,12 +44,12 @@ public class GeneratePluginIndexTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-  private File underTest;
+  private File index;
 
   @Before
   public void createIndexFile() {
-    when(fileSystem.getPluginIndex()).thenReturn(underTest);
-    underTest = new File("target/test-tmp/GeneratePluginIndexTest/plugins.txt");
+    index = new File("target/test-tmp/GeneratePluginIndexTest/plugins.txt");
+    when(fileSystem.getPluginIndex()).thenReturn(index);
   }
 
   @Test
@@ -61,7 +61,7 @@ public class GeneratePluginIndexTest {
 
     new GeneratePluginIndex(fileSystem, repository).start();
 
-    List<String> lines = FileUtils.readLines(underTest);
+    List<String> lines = FileUtils.readLines(index);
     assertThat(lines.size(), Is.is(2));
     assertThat(lines.get(0), containsString("sqale"));
     assertThat(lines.get(1), containsString("checkstyle"));

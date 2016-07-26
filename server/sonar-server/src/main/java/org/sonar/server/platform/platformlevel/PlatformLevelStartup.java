@@ -20,10 +20,12 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
-import org.sonar.server.platform.db.CheckDatabaseCollationDuringMigration;
+import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
+import org.sonar.server.platform.db.CheckDatabaseCollationDuringMigration;
+import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
@@ -36,7 +38,6 @@ import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
 import org.sonar.server.startup.RegisterPermissionTemplates;
-import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.user.DoPrivileged;
@@ -49,38 +50,40 @@ public class PlatformLevelStartup extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    add(
+    add(GeneratePluginIndex.class,
+      LogServerId.class,
+      RegisterServletFilters.class,
+      ServerLifecycleNotifier.class);
+    
+    addIfStartupLeader(
       CheckDatabaseCollationDuringMigration.class,
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
       RegisterRules.class,
       RegisterQualityProfiles.class,
-      GeneratePluginIndex.class,
       RegisterNewMeasureFilters.class,
       RegisterDashboards.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
-      LogServerId.class,
-      RegisterServletFilters.class,
       RegisterIssueFilters.class,
       RenameIssueWidgets.class,
-      ServerLifecycleNotifier.class,
       DisplayLogOnDeprecatedProjects.class,
       ClearRulesOverloadedDebt.class,
-      FeedUsersLocalStartupTask.class
-    );
+      FeedUsersLocalStartupTask.class);
+
   }
 
   @Override
   public PlatformLevel start() {
-    DoPrivileged.execute(new DoPrivileged.Task(getComponentByType(ThreadLocalUserSession.class)) {
+    DoPrivileged.execute(new DoPrivileged.Task(get(ThreadLocalUserSession.class)) {
       @Override
       protected void doPrivileged() {
         PlatformLevelStartup.super.start();
-        getComponentByType(IndexerStartupTask.class).execute();
-        getComponentByType(ServerLifecycleNotifier.class).notifyStart();
-        getComponentByType(ProcessCommandWrapper.class).notifyOperational();
+        getOptional(IndexerStartupTask.class).ifPresent(IndexerStartupTask::execute);
+        get(ServerLifecycleNotifier.class).notifyStart();
+        get(ProcessCommandWrapper.class).notifyOperational();
+        getAll(BaseIndexer.class).forEach(i -> i.setEnabled(true));
       }
     });
 

@@ -305,6 +305,8 @@ public class PlatformLevel4 extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
+    addIfStartupLeader(IndexCreator.class);
+
     add(
       PluginDownloader.class,
       Views.class,
@@ -316,7 +318,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ServerWs.class,
       BackendCleanup.class,
       IndexDefinitions.class,
-      IndexCreator.class,
 
       // Activity
       ActivityService.class,
@@ -680,7 +681,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
   @Override
   public PlatformLevel start() {
-    ServerExtensionInstaller extensionInstaller = getComponentByType(ServerExtensionInstaller.class);
+    ServerExtensionInstaller extensionInstaller = get(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(getContainer());
 
     super.start();

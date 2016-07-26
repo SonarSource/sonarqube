@@ -80,22 +80,6 @@ public class AppTest {
   }
 
   @Test
-  public void all_JavaCommand_have_a_sonar_core_startedAt_property_argument() throws IOException {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
-    Props props = initDefaultProps();
-    app.start(props);
-
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
-
-    List<JavaCommand> javaCommands = argument.getValue();
-    for (JavaCommand javaCommand : javaCommands) {
-      assertThat(javaCommand.getArguments()).containsKey(ProcessProperties.STARTED_AT);
-    }
-  }
-
-  @Test
   public void add_custom_jdbc_driver_to_tomcat_classpath() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);

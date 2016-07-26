@@ -39,6 +39,8 @@ public abstract class Server {
   /**
    * Name is misleading, this is an UUID generated
    * at each startup, so it changes if server is restarted.
+   * In the context of cluster, the value is shared
+   * by all the nodes.
    * @return a non-null UUID. Format can change over versions.
    */
   public abstract String getId();
@@ -47,6 +49,7 @@ public abstract class Server {
    * UUID generated on demand by system administrators. It is
    * {@code null} by default on fresh installations. When defined,
    * value does not change when server is restarted.
+   * In the context of cluster, value is the same on all nodes.
    * @since 2.10
    */
   @CheckForNull
@@ -58,7 +61,9 @@ public abstract class Server {
   public abstract String getVersion();
 
   /**
-   * Date when server started
+   * Date when server started. In the context of cluster, this is the
+   * date of the startup of the first node. Value is the same on all
+   * cluster nodes.
    */
   public abstract Date getStartedAt();
 

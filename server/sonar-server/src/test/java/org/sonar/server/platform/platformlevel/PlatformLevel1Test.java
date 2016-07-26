@@ -19,26 +19,27 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerIdLoader;
-import org.sonar.server.platform.StartupMetadataPersister;
+import java.util.Properties;
+import org.junit.Test;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.utils.System2;
+import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.cluster.Cluster;
 
-public class PlatformLevel3 extends PlatformLevel {
-  public PlatformLevel3(PlatformLevel parent) {
-    super("level3", parent);
-  }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  @Override
-  protected void configureLevel() {
-    addIfStartupLeader(StartupMetadataPersister.class);
-    add(
-      PersistentSettings.class,
-      DefaultHttpDownloader.class,
-      UriReader.class,
-      ServerIdLoader.class,
-      ServerIdGenerator.class);
+
+public class PlatformLevel1Test {
+
+  private PlatformLevel1 underTest = new PlatformLevel1(mock(Platform.class), new Properties());
+
+  @Test
+  public void no_missing_dependencies_between_components() {
+    underTest.configureLevel();
+
+    assertThat(underTest.getAll(PropertyDefinition.class)).isNotEmpty();
+    assertThat(underTest.getOptional(Cluster.class)).isPresent();
+    assertThat(underTest.getOptional(System2.class)).isPresent();
   }
 }
