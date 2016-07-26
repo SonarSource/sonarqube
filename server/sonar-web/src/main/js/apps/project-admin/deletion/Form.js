@@ -18,39 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { deleteProject } from '../../../api/components';
+import ConfirmationModal from './ConfirmationModal';
+import { translate } from '../../../helpers/l10n';
 
 export default class Form extends React.Component {
   static propTypes = {
     component: React.PropTypes.object.isRequired
   };
 
-  state = {
-    confirmation: false,
-    loading: false
-  };
-
   handleDelete (e) {
     e.preventDefault();
-    this.setState({ confirmation: true });
+    new ConfirmationModal({ project: this.props.component })
+        .on('done', () => {
+          window.location = window.baseUrl + '/';
+        })
+        .render();
   }
 
-  confirmDeleteClick (e) {
-    e.preventDefault();
-    this.setState({ loading: true });
-    deleteProject(this.props.component.key).then(() => {
-      window.location = window.baseUrl + '/';
-    });
-  }
-
-  cancelDeleteClick (e) {
-    e.preventDefault();
-    e.target.blur();
-    this.setState({ confirmation: false });
-  }
-
-  renderInitial () {
+  render () {
     return (
         <form onSubmit={this.handleDelete.bind(this)}>
           <button id="delete-project" className="button-red">
@@ -58,43 +43,5 @@ export default class Form extends React.Component {
           </button>
         </form>
     );
-  }
-
-  renderConfirmation () {
-    return (
-        <form className="panel panel-warning"
-              onSubmit={this.confirmDeleteClick.bind(this)}>
-          <div className="big-spacer-bottom">
-            {translateWithParameters(
-                'project_deletion.delete_resource_confirmation',
-                this.props.component.name)}
-          </div>
-
-          <div>
-            <button
-                id="confirm-project-deletion"
-                className="button-red"
-                disabled={this.state.loading}>
-              {translate('delete')}
-            </button>
-
-            {this.state.loading ? (
-                <i className="spinner big-spacer-left"/>
-            ) : (
-                <a href="#"
-                   className="big-spacer-left"
-                   onClick={this.cancelDeleteClick.bind(this)}>
-                  {translate('cancel')}
-                </a>
-            )}
-          </div>
-        </form>
-    );
-  }
-
-  render () {
-    return this.state.confirmation ?
-        this.renderConfirmation() :
-        this.renderInitial();
   }
 }
