@@ -33,7 +33,7 @@ public class ServerSettingsTest {
 
   Properties properties;
 
-  WebServerSettings settings;
+  ServerSettingsImpl settings;
 
   @Before
   public void before() {
@@ -41,7 +41,7 @@ public class ServerSettingsTest {
     properties.put("hello", "world");
     properties.put("in_file", "true");
     properties.put("ServerSettingsTestEnv", "in_file");
-    settings = new WebServerSettings(new PropertyDefinitions(), properties);
+    settings = new ServerSettingsImpl(new PropertyDefinitions(), properties);
   }
 
   @Test
