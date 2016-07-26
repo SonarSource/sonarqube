@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
-import Deletion from './deletion/Deletion';
+import ModalForm from '../../../components/common/modal-form';
+import Template from './ConfirmationModalTemplate.hbs';
+import { deleteProject } from '../../../api/components';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+export default ModalForm.extend({
+  template: Template,
 
-  const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/project'
-  });
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.disableForm();
 
-  const withComponent = ComposedComponent => props =>
-      <ComposedComponent {...props} component={options.component}/>;
+    deleteProject(this.options.project.key)
+        .then(() => {
+          this.trigger('done');
+        })
+        .catch(function (e) {
+          e.response.json().then(r => {
+            this.showErrors(r.errors, r.warnings);
+            this.enableForm();
+          });
+        });
+  },
 
-  render((
-      <Router history={history}>
-        <Route path="/deletion" component={withComponent(Deletion)}/>
-      </Router>
-  ), el);
+  serializeData () {
+    return { project: this.options.project };
+  }
 });
+

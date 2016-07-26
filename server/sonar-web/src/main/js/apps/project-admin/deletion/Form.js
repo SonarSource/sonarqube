@@ -18,24 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
-import Deletion from './deletion/Deletion';
+import ConfirmationModal from './ConfirmationModal';
+import { translate } from '../../../helpers/l10n';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+export default class Form extends React.Component {
+  static propTypes = {
+    component: React.PropTypes.object.isRequired
+  };
 
-  const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/project'
-  });
+  handleDelete (e) {
+    e.preventDefault();
+    new ConfirmationModal({ project: this.props.component })
+        .on('done', () => {
+          window.location = window.baseUrl + '/';
+        })
+        .render();
+  }
 
-  const withComponent = ComposedComponent => props =>
-      <ComposedComponent {...props} component={options.component}/>;
-
-  render((
-      <Router history={history}>
-        <Route path="/deletion" component={withComponent(Deletion)}/>
-      </Router>
-  ), el);
-});
+  render () {
+    return (
+        <form onSubmit={this.handleDelete.bind(this)}>
+          <button id="delete-project" className="button-red">
+            {translate('delete')}
+          </button>
+        </form>
+    );
+  }
+}
