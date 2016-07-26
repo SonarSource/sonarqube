@@ -17,13 +17,13 @@
     w.resource_id as "resourceId"
   </sql>
 
-  <select id="selectById" parameterType="Integer" resultType="Widget">
+  <select id="selectById" parameterType="Long" resultType="Widget">
     select
     <include refid="selectColumns"/>
     from widgets w where w.id=#{id}
   </select>
 
-  <select id="selectByDashboard" parameterType="Integer" resultType="Widget">
+  <select id="selectByDashboard" parameterType="Long" resultType="Widget">
     select
     <include refid="selectColumns"/>
     from widgets w where w.dashboard_id=#{id}
