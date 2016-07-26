@@ -6,20 +6,20 @@ set -euo pipefail
 case "$RUN_ACTIVITY" in
 
   run-db-unit-tests-*)
-    DB_ENGINE=$(echo $RUN_ACTIVITY | sed "s/run-db-unit-tests-//g")
+    DB_ENGINE=$(sed "s/run-db-unit-tests-//g" <<< $RUN_ACTIVITY)
 
     ./run-db-unit-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
   run-db-integration-tests-*)
-    DB_ENGINE=$(echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 1)
-    CATEGORY=$(echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 2)
+    DB_ENGINE=$(sed "s/run-db-integration-tests-//g" <<< $RUN_ACTIVITY | cut -d \- -f 1)
+    CATEGORY=$(sed "s/run-db-integration-tests-//g" <<< $RUN_ACTIVITY | cut -d \- -f 2)
 
     ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
   run-integration-tests-*)
-    CATEGORY=$(echo $RUN_ACTIVITY | sed "s/run-integration-tests-//g")
+    CATEGORY=$(sed "s/run-integration-tests-//g" <<< $RUN_ACTIVITY)
 
     ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-embedded.properties"
     ;;
@@ -33,7 +33,7 @@ case "$RUN_ACTIVITY" in
     ;;
 
   run-upgrade-tests-*)
-    DB_ENGINE=$(echo $RUN_ACTIVITY | sed "s/run-upgrade-tests-//g")
+    DB_ENGINE=$(sed "s/run-upgrade-tests-//g" <<< $RUN_ACTIVITY)
     ./run-upgrade-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
