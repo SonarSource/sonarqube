@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -46,6 +45,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -76,9 +76,10 @@ public class IssuesActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  IssueIndex issueIndex;
-  IssueIndexer issueIndexer;
-  IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private IssueIndex issueIndex;
+  private IssueIndexer issueIndexer;
+  private IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private ServerFileSystem fs = mock(ServerFileSystem.class);
 
   WsTester tester;
 
@@ -91,7 +92,7 @@ public class IssuesActionTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
     issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
-    tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
+    tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));
   }
 
   @Test

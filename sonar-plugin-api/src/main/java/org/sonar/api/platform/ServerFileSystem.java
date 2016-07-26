@@ -30,8 +30,16 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public interface ServerFileSystem {
 
+  /**
+   * Root directory of the server installation
+   * @return an existing directory
+   */
   File getHomeDir();
 
+  /**
+   * Temporary directory, clean up on restarts
+   * @return an existing directory
+   */
   File getTempDir();
 
 }

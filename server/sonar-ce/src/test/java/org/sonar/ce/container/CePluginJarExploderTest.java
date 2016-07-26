@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 
@@ -98,6 +98,16 @@ public class CePluginJarExploderTest {
     }
 
     @Override
+    public File getDataDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getDeployDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public File getHomeDir() {
       throw new UnsupportedOperationException();
     }
@@ -112,6 +122,31 @@ public class CePluginJarExploderTest {
         }
       }
       return tempDir;
+    }
+
+    @Override
+    public File getDeployedPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getDownloadedPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getInstalledPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getBundledPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getPluginIndex() {
+      throw new UnsupportedOperationException();
     }
 
   }

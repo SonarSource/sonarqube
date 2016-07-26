@@ -27,10 +27,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
 import org.sonar.scanner.protocol.input.ScannerInput.User;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -61,7 +61,7 @@ public class UsersActionTest {
   public void before() {
     userIndex = new UserIndex(es.client());
     usersAction = new UsersAction(userIndex, userSessionRule);
-    tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), usersAction));
+    tester = new WsTester(new BatchWs(new BatchIndex(mock(ServerFileSystem.class)), usersAction));
   }
 
   @Test

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import javax.servlet.ServletContextEvent;
@@ -27,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import org.sonar.server.platform.web.PlatformServletContextListener;
+import org.sonar.server.platform.web.RubyRailsContextListener;
 
 import static java.lang.Boolean.TRUE;
 import static org.mockito.Matchers.anyObject;

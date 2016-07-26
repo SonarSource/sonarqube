@@ -48,7 +48,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -84,7 +84,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private static final String NOT_STARTED_YET = "not started yet";
 
   private final Server server;
-  private final DefaultServerFileSystem fs;
+  private final ServerFileSystem fs;
   private final ServerUpgradeStatus upgradeStatus;
   private final PluginLoader loader;
   private final AtomicBoolean started = new AtomicBoolean(false);
@@ -95,7 +95,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
 
   public ServerPluginRepository(Server server, ServerUpgradeStatus upgradeStatus,
-    DefaultServerFileSystem fs, PluginLoader loader) {
+    ServerFileSystem fs, PluginLoader loader) {
     this.server = server;
     this.upgradeStatus = upgradeStatus;
     this.fs = fs;

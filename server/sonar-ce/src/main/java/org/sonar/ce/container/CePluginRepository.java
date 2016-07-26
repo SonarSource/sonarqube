@@ -33,7 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -48,7 +48,7 @@ public class CePluginRepository implements PluginRepository, Startable {
   private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
   private static final String NOT_STARTED_YET = "not started yet";
 
-  private final DefaultServerFileSystem fs;
+  private final ServerFileSystem fs;
   private final PluginLoader loader;
   private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -56,7 +56,7 @@ public class CePluginRepository implements PluginRepository, Startable {
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
 
-  public CePluginRepository(DefaultServerFileSystem fs, PluginLoader loader) {
+  public CePluginRepository(ServerFileSystem fs, PluginLoader loader) {
     this.fs = fs;
     this.loader = loader;
   }

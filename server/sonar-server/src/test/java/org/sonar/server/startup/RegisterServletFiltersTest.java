@@ -21,9 +21,10 @@ package org.sonar.server.startup;
 
 import org.junit.Test;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.server.platform.MasterServletFilter;
+import org.sonar.server.platform.web.MasterServletFilter;
 
 import javax.servlet.ServletException;
+import org.sonar.server.platform.web.RegisterServletFilters;
 
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;

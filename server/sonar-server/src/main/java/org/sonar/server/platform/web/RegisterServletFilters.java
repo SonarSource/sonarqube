@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
-
-import org.sonar.api.web.ServletFilter;
-import org.sonar.server.platform.MasterServletFilter;
-
-import javax.servlet.ServletException;
+package org.sonar.server.platform.web;
 
 import java.util.Arrays;
+import javax.servlet.ServletException;
+import org.sonar.api.web.ServletFilter;
 
 /**
  * @since 3.5

@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import java.io.File;
 import java.io.IOException;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.server.platform.ServerFileSystem;
+import org.sonar.server.util.ClassLoaderUtils;
 
 /**
  * Ruby on Rails requires the files to be on filesystem but not in Java classpath (JAR). This component extracts
@@ -87,15 +85,12 @@ public class RailsAppsDeployer implements Startable {
     if (hasRailsApp(pluginKey, appClassLoader)) {
       LOG.info("Deploying app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
-      ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, new Function<String, String>() {
-        @Override
-        public String apply(@Nullable String relativePath) {
-          // Relocate the deployed files :
-          // relativePath format is: org/sonar/ror/sqale/app/controllers/foo_controller.rb
-          // app path is: org/sonar/ror/sqale
-          // -> deployed file is app/controllers/foo_controller.rb
-          return StringUtils.substringAfter(relativePath, pluginKey + "/");
-        }
+      ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, relativePath -> {
+        // Relocate the deployed files :
+        // relativePath format is: org/sonar/ror/sqale/app/controllers/foo_controller.rb
+        // app path is: org/sonar/ror/sqale
+        // -> deployed file is app/controllers/foo_controller.rb
+        return StringUtils.substringAfter(relativePath, pluginKey + "/");
       });
     }
   }

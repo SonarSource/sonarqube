@@ -19,6 +19,8 @@
  */
 package org.sonar.server.batch;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
 import org.junit.Before;
@@ -26,10 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.Server;
-
-import java.io.File;
-import java.io.IOException;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,16 +42,16 @@ public class BatchIndexTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  File jar;
+  private File jar;
 
-  Server server = mock(Server.class);
+  private ServerFileSystem fs = mock(ServerFileSystem.class);
 
   @Before
   public void prepare_fs() throws IOException {
-    File rootDir = temp.newFolder();
-    when(server.getRootDir()).thenReturn(rootDir);
+    File homeDir = temp.newFolder();
+    when(fs.getHomeDir()).thenReturn(homeDir);
 
-    File batchDir = new File(rootDir, "lib/batch");
+    File batchDir = new File(homeDir, "lib/batch");
     FileUtils.forceMkdir(batchDir);
     jar = new File(batchDir, "sonar-batch.jar");
     FileUtils.writeStringToFile(new File(batchDir, "sonar-batch.jar"), "foo");
@@ -60,7 +59,7 @@ public class BatchIndexTest {
 
   @Test
   public void get_index() {
-    BatchIndex batchIndex = new BatchIndex(server);
+    BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
     String index = batchIndex.getIndex();
@@ -71,7 +70,7 @@ public class BatchIndexTest {
 
   @Test
   public void get_file() {
-    BatchIndex batchIndex = new BatchIndex(server);
+    BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
     File file = batchIndex.getFile("sonar-batch.jar");
@@ -87,7 +86,7 @@ public class BatchIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
-    BatchIndex batchIndex = new BatchIndex(server);
+    BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
     batchIndex.getFile("../sonar-batch.jar");
@@ -98,7 +97,7 @@ public class BatchIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: other.jar");
 
-    BatchIndex batchIndex = new BatchIndex(server);
+    BatchIndex batchIndex = new BatchIndex(fs);
     batchIndex.start();
 
     batchIndex.getFile("other.jar");

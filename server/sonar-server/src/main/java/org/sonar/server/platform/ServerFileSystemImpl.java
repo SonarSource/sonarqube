@@ -20,61 +20,34 @@
 package org.sonar.server.platform;
 
 import java.io.File;
-import java.io.IOException;
-import javax.annotation.CheckForNull;
-import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.app.TomcatContexts;
 
-/**
- * Introspect the filesystem and the classloader to get extension files at startup.
- *
- * @since 2.2
- */
-public class DefaultServerFileSystem implements ServerFileSystem, Startable {
+import static java.util.Objects.requireNonNull;
 
-  private static final Logger LOGGER = Loggers.get(DefaultServerFileSystem.class);
+public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.platform.ServerFileSystem, Startable {
 
-  private final Server server;
+  private static final Logger LOGGER = Loggers.get(ServerFileSystemImpl.class);
+
   private final File homeDir;
   private final File tempDir;
+  private final File dataDir;
+  private final File deployDir;
 
-  public DefaultServerFileSystem(Settings settings, Server server) {
-    this.server = server;
-    this.homeDir = new File(settings.getString(ProcessProperties.PATH_HOME));
-    this.tempDir = new File(settings.getString(ProcessProperties.PATH_TEMP));
-  }
-
-  /**
-   * for unit tests
-   */
-  public DefaultServerFileSystem(File homeDir, File tempDir, Server server) {
-    this.homeDir = homeDir;
-    this.tempDir = tempDir;
-    this.server = server;
+  public ServerFileSystemImpl(Settings settings) {
+    this.homeDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_HOME)));
+    this.tempDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_TEMP)));
+    this.dataDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_DATA)));
+    this.deployDir = new File(this.dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
   }
 
   @Override
   public void start() {
     LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
-
-    File deployDir = getDeployDir();
-    if (deployDir == null) {
-      throw new IllegalArgumentException("Web app directory does not exist");
-    }
-
-    File deprecated = getDeprecatedPluginsDir();
-    try {
-      FileUtils.forceMkdir(deprecated);
-      org.sonar.core.util.FileUtils.cleanDirectory(deprecated);
-    } catch (IOException e) {
-      throw new IllegalStateException("The following directory can not be created: " + deprecated.getAbsolutePath(), e);
-    }
   }
 
   @Override
@@ -92,31 +65,37 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return tempDir;
   }
 
-  @CheckForNull
-  public File getDeployDir() {
-    return server.getDeployDir();
+  @Override
+  public File getDataDir() {
+    return dataDir;
   }
 
+  @Override
+  public File getDeployDir() {
+    return deployDir;
+  }
+
+  @Override
   public File getDeployedPluginsDir() {
     return new File(getDeployDir(), "plugins");
   }
 
+  @Override
   public File getDownloadedPluginsDir() {
     return new File(getHomeDir(), "extensions/downloads");
   }
 
+  @Override
   public File getInstalledPluginsDir() {
     return new File(getHomeDir(), "extensions/plugins");
   }
 
+  @Override
   public File getBundledPluginsDir() {
     return new File(getHomeDir(), "lib/bundled-plugins");
   }
 
-  public File getDeprecatedPluginsDir() {
-    return new File(getHomeDir(), "extensions/deprecated");
-  }
-
+  @Override
   public File getPluginIndex() {
     return new File(getDeployDir(), "plugins/index.txt");
   }

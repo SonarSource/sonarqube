@@ -19,15 +19,15 @@
  */
 package org.sonar.server.updatecenter.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.ws.WsTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class UpdateCenterWsTest {
 
@@ -36,7 +36,7 @@ public class UpdateCenterWsTest {
   @Before
   public void setUp() {
     tester = new WsTester(new UpdateCenterWs(
-      new UploadAction(null, mock(DefaultServerFileSystem.class))));
+      new UploadAction(null, mock(ServerFileSystem.class))));
   }
 
   @Test

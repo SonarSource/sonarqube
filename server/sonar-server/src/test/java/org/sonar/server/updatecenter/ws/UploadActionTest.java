@@ -20,14 +20,6 @@
 
 package org.sonar.server.updatecenter.ws;
 
-import static java.nio.file.Files.newInputStream;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
-
 import java.io.File;
 import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
@@ -37,10 +29,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+
+import static java.nio.file.Files.newInputStream;
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class UploadActionTest {
 
@@ -55,7 +55,7 @@ public class UploadActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  DefaultServerFileSystem fileSystem = mock(DefaultServerFileSystem.class);
+  ServerFileSystem fileSystem = mock(ServerFileSystem.class);
   File pluginDirectory;
 
   File plugin = new File(getClass().getResource("UploadActionTest/plugin.jar").getFile());
