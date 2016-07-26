@@ -27,7 +27,7 @@ import org.sonar.api.server.ServerSide;
  * A semaphore shared among all the processes that can connect to the central database.
  *
  * @since 3.4
- * @deprecated in 5.2 as batch analyzer does not connect to database anymore
+ * @deprecated in 5.2 as analyzer does not connect to database anymore
  */
 @ServerSide
 @Deprecated
