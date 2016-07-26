@@ -35,17 +35,15 @@ import java.util.Properties;
  * <li>environment variables</li>
  * <li>system properties</li>
  * </ol>
- *
- * @since 2.12
  */
-public class WebServerSettings extends Settings implements ServerSettings {
+public class ServerSettingsImpl extends Settings implements ServerSettings {
 
   private final Properties properties;
 
-  public WebServerSettings(PropertyDefinitions definitions, Properties properties) {
+  public ServerSettingsImpl(PropertyDefinitions definitions, Properties properties) {
     super(definitions);
     this.properties = properties;
-    load(Collections.<String, String>emptyMap());
+    load(Collections.emptyMap());
     // Secret key is loaded from conf/sonar.properties
     getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }

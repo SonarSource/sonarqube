@@ -46,8 +46,8 @@ import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerImpl;
+import org.sonar.server.platform.ServerSettingsImpl;
 import org.sonar.server.platform.TempFolderProvider;
-import org.sonar.server.platform.WebServerSettings;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
@@ -77,7 +77,7 @@ public class PlatformLevel1 extends PlatformLevel {
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
-      WebServerSettings.class,
+      ServerSettingsImpl.class,
       ServerImpl.class,
       UuidFactoryImpl.INSTANCE,
       EmbeddedDatabaseFactory.class,

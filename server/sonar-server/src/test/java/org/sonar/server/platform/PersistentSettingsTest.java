@@ -42,7 +42,7 @@ public class PersistentSettingsTest {
   DbSession dbSession = db.getSession();
 
   private PropertiesDao dao = dbClient.propertiesDao();
-  private ServerSettings settings = new WebServerSettings(
+  private ServerSettings settings = new ServerSettingsImpl(
     new PropertyDefinitions(),
     new Properties());
 
