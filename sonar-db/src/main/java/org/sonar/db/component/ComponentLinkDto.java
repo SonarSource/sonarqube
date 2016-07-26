@@ -73,6 +73,10 @@ public class ComponentLinkDto {
     return id;
   }
 
+  public String getIdAsString() {
+    return String.valueOf(id);
+  }
+
   public ComponentLinkDto setId(Long id) {
     this.id = id;
     return this;
