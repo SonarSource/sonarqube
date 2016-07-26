@@ -9,14 +9,14 @@
 set -euo pipefail
 
 function cnt_lines() {
-  FILE=$1
+  local FILE=$1
   cat $FILE | wc -l
 }
 
 function write_prop() {
-  PROPERTY=$1
-  VALUE=$2
-  FILE=$3
+  local PROPERTY=$1
+  local VALUE=$2
+  local FILE=$3
 
   # uncomment below to help debug calls to set_property
   #echo "setting property $PROPERTY to value $VALUE in $FILE"
@@ -26,11 +26,11 @@ function write_prop() {
 }
 
 function set_property() {
-  PROPERTY=$1
-  VALUE=$2
-  FILE=$3
+  local PROPERTY=$1
+  local VALUE=$2
+  local FILE=$3
 
-  REGEXP="${PROPERTY//\./\\.}\\s*="
+  local REGEXP="${PROPERTY//\./\\.}\\s*="
 
   if grep -q "$REGEXP" "$FILE"; then
      # delete line of specified property
@@ -43,7 +43,7 @@ function set_property() {
     fi
 
     # add property if at least one line deleted
-    NEW_LINE_COUNT=$(cnt_lines $FILE)
+    local NEW_LINE_COUNT=$(cnt_lines $FILE)
 
     if [[ $LINE_COUNT -gt $NEW_LINE_COUNT ]]; then
       write_prop $PROPERTY $VALUE $FILE
@@ -53,5 +53,3 @@ function set_property() {
     write_prop $PROPERTY $VALUE $FILE
   fi
 }
-
-
