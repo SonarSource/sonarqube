@@ -49,7 +49,7 @@ function showHelp() {
 }
 
 function checkOptions() {
-  if [ "$DUMP_DIR" = "" ]; then
+  if [[ -z "$DUMP_DIR" ]]; then
     >&2 echo "-d option is mandatory"
     showHelp
     exit 1
