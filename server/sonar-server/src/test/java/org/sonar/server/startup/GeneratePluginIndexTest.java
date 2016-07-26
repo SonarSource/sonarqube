@@ -19,6 +19,10 @@
  */
 package org.sonar.server.startup;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -27,12 +31,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.platform.DefaultServerFileSystem;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
@@ -44,14 +43,13 @@ public class GeneratePluginIndexTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  DefaultServerFileSystem fileSystem;
-  File index;
+  private ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+  private File underTest;
 
   @Before
   public void createIndexFile() {
-    fileSystem = mock(DefaultServerFileSystem.class);
-    index = new File("target/test-tmp/GeneratePluginIndexTest/plugins.txt");
-    when(fileSystem.getPluginIndex()).thenReturn(index);
+    when(fileSystem.getPluginIndex()).thenReturn(underTest);
+    underTest = new File("target/test-tmp/GeneratePluginIndexTest/plugins.txt");
   }
 
   @Test
@@ -63,7 +61,7 @@ public class GeneratePluginIndexTest {
 
     new GeneratePluginIndex(fileSystem, repository).start();
 
-    List<String> lines = FileUtils.readLines(index);
+    List<String> lines = FileUtils.readLines(underTest);
     assertThat(lines.size(), Is.is(2));
     assertThat(lines.get(0), containsString("sqale"));
     assertThat(lines.get(1), containsString("checkstyle"));

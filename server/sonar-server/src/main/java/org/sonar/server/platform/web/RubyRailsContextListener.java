@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.web;
 
 import com.google.common.base.Throwables;
 import javax.servlet.ServletContextEvent;

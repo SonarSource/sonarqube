@@ -21,7 +21,7 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;

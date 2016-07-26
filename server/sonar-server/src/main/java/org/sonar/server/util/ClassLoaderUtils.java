@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.util;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -40,13 +40,13 @@ import org.sonar.api.utils.log.Loggers;
 /**
  * @since 3.0
  */
-class ClassLoaderUtils {
+public class ClassLoaderUtils {
 
   private ClassLoaderUtils() {
     // only static methods
   }
 
-  static File copyResources(ClassLoader classLoader, String rootPath, File toDir, Function<String, String> relocationFunction) {
+  public static File copyResources(ClassLoader classLoader, String rootPath, File toDir, Function<String, String> relocationFunction) {
     Collection<String> relativePaths = listFiles(classLoader, rootPath);
     for (String relativePath : relativePaths) {
       URL resource = classLoader.getResource(relativePath);
@@ -69,13 +69,8 @@ class ClassLoaderUtils {
    * @param rootPath    the root directory, for example org/sonar/sqale
    * @return a list of relative paths, for example {"org/sonar/sqale/foo/bar.txt}. Never null.
    */
-  static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
-    return listResources(classLoader, rootPath, new Predicate<String>() {
-      @Override
-      public boolean apply(@Nullable String path) {
-        return !StringUtils.endsWith(path, "/");
-      }
-    });
+  public static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
+    return listResources(classLoader, rootPath, path -> !StringUtils.endsWith(path, "/"));
   }
 
   /**
@@ -86,7 +81,7 @@ class ClassLoaderUtils {
    * @param predicate
    * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
    */
-  static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
+  public static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
     String jarPath = null;
     JarFile jar = null;
     try {
@@ -123,7 +118,7 @@ class ClassLoaderUtils {
     }
   }
 
-  private static void closeJar(JarFile jar, String jarPath) {
+  private static void closeJar(@Nullable JarFile jar, String jarPath) {
     if (jar != null) {
       try {
         jar.close();

@@ -19,14 +19,13 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.ExplodedPlugin;
-import org.sonar.server.platform.DefaultServerFileSystem;
-
-import java.io.File;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +36,7 @@ public class ServerPluginJarExploderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
+  ServerFileSystem fs = mock(ServerFileSystem.class);
   ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs);
 
   @Test

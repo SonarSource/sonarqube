@@ -20,11 +20,6 @@
 
 package org.sonar.server.updatecenter.ws;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-import static org.sonar.api.server.ws.Request.Part;
-
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -32,8 +27,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.sonar.api.server.ws.Request.Part;
 
 public class UploadAction implements UpdateCenterWsAction {
 
@@ -42,7 +42,7 @@ public class UploadAction implements UpdateCenterWsAction {
   private final UserSession userSession;
   private final File downloadDir;
 
-  public UploadAction(UserSession userSession, DefaultServerFileSystem fileSystem) {
+  public UploadAction(UserSession userSession, ServerFileSystem fileSystem) {
     this.userSession = userSession;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
   }

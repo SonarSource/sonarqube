@@ -40,7 +40,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.app.TomcatContexts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -65,7 +64,6 @@ public final class ServerImpl extends Server implements Startable {
   private String version;
   private String implementationBuild;
   private File sonarHome;
-  private File deployDir;
   private String contextPath;
 
   public ServerImpl(Settings settings) {
@@ -93,8 +91,6 @@ public final class ServerImpl extends Server implements Startable {
       if (!sonarHome.isDirectory()) {
         throw new IllegalStateException("SonarQube home directory is not valid");
       }
-
-      deployDir = new File(settings.getString(ProcessProperties.PATH_DATA), TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
 
       contextPath = StringUtils.defaultIfBlank(settings.getString(PROPERTY_CONTEXT), "")
         // Remove trailing slashes
@@ -144,7 +140,7 @@ public final class ServerImpl extends Server implements Startable {
   @Override
   @CheckForNull
   public File getDeployDir() {
-    return deployDir;
+    return null;
   }
 
   @Override

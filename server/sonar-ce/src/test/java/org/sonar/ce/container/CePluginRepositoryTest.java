@@ -32,7 +32,7 @@ import org.mockito.Mockito;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,9 +46,9 @@ public class CePluginRepositoryTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
-  PluginLoader pluginLoader = new DumbPluginLoader();
-  CePluginRepository underTest = new CePluginRepository(fs, pluginLoader);
+  private ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
+  private PluginLoader pluginLoader = new DumbPluginLoader();
+  private CePluginRepository underTest = new CePluginRepository(fs, pluginLoader);
 
   @After
   public void tearDown() {

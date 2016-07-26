@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.web;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.web.ServletFilter;
-
+import java.io.IOException;
+import java.util.Collections;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -32,11 +28,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.web.ServletFilter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -59,7 +58,7 @@ public class MasterServletFilterTest {
     ServletFilter filter = mock(ServletFilter.class);
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();
-    master.init(config, Arrays.asList(filter));
+    master.init(config, singletonList(filter));
 
     assertThat(master.getFilters()).containsOnly(filter);
     verify(filter).init(config);
@@ -73,7 +72,7 @@ public class MasterServletFilterTest {
     new MasterServletFilter();
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Servlet filter org.sonar.server.platform.MasterServletFilter is already instantiated");
+    thrown.expectMessage("Servlet filter org.sonar.server.platform.web.MasterServletFilter is already instantiated");
     new MasterServletFilter();
   }
 
@@ -87,14 +86,14 @@ public class MasterServletFilterTest {
 
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(config, Arrays.asList(filter));
+    filters.init(config, singletonList(filter));
   }
 
   @Test
   public void filters_should_be_optional() throws Exception {
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(config, Collections.<ServletFilter>emptyList());
+    filters.init(config, Collections.emptyList());
 
     ServletRequest request = mock(HttpServletRequest.class);
     ServletResponse response = mock(HttpServletResponse.class);
@@ -110,7 +109,7 @@ public class MasterServletFilterTest {
     TrueFilter filter2 = new TrueFilter();
 
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(mock(FilterConfig.class), Arrays.<ServletFilter>asList(filter1, filter2));
+    filters.init(mock(FilterConfig.class), asList(filter1, filter2));
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getRequestURI()).thenReturn("/foo/bar");

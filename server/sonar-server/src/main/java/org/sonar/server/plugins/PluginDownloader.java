@@ -35,7 +35,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -65,7 +65,7 @@ public class PluginDownloader implements Startable {
   private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader,
-    DefaultServerFileSystem fileSystem) {
+    ServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();

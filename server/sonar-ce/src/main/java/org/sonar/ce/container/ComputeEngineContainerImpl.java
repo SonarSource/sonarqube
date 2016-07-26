@@ -70,9 +70,9 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.computation.CeModule;
-import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.computation.CeQueueModule;
 import org.sonar.server.computation.queue.PurgeCeActivities;
+import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
@@ -99,9 +99,9 @@ import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.platform.DatabaseServerCompatibility;
-import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.ServerLogging;
@@ -216,7 +216,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DatabaseServerCompatibility.class,
       DatabaseVersion.class,
       PurgeProfiler.class,
-      DefaultServerFileSystem.class,
+      ServerFileSystemImpl.class,
       // no TempFolderCleaner.class, responsibility of Web Server
       new TempFolderProvider(),
       System2.INSTANCE,

@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
+package org.sonar.server.platform.web;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.core.platform.PluginRepository;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -47,7 +45,7 @@ public class RailsAppsDeployerTest {
   @Test
   public void hasRubyRailsApp() throws Exception {
     ClassLoader classLoader = new URLClassLoader(new URL[]{
-      getClass().getResource("/org/sonar/server/platform/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+      getClass().getResource("/org/sonar/server/platform/web/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
 
     assertTrue(RailsAppsDeployer.hasRailsApp("fake", classLoader));
     assertFalse(RailsAppsDeployer.hasRailsApp("other", classLoader));
@@ -57,7 +55,7 @@ public class RailsAppsDeployerTest {
   public void deployRubyRailsApp() throws Exception {
     File tempDir = this.temp.getRoot();
     ClassLoader classLoader = new URLClassLoader(new URL[]{
-      getClass().getResource("/org/sonar/server/platform/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+      getClass().getResource("/org/sonar/server/platform/web/RailsAppsDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
 
     RailsAppsDeployer.deployRailsApp(tempDir, "fake", classLoader);
 
@@ -77,7 +75,7 @@ public class RailsAppsDeployerTest {
     when(fileSystem.getTempDir()).thenReturn(tempDir);
 
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.getPluginInfos()).thenReturn(Collections.<PluginInfo>emptyList());
+    when(pluginRepository.getPluginInfos()).thenReturn(Collections.emptyList());
     new RailsAppsDeployer(fileSystem, pluginRepository).start();
 
     File appDir = new File(tempDir, "ror");

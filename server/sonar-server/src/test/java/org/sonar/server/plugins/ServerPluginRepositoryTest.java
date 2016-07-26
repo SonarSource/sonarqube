@@ -39,7 +39,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class ServerPluginRepositoryTest {
 
   Server server = mock(Server.class);
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
-  DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
+  ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
   PluginLoader pluginLoader = mock(PluginLoader.class);
   ServerPluginRepository underTest = new ServerPluginRepository(server, upgradeStatus, fs, pluginLoader);
 
@@ -384,7 +384,7 @@ public class ServerPluginRepositoryTest {
 
     underTest.getPluginInfos();
   }
-  
+
   private File copyTestPluginTo(String testPluginName, File toDir) throws IOException {
     File jar = TestProjectUtils.jarOf(testPluginName);
     // file is copied because it's supposed to be moved by the test

@@ -30,8 +30,8 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.platform.ServerFileSystem;
 
 /**
  * JAR files to be downloaded by sonar-runner.
@@ -39,18 +39,18 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class BatchIndex implements Startable {
 
-  private final Server server;
+  private final ServerFileSystem fs;
   private String index;
   private File batchDir;
 
-  public BatchIndex(Server server) {
-    this.server = server;
+  public BatchIndex(ServerFileSystem fs) {
+    this.fs = fs;
   }
 
   @Override
   public void start() {
     StringBuilder sb = new StringBuilder();
-    batchDir = new File(server.getRootDir(), "lib/batch");
+    batchDir = new File(fs.getHomeDir(), "lib/batch");
     if (batchDir.exists()) {
       Collection<File> files = FileUtils.listFiles(batchDir, HiddenFileFilter.VISIBLE, FileFilterUtils.directoryFileFilter());
       for (File file : files) {

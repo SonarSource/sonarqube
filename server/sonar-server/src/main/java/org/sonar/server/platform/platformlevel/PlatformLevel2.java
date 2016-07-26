@@ -31,7 +31,7 @@ import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.db.migrations.PlatformDatabaseMigration;
 import org.sonar.server.db.migrations.PlatformDatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
-import org.sonar.server.platform.RailsAppsDeployer;
+import org.sonar.server.platform.web.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;

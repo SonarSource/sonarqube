@@ -36,7 +36,7 @@ import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
 import org.sonar.server.startup.RegisterPermissionTemplates;
-import org.sonar.server.startup.RegisterServletFilters;
+import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.user.DoPrivileged;

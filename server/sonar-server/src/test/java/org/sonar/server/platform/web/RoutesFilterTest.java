@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.platform;
+package org.sonar.server.platform.web;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.platform.web.RoutesFilter;
 
 public class RoutesFilterTest {
 
