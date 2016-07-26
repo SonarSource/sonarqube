@@ -40,7 +40,7 @@ public class EmbeddedDatabaseFactory implements Startable {
     if (embeddedDatabase == null) {
       String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
       if (startsWith(jdbcUrl, URL_PREFIX)) {
-        embeddedDatabase = getEmbeddedDatabase(settings);
+        embeddedDatabase = createEmbeddedDatabase();
         embeddedDatabase.start();
       }
     }
@@ -55,7 +55,7 @@ public class EmbeddedDatabaseFactory implements Startable {
   }
 
   @VisibleForTesting
-  EmbeddedDatabase getEmbeddedDatabase(Settings settings) {
+  EmbeddedDatabase createEmbeddedDatabase() {
     return new EmbeddedDatabase(settings);
   }
 }

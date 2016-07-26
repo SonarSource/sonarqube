@@ -23,7 +23,9 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class EmbeddedDatabaseFactoryTest {
 
@@ -33,11 +35,11 @@ public class EmbeddedDatabaseFactoryTest {
   public void should_start_and_stop_tcp_h2_database() {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp:localhost");
 
-    final EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
+    EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
     EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings) {
       @Override
-      EmbeddedDatabase getEmbeddedDatabase(Settings settings) {
+      EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;
       }
     };
@@ -52,11 +54,11 @@ public class EmbeddedDatabaseFactoryTest {
   public void should_not_start_mem_h2_database() {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:mem");
 
-    final EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
+    EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
     EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings) {
       @Override
-      EmbeddedDatabase getEmbeddedDatabase(Settings settings) {
+      EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;
       }
     };
