@@ -20,7 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
-import org.sonar.server.db.CheckDatabaseCollationDuringMigration;
+import org.sonar.server.platform.db.CheckDatabaseCollationDuringMigration;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;

@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.platform.db;
 
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
+import org.sonar.server.platform.db.CheckDatabaseCollationDuringMigration;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
-public class CheckDatabaseCharsetAtStartupTest {
-
+public class CheckDatabaseCollationDuringMigrationTest {
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
   DatabaseCharsetChecker charsetChecker = mock(DatabaseCharsetChecker.class);
-  CheckDatabaseCharsetAtStartup underTest = new CheckDatabaseCharsetAtStartup(upgradeStatus, charsetChecker);
+  CheckDatabaseCollationDuringMigration underTest = new CheckDatabaseCollationDuringMigration(upgradeStatus, charsetChecker);
 
   @After
   public void tearDown() {
@@ -41,20 +43,32 @@ public class CheckDatabaseCharsetAtStartupTest {
   }
 
   @Test
-  public void enforce_utf8_if_fresh_install() {
+  public void enforce_utf8_and_optionally_repair_collation_if_fresh_install() {
     when(upgradeStatus.isFreshInstall()).thenReturn(true);
 
     underTest.start();
 
-    verify(charsetChecker).check(ENFORCE_UTF8);
+    verify(charsetChecker).check(ENFORCE_UTF8, AUTO_REPAIR_COLLATION);
   }
 
   @Test
-  public void do_not_enforce_utf8_and_do_not_repair_at_startup_if_not_fresh_install() {
+  public void repair_collation_but_do_not_enforce_utf8_if_db_upgrade() {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    when(upgradeStatus.isUpgraded()).thenReturn(true);
 
     underTest.start();
 
-    verify(charsetChecker).check();
+    verify(charsetChecker).check(AUTO_REPAIR_COLLATION);
   }
+
+  @Test
+  public void do_nothing_if_no_db_changes() {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    when(upgradeStatus.isUpgraded()).thenReturn(false);
+
+    underTest.start();
+
+    verifyZeroInteractions(charsetChecker);
+  }
+
 }

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.platform.db;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.server.platform.db.EmbeddedDatabase;
+import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;

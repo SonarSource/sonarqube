@@ -53,7 +53,7 @@ import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.db.migrations.DatabaseMigrator;
+import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
 import org.sonar.server.platform.Platform;
