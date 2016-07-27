@@ -29,7 +29,7 @@
 
   <sql id="dashboardColumns">
     d.id, d.user_id as "userId", d.name, d.description, d.column_layout as "columnLayout",
-    d.shared, d.is_global as "global", d.created_at as "createdAt", d.updated_at as "updatedAt"
+    d.shared, d.created_at as "createdAt", d.updated_at as "updatedAt"
   </sql>
 
   <select id="selectGlobalDashboardsForUserLogin" parameterType="String" resultType="Dashboard">
@@ -38,15 +38,16 @@
     FROM dashboards d
     INNER JOIN active_dashboards ad on d.id=ad.dashboard_id
     LEFT OUTER JOIN users u on u.id=ad.user_id
-    WHERE d.is_global=${_true}
-    <choose>
-      <when test="login == null">
-        AND u.login IS NULL
-      </when>
-      <otherwise>
-        AND u.login=#{login}
-      </otherwise>
-    </choose>
+    <where>
+      <choose>
+        <when test="login == null">
+          AND u.login IS NULL
+        </when>
+        <otherwise>
+          AND u.login=#{login}
+        </otherwise>
+      </choose>
+    </where>
     ORDER BY order_index ASC
   </select>
 
@@ -56,15 +57,16 @@
     FROM dashboards d
     INNER JOIN active_dashboards ad on d.id=ad.dashboard_id
     LEFT OUTER JOIN users u on u.id=ad.user_id
-    WHERE d.is_global=${_false}
-    <choose>
-      <when test="login == null">
-        AND u.login IS NULL
-      </when>
-      <otherwise>
-        AND u.login=#{login}
-      </otherwise>
-    </choose>
+    <where>
+      <choose>
+        <when test="login == null">
+          AND u.login IS NULL
+        </when>
+        <otherwise>
+          AND u.login=#{login}
+        </otherwise>
+      </choose>
+    </where>
     ORDER BY order_index ASC
   </select>
 

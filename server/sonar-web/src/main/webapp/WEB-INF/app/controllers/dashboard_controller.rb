@@ -120,7 +120,7 @@ class DashboardController < ApplicationController
                                             :name => definition.getTitle(),
                                             :column_index => 1,
                                             :row_index => 1,
-                                            :configured => !(definition.hasRequiredProperties() || (dashboard.global && !definition.isGlobal)))
+                                            :configured => !(definition.hasRequiredProperties() || (!definition.isGlobal)))
         widget_id=new_widget.id
         first_column_widgets.each_with_index do |w, index|
           w.row_index=index+2
@@ -172,7 +172,7 @@ class DashboardController < ApplicationController
       elsif params[:name]
         @dashboard=Dashboard.first(:conditions => ['name=? AND user_id=?', params[:name], current_user.id])
       else
-        active=ActiveDashboard.user_dashboards(current_user, true).first
+        active=ActiveDashboard.user_dashboards(current_user).first
       end
     end
 
@@ -183,7 +183,7 @@ class DashboardController < ApplicationController
       elsif params[:name]
         @dashboard=Dashboard.first(:conditions => ['name=? AND shared=?', params[:name], true])
       else
-        active=ActiveDashboard.user_dashboards(nil, true).first
+        active=ActiveDashboard.user_dashboards(nil).first
       end
     end
 

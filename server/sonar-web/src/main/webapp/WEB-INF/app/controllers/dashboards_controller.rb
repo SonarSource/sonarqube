@@ -24,10 +24,8 @@ class DashboardsController < ApplicationController
   before_filter :login_required
 
   def index
-    @global = true
-
-    @actives=ActiveDashboard.user_dashboards(current_user, @global)
-    @shared_dashboards=Dashboard.all(:conditions => ['(shared=? or user_id=?) and is_global=?', true, current_user.id, @global])
+    @actives=ActiveDashboard.user_dashboards(current_user)
+    @shared_dashboards=Dashboard.all(:conditions => ['(shared=? or user_id=?)', true, current_user.id])
     active_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_ids.include?(d.id) }
     @shared_dashboards=Api::Utils.insensitive_sort(@shared_dashboards, &:name)
@@ -182,7 +180,6 @@ class DashboardsController < ApplicationController
   def load_dashboard_from_params(dashboard)
     dashboard.name = params[:name]
     dashboard.description = params[:description]
-    dashboard.is_global = params[:global].present?
     dashboard.shared = params[:shared].present? && has_role?(:shareDashboard)
     dashboard.column_layout = Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
     dashboard.user = User.find_active_by_login(params[:owner]) unless params[:owner].nil?

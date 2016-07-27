@@ -148,7 +148,6 @@ public class RegisterDashboardsTest {
     assertThat(dto.getDescription()).isNull();
     assertThat(dto.getColumnLayout()).isEqualTo("30%-70%");
     assertThat(dto.getShared()).isTrue();
-    assertThat(dto.getGlobal()).isTrue();
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
 

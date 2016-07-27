@@ -36,16 +36,16 @@ public class DashboardDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DashboardDao dao = dbTester.getDbClient().dashboardDao();
+  DashboardDao underTest = dbTester.getDbClient().dashboardDao();
 
   @Test
   public void shouldSelectGlobalDashboard() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectGlobalDashboard.xml");
-    DashboardDto dashboard = dao.selectGlobalDashboard("SQALE");
+    DashboardDto dashboard = underTest.selectGlobalDashboard("SQALE");
     assertThat(dashboard.getId(), is(2L));
     assertThat(dashboard.getUserId(), nullValue());
 
-    assertNull(dao.selectGlobalDashboard("unknown"));
+    assertNull(underTest.selectGlobalDashboard("unknown"));
   }
 
   @Test
@@ -59,7 +59,6 @@ public class DashboardDaoTest {
     dashboardDto.setDescription("This is a dashboard");
     dashboardDto.setColumnLayout("100%");
     dashboardDto.setShared(true);
-    dashboardDto.setGlobal(true);
     dashboardDto.setCreatedAt(aDate);
     dashboardDto.setUpdatedAt(aDate);
 
@@ -79,7 +78,7 @@ public class DashboardDaoTest {
     property.setTextValue("true");
     widgetDto.addWidgetProperty(property);
 
-    dao.insert(dashboardDto);
+    underTest.insert(dashboardDto);
 
     dbTester.assertDbUnit(getClass(), "shouldInsert-result.xml", new String[] {"created_at", "updated_at"}, "dashboards", "widgets", "widget_properties");
   }
@@ -94,7 +93,6 @@ public class DashboardDaoTest {
     dashboardDto.setDescription(null);
     dashboardDto.setColumnLayout(null);
     dashboardDto.setShared(true);
-    dashboardDto.setGlobal(false);
     dashboardDto.setCreatedAt(null);
     dashboardDto.setUpdatedAt(null);
 
@@ -114,7 +112,7 @@ public class DashboardDaoTest {
     property.setTextValue(null);
     widgetDto.addWidgetProperty(property);
 
-    dao.insert(dashboardDto);
+    underTest.insert(dashboardDto);
 
     dbTester.assertDbUnit(getClass(), "shouldInsertWithNullableColumns-result.xml", "dashboards", "widgets", "widget_properties");
   }

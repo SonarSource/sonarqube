@@ -168,13 +168,13 @@ public class GlobalNavigationActionTest {
   private void createAndConfigureDashboardForUser() {
     UserDto user = createUser("obiwan", 42L);
     userDao.insert(session, user);
-    DashboardDto defaultDashboardForUser = createDashboard(1L, "Default Dashboard for User", true);
+    DashboardDto defaultDashboardForUser = createDashboard(1L, "Default Dashboard for User");
     dashboardDao.insert(defaultDashboardForUser);
     activeDashboardDao.insert(createActiveDashboard(user.getId(), defaultDashboardForUser.getId(), 1));
   }
 
   private void createAndConfigureDashboardForAnonymous() {
-    DashboardDto defaultDashboardForAnonymous = createDashboard(2L, "Default Dashboard for Anonymous", true);
+    DashboardDto defaultDashboardForAnonymous = createDashboard(2L, "Default Dashboard for Anonymous");
     dashboardDao.insert(defaultDashboardForAnonymous);
     activeDashboardDao.insert(createActiveDashboard(null, defaultDashboardForAnonymous.getId(), 1));
   }
@@ -186,9 +186,8 @@ public class GlobalNavigationActionTest {
       .setLogin(login);
   }
 
-  private DashboardDto createDashboard(long id, String name, boolean global) {
+  private DashboardDto createDashboard(long id, String name) {
     return new DashboardDto()
-      .setGlobal(global)
       .setId(id)
       .setName(name)
       .setShared(true);

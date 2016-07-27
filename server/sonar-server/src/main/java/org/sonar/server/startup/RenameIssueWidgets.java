@@ -152,9 +152,8 @@ public class RenameIssueWidgets implements Startable {
     if (dashboard == null) {
       LOGGER.warn(String.format("Widget with ID=%d is not displayed on any dashboard, updating nevertheless", widget.getId()));
     }
-    boolean isOnGlobalDashboard = dashboard != null && dashboard.getGlobal();
 
-    return isOnGlobalDashboard && widget.getResourceId() == null ? WIDGET_ISSUE_FILTER : WIDGET_PROJECT_ISSUE_FILTER;
+    return widget.getResourceId() == null ? WIDGET_ISSUE_FILTER : WIDGET_PROJECT_ISSUE_FILTER;
   }
 
   @Override

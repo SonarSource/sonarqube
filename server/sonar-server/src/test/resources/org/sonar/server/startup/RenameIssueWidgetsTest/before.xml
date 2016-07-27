@@ -38,7 +38,6 @@
     description="[null]"
     column_layout="[null]"
     shared="[true]"
-    is_global="[false]"
     created_at="[null]"
     updated_at="[null]"
   />
@@ -50,7 +49,6 @@
     description="[null]"
     column_layout="[null]"
     shared="[true]"
-    is_global="[true]"
     created_at="[null]"
     updated_at="[null]"
   />

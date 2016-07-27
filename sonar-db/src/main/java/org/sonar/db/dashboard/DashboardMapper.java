@@ -28,7 +28,7 @@ import org.apache.ibatis.annotations.Select;
 public interface DashboardMapper {
 
   String COLUMNS = "id, user_id as \"userId\", name, description, column_layout as \"columnLayout\", " +
-    "shared, is_global as \"global\", created_at as \"createdAt\", updated_at as \"updatedAt\"";
+    "shared, created_at as \"createdAt\", updated_at as \"updatedAt\"";
 
   @CheckForNull
   @Select("select " + COLUMNS + " from dashboards where id=#{id}")
@@ -42,9 +42,8 @@ public interface DashboardMapper {
   @Select("select " + COLUMNS + " from dashboards WHERE name=#{id} and user_id is null")
   DashboardDto selectGlobalDashboard(String name);
 
-  @Insert("INSERT INTO dashboards (user_id, name, description, column_layout, shared, is_global, created_at, " +
-    "updated_at) VALUES (#{userId}, #{name}, #{description}, #{columnLayout}, #{shared}, " +
-    "#{global}, #{createdAt}, #{updatedAt})")
+  @Insert("INSERT INTO dashboards (user_id, name, description, column_layout, shared, created_at, updated_at) " +
+    "VALUES (#{userId}, #{name}, #{description}, #{columnLayout}, #{shared}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   void insert(DashboardDto dashboardDto);
 }

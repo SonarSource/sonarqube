@@ -36,7 +36,7 @@ class ActiveDashboard < ActiveRecord::Base
   end
 
   def global?
-    dashboard.global
+    true
   end
 
   def owner?(user)
@@ -55,13 +55,13 @@ class ActiveDashboard < ActiveRecord::Base
     user_id.nil?
   end
 
-  def self.user_dashboards(user, global)
+  def self.user_dashboards(user)
     result=nil
     if user && user.id
-      result=find_for_user(user.id).select { |a| a.global? == global}
+      result=find_for_user(user.id)
     end
     if result.nil? || result.empty?
-      result=default_dashboards.select { |a| a.global? == global}
+      result=default_dashboards
     end
     result
   end

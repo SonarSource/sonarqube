@@ -32,7 +32,6 @@ public final class DashboardDto extends Dto<Long> {
   private String description;
   private String columnLayout;
   private boolean shared;
-  private boolean global;
   private List<WidgetDto> widgetDtos = Lists.newArrayList();
 
   public Long getId() {
@@ -91,15 +90,6 @@ public final class DashboardDto extends Dto<Long> {
 
   public DashboardDto setShared(boolean shared) {
     this.shared = shared;
-    return this;
-  }
-
-  public boolean getGlobal() {
-    return global;
-  }
-
-  public DashboardDto setGlobal(boolean global) {
-    this.global = global;
     return this;
   }
 

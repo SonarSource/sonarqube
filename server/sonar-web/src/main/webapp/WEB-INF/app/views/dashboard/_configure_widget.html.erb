@@ -6,7 +6,7 @@
 
 <div class="widget-header">
   <div class="widget-actions">
-    <% if widget.java_definition.isEditable() || (!widget.java_definition.global && @dashboard.global) %>
+    <% if widget.java_definition.isEditable() || (!widget.java_definition.global) %>
       <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
     <% end %>
     <a class="link-action" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>

@@ -95,20 +95,6 @@ public class ActiveDashboardDaoTest {
   }
 
   @Test
-  public void should_get_project_dashboards_for_anonymous() {
-    dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForAnonymous.xml");
-
-    assertThat(underTest.selectProjectDashboardsForUserLogin(null)).hasSize(2).extracting("id").containsExactly(2L, 1L);
-  }
-
-  @Test
-  public void should_get_project_dashboards_for_user() {
-    dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForUser.xml");
-
-    assertThat(underTest.selectProjectDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);
-  }
-
-  @Test
   public void select_by_id() throws Exception {
     ActiveDashboardDto dto = new ActiveDashboardDto()
       .setDashboardId(10L)

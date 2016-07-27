@@ -131,8 +131,7 @@ public class RegisterDashboards implements Startable {
       .setName(name)
       .setDescription(dashboard.getDescription())
       .setColumnLayout(dashboard.getLayout().getCode())
-      .setShared(true)
-      .setGlobal(dashboard.isGlobal());
+      .setShared(true);
     dashboardDto.setCreatedAt(now).setUpdatedAt(now);
 
     for (int columnIndex = 1; columnIndex <= dashboard.getLayout().getColumns(); columnIndex++) {
