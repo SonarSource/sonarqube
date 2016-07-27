@@ -144,6 +144,7 @@ import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
 import org.sonar.db.version.v60.PopulateUuidPathColumnOnProjects;
 import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
+import org.sonar.db.version.v61.DeleteProjectDashboards;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -304,7 +305,10 @@ public class MigrationStepModule extends Module {
       DropTreesOfSnapshots.class,
       DropTreeColumnsFromSnapshots.class,
       DropSnapshotIdColumnFromMeasures.class,
-      AddBColumnsToProjects.class
+      AddBColumnsToProjects.class,
+
+      // 6.1
+      DeleteProjectDashboards.class
     );
   }
 }
