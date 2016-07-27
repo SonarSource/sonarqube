@@ -21,17 +21,21 @@ package org.sonar.api;
 
 import java.util.Arrays;
 import org.junit.Test;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.SonarRuntime.V5_5;
 
 public class PluginTest {
 
+  private static final Version VERSION_5_6 = Version.create(5, 6);
+
   @Test
   public void test_context() {
-    Plugin.Context context = new Plugin.Context(new SonarRuntime(V5_5, SonarProduct.SONARQUBE, SonarQubeSide.SERVER));
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_5_6, SonarQubeSide.SERVER);
+    Plugin.Context context = new Plugin.Context(runtime);
 
-    assertThat(context.getSonarQubeVersion()).isEqualTo(V5_5);
+    assertThat(context.getSonarQubeVersion()).isEqualTo(VERSION_5_6);
     assertThat(context.getExtensions()).isEmpty();
 
     context.addExtension("foo");

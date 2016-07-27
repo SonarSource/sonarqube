@@ -23,26 +23,24 @@ import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.SonarProduct;
-import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class SonarRuntimeFactoryTest {
+public class ApiVersionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create() {
-    SonarQubeVersion version = SonarRuntimeFactory.create(System2.INSTANCE, SonarProduct.SONARLINT, null);
+  public void load_version_from_file_in_classpath() {
+    Version version = ApiVersion.load(System2.INSTANCE);
     assertThat(version).isNotNull();
-    assertThat(version.getApiVersion().major()).isGreaterThanOrEqualTo(5);
-    assertThat(version.getProduct()).isEqualTo(SonarProduct.SONARLINT);
+    assertThat(version.major()).isGreaterThanOrEqualTo(5);
   }
 
   @Test
@@ -52,7 +50,7 @@ public class SonarRuntimeFactoryTest {
 
     System2 system = spy(System2.class);
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
-    SonarRuntimeFactory.create(system, SonarProduct.SONARLINT, null);
+    ApiVersion.load(system);
   }
 
 }

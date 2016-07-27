@@ -27,14 +27,10 @@ import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.BatchPluginRepository;
-import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.ExtensionMatcher;
-import org.sonar.scanner.bootstrap.GlobalMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,7 +60,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, Bar.class));
 
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarQubeVersion.class), pluginRepository, mock(AnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(AnalysisMode.class));
     installer.install(container, new FooMatcher());
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -76,7 +72,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarQubeVersion.class), pluginRepository, mock(AnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(AnalysisMode.class));
 
     installer.install(container, new FooMatcher());
 
@@ -89,7 +85,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarQubeVersion.class), pluginRepository, mock(AnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(AnalysisMode.class));
 
     installer.install(container, new TrueMatcher());
 

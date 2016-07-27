@@ -23,6 +23,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.Version;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -64,8 +65,6 @@ import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
 import org.sonar.xoo.test.TestExecutionSensor;
-
-import static org.sonar.api.SonarRuntime.V5_5;
 
 /**
  * Plugin entry-point, as declared in pom.xml.
@@ -140,12 +139,12 @@ public class XooPlugin implements Plugin {
       XooProjectBuilder.class,
       XooPostJob.class);
 
-    if (context.getRuntimeProduct() != SonarProduct.SONARLINT) {
+    if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
       context.addExtensions(MeasureSensor.class,
         DeprecatedResourceApiSensor.class);
     }
 
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(V5_5)) {
+    if (context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
       context.addExtension(CpdTokenizerSensor.class);
     }
   }

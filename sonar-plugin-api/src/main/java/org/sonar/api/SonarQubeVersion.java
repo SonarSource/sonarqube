@@ -19,118 +19,48 @@
  */
 package org.sonar.api;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
 
+import static java.util.Objects.requireNonNull;
+
 /**
- * Version of SonarQube at runtime. This component can be injected as a dependency
- * of plugin extensions. The main usage for a plugin is to benefit from new APIs
- * while keeping backward-compatibility with previous versions of SonarQube.
- * <br><br>
- * 
- * Example 1: a {@link Sensor} wants to use an API introduced in version 5.5 and still requires to support older versions
- * at runtime.
- * <pre>
- * public class MySensor implements Sensor {
- *
- *   public void execute(SensorContext context) {
- *     if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_5)) {
- *       context.newMethodIntroducedIn5_5();
- *     }
- *   }
- * }
- * </pre>
- *
- * Example 2: a plugin needs to use an API introduced in version 5.6 ({@code AnApi} in the following
- * snippet) and still requires to support version 5.5 at runtime.
- * <br>
- * <pre>
- * // Component provided by sonar-plugin-api
- * // @since 5.5
- * public interface AnApi {
- *   // implicitly since 5.5
- *   public void foo();
- *
- *   // @since 5.6
- *   public void bar();
- * }
- * 
- * // Component provided by plugin
- * public class MyExtension {
- *   private final SonarQubeVersion sonarQubeVersion;
- *   private final AnApi api;
- *
- *   public MyExtension(SonarQubeVersion sonarQubeVersion, AnApi api) {
- *     this.sonarQubeVersion = sonarQubeVersion;
- *     this.api = api;
- *   }
- *
- *   public void doSomething() {
- *     // assume that runtime is 5.5+
- *     api.foo();
- *
- *     if (sonarQubeVersion.isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
- *       api.bar();
- *     }
- *   }
- * }
- * </pre>
- * <p>
- * The minimal supported version of SonarQube is verified at runtime. As plugin is built
- * with sonar-plugin-api 5.6, we assume that the plugin requires v5.6 or greater at runtime.
- * For this reason the plugin must default which is the minimal supported version
- * in the configuration of sonar-packaging-maven-plugin 1.16+:
- * <p>
- * <pre>
- * &lt;packaging&gt;sonar-plugin&lt;/packaging&gt;
- *
- * &lt;dependencies&gt;
- *   &lt;dependency&gt;
- *     &lt;groupId&gt;org.sonarsource.sonarqube&lt;/groupId&gt;
- *     &lt;artifactId&gt;sonar-plugin-api&lt;/artifactId&gt;
- *     &lt;version&gt;5.6&lt;/version&gt;
- *     &lt;scope&gt;provided&lt;/scope&gt;
- *   &lt;/dependency&gt;
- * &lt;/dependencies&gt;
- *
- * &lt;build&gt;
- *  &lt;plugins&gt;
- *    &lt;plugin&gt;
- *      &lt;groupId&gt;org.sonarsource.sonar-packaging-maven-plugin&lt;/groupId&gt;
- *      &lt;artifactId&gt;sonar-packaging-maven-plugin&lt;/artifactId&gt;
- *      &lt;version&gt;1.16&lt;/version&gt;
- *      &lt;extensions&gt;true&lt;/extensions&gt;
- *      &lt;configuration&gt;
- *        &lt;!-- Override the default value 5.6 which is guessed from sonar-plugin-api dependency --&gt;
- *        &lt;sonarQubeMinVersion&gt;5.5&lt;/sonarQubeMinVersion&gt;
- *      &lt;/configuration&gt;
- *    &lt;/plugin&gt;
- *  &lt;/plugins&gt;
- * &lt;/build&gt;
- * </pre>
- *
+ * Version of SonarQube at runtime. Replaced by {@link SonarRuntime#getApiVersion()}.
  *
  * @since 5.5
- * @deprecated since 6.0 replaced by {@link SonarRuntime}
+ * @deprecated replaced by {@link SonarRuntime} in version 6.0
  */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
 @Immutable
 @Deprecated
-public class SonarQubeVersion extends SonarRuntime {
+public class SonarQubeVersion {
+  /**
+   * Constant for version 5.5
+   */
+  public static final Version V5_5 = Version.create(5, 5);
 
-  public SonarQubeVersion(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
-    super(version, product, sonarQubeSide);
+  /**
+   * Constant for version 5.6
+   */
+  public static final Version V5_6 = Version.create(5, 6);
+
+  private final Version version;
+
+  public SonarQubeVersion(Version version) {
+    requireNonNull(version);
+    this.version = version;
   }
 
   public Version get() {
-    return super.getApiVersion();
+    return this.version;
   }
 
+  public boolean isGreaterThanOrEqual(Version than) {
+    return this.version.isGreaterThanOrEqual(than);
+  }
 }

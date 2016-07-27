@@ -21,13 +21,14 @@ package org.sonar.scanner.bootstrap;
 
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeFactory;
+import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
@@ -69,6 +70,7 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   private void addBootstrapComponents() {
+    Version apiVersion = ApiVersion.load(System2.INSTANCE);
     add(
       // plugins
       BatchPluginRepository.class,
@@ -78,7 +80,8 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
-      SonarRuntimeFactory.create(System2.INSTANCE, SonarProduct.SONARQUBE, SonarQubeSide.SCANNER),
+      new SonarQubeVersion(apiVersion),
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
       CachesManager.class,
       GlobalSettings.class,
       new BatchWsClientProvider(),

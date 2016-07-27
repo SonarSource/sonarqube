@@ -33,14 +33,13 @@ import static java.util.Objects.requireNonNull;
  * This property is automatically set by sonar-packaging-maven-plugin when building plugin.
  * <p>Example of implementation
  * <pre>
- * package com.mycompany.sonarqube;
- * public class MyPlugin implements Plugin {
+  * public class MyPlugin implements Plugin {
  *  {@literal @}Override
  *   public void define(Context context) {
  *     context.addExtensions(MySensor.class, MyRules.class);
- *     if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
- *       // Extension which supports only versions 5.6 and greater
- *       // See org.sonar.api.SonarQubeVersion for more details.
+ *     if (context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(6, 0))) {
+ *       // Extension which supports only versions 6.0 and greater
+ *       // See org.sonar.api.SonarRuntime for more details.
  *       context.addExtension(MyNewExtension.class);
  *     }
  *   }
@@ -73,8 +72,9 @@ import static java.util.Objects.requireNonNull;
  * MyPlugin underTest = new MyPlugin();
  *
  *{@literal @}Test
- * public void test_plugin_extensions_compatible_with_5_5() {
- *   Plugin.Context context = new Plugin.Context(SonarQubeVersion.V5_5);
+ * public void test_plugin_extensions_compatible_with_5_6() {
+ *   SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(5, 6));
+ *   Plugin.Context context = new Plugin.Context(runtime);
  *   underTest.define(context);
  *   assertThat(context.getExtensions()).hasSize(4);
  * }
@@ -93,7 +93,7 @@ public interface Plugin {
     }
 
     /**
-     * @deprecated since 6.0 use {@link #getRuntimeApiVersion()}
+     * @deprecated replaced by {@link #getRuntime()}.getApiVersion() in 6.0
      */
     @Deprecated
     public Version getSonarQubeVersion() {
@@ -101,11 +101,11 @@ public interface Plugin {
     }
 
     /**
-     * Runtime API version. Can be use to conditionnaly add some extensions.
+     * Runtime environment. Can be use to add some extensions only on some conditions.
      * @since 6.0
      */
-    public Version getRuntimeApiVersion() {
-      return sonarRuntime.getApiVersion();
+    public SonarRuntime getRuntime() {
+      return sonarRuntime;
     }
 
     /**
@@ -151,13 +151,6 @@ public interface Plugin {
       return extensions;
     }
 
-    /**
-     * Test the product the plugin is currently executed in. This can allow to implement a different behavior.
-     * @since 6.0
-     */
-    public SonarProduct getRuntimeProduct() {
-      return sonarRuntime.getProduct();
-    }
   }
 
   /**

@@ -20,7 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import java.io.Serializable;
-import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -66,25 +66,24 @@ public interface SensorContext {
 
   /**
    * @since 5.5
-   * @deprecated since 6.0 replaced by {@link #getRuntimeApiVersion()}
+   * @deprecated replaced by {@link #runtime()}.getApiVersion() in version 6.0.
    */
   @Deprecated
   Version getSonarQubeVersion();
 
   /**
+   * Runtime information, mainly:
+   * <ul>
+   *   <li>to be able to have different behaviours between SonarQube and SonarLint</li>
+   *   <li>to enable new features depending on version of API available at runtime</li>
+   * </ul>
    * @since 6.0
    */
-  Version getRuntimeApiVersion();
-
-  /**
-   * Test the product the plugin is currently executed in. This can allow to implement a different behavior.
-   * @since 6.0
-   */
-  SonarProduct getRuntimeProduct();
+  SonarRuntime runtime();
 
   /**
    * Test if a cancellation of the analysis was requested. Sensors should periodically test this flag
-   * and gracefully stop if value is true. For example it could be tested between each processed file.
+   * and gracefully stop if value is {@code true}. For example it could be tested between each processed file.
    * @since 6.0
    */
   boolean isCancelled();
@@ -139,7 +138,7 @@ public interface SensorContext {
 
   /**
    * Builder to declare errors that happened while processing a source file.
-   * Don't forget to call {@link NewAnalisisError#save()}.
+   * Don't forget to call {@link NewAnalysisError#save()}.
    * @since 6.0
    */
   NewAnalysisError newAnalysisError();
