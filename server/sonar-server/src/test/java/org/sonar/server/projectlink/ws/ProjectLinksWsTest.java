@@ -42,7 +42,8 @@ public class ProjectLinksWsTest {
   public void setUp() {
     WsTester tester = new WsTester(new ProjectLinksWs(
       new SearchAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
-      new CreateAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class))
+      new CreateAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
+      new DeleteAction(mock(DbClient.class), userSessionRule)
     ));
     controller = tester.controller("api/project_links");
   }
@@ -52,7 +53,7 @@ public class ProjectLinksWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("6.1");
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
@@ -73,5 +74,15 @@ public class ProjectLinksWsTest {
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
+  }
+
+  @Test
+  public void define_delete_action() {
+    WebService.Action action = controller.action("delete");
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExample()).isNull();
+    assertThat(action.params()).hasSize(1);
   }
 }

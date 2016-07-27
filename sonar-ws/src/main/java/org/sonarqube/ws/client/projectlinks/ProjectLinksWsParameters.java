@@ -24,10 +24,12 @@ public class ProjectLinksWsParameters {
   //actions
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_CREATE = "create";
+  public static final String ACTION_DELETE = "delete";
 
   // parameters
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_ID = "id";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_URL = "url";
 

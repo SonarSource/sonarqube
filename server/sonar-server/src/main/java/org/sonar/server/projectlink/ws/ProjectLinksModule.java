@@ -29,7 +29,8 @@ public class ProjectLinksModule extends Module {
       ProjectLinksWs.class,
       // actions
       SearchAction.class,
-      CreateAction.class);
+      CreateAction.class,
+      DeleteAction.class);
   }
 
 }

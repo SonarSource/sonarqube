@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonarqube.ws.client.projectlinks;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+public class DeleteWsRequest {
+  private Long id;
 
-public interface ComponentLinkMapper {
+  public Long getId() {
+    return id;
+  }
 
-  List<ComponentLinkDto> selectByComponentUuid(String componentUuid);
-
-  List<ComponentLinkDto> selectByComponentUuids(@Param("componentUuids") List<String> componentUuids);
-
-  ComponentLinkDto selectById(@Param("id") long id);
-
-  void insert(ComponentLinkDto dto);
-
-  void update(ComponentLinkDto dto);
-
-  void delete(long id);
+  public DeleteWsRequest setId(Long id) {
+    this.id = id;
+    return this;
+  }
 }

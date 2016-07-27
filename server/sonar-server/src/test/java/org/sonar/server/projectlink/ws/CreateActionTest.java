@@ -198,7 +198,7 @@ public class CreateActionTest {
 
     WsProjectLinks.CreateWsResponse response = WsProjectLinks.CreateWsResponse.parseFrom(responseStream);
 
-    String newId = response.getLink().getId();
+    long newId = Long.valueOf(response.getLink().getId());
 
     ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, newId);
     assertThat(link.getName()).isEqualTo("Custom");
