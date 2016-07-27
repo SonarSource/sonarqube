@@ -24,6 +24,7 @@ import { Router, Route, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import Deletion from './deletion/Deletion';
 import QualityProfiles from './quality-profiles/QualityProfiles';
+import Links from './links/Links';
 import rootReducer from './store/rootReducer';
 import configureStore from '../../components/store/configureStore';
 
@@ -48,6 +49,9 @@ window.sonarqube.appStarted.then(options => {
           <Route
               path="/quality_profiles"
               component={withComponent(QualityProfiles)}/>
+          <Route
+              path="/links"
+              component={withComponent(Links)}/>
         </Router>
       </Provider>
   ), el);

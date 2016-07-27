@@ -50,6 +50,12 @@ public class Navigation extends ExternalResource {
     return open("/", Navigation.class);
   }
 
+  public ProjectLinksPage openProjectLinks(String projectKey) {
+    // TODO encode projectKey
+    String url = "/project/links?id=" + projectKey;
+    return open(url, ProjectLinksPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }
