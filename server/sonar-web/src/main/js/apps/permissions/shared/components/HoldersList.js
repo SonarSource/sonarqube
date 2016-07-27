@@ -21,6 +21,7 @@ import React from 'react';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
 import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
+import { translate } from '../../../../helpers/l10n';
 
 export default class HoldersList extends React.Component {
   static propTypes = {
@@ -73,6 +74,17 @@ export default class HoldersList extends React.Component {
     );
   }
 
+  renderEmpty () {
+    const columns = this.props.permissions.length + 1;
+    return (
+        <tr>
+          <td colSpan={columns}>
+            {translate('no_results_search')}
+          </td>
+        </tr>
+    );
+  }
+
   render () {
     const users = this.props.users.map(user => (
         <UserHolder
@@ -99,6 +111,7 @@ export default class HoldersList extends React.Component {
           <table className="data zebra permissions-table">
             {this.renderTableHeader()}
             <tbody>
+              {users.length === 0 && groups.length === 0 && this.renderEmpty()}
               {users}
               {groups}
             </tbody>
