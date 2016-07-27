@@ -19,30 +19,26 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.ServerId;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
-
-import static com.google.common.collect.FluentIterable.from;
 
 public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
 
@@ -90,18 +86,20 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   private List<String> getEnabledIdentityProviders() {
-    return from(identityProviderRepository.getAllEnabledAndSorted())
-      .filter(MatchEnabled.INSTANCE)
-      .transform(IdentityProviderToName.INSTANCE)
-      .toList();
+    return identityProviderRepository.getAllEnabledAndSorted()
+      .stream()
+      .filter(IdentityProvider::isEnabled)
+      .map(IdentityProvider::getName)
+      .collect(Collectors.toList());
   }
 
   private List<String> getAllowsToSignUpEnabledIdentityProviders() {
-    return from(identityProviderRepository.getAllEnabledAndSorted())
-      .filter(MatchEnabled.INSTANCE)
-      .filter(MatchAllowsToSignUp.INSTANCE)
-      .transform(IdentityProviderToName.INSTANCE)
-      .toList();
+    return identityProviderRepository.getAllEnabledAndSorted()
+      .stream()
+      .filter(IdentityProvider::isEnabled)
+      .filter(IdentityProvider::allowsUsersToSignUp)
+      .map(IdentityProvider::getName)
+      .collect(Collectors.toList());
   }
 
   private boolean getAutomaticUserCreation() {
@@ -166,33 +164,6 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   private static void addIfNotEmpty(String key, List<String> values, Map<String, Object> attributes) {
     if (!values.isEmpty()) {
       attributes.put(key, COMMA_JOINER.join(values));
-    }
-  }
-
-  private enum IdentityProviderToName implements Function<IdentityProvider, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull IdentityProvider input) {
-      return input.getName();
-    }
-  }
-
-  private enum MatchEnabled implements Predicate<IdentityProvider> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull IdentityProvider input) {
-      return input.isEnabled();
-    }
-  }
-
-  private enum MatchAllowsToSignUp implements Predicate<IdentityProvider> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull IdentityProvider input) {
-      return input.allowsUsersToSignUp();
     }
   }
 }
