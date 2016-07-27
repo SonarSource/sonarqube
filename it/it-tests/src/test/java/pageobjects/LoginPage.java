@@ -20,6 +20,7 @@
 package pageobjects;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
 
@@ -48,6 +49,7 @@ public class LoginPage {
     $("#login").val(login);
     $("#password").val(password);
     $(By.name("commit")).click();
+    $("#login").should(Condition.disappear);
     return page(expectedResultPage);
   }
 }
