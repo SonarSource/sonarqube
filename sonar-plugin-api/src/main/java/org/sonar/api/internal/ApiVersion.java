@@ -23,29 +23,27 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nullable;
-import org.sonar.api.SonarProduct;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
 /**
- * For internal use only.
+ * For internal use
+ *
+ * @since 6.0
  */
-public class SonarRuntimeFactory {
+public class ApiVersion {
 
   private static final String FILE_PATH = "/sq-version.txt";
 
-  private SonarRuntimeFactory() {
-    // prevents instantiation
+  private ApiVersion() {
+    // only static methods
   }
 
-  public static SonarQubeVersion create(System2 system, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
+  public static Version load(System2 system) {
     try {
       URL url = system.getResource(FILE_PATH);
       String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
-      return new SonarQubeVersion(Version.parse(versionInFile), product, sonarQubeSide);
+      return Version.parse(versionInFile);
     } catch (IOException e) {
       throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
     }

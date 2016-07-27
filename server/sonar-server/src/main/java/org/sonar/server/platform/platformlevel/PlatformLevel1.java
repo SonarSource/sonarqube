@@ -21,10 +21,12 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeFactory;
+import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -69,8 +71,10 @@ public class PlatformLevel1 extends PlatformLevel {
   public void configureLevel() {
     add(platform, properties);
     addExtraRootComponents();
+    Version apiVersion = ApiVersion.load(System2.INSTANCE);
     add(
-      SonarRuntimeFactory.create(System2.INSTANCE, SonarProduct.SONARQUBE, SonarQubeSide.SERVER),
+      new SonarQubeVersion(apiVersion),
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       WebServerSettings.class,

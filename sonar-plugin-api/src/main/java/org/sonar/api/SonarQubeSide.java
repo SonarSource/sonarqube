@@ -20,13 +20,14 @@
 package org.sonar.api;
 
 /**
- * Differentiate runtime context in SonarQube product.
+ * Runtime stack in SonarQube product.
+ * @see SonarRuntime#getSonarQubeSide()
  * @since 6.0
  */
 public enum SonarQubeSide {
 
   SCANNER,
   SERVER,
-  COMPUTE_ENGINE;
+  COMPUTE_ENGINE
 
 }

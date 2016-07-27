@@ -19,75 +19,81 @@
  */
 package org.sonar.api;
 
-import com.google.common.base.Preconditions;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static java.util.Objects.requireNonNull;
-
 /**
- * Version of SonarQube at runtime. This component can be injected as a dependency
- * of plugin extensions. The main usage for a plugin is to benefit from new APIs
- * while keeping backward-compatibility with previous versions of SonarQube.
- * <br><br>
- * 
- * Example 1: a {@link Sensor} wants to use an API introduced in version 5.5 and still requires to support older versions
- * at runtime.
- * <pre>
- * public class MySensor implements Sensor {
+ * Information about runtime environment.
  *
- *   public void execute(SensorContext context) {
- *     if (context.getRuntimeApiVersion().isGreaterThanOrEqual(RuntimeApiVersion.V5_5)) {
- *       context.newMethodIntroducedIn5_5();
- *     }
- *   }
- * }
- * </pre>
+ * <p>
+ * A usage for plugins is to benefit from new APIs
+ * while keeping backward-compatibility with previous versions of SonarQube
+ * or SonarLint.
+ * </p>
  *
- * Example 2: a plugin needs to use an API introduced in version 5.6 ({@code AnApi} in the following
- * snippet) and still requires to support version 5.5 at runtime.
- * <br>
+ * <p>
+ * Example: a plugin extension wants to use a new feature of API 6.0 without
+ * breaking compatibility with version 5.6 at runtime. This new feature
+ * would be enabled only in 6.0 and greater runtimes.
+ * </p>
  * <pre>
  * // Component provided by sonar-plugin-api
- * // @since 5.5
+ * // @since 5.6
  * public interface AnApi {
- *   // implicitly since 5.5
+ *   // implicitly since 5.6
  *   public void foo();
  *
- *   // @since 5.6
+ *   // @since 6.0
  *   public void bar();
  * }
  * 
- * // Component provided by plugin
+ * // Plugin extension
  * public class MyExtension {
- *   private final RuntimeApiVersion runtimeApiVersion;
+ *   private final SonarRuntime sonarRuntime;
  *   private final AnApi api;
  *
- *   public MyExtension(RuntimeApiVersion runtimeApiVersion, AnApi api) {
- *     this.runtimeApiVersion = runtimeApiVersion;
+ *   public MyExtension(SonarRuntime sonarRuntime, AnApi api) {
+ *     this.sonarRuntime = sonarRuntime;
  *     this.api = api;
  *   }
  *
  *   public void doSomething() {
- *     // assume that runtime is 5.5+
+ *     // assume that minimal supported runtime is 5.6
  *     api.foo();
  *
- *     if (runtimeApiVersion.isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
+ *     if (sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(6, 0))) {
  *       api.bar();
  *     }
  *   }
  * }
  * </pre>
+ *
+ *
+ * <p>
+ *   Note that {@link Sensor} extensions can directly get {@link SonarRuntime} through
+ * {@link SensorContext#runtime()}, without using constructor injection:
+ * </p>
+ * <pre>
+ * public class MySensor implements Sensor {
+ *
+ *   public void execute(SensorContext context) {
+ *     if (context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(6, 0)) {
+ *       context.newMethodIntroducedIn6_0();
+ *     }
+ *   }
+ *
+ * }
+ * </pre>
+ *
  * <p>
  * The minimal supported version of plugin API is verified at runtime. As plugin is built
- * with sonar-plugin-api 5.6, we assume that the plugin requires v5.6 or greater at runtime.
- * For this reason the plugin must default which is the minimal supported version
+ * with sonar-plugin-api 6.0, we assume that the plugin requires v6.0 or greater at runtime.
+ * For this reason the plugin must override the minimal supported version
  * in the configuration of sonar-packaging-maven-plugin 1.16+:
  * <p>
  * <pre>
@@ -97,7 +103,7 @@ import static java.util.Objects.requireNonNull;
  *   &lt;dependency&gt;
  *     &lt;groupId&gt;org.sonarsource.sonarqube&lt;/groupId&gt;
  *     &lt;artifactId&gt;sonar-plugin-api&lt;/artifactId&gt;
- *     &lt;version&gt;5.6&lt;/version&gt;
+ *     &lt;version&gt;6.0&lt;/version&gt;
  *     &lt;scope&gt;provided&lt;/scope&gt;
  *   &lt;/dependency&gt;
  * &lt;/dependencies&gt;
@@ -111,80 +117,42 @@ import static java.util.Objects.requireNonNull;
  *      &lt;extensions&gt;true&lt;/extensions&gt;
  *      &lt;configuration&gt;
  *        &lt;!-- Override the default value 5.6 which is guessed from sonar-plugin-api dependency --&gt;
- *        &lt;sonarQubeMinVersion&gt;5.5&lt;/sonarQubeMinVersion&gt;
+ *        &lt;sonarQubeMinVersion&gt;5.6&lt;/sonarQubeMinVersion&gt;
  *      &lt;/configuration&gt;
  *    &lt;/plugin&gt;
  *  &lt;/plugins&gt;
  * &lt;/build&gt;
  * </pre>
  *
- *
+ * <p>
+ * Unit tests of plugin extensions can create instances of {@link SonarRuntime}
+ * via {@link org.sonar.api.internal.SonarRuntimeImpl}.
+ * </p>
  * @since 6.0
  */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
 @SonarLintSide
-@Immutable
-public class SonarRuntime {
+public interface SonarRuntime {
 
   /**
-   * Constant for version 5.5
-   */
-  public static final Version V5_5 = Version.create(5, 5);
+  * Version of API (sonar-plugin-api artifact) at runtime.
+  * It can be helpful to call some API classes/methods without checking their availability at
+  * runtime by using reflection.
+  */
+  Version getApiVersion();
 
   /**
-   * Constant for version 5.6
+   * The product being executed at runtime. It targets analysers so that they can implement
+   * different behaviours in SonarQube and SonarLint.
    */
-  public static final Version V5_6 = Version.create(5, 6);
+  SonarProduct getProduct();
 
   /**
-   * Constant for version 6.0
+   * The SonarQube stack being executed at runtime.
+   * @throws UnsupportedOperationException if {@link #getProduct()} is not equal to {@link SonarProduct#SONARQUBE}
    */
-  public static final Version V6_0 = Version.create(6, 0);
-
-  private final Version version;
-  private final SonarProduct product;
-  private final SonarQubeSide sonarQubeSide;
-
-  public SonarRuntime(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
-    requireNonNull(version);
-    requireNonNull(product);
-    Preconditions.checkArgument((product == SonarProduct.SONARQUBE) == (sonarQubeSide != null), "sonarQubeSide should be provided only for SonarQube product");
-    this.version = version;
-    this.product = product;
-    this.sonarQubeSide = sonarQubeSide;
-  }
-
-  /**
-   * Runtime version of sonar-plugin-api. This could be used to test if a new feature can be used or not without using reflection.
-   */
-  public Version getApiVersion() {
-    return this.version;
-  }
-
-  public boolean isGreaterThanOrEqual(Version than) {
-    return this.version.isGreaterThanOrEqual(than);
-  }
-
-  /**
-   * Allow to know what is current runtime product. Can be used to implement different behavior depending on runtime (SonarQube, SonarLint, ...).
-   * @since 6.0
-   */
-  public SonarProduct getProduct() {
-    return product;
-  }
-
-  /**
-   * Allow to know the precise runtime context in SonarQube product. Only valid when {@link #getProduct()} returns {@link SonarProduct#SONARQUBE}
-   * @since 6.0
-   * @throws UnsupportedOperationException if called and {@link #getProduct()} is not equal to {@link SonarProduct#SONARQUBE}
-   */
-  public SonarQubeSide getSonarQubeSide() {
-    if (sonarQubeSide == null) {
-      throw new UnsupportedOperationException("Can only be called in SonarQube");
-    }
-    return sonarQubeSide;
-  }
+  SonarQubeSide getSonarQubeSide();
 
 }

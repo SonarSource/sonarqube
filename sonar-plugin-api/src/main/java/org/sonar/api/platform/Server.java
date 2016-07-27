@@ -27,24 +27,62 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
+ * Runtime information about server
+ *
  * @since 2.2
-  */
+ */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
 public abstract class Server {
 
+  /**
+   * Name is misleading, this is an UUID generated
+   * at each startup, so it changes if server is restarted.
+   * @return a non-null UUID. Format can change over versions.
+   */
   public abstract String getId();
 
+  /**
+   * UUID generated on demand by system administrators. It is
+   * {@code null} by default on fresh installations. When defined,
+   * value does not change when server is restarted.
+   * @since 2.10
+   */
+  @CheckForNull
+  public abstract String getPermanentServerId();
+
+  /**
+   * Non-null version of SonarQube at runtime
+   */
   public abstract String getVersion();
 
+  /**
+   * Date when server started
+   */
   public abstract Date getStartedAt();
 
+  /**
+   * @deprecated in 6.0. Replaced by {@link ServerFileSystem#getHomeDir()}
+   * @return an existing directory in server and CE environments, {@code null} in scanner.
+   */
+  @Deprecated
   public abstract File getRootDir();
 
+  /**
+   * @deprecated always {@code null} since version 6.0. No alternatives, as plugins do not have to touch this directory.
+   */
+  @Deprecated
   @CheckForNull
   public abstract File getDeployDir();
 
+  /**
+   * Context path of web server. Value is blank {@code ""} by default. When defined by
+   * the property {@code sonar.web.context} of conf/sonar.properties, then value starts but does
+   * not end with slash {@code '/'}, for instance {@code "/sonarqube"}.
+   *
+   * @return non-null but possibly blank path
+   */
   public abstract String getContextPath();
 
   /**
@@ -56,7 +94,7 @@ public abstract class Server {
   public abstract String getPublicRootUrl();
 
   /**
-   * The dev mode is enabled when the property sonar.web.dev is true.
+   * The dev mode is enabled when the property {@code sonar.web.dev} is {@code true}.
    *
    * @since 5.4
    */
@@ -76,9 +114,4 @@ public abstract class Server {
    * @since since 2.4 on batch side only, since 5.6 on both batch side and server side (WebServer and Compute Engine)
    */
   public abstract String getURL();
-
-  /**
-   * @since 2.10
-   */
-  public abstract String getPermanentServerId();
 }

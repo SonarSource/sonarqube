@@ -20,7 +20,6 @@
 package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
@@ -100,13 +99,8 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public Version getRuntimeApiVersion() {
-    return sonarRuntime.getApiVersion();
-  }
-
-  @Override
-  public SonarProduct getRuntimeProduct() {
-    return sonarRuntime.getProduct();
+  public SonarRuntime runtime() {
+    return sonarRuntime;
   }
 
   @Override

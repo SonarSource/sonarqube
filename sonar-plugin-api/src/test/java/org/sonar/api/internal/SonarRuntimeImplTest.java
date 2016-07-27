@@ -17,42 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.api.internal;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SonarRuntimeTest {
+
+public class SonarRuntimeImplTest {
+
+  private static final Version A_VERSION = Version.parse("6.0");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void isGteInSQ() {
-    Version version = Version.parse("1.2.3");
-    SonarRuntime apiVersion = new SonarRuntime(version, SonarProduct.SONARQUBE, SonarQubeSide.SCANNER);
-    assertThat(apiVersion.getApiVersion()).isEqualTo(version);
+  public void sonarQube_environment() {
+    SonarRuntime apiVersion = SonarRuntimeImpl.forSonarQube(A_VERSION, SonarQubeSide.SCANNER);
+    assertThat(apiVersion.getApiVersion()).isEqualTo(A_VERSION);
     assertThat(apiVersion.getProduct()).isEqualTo(SonarProduct.SONARQUBE);
     assertThat(apiVersion.getSonarQubeSide()).isEqualTo(SonarQubeSide.SCANNER);
-    assertThat(apiVersion.isGreaterThanOrEqual(version)).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
   }
 
   @Test
-  public void inSL() {
-    Version version = Version.parse("1.2.3");
-    SonarRuntime apiVersion = new SonarRuntime(version, SonarProduct.SONARLINT, null);
-    assertThat(apiVersion.getApiVersion()).isEqualTo(version);
+  public void sonarLint_environment() {
+    SonarRuntime apiVersion = SonarRuntimeImpl.forSonarLint(A_VERSION);
+    assertThat(apiVersion.getApiVersion()).isEqualTo(A_VERSION);
     assertThat(apiVersion.getProduct()).isEqualTo(SonarProduct.SONARLINT);
-    assertThat(apiVersion.isGreaterThanOrEqual(version)).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
     try {
       apiVersion.getSonarQubeSide();
       Assertions.fail("Expected exception");
@@ -62,12 +60,10 @@ public class SonarRuntimeTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testConstructorMissSide() throws Exception {
-    new SonarRuntime(Version.parse("1.2.3"), SonarProduct.SONARQUBE, null);
+  public void sonarqube_requires_side() throws Exception {
+    SonarRuntimeImpl.forSonarQube(A_VERSION, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructorNoSideOnSonarLint() throws Exception {
-    new SonarRuntime(Version.parse("1.2.3"), SonarProduct.SONARLINT, SonarQubeSide.COMPUTE_ENGINE);
-  }
+
+
 }

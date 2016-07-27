@@ -24,9 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -35,6 +34,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
 
@@ -56,7 +56,7 @@ public class DefaultSensorContextTest {
   private Settings settings;
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
-  private SonarQubeVersion sqVersion;
+  private SonarRuntime runtime;
 
   @Before
   public void prepare() throws Exception {
@@ -68,8 +68,8 @@ public class DefaultSensorContextTest {
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    sqVersion = new SonarQubeVersion(Version.parse("5.5"), SonarProduct.SONARQUBE, SonarQubeSide.SCANNER);
-    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
+    runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
   }
 
   @Test
@@ -78,7 +78,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
-    assertThat(adaptor.getRuntimeProduct()).isEqualTo(SonarProduct.SONARQUBE);
+    assertThat(adaptor.runtime()).isEqualTo(runtime);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
