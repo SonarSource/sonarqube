@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 // TODO split testcases in action tests
 @RunWith(MockitoJUnitRunner.class)
-public class QGatesWsTest {
+public class QualityGatesWsTest {
 
   @Mock
   private QualityGates qGates;
@@ -64,7 +64,7 @@ public class QGatesWsTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QGatesWs(
+    tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),

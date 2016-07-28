@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class UpdateConditionAction implements QGateWsAction {
+public class UpdateConditionAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -41,24 +41,24 @@ public class UpdateConditionAction implements QGateWsAction {
       .setHandler(this);
 
     createCondition
-      .createParam(QGatesWs.PARAM_ID)
+      .createParam(QualityGatesWs.PARAM_ID)
       .setDescription("Condition ID")
       .setRequired(true)
       .setExampleValue("10");
 
-    QGatesWs.addConditionParams(createCondition);
+    QualityGatesWs.addConditionParams(createCondition);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    QGatesWs.writeQualityGateCondition(
+    QualityGatesWs.writeQualityGateCondition(
       qualityGates.updateCondition(
-        QGatesWs.parseId(request, QGatesWs.PARAM_ID),
-        request.mandatoryParam(QGatesWs.PARAM_METRIC),
-        request.mandatoryParam(QGatesWs.PARAM_OPERATOR),
-        request.param(QGatesWs.PARAM_WARNING),
-        request.param(QGatesWs.PARAM_ERROR),
-        request.paramAsInt(QGatesWs.PARAM_PERIOD)
+        QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID),
+        request.mandatoryParam(QualityGatesWs.PARAM_METRIC),
+        request.mandatoryParam(QualityGatesWs.PARAM_OPERATOR),
+        request.param(QualityGatesWs.PARAM_WARNING),
+        request.param(QualityGatesWs.PARAM_ERROR),
+        request.paramAsInt(QualityGatesWs.PARAM_PERIOD)
         ), response.newJsonWriter()
       ).close();
   }

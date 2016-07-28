@@ -29,7 +29,7 @@ import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 
-public class SearchAction implements QGateWsAction {
+public class SearchAction implements QualityGatesWsAction {
 
   private final QgateProjectFinder projectFinder;
 
@@ -46,23 +46,23 @@ public class SearchAction implements QGateWsAction {
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"))
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_GATE_ID)
+    action.createParam(QualityGatesWs.PARAM_GATE_ID)
       .setDescription("Quality Gate ID")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QGatesWs.PARAM_QUERY)
+    action.createParam(QualityGatesWs.PARAM_QUERY)
       .setDescription("To search for projects containing this string. If this parameter is set, \"selected\" is set to \"all\".")
       .setExampleValue("abc");
 
     action.addSelectionModeParam();
 
-    action.createParam(QGatesWs.PARAM_PAGE)
+    action.createParam(QualityGatesWs.PARAM_PAGE)
       .setDescription("Page number")
       .setDefaultValue("1")
       .setExampleValue("2");
 
-    action.createParam(QGatesWs.PARAM_PAGE_SIZE)
+    action.createParam(QualityGatesWs.PARAM_PAGE_SIZE)
       .setDescription("Page size")
       .setExampleValue("10");
   }
@@ -70,11 +70,11 @@ public class SearchAction implements QGateWsAction {
   @Override
   public void handle(Request request, Response response) {
     QgateProjectFinder.Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
-      .gateId(request.mandatoryParam(QGatesWs.PARAM_GATE_ID))
-      .membership(request.param(QGatesWs.PARAM_QUERY) == null ? request.param(Param.SELECTED) : ProjectQgateAssociationQuery.ANY)
-      .projectSearch(request.param(QGatesWs.PARAM_QUERY))
-      .pageIndex(request.paramAsInt(QGatesWs.PARAM_PAGE))
-      .pageSize(request.paramAsInt(QGatesWs.PARAM_PAGE_SIZE))
+      .gateId(request.mandatoryParam(QualityGatesWs.PARAM_GATE_ID))
+      .membership(request.param(QualityGatesWs.PARAM_QUERY) == null ? request.param(Param.SELECTED) : ProjectQgateAssociationQuery.ANY)
+      .projectSearch(request.param(QualityGatesWs.PARAM_QUERY))
+      .pageIndex(request.paramAsInt(QualityGatesWs.PARAM_PAGE))
+      .pageSize(request.paramAsInt(QualityGatesWs.PARAM_PAGE_SIZE))
       .build());
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject().prop("more", associations.hasMoreResults());

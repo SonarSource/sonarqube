@@ -56,7 +56,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
-public class ProjectStatusAction implements QGateWsAction {
+public class ProjectStatusAction implements QualityGatesWsAction {
   private static final String QG_STATUSES_ONE_LINE = Joiner.on(", ")
     .join(Lists.transform(Arrays.asList(ProjectStatusWsResponse.Status.values()), new Function<ProjectStatusWsResponse.Status, String>() {
       @Nonnull

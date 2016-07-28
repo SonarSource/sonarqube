@@ -31,7 +31,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class ShowAction implements QGateWsAction {
+public class ShowAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -47,32 +47,32 @@ public class ShowAction implements QGateWsAction {
       .setResponseExample(Resources.getResource(this.getClass(), "example-show.json"))
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWs.PARAM_ID)
       .setDescription("ID of the quality gate. Either id or name must be set")
       .setExampleValue("1");
 
-    action.createParam(QGatesWs.PARAM_NAME)
+    action.createParam(QualityGatesWs.PARAM_NAME)
       .setDescription("Name of the quality gate. Either id or name must be set")
       .setExampleValue("My Quality Gate");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    Long qGateId = request.paramAsLong(QGatesWs.PARAM_ID);
-    String qGateName = request.param(QGatesWs.PARAM_NAME);
+    Long qGateId = request.paramAsLong(QualityGatesWs.PARAM_ID);
+    String qGateName = request.param(QualityGatesWs.PARAM_NAME);
     checkOneOfIdOrNamePresent(qGateId, qGateName);
 
     QualityGateDto qGate = qGateId == null ? qualityGates.get(qGateName) : qualityGates.get(qGateId);
     qGateId = qGate.getId();
 
     JsonWriter writer = response.newJsonWriter().beginObject()
-      .prop(QGatesWs.PARAM_ID, qGate.getId())
-      .prop(QGatesWs.PARAM_NAME, qGate.getName());
+      .prop(QualityGatesWs.PARAM_ID, qGate.getId())
+      .prop(QualityGatesWs.PARAM_NAME, qGate.getName());
     Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
     if (!conditions.isEmpty()) {
       writer.name("conditions").beginArray();
       for (QualityGateConditionDto condition : conditions) {
-        QGatesWs.writeQualityGateCondition(condition, writer);
+        QualityGatesWs.writeQualityGateCondition(condition, writer);
       }
       writer.endArray();
     }

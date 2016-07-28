@@ -187,7 +187,7 @@ import org.sonar.server.qualitygate.ws.DeleteConditionAction;
 import org.sonar.server.qualitygate.ws.DeselectAction;
 import org.sonar.server.qualitygate.ws.DestroyAction;
 import org.sonar.server.qualitygate.ws.ProjectStatusAction;
-import org.sonar.server.qualitygate.ws.QGatesWs;
+import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualitygate.ws.SelectAction;
 import org.sonar.server.qualitygate.ws.SetAsDefaultAction;
 import org.sonar.server.qualitygate.ws.UnsetDefaultAction;
@@ -481,7 +481,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UpdateConditionAction.class,
       org.sonar.server.qualitygate.ws.AppAction.class,
       ProjectStatusAction.class,
-      QGatesWs.class,
+      QualityGatesWs.class,
 
       // web services
       WebServiceEngine.class,

@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class UnsetDefaultAction implements QGateWsAction {
+public class UnsetDefaultAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -40,7 +40,7 @@ public class UnsetDefaultAction implements QGateWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWs.PARAM_ID)
       .setDescription("ID of the quality gate to unset as default")
       .setRequired(true)
       .setExampleValue("1");

@@ -26,7 +26,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class RenameAction implements QGateWsAction {
+public class RenameAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -42,12 +42,12 @@ public class RenameAction implements QGateWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWs.PARAM_ID)
       .setDescription("ID of the quality gate to rename")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QGatesWs.PARAM_NAME)
+    action.createParam(QualityGatesWs.PARAM_NAME)
       .setDescription("New name of the quality gate")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -55,10 +55,10 @@ public class RenameAction implements QGateWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long idToRename = QGatesWs.parseId(request, QGatesWs.PARAM_ID);
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(QGatesWs.PARAM_NAME));
+    long idToRename = QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID);
+    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(QualityGatesWs.PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
-    QGatesWs.writeQualityGate(renamedQualityGate, writer).close();
+    QualityGatesWs.writeQualityGate(renamedQualityGate, writer).close();
   }
 
 }

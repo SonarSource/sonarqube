@@ -21,7 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import org.sonar.server.ws.WsAction;
 
-public interface QGateWsAction extends WsAction {
+public interface QualityGatesWsAction extends WsAction {
 
   // Marker interface
 }

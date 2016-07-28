@@ -62,7 +62,7 @@ public class AppActionTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QGatesWs(
+    tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(mock(QgateProjectFinder.class)),
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),

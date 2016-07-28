@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class AppAction implements QGateWsAction {
+public class AppAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 

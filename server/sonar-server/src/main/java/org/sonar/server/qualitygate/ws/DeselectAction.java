@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class DeselectAction implements QGateWsAction {
+public class DeselectAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -40,12 +40,12 @@ public class DeselectAction implements QGateWsAction {
       .setSince("4.3")
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_GATE_ID)
+    action.createParam(QualityGatesWs.PARAM_GATE_ID)
       .setDescription("Quality Gate ID")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QGatesWs.PARAM_PROJECT_ID)
+    action.createParam(QualityGatesWs.PARAM_PROJECT_ID)
       .setDescription("Project ID")
       .setRequired(true)
       .setExampleValue("12");
@@ -53,7 +53,7 @@ public class DeselectAction implements QGateWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.dissociateProject(QGatesWs.parseId(request, QGatesWs.PARAM_GATE_ID), QGatesWs.parseId(request, QGatesWs.PARAM_PROJECT_ID));
+    qualityGates.dissociateProject(QualityGatesWs.parseId(request, QualityGatesWs.PARAM_GATE_ID), QualityGatesWs.parseId(request, QualityGatesWs.PARAM_PROJECT_ID));
     response.noContent();
   }
 

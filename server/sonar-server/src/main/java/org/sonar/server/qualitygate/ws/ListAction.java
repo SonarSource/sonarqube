@@ -27,7 +27,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class ListAction implements QGateWsAction {
+public class ListAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -48,7 +48,7 @@ public class ListAction implements QGateWsAction {
   public void handle(Request request, Response response) {
     JsonWriter writer = response.newJsonWriter().beginObject().name("qualitygates").beginArray();
     for (QualityGateDto qgate : qualityGates.list()) {
-      QGatesWs.writeQualityGate(qgate, writer);
+      QualityGatesWs.writeQualityGate(qgate, writer);
     }
     writer.endArray();
     QualityGateDto defaultQgate = qualityGates.getDefault();

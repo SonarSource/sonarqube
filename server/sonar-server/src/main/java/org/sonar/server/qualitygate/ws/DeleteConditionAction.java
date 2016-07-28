@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class DeleteConditionAction implements QGateWsAction {
+public class DeleteConditionAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -41,7 +41,7 @@ public class DeleteConditionAction implements QGateWsAction {
       .setHandler(this);
 
     createCondition
-      .createParam(QGatesWs.PARAM_ID)
+      .createParam(QualityGatesWs.PARAM_ID)
       .setRequired(true)
       .setDescription("Condition ID")
       .setExampleValue("2");
@@ -49,7 +49,7 @@ public class DeleteConditionAction implements QGateWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.deleteCondition(QGatesWs.parseId(request, QGatesWs.PARAM_ID));
+    qualityGates.deleteCondition(QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID));
     response.noContent();
   }
 

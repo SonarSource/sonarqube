@@ -26,7 +26,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class CopyAction implements QGateWsAction {
+public class CopyAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -42,12 +42,12 @@ public class CopyAction implements QGateWsAction {
       .setSince("4.3")
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWs.PARAM_ID)
       .setDescription("The ID of the source quality gate")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QGatesWs.PARAM_NAME)
+    action.createParam(QualityGatesWs.PARAM_NAME)
       .setDescription("The name of the quality gate to create")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -55,9 +55,9 @@ public class CopyAction implements QGateWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.copy(QGatesWs.parseId(request, QGatesWs.PARAM_ID), request.mandatoryParam(QGatesWs.PARAM_NAME));
+    QualityGateDto newQualityGate = qualityGates.copy(QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID), request.mandatoryParam(QualityGatesWs.PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
-    QGatesWs.writeQualityGate(newQualityGate, writer).close();
+    QualityGatesWs.writeQualityGate(newQualityGate, writer).close();
   }
 
 }

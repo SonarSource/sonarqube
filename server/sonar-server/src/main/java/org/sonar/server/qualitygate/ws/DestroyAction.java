@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class DestroyAction implements QGateWsAction {
+public class DestroyAction implements QualityGatesWsAction {
 
   private final QualityGates qualityGates;
 
@@ -40,7 +40,7 @@ public class DestroyAction implements QGateWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWs.PARAM_ID)
       .setDescription("ID of the quality gate to delete")
       .setRequired(true)
       .setExampleValue("1");
@@ -48,7 +48,7 @@ public class DestroyAction implements QGateWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.delete(QGatesWs.parseId(request, QGatesWs.PARAM_ID));
+    qualityGates.delete(QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID));
     response.noContent();
   }
 

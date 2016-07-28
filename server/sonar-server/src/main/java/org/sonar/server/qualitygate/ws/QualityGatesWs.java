@@ -26,7 +26,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
-public class QGatesWs implements WebService {
+public class QualityGatesWs implements WebService {
 
   static final String PARAM_PAGE_SIZE = "pageSize";
   static final String PARAM_PAGE = "page";
@@ -41,9 +41,9 @@ public class QGatesWs implements WebService {
   static final String PARAM_PROJECT_ID = "projectId";
   static final String PARAM_ID = "id";
 
-  private final QGateWsAction[] actions;
+  private final QualityGatesWsAction[] actions;
 
-  public QGatesWs(QGateWsAction... actions) {
+  public QualityGatesWs(QualityGatesWsAction... actions) {
     this.actions = actions;
   }
 
@@ -53,7 +53,7 @@ public class QGatesWs implements WebService {
       .setSince("4.3")
       .setDescription("Manage quality gates, including conditions and project association.");
 
-    for (QGateWsAction action : actions) {
+    for (QualityGatesWsAction action : actions) {
       action.define(controller);
     }
 
