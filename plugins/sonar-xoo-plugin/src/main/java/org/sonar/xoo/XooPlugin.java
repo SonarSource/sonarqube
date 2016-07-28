@@ -144,7 +144,7 @@ public class XooPlugin implements Plugin {
         DeprecatedResourceApiSensor.class);
     }
 
-    if (context.getRuntime().getApiVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
       context.addExtension(CpdTokenizerSensor.class);
     }
   }
