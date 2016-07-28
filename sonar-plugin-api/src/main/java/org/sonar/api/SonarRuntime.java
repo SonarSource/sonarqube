@@ -37,18 +37,18 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * </p>
  *
  * <p>
- * Example: a plugin extension wants to use a new feature of API 6.0 without
- * breaking compatibility with version 5.6 at runtime. This new feature
- * would be enabled only in 6.0 and greater runtimes.
+ * Example: a plugin extension wants to use a new feature of API 6.1 without
+ * breaking compatibility with version 6.0 at runtime. This new feature
+ * would be enabled only in 6.1 and greater runtimes.
  * </p>
  * <pre>
  * // Component provided by sonar-plugin-api
- * // @since 5.6
+ * // @since 6.0
  * public interface AnApi {
- *   // implicitly since 5.6
+ *   // implicitly since 6.0
  *   public void foo();
  *
- *   // @since 6.0
+ *   // @since 6.1
  *   public void bar();
  * }
  * 
@@ -63,10 +63,10 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *   }
  *
  *   public void doSomething() {
- *     // assume that minimal supported runtime is 5.6
+ *     // assume that minimal supported runtime is 6.0
  *     api.foo();
  *
- *     if (sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(6, 0))) {
+ *     if (sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(6, 1))) {
  *       api.bar();
  *     }
  *   }
@@ -82,7 +82,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * public class MySensor implements Sensor {
  *
  *   public void execute(SensorContext context) {
- *     if (context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(6, 0)) {
+ *     if (context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(6, 1)) {
  *       context.newMethodIntroducedIn6_0();
  *     }
  *   }
@@ -92,7 +92,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *
  * <p>
  * The minimal supported version of plugin API is verified at runtime. As plugin is built
- * with sonar-plugin-api 6.0, we assume that the plugin requires v6.0 or greater at runtime.
+ * with sonar-plugin-api 6.1, we assume that the plugin requires v6.1 or greater at runtime.
  * For this reason the plugin must override the minimal supported version
  * in the configuration of sonar-packaging-maven-plugin 1.16+:
  * <p>
@@ -103,7 +103,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *   &lt;dependency&gt;
  *     &lt;groupId&gt;org.sonarsource.sonarqube&lt;/groupId&gt;
  *     &lt;artifactId&gt;sonar-plugin-api&lt;/artifactId&gt;
- *     &lt;version&gt;6.0&lt;/version&gt;
+ *     &lt;version&gt;6.1&lt;/version&gt;
  *     &lt;scope&gt;provided&lt;/scope&gt;
  *   &lt;/dependency&gt;
  * &lt;/dependencies&gt;
@@ -116,13 +116,20 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *      &lt;version&gt;1.16&lt;/version&gt;
  *      &lt;extensions&gt;true&lt;/extensions&gt;
  *      &lt;configuration&gt;
- *        &lt;!-- Override the default value 5.6 which is guessed from sonar-plugin-api dependency --&gt;
- *        &lt;sonarQubeMinVersion&gt;5.6&lt;/sonarQubeMinVersion&gt;
+ *        &lt;!-- Override the default value 6.0 which is guessed from sonar-plugin-api dependency --&gt;
+ *        &lt;sonarQubeMinVersion&gt;6.0&lt;/sonarQubeMinVersion&gt;
  *      &lt;/configuration&gt;
  *    &lt;/plugin&gt;
  *  &lt;/plugins&gt;
  * &lt;/build&gt;
  * </pre>
+ *
+ * <p>
+ *   As this component was introduced in version 6.0, the pattern described above can't be
+ *   exactly applied when plugin must support version 5.6 Long Term Support. In this case plugin
+ *   should use {@link SonarQubeVersion}, for example through {@link Plugin.Context#getSonarQubeVersion()} or
+ *   {@link SensorContext#getSonarQubeVersion()}.
+ * </p>
  *
  * <p>
  * Unit tests of plugin extensions can create instances of {@link SonarRuntime}

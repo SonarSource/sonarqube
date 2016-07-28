@@ -65,10 +65,11 @@ public interface SensorContext {
   InputModule module();
 
   /**
+   * Version of API at runtime, not at compilation time. It's a shortcut on
+   * {@code runtime().getApiVersion()} since 6.0.
    * @since 5.5
-   * @deprecated replaced by {@link #runtime()}.getApiVersion() in version 6.0.
+   * @see #runtime() since version 6.0.
    */
-  @Deprecated
   Version getSonarQubeVersion();
 
   /**
