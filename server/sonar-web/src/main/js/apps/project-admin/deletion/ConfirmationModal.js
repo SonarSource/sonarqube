@@ -27,6 +27,7 @@ export default ModalForm.extend({
   onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
+    this.showSpinner();
 
     deleteProject(this.options.project.key)
         .then(() => {
@@ -34,6 +35,7 @@ export default ModalForm.extend({
         })
         .catch(function (e) {
           e.response.json().then(r => {
+            this.hideSpinner();
             this.showErrors(r.errors, r.warnings);
             this.enableForm();
           });

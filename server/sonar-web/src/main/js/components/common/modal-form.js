@@ -81,6 +81,14 @@ export default ModalView.extend({
     if (this.disabledFields != null) {
       this.disabledFields.prop('disabled', false);
     }
+  },
+
+  showSpinner () {
+    this.$('.js-modal-spinner').removeClass('hidden');
+  },
+
+  hideSpinner () {
+    this.$('.js-modal-spinner').addClass('hidden');
   }
 });
 
