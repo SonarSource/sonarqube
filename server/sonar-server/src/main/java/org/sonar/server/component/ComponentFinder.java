@@ -37,6 +37,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ComponentFinder {
   private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided, not both";
+  public static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
 
   private final DbClient dbClient;
 
@@ -48,11 +49,22 @@ public class ComponentFinder {
     checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
 
     if (componentUuid != null) {
-      checkArgument(!componentUuid.isEmpty(), "The '%s' parameter must not be empty", parameterNames.getUuidParam());
+      checkArgument(!componentUuid.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getUuidParam());
       return getByUuid(dbSession, componentUuid);
     }
 
-    checkArgument(!componentKey.isEmpty(), "The '%s' parameter must not be empty", parameterNames.getKeyParam());
+    checkArgument(!componentKey.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getKeyParam());
+    return getByKey(dbSession, componentKey);
+  }
+
+  public ComponentDto getByIdOrKey(DbSession dbSession, @Nullable Long componentId, @Nullable String componentKey, ParamNames parameterNames) {
+    checkArgument(componentId != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
+
+    if (componentId != null) {
+      return getById(dbSession, componentId);
+    }
+
+    checkArgument(!componentKey.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getKeyParam());
     return getByKey(dbSession, componentKey);
   }
 
@@ -62,6 +74,10 @@ public class ComponentFinder {
 
   public ComponentDto getByUuid(DbSession dbSession, String uuid) {
     return getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, uuid), format("Component id '%s' not found", uuid));
+  }
+
+  public ComponentDto getById(DbSession dbSession, long id) {
+    return getIfPresentOrFail(dbClient.componentDao().selectById(dbSession, id), format("Component id '%s' not found", id));
   }
 
   /**
