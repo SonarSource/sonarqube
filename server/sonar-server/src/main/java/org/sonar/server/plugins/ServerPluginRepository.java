@@ -40,7 +40,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.platform.Server;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -83,7 +83,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
   private static final String NOT_STARTED_YET = "not started yet";
 
-  private final Server server;
+  private final SonarRuntime runtime;
   private final ServerFileSystem fs;
   private final ServerUpgradeStatus upgradeStatus;
   private final PluginLoader loader;
@@ -94,9 +94,9 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
 
-  public ServerPluginRepository(Server server, ServerUpgradeStatus upgradeStatus,
+  public ServerPluginRepository(SonarRuntime runtime, ServerUpgradeStatus upgradeStatus,
     ServerFileSystem fs, PluginLoader loader) {
-    this.server = server;
+    this.runtime = runtime;
     this.upgradeStatus = upgradeStatus;
     this.fs = fs;
     this.loader = loader;
@@ -231,7 +231,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     do {
       removedKeys.clear();
       for (PluginInfo plugin : pluginInfosByKeys.values()) {
-        if (!isCompatible(plugin, server, pluginInfosByKeys)) {
+        if (!isCompatible(plugin, runtime, pluginInfosByKeys)) {
           removedKeys.add(plugin.getKey());
         }
       }
@@ -242,13 +242,13 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   @VisibleForTesting
-  static boolean isCompatible(PluginInfo plugin, Server server, Map<String, PluginInfo> allPluginsByKeys) {
+  static boolean isCompatible(PluginInfo plugin, SonarRuntime runtime, Map<String, PluginInfo> allPluginsByKeys) {
     if (Strings.isNullOrEmpty(plugin.getMainClass()) && Strings.isNullOrEmpty(plugin.getBasePlugin())) {
       LOG.warn("Plugin {} [{}] is ignored because entry point class is not defined", plugin.getName(), plugin.getKey());
       return false;
     }
 
-    if (!plugin.isCompatibleWith(server.getVersion())) {
+    if (!plugin.isCompatibleWith(runtime.getApiVersion().toString())) {
       throw MessageException.of(format(
         "Plugin %s [%s] requires at least SonarQube %s", plugin.getName(), plugin.getKey(), plugin.getMinimalSqVersion()));
     }
