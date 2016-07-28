@@ -44,6 +44,14 @@ class ProjectController < ApplicationController
     redirect_to(url_for({:action => 'quality_profiles'}) + '?id=' + url_encode(params[:id]))
   end
 
+  def background_tasks
+    @project = get_current_project(params[:id])
+  end
+
+  def links
+    @project = get_current_project(params[:id])
+  end
+
   # GET /project/qualitygate?id=<project id>
   def qualitygate
     require_parameters :id
@@ -152,44 +160,6 @@ class ProjectController < ApplicationController
     @snapshot = @project.last_analysis
     @analyses = Snapshot.all(:conditions => ["status='P' AND component_uuid=?", @project.uuid],
                               :include => 'events', :order => 'snapshots.created_at DESC')
-  end
-
-  def background_tasks
-    @project = get_current_project(params[:id])
-  end
-
-  def links
-    @project = get_current_project(params[:id])
-
-    if !@project.project?
-      redirect_to :action => 'index', :id => params[:id]
-    end
-    @snapshot = @project.last_snapshot
-  end
-
-  def set_links
-    project = get_current_project(params[:project_id])
-
-    project.custom_links.each { |link| link.delete }
-
-    params.each_pair do |param_key, value|
-      if (param_key.starts_with?('name_'))
-        id = param_key[5..-1]
-        name=value
-        url=params["url_#{id}"]
-        key=params["key_#{id}"]
-        if key.blank?
-          key=ProjectLink.name_to_key(name)
-        end
-        unless key.blank? || name.blank? || url.blank?
-          project.links.create(:href => url, :name => name, :link_type => key)
-        end
-      end
-    end
-    project.save!
-
-    flash[:notice] = 'Links updated.'
-    redirect_to :action => 'links', :id => project.id
   end
 
   def settings

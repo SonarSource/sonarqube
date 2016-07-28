@@ -23,6 +23,7 @@ import {
     dissociateProject
 } from '../../../api/quality-profiles';
 import { getProfileByKey } from './rootReducer';
+import { getProjectLinks, createLink } from '../../../api/projectLinks';
 
 export const RECEIVE_PROFILES = 'RECEIVE_PROFILES';
 export const receiveProfiles = profiles => ({
@@ -68,3 +69,36 @@ export const setProjectProfile = (projectKey, oldKey, newKey) =>
         dispatch(setProjectProfileAction(projectKey, oldKey, newKey));
       });
     };
+
+export const RECEIVE_PROJECT_LINKS = 'RECEIVE_PROJECT_LINKS';
+export const receiveProjectLinks = (projectKey, links) => ({
+  type: RECEIVE_PROJECT_LINKS,
+  projectKey,
+  links
+});
+
+export const fetchProjectLinks = projectKey => dispatch => {
+  getProjectLinks(projectKey).then(links => {
+    dispatch(receiveProjectLinks(projectKey, links));
+  });
+};
+
+export const ADD_PROJECT_LINK = 'ADD_PROJECT_LINK';
+const addProjectLink = (projectKey, link) => ({
+  type: ADD_PROJECT_LINK,
+  projectKey,
+  link
+});
+
+export const createProjectLink = (projectKey, name, url) => dispatch => {
+  return createLink(projectKey, name, url).then(link => {
+    dispatch(addProjectLink(projectKey, link));
+  });
+};
+
+export const DELETE_PROJECT_LINK = 'DELETE_PROJECT_LINK';
+export const deleteProjectLink = (projectKey, linkId) => ({
+  type: DELETE_PROJECT_LINK,
+  projectKey,
+  linkId
+});
