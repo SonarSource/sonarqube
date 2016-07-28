@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.platform.Server;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
@@ -58,11 +58,11 @@ public class ServerPluginRepositoryTest {
   @Rule
   public LogTester logs = new LogTester();
 
-  Server server = mock(Server.class);
+  private SonarRuntime runtime = mock(SonarRuntime.class);
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
   ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
   PluginLoader pluginLoader = mock(PluginLoader.class);
-  ServerPluginRepository underTest = new ServerPluginRepository(server, upgradeStatus, fs, pluginLoader);
+  ServerPluginRepository underTest = new ServerPluginRepository(runtime, upgradeStatus, fs, pluginLoader);
 
   @Before
   public void setUp() throws IOException {
@@ -72,7 +72,7 @@ public class ServerPluginRepositoryTest {
     when(fs.getHomeDir()).thenReturn(temp.newFolder());
     when(fs.getInstalledPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getTempDir()).thenReturn(temp.newFolder());
-    when(server.getVersion()).thenReturn("5.2");
+    when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
   }
 
   @After
@@ -213,7 +213,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_if_plugin_does_not_support_sq_version() throws Exception {
-    when(server.getVersion()).thenReturn("1.0");
+    when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
     copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
 
     try {
@@ -310,7 +310,7 @@ public class ServerPluginRepositoryTest {
   @Test
   public void plugin_is_incompatible_if_no_entry_point_class() {
     PluginInfo plugin = new PluginInfo("foo").setName("Foo");
-    assertThat(ServerPluginRepository.isCompatible(plugin, server, Collections.<String, PluginInfo>emptyMap())).isFalse();
+    assertThat(ServerPluginRepository.isCompatible(plugin, runtime, Collections.emptyMap())).isFalse();
     assertThat(logs.logs()).contains("Plugin Foo [foo] is ignored because entry point class is not defined");
   }
 
@@ -350,7 +350,7 @@ public class ServerPluginRepositoryTest {
     PluginInfo plugin = new PluginInfo("foo").setBasePlugin("base");
     Map<String, PluginInfo> plugins = ImmutableMap.of("base", basePlugin, "foo", plugin);
 
-    assertThat(ServerPluginRepository.isCompatible(plugin, server, plugins)).isTrue();
+    assertThat(ServerPluginRepository.isCompatible(plugin, runtime, plugins)).isTrue();
   }
 
   @Test
