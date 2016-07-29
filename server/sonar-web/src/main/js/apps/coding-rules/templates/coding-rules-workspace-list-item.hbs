@@ -23,7 +23,9 @@
     <td class="coding-rule-table-meta-cell">
       <div class="coding-rule-meta">
         {{#notEq status 'READY'}}
-          <span class="text-danger">{{status}}</span>
+          <span class="badge badge-normal-size badge-danger-light">
+            {{t 'rules.status' status}}
+          </span>
           &nbsp;&nbsp;&nbsp;
         {{/notEq}}
         <span class="note">{{langName}}</span>

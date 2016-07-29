@@ -27,7 +27,11 @@
 
   {{#notEq status 'READY'}}
     <li class="coding-rules-detail-property"
-        data-toggle="tooltip" data-placement="bottom" title="Rule status">{{status}}</li>
+        data-toggle="tooltip" data-placement="bottom" title="Rule status">
+      <span class="badge badge-normal-size badge-danger-light">
+        {{t 'rules.status' status}}
+      </span>
+    </li>
   {{/notEq}}
 
   <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
