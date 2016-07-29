@@ -37,7 +37,10 @@ public class LoginPage {
   }
 
   public LoginPage submitWrongCredentials(String login, String password) {
-    return submitCredentials(login, password, LoginPage.class);
+    $("#login").val(login);
+    $("#password").val(password);
+    $(By.name("commit")).click();
+    return page(LoginPage.class);
   }
 
   public SelenideElement getErrorMessage() {
@@ -48,6 +51,7 @@ public class LoginPage {
     $("#login").val(login);
     $("#password").val(password);
     $(By.name("commit")).click();
+    $("#login").should(Condition.disappear);
     return page(expectedResultPage);
   }
 }
