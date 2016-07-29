@@ -57,32 +57,18 @@ public class CeServer implements Monitored {
   private AtomicReference<Thread> awaitThread = new AtomicReference<>();
   private volatile boolean stopAwait = false;
 
-  private final WebServerWatcher webServerWatcher;
+  private final StartupBarrier startupBarrier;
   private final ComputeEngine computeEngine;
   @CheckForNull
   private CeMainThread ceMainThread = null;
 
   @VisibleForTesting
-  protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine, MinimumViableSystem mvs) {
-    this.webServerWatcher = webServerWatcher;
+  protected CeServer(StartupBarrier startupBarrier, ComputeEngine computeEngine, MinimumViableSystem mvs) {
+    this.startupBarrier = startupBarrier;
     this.computeEngine = computeEngine;
     mvs
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
-  }
-
-  /**
-   * Can't be started as is. Needs to be bootstrapped by sonar-application
-   */
-  public static void main(String[] args) {
-    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    Props props = entryPoint.getProps();
-    new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
-    CeServer server = new CeServer(
-      new WebServerWatcherImpl(entryPoint.getSharedDir()),
-      new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
-      new MinimumViableSystem());
-    entryPoint.launch(server);
   }
 
   @Override
@@ -128,6 +114,20 @@ public class CeServer implements Monitored {
     }
   }
 
+  /**
+   * Can't be started as is. Needs to be bootstrapped by sonar-application
+   */
+  public static void main(String[] args) {
+    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
+    Props props = entryPoint.getProps();
+    new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
+    CeServer server = new CeServer(
+      new StartupBarrierFactory().create(entryPoint),
+      new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
+      new MinimumViableSystem());
+    entryPoint.launch(server);
+  }
+
   private class CeMainThread extends Thread {
     private static final int CHECK_FOR_STOP_DELAY = 50;
     private volatile boolean stop = false;
@@ -139,8 +139,7 @@ public class CeServer implements Monitored {
 
     @Override
     public void run() {
-      // wait for WebServer to be operational
-      boolean webServerOperational = webServerWatcher.waitForOperational();
+      boolean webServerOperational = startupBarrier.waitForOperational();
       if (!webServerOperational) {
         LOG.debug("Interrupted while waiting for WebServer to be operational. Assuming it will never be. Stopping.");
         // signal CE is done booting (obviously, since we are about to stop)

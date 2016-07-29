@@ -25,15 +25,18 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessId;
 
-public class WebServerWatcherImpl implements WebServerWatcher {
-  private static final Logger LOG = Loggers.get(WebServerWatcherImpl.class);
+/**
+ * Waits that web server is operational (started and datastores up-to-date)
+ */
+class WebServerBarrier implements StartupBarrier {
+  private static final Logger LOG = Loggers.get(WebServerBarrier.class);
   private static final int POLL_DELAY = 200;
   // accounting only every 5 log calls so that only one every second (because delay is 200ms) is taken into account
   private static final int CALL_RATIO = 5;
 
   private final File sharedDir;
 
-  public WebServerWatcherImpl(File sharedDir) {
+  public WebServerBarrier(File sharedDir) {
     this.sharedDir = sharedDir;
   }
 

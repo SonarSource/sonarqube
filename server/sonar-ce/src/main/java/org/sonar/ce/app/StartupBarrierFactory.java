@@ -19,13 +19,15 @@
  */
 package org.sonar.ce.app;
 
-@FunctionalInterface
-public interface WebServerWatcher {
-  /**
-   * This blocking call, waits for the Web Server to be operational until either the Web Server is actually
-   * operational, or the calling thread is interrupted.
-   *
-   * @return true if we detected WebServer is operational, false otherwise
-   */
-  boolean waitForOperational();
+import org.sonar.process.ProcessEntryPoint;
+import org.sonar.process.ProcessProperties;
+
+class StartupBarrierFactory {
+
+  public StartupBarrier create(ProcessEntryPoint entryPoint) {
+    if (entryPoint.getProps().valueAsBoolean(ProcessProperties.WEB_DISABLED)) {
+      return () -> true;
+    }
+    return new WebServerBarrier(entryPoint.getSharedDir());
+  }
 }

@@ -33,6 +33,7 @@ public class ProcessProperties {
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String CLUSTER_NODE_NAME = "sonar.node.name";
   public static final String CLUSTER_CE_DISABLED = "sonar.cluster.ce.disabled";
+  public static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
@@ -101,6 +102,7 @@ public class ProcessProperties {
     defaults.put(ProcessProperties.CLUSTER_NAME, "sonarqube");
     defaults.put(ProcessProperties.CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
     defaults.put(ProcessProperties.CLUSTER_CE_DISABLED, "false");
+    defaults.put(ProcessProperties.CLUSTER_WEB_DISABLED, "false");
 
     defaults.put(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     defaults.put(ProcessProperties.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
