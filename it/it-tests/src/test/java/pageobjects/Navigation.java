@@ -56,6 +56,12 @@ public class Navigation extends ExternalResource {
     return open(url, ProjectLinksPage.class);
   }
 
+  public ProjectQualityGatePage openProjectQualityGate(String projectKey) {
+    // TODO encode projectKey
+    String url = "/project/quality_gate?id=" + projectKey;
+    return open(url, ProjectQualityGatePage.class);
+  }
+
   public ProjectHistoryPage openProjectHistory(String projectKey) {
     // TODO encode projectKey
     String url = "/project/history?id=" + projectKey;

@@ -23,7 +23,15 @@ import {
     dissociateProject
 } from '../../../api/quality-profiles';
 import { getProfileByKey } from './rootReducer';
+import {
+    fetchQualityGates,
+    getGateForProject,
+    associateGateWithProject,
+    dissociateGateWithProject
+} from '../../../api/quality-gates';
 import { getProjectLinks, createLink } from '../../../api/projectLinks';
+import { addGlobalSuccessMessage } from '../../../components/store/globalMessages';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export const RECEIVE_PROFILES = 'RECEIVE_PROFILES';
 export const receiveProfiles = profiles => ({
@@ -67,8 +75,55 @@ export const setProjectProfile = (projectKey, oldKey, newKey) =>
 
       request.then(() => {
         dispatch(setProjectProfileAction(projectKey, oldKey, newKey));
+        dispatch(addGlobalSuccessMessage(
+            translateWithParameters(
+                'project_quality_profile.successfully_updated',
+                newProfile.languageName)));
       });
     };
+
+export const RECEIVE_GATES = 'RECEIVE_GATES';
+export const receiveGates = gates => ({
+  type: RECEIVE_GATES,
+  gates
+});
+
+export const RECEIVE_PROJECT_GATE = 'RECEIVE_PROJECT_GATE';
+export const receiveProjectGate = (projectKey, gate) => ({
+  type: RECEIVE_PROJECT_GATE,
+  projectKey,
+  gate
+});
+
+export const fetchProjectGate = projectKey => dispatch => {
+  Promise.all([
+    fetchQualityGates(),
+    getGateForProject(projectKey)
+  ]).then(responses => {
+    const [allGates, projectGate] = responses;
+    dispatch(receiveGates(allGates));
+    dispatch(receiveProjectGate(projectKey, projectGate));
+  });
+};
+
+export const SET_PROJECT_GATE = 'SET_PROJECT_GATE';
+const setProjectGateAction = (projectKey, gateId) => ({
+  type: SET_PROJECT_GATE,
+  projectKey,
+  gateId
+});
+
+export const setProjectGate = (projectKey, oldId, newId) => dispatch => {
+  const request = newId != null ?
+      associateGateWithProject(newId, projectKey) :
+      dissociateGateWithProject(oldId, projectKey);
+
+  request.then(() => {
+    dispatch(setProjectGateAction(projectKey, newId));
+    dispatch(addGlobalSuccessMessage(
+        translate('project_quality_gate.successfully_updated')));
+  });
+};
 
 export const RECEIVE_PROJECT_LINKS = 'RECEIVE_PROJECT_LINKS';
 export const receiveProjectLinks = (projectKey, links) => ({

@@ -85,3 +85,21 @@ export function deleteCondition (id) {
   const url = '/api/qualitygates/delete_condition';
   return post(url, { id });
 }
+
+export function getGateForProject (projectKey) {
+  const url = '/api/qualitygates/get_by_project';
+  const data = { projectKey };
+  return getJSON(url, data).then(r => r.qualityGate);
+}
+
+export function associateGateWithProject(gateId, projectKey) {
+  const url = '/api/qualitygates/select';
+  const data = { gateId, projectKey };
+  return post(url, data);
+}
+
+export function dissociateGateWithProject(gateId, projectKey) {
+  const url = '/api/qualitygates/deselect';
+  const data = { gateId, projectKey };
+  return post(url, data);
+}

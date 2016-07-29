@@ -21,58 +21,50 @@ import React from 'react';
 import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
-import Table from './Table';
+import Form from './Form';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
-import { fetchProjectProfiles, setProjectProfile } from '../store/actions';
-import { getProjectProfiles, getAllProfiles } from '../store/rootReducer';
+import { getAllGates, getProjectGate } from '../store/rootReducer';
+import { fetchProjectGate, setProjectGate } from '../store/actions';
 
-class QualityProfiles extends React.Component {
+class QualityGate extends React.Component {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
-    allProfiles: React.PropTypes.array,
-    profiles: React.PropTypes.array
+    allGates: React.PropTypes.array,
+    gate: React.PropTypes.object
   };
 
   componentDidMount () {
-    this.props.fetchProjectProfiles(this.props.component.key);
+    this.props.fetchProjectGate(this.props.component.key);
   }
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleChangeProfile (oldKey, newKey) {
-    this.props.setProjectProfile(this.props.component.key, oldKey, newKey);
+  handleChangeGate (oldId, newId) {
+    this.props.setProjectGate(this.props.component.key, oldId, newId);
   }
 
   render () {
-    const { allProfiles, profiles } = this.props;
-
     return (
-        <div className="page page-limited">
+        <div id="project-quality-gate" className="page page-limited">
           <Header/>
-
           <GlobalMessagesContainer/>
-
-          {profiles.length > 0 ? (
-              <Table
-                  allProfiles={allProfiles}
-                  profiles={profiles}
-                  onChangeProfile={this.handleChangeProfile.bind(this)}/>
-          ) : (
-              <i className="spinner"/>
-          )}
+          <Form
+              allGates={this.props.allGates}
+              gate={this.props.gate}
+              onChange={this.handleChangeGate.bind(this)}/>
         </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  allProfiles: getAllProfiles(state),
-  profiles: getProjectProfiles(state, ownProps.component.key)
+  allGates: getAllGates(state),
+  gate: getProjectGate(state, ownProps.component.key)
 });
 
 export default connect(
     mapStateToProps,
-    { fetchProjectProfiles, setProjectProfile }
-)(QualityProfiles);
+    { fetchProjectGate, setProjectGate }
+)(QualityGate);

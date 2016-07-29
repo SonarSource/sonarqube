@@ -48,40 +48,18 @@ class ProjectController < ApplicationController
     @project = get_current_project(params[:id])
   end
 
-  def links
+  def quality_gate
+    # since 6.1
     @project = get_current_project(params[:id])
   end
 
-  # GET /project/qualitygate?id=<project id>
   def qualitygate
-    require_parameters :id
-    @project_id = Api::Utils.project_id(params[:id])
-    @project = Project.by_key(@project_id)
-    access_denied unless (is_admin?(@project.uuid) || has_role?(:gateadmin))
-
-    call_backend do
-      @all_quality_gates = Internal.quality_gates.list().to_a
-      @selected_qgate = Property.value('sonar.qualitygate', @project, '').to_i
-    end
+    # redirect to another url since 6.1
+    redirect_to(url_for({:action => 'quality_gate'}) + '?id=' + url_encode(params[:id]))
   end
 
-  # POST /project/set_qualitygate?id=<project id>[&qgate_id=<qgate id>]
-  def set_qualitygate
-    verify_post_request
-
-    project_id = params[:id].to_i
-    qgate_id = params[:qgate_id].to_i
-    previous_qgate_id = params[:previous_qgate_id].to_i
-
-    call_backend do
-      if qgate_id == 0
-        Internal.quality_gates.dissociateProject(previous_qgate_id, project_id)
-      else
-        Internal.quality_gates.associateProject(qgate_id, project_id)
-      end
-    end
-
-    redirect_to :action => 'qualitygate', :id => project_id
+  def links
+    @project = get_current_project(params[:id])
   end
 
   def key
