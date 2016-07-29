@@ -21,15 +21,14 @@ package org.sonar.server.qualitygate;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -37,6 +36,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDao;
@@ -56,7 +56,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 
 /**
@@ -66,23 +65,22 @@ public class QualityGates {
 
   public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
+  private final DbClient dbClient;
   private final QualityGateDao dao;
   private final QualityGateConditionDao conditionDao;
   private final MetricFinder metricFinder;
   private final PropertiesDao propertiesDao;
   private final ComponentDao componentDao;
-  private final MyBatis myBatis;
   private final UserSession userSession;
   private final Settings settings;
 
-  public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-    MyBatis myBatis, UserSession userSession, Settings settings) {
-    this.dao = dao;
-    this.conditionDao = conditionDao;
+  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession, Settings settings) {
+    this.dbClient = dbClient;
+    this.dao = dbClient.qualityGateDao();
+    this.conditionDao = dbClient.gateConditionDao();
     this.metricFinder = metricFinder;
-    this.propertiesDao = propertiesDao;
-    this.componentDao = componentDao;
-    this.myBatis = myBatis;
+    this.propertiesDao = dbClient.propertiesDao();
+    this.componentDao = dbClient.componentDao();
     this.userSession = userSession;
     this.settings = settings;
   }
@@ -117,18 +115,18 @@ public class QualityGates {
     getNonNullQgate(sourceId);
     validateQualityGate(null, destinationName);
     QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
-    SqlSession session = myBatis.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      dao.insert(destinationGate, session);
-      for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
+      dao.insert(dbSession, destinationGate);
+      for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, dbSession)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
           .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
           .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
-          session);
+          dbSession);
       }
-      session.commit();
+      dbSession.commit();
     } finally {
-      MyBatis.closeQuietly(session);
+      MyBatis.closeQuietly(dbSession);
     }
     return destinationGate;
   }
@@ -140,7 +138,7 @@ public class QualityGates {
   public void delete(long idToDelete) {
     checkPermission();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       if (isDefault(qGate)) {
         propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, session);
@@ -228,7 +226,7 @@ public class QualityGates {
   }
 
   public void associateProject(Long qGateId, Long projectId) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       getNonNullQgate(qGateId);
       checkPermission(projectId, session);
@@ -239,7 +237,7 @@ public class QualityGates {
   }
 
   public void dissociateProject(Long qGateId, Long projectId) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       getNonNullQgate(qGateId);
       checkPermission(projectId, session);
@@ -250,12 +248,9 @@ public class QualityGates {
   }
 
   public Collection<Metric> gateMetrics() {
-    return Collections2.filter(metricFinder.findAll(), new Predicate<Metric>() {
-      @Override
-      public boolean apply(Metric metric) {
-        return isAvailableForInit(metric);
-      }
-    });
+    return metricFinder.findAll().stream()
+      .filter(QualityGates::isAvailableForInit)
+      .collect(Collectors.toList());
   }
 
   public boolean currentUserHasWritePermission() {
@@ -274,7 +269,9 @@ public class QualityGates {
     if (conditionId == null) {
       return conditions;
     }
-    return from(conditionDao.selectForQualityGate(qGateId)).filter(new MatchConditionId(conditionId)).toList();
+    return conditionDao.selectForQualityGate(qGateId).stream()
+      .filter(condition -> condition.getId() != conditionId)
+      .collect(Collectors.toList());
   }
 
   private static void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
@@ -293,7 +290,7 @@ public class QualityGates {
       return;
     }
 
-    boolean conditionExists = from(conditions).anyMatch(new MatchMetricAndPeriod(metric.getId(), period));
+    boolean conditionExists = conditions.stream().anyMatch(new MatchMetricAndPeriod(metric.getId(), period)::apply);
     if (conditionExists) {
       String errorMessage = period == null
         ? format("Condition on metric '%s' already exists.", metric.getName())
@@ -421,18 +418,4 @@ public class QualityGates {
         ObjectUtils.equals(input.getPeriod(), period);
     }
   }
-
-  private static class MatchConditionId implements Predicate<QualityGateConditionDto> {
-    private final long conditionId;
-
-    private MatchConditionId(long conditionId) {
-      this.conditionId = conditionId;
-    }
-
-    @Override
-    public boolean apply(@Nonnull QualityGateConditionDto input) {
-      return input.getId() != conditionId;
-    }
-  }
-
 }

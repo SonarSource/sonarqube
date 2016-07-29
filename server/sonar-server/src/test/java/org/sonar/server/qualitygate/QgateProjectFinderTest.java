@@ -83,7 +83,7 @@ public class QgateProjectFinderTest {
     dbClient.userDao().insert(dbSession, userDto);
 
     qGate = new QualityGateDto().setName("Default Quality Gate");
-    dbClient.qualityGateDao().insert(qGate, dbSession);
+    dbClient.qualityGateDao().insert(dbSession, qGate);
 
     dbTester.commit();
   }

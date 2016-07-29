@@ -180,18 +180,7 @@ import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.server.qualitygate.QgateProjectFinder;
-import org.sonar.server.qualitygate.QualityGates;
-import org.sonar.server.qualitygate.ws.CreateConditionAction;
-import org.sonar.server.qualitygate.ws.DeleteConditionAction;
-import org.sonar.server.qualitygate.ws.DeselectAction;
-import org.sonar.server.qualitygate.ws.DestroyAction;
-import org.sonar.server.qualitygate.ws.ProjectStatusAction;
-import org.sonar.server.qualitygate.ws.QualityGatesWs;
-import org.sonar.server.qualitygate.ws.SelectAction;
-import org.sonar.server.qualitygate.ws.SetAsDefaultAction;
-import org.sonar.server.qualitygate.ws.UnsetDefaultAction;
-import org.sonar.server.qualitygate.ws.UpdateConditionAction;
+import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -462,26 +451,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultMetricFinder.class,
       TimeMachineWs.class,
 
-      // quality gates
-      QualityGates.class,
-      QgateProjectFinder.class,
-      org.sonar.server.qualitygate.ws.ListAction.class,
-      org.sonar.server.qualitygate.ws.SearchAction.class,
-      org.sonar.server.qualitygate.ws.ShowAction.class,
-      org.sonar.server.qualitygate.ws.CreateAction.class,
-      org.sonar.server.qualitygate.ws.RenameAction.class,
-      org.sonar.server.qualitygate.ws.CopyAction.class,
-      DestroyAction.class,
-      SetAsDefaultAction.class,
-      UnsetDefaultAction.class,
-      SelectAction.class,
-      DeselectAction.class,
-      CreateConditionAction.class,
-      DeleteConditionAction.class,
-      UpdateConditionAction.class,
-      org.sonar.server.qualitygate.ws.AppAction.class,
-      ProjectStatusAction.class,
-      QualityGatesWs.class,
+      QualityGateModule.class,
 
       // web services
       WebServiceEngine.class,

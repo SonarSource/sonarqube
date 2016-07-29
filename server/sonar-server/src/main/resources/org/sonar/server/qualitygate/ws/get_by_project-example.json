@@ -1,0 +1,7 @@
+{
+  "qualityGate": {
+    "id": "23",
+    "name": "My team QG",
+    "default": false
+  }
+}

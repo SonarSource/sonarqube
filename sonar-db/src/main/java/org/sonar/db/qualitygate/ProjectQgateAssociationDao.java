@@ -20,6 +20,7 @@
 package org.sonar.db.qualitygate;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -28,6 +29,16 @@ public class ProjectQgateAssociationDao implements Dao {
 
   public List<ProjectQgateAssociationDto> selectProjects(DbSession dbSession, ProjectQgateAssociationQuery query) {
     return mapper(dbSession).selectProjects(query);
+  }
+
+  /**
+   * @return quality gate id if a specific Quality Gate has been defined for the given component id. <br>
+   * Returns <code>{@link Optional#empty()}</code> otherwise (ex: default quality gate applies)
+   */
+  public Optional<Long> selectQGateIdByComponentId(DbSession dbSession, long componentId) {
+    String id = mapper(dbSession).selectQGateIdByComponentId(componentId);
+
+    return id == null ? Optional.empty() : Optional.of(Long.valueOf(id));
   }
 
   private static ProjectQgateAssociationMapper mapper(SqlSession session) {

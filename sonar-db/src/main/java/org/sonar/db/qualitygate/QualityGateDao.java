@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class QualityGateDao implements Dao{
@@ -35,17 +36,19 @@ public class QualityGateDao implements Dao{
   }
 
   public void insert(QualityGateDto newQualityGate) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
-      insert(newQualityGate, session);
+      insert(session, newQualityGate);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void insert(QualityGateDto newQualityGate, SqlSession session) {
+  public QualityGateDto insert(DbSession session, QualityGateDto newQualityGate) {
     mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
+
+    return newQualityGate;
   }
 
   public Collection<QualityGateDto> selectAll() {

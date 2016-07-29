@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 public class CreateAction implements QualityGatesWsAction {
 
@@ -42,7 +43,7 @@ public class CreateAction implements QualityGatesWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QualityGatesWs.PARAM_NAME)
+    action.createParam(QualityGatesWsParameters.PARAM_NAME)
       .setDescription("The name of the quality gate to create")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -50,7 +51,7 @@ public class CreateAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.create(request.mandatoryParam(QualityGatesWs.PARAM_NAME));
+    QualityGateDto newQualityGate = qualityGates.create(request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     QualityGatesWs.writeQualityGate(newQualityGate, writer).close();
   }

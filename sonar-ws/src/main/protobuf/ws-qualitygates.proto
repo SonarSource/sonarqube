@@ -65,3 +65,14 @@ message ProjectStatusWsResponse {
     NE = 4;
   }
 }
+
+// GET api/qualitygates/get_by_project
+message GetByProjectWsResponse {
+  optional QualityGate qualityGate = 1;
+}
+
+message QualityGate {
+  optional string id = 1;
+  optional string name = 2;
+  optional bool default = 3;
+}

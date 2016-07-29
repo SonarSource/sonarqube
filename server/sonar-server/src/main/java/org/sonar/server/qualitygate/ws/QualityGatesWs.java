@@ -25,22 +25,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 public class QualityGatesWs implements WebService {
-
-  static final String PARAM_PAGE_SIZE = "pageSize";
-  static final String PARAM_PAGE = "page";
-  static final String PARAM_QUERY = "query";
-  static final String PARAM_NAME = "name";
-  static final String PARAM_ERROR = "error";
-  static final String PARAM_WARNING = "warning";
-  static final String PARAM_PERIOD = "period";
-  static final String PARAM_OPERATOR = "op";
-  static final String PARAM_METRIC = "metric";
-  static final String PARAM_GATE_ID = "gateId";
-  static final String PARAM_PROJECT_ID = "projectId";
-  static final String PARAM_ID = "id";
-
   private final QualityGatesWsAction[] actions;
 
   public QualityGatesWs(QualityGatesWsAction... actions) {
@@ -62,12 +49,12 @@ public class QualityGatesWs implements WebService {
 
   static void addConditionParams(NewAction action) {
     action
-      .createParam(PARAM_METRIC)
+      .createParam(QualityGatesWsParameters.PARAM_METRIC)
       .setDescription("Condition metric")
       .setRequired(true)
       .setExampleValue("blocker_violations");
 
-    action.createParam(PARAM_OPERATOR)
+    action.createParam(QualityGatesWsParameters.PARAM_OPERATOR)
       .setDescription("Condition operator:<br/>" +
         "<ul>" +
         "<li>EQ = equals</li>" +
@@ -78,15 +65,15 @@ public class QualityGatesWs implements WebService {
       .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
 
-    action.createParam(PARAM_PERIOD)
+    action.createParam(QualityGatesWsParameters.PARAM_PERIOD)
       .setDescription("Condition period. If not set, the absolute value is considered.")
       .setPossibleValues("1");
 
-    action.createParam(PARAM_WARNING)
+    action.createParam(QualityGatesWsParameters.PARAM_WARNING)
       .setDescription("Condition warning threshold")
       .setExampleValue("5");
 
-    action.createParam(PARAM_ERROR)
+    action.createParam(QualityGatesWsParameters.PARAM_ERROR)
       .setDescription("Condition error threshold")
       .setExampleValue("10");
   }
@@ -101,24 +88,24 @@ public class QualityGatesWs implements WebService {
 
   static JsonWriter writeQualityGate(QualityGateDto qualityGate, JsonWriter writer) {
     return writer.beginObject()
-      .prop(PARAM_ID, qualityGate.getId())
-      .prop(PARAM_NAME, qualityGate.getName())
+      .prop(QualityGatesWsParameters.PARAM_ID, qualityGate.getId())
+      .prop(QualityGatesWsParameters.PARAM_NAME, qualityGate.getName())
       .endObject();
   }
 
   static JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
     writer.beginObject()
-      .prop(PARAM_ID, condition.getId())
-      .prop(PARAM_METRIC, condition.getMetricKey())
-      .prop(PARAM_OPERATOR, condition.getOperator());
+      .prop(QualityGatesWsParameters.PARAM_ID, condition.getId())
+      .prop(QualityGatesWsParameters.PARAM_METRIC, condition.getMetricKey())
+      .prop(QualityGatesWsParameters.PARAM_OPERATOR, condition.getOperator());
     if (condition.getWarningThreshold() != null) {
-      writer.prop(PARAM_WARNING, condition.getWarningThreshold());
+      writer.prop(QualityGatesWsParameters.PARAM_WARNING, condition.getWarningThreshold());
     }
     if (condition.getErrorThreshold() != null) {
-      writer.prop(PARAM_ERROR, condition.getErrorThreshold());
+      writer.prop(QualityGatesWsParameters.PARAM_ERROR, condition.getErrorThreshold());
     }
     if (condition.getPeriod() != null) {
-      writer.prop(PARAM_PERIOD, condition.getPeriod());
+      writer.prop(QualityGatesWsParameters.PARAM_PERIOD, condition.getPeriod());
     }
     writer.endObject();
     return writer;

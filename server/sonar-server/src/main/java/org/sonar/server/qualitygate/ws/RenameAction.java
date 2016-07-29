@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 public class RenameAction implements QualityGatesWsAction {
 
@@ -42,12 +43,12 @@ public class RenameAction implements QualityGatesWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QualityGatesWs.PARAM_ID)
+    action.createParam(QualityGatesWsParameters.PARAM_ID)
       .setDescription("ID of the quality gate to rename")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QualityGatesWs.PARAM_NAME)
+    action.createParam(QualityGatesWsParameters.PARAM_NAME)
       .setDescription("New name of the quality gate")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -55,8 +56,8 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long idToRename = QualityGatesWs.parseId(request, QualityGatesWs.PARAM_ID);
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(QualityGatesWs.PARAM_NAME));
+    long idToRename = QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_ID);
+    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     QualityGatesWs.writeQualityGate(renamedQualityGate, writer).close();
   }

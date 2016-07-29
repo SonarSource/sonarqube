@@ -42,7 +42,7 @@ import java.util.List;
  */
 public interface QualityGateMapper {
 
-  void insert(QualityGateDto newQualityGate);
+  void insert(QualityGateDto qualityGate);
 
   List<QualityGateDto> selectAll();
 

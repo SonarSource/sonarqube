@@ -19,18 +19,6 @@
  */
 package org.sonar.server.qualitygate;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collection;
@@ -44,11 +32,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -56,8 +41,8 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
@@ -74,6 +59,18 @@ import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
 
@@ -82,31 +79,16 @@ public class QualityGatesTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  @Mock
-  DbSession session;
-
-  @Mock
-  QualityGateDao dao;
-
-  @Mock
-  QualityGateConditionDao conditionDao;
-
-  @Mock
-  MetricFinder metricFinder;
-
-  @Mock
-  PropertiesDao propertiesDao;
-
-  @Mock
-  ComponentDao componentDao;
-
-  @Mock
-  MyBatis myBatis;
-
+  DbSession dbSession = mock(DbSession.class);
+  DbClient dbClient = mock(DbClient.class);
+  QualityGateDao dao = mock(QualityGateDao.class);
+  QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
+  PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  ComponentDao componentDao = mock(ComponentDao.class);
+  MetricFinder metricFinder = mock(MetricFinder.class);
   Settings settings = new Settings();
 
   QualityGates underTest;
@@ -122,10 +104,15 @@ public class QualityGatesTest {
   public void initialize() {
     settings.clear();
 
-    when(componentDao.selectOrFailById(eq(session), anyLong())).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.qualityGateDao()).thenReturn(dao);
+    when(dbClient.gateConditionDao()).thenReturn(conditionDao);
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(dbClient.componentDao()).thenReturn(componentDao);
 
-    when(myBatis.openSession(false)).thenReturn(session);
-    underTest = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis, userSessionRule, settings);
+    when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
+
+    underTest = new QualityGates(dbClient, metricFinder, userSessionRule, settings);
     userSessionRule.set(authorizedProfileAdminUserSession);
   }
 
@@ -270,12 +257,11 @@ public class QualityGatesTest {
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
-    DbSession session = mock(DbSession.class);
-    when(myBatis.openSession(false)).thenReturn(session);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
     verify(dao).selectById(idToDelete);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
-    verify(dao).delete(toDelete, session);
+    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
+    verify(dao).delete(toDelete, dbSession);
   }
 
   @Test
@@ -285,12 +271,11 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
-    DbSession session = mock(DbSession.class);
-    when(myBatis.openSession(false)).thenReturn(session);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
     verify(dao).selectById(idToDelete);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
-    verify(dao).delete(toDelete, session);
+    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
+    verify(dao).delete(toDelete, dbSession);
   }
 
   @Test
@@ -300,13 +285,12 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("42"));
-    DbSession session = mock(DbSession.class);
-    when(myBatis.openSession(false)).thenReturn(session);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
     verify(dao).selectById(idToDelete);
-    verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", session);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
-    verify(dao).delete(toDelete, session);
+    verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", dbSession);
+    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
+    verify(dao).delete(toDelete, dbSession);
   }
 
   @Test
@@ -637,22 +621,17 @@ public class QualityGatesTest {
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
 
     when(dao.selectById(sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
-    DbSession session = mock(DbSession.class);
-    when(myBatis.openSession(false)).thenReturn(session);
-    Mockito.doAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ((QualityGateDto) invocation.getArguments()[0]).setId(destId);
-        return null;
-      }
-    }).when(dao).insert(any(QualityGateDto.class), eq(session));
-    when(conditionDao.selectForQualityGate(anyLong(), eq(session))).thenReturn(conditions);
+    Mockito.doAnswer(invocation -> {
+      ((QualityGateDto) invocation.getArguments()[1]).setId(destId);
+      return null;
+    }).when(dao).insert(eq(dbSession), any(QualityGateDto.class));
+    when(conditionDao.selectForQualityGate(anyLong(), eq(dbSession))).thenReturn(conditions);
     QualityGateDto atlantis = underTest.copy(sourceId, name);
     assertThat(atlantis.getName()).isEqualTo(name);
     verify(dao).selectByName(name);
-    verify(dao).insert(atlantis, session);
-    verify(conditionDao).selectForQualityGate(anyLong(), eq(session));
-    verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(session));
+    verify(dao).insert(dbSession, atlantis);
+    verify(conditionDao).selectForQualityGate(anyLong(), eq(dbSession));
+    verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(dbSession));
   }
 
   @Test

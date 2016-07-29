@@ -32,4 +32,13 @@
     ORDER BY proj.name
   </select>
 
+  <select id="selectQGateIdByComponentId" parameterType="long" resultType="string">
+    SELECT text_value
+    FROM properties
+    <where>
+      AND resource_id=#{componentId}
+      AND prop_key='sonar.qualitygate'
+    </where>
+  </select>
+
 </mapper>

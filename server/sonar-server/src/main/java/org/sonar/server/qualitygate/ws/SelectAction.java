@@ -23,6 +23,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 
 public class SelectAction implements QualityGatesWsAction {
 
@@ -40,12 +43,12 @@ public class SelectAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setHandler(this);
 
-    action.createParam(QualityGatesWs.PARAM_GATE_ID)
+    action.createParam(QualityGatesWsParameters.PARAM_GATE_ID)
       .setDescription("Quality Gate ID")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QualityGatesWs.PARAM_PROJECT_ID)
+    action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project ID")
       .setRequired(true)
       .setExampleValue("12");
@@ -53,7 +56,7 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.associateProject(QualityGatesWs.parseId(request, QualityGatesWs.PARAM_GATE_ID), QualityGatesWs.parseId(request, QualityGatesWs.PARAM_PROJECT_ID));
+    qualityGates.associateProject(QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_GATE_ID), QualityGatesWs.parseId(request, PARAM_PROJECT_ID));
     response.noContent();
   }
 
