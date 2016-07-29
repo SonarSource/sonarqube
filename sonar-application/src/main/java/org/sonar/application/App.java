@@ -62,7 +62,9 @@ public class App implements Stoppable {
     // do not yet start WebServer nor CE on elasticsearch slaves
     if (StringUtils.isBlank(props.value(ProcessProperties.CLUSTER_MASTER_HOST))) {
       commands.add(createWebServerCommand(props, homeDir));
-      commands.add(createCeServerCommand(props, homeDir));
+      if (!props.valueAsBoolean(ProcessProperties.CLUSTER_CE_DISABLED)) {
+        commands.add(createCeServerCommand(props, homeDir));
+      }
     }
 
     return commands;
