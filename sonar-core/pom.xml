@@ -14,7 +14,7 @@
   <description>Library shared by analyzer and server</description>
 
   <properties>
-    <sonar.exclusions>target/generated-sources/**/*</sonar.exclusions>
+    <sonar.exclusions>target/generated-sources/**/*,target/generated-test-sources/**/*</sonar.exclusions>
   </properties>
 
   <dependencies>
