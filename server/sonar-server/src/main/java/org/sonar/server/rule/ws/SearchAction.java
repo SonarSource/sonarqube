@@ -147,7 +147,7 @@ public class SearchAction implements RulesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchWsRequest searchWsRequest = toSearchWsRequest(request);
-      org.sonar.server.es.SearchOptions context = getQueryContext(searchWsRequest);
+      SearchOptions context = getQueryContext(searchWsRequest);
       RuleQuery query = ruleQueryFactory.createRuleQuery(request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
@@ -167,7 +167,7 @@ public class SearchAction implements RulesWsAction {
     return responseBuilder.build();
   }
 
-  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, org.sonar.server.es.SearchOptions context) {
+  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
     response.setTotal(searchResult.total);
     response.setP(context.getPage());
     response.setPs(context.getLimit());
@@ -309,15 +309,15 @@ public class SearchAction implements RulesWsAction {
       .setDefaultValue(true);
   }
 
-  private void writeRules(SearchResponse.Builder response, SearchResult result, org.sonar.server.es.SearchOptions context) {
+  private void writeRules(SearchResponse.Builder response, SearchResult result, SearchOptions context) {
     for (RuleDto rule : result.rules) {
       response.addRules(mapper.toWsRule(rule, result, context.getFields()));
     }
   }
 
-  protected org.sonar.server.es.SearchOptions getQueryContext(SearchWsRequest request) {
-    org.sonar.server.es.SearchOptions context = loadCommonContext(request);
-    org.sonar.server.es.SearchOptions searchQueryContext = new org.sonar.server.es.SearchOptions()
+  protected SearchOptions getQueryContext(SearchWsRequest request) {
+    SearchOptions context = loadCommonContext(request);
+    SearchOptions searchQueryContext = new SearchOptions()
       .setLimit(context.getLimit())
       .setOffset(context.getOffset());
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
@@ -328,32 +328,26 @@ public class SearchAction implements RulesWsAction {
     return searchQueryContext;
   }
 
-  private static org.sonar.server.es.SearchOptions loadCommonContext(SearchWsRequest request) {
+  private static SearchOptions loadCommonContext(SearchWsRequest request) {
     int pageSize = request.getPageSize();
-    org.sonar.server.es.SearchOptions context = new org.sonar.server.es.SearchOptions().addFields(request.getFields());
+    SearchOptions context = new SearchOptions().addFields(request.getFields());
     if (request.getFacets() != null) {
       context.addFacets(request.getFacets());
     }
     if (pageSize < 1) {
-      context.setPage(request.getPage(), 0).setLimit(org.sonar.server.es.SearchOptions.MAX_LIMIT);
+      context.setPage(request.getPage(), 0).setLimit(SearchOptions.MAX_LIMIT);
     } else {
       context.setPage(request.getPage(), pageSize);
     }
     return context;
   }
 
-  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, org.sonar.server.es.SearchOptions context) {
+  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
     SearchIdResult<RuleKey> result = ruleIndex.search(query, context);
     List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
     Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByKeys(dbSession, ruleKeys),
-      new Function<RuleDto, RuleKey>() {
-        @Override
-        public RuleKey apply(@Nonnull RuleDto input) {
-          return input.getKey();
-        }
-      });
+      dbClient.ruleDao().selectByKeys(dbSession, ruleKeys), input -> input.getKey());
     List<RuleDto> rules = new ArrayList<>();
     for (RuleKey ruleKey : ruleKeys) {
       RuleDto rule = rulesByRuleKey.get(ruleKey);
@@ -364,7 +358,7 @@ public class SearchAction implements RulesWsAction {
     List<Integer> ruleIds = from(rules).transform(RuleDtoToId.INSTANCE).toList();
     List<Integer> templateRuleIds = from(rules)
       .transform(RuleDtoToTemplateId.INSTANCE)
-      .filter(Predicates.<Integer>notNull())
+      .filter(Predicates.notNull())
       .toList();
     List<RuleDto> templateRules = dbClient.ruleDao().selectByIds(dbSession, templateRuleIds);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
@@ -377,7 +371,7 @@ public class SearchAction implements RulesWsAction {
   }
 
   protected void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
-    org.sonar.server.es.SearchOptions contextForResponse = loadCommonContext(request);
+    SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
     if (contextForResponse.getFields().contains("actives")) {
       activeRuleCompleter.completeSearch(dbSession, query, result.rules, response);
@@ -438,7 +432,7 @@ public class SearchAction implements RulesWsAction {
   protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable Collection<String> mandatoryValues) {
     Map<String, Long> facetValues = results.facets.get(facetName);
     if (facetValues != null) {
-      Collection<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
+      Collection<String> valuesToAdd = mandatoryValues == null ? Lists.newArrayList() : mandatoryValues;
       for (String item : valuesToAdd) {
         if (!facetValues.containsKey(item)) {
           facetValues.put(item, 0L);
