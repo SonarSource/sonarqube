@@ -20,16 +20,14 @@
 package org.sonar.scanner.platform;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.scanner.bootstrap.BatchWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
@@ -58,15 +56,7 @@ public class DefaultServer extends Server {
   @Override
   public Date getStartedAt() {
     String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
-    if (dateString != null) {
-      try {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
-
-      } catch (ParseException e) {
-        LoggerFactory.getLogger(getClass()).error("The property " + CoreProperties.SERVER_STARTTIME + " is badly formatted.", e);
-      }
-    }
-    return null;
+    return DateUtils.parseDateTime(dateString);
   }
 
   @Override

@@ -69,12 +69,12 @@ public class DefaultServerTest {
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://foo.com");
   }
 
-  @Test
-  public void invalidDate() {
+  @Test(expected = RuntimeException.class)
+  public void invalid_startup_date_throws_exception() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
     BatchWsClient client = mock(BatchWsClient.class);
     DefaultServer metadata = new DefaultServer(settings, client);
-    assertThat(metadata.getStartedAt()).isNull();
+    metadata.getStartedAt();
   }
 }

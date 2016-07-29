@@ -25,6 +25,7 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -38,8 +39,6 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @ComputeEngineSide
 @ServerSide
 public class StartupMetadataProvider extends ProviderAdapter {
-
-  public static final String PROPERTY_STARTED_AT = "sonar.core.startedAt";
 
   private StartupMetadata cache = null;
 
@@ -70,8 +69,8 @@ public class StartupMetadataProvider extends ProviderAdapter {
   private static StartupMetadata load(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String startupId = selectProperty(dbClient, dbSession, CoreProperties.SERVER_ID);
-      String startedAt = selectProperty(dbClient, dbSession, PROPERTY_STARTED_AT);
-      return new StartupMetadata(startupId, Long.parseLong(startedAt));
+      String startedAt = selectProperty(dbClient, dbSession, CoreProperties.SERVER_STARTTIME);
+      return new StartupMetadata(startupId, DateUtils.parseDateTime(startedAt).getTime());
     }
   }
 

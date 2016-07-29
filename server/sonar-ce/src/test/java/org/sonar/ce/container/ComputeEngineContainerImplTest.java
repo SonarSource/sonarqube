@@ -21,6 +21,7 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
@@ -29,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -75,7 +77,7 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
-    insertProperty("sonar.core.startedAt", "123456789");
+    insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
 
     underTest
       .start(new Props(properties));

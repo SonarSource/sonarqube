@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.util.UuidFactory;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 public class StartupMetadataProviderTest {
 
-  private static final long A_DATE = 123_456_789L;
+  private static final long A_DATE = 1_500_000_000_000L;
   private static final String AN_ID = "generated_id";
 
   @Rule
@@ -67,7 +68,7 @@ public class StartupMetadataProviderTest {
     assertThat(metadata.getStartupId()).isEqualTo(AN_ID);
 
     assertNotPersistedProperty(CoreProperties.SERVER_ID);
-    assertNotPersistedProperty("sonar.core.startedAt");
+    assertNotPersistedProperty(CoreProperties.SERVER_STARTTIME);
 
     // keep a cache
     StartupMetadata secondMetadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
@@ -116,7 +117,7 @@ public class StartupMetadataProviderTest {
 
     // still in database
     assertPersistedProperty(CoreProperties.SERVER_ID, AN_ID);
-    assertPersistedProperty("sonar.core.startedAt", String.valueOf(A_DATE));
+    assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(A_DATE));
 
     // keep a cache
     StartupMetadata secondMetadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());

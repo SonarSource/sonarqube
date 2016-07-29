@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -45,7 +46,7 @@ public class StartupMetadataPersisterTest {
     underTest.start();
 
     assertPersistedProperty(CoreProperties.SERVER_ID, metadata.getStartupId());
-    assertPersistedProperty("sonar.core.startedAt", String.valueOf(metadata.getStartedAt()));
+    assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(metadata.getStartedAt()));
 
     underTest.stop();
   }

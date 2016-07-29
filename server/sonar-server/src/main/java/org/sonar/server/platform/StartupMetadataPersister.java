@@ -19,9 +19,11 @@
  */
 package org.sonar.server.platform;
 
+import java.util.Date;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
@@ -47,9 +49,10 @@ public class StartupMetadataPersister implements Startable {
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      String startedAt = DateUtils.formatDateTime(new Date(metadata.getStartedAt()));
       PropertiesDao dao = dbClient.propertiesDao();
       dao.insertProperty(dbSession, new PropertyDto().setKey(CoreProperties.SERVER_ID).setValue(metadata.getStartupId()));
-      dao.insertProperty(dbSession, new PropertyDto().setKey(StartupMetadataProvider.PROPERTY_STARTED_AT).setValue(String.valueOf(metadata.getStartedAt())));
+      dao.insertProperty(dbSession, new PropertyDto().setKey(CoreProperties.SERVER_STARTTIME).setValue(startedAt));
       dbSession.commit();
     }
   }
