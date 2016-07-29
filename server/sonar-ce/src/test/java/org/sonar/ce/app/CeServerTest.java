@@ -141,12 +141,9 @@ public class CeServerTest {
   @Test
   public void isUp_returns_true_when_waiting_for_WebServer_failed() throws InterruptedException {
     final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
-    CeServer ceServer = newCeServer(new WebServerWatcher() {
-      @Override
-      public boolean waitForOperational() {
-        webServerWatcherCalled.countDown();
-        return false;
-      }
+    CeServer ceServer = newCeServer(() -> {
+      webServerWatcherCalled.countDown();
+      return false;
     }, DoNothingComputeEngine.INSTANCE);
 
     ceServer.start();
@@ -191,12 +188,7 @@ public class CeServerTest {
   @Test
   public void awaitStop_keeps_blocking_calling_thread_even_if_calling_thread_is_interrupted_but_until_stop_is_called() throws InterruptedException, IOException {
     final CeServer ceServer = newCeServer();
-    Thread waitingThread = newWaitingThread(new Runnable() {
-      @Override
-      public void run() {
-        ceServer.awaitStop();
-      }
-    });
+    Thread waitingThread = newWaitingThread(ceServer::awaitStop);
 
     ceServer.start();
     waitingThread.start();
@@ -217,7 +209,7 @@ public class CeServerTest {
   @Test
   public void awaitStop_unblocks_when_waiting_for_WebServer_failed() throws InterruptedException {
     final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
-    CeServer ceServer = newCeServer(new WebServerWatcher() {
+    CeServer ceServer = newCeServer(new StartupBarrier() {
       @Override
       public boolean waitForOperational() {
         webServerWatcherCalled.countDown();
@@ -263,12 +255,7 @@ public class CeServerTest {
         throw new Error("Faking ComputeEngine.shutdown() failing");
       }
     });
-    Thread waitingThread = newWaitingThread(new Runnable() {
-      @Override
-      public void run() {
-        ceServer.awaitStop();
-      }
-    });
+    Thread waitingThread = newWaitingThread(ceServer::awaitStop);
 
     ceServer.start();
     waitingThread.start();
@@ -284,19 +271,16 @@ public class CeServerTest {
 
   private CeServer newCeServer(ComputeEngine computeEngine) throws IOException {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(new WebServerWatcher() {
-      @Override
-      public boolean waitForOperational() {
-        // return instantly simulating WebServer is already operational
-        return true;
-      }
-    }, computeEngine, minimumViableSystem);
+    this.underTest = new CeServer(
+      // return instantly simulating WebServer is already operational
+      () -> true,
+      computeEngine, minimumViableSystem);
     return underTest;
   }
 
-  private CeServer newCeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
+  private CeServer newCeServer(StartupBarrier startupBarrier, ComputeEngine computeEngine) {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(webServerWatcher, computeEngine, minimumViableSystem);
+    this.underTest = new CeServer(startupBarrier, computeEngine, minimumViableSystem);
     return underTest;
   }
 

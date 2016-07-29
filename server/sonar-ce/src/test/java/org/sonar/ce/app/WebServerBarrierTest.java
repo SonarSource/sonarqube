@@ -35,7 +35,7 @@ import org.sonar.process.ProcessId;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebServerWatcherImplTest {
+public class WebServerBarrierTest {
 
   @Rule
   public Timeout timeout = Timeout.seconds(5);
@@ -45,12 +45,12 @@ public class WebServerWatcherImplTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private File sharedDir;
-  private WebServerWatcherImpl underTest;
+  private WebServerBarrier underTest;
 
   @Before
   public void setUp() throws Exception {
     sharedDir = temporaryFolder.newFolder();
-    underTest = new WebServerWatcherImpl(sharedDir);
+    underTest = new WebServerBarrier(sharedDir);
   }
 
   @Test
