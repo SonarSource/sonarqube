@@ -116,21 +116,12 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private static CreateWsResponse buildResponse(ComponentLinkDto link) {
-    CreateWsResponse.Builder response = CreateWsResponse.newBuilder();
-
-    WsProjectLinks.Link.Builder linkBuilder = WsProjectLinks.Link.newBuilder()
+    return CreateWsResponse.newBuilder().setLink(WsProjectLinks.Link.newBuilder()
       .setId(String.valueOf(link.getId()))
       .setName(link.getName())
-      .setUrl(link.getHref());
-
-    String type = link.getType();
-    if (type != null) {
-      linkBuilder.setType(type);
-    }
-
-    response.setLink(linkBuilder);
-
-    return response.build();
+      .setType(link.getType())
+      .setUrl(link.getHref()))
+      .build();
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateWsRequest request) {
