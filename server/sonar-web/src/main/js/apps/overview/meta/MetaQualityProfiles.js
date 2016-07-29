@@ -20,7 +20,7 @@
 import React from 'react';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getQualityProfileUrl, getRulesUrl } from '../../../helpers/urls';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 
 export default class MetaQualityProfiles extends React.Component {
@@ -68,26 +68,6 @@ export default class MetaQualityProfiles extends React.Component {
     return count || 0;
   }
 
-  renderDeprecated (profile) {
-    const count = this.state.deprecatedByKey[profile.key];
-    if (!count) {
-      return null;
-    }
-
-    const url = getRulesUrl({
-      qprofile: profile.key,
-      activation: 'true',
-      statuses: 'DEPRECATED'
-    });
-
-    return (
-        <a className="icon-alert-warn spacer-right"
-           href={url}
-           title={translateWithParameters('overview.deprecated_profile', count)}
-           data-toggle="tooltip"/>
-    );
-  }
-
   renderProfile (profile) {
     const inner = (
         <div className="text-ellipsis">
@@ -124,13 +104,6 @@ export default class MetaQualityProfiles extends React.Component {
 
   render () {
     const { profiles } = this.props;
-
-    const deprecatedStyles = {
-      padding: '3px 6px',
-      border: '1px solid #ebccd1',
-      borderRadius: '3px',
-      backgroundColor: '#f2dede'
-    };
 
     return (
         <TooltipsContainer>

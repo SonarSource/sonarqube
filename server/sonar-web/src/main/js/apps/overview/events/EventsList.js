@@ -142,7 +142,7 @@ export default class EventsList extends React.Component {
 
           {this.renderList(events)}
 
-          {filteredEvents.length > LIMIT && this.renderMoreLink(filteredEvents)}
+          {filteredEvents.length > LIMIT && this.renderMoreLink()}
         </div>
     );
   }
