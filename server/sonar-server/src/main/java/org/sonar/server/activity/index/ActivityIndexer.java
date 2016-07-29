@@ -44,19 +44,17 @@ public class ActivityIndexer extends BaseIndexer {
     BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
     bulk.setLarge(lastUpdatedAt == 0L);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      ActivityResultSetIterator it = ActivityResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
+    try (
+      DbSession dbSession = dbClient.openSession(false);
+      ActivityResultSetIterator it = ActivityResultSetIterator.create(dbClient, dbSession, lastUpdatedAt)) {
+
       bulk.start();
       while (it.hasNext()) {
         bulk.add(it.next());
       }
       bulk.stop();
-      it.close();
       return it.getMaxRowDate();
 
-    } finally {
-      dbSession.close();
     }
   }
 

@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.scanner.bootstrap.BatchWsClient;
-import org.sonar.scanner.platform.DefaultServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
