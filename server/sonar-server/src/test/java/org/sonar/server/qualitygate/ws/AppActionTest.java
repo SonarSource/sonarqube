@@ -32,8 +32,11 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.db.DbClient;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Collection;
@@ -62,12 +65,14 @@ public class AppActionTest {
 
   @Before
   public void setUp() {
+    SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
+
     tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(mock(QgateProjectFinder.class)),
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates)));
+      selectAction, new DeselectAction(qGates), new AppAction(qGates)));
   }
 
   @Test

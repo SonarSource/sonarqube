@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,17 +30,18 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
+import org.sonar.db.DbClient;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -64,12 +66,14 @@ public class QualityGatesWsTest {
 
   @Before
   public void setUp() {
+    SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
+
     tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates)));
+      selectAction, new DeselectAction(qGates), new AppAction(qGates)));
   }
 
   @Test
@@ -424,18 +428,6 @@ public class QualityGatesWsTest {
     verify(projectFinder).find(queryCaptor.capture());
     ProjectQgateAssociationQuery query = queryCaptor.getValue();
     assertThat(query.membership()).isEqualTo(ProjectQgateAssociationQuery.IN);
-  }
-
-  @Test
-  public void select_nominal() throws Exception {
-    long gateId = 42L;
-    long projectId = 666L;
-    tester.newPostRequest("api/qualitygates", "select")
-      .setParam("gateId", Long.toString(gateId))
-      .setParam("projectId", Long.toString(projectId))
-      .execute()
-      .assertNoContent();
-    verify(qGates).associateProject(gateId, projectId);
   }
 
   @Test

@@ -22,9 +22,11 @@ package org.sonarqube.ws.client.qualitygate;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
@@ -40,5 +42,12 @@ public class QualityGatesService extends BaseService {
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()),
       ProjectStatusWsResponse.parser());
+  }
+
+  public void associateProject(SelectWsRequest request) {
+    call(new PostRequest(path("select"))
+      .setParam(PARAM_GATE_ID, request.getGateId())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
   }
 }
