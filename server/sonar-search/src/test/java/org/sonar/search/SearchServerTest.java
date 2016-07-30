@@ -44,11 +44,8 @@ import static org.junit.Assert.fail;
 
 public class SearchServerTest {
 
-  static final String CLUSTER_NAME = "unitTest";
-
-  int port = NetworkUtils.freePort();
-  SearchServer searchServer;
-  Client client;
+  private static final String A_CLUSTER_NAME = "a_cluster";
+  private static final String A_NODE_NAME = "a_node";
 
   @Rule
   public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
@@ -56,11 +53,15 @@ public class SearchServerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private int port = NetworkUtils.freePort();
+  private Client client;
+  private SearchServer underTest;
+
   @After
   public void tearDown() {
-    if (searchServer != null) {
-      searchServer.stop();
-      searchServer.awaitStop();
+    if (underTest != null) {
+      underTest.stop();
+      underTest.awaitStop();
     }
     if (client != null) {
       client.close();
@@ -74,23 +75,23 @@ public class SearchServerTest {
     InetAddress host = InetAddress.getLocalHost();
     props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
     props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
+    props.set(ProcessProperties.SEARCH_CLUSTER_NAME, A_CLUSTER_NAME);
+    props.set(EsSettings.CLUSTER_SEARCH_NODE_NAME, A_NODE_NAME);
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
     props.set(ProcessEntryPoint.PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
 
-    searchServer = new SearchServer(props);
-    searchServer.start();
-    assertThat(searchServer.isUp()).isTrue();
+    underTest = new SearchServer(props);
+    underTest.start();
+    assertThat(underTest.isUp()).isTrue();
 
-    Settings settings = Settings.builder().put("cluster.name", CLUSTER_NAME).build();
+    Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
     client = TransportClient.builder().settings(settings).build()
       .addTransportAddress(new InetSocketTransportAddress(host, port));
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
-    searchServer.stop();
-    searchServer.awaitStop();
-    searchServer = null;
+    underTest.stop();
+    underTest.awaitStop();
+    underTest = null;
     try {
       client.admin().cluster().prepareClusterStats().get();
       fail();

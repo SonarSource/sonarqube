@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -57,20 +56,24 @@ public class App implements Stoppable {
   private static List<JavaCommand> createCommands(Props props) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     List<JavaCommand> commands = new ArrayList<>(3);
-    commands.add(createESCommand(props, homeDir));
+    if (isProcessEnabled(props, ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
+      commands.add(createESCommand(props, homeDir));
+    }
 
-    // do not yet start WebServer nor CE on elasticsearch slaves
-    if (StringUtils.isBlank(props.value(ProcessProperties.CLUSTER_MASTER_HOST))) {
-      if (!props.valueAsBoolean(ProcessProperties.CLUSTER_WEB_DISABLED)) {
-        commands.add(createWebServerCommand(props, homeDir));
-      }
+    if (isProcessEnabled(props, ProcessProperties.CLUSTER_WEB_DISABLED)) {
+      commands.add(createWebServerCommand(props, homeDir));
+    }
 
-      if (!props.valueAsBoolean(ProcessProperties.CLUSTER_CE_DISABLED)) {
-        commands.add(createCeServerCommand(props, homeDir));
-      }
+    if (isProcessEnabled(props, ProcessProperties.CLUSTER_CE_DISABLED)) {
+      commands.add(createCeServerCommand(props, homeDir));
     }
 
     return commands;
+  }
+
+  private static boolean isProcessEnabled(Props props, String disabledPropertyKey) {
+    return !props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED) ||
+      !props.valueAsBoolean(disabledPropertyKey);
   }
 
   private static JavaCommand createESCommand(Props props, File homeDir) {

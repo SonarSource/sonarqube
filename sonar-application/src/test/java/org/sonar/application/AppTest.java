@@ -53,7 +53,7 @@ public class AppTest {
   }
 
   @Test
-  public void start_all_processes_by_default() throws Exception {
+  public void start_all_processes_if_cluster_mode_is_disabled() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     Props props = initDefaultProps();
@@ -63,14 +63,50 @@ public class AppTest {
     verify(monitor).start(argument.capture());
 
     assertThat(argument.getValue()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
+
+    app.stopAsync();
   }
 
   @Test
-  public void do_not_start_WebServer_nor_CE_if_elasticsearch_slave() throws Exception {
+  public void start_only_web_server_node_in_cluster() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     Props props = initDefaultProps();
-    props.set("sonar.cluster.masterHost", "1.2.3.4");
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
+    props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
+    app.start(props);
+
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    verify(monitor).start(argument.capture());
+
+    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.WEB_SERVER);
+  }
+
+  @Test
+  public void start_only_compute_engine_node_in_cluster() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
+    props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
+    app.start(props);
+
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    verify(monitor).start(argument.capture());
+
+    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.COMPUTE_ENGINE);
+  }
+
+  @Test
+  public void start_only_elasticsearch_node_in_cluster() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
+    props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
     app.start(props);
 
     ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();

@@ -20,11 +20,11 @@
 package org.sonar.server.search;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsClientProvider;
 
 public class EsSearchModule extends Module {
   @Override
   protected void configureModule() {
-    add(EsClient.class);
+    add(new EsClientProvider());
   }
 }

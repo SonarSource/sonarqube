@@ -23,38 +23,41 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 public class EsSettings implements EsSettingsMBean {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
-
   public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
+  public static final String CLUSTER_SEARCH_NODE_NAME = "sonar.cluster.search.nodeName";
+  public static final String STANDALONE_NODE_NAME = "sonarqube";
 
   private final Props props;
-  private final Set<String> masterHosts = new LinkedHashSet<>();
+
+  private final boolean clusterEnabled;
+  private final String clusterName;
+  private final String nodeName;
 
   EsSettings(Props props) {
     this.props = props;
-    masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessProperties.CLUSTER_MASTER_HOST, ""), ",")));
-  }
+    // name of ES cluster must always be set, even if clustering of SQ is disabled
+    this.clusterName = props.nonNullValue(ProcessProperties.SEARCH_CLUSTER_NAME);
 
-  boolean inCluster() {
-    return props.valueAsBoolean(ProcessProperties.CLUSTER_ACTIVATE, false);
-  }
-
-  boolean isMaster() {
-    return props.valueAsBoolean(ProcessProperties.CLUSTER_MASTER, false);
+    this.clusterEnabled = props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED);
+    if (this.clusterEnabled) {
+      this.nodeName = props.value(CLUSTER_SEARCH_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
+    } else {
+      this.nodeName = STANDALONE_NODE_NAME;
+    }
   }
 
   @Override
@@ -64,12 +67,12 @@ public class EsSettings implements EsSettingsMBean {
 
   @Override
   public String getClusterName() {
-    return props.value(ProcessProperties.CLUSTER_NAME);
+    return clusterName;
   }
 
   @Override
   public String getNodeName() {
-    return props.value(ProcessProperties.CLUSTER_NODE_NAME);
+    return nodeName;
   }
 
   Settings build() {
@@ -128,8 +131,7 @@ public class EsSettings implements EsSettingsMBean {
       // standard configuration
       builder.put("http.enabled", false);
     } else {
-      LOGGER.warn(String.format(
-        "Elasticsearch HTTP connector is enabled on port %d. MUST NOT BE USED FOR PRODUCTION", httpPort));
+      LOGGER.warn("Elasticsearch HTTP connector is enabled on port {}. MUST NOT BE USED FOR PRODUCTION", httpPort);
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
       builder.put("http.cors.enabled", true);
       builder.put("http.enabled", true);
@@ -157,27 +159,21 @@ public class EsSettings implements EsSettingsMBean {
 
   private void configureCluster(Settings.Builder builder) {
     int replicationFactor = 0;
-    if (inCluster()) {
+    if (clusterEnabled) {
       replicationFactor = 1;
-      if (isMaster()) {
-        LOGGER.info("Elasticsearch cluster enabled. Master node.");
-        builder.put("node.master", true);
-      } else if (!masterHosts.isEmpty()) {
-        LOGGER.info("Elasticsearch cluster enabled. Node connecting to master: {}", masterHosts);
-        builder.put("discovery.zen.ping.unicast.hosts", StringUtils.join(masterHosts, ","));
-        builder.put("node.master", false);
-        builder.put("discovery.zen.minimum_master_nodes", 1);
-      } else {
-        throw new MessageException(String.format("Not an Elasticsearch master nor slave. Please check properties %s and %s",
-          ProcessProperties.CLUSTER_MASTER, ProcessProperties.CLUSTER_MASTER_HOST));
-      }
+      String hosts = props.value(ProcessProperties.CLUSTER_SEARCH_HOSTS, "");
+      LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
+      builder.put("discovery.zen.ping.unicast.hosts", hosts);
     }
+    builder.put("discovery.zen.minimum_master_nodes", 1);
     builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
     builder.put("cluster.name", getClusterName());
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     String nodeName = getNodeName();
     builder.put("node.rack_id", nodeName);
     builder.put("node.name", nodeName);
+    builder.put("node.data", true);
+    builder.put("node.master", true);
   }
 
   private void configureMarvel(Settings.Builder builder) {

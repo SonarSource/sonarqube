@@ -21,18 +21,17 @@ package org.sonar.process;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Constants shared by search, web server and app processes.
  * They are almost all the properties defined in conf/sonar.properties.
  */
 public class ProcessProperties {
-  public static final String CLUSTER_ACTIVATE = "sonar.cluster.activate";
-  public static final String CLUSTER_MASTER = "sonar.cluster.master";
-  public static final String CLUSTER_MASTER_HOST = "sonar.cluster.masterHost";
-  public static final String CLUSTER_NAME = "sonar.cluster.name";
-  public static final String CLUSTER_NODE_NAME = "sonar.node.name";
+  public static final String CLUSTER_ENABLED = "sonar.cluster.enabled";
   public static final String CLUSTER_CE_DISABLED = "sonar.cluster.ce.disabled";
+  public static final String CLUSTER_SEARCH_DISABLED = "sonar.cluster.search.disabled";
+  public static final String CLUSTER_SEARCH_HOSTS = "sonar.cluster.search.hosts";
   public static final String CLUSTER_WEB_DISABLED = "sonar.cluster.web.disabled";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
@@ -50,6 +49,7 @@ public class ProcessProperties {
   public static final String PATH_TEMP = "sonar.path.temp";
   public static final String PATH_WEB = "sonar.path.web";
 
+  public static final String SEARCH_CLUSTER_NAME = "sonar.search.clusterName";
   public static final String SEARCH_HOST = "sonar.search.host";
   public static final String SEARCH_PORT = "sonar.search.port";
   public static final String SEARCH_HTTP_PORT = "sonar.search.httpPort";
@@ -57,8 +57,8 @@ public class ProcessProperties {
   public static final String SEARCH_JAVA_ADDITIONAL_OPTS = "sonar.search.javaAdditionalOpts";
 
   public static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
-  public static final String WEB_JAVA_ADDITIONAL_OPTS = "sonar.web.javaAdditionalOpts";
 
+  public static final String WEB_JAVA_ADDITIONAL_OPTS = "sonar.web.javaAdditionalOpts";
   public static final String CE_JAVA_OPTS = "sonar.ce.javaOpts";
   public static final String CE_JAVA_ADDITIONAL_OPTS = "sonar.ce.javaAdditionalOpts";
 
@@ -68,7 +68,7 @@ public class ProcessProperties {
   public static final String ENABLE_STOP_COMMAND = "sonar.enableStopCommand";
 
   public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
-    // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
+  // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
     "-Djruby.compile.invokedynamic=false";
 
   public static final String CE_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8";
@@ -79,8 +79,8 @@ public class ProcessProperties {
 
   public static void completeDefaults(Props props) {
     // init string properties
-    for (Map.Entry<String, String> entry : defaults().entrySet()) {
-      props.setDefault(entry.getKey(), entry.getValue());
+    for (Map.Entry<Object, Object> entry : defaults().entrySet()) {
+      props.setDefault(entry.getKey().toString(), entry.getValue().toString());
     }
 
     // init ports
@@ -97,13 +97,9 @@ public class ProcessProperties {
     }
   }
 
-  public static Map<String, String> defaults() {
-    Map<String, String> defaults = new HashMap<>();
-    defaults.put(ProcessProperties.CLUSTER_NAME, "sonarqube");
-    defaults.put(ProcessProperties.CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
-    defaults.put(ProcessProperties.CLUSTER_CE_DISABLED, "false");
-    defaults.put(ProcessProperties.CLUSTER_WEB_DISABLED, "false");
-
+  public static Properties defaults() {
+    Properties defaults = new Properties();
+    defaults.put(ProcessProperties.SEARCH_CLUSTER_NAME, "sonarqube");
     defaults.put(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     defaults.put(ProcessProperties.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +

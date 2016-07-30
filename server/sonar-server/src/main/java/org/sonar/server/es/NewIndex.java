@@ -74,7 +74,7 @@ public class NewIndex {
   }
 
   public void configureShards(org.sonar.api.config.Settings settings) {
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
     int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
     if (shards == 0) {
       shards = DEFAULT_NUMBER_OF_SHARDS;

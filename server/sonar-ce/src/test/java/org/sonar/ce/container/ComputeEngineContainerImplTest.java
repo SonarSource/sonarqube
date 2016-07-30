@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
@@ -63,7 +64,7 @@ public class ComputeEngineContainerImplTest {
 
   @Test
   public void real_start() throws IOException {
-    Properties properties = new Properties();
+    Properties properties = ProcessProperties.defaults();
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
@@ -72,10 +73,11 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
     properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
-    String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
-    properties.setProperty(DatabaseProperties.PROP_URL, url);
+    properties.setProperty(DatabaseProperties.PROP_URL, ((BasicDataSource) dbTester.database().getDataSource()).getUrl());
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+
+    // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
     insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
 
