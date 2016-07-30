@@ -26,12 +26,10 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class EsSettingsTest {
 
@@ -45,17 +43,17 @@ public class EsSettingsTest {
     props.set(ProcessProperties.SEARCH_PORT, "1234");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.1");
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessProperties.CLUSTER_NAME, "tests");
-    props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
+    props.set(ProcessProperties.SEARCH_CLUSTER_NAME, "sonarqube");
 
     EsSettings esSettings = new EsSettings(props);
-    assertThat(esSettings.inCluster()).isFalse();
 
     Settings generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
-    assertThat(generated.get("cluster.name")).isEqualTo("tests");
-    assertThat(generated.get("node.name")).isEqualTo("test");
+
+    // no cluster, but cluster and node names are set though
+    assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
+    assertThat(generated.get("node.name")).isEqualTo("sonarqube");
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
@@ -64,23 +62,8 @@ public class EsSettingsTest {
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
 
-    // no cluster, but node name is set though
     assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
-  }
-  
-  @Test
-  public void test_default_hosts() throws Exception {
-    Props props = minProps();
-
-    EsSettings esSettings = new EsSettings(props);
-    assertThat(esSettings.inCluster()).isFalse();
-
-    Settings generated = esSettings.build();
-    assertThat(generated.get("transport.tcp.port")).isEqualTo("9001");
-    assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
-    assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
-    assertThat(generated.get("node.name")).startsWith("sonar-");
   }
 
   @Test
@@ -101,38 +84,14 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void test_cluster_master() throws Exception {
+  public void cluster_is_enabled() throws Exception {
     Props props = minProps();
-    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessProperties.CLUSTER_MASTER, "true");
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
     Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
-    assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isNull();
-    assertThat(settings.get("node.master")).isEqualTo("true");
-  }
-
-  @Test
-  public void test_cluster_slave() throws Exception {
-    Props props = minProps();
-    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessProperties.CLUSTER_MASTER_HOST, "127.0.0.2,127.0.0.3");
-    Settings settings = new EsSettings(props).build();
-
-    assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
-    assertThat(settings.get("node.master")).isEqualTo("false");
-  }
-
-  @Test
-  public void bad_cluster_configuration() throws Exception {
-    Props props = minProps();
-    props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
-    try {
-      new EsSettings(props).build();
-      fail();
-    } catch (MessageException ignored) {
-      // expected
-    }
+    assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
   }
 
   @Test

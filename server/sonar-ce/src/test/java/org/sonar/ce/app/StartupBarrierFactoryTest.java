@@ -50,7 +50,7 @@ public class StartupBarrierFactoryTest {
 
   @Test
   public void do_not_wait_for_web_server_if_it_is_disabled() {
-    props.set(ProcessProperties.WEB_DISABLED, "true");
+    props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
     StartupBarrier barrier = underTest.create(entryPoint);
 
     assertThat(barrier).isNotInstanceOf(WebServerBarrier.class);

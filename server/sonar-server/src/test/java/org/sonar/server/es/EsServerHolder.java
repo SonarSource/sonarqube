@@ -37,16 +37,14 @@ public class EsServerHolder {
 
   private static EsServerHolder HOLDER = null;
   private final String clusterName;
-  private final String nodeName;
   private final int port;
   private final String hostName;
   private final File homeDir;
   private final SearchServer server;
 
-  private EsServerHolder(SearchServer server, String clusterName, String nodeName, int port, String hostName, File homeDir) {
+  private EsServerHolder(SearchServer server, String clusterName, int port, String hostName, File homeDir) {
     this.server = server;
     this.clusterName = clusterName;
-    this.nodeName = nodeName;
     this.port = port;
     this.hostName = hostName;
     this.homeDir = homeDir;
@@ -54,10 +52,6 @@ public class EsServerHolder {
 
   public String getClusterName() {
     return clusterName;
-  }
-
-  public String getNodeName() {
-    return nodeName;
   }
 
   public int getPort() {
@@ -78,7 +72,6 @@ public class EsServerHolder {
 
   private void reset() {
     TransportClient client = TransportClient.builder().settings(Settings.builder()
-      .put("node.name", nodeName)
       .put("network.bind_host", "localhost")
       .put("cluster.name", clusterName)
       .build()).build();
@@ -104,20 +97,18 @@ public class EsServerHolder {
       homeDir.mkdir();
 
       String clusterName = "testCluster";
-      String nodeName = "test";
       String hostName = "127.0.0.1";
       int port = NetworkUtils.freePort();
 
       Properties properties = new Properties();
-      properties.setProperty(ProcessProperties.CLUSTER_NAME, clusterName);
-      properties.setProperty(ProcessProperties.CLUSTER_NODE_NAME, nodeName);
+      properties.setProperty(ProcessProperties.SEARCH_CLUSTER_NAME, clusterName);
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(port));
       properties.setProperty(ProcessProperties.SEARCH_HOST, hostName);
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, homeDir.getAbsolutePath());
       SearchServer server = new SearchServer(new Props(properties));
       server.start();
-      HOLDER = new EsServerHolder(server, clusterName, nodeName, port, hostName, homeDir);
+      HOLDER = new EsServerHolder(server, clusterName, port, hostName, homeDir);
     }
     HOLDER.reset();
     return HOLDER;

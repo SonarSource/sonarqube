@@ -25,7 +25,7 @@ import org.sonar.process.ProcessProperties;
 class StartupBarrierFactory {
 
   public StartupBarrier create(ProcessEntryPoint entryPoint) {
-    if (entryPoint.getProps().valueAsBoolean(ProcessProperties.WEB_DISABLED)) {
+    if (entryPoint.getProps().valueAsBoolean(ProcessProperties.CLUSTER_WEB_DISABLED)) {
       return () -> true;
     }
     return new WebServerBarrier(entryPoint.getSharedDir());

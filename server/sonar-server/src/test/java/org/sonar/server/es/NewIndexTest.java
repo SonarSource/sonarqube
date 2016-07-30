@@ -25,6 +25,7 @@ import org.assertj.core.data.MapEntry;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
+import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -158,7 +159,7 @@ public class NewIndexTest {
   public void five_shards_and_one_replica_by_default_on_cluster() {
     NewIndex index = new NewIndex("issues");
     org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
-    settings.setProperty("sonar.cluster.activate", "true");
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     index.configureShards(settings);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
