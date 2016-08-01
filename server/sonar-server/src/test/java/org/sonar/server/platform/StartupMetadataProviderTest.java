@@ -19,12 +19,14 @@
  */
 package org.sonar.server.platform;
 
+import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -108,7 +110,8 @@ public class StartupMetadataProviderTest {
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
-    new StartupMetadataPersister(new StartupMetadata(AN_ID, A_DATE), dbTester.getDbClient()).start();
+    PersistentSettings persistentSettings = new PersistentSettings(dbTester.getDbClient(), new ServerSettingsImpl(new PropertyDefinitions(), new Properties()));
+    new StartupMetadataPersister(new StartupMetadata(AN_ID, A_DATE), persistentSettings).start();
     cluster.setStartupLeader(isStartupLeader);
 
     StartupMetadata metadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());

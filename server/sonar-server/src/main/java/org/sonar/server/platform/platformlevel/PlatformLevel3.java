@@ -25,6 +25,7 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.StartupMetadataPersister;
+import org.sonar.server.startup.LogServerId;
 
 public class PlatformLevel3 extends PlatformLevel {
   public PlatformLevel3(PlatformLevel parent) {
@@ -39,6 +40,7 @@ public class PlatformLevel3 extends PlatformLevel {
       DefaultHttpDownloader.class,
       UriReader.class,
       ServerIdLoader.class,
-      ServerIdGenerator.class);
+      ServerIdGenerator.class,
+      LogServerId.class);
   }
 }

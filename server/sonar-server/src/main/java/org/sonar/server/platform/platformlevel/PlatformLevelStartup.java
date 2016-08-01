@@ -33,7 +33,6 @@ import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.FeedUsersLocalStartupTask;
 import org.sonar.server.startup.GeneratePluginIndex;
-import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
@@ -51,7 +50,6 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(GeneratePluginIndex.class,
-      LogServerId.class,
       RegisterServletFilters.class,
       ServerLifecycleNotifier.class);
     
