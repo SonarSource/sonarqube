@@ -67,7 +67,7 @@ public class ActivityServiceTest {
     when(system.now()).thenReturn(1_500_000_000_000L);
 
     Activity activity = new Activity();
-    activity.setType(Activity.Type.ANALYSIS_REPORT);
+    activity.setType(Activity.Type.QPROFILE);
     activity.setAction("THE_ACTION");
     activity.setMessage("THE_MSG");
     activity.setData("foo", "bar");
@@ -81,7 +81,7 @@ public class ActivityServiceTest {
       "  data_field as \"data\", " +
       "  profile_key as \"profileKey\" " +
       "from activities");
-    assertThat(dbMap).containsEntry("type", "ANALYSIS_REPORT");
+    assertThat(dbMap).containsEntry("type", "QPROFILE");
     assertThat(dbMap).containsEntry("action", "THE_ACTION");
     assertThat(dbMap).containsEntry("msg", "THE_MSG");
     assertThat(dbMap).containsEntry("profileKey", "PROFILE_KEY");
