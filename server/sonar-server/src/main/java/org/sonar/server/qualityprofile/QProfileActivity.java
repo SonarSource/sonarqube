@@ -73,7 +73,7 @@ public class QProfileActivity extends ActivityDoc {
   }
 
   public RuleKey ruleKey(){
-    return RuleKey.parse((String) getField("ruleKey"));
+    return RuleKey.parse(getField("ruleKey"));
   }
 
   @Override

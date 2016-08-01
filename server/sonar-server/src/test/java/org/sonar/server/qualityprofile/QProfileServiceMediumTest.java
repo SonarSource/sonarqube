@@ -24,7 +24,6 @@ import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
@@ -35,21 +34,15 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.activity.Activity;
-import org.sonar.server.activity.ActivityService;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -57,7 +50,6 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -76,16 +68,15 @@ public class QProfileServiceMediumTest {
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient dbClient;
-  DbSession dbSession;
-  QProfileService service;
-  QProfileLoader loader;
-  RuleActivator activator;
-  ActiveRuleIndex activeRuleIndex;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private DbClient dbClient;
+  private DbSession dbSession;
+  private QProfileService service;
+  private QProfileLoader loader;
+  private ActiveRuleIndex activeRuleIndex;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
 
-  RuleDto xooRule1 = newXooX1().setSeverity("MINOR");
+  private RuleDto xooRule1 = newXooX1().setSeverity("MINOR");
 
   @Before
   public void before() {
@@ -94,7 +85,6 @@ public class QProfileServiceMediumTest {
     dbSession = dbClient.openSession(false);
     service = tester.get(QProfileService.class);
     loader = tester.get(QProfileLoader.class);
-    activator = tester.get(RuleActivator.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     activeRuleIndex = tester.get(ActiveRuleIndex.class);
@@ -220,134 +210,6 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     assertThat(loader.countDeprecatedActiveRulesByProfile(XOO_P1_KEY)).isEqualTo(1);
-  }
-
-  @Test
-  public void search_qprofile_activity() {
-    userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
-    dbClient.userDao().insert(dbSession, user);
-    dbSession.commit();
-
-    // We need an actual rule in DB to test RuleName in Activity
-    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
-
-    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
-      .setSeverity(Severity.MAJOR)
-      .setParameter("max", "10").toActivity());
-
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
-    assertThat(activities.getHits()).hasSize(1);
-
-    QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.getType()).isEqualTo(Activity.Type.QPROFILE.name());
-    assertThat(activity.getAction()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
-    assertThat(activity.ruleKey()).isEqualTo(RuleTesting.XOO_X1);
-    assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
-    assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
-    assertThat(activity.ruleName()).isEqualTo(rule.getName());
-    assertThat(activity.getLogin()).isEqualTo("david");
-    assertThat(activity.authorName()).isEqualTo("David");
-
-    assertThat(activity.parameters()).hasSize(1);
-    assertThat(activity.parameters().get("max")).isEqualTo("10");
-  }
-
-  @Test
-  public void search_qprofile_activity_without_severity() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
-
-    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
-      .setParameter("max", "10").toActivity());
-
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
-    assertThat(activities.getHits()).hasSize(1);
-
-    QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.severity()).isNull();
-    assertThat(activity.parameters()).hasSize(1);
-    assertThat(activity.parameters().get("max")).isEqualTo("10");
-  }
-
-  @Test
-  public void search_qprofile_activity_with_user_not_found() {
-    userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    // We need an actual rule in DB to test RuleName in Activity
-    // TODO ???
-    // db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    // dbSession.commit();
-
-    tester.get(ActivityService.class).save(
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
-        .setSeverity(Severity.MAJOR)
-        .setParameter("max", "10")
-        .toActivity());
-
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
-    assertThat(activities.getHits()).hasSize(1);
-
-    QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.getLogin()).isEqualTo("david");
-    assertThat(activity.authorName()).isNull();
-  }
-
-  @Test
-  public void search_qprofile_activity_with_rule_not_found() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
-
-    tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
-      .setSeverity(Severity.MAJOR)
-      .setParameter("max", "10")
-      .toActivity());
-    dbSession.commit();
-
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
-    assertThat(activities.getHits()).hasSize(1);
-
-    QProfileActivity activity = activities.getHits().get(0);
-    assertThat(activity.ruleKey()).isEqualTo(ruleKey);
-    assertThat(activity.ruleName()).isNull();
-  }
-
-  @Test
-  public void search_activity_by_qprofile() {
-
-    tester.get(ActivityService.class).save(
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1)).toActivity());
-    tester.get(ActivityService.class).save(
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X1)).toActivity());
-
-    // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new SearchOptions()).getHits())
-      .hasSize(2);
-
-    // 1. filter by QProfile
-    List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKey(XOO_P1_KEY), new SearchOptions()).getHits();
-    assertThat(result).hasSize(1);
-  }
-
-  @Test
-  public void search_activity_by_qprofile_having_dashes_in_keys() {
-    tester.get(ActivityService.class).save(
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)).toActivity());
-    tester.get(ActivityService.class).save(
-      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-toto", RuleTesting.XOO_X1)).toActivity());
-
-    // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new SearchOptions()).getHits())
-      .hasSize(2);
-
-    // 1. filter by QProfile
-    List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKey("java-default"), new SearchOptions()).getHits();
-    assertThat(result).hasSize(1);
   }
 
   @Test

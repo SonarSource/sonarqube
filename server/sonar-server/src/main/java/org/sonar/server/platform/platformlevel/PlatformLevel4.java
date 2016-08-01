@@ -34,7 +34,6 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.RubyQProfileActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.activity.index.ActivityIndexer;
@@ -395,7 +394,6 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileCopier.class,
       QProfileBackuper.class,
       QProfileReset.class,
-      RubyQProfileActivityService.class,
 
       // rule
       RuleIndexDefinition.class,

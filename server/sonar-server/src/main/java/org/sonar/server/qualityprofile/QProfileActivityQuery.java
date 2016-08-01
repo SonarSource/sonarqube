@@ -19,12 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Arrays;
+import javax.annotation.Nullable;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.index.ActivityQuery;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 /**
  * @since 4.4
@@ -34,11 +32,6 @@ public class QProfileActivityQuery extends ActivityQuery {
   public QProfileActivityQuery() {
     super();
     setTypes(Arrays.asList(Activity.Type.QPROFILE.name()));
-  }
-
-  @CheckForNull
-  public String getQprofileKey() {
-    return (String)getDataOrFilters().get("profileKey");
   }
 
   public QProfileActivityQuery setQprofileKey(@Nullable String qprofileKey) {

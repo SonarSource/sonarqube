@@ -36,7 +36,7 @@ public class ActivityDoc extends BaseDoc {
 
   @VisibleForTesting
   ActivityDoc() {
-    super(new HashMap<String, Object>());
+    super(new HashMap<>());
   }
 
   @Override

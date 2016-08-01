@@ -357,7 +357,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // QProfileCopier.class, indirectly only used in Web Services
       // QProfileBackuper.class, indirectly only used in Web Services
       // QProfileReset.class, indirectly only used in Web Services
-      // RubyQProfileActivityService.class, only used by JRuby
 
       // rule
       // RuleIndexDefinition.class, ES maintenance, responsibility of Web Server
