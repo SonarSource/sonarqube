@@ -37,8 +37,6 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.activity.ws.ActivitiesWs;
-import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
@@ -430,11 +428,6 @@ public class PlatformLevel4 extends PlatformLevel {
       Languages.class,
       LanguageWs.class,
       org.sonar.server.language.ws.ListAction.class,
-
-      // activity
-      ActivitiesWs.class,
-      org.sonar.server.activity.ws.SearchAction.class,
-      ActivityMapping.class,
 
       // measure
       MeasureFilterFactory.class,

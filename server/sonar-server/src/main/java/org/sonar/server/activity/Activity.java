@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 public class Activity {
 
   public enum Type {
-    QPROFILE, ANALYSIS_REPORT
+    QPROFILE
   }
 
   private Type type;

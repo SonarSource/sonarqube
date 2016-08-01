@@ -393,11 +393,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // org.sonar.server.language.ws.ListAction.class, no Web Service in CE
       // LanguageWs.class, no Web Service in CE
 
-      // activity
-      // ActivityMapping.class, no Web Service in CE
-      // org.sonar.server.activity.ws.SearchAction.class, no Web Service in CE
-      // ActivitiesWs.class, no Web Service in CE
-
       // measure
       // MeasureFilterFactory.class, used only in MeasureFilterEngine
       // MeasureFilterExecutor.class, used only in MeasureFilterEngine

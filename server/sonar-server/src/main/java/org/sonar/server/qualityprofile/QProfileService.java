@@ -34,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;

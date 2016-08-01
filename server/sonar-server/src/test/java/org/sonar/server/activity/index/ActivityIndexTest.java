@@ -20,7 +20,6 @@
 package org.sonar.server.activity.index;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,19 +55,6 @@ public class ActivityIndexTest {
   }
 
   @Test
-  public void search_by_type() throws Exception {
-    es.putDocuments("activities", "activity", newDoc(1, 1_500_000_000_000L), newDoc(2, 1_600_000_000_000L));
-
-    ActivityQuery query = new ActivityQuery();
-    query.setTypes(Arrays.asList("ANALYSIS_REPORT"));
-    assertThat(underTest.search(query, new SearchOptions()).getTotal()).isEqualTo(2L);
-
-    query = new ActivityQuery();
-    query.setTypes(Arrays.asList("OTHER", "TYPES"));
-    assertThat(underTest.search(query, new SearchOptions()).getTotal()).isEqualTo(0L);
-  }
-
-  @Test
   public void search_by_data() throws Exception {
     es.putDocuments("activities", "activity", newDoc(1, 1_500_000_000_000L), newDoc(2, 1_600_000_000_000L));
 
@@ -99,7 +85,7 @@ public class ActivityIndexTest {
   ActivityDoc newDoc(int id, long date) {
     ActivityDoc doc = new ActivityDoc();
     doc.setKey("UUID" + id);
-    doc.setType(Activity.Type.ANALYSIS_REPORT.name());
+    doc.setType(Activity.Type.QPROFILE.name());
     doc.setAction("THE_ACTION " + id);
     doc.setMessage("THE_MSG " + id);
     doc.setDetails(ImmutableMap.of("foo", "bar" + id));
