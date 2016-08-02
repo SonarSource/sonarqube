@@ -19,17 +19,14 @@
  */
 package org.sonar.server.platform;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.core.Is;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 public class ServerIdGeneratorTest {
 
@@ -69,24 +66,19 @@ public class ServerIdGeneratorTest {
   @Test
   public void idShouldHaveTenCharacters() {
     String id = new ServerIdGenerator().toId("SonarSource", localhost);
-    assertThat(id.length(), Is.is(15)); // first character is version + 14 characters for checksum
-    assertThat(StringUtils.isBlank(id), Is.is(false));
+    assertThat(id).hasSize(15); // first character is version + 14 characters for checksum
+    assertThat(isBlank(id)).isFalse();
   }
 
   @Test
   public void idShouldStartWithVersion() {
     String id = new ServerIdGenerator().toId("SonarSource", localhost);
-    assertThat(id, startsWith(ServerIdGenerator.VERSION));
+    assertThat(id).startsWith(ServerIdGenerator.VERSION);
   }
 
   @Test
   public void loopbackAddressesShouldNotBeAccepted() throws UnknownHostException {
-    assertThat(new ServerIdGenerator().isFixed(InetAddress.getByName("127.0.0.1")), Is.is(false));
-  }
-
-  @Test
-  public void publicAddressesNotBeAccepted() throws UnknownHostException {
-    assertThat(new ServerIdGenerator().isFixed(InetAddress.getByName("sonarsource.com")), Is.is(true));
+    assertThat(new ServerIdGenerator().isFixed(InetAddress.getLoopbackAddress())).isFalse();
   }
 
   @Test
@@ -95,7 +87,7 @@ public class ServerIdGeneratorTest {
 
     String k1 = generator.generate("Corp One", "127.0.0.1");
     String k2 = generator.generate("Corp Two", "127.0.0.1");
-    assertThat(StringUtils.equals(k1, k2), Is.is(false));
+    assertThat(StringUtils.equals(k1, k2)).isFalse();
   }
 
   @Test
@@ -103,7 +95,7 @@ public class ServerIdGeneratorTest {
     ServerIdGenerator generator = new ServerIdGenerator(true);
     String i1 = generator.generate("SonarSource", "127.0.0.1");
     String i2 = generator.generate("SonarSource", "127.0.0.1");
-    assertThat(StringUtils.equals(i1, i2), Is.is(true));
+    assertThat(StringUtils.equals(i1, i2)).isTrue();
   }
 
 }

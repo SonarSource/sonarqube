@@ -19,12 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.Lists;
-import java.io.UnsupportedEncodingException;
+import com.google.common.annotations.VisibleForTesting;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,9 +33,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 
-/**
- * @since 2.11
- */
 public class ServerIdGenerator {
 
   private static final Pattern ORGANIZATION_PATTERN = Pattern.compile("[a-zA-Z0-9]+[a-zA-Z0-9 ]*");
@@ -52,6 +50,7 @@ public class ServerIdGenerator {
     this(false);
   }
 
+  @VisibleForTesting
   ServerIdGenerator(boolean acceptPrivateAddress) {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
@@ -82,12 +81,7 @@ public class ServerIdGenerator {
 
   String toId(String organisation, InetAddress address) {
     String id = new StringBuilder().append(organisation).append("-").append(address.getHostAddress()).toString();
-    try {
-      return VERSION + DigestUtils.sha1Hex(id.getBytes("UTF-8")).substring(0, CHECKSUM_SIZE);
-
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalArgumentException("Organisation is not UTF-8 encoded: " + organisation, e);
-    }
+    return VERSION + DigestUtils.sha1Hex(id.getBytes(StandardCharsets.UTF_8)).substring(0, CHECKSUM_SIZE);
   }
 
   private InetAddress toValidAddress(String ipAddress) {
@@ -106,7 +100,7 @@ public class ServerIdGenerator {
   }
 
   public List<InetAddress> getAvailableAddresses() {
-    List<InetAddress> result = Lists.newArrayList();
+    List<InetAddress> result = new ArrayList<>();
     try {
       Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
       while (networkInterfaces.hasMoreElements()) {
