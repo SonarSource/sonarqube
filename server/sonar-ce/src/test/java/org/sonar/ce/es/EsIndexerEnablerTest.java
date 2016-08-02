@@ -19,8 +19,10 @@
  */
 package org.sonar.ce.es;
 
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.server.activity.index.ActivityIndexer;
+import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
@@ -37,7 +39,13 @@ public class EsIndexerEnablerTest {
   private UserIndexer userIndexer = mock(UserIndexer.class);
   private ViewIndexer viewIndexer = mock(ViewIndexer.class);
   private ActivityIndexer activityIndexer = mock(ActivityIndexer.class);
-  private EsIndexerEnabler underTest = new EsIndexerEnabler(testIndexer, issueAuthorizationIndexer, issueIndexer, userIndexer, viewIndexer, activityIndexer);
+  private EsIndexerEnabler underTest = new EsIndexerEnabler(new BaseIndexer[]{testIndexer, issueAuthorizationIndexer, issueIndexer, userIndexer, viewIndexer, activityIndexer});
+
+  @After
+  public void tearDown() {
+    underTest.stop();
+
+  }
 
   @Test
   public void start_enables_all_indexers() {

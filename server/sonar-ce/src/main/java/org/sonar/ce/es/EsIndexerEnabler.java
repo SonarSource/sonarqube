@@ -20,13 +20,8 @@
 package org.sonar.ce.es;
 
 import org.picocontainer.Startable;
-import org.sonar.server.activity.index.ActivityIndexer;
+import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.IndexerStartupTask;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.test.index.TestIndexer;
-import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.view.index.ViewIndexer;
 
 /**
  * Replaces the {@link IndexerStartupTask} to enable indexers but without triggering a full
@@ -34,31 +29,17 @@ import org.sonar.server.view.index.ViewIndexer;
  */
 public class EsIndexerEnabler implements Startable {
 
-  private final TestIndexer testIndexer;
-  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
-  private final IssueIndexer issueIndexer;
-  private final UserIndexer userIndexer;
-  private final ViewIndexer viewIndexer;
-  private final ActivityIndexer activityIndexer;
+  private final BaseIndexer[] indexers;
 
-  public EsIndexerEnabler(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer,
-    IssueIndexer issueIndexer, UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer) {
-    this.testIndexer = testIndexer;
-    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
-    this.issueIndexer = issueIndexer;
-    this.userIndexer = userIndexer;
-    this.viewIndexer = viewIndexer;
-    this.activityIndexer = activityIndexer;
+  public EsIndexerEnabler(BaseIndexer[] indexers) {
+    this.indexers = indexers;
   }
 
   @Override
   public void start() {
-    activityIndexer.setEnabled(true);
-    issueAuthorizationIndexer.setEnabled(true);
-    issueIndexer.setEnabled(true);
-    testIndexer.setEnabled(true);
-    userIndexer.setEnabled(true);
-    viewIndexer.setEnabled(true);
+    for (BaseIndexer indexer : indexers) {
+      indexer.setEnabled(true);
+    }
   }
 
   @Override
