@@ -115,8 +115,9 @@
 </tr>
 <tr>
 	<td>waitForText</td>
-	<td>block_1</td>
-	<td>*a2/HelloA2.xoo*a1/HelloA1.xoo*b1/HelloB1.xoo*b2/HelloB2.xoo*</td>
+	<!-- test only the first row as the other ones have all the same number of LOC -->
+	<td>css=#block_1 tbody tr:nth-of-type(1)</td>
+	<td>*a2/HelloA2.xoo*</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -125,8 +126,9 @@
 </tr>
 <tr>
 	<td>waitForText</td>
-	<td>block_1</td>
-	<td>*HelloA1*HelloB1*HelloB2*HelloA2*</td>
+	<!-- test only the 4th row as the other ones have all the same number of LOC -->
+	<td>css=#block_1 tbody tr:nth-of-type(4)</td>
+	<td>*a2/HelloA2*</td>
 </tr>
 </tbody>
 </table>

@@ -20,4 +20,5 @@ cd it
 mvn verify \
   -Dcategory=$CATEGORY \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
+  -Dwith-db-drivers \
   -Dsource.skip=true -B -e -V $*

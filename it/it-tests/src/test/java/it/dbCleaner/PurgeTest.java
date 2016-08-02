@@ -316,10 +316,10 @@ public class PurgeTest {
 
   private static Boolean toBoolean(Map<String, String> s) {
     String value = s.get("ENABLED");
-    if (value.equalsIgnoreCase("true") || value.equals("1")) {
+    if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("t") || value.equals("1")) {
       return true;
     }
-    if (value.equalsIgnoreCase("false") || value.equals("0")) {
+    if (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("f") || value.equals("0")) {
       return false;
     }
     throw new IllegalArgumentException("Unsupported value can not be converted to boolean " + value);
