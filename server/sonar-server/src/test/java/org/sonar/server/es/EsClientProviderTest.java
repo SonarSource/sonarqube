@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import java.net.InetAddress;
+import org.assertj.core.api.Condition;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.junit.Before;
@@ -27,6 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
@@ -36,6 +39,9 @@ public class EsClientProviderTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private Settings settings = new Settings();
   private EsClientProvider underTest = new EsClientProvider();
@@ -61,14 +67,16 @@ public class EsClientProviderTest {
     TransportAddress address = transportClient.transportAddresses().get(0);
     assertThat(address.getAddress()).isEqualTo(localhost);
     assertThat(address.getPort()).isEqualTo(8080);
+    assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [" + localhost + ":8080]"), ""));
 
     // keep in cache
     assertThat(underTest.provide(settings)).isSameAs(client);
   }
 
   @Test
-  public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled() throws Exception {
+  public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings);
@@ -80,6 +88,7 @@ public class EsClientProviderTest {
     address = transportClient.transportAddresses().get(1);
     assertThat(address.getAddress()).isEqualTo(localhost);
     assertThat(address.getPort()).isEqualTo(8081);
+    assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [" + localhost + ":8080, " + localhost + ":8081]"), ""));
 
     // keep in cache
     assertThat(underTest.provide(settings)).isSameAs(client);
@@ -88,6 +97,7 @@ public class EsClientProviderTest {
   @Test
   public void fail_if_cluster_host_is_badly_formatted() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, "missing_colon");
 
     expectedException.expect(IllegalArgumentException.class);

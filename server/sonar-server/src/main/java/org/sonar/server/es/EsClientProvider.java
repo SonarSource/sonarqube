@@ -22,18 +22,24 @@ package org.sonar.server.es;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 
 @ComputeEngineSide
 @ServerSide
 public class EsClientProvider extends ProviderAdapter {
+
+  private static final Logger LOGGER = Loggers.get(EsClientProvider.class);
 
   private EsClient cache;
 
@@ -46,20 +52,27 @@ public class EsClientProvider extends ProviderAdapter {
       esSettings.put("cluster.name", settings.getString(ProcessProperties.SEARCH_CLUSTER_NAME));
 
       boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
-      if (clusterEnabled) {
+      if (clusterEnabled && settings.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
         esSettings.put("client.transport.sniff", true);
         nativeClient = TransportClient.builder().settings(esSettings).build();
         Arrays.stream(settings.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
           .map(Host::parse)
           .forEach(h -> h.addTo(nativeClient));
+        LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
         nativeClient = TransportClient.builder().settings(esSettings).build();
         Host host = new Host(settings.getString(ProcessProperties.SEARCH_HOST), settings.getInt(ProcessProperties.SEARCH_PORT));
         host.addTo(nativeClient);
+        LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
       }
+
       cache = new EsClient(nativeClient);
     }
     return cache;
+  }
+
+  private static String displayedAddresses(TransportClient nativeClient) {
+    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
   }
 
   @Immutable
