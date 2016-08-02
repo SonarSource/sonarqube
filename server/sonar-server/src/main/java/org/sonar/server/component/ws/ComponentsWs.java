@@ -39,7 +39,8 @@ public class ComponentsWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/components")
       .setSince("4.2")
-      .setDescription("Get information about a component (file, directory, project, ...) and its ancestors or children.");
+      .setDescription("Get information about a component (file, directory, project, ...) and its ancestors or descendants.<br>" +
+        "Update a project or module key.");
 
     for (ComponentsWsAction action : actions) {
       action.define(controller);
