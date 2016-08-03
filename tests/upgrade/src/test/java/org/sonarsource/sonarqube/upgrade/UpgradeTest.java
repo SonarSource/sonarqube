@@ -19,8 +19,6 @@
  */
 package org.sonarsource.sonarqube.upgrade;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
@@ -42,6 +40,8 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class UpgradeTest {
 
   public static final String PROJECT_KEY = "org.apache.struts:struts-parent";
@@ -57,8 +57,8 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_4_5_lts() {
-    testDatabaseUpgrade(Version.create("4.5.7"), "3.14");
+  public void test_upgrade_from_5_6() {
+    testDatabaseUpgrade(Version.create("5.6.1"), "3.14");
   }
 
   @Test
@@ -67,18 +67,17 @@ public class UpgradeTest {
   }
 
   private void testDatabaseUpgrade(Version fromVersion, String javaVersion) {
-    startServer(fromVersion, javaVersion, false);
+    startOldServer(fromVersion, javaVersion);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
-
     stopServer();
-    // latest version
-    startServer(Version.create(Orchestrator.builderEnv().getSonarVersion()), "LATEST_RELEASE", true);
+
+    startNewServer();
     checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
     checkUrlsBeforeUpgrade();
 
-    upgradeDatabase();
+    upgrade();
     checkSystemStatus(ServerStatusResponse.Status.UP);
     checkUrlsAfterUpgrade();
 
@@ -139,22 +138,31 @@ public class UpgradeTest {
     testUrl("/profiles");
   }
 
-  private void upgradeDatabase() {
+  private void upgrade() {
     ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
 
     assertThat(serverMigrationResponse.getStatus()).isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
   }
 
-  private void startServer(Version sqVersion, String javaVersion, boolean keepDatabase) {
+  private void startOldServer(Version sqVersion, String javaVersion) {
     String jdbcUrl = MssqlConfig.fixUrl(Configuration.createEnv(), sqVersion);
-    OrchestratorBuilder builder = Orchestrator.builderEnv()
+    orchestrator = Orchestrator.builderEnv()
       .setOrchestratorProperty("sonar.jdbc.url", jdbcUrl)
-      .setSonarVersion(sqVersion.toString());
-    builder.setOrchestratorProperty("orchestrator.keepDatabase", String.valueOf(keepDatabase));
-    if (!keepDatabase) {
-      builder.restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-5.1.xml"));
-    }
-    builder.setOrchestratorProperty("javaVersion", javaVersion).addPlugin("java");
+      .setSonarVersion(sqVersion.toString())
+      .setOrchestratorProperty("orchestrator.keepDatabase", "false")
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-5.1.xml"))
+      .setOrchestratorProperty("javaVersion", javaVersion)
+      .addPlugin("java").build();
+    orchestrator.start();
+  }
+
+  private void startNewServer() {
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .setSonarVersion("DEV")
+      .setOrchestratorProperty("orchestrator.keepDatabase", "true")
+      .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
+      .setStartupLogWatcher(log -> log.contains("Process[web] is up"))
+      .addPlugin("java");
     orchestrator = builder.build();
     orchestrator.start();
   }
