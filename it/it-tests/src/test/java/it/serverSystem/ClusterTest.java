@@ -22,6 +22,7 @@ package it.serverSystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.server.StartupLogWatcher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,10 +31,13 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 import util.ItUtils;
 
@@ -72,6 +76,63 @@ public class ClusterTest {
     expectWriteOperations(orchestrator, false);
 
     orchestrator.stop();
+  }
+
+  @Test
+  public void start_cluster_of_elasticsearch_and_web_nodes() {
+    Orchestrator elasticsearch = null;
+    Orchestrator web = null;
+
+    try {
+      ElasticsearchStartupWatcher esWatcher = new ElasticsearchStartupWatcher();
+      elasticsearch = Orchestrator.builderEnv()
+        .setServerProperty("sonar.cluster.enabled", "true")
+        .setServerProperty("sonar.cluster.web.disabled", "true")
+        .setServerProperty("sonar.cluster.ce.disabled", "true")
+        .setStartupLogWatcher(esWatcher)
+        .build();
+      elasticsearch.start();
+      assertThat(esWatcher.port).isGreaterThan(0);
+
+      web = Orchestrator.builderEnv()
+        .setServerProperty("sonar.cluster.enabled", "true")
+        .setServerProperty("sonar.cluster.startupLeader", "true")
+        .setServerProperty("sonar.cluster.search.disabled", "true")
+        .setServerProperty("sonar.cluster.search.hosts", "localhost:" + esWatcher.port)
+        // no need for compute engine in this test. Disable it for faster test.
+        .setServerProperty("sonar.cluster.ce.disabled", "true")
+        // override the default watcher provided by Orchestrator
+        // which waits for Compute Engine to be up
+        .setStartupLogWatcher(log -> log.contains("Process[web] is up"))
+        .build();
+      web.start();
+
+      // call a web service that requires Elasticsearch
+      Issues.SearchWsResponse wsResponse = ItUtils.newWsClient(web).issues().search(new org.sonarqube.ws.client.issue.SearchWsRequest());
+      assertThat(wsResponse.getIssuesCount()).isEqualTo(0);
+
+    } finally {
+      if (web != null) {
+        web.stop();
+      }
+      if (elasticsearch != null) {
+        elasticsearch.stop();
+      }
+    }
+  }
+
+  private static class ElasticsearchStartupWatcher implements StartupLogWatcher {
+    private final Pattern pattern = Pattern.compile("Elasticsearch listening on .*:(\\d+)");
+    private int port = -1;
+
+    @Override
+    public boolean isStarted(String log) {
+      Matcher matcher = pattern.matcher(log);
+      if (matcher.find()) {
+        port = Integer.parseInt(matcher.group(1));
+      }
+      return log.contains("Process[es] is up");
+    }
   }
 
   private static void expectLog(Orchestrator orchestrator, String expectedLog) throws IOException {
