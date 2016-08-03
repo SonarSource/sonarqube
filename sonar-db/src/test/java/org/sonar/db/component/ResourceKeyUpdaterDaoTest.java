@@ -57,8 +57,8 @@ public class ResourceKeyUpdaterDaoTest {
   public void shouldNotUpdateKey() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Impossible to update key: a resource with \"org.struts:struts-ui\" key already exists.");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
 
     underTest.updateKey("B", "org.struts:struts-ui");
   }

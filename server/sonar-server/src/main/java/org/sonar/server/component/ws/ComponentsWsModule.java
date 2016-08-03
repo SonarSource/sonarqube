@@ -33,6 +33,7 @@ public class ComponentsWsModule extends Module {
       SearchAction.class,
       TreeAction.class,
       ShowAction.class,
-      SearchViewComponentsAction.class);
+      SearchViewComponentsAction.class,
+      UpdateKeyAction.class);
   }
 }

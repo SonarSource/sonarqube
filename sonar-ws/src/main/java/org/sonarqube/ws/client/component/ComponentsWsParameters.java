@@ -20,20 +20,22 @@
 package org.sonarqube.ws.client.component;
 
 public class ComponentsWsParameters {
-  private ComponentsWsParameters() {
-    // static utility class
-  }
-
-  //actions
+  // actions
   public static final String ACTION_TREE = "tree";
-  public static final String ACTION_SHOW = "show";
 
+  public static final String ACTION_SHOW = "show";
   // parameters
   public static final String PARAM_QUALIFIERS = "qualifiers";
+
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
   public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_ID = "id";
   public static final String PARAM_KEY = "key";
+  public static final String PARAM_NEW_KEY = "newKey";
+
+  private ComponentsWsParameters() {
+    // static utility class
+  }
 }

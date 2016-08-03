@@ -21,15 +21,12 @@ package org.sonar.server.component;
 
 import com.google.common.base.Optional;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.i18n.I18n;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -43,12 +40,12 @@ import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -57,138 +54,68 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
-
 public class ComponentServiceTest {
 
-  System2 system2 = System2.INSTANCE;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
-
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   DbClient dbClient = dbTester.getDbClient();
-  DbSession session = dbTester.getSession();
-  I18n i18n = mock(I18n.class);
-  ComponentService service;
+  DbSession dbSession = dbTester.getSession();
+
+  I18nRule i18n = new I18nRule();
+
+  ComponentService underTest;
 
   @Before
   public void setUp() {
-    when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
-    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
+    i18n.put("qualifier.TRK", "Project");
+
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
   }
 
   @Test
   public void get_by_key() {
     ComponentDto project = createProject();
-    assertThat(service.getByKey(project.getKey())).isNotNull();
+    assertThat(underTest.getByKey(project.getKey())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_key() {
     ComponentDto project = createProject();
-    assertThat(service.getNullableByKey(project.getKey())).isNotNull();
-    assertThat(service.getNullableByKey("unknown")).isNull();
+    assertThat(underTest.getNullableByKey(project.getKey())).isNotNull();
+    assertThat(underTest.getNullableByKey("unknown")).isNull();
   }
 
   @Test
   public void get_by_uuid() {
     ComponentDto project = createProject();
-    assertThat(service.getNonNullByUuid(project.uuid())).isNotNull();
+    assertThat(underTest.getNonNullByUuid(project.uuid())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_uuid() {
     ComponentDto project = createProject();
-    assertThat(service.getByUuid(project.uuid())).isPresent();
-    assertThat(service.getByUuid("unknown")).isAbsent();
-  }
-
-  @Test
-  public void update_project_key() {
-    ComponentDto project = createProject();
-    ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
-    dbClient.componentDao().insert(session, file);
-
-    session.commit();
-
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    service.updateKey(project.key(), "sample2:root");
-    session.commit();
-
-    // Check project key has been updated
-    assertThat(service.getNullableByKey(project.key())).isNull();
-    assertThat(service.getNullableByKey("sample2:root")).isNotNull();
-
-    // Check file key has been updated
-    assertThat(service.getNullableByKey(file.key())).isNull();
-    assertThat(service.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
-  }
-
-  @Test
-  public void update_module_key() {
-    ComponentDto project = createProject();
-    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(session, module);
-
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
-    dbClient.componentDao().insert(session, file);
-
-    session.commit();
-
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    service.updateKey(module.key(), "sample:root2:module");
-    session.commit();
-
-    // Project key has not changed
-    assertThat(service.getNullableByKey(project.key())).isNotNull();
-
-    // Check module key has been updated
-    assertThat(service.getNullableByKey(module.key())).isNull();
-    assertThat(service.getNullableByKey("sample:root2:module")).isNotNull();
-
-    // Check file key has been updated
-    assertThat(service.getNullableByKey(file.key())).isNull();
-    assertThat(service.getNullableByKey("sample:root2:module:src/File.xoo")).isNotNull();
-  }
-
-  @Test
-  public void update_provisioned_project_key() {
-    ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
-    dbClient.componentDao().insert(session, provisionedProject);
-
-    session.commit();
-
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
-    service.updateKey(provisionedProject.key(), "provisionedProject2");
-    session.commit();
-
-    // Check project key has been updated
-    assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
-    assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void fail_to_update_project_key_without_admin_permission() {
-    ComponentDto project = createProject();
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-    service.updateKey(project.key(), "sample2:root");
+    assertThat(underTest.getByUuid(project.uuid())).isPresent();
+    assertThat(underTest.getByUuid("unknown")).isAbsent();
   }
 
   @Test
   public void check_module_keys_before_renaming() {
     ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
-    dbClient.componentDao().insert(session, file);
+    dbClient.componentDao().insert(dbSession, file);
 
-    session.commit();
+    dbSession.commit();
 
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
+    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    Map<String, String> result = underTest.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
 
     assertThat(result).hasSize(2);
     assertThat(result.get("sample:root")).isEqualTo("sample2:root");
@@ -199,86 +126,91 @@ public class ComponentServiceTest {
   public void check_module_keys_before_renaming_return_duplicate_key() {
     ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project).setKey("foo:module");
-    dbClient.componentDao().insert(session, module2);
+    dbClient.componentDao().insert(dbSession, module2);
 
-    session.commit();
+    dbSession.commit();
 
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample:root", "foo");
+    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    Map<String, String> result = underTest.checkModuleKeysBeforeRenaming(project.key(), "sample:root", "foo");
 
     assertThat(result).hasSize(2);
     assertThat(result.get("sample:root")).isEqualTo("foo");
     assertThat(result.get("sample:root:module")).isEqualTo("#duplicate_key#");
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_to_check_module_keys_before_renaming_without_admin_permission() {
+    expectedException.expect(ForbiddenException.class);
+
     ComponentDto project = createProject();
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-    service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
+    userSession.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    underTest.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
   @Test
   public void bulk_update_project_key() {
     ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
-    dbClient.componentDao().insert(session, file);
+    dbClient.componentDao().insert(dbSession, file);
 
-    session.commit();
+    dbSession.commit();
 
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    service.bulkUpdateKey(project.key(), "sample", "sample2");
-    session.commit();
+    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    underTest.bulkUpdateKey(project.key(), "sample", "sample2");
+    dbSession.commit();
 
     // Check project key has been updated
-    assertThat(service.getNullableByKey(project.key())).isNull();
-    assertThat(service.getNullableByKey("sample2:root")).isNotNull();
+    assertThat(underTest.getNullableByKey(project.key())).isNull();
+    assertThat(underTest.getNullableByKey("sample2:root")).isNotNull();
 
     // Check module key has been updated
-    assertThat(service.getNullableByKey(module.key())).isNull();
-    assertThat(service.getNullableByKey("sample2:root:module")).isNotNull();
+    assertThat(underTest.getNullableByKey(module.key())).isNull();
+    assertThat(underTest.getNullableByKey("sample2:root:module")).isNotNull();
 
     // Check file key has been updated
-    assertThat(service.getNullableByKey(file.key())).isNull();
-    assertThat(service.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
+    assertThat(underTest.getNullableByKey(file.key())).isNull();
+    assertThat(underTest.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
   }
 
   @Test
   public void bulk_update_provisioned_project_key() {
     ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
-    dbClient.componentDao().insert(session, provisionedProject);
+    dbClient.componentDao().insert(dbSession, provisionedProject);
 
-    session.commit();
+    dbSession.commit();
 
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
-    service.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
-    session.commit();
+    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    underTest.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
+    dbSession.commit();
 
     // Check project key has been updated
-    assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
-    assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
+    assertThat(underTest.getNullableByKey(provisionedProject.key())).isNull();
+    assertThat(underTest.getNullableByKey("provisionedProject2")).isNotNull();
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_to_bulk_update_project_key_without_admin_permission() {
+    expectedException.expect(ForbiddenException.class);
+
     ComponentDto project = createProject();
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-    service.bulkUpdateKey("sample:root", "sample", "sample2");
+    userSession.login("john").addProjectPermissions(UserRole.USER, project.key());
+    underTest.bulkUpdateKey("sample:root", "sample", "sample2");
   }
 
   @Test
   public void create_project() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = service.create(NewComponent.create("struts", "Struts project")).getKey();
+    String key = underTest.create(NewComponent.create("struts", "Struts project")).getKey();
 
-    ComponentDto project = service.getNullableByKey(key);
+    ComponentDto project = underTest.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("struts");
     assertThat(project.deprecatedKey()).isEqualTo("struts");
     assertThat(project.uuid()).isNotNull();
@@ -294,22 +226,22 @@ public class ComponentServiceTest {
 
   @Test
   public void create_new_project_with_branch() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = service.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch")).getKey();
+    String key = underTest.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch")).getKey();
 
-    ComponentDto project = service.getNullableByKey(key);
+    ComponentDto project = underTest.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("struts:origin/branch");
     assertThat(project.deprecatedKey()).isEqualTo("struts:origin/branch");
   }
 
   @Test
   public void create_view() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = service.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW)).getKey();
+    String key = underTest.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW)).getKey();
 
-    ComponentDto project = service.getNullableByKey(key);
+    ComponentDto project = underTest.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("all-project");
     assertThat(project.deprecatedKey()).isEqualTo("all-project");
     assertThat(project.uuid()).isNotNull();
@@ -326,12 +258,12 @@ public class ComponentServiceTest {
   @Test
   public void create_developer() throws Exception {
     // No permission should be required to create a developer
-    userSessionRule.anonymous();
+    userSession.anonymous();
 
-    String key = service.createDeveloper(dbTester.getSession(), NewComponent.create("DEV:jon.name@mail.com", "John").setQualifier("DEV")).getKey();
+    String key = underTest.createDeveloper(dbTester.getSession(), NewComponent.create("DEV:jon.name@mail.com", "John").setQualifier("DEV")).getKey();
     dbTester.getSession().commit();
 
-    ComponentDto dev = service.getNullableByKey(key);
+    ComponentDto dev = underTest.getNullableByKey(key);
     assertThat(dev.key()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.deprecatedKey()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.uuid()).isNotNull();
@@ -347,51 +279,41 @@ public class ComponentServiceTest {
 
   @Test
   public void fail_to_create_new_component_on_invalid_key() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Malformed key for Project: struts?parent. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    try {
-      service.create(NewComponent.create("struts?parent", "Struts project"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage(
-        "Malformed key for Project: struts?parent. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-    }
+    underTest.create(NewComponent.create("struts?parent", "Struts project"));
   }
 
   @Test
   public void fail_to_create_new_component_on_invalid_branch() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Malformed branch for Project: origin?branch. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.");
 
-    try {
-      service.create(NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage(
-        "Malformed branch for Project: origin?branch. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.");
-    }
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
+
+    underTest.create(NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
   }
 
   @Test
   public void fail_to_create_new_component_if_key_already_exists() {
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Could not create Project, key already exists: struts");
 
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
     ComponentDto project = ComponentTesting.newProjectDto().setKey("struts");
-    dbClient.componentDao().insert(session, project);
-    session.commit();
+    dbClient.componentDao().insert(dbSession, project);
+    dbSession.commit();
 
-    try {
-      service.create(NewComponent.create("struts", "Struts project"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Could not create Project, key already exists: struts");
-    }
+    underTest.create(NewComponent.create("struts", "Struts project"));
   }
 
   @Test
   public void remove_duplicated_components_when_creating_project() throws Exception {
     String projectKey = "PROJECT_KEY";
 
-    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
     DbSession session = mock(DbSession.class);
 
@@ -403,21 +325,18 @@ public class ComponentServiceTest {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.componentIndexDao()).thenReturn(mock(ResourceIndexDao.class));
 
-    doAnswer(new Answer<Object>() {
-      public Object answer(InvocationOnMock invocation) {
-        ((ComponentDto) invocation.getArguments()[1]).setId(1L);
-        return null;
-      }
+    doAnswer(invocation -> {
+      ((ComponentDto) invocation.getArguments()[1]).setId(1L);
+      return null;
     }).when(componentDao).insert(eq(session), any(ComponentDto.class));
 
     when(componentDao.selectComponentsHavingSameKeyOrderedById(session, projectKey)).thenReturn(newArrayList(
       ComponentTesting.newProjectDto().setId(1L).setKey(projectKey),
       ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
-      ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)
-    ));
+      ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)));
 
-    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
-    service.create(NewComponent.create(projectKey, projectKey));
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
+    underTest.create(NewComponent.create(projectKey, projectKey));
 
     verify(componentDao).delete(session, 2L);
     verify(componentDao).delete(session, 3L);
@@ -428,15 +347,15 @@ public class ComponentServiceTest {
     ComponentDto project = createProject();
     String moduleKey = "sample:root:module";
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbSession, module);
     String fileKey = "sample:root:module:Foo.xoo";
     ComponentDto file = ComponentTesting.newFileDto(module).setKey(fileKey);
-    dbClient.componentDao().insert(session, file);
-    session.commit();
+    dbClient.componentDao().insert(dbSession, file);
+    dbSession.commit();
 
-    assertThat(service.componentUuids(Arrays.asList(moduleKey, fileKey))).hasSize(2);
-    assertThat(service.componentUuids(null)).isEmpty();
-    assertThat(service.componentUuids(Arrays.<String>asList())).isEmpty();
+    assertThat(underTest.componentUuids(Arrays.asList(moduleKey, fileKey))).hasSize(2);
+    assertThat(underTest.componentUuids(null)).isEmpty();
+    assertThat(underTest.componentUuids(Arrays.<String>asList())).isEmpty();
   }
 
   @Test
@@ -445,7 +364,7 @@ public class ComponentServiceTest {
     String fileKey = "sample:root:module:Foo.xoo";
 
     try {
-      service.componentUuids(Arrays.asList(moduleKey, fileKey));
+      underTest.componentUuids(Arrays.asList(moduleKey, fileKey));
       Fail.fail("Should throw NotFoundException");
     } catch (NotFoundException notFound) {
       assertThat(notFound.getMessage()).contains(moduleKey).contains(fileKey);
@@ -457,13 +376,13 @@ public class ComponentServiceTest {
     String moduleKey = "sample:root:module";
     String fileKey = "sample:root:module:Foo.xoo";
 
-    assertThat(service.componentUuids(session, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
+    assertThat(underTest.componentUuids(dbSession, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
   }
 
   private ComponentDto createProject() {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("sample:root");
-    dbClient.componentDao().insert(session, project);
-    session.commit();
+    dbClient.componentDao().insert(dbSession, project);
+    dbSession.commit();
     return project;
   }
 

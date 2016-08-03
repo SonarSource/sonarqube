@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
@@ -140,7 +141,7 @@ public class ClusterTest {
   private static void expectLog(Orchestrator orchestrator, String expectedLog) throws IOException {
     File logFile = orchestrator.getServer().getLogs();
     try (Stream<String> lines = Files.lines(logFile.toPath())) {
-      assertThat(lines.anyMatch(s -> containsIgnoreCase(s, expectedLog))).isTrue();
+      assertThat(lines.anyMatch(s -> StringUtils.containsIgnoreCase(s, expectedLog))).isTrue();
     }
   }
 

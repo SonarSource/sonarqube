@@ -25,6 +25,7 @@ import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
@@ -33,6 +34,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BAS
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
@@ -69,5 +71,14 @@ public class ComponentsService extends BaseService {
       .setParam(PARAM_ID, request.getId())
       .setParam(PARAM_KEY, request.getKey());
     return call(get, ShowWsResponse.parser());
+  }
+
+  public void updateKey(UpdateWsRequest request) {
+    PostRequest post = new PostRequest(path("update_key"))
+      .setParam(PARAM_ID, request.getId())
+      .setParam(PARAM_KEY, request.getKey())
+      .setParam(PARAM_NEW_KEY, request.getNewKey());
+
+    call(post);
   }
 }

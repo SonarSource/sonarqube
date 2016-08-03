@@ -22,6 +22,7 @@ package org.sonar.server.component;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +34,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -48,14 +50,16 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.db.component.ComponentDtoFunctions.toKey;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 @ComputeEngineSide
 public class ComponentService {
+  private static final Set<String> ACCEPTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
 
   private final DbClient dbClient;
-
   private final I18n i18n;
   private final UserSession userSession;
   private final System2 system2;
@@ -83,7 +87,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(false);
     try {
       Optional<ComponentDto> component = dbClient.componentDao().selectByKey(session, key);
-      return component.isPresent() ? component.get() : null;
+      return component.orNull();
     } finally {
       session.close();
     }
@@ -108,17 +112,21 @@ public class ComponentService {
   }
 
   public void updateKey(String projectOrModuleKey, String newKey) {
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
-      dbClient.resourceKeyUpdaterDao().updateKey(projectOrModule.uuid(), newKey);
-      session.commit();
-
-      session.commit();
+      updateKey(dbSession, projectOrModuleKey, newKey);
     } finally {
-      session.close();
+      dbSession.close();
     }
+  }
+
+  public void updateKey(DbSession dbSession, String projectOrModuleKey, String newKey) {
+    ComponentDto component = componentFinder.getByKey(dbSession, projectOrModuleKey);
+    userSession.checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
+    checkIsProjectOrModule(component);
+    checkProjectOrModuleKeyFormat(newKey);
+
+    dbClient.resourceKeyUpdaterDao().updateKey(component.uuid(), newKey);
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
@@ -271,10 +279,12 @@ public class ComponentService {
   }
 
   private void checkKeyFormat(String qualifier, String kee) {
-    if (!ComponentKeys.isValidModuleKey(kee)) {
-      throw new BadRequestException(formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
-        qualifier, kee));
-    }
+    checkRequest(isValidModuleKey(kee), formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
+      qualifier, kee));
+  }
+
+  private static void checkProjectOrModuleKeyFormat(String key) {
+    checkRequest(isValidModuleKey(key), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", key);
   }
 
   private void checkBranchFormat(String qualifier, @Nullable String branch) {
@@ -290,5 +300,9 @@ public class ComponentService {
 
   private ComponentDto getByKey(DbSession session, String key) {
     return componentFinder.getByKey(session, key);
+  }
+
+  private static void checkIsProjectOrModule(ComponentDto component) {
+    checkRequest(ACCEPTED_QUALIFIERS.contains(component.qualifier()), "Component updated must be a module or a key");
   }
 }

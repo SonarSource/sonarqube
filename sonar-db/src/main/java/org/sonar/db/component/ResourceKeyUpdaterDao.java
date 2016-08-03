@@ -49,7 +49,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
       if (mapper.countResourceByKey(newKey) > 0) {
-        throw new IllegalStateException("Impossible to update key: a resource with \"" + newKey + "\" key already exists.");
+        throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
       }
 
       // must SELECT first everything
