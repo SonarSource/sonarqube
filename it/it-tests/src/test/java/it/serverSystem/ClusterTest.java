@@ -57,7 +57,7 @@ public class ClusterTest {
     // start "startup leader", which creates and populates datastores
     Orchestrator orchestrator = Orchestrator.builderEnv()
       .setServerProperty("sonar.cluster.enabled", "true")
-      .setServerProperty("sonar.cluster.startupLeader", "true")
+      .setServerProperty("sonar.cluster.web.startupLeader", "true")
       .setServerProperty("sonar.log.level", "TRACE")
       .addPlugin(ItUtils.xooPlugin())
       .build();
@@ -69,7 +69,7 @@ public class ClusterTest {
     assertThat(newWsClient(orchestrator).rules().search(new SearchWsRequest()).getTotal()).isGreaterThan(0);
 
     FileUtils.write(orchestrator.getServer().getLogs(), "", false);
-    updateSonarPropertiesFile(orchestrator, ImmutableMap.of("sonar.cluster.startupLeader", "false"));
+    updateSonarPropertiesFile(orchestrator, ImmutableMap.of("sonar.cluster.web.startupLeader", "false"));
     orchestrator.restartServer();
 
     expectLog(orchestrator, "Cluster enabled (startup follower)");
@@ -96,7 +96,7 @@ public class ClusterTest {
 
       web = Orchestrator.builderEnv()
         .setServerProperty("sonar.cluster.enabled", "true")
-        .setServerProperty("sonar.cluster.startupLeader", "true")
+        .setServerProperty("sonar.cluster.web.startupLeader", "true")
         .setServerProperty("sonar.cluster.search.disabled", "true")
         .setServerProperty("sonar.cluster.search.hosts", "localhost:" + esWatcher.port)
         // no need for compute engine in this test. Disable it for faster test.

@@ -27,7 +27,7 @@ import org.sonar.api.config.PropertyDefinition;
 public class ClusterProperties {
 
   public static final String ENABLED = "sonar.cluster.enabled";
-  public static final String STARTUP_LEADER = "sonar.cluster.startupLeader";
+  public static final String STARTUP_LEADER = "sonar.cluster.web.startupLeader";
 
   private ClusterProperties() {
     // only statics
