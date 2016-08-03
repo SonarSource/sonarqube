@@ -45,7 +45,7 @@ public class ClusterImplTest {
   @Test
   public void node_is_startup_leader_in_cluster() {
     settings.setProperty("sonar.cluster.enabled", "true");
-    settings.setProperty("sonar.cluster.startupLeader", "true");
+    settings.setProperty("sonar.cluster.web.startupLeader", "true");
 
     ClusterImpl underTest = new ClusterImpl(settings);
 
@@ -66,7 +66,7 @@ public class ClusterImplTest {
   @Test
   public void node_is_startup_follower_in_cluster() {
     settings.setProperty("sonar.cluster.enabled", "true");
-    settings.setProperty("sonar.cluster.startupLeader", "false");
+    settings.setProperty("sonar.cluster.web.startupLeader", "false");
 
     ClusterImpl underTest = new ClusterImpl(settings);
 
