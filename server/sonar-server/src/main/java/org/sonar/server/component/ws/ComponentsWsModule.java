@@ -34,6 +34,7 @@ public class ComponentsWsModule extends Module {
       TreeAction.class,
       ShowAction.class,
       SearchViewComponentsAction.class,
-      UpdateKeyAction.class);
+      UpdateKeyAction.class,
+      BulkUpdateKeyAction.class);
   }
 }

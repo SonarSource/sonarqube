@@ -22,7 +22,6 @@ package org.sonar.server.component;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +33,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -52,13 +50,12 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.db.component.ComponentDtoFunctions.toKey;
+import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 @ComputeEngineSide
 public class ComponentService {
-  private static final Set<String> ACCEPTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
-
   private final DbClient dbClient;
   private final I18n i18n;
   private final UserSession userSession;
@@ -140,16 +137,21 @@ public class ComponentService {
     }
   }
 
+  public void bulkUpdateKey(DbSession dbSession, String projectKey, String stringToReplace, String replacementString) {
+    ComponentDto project = getByKey(dbSession, projectKey);
+    userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
+    checkIsProjectOrModule(project);
+    dbClient.resourceKeyUpdaterDao().bulkUpdateKey(dbSession, project.uuid(), stringToReplace, replacementString);
+  }
+
   public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
     // Open a batch session
-    DbSession session = dbClient.openSession(true);
+    DbSession dbSession = dbClient.openSession(true);
     try {
-      ComponentDto project = getByKey(session, projectKey);
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-      dbClient.resourceKeyUpdaterDao().bulkUpdateKey(session, project.uuid(), stringToReplace, replacementString);
-      session.commit();
+      bulkUpdateKey(dbSession, projectKey, stringToReplace, replacementString);
+      dbSession.commit();
     } finally {
-      session.close();
+      dbSession.close();
     }
   }
 
@@ -300,9 +302,5 @@ public class ComponentService {
 
   private ComponentDto getByKey(DbSession session, String key) {
     return componentFinder.getByKey(session, key);
-  }
-
-  private static void checkIsProjectOrModule(ComponentDto component) {
-    checkRequest(ACCEPTED_QUALIFIERS.contains(component.qualifier()), "Component updated must be a module or a key");
   }
 }

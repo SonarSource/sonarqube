@@ -173,7 +173,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleRootProject();
     ComponentDto file = componentDb.insertComponent(newFileDto(project));
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");
 
     underTest.updateKey(dbSession, file.key(), "file:key");

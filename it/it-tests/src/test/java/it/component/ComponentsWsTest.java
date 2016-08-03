@@ -28,8 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse.Key;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.component.BulkUpdateWsRequest;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.component.UpdateWsRequest;
@@ -88,5 +89,24 @@ public class ComponentsWsTest {
       .build());
 
     assertThat(wsClient.components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+  }
+
+  @Test
+  public void bulk_update_key() {
+    String newProjectKey = "another_project_key";
+    WsComponents.Component project = wsClient.components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+
+    WsComponents.BulkUpdateKeyWsResponse result = wsClient.components().bulkUpdateKey(BulkUpdateWsRequest.builder()
+      .setKey(PROJECT_KEY)
+      .setFrom(PROJECT_KEY)
+      .setTo(newProjectKey)
+      .build());
+
+    assertThat(wsClient.components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(result.getKeysCount()).isEqualTo(1);
+    assertThat(result.getKeys(0))
+      .extracting(Key::getKey, Key::getNewKey, Key::getDuplicate)
+      .containsOnlyOnce(PROJECT_KEY, newProjectKey, false);
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -26,11 +27,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 
 /**
  * Class used to rename the key of a project and its resources.
@@ -38,6 +45,8 @@ import org.sonar.db.MyBatis;
  * @since 3.2
  */
 public class ResourceKeyUpdaterDao implements Dao {
+  private static final Set<String> PROJECT_OR_MODULE_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
+
   private MyBatis mybatis;
 
   public ResourceKeyUpdaterDao(MyBatis mybatis) {
@@ -85,6 +94,29 @@ public class ResourceKeyUpdaterDao implements Dao {
       MyBatis.closeQuietly(session);
     }
     return result;
+  }
+
+  public static void checkIsProjectOrModule(ComponentDto component) {
+    checkArgument(PROJECT_OR_MODULE_QUALIFIERS.contains(component.qualifier()), "Component updated must be a module or a key");
+  }
+
+  /**
+   *
+   * @return a map with currentKey/newKey is a bulk update was executed
+   */
+  public Map<String, String> simulateBulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
+    return collectAllModules(projectUuid, stringToReplace, mapper(dbSession))
+      .stream()
+      .collect(Collectors.toMap(
+        ResourceDto::getKey,
+        component -> computeNewKey(component, stringToReplace, replacementString)));
+  }
+
+  /**
+   * @return a map with the component key as key, and boolean as true if key already exists in db
+   */
+  public Map<String, Boolean> checkComponentKeys(DbSession dbSession, List<String> newComponentKeys) {
+    return newComponentKeys.stream().collect(Collectors.toMap(Function.identity(), key -> mapper(dbSession).countResourceByKey(key) > 0));
   }
 
   public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
@@ -139,11 +171,15 @@ public class ResourceKeyUpdaterDao implements Dao {
 
   private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
-      String newName = computeNewKey(module, stringToReplace, replacementString);
-      if (mapper.countResourceByKey(newName) > 0) {
-        throw new IllegalStateException("Impossible to update key: a resource with \"" + newName + "\" key already exists.");
+      String newKey = computeNewKey(module, stringToReplace, replacementString);
+      checkArgument(isValidModuleKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
+      if (mapper.countResourceByKey(newKey) > 0) {
+        throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
       }
     }
   }
 
+  private ResourceKeyUpdaterMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(ResourceKeyUpdaterMapper.class);
+  }
 }

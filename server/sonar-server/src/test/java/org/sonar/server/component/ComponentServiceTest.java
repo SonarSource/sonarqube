@@ -30,10 +30,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceIndexDao;
@@ -53,6 +55,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentServiceTest {
 
@@ -63,6 +67,7 @@ public class ComponentServiceTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   DbClient dbClient = dbTester.getDbClient();
   DbSession dbSession = dbTester.getSession();
 
@@ -79,37 +84,37 @@ public class ComponentServiceTest {
 
   @Test
   public void get_by_key() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     assertThat(underTest.getByKey(project.getKey())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_key() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     assertThat(underTest.getNullableByKey(project.getKey())).isNotNull();
     assertThat(underTest.getNullableByKey("unknown")).isNull();
   }
 
   @Test
   public void get_by_uuid() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     assertThat(underTest.getNonNullByUuid(project.uuid())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_uuid() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     assertThat(underTest.getByUuid(project.uuid())).isPresent();
     assertThat(underTest.getByUuid("unknown")).isAbsent();
   }
 
   @Test
   public void check_module_keys_before_renaming() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(dbSession, module);
 
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
+    ComponentDto file = newFileDto(module).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
 
     dbSession.commit();
@@ -124,7 +129,7 @@ public class ComponentServiceTest {
 
   @Test
   public void check_module_keys_before_renaming_return_duplicate_key() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(dbSession, module);
 
@@ -145,63 +150,10 @@ public class ComponentServiceTest {
   public void fail_to_check_module_keys_before_renaming_without_admin_permission() {
     expectedException.expect(ForbiddenException.class);
 
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     userSession.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     underTest.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
-  }
-
-  @Test
-  public void bulk_update_project_key() {
-    ComponentDto project = createProject();
-    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
-    dbClient.componentDao().insert(dbSession, module);
-
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
-    dbClient.componentDao().insert(dbSession, file);
-
-    dbSession.commit();
-
-    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    underTest.bulkUpdateKey(project.key(), "sample", "sample2");
-    dbSession.commit();
-
-    // Check project key has been updated
-    assertThat(underTest.getNullableByKey(project.key())).isNull();
-    assertThat(underTest.getNullableByKey("sample2:root")).isNotNull();
-
-    // Check module key has been updated
-    assertThat(underTest.getNullableByKey(module.key())).isNull();
-    assertThat(underTest.getNullableByKey("sample2:root:module")).isNotNull();
-
-    // Check file key has been updated
-    assertThat(underTest.getNullableByKey(file.key())).isNull();
-    assertThat(underTest.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
-  }
-
-  @Test
-  public void bulk_update_provisioned_project_key() {
-    ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
-    dbClient.componentDao().insert(dbSession, provisionedProject);
-
-    dbSession.commit();
-
-    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
-    underTest.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
-    dbSession.commit();
-
-    // Check project key has been updated
-    assertThat(underTest.getNullableByKey(provisionedProject.key())).isNull();
-    assertThat(underTest.getNullableByKey("provisionedProject2")).isNotNull();
-  }
-
-  @Test
-  public void fail_to_bulk_update_project_key_without_admin_permission() {
-    expectedException.expect(ForbiddenException.class);
-
-    ComponentDto project = createProject();
-    userSession.login("john").addProjectPermissions(UserRole.USER, project.key());
-    underTest.bulkUpdateKey("sample:root", "sample", "sample2");
   }
 
   @Test
@@ -344,12 +296,12 @@ public class ComponentServiceTest {
 
   @Test
   public void should_return_project_uuids() {
-    ComponentDto project = createProject();
+    ComponentDto project = insertSampleProject();
     String moduleKey = "sample:root:module";
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
     dbClient.componentDao().insert(dbSession, module);
     String fileKey = "sample:root:module:Foo.xoo";
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey(fileKey);
+    ComponentDto file = newFileDto(module).setKey(fileKey);
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
 
@@ -379,11 +331,12 @@ public class ComponentServiceTest {
     assertThat(underTest.componentUuids(dbSession, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
   }
 
-  private ComponentDto createProject() {
-    ComponentDto project = ComponentTesting.newProjectDto().setKey("sample:root");
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-    return project;
+  private ComponentDto insertSampleProject() {
+    return componentDb.insertComponent(newProjectDto().setKey("sample:root"));
+  }
+
+  private void setGlobalAdminPermission() {
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
 }

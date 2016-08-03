@@ -1,0 +1,19 @@
+{
+  "keys": [
+    {
+      "key": "my_project",
+      "newKey": "my_new_project",
+      "duplicate": false
+    },
+    {
+      "key": "my_project:module_1",
+      "newKey": "my_new_project:module_1",
+      "duplicate": true
+    },
+    {
+      "key": "my_project:module_2",
+      "newKey": "my_new_project:module_2",
+      "duplicate": false
+    }
+  ]
+}

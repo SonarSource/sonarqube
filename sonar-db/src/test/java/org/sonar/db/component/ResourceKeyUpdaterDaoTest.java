@@ -28,7 +28,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
@@ -87,8 +89,8 @@ public class ResourceKeyUpdaterDaoTest {
   public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Impossible to update key: a resource with \"foo:struts-core\" key already exists.");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Impossible to update key: a component with key \"foo:struts-core\" already exists.");
 
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "foo");
     dbSession.commit();
@@ -117,6 +119,16 @@ public class ResourceKeyUpdaterDaoTest {
   }
 
   @Test
+  public void fail_when_new_key_is_invalid() {
+    ComponentDto project = componentDb.insertProject();
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+
+    underTest.bulkUpdateKey(dbSession, project.uuid(), project.key(), "my?project?key");
+  }
+
+  @Test
   public void shouldCheckModuleKeysBeforeRenaming() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -127,4 +139,25 @@ public class ResourceKeyUpdaterDaoTest {
     assertThat(checkResults.get("org.struts:struts-ui")).isEqualTo("foo:struts-ui");
   }
 
+  @Test
+  public void check_component_keys() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("foo:struts", "foo:struts-core", "foo:struts-ui"));
+
+    assertThat(result)
+      .hasSize(3)
+      .containsOnly(entry("foo:struts", false), entry("foo:struts-core", true), entry("foo:struts-ui", false));
+  }
+
+  @Test
+  public void simulate_bulk_update_key() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "org.struts", "foo");
+
+    assertThat(result)
+      .hasSize(3)
+      .containsOnly(entry("org.struts:struts", "foo:struts"), entry("org.struts:struts-core", "foo:struts-core"), entry("org.struts:struts-ui", "foo:struts-ui"));
+  }
 }

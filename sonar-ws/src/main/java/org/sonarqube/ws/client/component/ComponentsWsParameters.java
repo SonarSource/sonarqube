@@ -34,6 +34,9 @@ public class ComponentsWsParameters {
   public static final String PARAM_ID = "id";
   public static final String PARAM_KEY = "key";
   public static final String PARAM_NEW_KEY = "newKey";
+  public static final String PARAM_FROM = "from";
+  public static final String PARAM_TO = "to";
+  public static final String PARAM_DRY_RUN = "dryRun";
 
   private ComponentsWsParameters() {
     // static utility class

@@ -29,6 +29,6 @@ public class ComponentsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new ComponentsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(9 + 2);
+    assertThat(container.size()).isEqualTo(10 + 2);
   }
 }
