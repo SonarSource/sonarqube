@@ -21,10 +21,9 @@ package org.sonar.ce;
 
 import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.CeQueueImpl;
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.ce.queue.report.ReportSubmitter;
 import org.sonar.ce.taskprocessor.ReportTaskProcessorDeclaration;
 import org.sonar.core.platform.Module;
+import org.sonar.server.computation.queue.ReportSubmitter;
 
 public class CeModule extends Module {
   @Override
@@ -34,8 +33,7 @@ public class CeModule extends Module {
       // Queue
       CeQueueImpl.class,
       ReportSubmitter.class,
-      ReportFiles.class,
-
+      
       // Core tasks processors
       ReportTaskProcessorDeclaration.class);
   }

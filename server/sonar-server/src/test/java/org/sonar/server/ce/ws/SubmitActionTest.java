@@ -25,7 +25,7 @@ import org.mockito.Matchers;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.report.ReportSubmitter;
+import org.sonar.server.computation.queue.ReportSubmitter;
 import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;

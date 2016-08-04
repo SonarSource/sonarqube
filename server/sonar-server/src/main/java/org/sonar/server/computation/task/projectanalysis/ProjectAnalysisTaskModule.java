@@ -19,10 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis;
 
-import org.sonar.ce.queue.report.ReportSubmitter;
+import org.sonar.server.computation.queue.ReportSubmitter;
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.server.computation.task.projectanalysis.queue.CleanReportQueueListener;
 import org.sonar.server.computation.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 
@@ -30,9 +29,6 @@ public class ProjectAnalysisTaskModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // queue
-      CleanReportQueueListener.class,
-
       // task
       ContainerFactoryImpl.class,
       ComputationStepExecutor.class,

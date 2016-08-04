@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue.report;
+package org.sonar.server.computation.queue;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
@@ -26,12 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
@@ -40,6 +41,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.tester.UserSessionRule;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -64,12 +66,13 @@ public class ReportSubmitterTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  CeQueue queue = mock(CeQueueImpl.class);
-  ReportFiles reportFiles = mock(ReportFiles.class);
-  ComponentService componentService = mock(ComponentService.class);
-  PermissionService permissionService = mock(PermissionService.class);
-  DbClient dbClient = mock(DbClient.class);
-  ReportSubmitter underTest = new ReportSubmitter(queue, userSession, reportFiles, componentService, permissionService, dbClient);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  private CeQueue queue = mock(CeQueueImpl.class);
+  private ComponentService componentService = mock(ComponentService.class);
+  private PermissionService permissionService = mock(PermissionService.class);
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionService, dbTester.getDbClient());
 
   @Test
   public void submit_a_report_on_existing_project() {
@@ -80,6 +83,7 @@ public class ReportSubmitterTest {
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
+    verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionService);
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
@@ -107,6 +111,7 @@ public class ReportSubmitterTest {
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
+    verifyReportIsPersisted(TASK_UUID);
     verify(permissionService).applyDefaultPermissionTemplate(any(DbSession.class), eq(PROJECT_KEY));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
@@ -179,6 +184,10 @@ public class ReportSubmitterTest {
 
     thrown.expect(ForbiddenException.class);
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+  }
+
+  private void verifyReportIsPersisted(String taskUuid) {
+    assertThat(dbTester.selectFirst("select task_uuid from ce_task_data where task_uuid='" + taskUuid + "'")).isNotNull();
   }
 
 }

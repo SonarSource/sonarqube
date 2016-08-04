@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation;
 
-import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
@@ -40,8 +39,7 @@ public class CeQueueModule extends Module {
 
       // queue cleaning
       CeQueueCleaner.class,
-      ReportFiles.class,
-
+      
       // init queue state and queue processing
       CeQueueInitializer.class);
   }

@@ -19,7 +19,7 @@
  */
 package org.sonar.db.version.v56;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -29,7 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.MigrationStep;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -73,10 +72,10 @@ public class UpdateUsersExternalIdentityWhenEmptyTest {
   }
 
   private void insertUser(String login, @Nullable String externalIdentity, @Nullable String externalIdentityProvider, long updatedAt) {
-    Map<String, String> params = newHashMap(ImmutableMap.of(
-      "LOGIN", login,
-      "CREATED_AT", Long.toString(PAST),
-      "UPDATED_AT", Long.toString(updatedAt)));
+    Map<String, Object> params = new HashMap<>();
+    params.put("LOGIN", login);
+    params.put("CREATED_AT", Long.toString(PAST));
+    params.put("UPDATED_AT", Long.toString(updatedAt));
     if (externalIdentity != null) {
       params.put("EXTERNAL_IDENTITY", externalIdentity);
     }

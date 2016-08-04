@@ -21,7 +21,9 @@ package org.sonar.db;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Clob;
@@ -130,7 +132,7 @@ public class DbTester extends ExternalResource {
     return client;
   }
 
-  public void executeUpdateSql(String sql, String... params) {
+  public void executeUpdateSql(String sql, Object... params) {
     try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
       new QueryRunner().update(connection, sql, params);
     } catch (Exception e) {
@@ -144,15 +146,16 @@ public class DbTester extends ExternalResource {
    *
    * @param valuesByColumn column name and value pairs, if any value is null, the associated column won't be inserted
    */
-  public void executeInsert(String table, String... valuesByColumn) {
-    executeInsert(table, mapOf(valuesByColumn));
+  public void executeInsert(String table, String firstColumn, Object... others) {
+    executeInsert(table, mapOf(firstColumn, others));
   }
 
-  private static Map<String, String> mapOf(String... values) {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    for (int i = 0; i < values.length; i++) {
-      String key = values[i];
-      String value = values[i + 1];
+  private static Map<String, Object> mapOf(String firstColumn, Object... values) {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+    List<Object> args = Lists.asList(firstColumn, values);
+    for (int i = 0; i < args.size(); i++) {
+      String key = args.get(i).toString();
+      Object value = args.get(i + 1);
       if (value != null) {
         builder.put(key, value);
       }
@@ -165,7 +168,7 @@ public class DbTester extends ExternalResource {
    * Very simple helper method to insert some data into a table.
    * It's the responsibility of the caller to convert column values to string.
    */
-  public void executeInsert(String table, Map<String, String> valuesByColumn) {
+  public void executeInsert(String table, Map<String, Object> valuesByColumn) {
     if (valuesByColumn.isEmpty()) {
       throw new IllegalArgumentException("Values cannot be empty");
     }
@@ -175,7 +178,7 @@ public class DbTester extends ExternalResource {
       ") values (" +
       COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
       ")";
-    executeUpdateSql(sql, valuesByColumn.values().toArray(new String[valuesByColumn.size()]));
+    executeUpdateSql(sql, valuesByColumn.values().toArray(new Object[valuesByColumn.size()]));
   }
 
   /**

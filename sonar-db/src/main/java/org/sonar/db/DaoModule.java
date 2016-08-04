@@ -25,6 +25,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
+import org.sonar.db.ce.CeTaskDataDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
@@ -77,6 +78,7 @@ public class DaoModule extends Module {
     AuthorizationDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
+    CeTaskDataDao.class,
     ComponentDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,
