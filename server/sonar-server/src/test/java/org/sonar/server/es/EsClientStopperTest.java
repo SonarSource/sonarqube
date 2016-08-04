@@ -17,16 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.es.EsClientProvider;
-import org.sonar.server.es.EsClientStopper;
+import org.junit.Test;
 
-public class EsSearchModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(new EsClientProvider());
-    add(EsClientStopper.class);
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+
+public class EsClientStopperTest {
+
+  private EsClient client = mock(EsClient.class);
+  private EsClientStopper underTest = new EsClientStopper(client);
+
+  @Test
+  public void stop_client() {
+    underTest.start();
+    verifyZeroInteractions(client);
+
+    underTest.stop();
+    verify(client).close();
   }
 }

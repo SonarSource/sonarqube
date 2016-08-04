@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import java.io.Closeable;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
@@ -45,7 +46,6 @@ import org.elasticsearch.common.Priority;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
-import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.request.ProxyBulkRequestBuilder;
@@ -74,7 +74,7 @@ import static java.util.Objects.requireNonNull;
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions
  * with context) and profiling of requests.
  */
-public class EsClient implements Startable {
+public class EsClient implements Closeable {
 
   public static final Logger LOGGER = Loggers.get("es");
 
@@ -189,17 +189,12 @@ public class EsClient implements Startable {
     return (long) max.getValue();
   }
 
-  @Override
-  public void start() {
-    // nothing to do
-  }
-
-  @Override
-  public void stop() {
-    nativeClient.close();
-  }
-
   public Client nativeClient() {
     return nativeClient;
+  }
+
+  @Override
+  public void close() {
+    nativeClient.close();
   }
 }

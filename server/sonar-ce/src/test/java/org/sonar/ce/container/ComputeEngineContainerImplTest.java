@@ -106,7 +106,7 @@ public class ComputeEngineContainerImplTest {
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
         + 26 // level 1
         + 46 // content of DaoModule
-        + 1 // content of EsSearchModule
+        + 2 // content of EsSearchModule
         + 55 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions
     );

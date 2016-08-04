@@ -49,7 +49,6 @@ public class EsClientTest {
   @Test
   public void proxify_requests() {
     EsClient underTest = es.client();
-    underTest.start();
     assertThat(underTest.nativeClient()).isNotNull();
     assertThat(underTest.prepareBulk()).isInstanceOf(ProxyBulkRequestBuilder.class);
     assertThat(underTest.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
@@ -70,6 +69,6 @@ public class EsClientTest {
     assertThat(underTest.prepareState()).isInstanceOf(ProxyClusterStateRequestBuilder.class);
     assertThat(underTest.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
 
-    underTest.stop();
+    underTest.close();
   }
 }

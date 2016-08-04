@@ -64,7 +64,6 @@ public class EsTester extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    client.start();
     truncateIndices();
 
     if (!indexDefinitions.isEmpty()) {
@@ -84,7 +83,7 @@ public class EsTester extends ExternalResource {
       container.stopComponents();
     }
     if (client != null) {
-      client.stop();
+      client.close();
     }
   }
 
