@@ -79,7 +79,7 @@ public class ClusterTest {
   }
 
   @Test
-  public void start_cluster_of_elasticsearch_and_web_nodes() {
+  public void start_cluster_of_elasticsearch_and_web_nodes() throws IOException {
     Orchestrator elasticsearch = null;
     Orchestrator web = null;
 
@@ -93,6 +93,7 @@ public class ClusterTest {
         .build();
       elasticsearch.start();
       assertThat(esWatcher.port).isGreaterThan(0);
+      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getLogs())).doesNotContain("Process[web]");
 
       web = Orchestrator.builderEnv()
         .setServerProperty("sonar.cluster.enabled", "true")
@@ -107,6 +108,7 @@ public class ClusterTest {
         .build();
       web.start();
 
+      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getLogs())).doesNotContain("Process[es]");
       // call a web service that requires Elasticsearch
       Issues.SearchWsResponse wsResponse = ItUtils.newWsClient(web).issues().search(new org.sonarqube.ws.client.issue.SearchWsRequest());
       assertThat(wsResponse.getIssuesCount()).isEqualTo(0);
