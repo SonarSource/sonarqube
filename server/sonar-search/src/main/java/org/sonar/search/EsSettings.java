@@ -134,6 +134,7 @@ public class EsSettings implements EsSettingsMBean {
       LOGGER.warn("Elasticsearch HTTP connector is enabled on port {}. MUST NOT BE USED FOR PRODUCTION", httpPort);
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
       builder.put("http.cors.enabled", true);
+      builder.put("http.cors.allow-origin", "*");
       builder.put("http.enabled", true);
       builder.put("http.host", host.getHostAddress());
       builder.put("http.port", httpPort);
@@ -169,7 +170,6 @@ public class EsSettings implements EsSettingsMBean {
     builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
     builder.put("cluster.name", getClusterName());
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    String nodeName = getNodeName();
     builder.put("node.rack_id", nodeName);
     builder.put("node.name", nodeName);
     builder.put("node.data", true);
