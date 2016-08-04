@@ -29,7 +29,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ResourceKeyUpdaterDao;
+import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
@@ -79,7 +79,7 @@ public class DbClient {
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
   private final ResourceDao resourceDao;
-  private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
+  private final ComponentKeyUpdaterDao componentKeyUpdaterDao;
   private final MeasureDao measureDao;
   private final MeasureFilterDao measureFilterDao;
   private final MeasureFilterFavouriteDao measureFilterFavouriteDao;
@@ -134,7 +134,7 @@ public class DbClient {
     snapshotDao = getDao(map, SnapshotDao.class);
     componentDao = getDao(map, ComponentDao.class);
     resourceDao = getDao(map, ResourceDao.class);
-    resourceKeyUpdaterDao = getDao(map, ResourceKeyUpdaterDao.class);
+    componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
     measureFilterDao = getDao(map, MeasureFilterDao.class);
     measureFilterFavouriteDao = getDao(map, MeasureFilterFavouriteDao.class);
@@ -234,8 +234,8 @@ public class DbClient {
     return resourceDao;
   }
 
-  public ResourceKeyUpdaterDao resourceKeyUpdaterDao() {
-    return resourceKeyUpdaterDao;
+  public ComponentKeyUpdaterDao componentKeyUpdaterDao() {
+    return componentKeyUpdaterDao;
   }
 
   public MeasureDao measureDao() {

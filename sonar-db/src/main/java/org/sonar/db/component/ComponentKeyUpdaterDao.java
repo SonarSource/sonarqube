@@ -44,18 +44,18 @@ import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
  *
  * @since 3.2
  */
-public class ResourceKeyUpdaterDao implements Dao {
+public class ComponentKeyUpdaterDao implements Dao {
   private static final Set<String> PROJECT_OR_MODULE_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
 
   private MyBatis mybatis;
 
-  public ResourceKeyUpdaterDao(MyBatis mybatis) {
+  public ComponentKeyUpdaterDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
   public void updateKey(String projectUuid, String newKey) {
     DbSession session = mybatis.openSession(true);
-    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
+    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     try {
       if (mapper.countResourceByKey(newKey) > 0) {
         throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
@@ -78,7 +78,7 @@ public class ResourceKeyUpdaterDao implements Dao {
 
   public Map<String, String> checkModuleKeysBeforeRenaming(String projectUuid, String stringToReplace, String replacementString) {
     SqlSession session = mybatis.openSession(false);
-    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
+    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     Map<String, String> result = Maps.newHashMap();
     try {
       Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
@@ -120,7 +120,7 @@ public class ResourceKeyUpdaterDao implements Dao {
   }
 
   public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
-    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
+    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     // must SELECT first everything
     Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
     checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
@@ -143,7 +143,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     return resource.getKey().replaceAll(stringToReplace, replacementString);
   }
 
-  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ResourceKeyUpdaterMapper mapper) {
+  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper) {
     for (ResourceDto resource : resources) {
       String oldResourceKey = resource.getKey();
       String newResourceKey = newKey + oldResourceKey.substring(oldKey.length(), oldResourceKey.length());
@@ -157,7 +157,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     }
   }
 
-  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
+  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper) {
     ResourceDto project = mapper.selectProject(projectUuid);
     Set<ResourceDto> modules = Sets.newHashSet();
     if (project.getKey().contains(stringToReplace)) {
@@ -169,7 +169,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     return modules;
   }
 
-  private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ResourceKeyUpdaterMapper mapper) {
+  private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ComponentKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
       String newKey = computeNewKey(module, stringToReplace, replacementString);
       checkArgument(isValidModuleKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
@@ -179,7 +179,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     }
   }
 
-  private ResourceKeyUpdaterMapper mapper(DbSession dbSession) {
-    return dbSession.getMapper(ResourceKeyUpdaterMapper.class);
+  private static ComponentKeyUpdaterMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(ComponentKeyUpdaterMapper.class);
   }
 }

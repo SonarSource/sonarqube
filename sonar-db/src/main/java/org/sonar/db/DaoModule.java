@@ -29,7 +29,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ResourceKeyUpdaterDao;
+import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
@@ -109,7 +109,7 @@ public class DaoModule extends Module {
     ActiveRuleDao.class,
     ResourceIndexDao.class,
     ResourceDao.class,
-    ResourceKeyUpdaterDao.class,
+    ComponentKeyUpdaterDao.class,
     RoleDao.class,
     SnapshotDao.class,
     UserDao.class,

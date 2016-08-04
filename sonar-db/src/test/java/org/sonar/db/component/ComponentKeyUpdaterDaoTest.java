@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
-public class ResourceKeyUpdaterDaoTest {
+public class ComponentKeyUpdaterDaoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -44,7 +44,7 @@ public class ResourceKeyUpdaterDaoTest {
   private DbSession dbSession = db.getSession();
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  ResourceKeyUpdaterDao underTest = db.getDbClient().resourceKeyUpdaterDao();
+  ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
 
   @Test
   public void shouldUpdateKey() {

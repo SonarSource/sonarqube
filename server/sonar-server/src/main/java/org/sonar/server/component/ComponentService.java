@@ -123,7 +123,7 @@ public class ComponentService {
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
 
-    dbClient.resourceKeyUpdaterDao().updateKey(component.uuid(), newKey);
+    dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
@@ -131,7 +131,7 @@ public class ComponentService {
     try {
       ComponentDto project = getByKey(projectKey);
       userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-      return dbClient.resourceKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.uuid(), stringToReplace, replacementString);
+      return dbClient.componentKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.uuid(), stringToReplace, replacementString);
     } finally {
       session.close();
     }
@@ -141,7 +141,7 @@ public class ComponentService {
     ComponentDto project = getByKey(dbSession, projectKey);
     userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
     checkIsProjectOrModule(project);
-    dbClient.resourceKeyUpdaterDao().bulkUpdateKey(dbSession, project.uuid(), stringToReplace, replacementString);
+    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, project.uuid(), stringToReplace, replacementString);
   }
 
   public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {

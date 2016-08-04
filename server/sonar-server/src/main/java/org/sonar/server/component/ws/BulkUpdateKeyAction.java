@@ -55,7 +55,7 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
 
   public BulkUpdateKeyAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
-    this.componentKeyUpdater = dbClient.resourceKeyUpdaterDao();
+    this.componentKeyUpdater = dbClient.componentKeyUpdaterDao();
     this.componentFinder = componentFinder;
     this.userSession = userSession;
   }

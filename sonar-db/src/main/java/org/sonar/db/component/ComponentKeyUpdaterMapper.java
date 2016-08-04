@@ -25,7 +25,7 @@ import org.apache.ibatis.annotations.Param;
 /**
  * @since 3.2
  */
-public interface ResourceKeyUpdaterMapper {
+public interface ComponentKeyUpdaterMapper {
 
   int countResourceByKey(String key);
 
