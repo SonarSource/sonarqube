@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -41,9 +40,6 @@ public class CeQueueCleanerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private InternalCeQueue queue = mock(InternalCeQueue.class);

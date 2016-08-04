@@ -88,8 +88,6 @@ public class CeTaskDataDaoTest {
 
   @Test
   public void selectUuidsNotInQueue() {
-    assertThat(underTest.selectUuidsNotInQueue(dbTester.getSession())).isEmpty();
-
     insertData("U1");
     insertData("U2");
     assertThat(underTest.selectUuidsNotInQueue(dbTester.getSession())).containsOnly("U1", "U2");
@@ -110,7 +108,6 @@ public class CeTaskDataDaoTest {
   }
 
   private void insertData(String uuid) {
-
     dbTester.executeInsert(TABLE_NAME, "TASK_UUID", uuid, "CREATED_AT", NOW, "UPDATED_AT", NOW);
     dbTester.commit();
   }
