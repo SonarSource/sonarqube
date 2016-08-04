@@ -19,24 +19,20 @@
  */
 package org.sonar.server.computation.queue;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskDataDao;
 import org.sonar.db.ce.CeTaskTypes;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,10 +45,9 @@ public class CeQueueCleanerTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
-  ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-  ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
-  InternalCeQueue queue = mock(InternalCeQueue.class);
-  CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, reportFiles, queue);
+  private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  private InternalCeQueue queue = mock(InternalCeQueue.class);
+  private CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, queue);
 
   @Test
   public void reset_in_progress_tasks_to_pending() throws IOException {
@@ -75,43 +70,36 @@ public class CeQueueCleanerTest {
   }
 
   @Test
-  public void cancel_task_if_report_file_is_missing() throws IOException {
-    CeQueueDto task = insertInQueue("TASK_1", CeQueueDto.Status.PENDING, false);
-
-    underTest.clean(dbTester.getSession());
-
-    verify(queue).cancel(any(DbSession.class), eq(task));
-  }
-
-  @Test
   public void delete_orphan_report_files() throws Exception {
-    // two files on disk but on task in queue
-    insertInQueue("TASK_1", CeQueueDto.Status.PENDING, true);
-    when(reportFiles.listUuids()).thenReturn(asList("TASK_1", "TASK_2"));
+    // analysis reports are persisted but the associated
+    // task is not in the queue
+    insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
+    insertTaskData("TASK_1");
+    insertTaskData("TASK_2");
 
     underTest.clean(dbTester.getSession());
 
-    verify(reportFiles).deleteIfExists("TASK_2");
+    CeTaskDataDao dataDao = dbTester.getDbClient().ceTaskDataDao();
+    Optional<CeTaskDataDao.DataStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
+    assertThat(task1Data).isPresent();
+    task1Data.get().close();
+
+    assertThat(dataDao.selectData(dbTester.getSession(), "TASK_2")).isNotPresent();
   }
 
-  private void insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {
-    insertInQueue(taskUuid, status, true);
-  }
-
-  private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status, boolean createFile) throws IOException {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid("PROJECT_1");
-    queueDto.setUuid(taskUuid);
-    queueDto.setStatus(status);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+  private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {
+    CeQueueDto dto = new CeQueueDto();
+    dto.setTaskType(CeTaskTypes.REPORT);
+    dto.setComponentUuid("PROJECT_1");
+    dto.setUuid(taskUuid);
+    dto.setStatus(status);
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();
+    return dto;
+  }
 
-    File file = tempFolder.newFile();
-    when(reportFiles.fileForUuid(taskUuid)).thenReturn(file);
-    if (!createFile) {
-      file.delete();
-    }
-    return queueDto;
+  private void insertTaskData(String taskUuid) throws IOException {
+    dbTester.getDbClient().ceTaskDataDao().insert(dbTester.getSession(), taskUuid, IOUtils.toInputStream("{binary}"));
+    dbTester.getSession().commit();
   }
 }

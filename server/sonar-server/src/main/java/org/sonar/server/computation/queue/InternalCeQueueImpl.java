@@ -26,7 +26,6 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.queue.CeQueueImpl;
-import org.sonar.ce.queue.CeQueueListener;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.core.util.UuidFactory;
@@ -48,8 +47,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   private AtomicBoolean peekPaused = new AtomicBoolean(false);
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory,
-    CEQueueStatus queueStatus, CeQueueListener[] listeners) {
-    super(dbClient, uuidFactory, listeners);
+    CEQueueStatus queueStatus) {
+    super(dbClient, uuidFactory);
     this.system2 = system2;
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
@@ -92,7 +91,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       activityDto.setStatus(status);
       updateQueueStatus(status, activityDto);
       updateTaskResult(activityDto, taskResult);
-      remove(dbSession, task, queueDto.get(), activityDto);
+      remove(dbSession, queueDto.get(), activityDto);
 
     } finally {
       dbClient.closeSession(dbSession);

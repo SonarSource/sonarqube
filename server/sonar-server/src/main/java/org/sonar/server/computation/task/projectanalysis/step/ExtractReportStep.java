@@ -21,13 +21,16 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.io.FileUtils;
+import java.util.Optional;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.report.ReportFiles;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskDataDao;
 import org.sonar.server.computation.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -38,14 +41,14 @@ import org.sonar.server.computation.task.step.ComputationStep;
 public class ExtractReportStep implements ComputationStep {
   private static final Logger LOG = Loggers.get(ExtractReportStep.class);
 
-  private final ReportFiles reportFiles;
+  private final DbClient dbClient;
   private final CeTask task;
   private final TempFolder tempFolder;
   private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
 
-  public ExtractReportStep(ReportFiles reportFiles, CeTask task, TempFolder tempFolder,
+  public ExtractReportStep(DbClient dbClient, CeTask task, TempFolder tempFolder,
     MutableBatchReportDirectoryHolder reportDirectoryHolder) {
-    this.reportFiles = reportFiles;
+    this.dbClient = dbClient;
     this.task = task;
     this.tempFolder = tempFolder;
     this.reportDirectoryHolder = reportDirectoryHolder;
@@ -53,14 +56,20 @@ public class ExtractReportStep implements ComputationStep {
 
   @Override
   public void execute() {
-    File dir = tempFolder.newDir();
-    File zip = reportFiles.fileForUuid(task.getUuid());
-    try {
-      ZipUtils.unzip(zip, dir);
-      reportDirectoryHolder.setDirectory(dir);
-      LOG.info("Analysis report extracted | compressedSize={}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(zip)));
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to unzip %s into %s", zip, dir), e);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<CeTaskDataDao.DataStream> opt = dbClient.ceTaskDataDao().selectData(dbSession, task.getUuid());
+      if (opt.isPresent()) {
+        File unzippedDir = tempFolder.newDir();
+        try (CeTaskDataDao.DataStream reportStream = opt.get()) {
+          ZipUtils.unzip(reportStream.getInputStream(), unzippedDir);
+        } catch (IOException e) {
+          throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
+        }
+        reportDirectoryHolder.setDirectory(unzippedDir);
+        LOG.info("Analysis report extracted");
+      } else {
+        throw MessageException.of("Analysis report " + task.getUuid() + " is missing in database");
+      }
     }
   }
 

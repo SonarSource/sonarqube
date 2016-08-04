@@ -21,29 +21,29 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.report.ReportFiles;
+import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtractReportStepTest {
 
-  public static final String TASK_UUID = "1";
+  private static final String TASK_UUID = "1";
+
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
@@ -53,52 +53,46 @@ public class ExtractReportStepTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  MutableBatchReportDirectoryHolder reportDirectoryHolder = mock(MutableBatchReportDirectoryHolder.class);
-  ReportFiles reportFiles = mock(ReportFiles.class);
-  CeTask ceTask = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid(TASK_UUID).build();
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ExtractReportStep underTest = new ExtractReportStep(reportFiles, ceTask, tempFolder, reportDirectoryHolder);
+  private MutableBatchReportDirectoryHolder reportDirectoryHolder = new BatchReportDirectoryHolderImpl();
+  private CeTask ceTask = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid(TASK_UUID).build();
+
+  private ExtractReportStep underTest = new ExtractReportStep(dbTester.getDbClient(), ceTask, tempFolder, reportDirectoryHolder);
 
   @Test
   public void fail_if_report_zip_does_not_exist() throws Exception {
-    File zip = tempFolder.newFile();
-    FileUtils.forceDelete(zip);
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to unzip " + zip.getPath());
-
-    when(reportFiles.fileForUuid(TASK_UUID)).thenReturn(zip);
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Analysis report 1 is missing in database");
 
     underTest.execute();
   }
 
   @Test
   public void unzip_report() throws Exception {
-    File zipDir = tempFolder.newDir();
-    final File metadataFile = new File(zipDir, "metadata.pb");
-    FileUtils.write(metadataFile, "{report}");
-    File zip = tempFolder.newFile();
-    ZipUtils.zipDir(zipDir, zip);
-    when(reportFiles.fileForUuid(TASK_UUID)).thenReturn(zip);
+    File reportFile = generateReport();
+    try (InputStream input = FileUtils.openInputStream(reportFile)) {
+      dbTester.getDbClient().ceTaskDataDao().insert(dbTester.getSession(), TASK_UUID, input);
+    }
+    dbTester.getSession().commit();
+    dbTester.getSession().close();
 
     underTest.execute();
 
-    verify(reportDirectoryHolder).setDirectory(argThat(new TypeSafeMatcher<File>() {
-      @Override
-      protected boolean matchesSafely(File dir) {
-        try {
-          return dir.isDirectory() && dir.exists() &&
-            // directory contains the uncompressed report (which contains only metadata.pb in this test)
-            dir.listFiles().length == 1 &&
-            FileUtils.contentEquals(dir.listFiles()[0], metadataFile);
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
-      }
+    // directory contains the uncompressed report (which contains only metadata.pb in this test)
+    File unzippedDir = reportDirectoryHolder.getDirectory();
+    assertThat(unzippedDir).isDirectory().exists();
+    assertThat(unzippedDir.listFiles()).hasSize(1);
+    assertThat(new File(unzippedDir, "metadata.pb")).hasContent("{metadata}");
+  }
 
-      @Override
-      public void describeTo(Description description) {
-
-      }
-    }));
+  private File generateReport() throws IOException {
+    File zipDir = tempFolder.newDir();
+    File metadataFile = new File(zipDir, "metadata.pb");
+    FileUtils.write(metadataFile, "{metadata}");
+    File zip = tempFolder.newFile();
+    ZipUtils.zipDir(zipDir, zip);
+    return zip;
   }
 }

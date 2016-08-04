@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
+import org.sonar.db.ce.CeTaskDataDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
@@ -97,8 +98,9 @@ public class DbClient {
   private final IssueFilterDao issueFilterDao;
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueChangeDao issueChangeDao;
-  private final CeQueueDao ceQueueDao;
   private final CeActivityDao ceActivityDao;
+  private final CeQueueDao ceQueueDao;
+  private final CeTaskDataDao ceTaskDataDao;
   private final DashboardDao dashboardDao;
   private final ActiveDashboardDao activeDashboardDao;
   private final WidgetDao widgetDao;
@@ -152,8 +154,9 @@ public class DbClient {
     issueFilterDao = getDao(map, IssueFilterDao.class);
     issueFilterFavouriteDao = getDao(map, IssueFilterFavouriteDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
-    ceQueueDao = getDao(map, CeQueueDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
+    ceQueueDao = getDao(map, CeQueueDao.class);
+    ceTaskDataDao = getDao(map, CeTaskDataDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
     activeDashboardDao = getDao(map, ActiveDashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
@@ -290,12 +293,16 @@ public class DbClient {
     return permissionTemplateCharacteristicDao;
   }
 
+  public CeActivityDao ceActivityDao() {
+    return ceActivityDao;
+  }
+
   public CeQueueDao ceQueueDao() {
     return ceQueueDao;
   }
 
-  public CeActivityDao ceActivityDao() {
-    return ceActivityDao;
+  public CeTaskDataDao ceTaskDataDao() {
+    return ceTaskDataDao;
   }
 
   public DashboardDao dashboardDao() {

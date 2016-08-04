@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Collections.singletonList;
 import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 
 @ComputeEngineSide
@@ -48,22 +49,13 @@ public class CeQueueImpl implements CeQueue {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
-  private final CeQueueListener[] listeners;
 
   // state
   private AtomicBoolean submitPaused = new AtomicBoolean(false);
 
-  /**
-   * Constructor in case there is no CeQueueListener
-   */
   public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory) {
-    this(dbClient, uuidFactory, new CeQueueListener[] {});
-  }
-
-  public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory, CeQueueListener[] listeners) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
-    this.listeners = listeners;
   }
 
   @Override
@@ -126,7 +118,7 @@ public class CeQueueImpl implements CeQueue {
       .toSet();
     Map<String, ComponentDto> componentDtoByUuid = from(dbClient.componentDao()
       .selectByUuids(dbSession, componentUuids))
-      .uniqueIndex(toUuid());
+        .uniqueIndex(toUuid());
 
     return from(dtos)
       .transform(new CeQueueDtoToCeTask(componentDtoByUuid))
@@ -150,10 +142,9 @@ public class CeQueueImpl implements CeQueue {
   }
 
   protected void cancelImpl(DbSession dbSession, CeQueueDto q) {
-    CeTask task = loadTask(dbSession, q);
     CeActivityDto activityDto = new CeActivityDto(q);
     activityDto.setStatus(CeActivityDto.Status.CANCELED);
-    remove(dbSession, task, q, activityDto);
+    remove(dbSession, q, activityDto);
   }
 
   @Override
@@ -177,13 +168,11 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  protected void remove(DbSession dbSession, CeTask task, CeQueueDto queueDto, CeActivityDto activityDto) {
+  protected void remove(DbSession dbSession, CeQueueDto queueDto, CeActivityDto activityDto) {
     dbClient.ceActivityDao().insert(dbSession, activityDto);
     dbClient.ceQueueDao().deleteByUuid(dbSession, queueDto.getUuid());
+    dbClient.ceTaskDataDao().deleteByUuids(dbSession, singletonList(queueDto.getUuid()));
     dbSession.commit();
-    for (CeQueueListener listener : listeners) {
-      listener.onRemoved(task, activityDto.getStatus());
-    }
   }
 
   @Override

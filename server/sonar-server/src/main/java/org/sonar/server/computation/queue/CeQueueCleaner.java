@@ -19,17 +19,13 @@
  */
 package org.sonar.server.computation.queue;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.sonar.api.platform.ServerUpgradeStatus;
+import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskTypes;
 
 /**
  * Cleans-up the Compute Engine queue and resets the JMX counters.
@@ -42,13 +38,11 @@ public class CeQueueCleaner {
 
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
-  private final ReportFiles reportFiles;
   private final InternalCeQueue queue;
 
-  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, ReportFiles reportFiles, InternalCeQueue queue) {
+  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, InternalCeQueue queue) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
-    this.reportFiles = reportFiles;
     this.queue = queue;
   }
 
@@ -72,21 +66,11 @@ public class CeQueueCleaner {
     dbClient.ceQueueDao().resetAllToPendingStatus(dbSession);
     dbSession.commit();
 
-    // verify that the report files are available for the tasks in queue
-    Set<String> uuidsInQueue = new HashSet<>();
-    for (CeQueueDto queueDto : dbClient.ceQueueDao().selectAllInAscOrder(dbSession)) {
-      uuidsInQueue.add(queueDto.getUuid());
-      if (CeTaskTypes.REPORT.equals(queueDto.getTaskType()) && !reportFiles.fileForUuid(queueDto.getUuid()).exists()) {
-        // the report is not available on file system
-        queue.cancel(dbSession, queueDto);
-      }
-    }
-
-    // clean-up filesystem
-    for (String uuid : reportFiles.listUuids()) {
-      if (!uuidsInQueue.contains(uuid)) {
-        reportFiles.deleteIfExists(uuid);
-      }
-    }
+    // Reports that have been processed are not kept in database yet.
+    // They are supposed to be systematically dropped.
+    // Let's clean-up orphans if any.
+    List<String> uuids = dbClient.ceTaskDataDao().selectUuidsNotInQueue(dbSession);
+    dbClient.ceTaskDataDao().deleteByUuids(dbSession, uuids);
+    dbSession.commit();
   }
 }

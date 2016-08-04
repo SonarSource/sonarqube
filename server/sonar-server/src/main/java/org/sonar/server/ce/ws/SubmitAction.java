@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.report.ReportSubmitter;
+import org.sonar.server.computation.queue.ReportSubmitter;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 

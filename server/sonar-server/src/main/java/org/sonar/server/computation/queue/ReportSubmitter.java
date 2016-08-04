@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue.report;
+package org.sonar.server.computation.queue;
 
 import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ServerSide;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
@@ -41,21 +41,19 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
-@ComputeEngineSide
+@ServerSide
 public class ReportSubmitter {
 
   private final CeQueue queue;
   private final UserSession userSession;
-  private final ReportFiles reportFiles;
   private final ComponentService componentService;
   private final PermissionService permissionService;
   private final DbClient dbClient;
 
-  public ReportSubmitter(CeQueue queue, UserSession userSession, ReportFiles reportFiles,
+  public ReportSubmitter(CeQueue queue, UserSession userSession,
     ComponentService componentService, PermissionService permissionService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
-    this.reportFiles = reportFiles;
     this.componentService = componentService;
     this.permissionService = permissionService;
     this.dbClient = dbClient;
@@ -98,7 +96,10 @@ public class ReportSubmitter {
   private CeTask submitReport(InputStream reportInput, ComponentDto project) {
     // the report file must be saved before submitting the task
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
-    reportFiles.save(submit.getUuid(), reportInput);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.ceTaskDataDao().insert(dbSession, submit.getUuid(), reportInput);
+      dbSession.commit();
+    }
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());

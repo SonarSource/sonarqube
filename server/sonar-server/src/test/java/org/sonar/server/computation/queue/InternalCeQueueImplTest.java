@@ -28,7 +28,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.ce.queue.CeQueueListener;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.ce.queue.CeTaskSubmit;
@@ -46,12 +45,7 @@ import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class InternalCeQueueImplTest {
@@ -69,8 +63,7 @@ public class InternalCeQueueImplTest {
 
   UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   CEQueueStatus queueStatus = new CEQueueStatusImpl(dbTester.getDbClient());
-  CeQueueListener listener = mock(CeQueueListener.class);
-  InternalCeQueue underTest = new InternalCeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, new CeQueueListener[] {listener});
+  InternalCeQueue underTest = new InternalCeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -153,8 +146,6 @@ public class InternalCeQueueImplTest {
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(history.get().getIsLast()).isTrue();
     assertThat(history.get().getAnalysisUuid()).isNull();
-
-    verify(listener).onRemoved(task, CeActivityDto.Status.SUCCESS);
   }
 
   @Test
@@ -205,8 +196,6 @@ public class InternalCeQueueImplTest {
     // no more pending tasks
     peek = underTest.peek();
     assertThat(peek.isPresent()).isFalse();
-
-    verify(listener, never()).onRemoved(eq(task), any(CeActivityDto.Status.class));
   }
 
   @Test
@@ -225,14 +214,12 @@ public class InternalCeQueueImplTest {
     // ignore
     boolean canceled = underTest.cancel("UNKNOWN");
     assertThat(canceled).isFalse();
-    verifyZeroInteractions(listener);
 
     canceled = underTest.cancel(task.getUuid());
     assertThat(canceled).isTrue();
     Optional<CeActivityDto> activity = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
     assertThat(activity.isPresent()).isTrue();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    verify(listener).onRemoved(task, CeActivityDto.Status.CANCELED);
   }
 
   @Test
@@ -262,9 +249,6 @@ public class InternalCeQueueImplTest {
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), inProgressTask.getUuid());
     assertThat(history.isPresent()).isFalse();
-
-    verify(listener).onRemoved(pendingTask1, CeActivityDto.Status.CANCELED);
-    verify(listener).onRemoved(pendingTask2, CeActivityDto.Status.CANCELED);
   }
 
   @Test

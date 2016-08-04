@@ -40,9 +40,6 @@ import org.sonar.db.component.ComponentTesting;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class CeQueueImplTest {
 
@@ -56,8 +53,7 @@ public class CeQueueImplTest {
   DbSession session = dbTester.getSession();
 
   UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  CeQueueListener listener = mock(CeQueueListener.class);
-  CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory, new CeQueueListener[] {listener});
+  CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -131,14 +127,12 @@ public class CeQueueImplTest {
     // ignore
     boolean canceled = underTest.cancel("UNKNOWN");
     assertThat(canceled).isFalse();
-    verifyZeroInteractions(listener);
 
     canceled = underTest.cancel(task.getUuid());
     assertThat(canceled).isTrue();
     Optional<CeActivityDto> activity = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
     assertThat(activity.isPresent()).isTrue();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    verify(listener).onRemoved(task, CeActivityDto.Status.CANCELED);
   }
 
   @Test
@@ -170,9 +164,6 @@ public class CeQueueImplTest {
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), inProgressTask.getUuid());
     assertThat(history.isPresent()).isFalse();
-
-    verify(listener).onRemoved(pendingTask1, CeActivityDto.Status.CANCELED);
-    verify(listener).onRemoved(pendingTask2, CeActivityDto.Status.CANCELED);
   }
 
   @Test
