@@ -7,12 +7,6 @@
   "isFavorite": true,
   "version": "5.2-SNAPSHOT",
   "snapshotDate": "2015-04-16T14:40:32+02:00",
-  "dashboards": [
-    {
-      "key": 1,
-      "name": "Main Dashboard"
-    }
-  ],
   "extensions": [
     {
       "name": "My Resource Plugin",
