@@ -17,16 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.es.EsClientProvider;
-import org.sonar.server.es.EsClientStopper;
+import org.sonar.api.Startable;
 
-public class EsSearchModule extends Module {
+/**
+ * Workaround of a behaviour of picocontainer: components
+ * instantiated by {@link org.picocontainer.injectors.ProviderAdapter}
+ * can't have a lifecycle. The methods start() and stop()
+ * of {@link Startable} are not executed.
+ * The same behaviour exists for the {@link org.picocontainer.injectors.ProviderAdapter}
+ * itself.
+ *
+ * As {@link EsClientStopper} implements {@link Startable}, it can
+ * close {@link EsClient} when process shutdowns.
+ *
+ */
+public class EsClientStopper implements Startable {
+
+  private final EsClient esClient;
+
+  public EsClientStopper(EsClient esClient) {
+    this.esClient = esClient;
+  }
+
   @Override
-  protected void configureModule() {
-    add(new EsClientProvider());
-    add(EsClientStopper.class);
+  public void start() {
+    // nothing to do
+  }
+
+  @Override
+  public void stop() {
+    esClient.close();
   }
 }
