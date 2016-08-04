@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,7 +37,6 @@ import org.sonar.server.computation.task.step.ComputationStep;
  * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
  */
 public class ExtractReportStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(ExtractReportStep.class);
 
   private final DbClient dbClient;
   private final CeTask task;
@@ -66,7 +63,6 @@ public class ExtractReportStep implements ComputationStep {
           throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
         }
         reportDirectoryHolder.setDirectory(unzippedDir);
-        LOG.info("Analysis report extracted");
       } else {
         throw MessageException.of("Analysis report " + task.getUuid() + " is missing in database");
       }
