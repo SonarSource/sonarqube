@@ -19,12 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -37,17 +31,22 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.platform.Platform;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 public class UserSessionFilterTest {
 
-  UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
-  Platform platform = mock(Platform.class);
-  ComponentContainer componentContainer = mock(ComponentContainer.class);
+  private UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
+  private Platform platform = mock(Platform.class);
+  private ComponentContainer componentContainer = mock(ComponentContainer.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
-
-  UserSessionFilter underTest = new UserSessionFilter(platform);
+  private UserSessionFilter underTest = new UserSessionFilter(platform);
 
   @Before
   public void setUp() {
