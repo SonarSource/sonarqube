@@ -20,13 +20,13 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
 import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
@@ -39,40 +39,30 @@ import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AppActionTest {
 
-  @Mock
-  private QualityGates qGates;
+  private QualityGates qGates = mock(QualityGates.class);
+  private Periods periods = mock(Periods.class);
+  private I18n i18n = mock(I18n.class);
 
-  @Mock
-  private Periods periods;
-
-  @Mock
-  private I18n i18n;
-
-  WsTester tester;
+  WsTester ws;
 
   @Before
   public void setUp() {
     SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
 
-    tester = new WsTester(new QualityGatesWs(
+    ws = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(mock(QgateProjectFinder.class)),
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      selectAction, new DeselectAction(qGates), new AppAction(qGates)));
+      selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(qGates)));
   }
 
   @Test
@@ -94,7 +84,7 @@ public class AppActionTest {
     when(metric.isHidden()).thenReturn(false);
     when(qGates.gateMetrics()).thenReturn(ImmutableList.of(metric));
 
-    String json = tester.newGetRequest("api/qualitygates", "app").execute().outputAsString();
+    String json = ws.newGetRequest("api/qualitygates", "app").execute().outputAsString();
 
     Map responseJson = (Map) JSONValue.parse(json);
     assertThat((Boolean) responseJson.get("edit")).isFalse();

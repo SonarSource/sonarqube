@@ -73,7 +73,7 @@ public class QualityGatesWsTest {
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      selectAction, new DeselectAction(qGates), new AppAction(qGates)));
+      selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(qGates)));
   }
 
   @Test
@@ -428,17 +428,5 @@ public class QualityGatesWsTest {
     verify(projectFinder).find(queryCaptor.capture());
     ProjectQgateAssociationQuery query = queryCaptor.getValue();
     assertThat(query.membership()).isEqualTo(ProjectQgateAssociationQuery.IN);
-  }
-
-  @Test
-  public void deselect_nominal() throws Exception {
-    long gateId = 42L;
-    long projectId = 666L;
-    tester.newPostRequest("api/qualitygates", "deselect")
-      .setParam("gateId", Long.toString(gateId))
-      .setParam("projectId", Long.toString(projectId))
-      .execute()
-      .assertNoContent();
-    verify(qGates).dissociateProject(gateId, projectId);
   }
 }

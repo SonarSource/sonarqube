@@ -75,8 +75,7 @@ public class SelectAction implements QualityGatesWsAction {
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id. Project id as an numeric value is deprecated since 6.1")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01)
-      .setDeprecatedSince("6.1");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")

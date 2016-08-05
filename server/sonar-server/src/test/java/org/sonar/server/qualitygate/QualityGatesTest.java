@@ -41,10 +41,10 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
@@ -70,6 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
@@ -94,9 +95,10 @@ public class QualityGatesTest {
   QualityGates underTest;
 
   static final String PROJECT_KEY = "SonarQube";
+  static final String PROJECT_UUID = Uuids.UUID_EXAMPLE_01;
 
   UserSession authorizedProfileAdminUserSession = new MockUserSession("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-  UserSession authorizedProjectAdminUserSession = new MockUserSession("gaudol").setName("Olivier").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
+  UserSession authorizedProjectAdminUserSession = new MockUserSession("gaudol").setName("Olivier").addProjectUuidPermissions(UserRole.ADMIN, PROJECT_UUID);
   UserSession unauthorizedUserSession = new MockUserSession("polop").setName("Polop");
   UserSession unauthenticatedUserSession = new AnonymousMockUserSession();
 
@@ -110,9 +112,10 @@ public class QualityGatesTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.componentDao()).thenReturn(componentDao);
 
-    when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
+    when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(newProjectDto(PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
 
     underTest = new QualityGates(dbClient, metricFinder, userSessionRule, settings);
+
     userSessionRule.set(authorizedProfileAdminUserSession);
   }
 
