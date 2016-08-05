@@ -38,7 +38,7 @@ public class CeTaskDataDaoTest {
   private static final String A_UUID = "U1";
   private static final String SOME_DATA = "this_is_a_report";
   private static final long NOW = 1_500_000_000_000L;
-  private static final String TABLE_NAME = "CE_TASK_DATA";
+  private static final String TABLE_NAME = "ce_task_data";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -108,7 +108,7 @@ public class CeTaskDataDaoTest {
   }
 
   private void insertData(String uuid) {
-    dbTester.executeInsert(TABLE_NAME, "TASK_UUID", uuid, "CREATED_AT", NOW, "UPDATED_AT", NOW);
+    dbTester.executeInsert(TABLE_NAME, "task_uuid", uuid, "created_at", NOW, "updated_at", NOW);
     dbTester.commit();
   }
 }
