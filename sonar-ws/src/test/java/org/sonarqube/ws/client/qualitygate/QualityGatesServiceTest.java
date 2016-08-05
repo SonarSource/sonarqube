@@ -33,7 +33,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
 
 public class QualityGatesServiceTest {
-  private static final Long PROJECT_ID_VALUE = 195L;
+  private static final String PROJECT_ID_VALUE = "195";
   private static final String PROJECT_KEY_VALUE = "project_key_value";
   private static final Long GATE_ID_VALUE = 243L;
 

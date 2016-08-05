@@ -19,12 +19,14 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.google.common.base.Optional;
 import org.elasticsearch.common.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -58,8 +60,10 @@ public class SelectAction implements QualityGatesWsAction {
     WebService.NewAction action = controller.createAction("select")
       .setDescription("Associate a project to a quality gate.<br>" +
         "The '%s' or '%s' must be provided.<br>" +
+        "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
         "Require Administer Quality Gates permission.",
-        PARAM_PROJECT_ID, PARAM_PROJECT_KEY)
+        PARAM_PROJECT_ID, PARAM_PROJECT_KEY,
+        Uuids.UUID_EXAMPLE_02)
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);
@@ -70,8 +74,8 @@ public class SelectAction implements QualityGatesWsAction {
       .setExampleValue("1");
 
     action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project id")
-      .setExampleValue("12")
+      .setDescription("Project id. Project id as an numeric value is deprecated since 6.1")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setDeprecatedSince("6.1");
 
     action.createParam(PARAM_PROJECT_KEY)
@@ -106,12 +110,13 @@ public class SelectAction implements QualityGatesWsAction {
   private static SelectWsRequest toSelectWsRequest(Request request) {
     return new SelectWsRequest()
       .setGateId(request.mandatoryParamAsLong(PARAM_GATE_ID))
-      .setProjectId(request.paramAsLong(PARAM_PROJECT_ID))
+      .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY));
   }
 
-  private ComponentDto getProject(DbSession dbSession, @Nullable Long projectId, @Nullable String projectKey) {
-    ComponentDto project = componentFinder.getByIdOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY);
+  private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {
+    ComponentDto project = selectProjectById(dbSession, projectId)
+      .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
 
     if (!userSession.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN) &&
       !userSession.hasComponentUuidPermission(UserRole.ADMIN, project.uuid())) {
@@ -119,6 +124,19 @@ public class SelectAction implements QualityGatesWsAction {
     }
 
     return project;
+  }
+
+  private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
+    if (projectId == null) {
+      return Optional.absent();
+    }
+
+    try {
+      long dbId = Long.parseLong(projectId);
+      return dbClient.componentDao().selectById(dbSession, dbId);
+    } catch (NumberFormatException e) {
+      return Optional.absent();
+    }
   }
 
   private static void checkQualityGate(DbClient dbClient, long id) {

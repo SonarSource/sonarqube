@@ -78,6 +78,18 @@ public class SelectActionTest {
     String gateId = String.valueOf(gate.getId());
 
     callById(gateId, project.getId());
+
+    assertSelected(gateId, project.getId());
+  }
+
+  @Test
+  public void select_by_uuid() throws Exception {
+    ComponentDto project = insertProject();
+    QualityGateDto gate = insertQualityGate();
+    String gateId = String.valueOf(gate.getId());
+
+    callByUuid(gateId, project.uuid());
+
     assertSelected(gateId, project.getId());
   }
 
@@ -112,7 +124,8 @@ public class SelectActionTest {
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
 
     callByKey(gateId, project.getKey());
-    assertSelected(gateId, project.getId());;
+    assertSelected(gateId, project.getId());
+    ;
   }
 
   @Test
@@ -190,7 +203,6 @@ public class SelectActionTest {
 
   private void callByKey(String gateId, String projectKey) {
     ws.newRequest()
-      .setMethod("POST")
       .setParam("gateId", String.valueOf(gateId))
       .setParam("projectKey", projectKey)
       .execute();
@@ -198,9 +210,15 @@ public class SelectActionTest {
 
   private void callById(String gateId, Long projectId) {
     ws.newRequest()
-      .setMethod("POST")
       .setParam("gateId", String.valueOf(gateId))
       .setParam("projectId", String.valueOf(projectId))
+      .execute();
+  }
+
+  private void callByUuid(String gateId, String projectUuid) {
+    ws.newRequest()
+      .setParam("gateId", String.valueOf(gateId))
+      .setParam("projectId", projectUuid)
       .execute();
   }
 

@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 
 public class SelectWsRequest {
   private long gateId;
-  private Long projectId;
+  private String projectId;
   private String projectKey;
 
   public long getGateId() {
@@ -36,11 +36,11 @@ public class SelectWsRequest {
   }
 
   @CheckForNull
-  public Long getProjectId() {
+  public String getProjectId() {
     return projectId;
   }
 
-  public SelectWsRequest setProjectId(Long projectId) {
+  public SelectWsRequest setProjectId(String projectId) {
     this.projectId = projectId;
     return this;
   }
