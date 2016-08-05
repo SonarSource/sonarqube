@@ -28,9 +28,9 @@ import javax.annotation.Nullable;
  */
 class LogbackLogger extends BaseLogger {
 
-  private final ch.qos.logback.classic.Logger logback;
+  private final Logger logback;
 
-  LogbackLogger(ch.qos.logback.classic.Logger logback) {
+  LogbackLogger(Logger logback) {
     this.logback = logback;
   }
 
