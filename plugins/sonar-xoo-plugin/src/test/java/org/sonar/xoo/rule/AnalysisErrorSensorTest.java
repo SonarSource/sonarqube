@@ -24,9 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +34,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnalysisErrorSensorTest {
   @Rule
@@ -64,7 +65,7 @@ public class AnalysisErrorSensorTest {
     Path baseDir = temp.newFolder().toPath().toAbsolutePath();
     createErrorFile(baseDir);
 
-    int[] offsets = {10, 20, 30, 40};
+    List<Integer> offsets = Arrays.asList(10, 20, 30, 40);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo")
       .setLanguage("xoo")
       .setOriginalLineOffsets(offsets)

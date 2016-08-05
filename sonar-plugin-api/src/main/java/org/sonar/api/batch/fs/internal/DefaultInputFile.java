@@ -24,7 +24,8 @@ import java.io.File;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
@@ -49,7 +50,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private int lastValidOffset = -1;
   private String hash;
   private int nonBlankLines;
-  private int[] originalLineOffsets;
+  private List<Integer> originalLineOffsets;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -179,9 +180,9 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return nonBlankLines;
   }
 
-  public int[] originalLineOffsets() {
+  public List<Integer> originalLineOffsets() {
     Preconditions.checkState(originalLineOffsets != null, "InputFile is not properly initialized. Please set 'originalLineOffsets' property.");
-    Preconditions.checkState(originalLineOffsets.length == lines, "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
+    Preconditions.checkState(originalLineOffsets.size() == lines, "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
     return originalLineOffsets;
   }
 
@@ -195,7 +196,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return this;
   }
 
-  public DefaultInputFile setOriginalLineOffsets(int[] originalLineOffsets) {
+  public DefaultInputFile setOriginalLineOffsets(List<Integer> originalLineOffsets) {
     this.originalLineOffsets = originalLineOffsets;
     return this;
   }
@@ -217,11 +218,11 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private int lineLength(int line) {
-    return lastValidGlobalOffsetForLine(line) - originalLineOffsets()[line - 1];
+    return lastValidGlobalOffsetForLine(line) - originalLineOffsets().get(line - 1);
   }
 
   private int lastValidGlobalOffsetForLine(int line) {
-    return line < this.lines ? (originalLineOffsets()[line] - 1) : lastValidOffset();
+    return line < this.lines ? (originalLineOffsets().get(line) - 1) : lastValidOffset();
   }
 
   @Override
@@ -267,12 +268,12 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
     Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
     int line = findLine(globalOffset);
-    int startLineOffset = originalLineOffsets()[line - 1];
+    int startLineOffset = originalLineOffsets().get(line - 1);
     return new DefaultTextPointer(line, globalOffset - startLineOffset);
   }
 
   private int findLine(int globalOffset) {
-    return Math.abs(Arrays.binarySearch(originalLineOffsets(), globalOffset) + 1);
+    return Math.abs(Collections.binarySearch(originalLineOffsets(), globalOffset) + 1);
   }
 
   public DefaultInputFile initMetadata(Metadata metadata) {

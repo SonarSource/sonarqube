@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.primitives.Ints;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -352,14 +351,14 @@ public class FileMetadata {
     final int lines;
     final int nonBlankLines;
     final String hash;
-    final int[] originalLineOffsets;
+    final List<Integer> originalLineOffsets;
     final int lastValidOffset;
 
     private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, int lastValidOffset) {
       this.lines = lines;
       this.nonBlankLines = nonBlankLines;
       this.hash = hash;
-      this.originalLineOffsets = Ints.toArray(originalLineOffsets);
+      this.originalLineOffsets = originalLineOffsets;
       this.lastValidOffset = lastValidOffset;
     }
   }

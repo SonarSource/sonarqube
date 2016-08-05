@@ -22,6 +22,7 @@ package org.sonar.api.batch.fs.internal;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -84,7 +85,7 @@ public class DefaultInputFileTest {
   public void checkValidPointer() {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
     file.setLines(2);
-    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setOriginalLineOffsets(Arrays.asList(0, 10));
     file.setLastValidOffset(15);
     assertThat(file.newPointer(1, 0).line()).isEqualTo(1);
     assertThat(file.newPointer(1, 0).lineOffset()).isEqualTo(0);
@@ -123,7 +124,7 @@ public class DefaultInputFileTest {
   public void checkValidPointerUsingGlobalOffset() {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
     file.setLines(2);
-    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setOriginalLineOffsets(Arrays.asList(0, 10));
     file.setLastValidOffset(15);
     assertThat(file.newPointer(0).line()).isEqualTo(1);
     assertThat(file.newPointer(0).lineOffset()).isEqualTo(0);
@@ -204,7 +205,7 @@ public class DefaultInputFileTest {
   public void checkValidRangeUsingGlobalOffset() {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
     file.setLines(2);
-    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setOriginalLineOffsets(Arrays.asList(0, 10));
     file.setLastValidOffset(15);
     TextRange newRange = file.newRange(10, 13);
     assertThat(newRange.start().line()).isEqualTo(2);
@@ -217,7 +218,7 @@ public class DefaultInputFileTest {
   public void testRangeOverlap() {
     DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
     file.setLines(2);
-    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setOriginalLineOffsets(Arrays.asList(0, 10));
     file.setLastValidOffset(15);
     // Don't fail
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)))).isTrue();
