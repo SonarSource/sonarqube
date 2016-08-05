@@ -19,8 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -57,8 +59,9 @@ public class ExtractReportStep implements ComputationStep {
       Optional<CeTaskDataDao.DataStream> opt = dbClient.ceTaskDataDao().selectData(dbSession, task.getUuid());
       if (opt.isPresent()) {
         File unzippedDir = tempFolder.newDir();
-        try (CeTaskDataDao.DataStream reportStream = opt.get()) {
-          ZipUtils.unzip(reportStream.getInputStream(), unzippedDir);
+        try (CeTaskDataDao.DataStream reportStream = opt.get();
+          InputStream zipStream = new BufferedInputStream(reportStream.getInputStream())) {
+          ZipUtils.unzip(zipStream, unzippedDir);
         } catch (IOException e) {
           throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
         }

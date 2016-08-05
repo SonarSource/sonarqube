@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
@@ -81,9 +82,11 @@ public class SubmitAction implements CeWsAction {
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
     String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
-    InputStream reportInput = wsRequest.paramAsInputStream(PARAM_REPORT_DATA);
 
-    CeTask task = reportSubmitter.submit(projectKey, projectBranch, projectName, reportInput);
+    CeTask task;
+    try (InputStream report = new BufferedInputStream(wsRequest.paramAsInputStream(PARAM_REPORT_DATA))) {
+      task = reportSubmitter.submit(projectKey, projectBranch, projectName, report);
+    }
 
     WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
       .setTaskId(task.getUuid())
