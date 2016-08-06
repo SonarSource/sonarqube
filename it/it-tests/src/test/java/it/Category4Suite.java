@@ -34,6 +34,7 @@ import it.http.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
 import it.qualityProfile.QualityProfilesPageTest;
+import it.serverSystem.LogsTest;
 import it.serverSystem.ServerSystemTest;
 import it.ui.UiTest;
 import it.uiExtension.UiExtensionsTest;
@@ -95,7 +96,8 @@ import static util.ItUtils.xooPlugin;
   WsLocalCallTest.class,
   WsTest.class,
   // quality profiles
-  QualityProfilesPageTest.class
+  QualityProfilesPageTest.class,
+  LogsTest.class
 })
 public class Category4Suite {
 
@@ -117,5 +119,8 @@ public class Category4Suite {
 
     // Used by WsLocalCallTest
     .addPlugin(pluginArtifact("ws-plugin"))
+
+    // Used by LogsTest
+    .setServerProperty("sonar.web.accessLogs.pattern", LogsTest.ACCESS_LOGS_PATTERN)
     .build();
 }

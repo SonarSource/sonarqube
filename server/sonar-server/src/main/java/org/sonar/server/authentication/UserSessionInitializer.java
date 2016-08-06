@@ -20,15 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
-import static org.sonar.api.web.ServletFilter.UrlPattern;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
-import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
-import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
-import static org.sonar.server.user.ServerUserSession.createForAnonymous;
-import static org.sonar.server.user.ServerUserSession.createForUser;
-
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.Set;
@@ -39,10 +30,27 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
+import static org.sonar.api.web.ServletFilter.UrlPattern;
+import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
+import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
+import static org.sonar.server.user.ServerUserSession.createForAnonymous;
+import static org.sonar.server.user.ServerUserSession.createForUser;
 
 @ServerSide
 public class UserSessionInitializer {
+
+  /**
+   * Key of attribute to be used for displaying user login
+   * in logs/access.log. The pattern to be configured
+   * in property sonar.web.accessLogs.pattern is "%reqAttribute{LOGIN}"
+   */
+  public static final String ACCESS_LOG_LOGIN = "LOGIN";
 
   // SONAR-6546 these urls should be get from WebService
   private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
@@ -64,15 +72,15 @@ public class UserSessionInitializer {
   private final Settings settings;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
-  private final ThreadLocalUserSession userSession;
+  private final ThreadLocalUserSession threadLocalSession;
 
   public UserSessionInitializer(DbClient dbClient, Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
-                                ThreadLocalUserSession userSession) {
+                                ThreadLocalUserSession threadLocalSession) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
-    this.userSession = userSession;
+    this.threadLocalSession = threadLocalSession;
   }
 
   public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
@@ -97,17 +105,20 @@ public class UserSessionInitializer {
   private void setUserSession(HttpServletRequest request, HttpServletResponse response) {
     Optional<UserDto> user = authenticate(request, response);
     if (user.isPresent()) {
-      userSession.set(createForUser(dbClient, user.get()));
+      ServerUserSession session = createForUser(dbClient, user.get());
+      threadLocalSession.set(session);
+      request.setAttribute(ACCESS_LOG_LOGIN, session.getLogin());
     } else {
       if (settings.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY)) {
         throw new UnauthorizedException("User must be authenticated");
       }
-      userSession.set(createForAnonymous(dbClient));
+      threadLocalSession.set(createForAnonymous(dbClient));
+      request.setAttribute(ACCESS_LOG_LOGIN, "-");
     }
   }
 
   public void removeUserSession() {
-    userSession.remove();
+    threadLocalSession.remove();
   }
 
   // Try first to authenticate from JWT token, then try from basic http header
