@@ -19,12 +19,11 @@
  */
 package org.sonar.scanner.protocol.output;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.protocol.output.FileStructure;
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -70,5 +69,15 @@ public class FileStructureTest {
     assertThat(structure.fileFor(FileStructure.Domain.COMPONENT, 42)).exists().isFile();
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 3)).exists().isFile();
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 42)).doesNotExist();
+  }
+
+  @Test
+  public void contextProperties_file() throws Exception {
+    File dir = temp.newFolder();
+    File file = new File(dir, "context-props.pb");
+    FileUtils.write(file, "content");
+
+    FileStructure structure = new FileStructure(dir);
+    assertThat(structure.contextProperties()).exists().isFile().isEqualTo(file);
   }
 }

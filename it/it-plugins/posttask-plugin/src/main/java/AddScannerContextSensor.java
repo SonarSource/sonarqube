@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
 
-public class PostTaskPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(PostProjectAnalysisTaskImpl.class,
-      LogScannerContextPostTask.class, AddScannerContextSensor.class);
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+
+public class AddScannerContextSensor implements Sensor {
+  @Override
+  public void execute(SensorContext context) {
+    context.addContextProperty("foo1", "bar1");
+    context.addContextProperty("foo2", "bar2");
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+
   }
 }

@@ -43,10 +43,12 @@ import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -65,7 +67,7 @@ public class DefaultSensorStorageTest {
   private ModuleIssues moduleIssues;
   private Project project;
   private MeasureCache measureCache;
-
+  private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
   private BatchComponentCache resourceCache;
 
   @Before
@@ -83,7 +85,8 @@ public class DefaultSensorStorageTest {
     ReportPublisher reportPublisher = mock(ReportPublisher.class);
     when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, coverageExclusions, resourceCache, reportPublisher, measureCache, mock(SonarCpdBlockIndex.class));
+      moduleIssues, settings, coverageExclusions, resourceCache, reportPublisher, measureCache,
+      mock(SonarCpdBlockIndex.class), contextPropertiesCache);
   }
 
   @Test
@@ -157,6 +160,14 @@ public class DefaultSensorStorageTest {
       .onFile(inputFile);
     underTest.store(st);
     underTest.store(st);
+  }
+
+  @Test
+  public void shouldStoreContextProperty() {
+    underTest.storeProperty("foo", "bar");
+
+    assertThat(contextPropertiesCache.getAll()).containsOnly(entry("foo", "bar"));
+
   }
 
 }

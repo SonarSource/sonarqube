@@ -162,6 +162,14 @@ public class ScannerReportReader {
     return null;
   }
 
+  public CloseableIterator<ScannerReport.ContextProperty> readContextProperties() {
+    File file = fileStructure.contextProperties();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.ContextProperty.parser());
+  }
+
   private static boolean fileExists(File file) {
     return file.exists() && file.isFile();
   }

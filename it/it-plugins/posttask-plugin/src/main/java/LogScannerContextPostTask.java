@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
 
-public class PostTaskPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(PostProjectAnalysisTaskImpl.class,
-      LogScannerContextPostTask.class, AddScannerContextSensor.class);
+import java.util.Map;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+public class LogScannerContextPostTask implements PostProjectAnalysisTask {
+  private static final Logger LOG = Loggers.get(LogScannerContextPostTask.class);
+
+  @Override
+  public void finished(ProjectAnalysis analysis) {
+    for (Map.Entry<String, String> prop : analysis.getScannerContext().getProperties().entrySet()) {
+      LOG.info("POSTASKPLUGIN: ScannerProperty {}={}",
+        prop.getKey(),
+        prop.getValue());
+    }
   }
 }

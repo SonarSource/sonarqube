@@ -17,13 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+package org.sonar.scanner.repository;
 
-public class PostTaskPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(PostProjectAnalysisTaskImpl.class,
-      LogScannerContextPostTask.class, AddScannerContextSensor.class);
+import java.util.HashMap;
+import java.util.Map;
+import org.sonar.api.batch.ScannerSide;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
+@ScannerSide
+public class ContextPropertiesCache {
+
+  private final Map<String, String> props = new HashMap<>();
+
+  /**
+   * Value is overridden if the key was already stored.
+   * @throws IllegalArgumentException if key is null
+   * @throws IllegalArgumentException if value is null
+   * @since 6.1
+   */
+  public ContextPropertiesCache put(String key, String value) {
+    checkArgument(key != null, "Key of context property must not be null");
+    checkArgument(value != null, "Value of context property must not be null");
+    props.put(key, value);
+    return this;
+  }
+
+  public Map<String, String> getAll() {
+    return props;
   }
 }

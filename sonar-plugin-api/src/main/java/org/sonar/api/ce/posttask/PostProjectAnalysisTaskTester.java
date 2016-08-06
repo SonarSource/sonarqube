@@ -22,7 +22,9 @@ package org.sonar.api.ce.posttask;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -93,6 +95,7 @@ public class PostProjectAnalysisTaskTester {
   private static final String PROJECT_CAN_NOT_BE_NULL = "project cannot be null";
   private static final String CE_TASK_CAN_NOT_BE_NULL = "ceTask cannot be null";
   private static final String STATUS_CAN_NOT_BE_NULL = "status cannot be null";
+  private static final String SCANNER_CONTEXT_CAN_NOT_BE_NULL = "scannerContext cannot be null";
 
   private final PostProjectAnalysisTask underTest;
   @CheckForNull
@@ -103,6 +106,7 @@ public class PostProjectAnalysisTaskTester {
   private Date date;
   @CheckForNull
   private QualityGate qualityGate;
+  private ScannerContext scannerContext;
 
   private PostProjectAnalysisTaskTester(PostProjectAnalysisTask underTest) {
     this.underTest = requireNonNull(underTest, "PostProjectAnalysisTask instance cannot be null");
@@ -128,6 +132,10 @@ public class PostProjectAnalysisTaskTester {
     return new ConditionBuilder();
   }
 
+  public static ScannerContextBuilder newScannerContextBuilder() {
+    return new ScannerContextBuilder();
+  }
+
   public PostProjectAnalysisTaskTester withCeTask(CeTask ceTask) {
     this.ceTask = requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
     return this;
@@ -135,6 +143,14 @@ public class PostProjectAnalysisTaskTester {
 
   public PostProjectAnalysisTaskTester withProject(Project project) {
     this.project = requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
+    return this;
+  }
+
+  /**
+      * @since 6.1
+   */
+  public PostProjectAnalysisTaskTester withScannerContext(ScannerContext scannerContext) {
+    this.scannerContext = requireNonNull(scannerContext, SCANNER_CONTEXT_CAN_NOT_BE_NULL);
     return this;
   }
 
@@ -155,6 +171,11 @@ public class PostProjectAnalysisTaskTester {
 
     this.underTest.finished(
       new PostProjectAnalysisTask.ProjectAnalysis() {
+        @Override
+        public ScannerContext getScannerContext() {
+          return scannerContext;
+        }
+
         @Override
         public CeTask getCeTask() {
           return ceTask;
@@ -523,6 +544,23 @@ public class PostProjectAnalysisTaskTester {
       requireNonNull(metricKey, METRIC_KEY_CAN_NOT_BE_NULL);
       requireNonNull(operator, OPERATOR_CAN_NOT_BE_NULL);
       checkState(errorThreshold != null || warningThreshold != null, "At least one of errorThreshold and warningThreshold must be non null");
+    }
+  }
+
+  public static final class ScannerContextBuilder {
+    private final Map<String, String> properties = new HashMap<>();
+
+    private ScannerContextBuilder() {
+      // prevents instantiation outside PostProjectAnalysisTaskTester
+    }
+
+    public ScannerContext build() {
+      return new ScannerContext() {
+        @Override
+        public Map<String, String> getProperties() {
+          return properties;
+        }
+      };
     }
   }
 }
