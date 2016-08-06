@@ -144,4 +144,13 @@ public interface SensorContext {
    */
   NewAnalysisError newAnalysisError();
 
+  /**
+   * Add a property to the scanner context. This context is available
+   * in Compute Engine when processing the report.
+   *
+   * @see org.sonar.api.ce.posttask.PostProjectAnalysisTask.ProjectAnalysis#getScannerContext()
+   * @since 6.1
+   */
+  void addContextProperty(String key, String value);
+
 }

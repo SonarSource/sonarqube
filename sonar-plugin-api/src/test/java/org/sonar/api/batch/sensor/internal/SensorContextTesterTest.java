@@ -48,6 +48,7 @@ import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.data.MapEntry.entry;
 
 public class SensorContextTesterTest {
 
@@ -332,9 +333,17 @@ public class SensorContextTesterTest {
   }
 
   @Test
-  public void testCacnellation() {
+  public void testCancellation() {
     assertThat(tester.isCancelled()).isFalse();
     tester.setCancelled(true);
     assertThat(tester.isCancelled()).isTrue();
+  }
+
+  @Test
+  public void testContextProperties() {
+    assertThat(tester.getContextProperties()).isEmpty();
+
+    tester.addContextProperty("foo", "bar");
+    assertThat(tester.getContextProperties()).containsOnly(entry("foo", "bar"));
   }
 }

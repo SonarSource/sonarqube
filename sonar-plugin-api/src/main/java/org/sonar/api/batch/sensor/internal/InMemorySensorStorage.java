@@ -35,6 +35,8 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.utils.SonarException;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 class InMemorySensorStorage implements SensorStorage {
 
   Table<String, String, Measure> measuresByComponentAndMetric = HashBasedTable.create();
@@ -46,6 +48,7 @@ class InMemorySensorStorage implements SensorStorage {
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
   Table<String, CoverageType, DefaultCoverage> coverageByComponentAndType = HashBasedTable.create();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
+  Map<String, String> contextProperties = new HashMap<>();
 
   @Override
   public void store(Measure measure) {
@@ -108,4 +111,10 @@ class InMemorySensorStorage implements SensorStorage {
     allAnalysisErrors.add(analysisError);
   }
 
+  @Override
+  public void storeProperty(String key, String value) {
+    checkArgument(key != null, "Key of context property must not be null");
+    checkArgument(value != null, "Value of context property must not be null");
+    contextProperties.put(key, value);
+  }
 }

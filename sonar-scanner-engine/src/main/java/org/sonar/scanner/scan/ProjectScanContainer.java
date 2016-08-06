@@ -60,12 +60,14 @@ import org.sonar.scanner.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
+import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.CoveragePublisher;
 import org.sonar.scanner.report.MeasuresPublisher;
 import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.report.TestExecutionAndCoveragePublisher;
+import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
@@ -173,6 +175,10 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Measures
       MeasureCache.class,
+
+      // context
+      ContextPropertiesCache.class,
+      ContextPropertiesPublisher.class,
 
       ProjectSettings.class,
 

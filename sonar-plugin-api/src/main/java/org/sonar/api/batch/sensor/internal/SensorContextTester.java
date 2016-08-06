@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -310,4 +311,16 @@ public class SensorContextTester implements SensorContext {
     return null;
   }
 
+  @Override
+  public void addContextProperty(String key, String value) {
+    sensorStorage.storeProperty(key, value);
+  }
+
+  /**
+   * @return an immutable map of the context properties defined with {@link SensorContext#addContextProperty(String, String)}.
+   * @since 6.1
+   */
+  public Map<String, String> getContextProperties() {
+    return ImmutableMap.copyOf(sensorStorage.contextProperties);
+  }
 }

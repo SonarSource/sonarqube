@@ -30,7 +30,9 @@ import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
+import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.ConditionStatus;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateHolder;
@@ -55,24 +57,27 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private final QualityGateHolder qualityGateHolder;
   private final QualityGateStatusHolder qualityGateStatusHolder;
   private final PostProjectAnalysisTask[] postProjectAnalysisTasks;
+  private final BatchReportReader reportReader;
 
   /**
    * Constructor used by Pico when there is no {@link PostProjectAnalysisTask} in the container.
    */
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
     AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder) {
-    this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, null);
+    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+    BatchReportReader reportReader) {
+    this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, null);
   }
 
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
     AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder, BatchReportReader reportReader,
     @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;
     this.ceTask = ceTask;
+    this.reportReader = reportReader;
     this.postProjectAnalysisTasks = postProjectAnalysisTasks == null ? NO_POST_PROJECT_ANALYSIS_TASKS : postProjectAnalysisTasks;
   }
 
@@ -93,6 +98,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
       getAnalysisDate(),
+      ScannerContextImpl.from(reportReader.readContextProperties()),
       status == SUCCESS ? createQualityGate(this.qualityGateHolder) : null);
   }
 
@@ -147,13 +153,16 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     private final CeTask ceTask;
     private final Project project;
     private final Date date;
+    private final ScannerContext scannerContext;
     @CheckForNull
     private final QualityGate qualityGate;
 
-    private ProjectAnalysis(CeTask ceTask, Project project, Date date, @Nullable QualityGate qualityGate) {
+    private ProjectAnalysis(CeTask ceTask, Project project, Date date,
+      ScannerContext scannerContext, @Nullable QualityGate qualityGate) {
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
       this.date = requireNonNull(date, "date can not be null");
+      this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
     }
 
@@ -176,6 +185,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Override
     public Date getDate() {
       return date;
+    }
+
+    @Override
+    public ScannerContext getScannerContext() {
+      return scannerContext;
     }
 
     @Override

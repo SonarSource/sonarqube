@@ -75,4 +75,7 @@ public class FileStructure {
     return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }
 
+  public File contextProperties() {
+    return new File(dir, "context-props.pb");
+  }
 }

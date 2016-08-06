@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -38,6 +39,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private ScannerReport.Metadata metadata;
   private List<String> scannerLogs;
   private List<ScannerReport.ActiveRule> activeRules = new ArrayList<>();
+  private List<ScannerReport.ContextProperty> contextProperties = new ArrayList<>();
   private Map<Integer, List<ScannerReport.Measure>> measures = new HashMap<>();
   private Map<Integer, ScannerReport.Changesets> changesets = new HashMap<>();
   private Map<Integer, ScannerReport.Component> components = new HashMap<>();
@@ -80,6 +82,16 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.fileSources.clear();
     this.tests.clear();
     this.coverageDetails.clear();
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.ContextProperty> readContextProperties() {
+    return CloseableIterator.from(contextProperties.iterator());
+  }
+
+  public BatchReportReaderRule putContextProperties(List<ScannerReport.ContextProperty> contextProperties) {
+    this.contextProperties = Objects.requireNonNull(contextProperties);
+    return this;
   }
 
   @Override

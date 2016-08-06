@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+package org.sonar.api.ce.posttask;
 
-public class PostTaskPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(PostProjectAnalysisTaskImpl.class,
-      LogScannerContextPostTask.class, AddScannerContextSensor.class);
-  }
+import java.util.Map;
+
+/**
+ * @since 6.1
+ */
+public interface ScannerContext {
+
+  /**
+   * @return immutable map of properties sent by scanner
+   */
+  Map<String, String> getProperties();
 }

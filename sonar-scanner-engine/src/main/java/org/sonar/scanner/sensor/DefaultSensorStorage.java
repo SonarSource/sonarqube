@@ -64,6 +64,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
+import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
@@ -95,11 +96,14 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
+  private final ContextPropertiesCache contextPropertiesCache;
   private final Settings settings;
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings,
-    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index) {
+    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher,
+    MeasureCache measureCache, SonarCpdBlockIndex index,
+    ContextPropertiesCache contextPropertiesCache) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;
@@ -108,6 +112,7 @@ public class DefaultSensorStorage implements SensorStorage {
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
     this.index = index;
+    this.contextPropertiesCache = contextPropertiesCache;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -294,4 +299,8 @@ public class DefaultSensorStorage implements SensorStorage {
     // no op
   }
 
+  @Override
+  public void storeProperty(String key, String value) {
+    contextPropertiesCache.put(key, value);
+  }
 }

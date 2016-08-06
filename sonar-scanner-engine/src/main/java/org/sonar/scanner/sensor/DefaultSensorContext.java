@@ -152,4 +152,8 @@ public class DefaultSensorContext implements SensorContext {
     return false;
   }
 
+  @Override
+  public void addContextProperty(String key, String value) {
+    sensorStorage.storeProperty(key, value);
+  }
 }

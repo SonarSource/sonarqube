@@ -74,5 +74,13 @@ public interface PostProjectAnalysisTask {
      * 
      */
     Date getDate();
+
+    /**
+     * Context as defined by scanner through {@link org.sonar.api.batch.sensor.SensorContext#addContextProperty(String, String)}.
+     * It does not contain the settings used by scanner.
+     *
+     * @since 6.1
+     */
+    ScannerContext getScannerContext();
   }
 }

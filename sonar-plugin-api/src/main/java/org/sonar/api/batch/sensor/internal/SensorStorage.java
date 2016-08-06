@@ -55,9 +55,17 @@ public interface SensorStorage {
    * @since 5.6 
    */
   void store(DefaultSymbolTable symbolTable);
-  
+
   /**
    * @since 6.0
    */
   void store(AnalysisError analysisError);
+
+  /**
+   * Value is overridden if the key was already stored.
+   * @throws IllegalArgumentException if key is null
+   * @throws IllegalArgumentException if value is null
+   * @since 6.1
+   */
+  void storeProperty(String key, String value);
 }

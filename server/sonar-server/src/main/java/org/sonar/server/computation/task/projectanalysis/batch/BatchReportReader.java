@@ -58,4 +58,6 @@ public interface BatchReportReader {
   CloseableIterator<ScannerReport.Test> readTests(int testFileRef);
 
   CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef);
+
+  CloseableIterator<ScannerReport.ContextProperty> readContextProperties();
 }
