@@ -27,6 +27,12 @@ import gates, { getAllGates as nextGetAllGates, getGate } from './gates';
 import gateByProject, { getProjectGate as nextGetProjectGate } from './gateByProject';
 import links, { getLink } from './links';
 import linksByProject, { getLinks } from './linksByProject';
+import components, {
+    getComponentByKey as nextGetComponentByKey
+} from './components';
+import modulesByProject, {
+    getProjectModules as nextGetProjectModules
+} from './modulesByProject';
 import globalMessages, {
     getGlobalMessages as nextGetGlobalMessages
 } from '../../../components/store/globalMessages';
@@ -38,6 +44,8 @@ const rootReducer = combineReducers({
   gateByProject,
   links,
   linksByProject,
+  components,
+  modulesByProject,
   globalMessages
 });
 
@@ -68,6 +76,17 @@ export const getLinkById = (state, linkId) =>
 export const getProjectLinks = (state, projectKey) =>
     getLinks(state.linksByProject, projectKey)
         .map(linkId => getLinkById(state, linkId));
+
+export const getComponentByKey = (state, componentKey) =>
+    nextGetComponentByKey(state.components, componentKey);
+
+export const getProjectModules = (state, projectKey) => {
+  const moduleKeys = nextGetProjectModules(state.modulesByProject, projectKey);
+  if (moduleKeys == null) {
+    return null;
+  }
+  return moduleKeys.map(moduleKey => getComponentByKey(state, moduleKey));
+};
 
 export const getGlobalMessages = state =>
     nextGetGlobalMessages(state.globalMessages);

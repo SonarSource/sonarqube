@@ -180,39 +180,6 @@ public class ProjectAdministrationTest {
   }
 
   /**
-   * SONAR-1608
-   */
-  @Test
-  public void bulk_update_project_keys() {
-    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
-    orchestrator.executeBuild(build);
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("project-bulk-update-keys",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-success.html")
-      .build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  /**
-   * SONAR-1608
-   */
-  @Test
-  public void fine_grain_update_project_keys() {
-    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
-    orchestrator.executeBuild(build);
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("project-fine-grained-update-keys",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/fine-grained-update-impossible.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html")
-      .build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  /**
    * SONAR-4060
    */
   @Test

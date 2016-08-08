@@ -26,6 +26,7 @@ import Deletion from './deletion/Deletion';
 import QualityProfiles from './quality-profiles/QualityProfiles';
 import QualityGate from './quality-gate/QualityGate';
 import Links from './links/Links';
+import Key from './key/Key';
 import rootReducer from './store/rootReducer';
 import configureStore from '../../components/store/configureStore';
 
@@ -56,6 +57,9 @@ window.sonarqube.appStarted.then(options => {
           <Route
               path="/links"
               component={withComponent(Links)}/>
+          <Route
+              path="/key"
+              component={withComponent(Key)}/>
         </Router>
       </Provider>
   ), el);
