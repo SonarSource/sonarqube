@@ -20,6 +20,7 @@
 import ModalForm from '../../../../components/common/modal-form';
 import Template from './DeletionModalTemplate.hbs';
 import { deleteLink } from '../../../../api/projectLinks';
+import { parseError } from '../../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -33,11 +34,9 @@ export default ModalForm.extend({
           this.trigger('done');
           this.destroy();
         })
-        .catch(function (e) {
-          e.response.json().then(r => {
-            this.showErrors(r.errors, r.warnings);
-            this.enableForm();
-          });
+        .catch(e => {
+          parseError(e).then(msg => this.showSingleError(msg));
+          this.enableForm();
         });
   },
 

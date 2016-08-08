@@ -164,11 +164,13 @@ export function loadMoreChildren (componentKey, page) {
 }
 
 export function parseError (error) {
+  const DEFAULT_MESSAGE = translate('default_error_message');
+
   try {
-    return error.response.json().then(r => {
-      return r.errors.map(error => error.msg).join('. ');
-    });
+    return error.response.json()
+        .then(r => r.errors.map(error => error.msg).join('. '))
+        .catch(() => DEFAULT_MESSAGE);
   } catch (ex) {
-    return Promise.resolve(translate('default_error_message'));
+    return Promise.resolve(DEFAULT_MESSAGE);
   }
 }

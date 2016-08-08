@@ -19,6 +19,7 @@
  */
 import ModalForm from '../../../../components/common/modal-form';
 import Template from './CreationModalTemplate.hbs';
+import { parseError } from '../../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -31,14 +32,10 @@ export default ModalForm.extend({
     const url = this.$('#create-link-url').val();
 
     this.options.onCreate(name, url)
-        .then(() => {
-          this.destroy();
-        })
-        .catch(function (e) {
-          e.response.json().then(r => {
-            this.showErrors(r.errors, r.warnings);
-            this.enableForm();
-          });
+        .then(() => this.destroy())
+        .catch(e => {
+          parseError(e).then(msg => this.showSingleError(msg));
+          this.enableForm();
         });
   }
 });

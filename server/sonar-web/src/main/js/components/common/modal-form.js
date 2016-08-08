@@ -71,6 +71,10 @@ export default ModalView.extend({
     this.ui.messagesContainer.scrollParent().scrollTop(0);
   },
 
+  showSingleError (msg) {
+    this.showErrors([{ msg }], []);
+  },
+
   disableForm () {
     const form = this.$('form');
     this.disabledFields = form.find(':input:not(:disabled)');
