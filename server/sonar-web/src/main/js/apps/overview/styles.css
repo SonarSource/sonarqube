@@ -248,6 +248,8 @@
 }
 
 .overview-meta-list > li {
+  /* 1px to not cut icons on the left */
+  padding-left: 1px;
   padding-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;

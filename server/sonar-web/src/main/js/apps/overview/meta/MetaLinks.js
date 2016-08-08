@@ -18,24 +18,64 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { getProjectLinks } from '../../../api/projectLinks';
+import { isProvided } from '../../project-admin/links/utils';
 
-const MetaLinks = ({ links }) => {
-  return (
-      <ul className="overview-meta-list big-spacer-bottom">
-        {links.map(link => (
-            <li key={link.type}>
-              <a
-                  className="link-with-icon"
-                  href={link.href}
-                  target="_blank">
-                <i className={`icon-color-link icon-${link.type}`}/>
-                &nbsp;
-                {link.name}
-              </a>
-            </li>
-        ))}
-      </ul>
-  );
-};
+export default class MetaLinks extends React.Component {
+  static propTypes = {
+    component: React.PropTypes.object.isRequired
+  };
 
-export default MetaLinks;
+  state = {};
+
+  componentDidMount () {
+    this.mounted = true;
+    this.loadLinks();
+  }
+
+  componentDidUpdate (prevProps) {
+    if (prevProps.component !== this.props.component) {
+      this.loadLinks();
+    }
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  loadLinks () {
+    getProjectLinks(this.props.component.key).then(links => {
+      if (this.mounted) {
+        this.setState({ links });
+      }
+    });
+  }
+
+  renderLinkIcon (link) {
+    return isProvided(link) ?
+        <i className={`icon-color-link icon-${link.type}`}/> :
+        <i className="icon-color-link icon-detach"/>;
+  }
+
+  render () {
+    const { links } = this.state;
+
+    if (links == null || links.length === 0) {
+      return null;
+    }
+
+    return (
+        <ul className="overview-meta-list big-spacer-bottom">
+          {links.map(link => (
+              <li key={link.id}>
+                <a className="link-with-icon" href={link.url} target="_blank">
+                  {this.renderLinkIcon(link)}
+                  &nbsp;
+                  {link.name}
+                </a>
+              </li>
+          ))}
+        </ul>
+    );
+  }
+}

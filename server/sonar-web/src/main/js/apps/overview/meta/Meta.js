@@ -26,14 +26,13 @@ import MetaQualityProfiles from './MetaQualityProfiles';
 import EventsList from './../events/EventsList';
 
 const Meta = ({ component }) => {
-  const { qualifier, description, links, profiles, gate } = component;
+  const { qualifier, description, profiles, gate } = component;
 
   const isProject = qualifier === 'TRK';
   const isView = qualifier === 'VW' || qualifier === 'SVW';
   const isDeveloper = qualifier === 'DEV';
 
   const hasDescription = !!description;
-  const hasLinks = Array.isArray(links) && !!links.length;
   const hasQualityProfiles = Array.isArray(profiles) && profiles.length > 0;
   const hasQualityGate = !!gate;
 
@@ -51,9 +50,7 @@ const Meta = ({ component }) => {
               </div>
           )}
 
-          {hasLinks && (
-              <MetaLinks links={links}/>
-          )}
+          <MetaLinks component={component}/>
 
           <MetaKey component={component}/>
         </div>
