@@ -287,6 +287,18 @@ class ProjectController < ApplicationController
     redirect_to :action => 'history', :id => resource_id
   end
 
+  def delete_snapshot_history
+    @project = get_current_project(params[:id])
+
+    sid = params[:snapshot_id]
+    if sid
+      Snapshot.update_all("status='U'", ["id=?", sid.to_i])
+      flash[:notice] = message('project_history.snapshot_deleted')
+    end
+
+    redirect_to :action => 'history', :id => @project.id
+  end
+
   protected
 
   def get_current_project(project_id)
