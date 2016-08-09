@@ -25,6 +25,7 @@
             b_copy_component_uuid="[null]"
             b_description="[null]"
             b_enabled="[false]"
+            b_uuid_path="[null]"
             b_language="[null]"
             b_long_name="[null]"
             b_module_uuid="[null]"

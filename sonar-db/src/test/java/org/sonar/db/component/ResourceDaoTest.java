@@ -19,11 +19,9 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -156,11 +154,6 @@ public class ResourceDaoTest {
   }
 
   private List<String> getKeys(final List<Component> components) {
-    return newArrayList(Iterables.transform(components, new Function<Component, String>() {
-      @Override
-      public String apply(@Nullable Component input) {
-        return input.key();
-      }
-    }));
+    return newArrayList(Iterables.transform(components, Component::key));
   }
 }
