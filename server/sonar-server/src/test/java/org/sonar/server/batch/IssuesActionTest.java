@@ -99,7 +99,7 @@ public class IssuesActionTest {
   public void return_minimal_fields() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath(null);
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath(null);
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -137,7 +137,7 @@ public class IssuesActionTest {
   public void issues_from_project() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -175,7 +175,7 @@ public class IssuesActionTest {
   public void issues_from_module() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -213,7 +213,7 @@ public class IssuesActionTest {
   public void issues_from_file() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -289,7 +289,7 @@ public class IssuesActionTest {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     // File and module are removed
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 

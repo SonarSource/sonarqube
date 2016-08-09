@@ -319,7 +319,7 @@ public class ComponentNavigationActionTest {
     ComponentDto module = ComponentTesting.newModuleDto("bcde", project)
       .setKey("palap").setName("Palap");
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/xoo");
-    ComponentDto file = ComponentTesting.newFileDto(directory, "cdef").setName("Source.xoo")
+    ComponentDto file = ComponentTesting.newFileDto(directory, directory, "cdef").setName("Source.xoo")
       .setKey("palap:src/main/xoo/Source.xoo")
       .setPath(directory.path());
     dbClient.componentDao().insert(dbTester.getSession(), project, module, directory, file);

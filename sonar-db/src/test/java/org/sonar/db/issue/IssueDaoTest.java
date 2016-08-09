@@ -39,7 +39,7 @@ public class IssueDaoTest {
 
   public static final RuleDto RULE = RuleTesting.newXooX1();
   public static final ComponentDto PROJECT = ComponentTesting.newProjectDto();
-  public static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT);
+  public static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT, null);
   public static final String ISSUE_KEY1 = "I1";
   public static final String ISSUE_KEY2 = "I2";
 

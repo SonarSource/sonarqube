@@ -846,11 +846,11 @@ public class ComponentDaoTest {
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);
-    ComponentDto file1 = newFileDto(project, FILE_1_UUID).setKey("file-key-1").setName("File One");
+    ComponentDto file1 = newFileDto(project, null, FILE_1_UUID).setKey("file-key-1").setName("File One");
     componentDb.insertComponent(file1);
-    ComponentDto file2 = newFileDto(module, FILE_2_UUID).setKey("file-key-2").setName("File Two");
+    ComponentDto file2 = newFileDto(module, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
     componentDb.insertComponent(file2);
-    ComponentDto file3 = newFileDto(module, FILE_3_UUID).setKey("file-key-3").setName("File Three");
+    ComponentDto file3 = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
     componentDb.insertComponent(file3);
     db.commit();
     componentDb.indexAllComponents();
@@ -923,7 +923,7 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     for (int i = 1; i <= 9; i++) {
-      componentDb.insertComponent(newFileDto(project, "file-uuid-" + i));
+      componentDb.insertComponent(newFileDto(project, null, "file-uuid-" + i));
     }
     db.commit();
 
@@ -941,9 +941,9 @@ public class ComponentDaoTest {
   public void selectChildren_ordered_by_file_path() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponent(newFileDto(project, "file-uuid-1").setName("file-name-1").setPath("3"));
-    componentDb.insertComponent(newFileDto(project, "file-uuid-2").setName("file-name-2").setPath("2"));
-    componentDb.insertComponent(newFileDto(project, "file-uuid-3").setName("file-name-3").setPath("1"));
+    componentDb.insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-name-1").setPath("3"));
+    componentDb.insertComponent(newFileDto(project, null, "file-uuid-2").setName("file-name-2").setPath("2"));
+    componentDb.insertComponent(newFileDto(project, null, "file-uuid-3").setName("file-name-3").setPath("1"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -1007,7 +1007,7 @@ public class ComponentDaoTest {
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);
-    ComponentDto file = newFileDto(module, FILE_1_UUID);
+    ComponentDto file = newFileDto(module, null, FILE_1_UUID);
     componentDb.insertComponent(file);
     db.commit();
 
@@ -1023,7 +1023,7 @@ public class ComponentDaoTest {
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);
-    ComponentDto file = newFileDto(module, FILE_1_UUID);
+    ComponentDto file = newFileDto(module, null, FILE_1_UUID);
     componentDb.insertComponent(file);
     db.commit();
 
@@ -1045,8 +1045,8 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newModuleDto("module-1-uuid", project));
-    componentDb.insertComponent(newFileDto(project, "file-1-uuid"));
-    componentDb.insertComponent(newFileDto(project, "file-2-uuid"));
+    componentDb.insertComponent(newFileDto(project, null, "file-1-uuid"));
+    componentDb.insertComponent(newFileDto(project, null, "file-2-uuid"));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -1071,10 +1071,10 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto(PROJECT_UUID).setKey("project-key");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newModuleDto("module-1-uuid", project));
-    componentDb.insertComponent(newFileDto(project, "file-uuid-1").setName("file-name-1"));
-    componentDb.insertComponent(newFileDto(project, "another-uuid"));
+    componentDb.insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-name-1"));
+    componentDb.insertComponent(newFileDto(project, null, "another-uuid"));
     for (int i = 2; i <= 9; i++) {
-      componentDb.insertComponent(newFileDto(project, "file-uuid-" + i).setName("file-name-" + i));
+      componentDb.insertComponent(newFileDto(project, null, "file-uuid-" + i).setName("file-name-" + i));
     }
     db.commit();
     componentDb.indexAllComponents();

@@ -79,8 +79,8 @@ public class CoveredFilesActionTest {
       new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(), FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(), FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(newProjectDto(), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
 
@@ -97,8 +97,8 @@ public class CoveredFilesActionTest {
       new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(), FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(), FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(newProjectDto(), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Test with id 'test-uuid' is not found");

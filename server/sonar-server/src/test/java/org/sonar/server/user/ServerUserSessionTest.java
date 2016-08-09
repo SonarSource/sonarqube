@@ -19,14 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.user.ServerUserSession.createForAnonymous;
-import static org.sonar.server.user.ServerUserSession.createForUser;
-
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +37,14 @@ import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.user.ServerUserSession.createForAnonymous;
+import static org.sonar.server.user.ServerUserSession.createForUser;
 
 public class ServerUserSessionTest {
   static final String LOGIN = "marius";
@@ -71,7 +71,7 @@ public class ServerUserSessionTest {
   @Before
   public void setUp() throws Exception {
     project = componentDbTester.insertComponent(ComponentTesting.newProjectDto(PROJECT_UUID));
-    file = componentDbTester.insertComponent(ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY));
+    file = componentDbTester.insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     dbClient.userDao().insert(dbSession, userDto);
     dbSession.commit();
   }
@@ -162,7 +162,7 @@ public class ServerUserSessionTest {
   @Test
   public void check_component_key_permission_ko() {
     ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
-    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2));
+    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -190,7 +190,7 @@ public class ServerUserSessionTest {
   @Test
   public void check_component_key_permission_when_project_not_found() {
     ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
-    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2)
+    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null)
       // Simulate file is linked to an invalid project
       .setProjectUuid("INVALID"));
     addProjectPermissions(project, UserRole.USER);

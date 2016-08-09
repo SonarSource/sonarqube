@@ -84,7 +84,7 @@ public class IssueCommentServiceMediumTest {
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);
     tester.get(SnapshotDao.class).insert(session, projectSnapshot);
 
-    file = ComponentTesting.newFileDto(project);
+    file = ComponentTesting.newFileDto(project, null);
     tester.get(ComponentDao.class).insert(session, file);
 
     // project can be seen by anyone

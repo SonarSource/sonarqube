@@ -92,13 +92,13 @@ public class SearchActionTest {
       newModuleDto("module-uuid", project)
         .setName("Module Name")
         .setKey("module-key"));
+    ComponentDto directory = newDirectory(module, "path/to/directoy")
+      .setUuid("directory-uuid")
+      .setKey("directory-key")
+      .setName("Directory Name");
+    componentDb.insertComponent(directory);
     componentDb.insertComponent(
-      newDirectory(module, "path/to/directoy")
-        .setUuid("directory-uuid")
-        .setKey("directory-key")
-        .setName("Directory Name"));
-    componentDb.insertComponent(
-      newFileDto(module, "file-uuid")
+      newFileDto(module, directory, "file-uuid")
         .setKey("file-key")
         .setLanguage("java")
         .setName("File Name"));

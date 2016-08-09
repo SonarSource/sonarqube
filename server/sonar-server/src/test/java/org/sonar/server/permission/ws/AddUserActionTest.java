@@ -169,7 +169,7 @@ public class AddUserActionTest {
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
     expectedException.expect(BadRequestException.class);
-    insertComponent(newFileDto(newProjectDto("project-uuid"), "file-uuid"));
+    insertComponent(newFileDto(newProjectDto("project-uuid"), null, "file-uuid"));
     commit();
 
     ws.newPostRequest(CONTROLLER, ACTION)

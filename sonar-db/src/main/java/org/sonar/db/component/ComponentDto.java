@@ -64,7 +64,7 @@ public class ComponentDto implements Component {
    * - on root module: UUID="1" UUID_PATH="."
    * - on module: UUID="2" UUID_PATH=".1."
    * - on directory: UUID="3" UUID_PATH=".1.2."
-   * - on file: UUID="4" UUID_PATH="1.2.3."
+   * - on file: UUID="4" UUID_PATH=".1.2.3."
    * - on view: UUID="5" UUID_PATH="."
    * - on sub-view: UUID="6" UUID_PATH=".5."
    *
@@ -88,8 +88,8 @@ public class ComponentDto implements Component {
    * Badly named, it is not the root !
    * - on root module: UUID="1" ROOT_UUID="1"
    * - on modules, whatever depth, value is the root module: UUID="2" ROOT_UUID="1"
-   * - on directory, value is the closed module: UUID="3" ROOT_UUID="2"
-   * - on file, value is the closed module: UUID="4" ROOT_UUID="2"
+   * - on directory, value is the closest module: UUID="3" ROOT_UUID="2"
+   * - on file, value is the closest module: UUID="4" ROOT_UUID="2"
    * - on view: UUID="5" ROOT_UUID="5"
    * - on sub-view: UUID="6" ROOT_UUID="5"
    * @since 6.0

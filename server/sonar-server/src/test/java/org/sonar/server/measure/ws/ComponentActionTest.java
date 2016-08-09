@@ -149,7 +149,7 @@ public class ComponentActionTest {
     componentDb.insertDeveloperAndSnapshot(developer);
     ComponentDto project = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file = newFileDto(project, "file-uuid");
+    ComponentDto file = newFileDto(project, null, "file-uuid");
     componentDb.insertComponent(file);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
@@ -172,7 +172,7 @@ public class ComponentActionTest {
     componentDb.insertDeveloperAndSnapshot(developer);
     ComponentDto project = newProjectDto(PROJECT_UUID);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file = newFileDto(project, "file-uuid");
+    ComponentDto file = newFileDto(project, null, "file-uuid");
     componentDb.insertComponent(file);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
@@ -321,7 +321,7 @@ public class ComponentActionTest {
       .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
       .setPeriodMode(3, "days")
       .setPeriodParam(3, "30");
-    ComponentDto file = newFileDto(project)
+    ComponentDto file = newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
       .setKey("MY_PROJECT:ElementImpl.java")
       .setName("ElementImpl.java")

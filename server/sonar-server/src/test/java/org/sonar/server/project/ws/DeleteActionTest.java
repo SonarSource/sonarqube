@@ -200,7 +200,7 @@ public class DeleteActionTest {
   @Test
   public void fail_if_scope_is_not_project() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), "file-uuid"));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), null, "file-uuid"));
     dbSession.commit();
 
     newRequest().setParam(PARAM_ID, "file-uuid").execute();

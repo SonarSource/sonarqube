@@ -103,7 +103,7 @@ public class IssueCommentServiceTest {
 
   @Test
   public void should_add_comment() {
-    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
+    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), null), ComponentTesting.newProjectDto());
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
     when(issueCommentService.findComments(session, "ABCD")).thenReturn(newArrayList(new DefaultIssueComment()));
 
@@ -146,7 +146,7 @@ public class IssueCommentServiceTest {
 
   @Test
   public void fail_if_comment_not_inserted_in_db() {
-    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
+    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), null), ComponentTesting.newProjectDto());
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
     // Comment has not be inserted in db
     when(issueCommentService.findComments(session, "ABCD")).thenReturn(Collections.<DefaultIssueComment>emptyList());

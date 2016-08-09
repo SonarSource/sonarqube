@@ -153,7 +153,7 @@ public class ShowActionTest {
       .setQualifier(Qualifiers.DIRECTORY);
     componentDb.insertComponent(directory);
     componentDb.insertComponent(
-      newFileDto(directory, "AVIF-FffA3Ax6PH2efPD")
+      newFileDto(directory, directory, "AVIF-FffA3Ax6PH2efPD")
         .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setName("Rule.java")
         .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")

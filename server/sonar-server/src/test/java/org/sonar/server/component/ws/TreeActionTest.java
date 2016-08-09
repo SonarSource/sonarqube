@@ -28,6 +28,7 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -117,7 +118,7 @@ public class TreeActionTest {
     }
     ComponentDto directory = newDirectory(module, "directory-path-1");
     componentDb.insertComponent(directory);
-    componentDb.insertComponent(newFileDto(directory, 10));
+    componentDb.insertComponent(newFileDto(module, directory, 10));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -147,7 +148,7 @@ public class TreeActionTest {
     }
     ComponentDto directory = newDirectory(module, "directory-path-1");
     componentDb.insertComponent(directory);
-    componentDb.insertComponent(newFileDto(directory, 1));
+    componentDb.insertComponent(newFileDto(module, directory, 1));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -193,7 +194,7 @@ public class TreeActionTest {
     componentDb.insertComponent(newFileDto(module, 2));
     ComponentDto directory = newDirectory(project, "directory-path-1");
     componentDb.insertComponent(directory);
-    componentDb.insertComponent(newFileDto(directory, 3));
+    componentDb.insertComponent(newFileDto(module, directory, 3));
     db.commit();
     componentDb.indexAllComponents();
 
@@ -385,11 +386,15 @@ public class TreeActionTest {
     }
   }
 
-  private static ComponentDto newFileDto(ComponentDto parentComponent, int i) {
-    return ComponentTesting.newFileDto(parentComponent, "file-uuid-" + i)
-      .setName("file-name-" + i)
-      .setKey("file-key-" + i)
-      .setPath("file-path-" + i);
+  private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
+    return ComponentTesting.newFileDto(moduleOrProject, directory, "file-uuid-" + i)
+        .setName("file-name-" + i)
+        .setKey("file-key-" + i)
+        .setPath("file-path-" + i);
+  }
+
+  private static ComponentDto newFileDto(ComponentDto moduleOrProject, int i) {
+    return newFileDto(moduleOrProject, null, i);
   }
 
   private ComponentDto initJsonExampleComponents() throws IOException {
@@ -404,7 +409,7 @@ public class TreeActionTest {
     for (JsonElement componentAsJsonElement : components) {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       String uuid = getJsonField(componentAsJsonObject, "id");
-      componentDb.insertComponent(ComponentTesting.newChildComponent(uuid, project)
+      componentDb.insertComponent(ComponentTesting.newChildComponent(uuid, project, project)
         .setKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
         .setLanguage(getJsonField(componentAsJsonObject, "language"))

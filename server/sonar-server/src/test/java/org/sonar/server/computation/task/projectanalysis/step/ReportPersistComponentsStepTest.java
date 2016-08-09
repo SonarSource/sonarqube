@@ -31,11 +31,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
@@ -383,7 +382,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), module);
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(module, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto file = ComponentTesting.newFileDto(module, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
@@ -528,7 +527,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .setName("Module B");
     dbClient.componentDao().insert(dbTester.getSession(), moduleA, moduleB);
     ComponentDto directory = ComponentTesting.newDirectory(moduleB, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_B:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(moduleB, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_B:src/main/java/dir/Foo.java");
+    ComponentDto file = ComponentTesting.newFileDto(moduleB, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_B:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
@@ -623,10 +622,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .setUuid("CDEF")
       .setKey("MODULE_KEY:src/main/java/dir")
       .setEnabled(false);
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG")
-      // method ComponentTesting.newFileDto is buggy because it only takes the module/project and assumes it is the parent of the file,
-      // which is wrong here (and most of the time), it is the directory
-      .setUuidPath(formatUuidPathFromParent(removedDirectory))
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, removedDirectory, "DEFG")
       .setPath("src/main/java/dir/Foo.java")
       .setName("Foo.java")
       .setKey("MODULE_KEY:src/main/java/dir/Foo.java")
@@ -724,7 +720,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module, removedModule);
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
     // The file was attached to another module
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
       .setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
     dbClient.componentDao().insert(dbTester.getSession(), directory, removedFile);
     dbTester.getSession().commit();

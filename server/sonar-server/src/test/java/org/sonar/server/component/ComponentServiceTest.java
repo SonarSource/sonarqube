@@ -114,7 +114,7 @@ public class ComponentServiceTest {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(dbSession, module);
 
-    ComponentDto file = newFileDto(module).setKey("sample:root:module:src/File.xoo");
+    ComponentDto file = newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
 
     dbSession.commit();
@@ -301,7 +301,7 @@ public class ComponentServiceTest {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
     dbClient.componentDao().insert(dbSession, module);
     String fileKey = "sample:root:module:Foo.xoo";
-    ComponentDto file = newFileDto(module).setKey(fileKey);
+    ComponentDto file = newFileDto(module, null).setKey(fileKey);
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
 

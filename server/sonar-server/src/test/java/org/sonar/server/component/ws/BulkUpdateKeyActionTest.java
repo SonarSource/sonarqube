@@ -91,7 +91,7 @@ public class BulkUpdateKeyActionTest {
     ComponentDto anotherProject = componentDb.insertComponent(newProjectDto().setKey("another_project"));
     componentDb.insertComponent(newModuleDto(anotherProject).setKey("my_new_project:module_1"));
     ComponentDto module2 = componentDb.insertComponent(newModuleDto(project).setKey("my_project:module_2"));
-    componentDb.insertComponent(newFileDto(module2));
+    componentDb.insertComponent(newFileDto(module2, null));
 
     String result = ws.newRequest()
       .setParam(PARAM_KEY, "my_project")
@@ -117,7 +117,7 @@ public class BulkUpdateKeyActionTest {
   public void bulk_update_project_key() {
     ComponentDto project = insertMyProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module).setKey("my_project:root:module:src/File.xoo"));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
 
     BulkUpdateKeyWsResponse result = callByUuid(project.uuid(), FROM, TO);
 
@@ -167,7 +167,7 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void fail_to_bulk_update_if_not_project_or_module() {
     ComponentDto project = insertMyProject();
-    ComponentDto file = componentDb.insertComponent(newFileDto(project));
+    ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");

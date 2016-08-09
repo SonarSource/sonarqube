@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
@@ -29,13 +30,13 @@ import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 public class ComponentTesting {
 
-  public static ComponentDto newFileDto(ComponentDto subProjectOrProject) {
-    return newFileDto(subProjectOrProject, Uuids.create());
+  public static ComponentDto newFileDto(ComponentDto subProjectOrProject, @Nullable ComponentDto directory) {
+    return newFileDto(subProjectOrProject, directory, Uuids.create());
   }
 
-  public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
+  public static ComponentDto newFileDto(ComponentDto module, @Nullable ComponentDto directory, String fileUuid) {
     String path = "src/main/xoo/org/sonar/samples/File.xoo";
-    return newChildComponent(fileUuid, module)
+    return newChildComponent(fileUuid, module, directory == null ? module : directory)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
       .setLongName(path)
@@ -51,7 +52,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
-    return newChildComponent(uuid, module)
+    return newChildComponent(uuid, module, module)
         .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
         .setName(path)
         .setLongName(path)
@@ -61,7 +62,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String key) {
-    return newChildComponent(uuid, viewOrSubView)
+    return newChildComponent(uuid, viewOrSubView, viewOrSubView)
         .setKey(key)
         .setName(key)
         .setLongName(key)
@@ -70,7 +71,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
-    return newChildComponent(uuid, parentModuleOrProject)
+    return newChildComponent(uuid, parentModuleOrProject, parentModuleOrProject)
       .setModuleUuidPath(parentModuleOrProject.moduleUuidPath() + uuid + UUID_PATH_SEPARATOR)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
@@ -156,7 +157,7 @@ public class ComponentTesting {
 
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
-    return newChildComponent(uuid, view)
+    return newChildComponent(uuid, view, view)
       .setUuid(uuid)
       .setKey(view.key() + project.key())
       .setName(project.name())
@@ -170,7 +171,7 @@ public class ComponentTesting {
 
   public static ComponentDto newDevProjectCopy(String uuid, ComponentDto project, ComponentDto developer) {
     checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
-    return newChildComponent(uuid, developer)
+    return newChildComponent(uuid, developer, developer)
       .setUuid(uuid)
       .setKey(developer.key() + ":" + project.key())
       .setName(project.name())
@@ -182,14 +183,14 @@ public class ComponentTesting {
       .setLanguage(null);
   }
 
-  public static ComponentDto newChildComponent(String uuid, ComponentDto parent) {
+  public static ComponentDto newChildComponent(String uuid, ComponentDto moduleOrProject, ComponentDto parent) {
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(ComponentDto.formatUuidPathFromParent(parent))
-      .setProjectUuid(parent.projectUuid())
-      .setRootUuid(parent.uuid())
-      .setModuleUuid(parent.uuid())
-      .setModuleUuidPath(parent.moduleUuidPath())
+      .setProjectUuid(moduleOrProject.projectUuid())
+      .setRootUuid(moduleOrProject.uuid())
+      .setModuleUuid(moduleOrProject.uuid())
+      .setModuleUuidPath(moduleOrProject.moduleUuidPath())
       .setCreatedAt(new Date())
       .setEnabled(true);
   }

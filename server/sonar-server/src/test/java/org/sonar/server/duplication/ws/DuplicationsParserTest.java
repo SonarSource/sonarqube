@@ -71,15 +71,15 @@ public class DuplicationsParserTest {
 
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
-    currentFile = newFileDto(project1).setKey(key1).setLongName("CommandExecutor");
+    currentFile = newFileDto(project1, null).setKey(key1).setLongName("CommandExecutor");
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnSameProject = newFileDto(project1).setKey(key2).setLongName("CommandExecutor");
+    fileOnSameProject = newFileDto(project1, null).setKey(key2).setLongName("CommandExecutor");
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnDifferentProject = newFileDto(project2).setKey(key3).setLongName("CommandExecutor");
+    fileOnDifferentProject = newFileDto(project2, null).setKey(key3).setLongName("CommandExecutor");
 
     componentDao.insert(dbSession, currentFile, fileOnSameProject, fileOnDifferentProject);
     dbSession.commit();
@@ -194,9 +194,9 @@ public class DuplicationsParserTest {
 
   @Test
   public void compare_duplications() {
-    ComponentDto currentFile = newFileDto(project1).setId(11L);
-    ComponentDto fileOnSameProject = newFileDto(project1).setId(12L);
-    ComponentDto fileOnDifferentProject = newFileDto(project2).setId(13L);
+    ComponentDto currentFile = newFileDto(project1, null).setId(11L);
+    ComponentDto fileOnSameProject = newFileDto(project1, null).setId(12L);
+    ComponentDto fileOnDifferentProject = newFileDto(project2, null).setId(13L);
 
     DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.projectUuid());
 

@@ -206,7 +206,7 @@ public class AddGroupActionTest {
     insertGroup("sonar-administrators");
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     insertComponent(project);
-    insertComponent(ComponentTesting.newFileDto(project, "file-uuid"));
+    insertComponent(ComponentTesting.newFileDto(project, null, "file-uuid"));
     commit();
 
     newRequest()

@@ -64,7 +64,7 @@ public class IndexActionTest {
   WsTester tester;
 
   ComponentDto project = ComponentTesting.newProjectDto();
-  ComponentDto file = ComponentTesting.newFileDto(project);
+  ComponentDto file = ComponentTesting.newFileDto(project, null);
 
   @Before
   public void setUp() {

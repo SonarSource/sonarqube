@@ -100,7 +100,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbClient.ruleDao().insert(session, rule);
     ComponentDto project = ComponentTesting.newProjectDto();
     dbClient.componentDao().insert(session, project);
-    ComponentDto file = ComponentTesting.newFileDto(project);
+    ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbClient.componentDao().insert(session, file);
     session.commit();
 

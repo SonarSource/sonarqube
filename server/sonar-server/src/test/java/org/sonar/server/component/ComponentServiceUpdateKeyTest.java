@@ -70,7 +70,7 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void update_project_key() {
     ComponentDto project = insertSampleRootProject();
-    ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
+    ComponentDto file = ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
 
     dbSession.commit();
@@ -94,7 +94,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(dbSession, module);
 
-    ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
+    ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
 
     dbSession.commit();
@@ -171,7 +171,7 @@ public class ComponentServiceUpdateKeyTest {
   public void fail_if_update_is_not_on_module_or_project() {
     setGlobalAdminPermission();
     ComponentDto project = insertSampleRootProject();
-    ComponentDto file = componentDb.insertComponent(newFileDto(project));
+    ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");

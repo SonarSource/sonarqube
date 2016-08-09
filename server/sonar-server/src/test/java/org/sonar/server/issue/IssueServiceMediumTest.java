@@ -344,7 +344,7 @@ public class IssueServiceMediumTest {
   }
 
   private ComponentDto newFile(ComponentDto project) {
-    ComponentDto file = ComponentTesting.newFileDto(project);
+    ComponentDto file = ComponentTesting.newFileDto(project, null);
     tester.get(ComponentDao.class).insert(session, file);
     session.commit();
     return file;

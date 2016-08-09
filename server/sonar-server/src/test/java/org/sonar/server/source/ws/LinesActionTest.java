@@ -174,7 +174,7 @@ public class LinesActionTest {
 
   private void newFile() {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
-    ComponentDto file = ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     componentDao.insert(dbTester.getSession(), project, file);
     dbTester.getSession().commit();
   }

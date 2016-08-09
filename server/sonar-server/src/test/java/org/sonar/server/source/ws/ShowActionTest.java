@@ -65,7 +65,7 @@ public class ShowActionTest {
   ComponentDao componentDao;
 
   ComponentDto project = ComponentTesting.newProjectDto();
-  ComponentDto file = ComponentTesting.newFileDto(project);
+  ComponentDto file = ComponentTesting.newFileDto(project, null);
 
   @Before
   public void setUp() {

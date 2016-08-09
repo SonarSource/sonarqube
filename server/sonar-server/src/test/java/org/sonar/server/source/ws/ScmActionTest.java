@@ -182,7 +182,7 @@ public class ScmActionTest {
 
   private void initFile() {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
-    dbClient.componentDao().insert(dbTester.getSession(), project, ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY));
+    dbClient.componentDao().insert(dbTester.getSession(), project, ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     dbTester.getSession().commit();
   }
 

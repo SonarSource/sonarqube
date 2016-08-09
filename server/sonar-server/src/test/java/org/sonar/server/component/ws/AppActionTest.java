@@ -154,7 +154,7 @@ public class AppActionTest {
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project)
       .setLongName("SonarQube :: Plugin API")
       .setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID)
+    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID)
       .setKey(FILE_KEY)
       .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")

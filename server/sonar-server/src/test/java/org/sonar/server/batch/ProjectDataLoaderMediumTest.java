@@ -495,7 +495,7 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
-    ComponentDto file = ComponentTesting.newFileDto(project, "file");
+    ComponentDto file = ComponentTesting.newFileDto(project, null, "file");
     tester.get(DbClient.class).componentDao().insert(dbSession, file);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(file).setSrcHash("123456"));
 
@@ -515,7 +515,7 @@ public class ProjectDataLoaderMediumTest {
     addDefaultProfile();
 
     // File on project
-    ComponentDto projectFile = ComponentTesting.newFileDto(project, "projectFile");
+    ComponentDto projectFile = ComponentTesting.newFileDto(project, null, "projectFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
 
@@ -523,7 +523,7 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
 
     // File on module
-    ComponentDto moduleFile = ComponentTesting.newFileDto(module, "moduleFile");
+    ComponentDto moduleFile = ComponentTesting.newFileDto(module, null, "moduleFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456"));
 
@@ -541,7 +541,7 @@ public class ProjectDataLoaderMediumTest {
     addDefaultProfile();
 
     // File on project
-    ComponentDto projectFile = ComponentTesting.newFileDto(project, "projectFile");
+    ComponentDto projectFile = ComponentTesting.newFileDto(project, null, "projectFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456").setRevision("987654321"));
 
@@ -550,7 +550,7 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
 
     // File on module
-    ComponentDto moduleFile = ComponentTesting.newFileDto(module, "moduleFile");
+    ComponentDto moduleFile = ComponentTesting.newFileDto(module, null, "moduleFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456").setRevision("123456789"));
 

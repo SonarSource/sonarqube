@@ -110,7 +110,7 @@ public class ComponentKeyUpdaterDaoTest {
   public void fail_with_functional_exception_when_sub_component_key_is_longer_than_authorized() {
     ComponentDto project = newProjectDto("project-uuid").setKey("old-project-key");
     componentDb.insertComponent(project);
-    componentDb.insertComponent(newFileDto(project).setKey("old-project-key:file"));
+    componentDb.insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");

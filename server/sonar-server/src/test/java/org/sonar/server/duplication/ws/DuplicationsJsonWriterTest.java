@@ -70,9 +70,9 @@ public class DuplicationsJsonWriterTest {
   @Test
   public void write_duplications() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
 
     when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
     when(componentDao.selectByKey(session, key2)).thenReturn(Optional.of(file2));
@@ -129,9 +129,9 @@ public class DuplicationsJsonWriterTest {
   @Test
   public void write_duplications_without_sub_project() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
 
     when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
     when(componentDao.selectByKey(session, key2)).thenReturn(Optional.of(file2));
@@ -178,7 +178,7 @@ public class DuplicationsJsonWriterTest {
   @Test
   public void write_duplications_with_a_removed_component() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
 
     when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
     when(componentDao.selectByUuid(session, project.uuid())).thenReturn(Optional.of(project));

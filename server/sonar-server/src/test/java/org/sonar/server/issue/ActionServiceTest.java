@@ -65,7 +65,7 @@ public class ActionServiceTest {
     when(dbClient.openSession(false)).thenReturn(session);
 
     project = newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
-    issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project), project).setKee(ISSUE_KEY);
+    issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY);
 
     underTest = new ActionService(dbClient, userSession, issueService);
   }
@@ -90,13 +90,13 @@ public class ActionServiceTest {
   @Test
   public void doest_not_return_assign_to_me_action_when_issue_already_assigned_to_user() {
     userSession.login("julien");
-    IssueDto issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project), project).setKee(ISSUE_KEY).setAssignee("julien");
+    IssueDto issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY).setAssignee("julien");
     assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).doesNotContain("assign_to_me");
   }
 
   @Test
   public void return_only_comment_action_when_issue_has_a_resolution() {
-    IssueDto issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project), project).setKee(ISSUE_KEY).setResolution(RESOLUTION_FIXED);
+    IssueDto issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY).setResolution(RESOLUTION_FIXED);
     assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment");
   }
 

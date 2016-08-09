@@ -104,7 +104,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
     dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
-    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), fileDto);
     dbTester.getSession().commit();
 
@@ -173,7 +173,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
     dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
 
-    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), fileDto);
 
     dbTester.getSession().commit();

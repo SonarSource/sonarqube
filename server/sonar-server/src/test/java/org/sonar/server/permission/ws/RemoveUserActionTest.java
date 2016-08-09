@@ -163,7 +163,7 @@ public class RemoveUserActionTest {
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
     expectedException.expect(BadRequestException.class);
-    insertComponent(newFileDto(newProjectDto(), "file-uuid"));
+    insertComponent(newFileDto(newProjectDto(), null, "file-uuid"));
 
     ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")

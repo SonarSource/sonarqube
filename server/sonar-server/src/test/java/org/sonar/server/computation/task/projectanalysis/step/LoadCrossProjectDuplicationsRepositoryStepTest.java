@@ -340,7 +340,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   private ComponentDto createFile(String fileKey, ComponentDto project) {
-    ComponentDto file = ComponentTesting.newFileDto(project)
+    ComponentDto file = ComponentTesting.newFileDto(project, null)
       .setKey(fileKey)
       .setLanguage(XOO_LANGUAGE);
     dbClient.componentDao().insert(dbSession, file);

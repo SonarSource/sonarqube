@@ -48,9 +48,9 @@ public class IssueMapperTest {
   public void setUp() throws Exception {
     project = ComponentTesting.newProjectDto();
     dbTester.getDbClient().componentDao().insert(dbSession, project);
-    file = ComponentTesting.newFileDto(project);
+    file = ComponentTesting.newFileDto(project, null);
     dbTester.getDbClient().componentDao().insert(dbSession, file);
-    file2 = ComponentTesting.newFileDto(project).setUuid("file2 uuid");
+    file2 = ComponentTesting.newFileDto(project, null).setUuid("file2 uuid");
     dbTester.getDbClient().componentDao().insert(dbSession, file2);
     rule = RuleTesting.newXooX1();
     dbTester.getDbClient().ruleDao().insert(dbSession, rule);
