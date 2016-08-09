@@ -22,10 +22,10 @@ package org.sonar.ce.app;
 @FunctionalInterface
 interface StartupBarrier {
   /**
-   * This blocking call, waits for the Web Server to be operational until either the Web Server is actually
-   * operational, or the calling thread is interrupted.
+   * This blocking call, waits for a process (or anything) to be operational until either it is actually operational, or
+   * the calling thread is interrupted.
    *
-   * @return true if we detected WebServer is operational, false otherwise
+   * @return true if what's awaited for is operational, false otherwise
    */
   boolean waitForOperational();
 }

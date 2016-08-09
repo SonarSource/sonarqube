@@ -26,7 +26,7 @@ import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessId;
 
 /**
- * Waits that web server is operational (started and datastores up-to-date)
+ * Waits for the web server to be operational (started and datastores up-to-date)
  */
 class WebServerBarrier implements StartupBarrier {
   private static final Logger LOG = Loggers.get(WebServerBarrier.class);
