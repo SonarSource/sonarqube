@@ -670,6 +670,7 @@ public class ComponentDaoTest {
       .setBChanged(true)
       .setBDescription("desc")
       .setBEnabled(true)
+      .setBUuidPath("uuid_path")
       .setBLanguage("lang")
       .setBLongName("longName")
       .setBModuleUuid("moduleUuid")
@@ -677,14 +678,15 @@ public class ComponentDaoTest {
       .setBName("name")
       .setBPath("path")
       .setBQualifier("qualifier")
-    );
+      );
     dbSession.commit();
 
     Map<String, Object> row = selectBColumnsForUuid("U1");
-    assertThat(row.get("bChanged")).isIn(true, /* for Oracle */ 1L, 1);
+    assertThat(row.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row.get("bCopyComponentUuid")).isEqualTo("copy");
     assertThat(row.get("bDescription")).isEqualTo("desc");
-    assertThat(row.get("bEnabled")).isIn(true, /* for Oracle */ 1L, 1);
+    assertThat(row.get("bEnabled")).isIn(true, /* for Oracle */1L, 1);
+    assertThat(row.get("bUuidPath")).isEqualTo("uuid_path");
     assertThat(row.get("bLanguage")).isEqualTo("lang");
     assertThat(row.get("bLongName")).isEqualTo("longName");
     assertThat(row.get("bModuleUuid")).isEqualTo("moduleUuid");
@@ -705,10 +707,11 @@ public class ComponentDaoTest {
     dbSession.commit();
 
     Map<String, Object> row1 = selectBColumnsForUuid("U1");
-    assertThat(row1.get("bChanged")).isIn(true, /* for Oracle */ 1L, 1);
+    assertThat(row1.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyResourceUuid());
     assertThat(row1.get("bDescription")).isEqualTo(dto1.description());
-    assertThat(row1.get("bEnabled")).isIn(false, /* for Oracle */ 0L, 0);
+    assertThat(row1.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
+    assertThat(row1.get("bUuidPath")).isEqualTo(dto1.getUuidPath());
     assertThat(row1.get("bLanguage")).isEqualTo(dto1.language());
     assertThat(row1.get("bLongName")).isEqualTo(dto1.longName());
     assertThat(row1.get("bModuleUuid")).isEqualTo(dto1.moduleUuid());
@@ -718,10 +721,11 @@ public class ComponentDaoTest {
     assertThat(row1.get("bQualifier")).isEqualTo(dto1.qualifier());
 
     Map<String, Object> row2 = selectBColumnsForUuid("U2");
-    assertThat(row2.get("bChanged")).isIn(true, /* for Oracle */ 1L, 1);
+    assertThat(row2.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyResourceUuid());
     assertThat(row2.get("bDescription")).isEqualTo(dto2.description());
-    assertThat(row2.get("bEnabled")).isIn(false, /* for Oracle */ 0L, 0);
+    assertThat(row2.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
+    assertThat(row2.get("bUuidPath")).isEqualTo(dto2.getUuidPath());
     assertThat(row2.get("bLanguage")).isEqualTo(dto2.language());
     assertThat(row2.get("bLongName")).isEqualTo(dto2.longName());
     assertThat(row2.get("bModuleUuid")).isEqualTo(dto2.moduleUuid());
@@ -731,16 +735,16 @@ public class ComponentDaoTest {
     assertThat(row2.get("bQualifier")).isEqualTo(dto2.qualifier());
 
     Map<String, Object> row3 = selectBColumnsForUuid("U3");
-    assertThat(row3.get("bChanged")).isIn(false, /* for Oracle */ 0L, 0);
+    assertThat(row3.get("bChanged")).isIn(false, /* for Oracle */0L, 0);
   }
 
   private Map<String, Object> selectBColumnsForUuid(String uuid) {
     return db.selectFirst(
-        "select b_changed as \"bChanged\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
-          "b_enabled as \"bEnabled\", b_language as \"bLanguage\", b_long_name as \"bLongName\"," +
-          "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
-          "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
-          "from projects where uuid='" + uuid + "'");
+      "select b_changed as \"bChanged\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
+        "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\"," +
+        "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
+        "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
+        "from projects where uuid='" + uuid + "'");
   }
 
   @Test

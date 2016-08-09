@@ -49,6 +49,7 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -216,6 +217,7 @@ public class PersistComponentsStep implements ComputationStep {
         existingComponent.setCopyComponentUuid(updateDto.getBCopyComponentUuid());
         existingComponent.setDescription(updateDto.getBDescription());
         existingComponent.setEnabled(updateDto.isBEnabled());
+        existingComponent.setUuidPath(updateDto.getBUuidPath());
         existingComponent.setLanguage(updateDto.getBLanguage());
         existingComponent.setLongName(updateDto.getBLongName());
         existingComponent.setModuleUuid(updateDto.getBModuleUuid());
@@ -243,7 +245,7 @@ public class PersistComponentsStep implements ComputationStep {
 
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
-    res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    res.setUuidPath(UUID_PATH_OF_ROOT);
     res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
     return res;
@@ -304,7 +306,7 @@ public class PersistComponentsStep implements ComputationStep {
 
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
-    res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    res.setUuidPath(UUID_PATH_OF_ROOT);
     res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
     return res;
@@ -387,6 +389,7 @@ public class PersistComponentsStep implements ComputationStep {
     boolean hasDifferences = !StringUtils.equals(existing.getCopyResourceUuid(), target.getCopyResourceUuid()) ||
       !StringUtils.equals(existing.description(), target.description()) ||
       !existing.isEnabled() ||
+      !StringUtils.equals(existing.getUuidPath(), target.getUuidPath()) ||
       !StringUtils.equals(existing.language(), target.language()) ||
       !StringUtils.equals(existing.longName(), target.longName()) ||
       !StringUtils.equals(existing.moduleUuid(), target.moduleUuid()) ||

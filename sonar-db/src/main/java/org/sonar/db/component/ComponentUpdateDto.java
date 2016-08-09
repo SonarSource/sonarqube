@@ -33,6 +33,7 @@ public class ComponentUpdateDto {
   private String bCopyComponentUuid;
   private String bDescription;
   private boolean bEnabled;
+  private String bUuidPath;
   private String bLanguage;
   private String bLongName;
   private String bModuleUuid;
@@ -66,6 +67,10 @@ public class ComponentUpdateDto {
 
   public boolean isBEnabled() {
     return bEnabled;
+  }
+
+  public String getBUuidPath() {
+    return bUuidPath;
   }
 
   @CheckForNull
@@ -115,6 +120,11 @@ public class ComponentUpdateDto {
 
   public ComponentUpdateDto setBEnabled(boolean b) {
     this.bEnabled = b;
+    return this;
+  }
+
+  public ComponentUpdateDto setBUuidPath(String bUuidPath) {
+    this.bUuidPath = bUuidPath;
     return this;
   }
 
@@ -168,6 +178,7 @@ public class ComponentUpdateDto {
       .setBCopyComponentUuid(from.getCopyResourceUuid())
       .setBDescription(from.description())
       .setBEnabled(from.isEnabled())
+      .setBUuidPath(from.getUuidPath())
       .setBLanguage(from.language())
       .setBLongName(from.longName())
       .setBModuleUuid(from.moduleUuid())
