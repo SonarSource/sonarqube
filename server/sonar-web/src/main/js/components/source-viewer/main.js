@@ -254,7 +254,7 @@ export default Marionette.LayoutView.extend({
     const url = window.baseUrl + '/api/duplications/show';
     const options = { uuid: this.model.id };
     return $.get(url, options, function (data) {
-      const hasDuplications = (data != null) && (data.duplications != null);
+      const hasDuplications = data.duplications != null;
       let duplications = [];
       if (hasDuplications) {
         duplications = {};

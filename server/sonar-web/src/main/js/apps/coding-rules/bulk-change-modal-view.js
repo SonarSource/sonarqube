@@ -34,17 +34,15 @@ export default ModalFormView.extend({
 
   showSuccessMessage (profile, succeeded) {
     const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
-    const profileName = profileBase != null ? profileBase.name : profile;
     const message = translateWithParameters('coding_rules.bulk_change.success',
-        profileName, profileBase.language, succeeded);
+        profileBase.name, profileBase.language, succeeded);
     this.ui.messagesContainer.append(`<div class="alert alert-success">${message}</div>`);
   },
 
   showWarnMessage (profile, succeeded, failed) {
     const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
-    const profileName = profileBase != null ? profileBase.name : profile;
     const message = translateWithParameters('coding_rules.bulk_change.warning',
-        profileName, profileBase.language, succeeded, failed);
+        profileBase.name, profileBase.language, succeeded, failed);
     this.ui.messagesContainer.append(`<div class="alert alert-warning">${message}</div>`);
   },
 

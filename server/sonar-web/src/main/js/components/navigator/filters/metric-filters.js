@@ -192,7 +192,7 @@ export default BaseFilters.BaseFilterView.extend({
       }
     });
 
-    if (value && value.metric && value.op && (value.val != null)) {
+    if (value.metric && value.op && (value.val != null)) {
       this.model.set({
         value,
         enabled: true
