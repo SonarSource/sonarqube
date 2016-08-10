@@ -31,6 +31,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.server.computation.queue.InternalCeQueue;
 
 import static java.lang.String.format;
+import static org.sonar.ce.log.CeLogging.logCeActivity;
 
 public class CeWorkerCallableImpl implements CeWorkerCallable {
 
@@ -70,7 +71,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     // logging twice: once in sonar.log and once in CE appender
     Profiler regularProfiler = startProfiler(task);
     ceLogging.initForTask(task);
-    Profiler ceProfiler = startProfiler(task);
+    Profiler ceProfiler = startActivityProfiler(task);
 
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
     CeTaskResult process = null;
@@ -89,7 +90,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     } finally {
       queue.remove(task, status, process);
       // logging twice: once in sonar.log and once in CE appender
-      stopProfiler(ceProfiler, task, status);
+      stopActivityProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();
       stopProfiler(regularProfiler, task, status);
     }
@@ -101,12 +102,27 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     return profiler.startInfo("Execute task");
   }
 
+  private static Profiler startActivityProfiler(CeTask task) {
+    Profiler profiler = Profiler.create(LOG);
+    addContext(profiler, task);
+    return logCeActivity(() -> profiler.startInfo("Execute task"));
+  }
+
   private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
       profiler.stopError("Executed task");
     } else {
       profiler.stopInfo("Executed task");
+    }
+  }
+
+  private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+    addContext(profiler, task);
+    if (status == CeActivityDto.Status.FAILED) {
+      logCeActivity(() -> profiler.stopError("Executed task"));
+    } else {
+      logCeActivity(() -> profiler.stopInfo("Executed task"));
     }
   }
 

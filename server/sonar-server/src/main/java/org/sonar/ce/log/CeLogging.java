@@ -21,10 +21,12 @@ package org.sonar.ce.log;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.sift.MDCBasedDiscriminator;
 import ch.qos.logback.classic.sift.SiftingAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.sift.AppenderTracker;
 import ch.qos.logback.core.util.Duration;
 import com.google.common.annotations.VisibleForTesting;
@@ -32,15 +34,16 @@ import com.google.common.base.Optional;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.ce.queue.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -58,12 +61,16 @@ import static java.lang.String.format;
 public class CeLogging {
 
   private static final long TIMEOUT_2_MINUTES = 1000 * 60 * 2L;
-  private static final String CE_APPENDER_NAME = "ce";
+  private static final String CE_TASK_APPENDER_NAME = "ce_task";
+  private static final String CE_ACTIVITY_APPENDER_NAME = "ce_activity";
+  private static final String CE_ACTIVITY_FILE_NAME_PREFIX = "ce_activity";
+  private static final String CE_ACTIVITY_ENCODER_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level [%logger{20}] %msg%n";
   // using 0L as timestamp when retrieving appender to stop it will make it instantly eligible for removal
   private static final long STOPPING_TRACKER_TIMESTAMP = 0L;
 
   @VisibleForTesting
   static final String MDC_LOG_PATH = "ceLogPath";
+  static final String MDC_CE_ACTIVITY_FLAG = "ceActivityFlag";
   public static final String MAX_LOGS_PROPERTY = "sonar.ce.maxLogsPerTask";
 
   private final LogbackHelper helper = new LogbackHelper();
@@ -123,9 +130,22 @@ public class CeLogging {
     }
   }
 
+  public static void logCeActivity(Runnable logProducer) {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "true");
+    logProducer.run();
+    MDC.remove(MDC_CE_ACTIVITY_FLAG);
+  }
+
+  public static <T> T logCeActivity(Supplier<T> logProducer) {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "true");
+    T res = logProducer.get();
+    MDC.remove(MDC_CE_ACTIVITY_FLAG);
+    return res;
+  }
+
   private void stopAppender(String relativePath) {
-    Appender<ILoggingEvent> appender = helper.getRootContext().getLogger(Logger.ROOT_LOGGER_NAME).getAppender(CE_APPENDER_NAME);
-    checkState(appender instanceof SiftingAppender, "Appender with name %s is null or not a SiftingAppender", CE_APPENDER_NAME);
+    Appender<ILoggingEvent> appender = helper.getRootContext().getLogger(Logger.ROOT_LOGGER_NAME).getAppender(CE_TASK_APPENDER_NAME);
+    checkState(appender instanceof SiftingAppender, "Appender with name %s is null or not a SiftingAppender", CE_TASK_APPENDER_NAME);
     AppenderTracker<ILoggingEvent> ceAppender = ((SiftingAppender) appender).getAppenderTracker();
     ceAppender.getOrCreate(relativePath, STOPPING_TRACKER_TIMESTAMP).stop();
   }
@@ -163,15 +183,15 @@ public class CeLogging {
    * as Compute Engine is not executed in its
    * own process but in the same process as web server.
    */
-  public static Appender<ILoggingEvent> createAppenderConfiguration(LoggerContext ctx, Props processProps) {
+  public static Appender<ILoggingEvent> createPerTaskAppenderConfiguration(LoggerContext ctx, Props processProps) {
     File dataDir = new File(processProps.nonNullValue(ProcessProperties.PATH_DATA));
     File logsDir = logsDirFromDataDir(dataDir);
-    return createAppenderConfiguration(ctx, logsDir);
+    return createPerTaskAppenderConfiguration(ctx, logsDir);
   }
 
-  static SiftingAppender createAppenderConfiguration(LoggerContext ctx, File logsDir) {
+  static SiftingAppender createPerTaskAppenderConfiguration(LoggerContext ctx, File logsDir) {
     SiftingAppender siftingAppender = new SiftingAppender();
-    siftingAppender.addFilter(new CeLogAcceptFilter<ILoggingEvent>());
+    siftingAppender.addFilter(new CeTaskLogAcceptFilter<>());
     MDCBasedDiscriminator mdcDiscriminator = new MDCBasedDiscriminator();
     mdcDiscriminator.setContext(ctx);
     mdcDiscriminator.setKey(MDC_LOG_PATH);
@@ -180,9 +200,25 @@ public class CeLogging {
     siftingAppender.setContext(ctx);
     siftingAppender.setDiscriminator(mdcDiscriminator);
     siftingAppender.setAppenderFactory(new CeFileAppenderFactory(logsDir));
-    siftingAppender.setName(CE_APPENDER_NAME);
+    siftingAppender.setName(CE_TASK_APPENDER_NAME);
     siftingAppender.setTimeout(new Duration(TIMEOUT_2_MINUTES));
     siftingAppender.start();
     return siftingAppender;
+  }
+
+  public static Appender<ILoggingEvent> createCeActivityAppenderConfiguration(LogbackHelper helper, LoggerContext ctx, Props processProps) {
+    LogbackHelper.RollingPolicy rollingPolicy = helper.createRollingPolicy(ctx, processProps, CE_ACTIVITY_FILE_NAME_PREFIX);
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender(CE_ACTIVITY_APPENDER_NAME);
+    fileAppender.setContext(ctx);
+
+    PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
+    consoleEncoder.setContext(ctx);
+    consoleEncoder.setPattern(CE_ACTIVITY_ENCODER_PATTERN);
+    consoleEncoder.start();
+    fileAppender.setEncoder(consoleEncoder);
+    fileAppender.addFilter(new CeActivityLogAcceptFilter<>());
+    fileAppender.start();
+
+    return fileAppender;
   }
 }

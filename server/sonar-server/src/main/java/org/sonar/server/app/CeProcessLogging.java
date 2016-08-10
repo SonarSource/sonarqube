@@ -17,38 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.log;
+package org.sonar.server.app;
 
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
-import org.apache.log4j.MDC;
-import org.junit.After;
-import org.junit.Test;
-import org.sonar.ce.log.CeLogAcceptFilter;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import org.sonar.ce.log.CeLogging;
+import org.sonar.process.LogbackHelper;
+import org.sonar.process.Props;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Configure logback for the Compute Engine process.
+ * Logs are written to console, which is forwarded to file logs/sonar.log by the app master process.
+ * In addition, CE writes activity to "logs/ce_activity.log".
+ */
+public class CeProcessLogging extends ServerProcessLogging {
 
-public class CeLogAcceptFilterTest {
-
-  private static final Object UNUSED = "";
-
-  Filter underTest = new CeLogAcceptFilter();
-
-  @After
-  public void tearDown() {
-    MDC.clear();
+  public CeProcessLogging() {
+    super("ce");
   }
 
-  @Test
-  public void reject_non_ce_logs() {
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
-  }
-
-  @Test
-  public void accept_ce_logs() {
-    MDC.put(CeLogging.MDC_LOG_PATH, "abc.log");
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
+  @Override
+  protected void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props) {
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createPerTaskAppenderConfiguration(ctx, props));
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createCeActivityAppenderConfiguration(helper, ctx, props));
   }
 
 }

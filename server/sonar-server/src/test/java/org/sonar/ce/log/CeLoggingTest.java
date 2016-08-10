@@ -21,9 +21,11 @@ package org.sonar.ce.log;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.sift.SiftingAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.common.base.Optional;
@@ -31,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -41,17 +45,16 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.sonar.api.config.Settings;
-import org.sonar.ce.log.CeLogAcceptFilter;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.log.CeLogging.MDC_CE_ACTIVITY_FLAG;
 import static org.sonar.ce.log.CeLogging.MDC_LOG_PATH;
 
 public class CeLoggingTest {
@@ -63,10 +66,12 @@ public class CeLoggingTest {
 
   private LogbackHelper helper = new LogbackHelper();
   private File dataDir;
+  private File logDir;
 
   @Before
   public void setUp() throws Exception {
     this.dataDir = temp.newFolder();
+    this.logDir = temp.newFolder();
   }
 
   @After
@@ -119,7 +124,7 @@ public class CeLoggingTest {
     underTest.initForTask(task);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Appender with name ce is null or not a SiftingAppender");
+    expectedException.expectMessage("Appender with name ce_task is null or not a SiftingAppender");
 
     underTest.clearForTask();
   }
@@ -136,14 +141,14 @@ public class CeLoggingTest {
     underTest.initForTask(task);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Appender with name ce is null or not a SiftingAppender");
+    expectedException.expectMessage("Appender with name ce_task is null or not a SiftingAppender");
 
     underTest.clearForTask();
   }
 
   @Test
   public void clearForTask_clears_MDC() throws IOException {
-    setupCeAppender();
+    setupCeTaskAppender();
 
     CeLogging underTest = new CeLogging(newSettings(dataDir, 5));
 
@@ -157,7 +162,7 @@ public class CeLoggingTest {
 
   @Test
   public void cleanForTask_stops_only_appender_for_MDC_value() throws IOException {
-    Logger rootLogger = setupCeAppender();
+    Logger rootLogger = setupCeTaskAppender();
 
     CeLogging underTest = new CeLogging(newSettings(dataDir, 5));
 
@@ -234,21 +239,75 @@ public class CeLoggingTest {
   }
 
   @Test
-  public void createConfiguration() throws Exception {
-    SiftingAppender siftingAppender = CeLogging.createAppenderConfiguration(new LoggerContext(), dataDir);
+  public void createTaskConfiguration() {
+    SiftingAppender siftingAppender = CeLogging.createPerTaskAppenderConfiguration(new LoggerContext(), dataDir);
 
     // filter on CE logs
     List<Filter<ILoggingEvent>> filters = siftingAppender.getCopyOfAttachedFiltersList();
     assertThat(filters).hasSize(1);
-    assertThat(filters.get(0)).isInstanceOf(CeLogAcceptFilter.class);
+    assertThat(filters.get(0)).isInstanceOf(CeTaskLogAcceptFilter.class);
 
     assertThat(siftingAppender.getDiscriminator().getKey()).isEqualTo(MDC_LOG_PATH);
     assertThat(siftingAppender.getTimeout().getMilliseconds()).isEqualTo(1000 * 60 * 2);
   }
 
-  private Logger setupCeAppender() {
+  @Test
+  public void createCeConfigurationConfiguration_fails_if_log_directory_is_not_set_in_Props() {
+    LogbackHelper helper = new LogbackHelper();
+    LoggerContext ctx = new LoggerContext();
+    Props processProps = new Props(new Properties());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.path.logs is not set");
+
+    CeLogging.createCeActivityAppenderConfiguration(helper, ctx, processProps);
+  }
+
+  @Test
+  public void createCeConfigurationConfiguration() {
+    Properties props = new Properties();
+    props.setProperty(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+    Appender<ILoggingEvent> appender = CeLogging.createCeActivityAppenderConfiguration(new LogbackHelper(), new LoggerContext(), new Props(props));
+
+    // filter on CE logs
+    List<Filter<ILoggingEvent>> filters = appender.getCopyOfAttachedFiltersList();
+    assertThat(filters).hasSize(1);
+    assertThat(filters.get(0)).isInstanceOf(CeActivityLogAcceptFilter.class);
+
+    assertThat(appender).isInstanceOf(FileAppender.class);
+    assertThat(appender.getName()).isEqualTo("ce_activity");
+    FileAppender fileAppender = (FileAppender) appender;
+    assertThat(fileAppender.getEncoder())
+      .isInstanceOf(PatternLayoutEncoder.class);
+    assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "ce_activity.log").getAbsolutePath());
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_calls_Runnable_and_remove_flag() {
+    AtomicBoolean called = new AtomicBoolean(false);
+    CeLogging.logCeActivity(() -> {
+      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo("true");
+      called.compareAndSet(false, true);
+    });
+    assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
+    assertThat(called.get()).isTrue();
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_calls_Supplier_and_remove_flag() {
+    AtomicBoolean called = new AtomicBoolean(false);
+    CeLogging.logCeActivity(() -> {
+      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo("true");
+      called.compareAndSet(false, true);
+      return 1;
+    });
+    assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
+    assertThat(called.get()).isTrue();
+  }
+
+  private Logger setupCeTaskAppender() {
     Logger rootLogger = helper.getRootContext().getLogger(Logger.ROOT_LOGGER_NAME);
-    rootLogger.addAppender(CeLogging.createAppenderConfiguration(helper.getRootContext(), dataDir));
+    rootLogger.addAppender(CeLogging.createPerTaskAppenderConfiguration(helper.getRootContext(), dataDir));
     return rootLogger;
   }
 
@@ -280,7 +339,7 @@ public class CeLoggingTest {
   }
 
   private Collection<Appender<ILoggingEvent>> getAllAppenders(Logger rootLogger) {
-    Appender<ILoggingEvent> ceAppender = rootLogger.getAppender("ce");
+    Appender<ILoggingEvent> ceAppender = rootLogger.getAppender("ce_task");
     assertThat(ceAppender).isInstanceOf(SiftingAppender.class);
     return ((SiftingAppender) ceAppender).getAppenderTracker().allComponents();
   }

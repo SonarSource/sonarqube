@@ -24,16 +24,14 @@ import ch.qos.logback.core.spi.FilterReply;
 import org.apache.log4j.MDC;
 import org.junit.After;
 import org.junit.Test;
-import org.sonar.ce.log.CeLogDenyFilter;
-import org.sonar.ce.log.CeLogging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeLogDenyFilterTest {
+public class CeTaskLogDenyFilterTest {
 
   private static final Object UNUSED = "";
 
-  Filter underTest = new CeLogDenyFilter();
+  Filter underTest = new CeTaskLogDenyFilter();
 
   @After
   public void tearDown() {

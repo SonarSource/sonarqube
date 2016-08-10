@@ -24,13 +24,13 @@ import ch.qos.logback.core.spi.FilterReply;
 import org.slf4j.MDC;
 
 /**
- * Filters out the Compute Engine logs.
+ * Keeps only the Compute Engine activity logs.
  */
-public class CeLogDenyFilter<E> extends Filter<E> {
+public class CeTaskLogAcceptFilter<E> extends Filter<E> {
 
   @Override
   public FilterReply decide(E o) {
-    return MDC.get(CeLogging.MDC_LOG_PATH) == null ? FilterReply.ACCEPT : FilterReply.DENY;
+    return MDC.get(CeLogging.MDC_LOG_PATH) == null ? FilterReply.DENY : FilterReply.ACCEPT;
   }
 
 }

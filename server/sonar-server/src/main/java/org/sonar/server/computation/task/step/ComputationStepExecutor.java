@@ -25,6 +25,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 
+import static org.sonar.ce.log.CeLogging.logCeActivity;
+
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
 
@@ -62,7 +64,7 @@ public final class ComputationStepExecutor {
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
       step.execute();
-      stepProfiler.stopInfo(step.getDescription());
+      logCeActivity(() -> stepProfiler.stopInfo(step.getDescription()));
     }
   }
 

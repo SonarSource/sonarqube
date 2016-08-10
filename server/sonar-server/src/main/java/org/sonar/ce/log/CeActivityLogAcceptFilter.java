@@ -21,16 +21,17 @@ package org.sonar.ce.log;
 
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
+import java.util.Objects;
 import org.slf4j.MDC;
 
 /**
  * Keeps only the Compute Engine logs.
  */
-public class CeLogAcceptFilter<E> extends Filter<E> {
+public class CeActivityLogAcceptFilter<E> extends Filter<E> {
 
   @Override
   public FilterReply decide(E o) {
-    return MDC.get(CeLogging.MDC_LOG_PATH) == null ? FilterReply.DENY : FilterReply.ACCEPT;
+    return Objects.equals("true", MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG)) ? FilterReply.ACCEPT : FilterReply.DENY;
   }
 
 }

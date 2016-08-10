@@ -25,26 +25,41 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import java.io.IOException;
 import java.util.Properties;
 import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.ce.log.CeFileAppenderFactory;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServerProcessLoggingTest {
+public class CeProcessLoggingTest {
 
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String PROCESS_NAME = "pr1";
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   Props props = new Props(new Properties());
-  ServerProcessLogging underTest = new ServerProcessLogging(PROCESS_NAME) {
-    @Override
-    protected void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props) {
-      // nothing to do
-    }
-  };
+  CeProcessLogging underTest = new CeProcessLogging();
+
+  /**
+   * Path to data dir must be set for Compute Engine logging.
+   * @see CeFileAppenderFactory
+   * Path to log dir must be set for Compute Engine Activity logging.
+   * @see org.sonar.ce.log.CeLogging#createCeActivityAppenderConfiguration(LogbackHelper, LoggerContext, Props)
+   */
+  @Before
+  public void setUp() throws IOException {
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
+    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+  }
 
   @AfterClass
   public static void resetLogback() throws JoranException {

@@ -32,7 +32,7 @@ import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
-import org.sonar.server.app.ServerProcessLogging;
+import org.sonar.server.app.CeProcessLogging;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.process.ProcessUtils.awaitTermination;
@@ -47,9 +47,7 @@ import static org.sonar.process.ProcessUtils.awaitTermination;
 public class CeServer implements Monitored {
   private static final Logger LOG = Loggers.get(CeServer.class);
 
-  private static final String PROCESS_NAME = "ce";
   private static final String CE_MAIN_THREAD_NAME = "ce-main";
-  private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
 
   /**
    * Thread that currently is inside our await() method.
@@ -120,7 +118,7 @@ public class CeServer implements Monitored {
   public static void main(String[] args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
-    new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
+    new CeProcessLogging().configure(props);
     CeServer server = new CeServer(
       new StartupBarrierFactory().create(entryPoint),
       new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),

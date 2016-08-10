@@ -27,27 +27,19 @@ import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.ce.log.CeTaskLogDenyFilter;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
-import org.sonar.ce.log.CeLogDenyFilter;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.server.platform.ServerLogging;
 
-/**
- * Configure logback for given server sub process (Web Server or CE). Logs must be written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
- */
-public class ServerProcessLogging {
-
+abstract class ServerProcessLogging {
+  private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%logger{20}] %msg%n";
-
-  private final LogbackHelper helper = new LogbackHelper();
   private final String processName;
-  private final String logLevelProperty;
+  private final LogbackHelper helper = new LogbackHelper();
 
-  public ServerProcessLogging(String processName, String logLevelProperty) {
+  ServerProcessLogging(String processName) {
     this.processName = processName;
-    this.logLevelProperty = logLevelProperty;
   }
 
   public LoggerContext configure(Props props) {
@@ -55,7 +47,7 @@ public class ServerProcessLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
-    configureAppender(ctx, props);
+    configureAppenders(ctx, props);
     configureLevels(props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
@@ -64,16 +56,17 @@ public class ServerProcessLogging {
     return ctx;
   }
 
-  private void configureAppender(LoggerContext ctx, Props props) {
+  private void configureAppenders(LoggerContext ctx, Props props) {
     String logFormat = LOG_FORMAT.replace("XXXX", processName);
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat, new CeLogDenyFilter<ILoggingEvent>());
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat, new CeTaskLogDenyFilter<ILoggingEvent>());
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createAppenderConfiguration(ctx, props));
-
+    configureExtraAppenders(ctx, helper, props);
   }
 
+  protected abstract void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props);
+
   private void configureLevels(Props props) {
-    String levelCode = props.value(logLevelProperty, "INFO");
+    String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
     LoggerLevel level;
     if ("TRACE".equals(levelCode)) {
       level = LoggerLevel.TRACE;
@@ -82,7 +75,7 @@ public class ServerProcessLogging {
     } else if ("INFO".equals(levelCode)) {
       level = LoggerLevel.INFO;
     } else {
-      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, logLevelProperty));
+      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
     }
     ServerLogging.configureLevels(helper, level);
   }
