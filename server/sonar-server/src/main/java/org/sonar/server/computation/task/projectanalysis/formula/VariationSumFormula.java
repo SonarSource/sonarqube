@@ -49,7 +49,7 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
 
   public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods, @Nullable Double defaultInputValue) {
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
-    this.supportedPeriods = requireNonNull(supportedPeriods, "Period predicate can not be null");
+    this.supportedPeriods = requireNonNull(supportedPeriods, "Period predicate cannot be null");
     this.defaultInputValue = defaultInputValue;
   }
 

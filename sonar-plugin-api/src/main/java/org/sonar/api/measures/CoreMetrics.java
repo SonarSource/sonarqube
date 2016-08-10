@@ -1314,6 +1314,16 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  public static final String NEW_LINES_DUPLICATED_KEY = "new_duplicated_lines";
+  public static final Metric<Integer> NEW_LINES_DUPLICATED = new Metric.Builder(NEW_LINES_DUPLICATED_KEY, "New Duplicated Lines", Metric.ValueType.INT)
+    .setDescription("New duplicated lines")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_DUPLICATIONS)
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
   public static final String DUPLICATED_BLOCKS_KEY = "duplicated_blocks";
   public static final Metric<Integer> DUPLICATED_BLOCKS = new Metric.Builder(DUPLICATED_BLOCKS_KEY, "Duplicated Blocks", Metric.ValueType.INT)
     .setDescription("Duplicated blocks")

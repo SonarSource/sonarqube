@@ -365,10 +365,6 @@ public class ViewsDuplicationMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_3_REF)).isEmpty();
   }
 
-  private void assertNoRawMeasure(int componentRef, String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isAbsent();
-  }
-
   private void assertRawMeasureValue(int componentRef, String metricKey, int value) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey).get().getIntValue()).isEqualTo(value);
   }
