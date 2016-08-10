@@ -50,6 +50,12 @@ public class Navigation extends ExternalResource {
     return open("/", Navigation.class);
   }
 
+  public ProjectDashboardPage openProjectDashboard(String projectKey) {
+    // TODO encode projectKey
+    String url = "/dashboard?id=" + projectKey;
+    return open(url, ProjectDashboardPage.class);
+  }
+
   public ProjectLinksPage openProjectLinks(String projectKey) {
     // TODO encode projectKey
     String url = "/project/links?id=" + projectKey;

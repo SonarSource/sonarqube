@@ -107,7 +107,7 @@ export default class MetaQualityProfiles extends React.Component {
 
     return (
         <TooltipsContainer>
-          <div>
+          <div className="overview-meta-card">
             <h4 className="overview-meta-header">
               {translate('overview.quality_profiles')}
             </h4>

@@ -17,31 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
-import { getQualityGateUrl } from '../../../helpers/urls';
+package pageobjects;
 
-const MetaQualityGate = ({ gate }) => {
-  return (
-      <div className="overview-meta-card">
-        <h4 className="overview-meta-header">
-          {translate('overview.quality_gate')}
-        </h4>
+import com.codeborne.selenide.SelenideElement;
 
-        <ul className="overview-meta-list">
-          <li>
-            {gate.isDefault && (
-                <span className="note spacer-right">
-                  {'(' + translate('default') + ')'}
-                </span>
-            )}
-            <a href={getQualityGateUrl(gate.key)}>
-              {gate.name}
-            </a>
-          </li>
-        </ul>
-      </div>
-  );
-};
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 
-export default MetaQualityGate;
+public class ProjectDashboardPage {
+
+  public ProjectDashboardPage() {
+    $(".overview").shouldBe(visible);
+  }
+
+  public SelenideElement getLinesOfCode() {
+    SelenideElement element = $("#overview-ncloc");
+    element.shouldBe(visible);
+    return element;
+  }
+
+  public SelenideElement getLanguageDistribution() {
+    SelenideElement element = $("#overview-language-distribution");
+    element.shouldBe(visible);
+    return element;
+  }
+}

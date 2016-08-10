@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 const MetaKey = ({ component }) => {
   return (
-      <div>
+      <div className="overview-meta-card">
         <h4 className="overview-meta-header">
           {translate('key')}
         </h4>

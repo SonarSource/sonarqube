@@ -24,8 +24,9 @@ import MetaLinks from './MetaLinks';
 import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
 import EventsList from './../events/EventsList';
+import MetaSize from './MetaSize';
 
-const Meta = ({ component }) => {
+const Meta = ({ component, measures }) => {
   const { qualifier, description, profiles, gate } = component;
 
   const isProject = qualifier === 'TRK';
@@ -51,21 +52,19 @@ const Meta = ({ component }) => {
           )}
 
           <MetaLinks component={component}/>
-
-          <MetaKey component={component}/>
         </div>
 
-        {(shouldShowQualityProfiles || shouldShowQualityGate) && (
-            <div className="overview-meta-card">
-              {hasQualityGate && (
-                  <MetaQualityGate gate={gate}/>
-              )}
+        <MetaSize component={component} measures={measures}/>
 
-              {shouldShowQualityProfiles && (
-                  <MetaQualityProfiles profiles={profiles}/>
-              )}
-            </div>
+        {shouldShowQualityGate && (
+            <MetaQualityGate gate={gate}/>
         )}
+
+        {shouldShowQualityProfiles && (
+            <MetaQualityProfiles profiles={profiles}/>
+        )}
+
+        <MetaKey component={component}/>
 
         {showShowEvents && (
             <EventsList component={component}/>

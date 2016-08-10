@@ -32,7 +32,7 @@ import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
 import it.measure.MeasuresWsTest;
 import it.measure.ProjectMeasuresPageTest;
-import it.measure.ProjectOverviewTest;
+import it.measure.ProjectDashboardTest;
 import it.measure.ProjectWidgetsTest;
 import it.measureFilter.MeasureFiltersTest;
 import it.measureHistory.DifferentialPeriodsTest;
@@ -91,7 +91,7 @@ import static util.ItUtils.xooPlugin;
   CustomMeasuresTest.class,
   // measure
   ProjectMeasuresPageTest.class,
-  ProjectOverviewTest.class,
+  ProjectDashboardTest.class,
   ProjectWidgetsTest.class,
   MeasureFiltersTest.class,
   MeasuresWsTest.class,
