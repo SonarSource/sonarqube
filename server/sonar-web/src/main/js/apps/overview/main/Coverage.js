@@ -150,7 +150,7 @@ class Coverage extends React.Component {
               {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
             </span>
           </DrilldownLink>
-          {getMetricName('new_ncloc')}
+          {getMetricName('new_lines_to_cover')}
         </div>
     ) : (
         <div className="overview-domain-measure-label">
