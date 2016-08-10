@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { getProjectLinks } from '../../../api/projectLinks';
-import { isProvided } from '../../project-admin/links/utils';
+import { isProvided, orderLinks } from '../../project-admin/links/utils';
 
 export default class MetaLinks extends React.Component {
   static propTypes = {
@@ -64,9 +64,11 @@ export default class MetaLinks extends React.Component {
       return null;
     }
 
+    const orderedLinks = orderLinks(links);
+
     return (
         <ul className="overview-meta-list big-spacer-bottom">
-          {links.map(link => (
+          {orderedLinks.map(link => (
               <li key={link.id}>
                 <a className="link-with-icon" href={link.url} target="_blank">
                   {this.renderLinkIcon(link)}

@@ -36,7 +36,7 @@ export function orderLinks (links) {
   const [provided, unknown] = partition(links, isProvided);
   return [
     ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
-    ...sortBy(unknown, link => link.name)
+    ...sortBy(unknown, link => link.name.toLowerCase())
   ];
 }
 
