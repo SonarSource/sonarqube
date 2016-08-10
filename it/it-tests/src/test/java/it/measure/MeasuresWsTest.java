@@ -45,7 +45,9 @@ import static util.ItUtils.setServerProperty;
 public class MeasuresWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
+  private static final String DIR_KEY = "sample:src/main/xoo/sample";
   WsClient wsClient;
 
   @BeforeClass
@@ -63,13 +65,14 @@ public class MeasuresWsTest {
   @Before
   public void inspectProject() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     wsClient = ItUtils.newAdminWsClient(orchestrator);
   }
 
   @Test
   public void component_tree() {
+    scanXooSample();
+
     ComponentTreeWsResponse response = wsClient.measures().componentTree(new ComponentTreeWsRequest()
       .setBaseComponentKey("sample")
       .setMetricKeys(singletonList("ncloc"))
@@ -79,12 +82,75 @@ public class MeasuresWsTest {
     assertThat(response.getBaseComponent().getKey()).isEqualTo("sample");
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
     List<WsMeasures.Component> components = response.getComponentsList();
-    assertThat(components).hasSize(2).extracting("key").containsOnly("sample:src/main/xoo/sample", FILE_KEY);
+    assertThat(components).hasSize(2).extracting("key").containsOnly(DIR_KEY, FILE_KEY);
     assertThat(components.get(0).getMeasuresList().get(0).getValue()).isEqualTo("13");
+  }
+
+  /**
+   * @see SONAR-7958
+   */
+  @Test
+  public void component_tree_supports_module_move_down() {
+    String projectKey = "sample";
+    String newModuleKey = "sample:new_module";
+    String moduleAKey = "module_a";
+    String dirKey = "module_a:src/main/xoo/sample";
+    String fileKey = "module_a:src/main/xoo/sample/Sample.xoo";
+
+    scanXooSampleModuleMoveV1();
+
+    verifyComponentTreeWithChildren(projectKey, moduleAKey);
+    verifyComponentTreeWithChildren(moduleAKey, dirKey);
+    verifyComponentTreeWithChildren(dirKey, fileKey);
+
+    scanXooSampleModuleMoveV2();
+
+    verifyComponentTreeWithChildren(projectKey, newModuleKey);
+    verifyComponentTreeWithChildren(newModuleKey, moduleAKey);
+    verifyComponentTreeWithChildren(moduleAKey, dirKey);
+    verifyComponentTreeWithChildren(dirKey, fileKey);
+  }
+
+  /**
+   * @see SONAR-7958
+   */
+  @Test
+  public void component_tree_supports_module_move_up() {
+    String projectKey = "sample";
+    String newModuleKey = "sample:new_module";
+    String moduleAKey = "module_a";
+    String dirKey = "module_a:src/main/xoo/sample";
+    String fileKey = "module_a:src/main/xoo/sample/Sample.xoo";
+
+    scanXooSampleModuleMoveV2();
+
+    verifyComponentTreeWithChildren(projectKey, newModuleKey);
+    verifyComponentTreeWithChildren(newModuleKey, moduleAKey);
+    verifyComponentTreeWithChildren(moduleAKey, dirKey);
+    verifyComponentTreeWithChildren(dirKey, fileKey);
+
+    scanXooSampleModuleMoveV1();
+
+    verifyComponentTreeWithChildren(projectKey, moduleAKey);
+    verifyComponentTreeWithChildren(moduleAKey, dirKey);
+    verifyComponentTreeWithChildren(dirKey, fileKey);
+  }
+
+  private void verifyComponentTreeWithChildren(String baseComponentKey, String... childKeys) {
+    ComponentTreeWsResponse response = wsClient.measures().componentTree(new ComponentTreeWsRequest()
+      .setBaseComponentKey(baseComponentKey)
+      .setMetricKeys(singletonList("ncloc"))
+      .setStrategy("children"));
+
+    assertThat(response.getBaseComponent().getKey()).isEqualTo(baseComponentKey);
+    assertThat(response.getComponentsList())
+      .extracting("key").containsOnly(childKeys);
   }
 
   @Test
   public void component() {
+    scanXooSample();
+
     ComponentWsResponse response = wsClient.measures().component(new ComponentWsRequest()
       .setComponentKey("sample")
       .setMetricKeys(singletonList("ncloc"))
@@ -94,6 +160,17 @@ public class MeasuresWsTest {
     assertThat(component.getKey()).isEqualTo("sample");
     assertThat(component.getMeasuresList()).isNotEmpty();
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
+  }
 
+  private void scanXooSample() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+  }
+
+  private void scanXooSampleModuleMoveV1() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample-module-move-v1")));
+  }
+
+  private void scanXooSampleModuleMoveV2() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample-module-move-v2")));
   }
 }
