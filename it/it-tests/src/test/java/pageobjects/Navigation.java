@@ -68,6 +68,12 @@ public class Navigation extends ExternalResource {
     return open(url, ProjectHistoryPage.class);
   }
 
+  public ProjectKeyPage openProjectKey(String projectKey) {
+    // TODO encode projectKey
+    String url = "/project/key?id=" + projectKey;
+    return open(url, ProjectKeyPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }

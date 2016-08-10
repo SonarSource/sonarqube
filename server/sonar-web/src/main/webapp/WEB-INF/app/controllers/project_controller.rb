@@ -64,68 +64,6 @@ class ProjectController < ApplicationController
 
   def key
     @project = get_current_project(params[:id])
-    @snapshot = @project.last_snapshot
-  end
-
-  def update_key
-    project = get_current_project(params[:id])
-
-    new_key = params[:new_key].strip
-    if new_key.blank?
-      flash[:error] = message('update_key.new_key_cant_be_blank_for_x', :params => project.key)
-    elsif new_key == project.key
-      flash[:warning] = message('update_key.same_key_for_x', :params => project.key)
-    elsif Project.by_key(new_key)
-      flash[:error] = message('update_key.cant_update_x_because_resource_already_exist_with_key_x', :params => [project.key, new_key])
-    else
-      call_backend do
-        Internal.component_api.updateKey(project.key, new_key)
-        flash[:notice] = message('update_key.key_updated')
-      end
-    end
-
-    redirect_to :action => 'key', :id => project.root_project.id
-  end
-
-  def prepare_key_bulk_update
-    @project = get_current_project(params[:id])
-
-    @string_to_replace = params[:string_to_replace].strip
-    @replacement_string = params[:replacement_string].strip
-    if @string_to_replace.blank? || @replacement_string.blank?
-      flash[:error] = message('update_key.fieds_cant_be_blank_for_bulk_update')
-      redirect_to :action => 'key', :id => @project.id
-    else
-      call_backend do
-        @key_check_results = Internal.component_api.checkModuleKeysBeforeRenaming(@project.key, @string_to_replace, @replacement_string)
-        @can_update = false
-        @duplicate_key_found = false
-        @key_check_results.each do |key, value|
-          if value=="#duplicate_key#"
-            @duplicate_key_found = true
-          else
-            @can_update = true
-          end
-        end
-        @can_update = false if @duplicate_key_found
-      end
-    end
-  end
-
-  def perform_key_bulk_update
-    project = get_current_project(params[:id])
-
-    string_to_replace = params[:string_to_replace].strip
-    replacement_string = params[:replacement_string].strip
-
-    unless string_to_replace.blank? || replacement_string.blank?
-      call_backend do
-        Internal.component_api.bulkUpdateKey(project.key, string_to_replace, replacement_string)
-        flash[:notice] = message('update_key.key_updated')
-      end
-    end
-
-    redirect_to :action => 'key', :id => project.id
   end
 
   def history

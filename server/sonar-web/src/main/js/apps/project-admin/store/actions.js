@@ -30,6 +30,8 @@ import {
     dissociateGateWithProject
 } from '../../../api/quality-gates';
 import { getProjectLinks, createLink } from '../../../api/projectLinks';
+import { getTree } from '../../../api/components';
+import { changeKey as changeKeyApi } from '../../../api/components';
 import { addGlobalSuccessMessage } from '../../../components/store/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -157,3 +159,29 @@ export const deleteProjectLink = (projectKey, linkId) => ({
   projectKey,
   linkId
 });
+
+export const RECEIVE_PROJECT_MODULES = 'RECEIVE_PROJECT_MODULES';
+const receiveProjectModules = (projectKey, modules) => ({
+  type: RECEIVE_PROJECT_MODULES,
+  projectKey,
+  modules
+});
+
+export const fetchProjectModules = projectKey => dispatch => {
+  const options = { qualifiers: 'BRC', s: 'name', ps: 500 };
+  getTree(projectKey, options).then(r => {
+    dispatch(receiveProjectModules(projectKey, r.components));
+  });
+};
+
+export const CHANGE_KEY = 'CHANGE_KEY';
+const changeKeyAction = (key, newKey) => ({
+  type: CHANGE_KEY,
+  key,
+  newKey
+});
+
+export const changeKey = (key, newKey) => dispatch => {
+  return changeKeyApi(key, newKey)
+      .then(() => dispatch(changeKeyAction(key, newKey)));
+};

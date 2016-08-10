@@ -109,3 +109,29 @@ export function getMyProjects (data) {
   const url = '/api/projects/search_my_projects';
   return getJSON(url, data);
 }
+
+/**
+ * Change component's key
+ * @param {string} key
+ * @param {string} newKey
+ * @returns {Promise}
+ */
+export function changeKey (key, newKey) {
+  const url = '/api/components/update_key';
+  const data = { key, newKey };
+  return post(url, data);
+}
+
+/**
+ * Bulk change component's key
+ * @param {string} key
+ * @param {string} from
+ * @param {string} to
+ * @param {boolean} dryRun
+ * @returns {Promise}
+ */
+export function bulkChangeKey (key, from, to, dryRun = false) {
+  const url = '/api/components/bulk_update_key';
+  const data = { key, from, to, dryRun };
+  return postJSON(url, data);
+}
