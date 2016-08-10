@@ -28,7 +28,7 @@ import { getComponentUrl } from '../../../helpers/urls';
 const SETTINGS_URLS = [
   '/project/settings',
   '/project/quality_profiles',
-  '/project/qualitygate',
+  '/project/quality_gate',
   '/custom_measures',
   '/project/links',
   '/project_roles',
@@ -123,7 +123,7 @@ export default React.createClass({
           <ul className="dropdown-menu">
             {this.renderSettingsLink()}
             {this.renderProfilesLink()}
-            {this.renderQualityGatesLink()}
+            {this.renderQualityGateLink()}
             {this.renderCustomMeasuresLink()}
             {this.renderLinksLink()}
             {this.renderPermissionsLink()}
@@ -153,12 +153,12 @@ export default React.createClass({
     return this.renderLink(url, translate('project_quality_profiles.page'), '/project/quality_profiles');
   },
 
-  renderQualityGatesLink() {
+  renderQualityGateLink() {
     if (!this.props.conf.showQualityGates) {
       return null;
     }
-    const url = `/project/qualitygate?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_quality_gate.page'), '/project/qualitygate');
+    const url = `/project/quality_gate?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, translate('project_quality_gate.page'), '/project/quality_gate');
   },
 
   renderCustomMeasuresLink() {
