@@ -23,11 +23,11 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
@@ -75,10 +75,10 @@ public class ExecuteVisitorsStepTest {
               builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
                 .addChildren(
                   builder(FILE, FILE_1_REF).setKey("file1").build(),
-                  builder(FILE, FILE_2_REF).setKey("file2").build()
-                ).build()
-            ).build()
-        ).build());
+                  builder(FILE, FILE_2_REF).setKey("file2").build())
+                .build())
+            .build())
+        .build());
   }
 
   @Test

@@ -28,6 +28,8 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static org.sonar.ce.log.CeLogging.logCeActivity;
+
 public class ExecuteVisitorsStep implements ComputationStep {
 
   private static final Logger LOGGER = Loggers.get(ExecuteVisitorsStep.class);
@@ -49,7 +51,7 @@ public class ExecuteVisitorsStep implements ComputationStep {
   public void execute() {
     VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors);
     visitorsCrawler.visit(treeRootHolder.getRoot());
-    logVisitorExecutionDurations(visitors, visitorsCrawler);
+    logCeActivity(() -> logVisitorExecutionDurations(visitors, visitorsCrawler));
   }
 
   private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {
