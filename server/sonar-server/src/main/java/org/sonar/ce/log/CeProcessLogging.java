@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.ce.log;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import org.sonar.ce.log.CeLogging;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
+import org.sonar.server.app.ServerProcessLogging;
+
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 /**
  * Configure logback for the Compute Engine process.
  * Logs are written to console, which is forwarded to file logs/sonar.log by the app master process.
- * In addition, CE writes activity to "logs/ce_activity.log".
+ * In addition, CE writes activity logs to "logs/ce_activity.log".
  */
 public class CeProcessLogging extends ServerProcessLogging {
 
@@ -37,9 +40,12 @@ public class CeProcessLogging extends ServerProcessLogging {
   }
 
   @Override
-  protected void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props) {
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createPerTaskAppenderConfiguration(ctx, props));
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createCeActivityAppenderConfiguration(helper, ctx, props));
+  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat,
+      new CeTaskLogDenyFilter<ILoggingEvent>(), new CeActivityLogDenyFilter());
+    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(consoleAppender);
+    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(CeLogging.createPerTaskAppenderConfiguration(ctx, props));
+    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(CeLogging.createCeActivityAppenderConfiguration(helper, ctx, props));
   }
 
 }

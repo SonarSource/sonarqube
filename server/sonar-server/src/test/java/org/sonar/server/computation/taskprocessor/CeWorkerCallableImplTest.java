@@ -105,10 +105,6 @@ public class CeWorkerCallableImplTest {
     inOrder.verify(ceLogging).clearForTask();
   }
 
-  private void makeTaskProcessorFail(CeTask task) {
-    doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
-  }
-
   @Test
   public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_success() throws Exception {
     when(queue.peek()).thenReturn(Optional.of(createCeTask(null)));
@@ -117,8 +113,8 @@ public class CeWorkerCallableImplTest {
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
-    assertThat(logs).hasSize(4);
-    for (int i = 0; i < 4; i++) {
+    assertThat(logs).hasSize(2);
+    for (int i = 0; i < 2; i++) {
       assertThat(logs.get(i)).doesNotContain(" | submitter=");
     }
   }
@@ -133,15 +129,14 @@ public class CeWorkerCallableImplTest {
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).doesNotContain(" | submitter=");
+    logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(2);
     for (int i = 0; i < 2; i++) {
       assertThat(logs.get(i)).doesNotContain(" | submitter=");
     }
-    logs = logTester.logs(LoggerLevel.ERROR);
-    assertThat(logs).hasSize(3);
-    for (int i = 0; i < 3; i++) {
-      assertThat(logs.get(i)).doesNotContain(" | submitter=");
-    }
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
   @Test
@@ -152,13 +147,11 @@ public class CeWorkerCallableImplTest {
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
-    assertThat(logs).hasSize(4);
-    for (int i = 0; i < 2; i++) {
-      assertThat(logs.get(i)).contains(" | submitter=FooBar");
-    }
-    for (int i = 2; i < 4; i++) {
-      assertThat(logs.get(i)).contains(" | submitter=FooBar | time=");
-    }
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).contains(" | submitter=FooBar");
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
   @Test
@@ -171,20 +164,63 @@ public class CeWorkerCallableImplTest {
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.iterator().next()).contains(" | submitter=FooBar");
+    logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(2);
-    for (int i = 0; i < 2; i++) {
-      assertThat(logs.get(i)).contains(" | submitter=FooBar");
-    }
+    assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+  }
+
+  @Test
+  public void display_start_stop_at_debug_level_for_console_if_DEBUG_is_enabled_and_task_successful() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    when(queue.peek()).thenReturn(Optional.of(createCeTask("FooBar")));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).contains(" | submitter=FooBar");
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    logs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).contains(" | submitter=FooBar");
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+  }
+
+  @Test
+  public void display_start_at_debug_level_stop_at_error_level_for_console_if_DEBUG_is_enabled_and_task_failed() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.iterator().next()).contains(" | submitter=FooBar");
     logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(3);
-    for (int i = 0; i < 3; i++) {
-      String log = logs.get(i);
-      assertThat(log.contains(" | submitter=FooBar | time=") || log.equals("Failed to execute task " + ceTask.getUuid()))
-        .isTrue();
-    }
+    assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+    assertThat(logs.get(2)).contains(" | submitter=FooBar | time=");
+    logs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).contains(" | submitter=FooBar");
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {
     return new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(submitterLogin).build();
+  }
+
+  private void makeTaskProcessorFail(CeTask task) {
+    doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
   }
 }

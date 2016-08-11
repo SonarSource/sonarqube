@@ -25,7 +25,7 @@ import java.util.Objects;
 import org.slf4j.MDC;
 
 /**
- * Keeps only the Compute Engine logs.
+ * Keeps only Compute Engine activity logs.
  */
 public class CeActivityLogAcceptFilter<E> extends Filter<E> {
 

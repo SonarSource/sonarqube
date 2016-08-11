@@ -32,7 +32,7 @@ import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
-import org.sonar.server.app.CeProcessLogging;
+import org.sonar.ce.log.CeProcessLogging;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.process.ProcessUtils.awaitTermination;

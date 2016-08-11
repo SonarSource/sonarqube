@@ -36,7 +36,6 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class LogbackHelper {
     return propagator;
   }
 
-  public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, @Nullable Filter filter) {
+  public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, Filter... filters) {
     PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
     consoleEncoder.setContext(loggerContext);
     consoleEncoder.setPattern(pattern);
@@ -83,7 +82,7 @@ public class LogbackHelper {
     consoleAppender.setEncoder(consoleEncoder);
     consoleAppender.setName(name);
     consoleAppender.setTarget("System.out");
-    if (filter != null) {
+    for (Filter filter : filters) {
       consoleAppender.addFilter(filter);
     }
     consoleAppender.start();

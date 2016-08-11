@@ -33,18 +33,12 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServerProcessLoggingTest {
+public class WebServerProcessLoggingTest {
+  private WebServerProcessLogging underTest = new WebServerProcessLogging();
 
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String PROCESS_NAME = "pr1";
 
   Props props = new Props(new Properties());
-  ServerProcessLogging underTest = new ServerProcessLogging(PROCESS_NAME) {
-    @Override
-    protected void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props) {
-      // nothing to do
-    }
-  };
 
   @AfterClass
   public static void resetLogback() throws JoranException {
@@ -78,4 +72,5 @@ public class ServerProcessLoggingTest {
     LoggerContext ctx = underTest.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.TRACE);
   }
+
 }

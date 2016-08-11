@@ -70,7 +70,7 @@ class AppLogging {
   }
 
   private void configureConsole(LoggerContext loggerContext) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n", null);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n");
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
     consoleLogger.setAdditive(false);
     consoleLogger.addAppender(consoleAppender);
@@ -95,7 +95,7 @@ class AppLogging {
   }
 
   private void configureRoot(Props props, LoggerContext loggerContext) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN, null);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN);
     Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.toLevel(props.value("sonar.app.log.level", Level.INFO.toString()), Level.INFO));
     rootLogger.addAppender(consoleAppender);

@@ -17,29 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.ce.log;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import java.util.Objects;
+import org.slf4j.MDC;
 
 /**
- * Configure logback for the Web Server process. Logs are written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
+ * Ignores Compute Engine activity logs.
  */
-public class WebServerProcessLogging extends ServerProcessLogging {
-
-  public WebServerProcessLogging() {
-    super("web");
-  }
+public class CeActivityLogDenyFilter<E> extends Filter<E> {
 
   @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
+  public FilterReply decide(E o) {
+    return Objects.equals("true", MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG)) ? FilterReply.DENY : FilterReply.ACCEPT;
   }
 
 }

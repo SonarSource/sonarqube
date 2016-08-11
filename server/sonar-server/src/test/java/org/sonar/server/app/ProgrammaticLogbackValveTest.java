@@ -41,7 +41,7 @@ public class ProgrammaticLogbackValveTest {
     ProgrammaticLogbackValve valve = new ProgrammaticLogbackValve();
     valve.setContainer(mock(Container.class));
     LogbackHelper helper = new LogbackHelper();
-    ConsoleAppender<IAccessEvent> appender = helper.newConsoleAppender(valve, "CONSOLE", "combined", null);
+    ConsoleAppender<IAccessEvent> appender = helper.newConsoleAppender(valve, "CONSOLE", "combined");
     valve.addAppender(appender);
 
     valve.start();

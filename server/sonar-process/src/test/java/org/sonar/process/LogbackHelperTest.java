@@ -82,7 +82,7 @@ public class LogbackHelperTest {
   @Test
   public void newConsoleAppender() {
     LoggerContext ctx = underTest.getRootContext();
-    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n", null);
+    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
 
     assertThat(appender.getName()).isEqualTo("MY_APPENDER");
     assertThat(appender.getContext()).isSameAs(ctx);

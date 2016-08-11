@@ -36,7 +36,7 @@ public class SearchLogging {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, null);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
     Logger rootLogger = helper.configureLogger(Logger.ROOT_LOGGER_NAME, Level.INFO);
     rootLogger.addAppender(consoleAppender);
     return ctx;

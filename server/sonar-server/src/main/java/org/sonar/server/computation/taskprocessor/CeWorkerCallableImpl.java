@@ -99,7 +99,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
   private static Profiler startProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
     addContext(profiler, task);
-    return profiler.startInfo("Execute task");
+    return profiler.startDebug("Execute task");
   }
 
   private static Profiler startActivityProfiler(CeTask task) {
@@ -109,11 +109,15 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
   }
 
   private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+    if (!profiler.isDebugEnabled()) {
+      return;
+    }
+
     addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
       profiler.stopError("Executed task");
     } else {
-      profiler.stopInfo("Executed task");
+      profiler.stopDebug("Executed task");
     }
   }
 

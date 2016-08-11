@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.ce.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.ce.log.CeFileAppenderFactory;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -46,8 +45,8 @@ public class CeProcessLoggingTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Props props = new Props(new Properties());
-  CeProcessLogging underTest = new CeProcessLogging();
+  private Props props = new Props(new Properties());
+  private CeProcessLogging underTest = new CeProcessLogging();
 
   /**
    * Path to data dir must be set for Compute Engine logging.

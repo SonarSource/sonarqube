@@ -19,26 +19,22 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.log.CeTaskLogDenyFilter;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.platform.ServerLogging;
 
-abstract class ServerProcessLogging {
+public abstract class ServerProcessLogging {
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%logger{20}] %msg%n";
   private final String processName;
   private final LogbackHelper helper = new LogbackHelper();
 
-  ServerProcessLogging(String processName) {
+  protected ServerProcessLogging(String processName) {
     this.processName = processName;
   }
 
@@ -58,12 +54,10 @@ abstract class ServerProcessLogging {
 
   private void configureAppenders(LoggerContext ctx, Props props) {
     String logFormat = LOG_FORMAT.replace("XXXX", processName);
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat, new CeTaskLogDenyFilter<ILoggingEvent>());
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
-    configureExtraAppenders(ctx, helper, props);
+    configureAppenders(logFormat, ctx, helper, props);
   }
 
-  protected abstract void configureExtraAppenders(LoggerContext ctx, LogbackHelper helper, Props props);
+  protected abstract void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props);
 
   private void configureLevels(Props props) {
     String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
