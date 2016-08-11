@@ -269,12 +269,6 @@ public class ItUtils {
     return sdf.format(d);
   }
 
-  public static Iterable<String> retrieveCeLogs(Orchestrator orchestrator, String taskId) {
-    String ceLogs = orchestrator.getServer().adminWsClient().get("/api/ce/logs?taskId=" + taskId);
-
-    return LINE_SPLITTER.split(ceLogs);
-  }
-
   public static String extractCeTaskId(BuildResult buildResult) {
     List<String> taskIds = extractCeTaskIds(buildResult);
     checkState(taskIds.size() == 1, "More than one task id retrieved from logs");

@@ -19,7 +19,6 @@
  */
 package it.qualityGate;
 
-import com.google.common.base.Predicate;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -30,6 +29,9 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,17 +53,14 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.retrieveCeLogs;
 
 public class QualityGateTest {
 
   private static final String TASK_STATUS_SUCCESS = "SUCCESS";
-  private static final String TASK_STATUS_FAILED = "FAILED";
   private static final String QG_STATUS_NO_QG = "null";
   private static final String QG_STATUS_OK = "OK";
   private static final String QG_STATUS_ERROR = "ERROR";
@@ -105,7 +104,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void status_ok_if_empty_gate() {
+  public void status_ok_if_empty_gate() throws IOException {
     QualityGate empty = qgClient().create("Empty");
     qgClient().setDefault(empty.id());
 
@@ -123,7 +122,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void test_status_ok() {
+  public void test_status_ok() throws IOException {
     QualityGate simple = qgClient().create("SimpleWithHighThreshold");
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("40"));
@@ -142,7 +141,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void test_status_warning() {
+  public void test_status_warning() throws IOException {
     QualityGate simple = qgClient().create("SimpleWithLowThreshold");
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
@@ -162,7 +161,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void test_status_error() {
+  public void test_status_error() throws IOException {
     QualityGate simple = qgClient().create("SimpleWithLowThreshold");
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
@@ -181,7 +180,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void use_server_settings_instead_of_default_gate() {
+  public void use_server_settings_instead_of_default_gate() throws IOException {
     QualityGate alert = qgClient().create("AlertWithLowThreshold");
     qgClient().createCondition(NewCondition.create(alert.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
     QualityGate error = qgClient().create("ErrorWithLowThreshold");
@@ -194,7 +193,6 @@ public class QualityGateTest {
       SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
       BuildResult buildResult = orchestrator.executeBuild(build);
 
-
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
@@ -206,7 +204,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void conditions_on_multiple_metric_types() {
+  public void conditions_on_multiple_metric_types() throws IOException {
     QualityGate allTypes = qgClient().create("AllMetricTypes");
     qgClient().createCondition(NewCondition.create(allTypes.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
     qgClient().createCondition(NewCondition.create(allTypes.id()).metricKey("duplicated_lines_density").operator("GT").warningThreshold("20"));
@@ -217,7 +215,6 @@ public class QualityGateTest {
         .setProperty("sonar.cpd.xoo.minimumLines", "2")
         .setProperty("sonar.cpd.xoo.minimumTokens", "5");
       BuildResult buildResult = orchestrator.executeBuild(build);
-
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
@@ -261,14 +258,15 @@ public class QualityGateTest {
     }
   }
 
-  private void verifyQGStatusInPostTask(BuildResult buildResult, String taskStatus, String qgStatus) {
-    List<String> postTaskLogLines = extractPosttaskPluginLogs(retrieveCeLogs(orchestrator, extractCeTaskId(buildResult)));
+  private void verifyQGStatusInPostTask(BuildResult buildResult, String taskStatus, String qgStatus) throws IOException {
+    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getLogs(), Charsets.UTF_8);
+    List<String> postTaskLogLines = extractPosttaskPluginLogs(extractCeTaskId(buildResult), logsLines);
 
     assertThat(postTaskLogLines).hasSize(1);
     assertThat(postTaskLogLines.iterator().next())
-        .contains("CeTask[" + taskStatus + "]")
-        .contains("Project[sample]")
-        .contains("QualityGate[" + qgStatus + "]");
+      .contains("CeTask[" + taskStatus + "]")
+      .contains("Project[sample]")
+      .contains("QualityGate[" + qgStatus + "]");
   }
 
   private String getAnalysisId(String taskId) throws IOException {
@@ -304,13 +302,10 @@ public class QualityGateTest {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 
-  private static List<String> extractPosttaskPluginLogs(Iterable<String> ceLogs) {
-    return from(ceLogs)
-      .filter(new Predicate<String>() {
-        @Override
-        public boolean apply(String s) {
-          return s.contains("POSTASKPLUGIN: finished()");
-        }
-      }).toList();
+  private static List<String> extractPosttaskPluginLogs(String taskUuid, Iterable<String> ceLogs) {
+    return StreamSupport.stream(ceLogs.spliterator(), false)
+      .filter(s -> s.contains("POSTASKPLUGIN: finished()"))
+      .filter(s -> s.contains(taskUuid))
+      .collect(Collectors.toList());
   }
 }

@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -32,8 +33,9 @@ public class PostProjectAnalysisTaskImpl implements PostProjectAnalysisTask {
     CeTask ceTask = analysis.getCeTask();
     Project project = analysis.getProject();
     QualityGate qualityGate = analysis.getQualityGate();
-    LOG.info("POSTASKPLUGIN: finished() CeTask[{}] Project[{}] Date[{}] QualityGate[{}]",
+    LOG.info("POSTASKPLUGIN: finished() CeTask[{}][{}] Project[{}] Date[{}] QualityGate[{}]",
       ceTask.getStatus(),
+      ceTask.getId(),
       project.getKey(),
       analysis.getDate().getTime(),
       qualityGate == null ? null : qualityGate.getStatus());
