@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -72,7 +71,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(ceLogging.getFile(LogFileRef.from(dto)).isPresent());
+    builder.setLogs(false);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentDtoCache.get(dto.getComponentUuid()));
@@ -106,7 +105,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(ceLogging.getFile(LogFileRef.from(dto)).isPresent());
+    builder.setLogs(false);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentDtoCache.get(dto.getComponentUuid()));

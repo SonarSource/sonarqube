@@ -28,8 +28,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
@@ -53,7 +53,8 @@ public class ComponentAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component " +
-        "(usually a project). Requires the administration permission on the component.")
+        "(usually a project). Requires the administration permission on the component.<br/>" +
+        "Since 6.1, field \"logs\" is deprecated and its value will always be false")
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);

@@ -98,7 +98,8 @@ public class ActivityAction implements CeWsAction {
       .setDescription(format("Search for tasks.<br> " +
         "Requires the system administration permission, " +
         "or project administration permission if %s is set.<br/>" +
-        "Since 5.5, it's no more possible to specify the page parameter", PARAM_COMPONENT_ID))
+        "Since 5.5, it's no more possible to specify the page parameter.<br/>" +
+        "Since 6.1, field \"logs\" is deprecated and its value will always be false", PARAM_COMPONENT_ID))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setSince("5.2");

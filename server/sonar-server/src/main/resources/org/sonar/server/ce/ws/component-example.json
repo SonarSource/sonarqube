@@ -8,8 +8,7 @@
       "componentName": "HttpRequest",
       "componentQualifier": "TRK",
       "status": "PENDING",
-      "submittedAt": "2015-09-21T19:28:54+0200",
-      "logs": true
+      "submittedAt": "2015-09-21T19:28:54+0200"
     }
   ],
   "current": {
@@ -24,7 +23,6 @@
     "submittedAt": "2015-09-21T19:25:49+0200",
     "startedAt": "2015-09-21T19:25:57+0200",
     "finishedAt": "2015-09-21T19:25:58+0200",
-    "executionTimeMs": 1371,
-    "logs": true
+    "executionTimeMs": 1371
   }
 }

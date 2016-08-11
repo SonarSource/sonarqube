@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.Date;
 import org.junit.Rule;
@@ -29,7 +28,6 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -39,7 +37,6 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,7 +80,6 @@ public class TaskFormatterTest {
 
   @Test
   public void formatQueue_with_component_and_other_fields() throws IOException {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.of(temp.newFile()));
     String uuid = "COMPONENT_UUID";
     db.getDbClient().componentDao().insert(db.getSession(),
       ComponentTesting.newProjectDto(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
@@ -106,7 +102,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getComponentName()).isEqualTo("Component Name");
     assertThat(wsTask.getComponentQualifier()).isEqualTo("TRK");
     assertThat(wsTask.getStatus()).isEqualTo(WsCe.TaskStatus.IN_PROGRESS);
-    assertThat(wsTask.getLogs()).isTrue();
+    assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");
     assertThat(wsTask.hasExecutionTimeMs()).isTrue();
     assertThat(wsTask.hasExecutedAt()).isFalse();
@@ -177,16 +173,6 @@ public class TaskFormatterTest {
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
     assertThat(wsTask.getLogs()).isFalse();
-  }
-
-  @Test
-  public void formatActivity_has_logs() throws IOException {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.of(temp.newFile()));
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
-
-    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto);
-
-    assertThat(wsTask.getLogs()).isTrue();
   }
 
   @Test

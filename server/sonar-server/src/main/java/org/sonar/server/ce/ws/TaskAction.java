@@ -57,7 +57,8 @@ public class TaskAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
-        "Requires 'Administer System' or 'Execute Analysis' permission.")
+        "Requires 'Administer System' or 'Execute Analysis' permission.<br/>" +
+        "Since 6.1, field \"logs\" is deprecated and its value will always be false")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setHandler(this);
@@ -98,8 +99,7 @@ public class TaskAction implements CeWsAction {
   private void checkPermission(@Nullable String projectUuid) {
     if (!userSession.hasPermission(SYSTEM_ADMIN)
       && !userSession.hasPermission(SCAN_EXECUTION)
-      && (projectUuid == null || !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid))
-      ) {
+      && (projectUuid == null || !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid))) {
       throw insufficientPrivilegesException();
     }
   }
