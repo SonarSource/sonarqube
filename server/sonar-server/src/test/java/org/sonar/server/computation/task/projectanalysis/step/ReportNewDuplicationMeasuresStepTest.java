@@ -20,14 +20,12 @@
 
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
-import org.junit.Before;
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
-import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
@@ -38,6 +36,8 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRu
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED;
+import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_DUPLICATED;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_DUPLICATED_KEY;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -46,10 +46,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class ReportNewDuplicationMeasuresStepTest {
   private static final int ROOT_REF = 1;
@@ -57,6 +53,7 @@ public class ReportNewDuplicationMeasuresStepTest {
   private static final int SUB_MODULE_1_REF = 123;
   private static final int SUB_MODULE_2_REF = 126;
   private static final int DIRECTORY_REF = 1234;
+  private static final int DIRECTORY_2_REF = 1235;
   private static final int FILE_1_REF = 12341;
   private static final int FILE_2_REF = 12342;
   private static final int FILE_3_REF = 1261;
@@ -76,7 +73,8 @@ public class ReportNewDuplicationMeasuresStepTest {
                     .addChildren(
                       builder(FILE, FILE_1_REF).build(),
                       builder(FILE, FILE_2_REF).build())
-                    .build())
+                    .build(),
+                  builder(DIRECTORY, DIRECTORY_2_REF).build())
                 .build(),
               builder(MODULE, SUB_MODULE_2_REF)
                 .addChildren(
@@ -86,36 +84,31 @@ public class ReportNewDuplicationMeasuresStepTest {
             .build())
         .build());
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriods(
+    new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"),
+    new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), "u2"));
   @Rule
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(NEW_LINES_DUPLICATED);
+    .add(NEW_LINES_DUPLICATED)
+    .add(NEW_BLOCKS_DUPLICATED);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
-
-  @Before
-  public void setUp() {
-    periodsHolder.setPeriods(
-      new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"),
-      new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), "u2"));
-  }
 
   NewDuplicationMeasuresStep underTest = new NewDuplicationMeasuresStep(treeRootHolder, periodsHolder, metricRepository, measureRepository, scmInfoRepository,
     duplicationRepository);
 
   @Test
   public void compute_duplicated_lines_counts_lines_from_original_and_InnerDuplicate_of_a_single_line() {
-    TextBlock original = new TextBlock(1, 1);
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2));
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 2d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 2d);
   }
 
   @Test
@@ -126,7 +119,7 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 1d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 1d);
   }
 
   @Test
@@ -137,7 +130,7 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 1d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 1d);
   }
 
   @Test
@@ -148,7 +141,7 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 6d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 6d);
   }
 
   @Test
@@ -160,7 +153,7 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 11d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 11d);
   }
 
   @Test
@@ -173,7 +166,7 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 2d, 1d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 2d, 1d);
   }
 
   @Test
@@ -188,15 +181,16 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, 2d);
-    assertRawMeasureValue(FILE_2_REF, 0d);
-    assertRawMeasureValue(FILE_3_REF, 9d);
-    assertRawMeasureValue(FILE_4_REF, 11d);
-    assertRawMeasureValue(DIRECTORY_REF, 2d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, 2d);
-    assertRawMeasureValue(SUB_MODULE_2_REF, 20d);
-    assertRawMeasureValue(MODULE_REF, 22d);
-    assertRawMeasureValue(ROOT_REF, 22d);
+    assertRawMeasureValue(FILE_1_REF, NEW_LINES_DUPLICATED_KEY, 2d);
+    assertRawMeasureValue(FILE_2_REF, NEW_LINES_DUPLICATED_KEY, 0d);
+    assertRawMeasureValue(FILE_3_REF, NEW_LINES_DUPLICATED_KEY, 9d);
+    assertRawMeasureValue(FILE_4_REF, NEW_LINES_DUPLICATED_KEY, 11d);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_LINES_DUPLICATED_KEY, 2d);
+    assertRawMeasureValue(DIRECTORY_2_REF, NEW_LINES_DUPLICATED_KEY, 0d);
+    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_LINES_DUPLICATED_KEY, 2d);
+    assertRawMeasureValue(SUB_MODULE_2_REF, NEW_LINES_DUPLICATED_KEY, 20d);
+    assertRawMeasureValue(MODULE_REF, NEW_LINES_DUPLICATED_KEY, 22d);
+    assertRawMeasureValue(ROOT_REF, NEW_LINES_DUPLICATED_KEY, 22d);
   }
 
   @Test
@@ -208,7 +202,78 @@ public class ReportNewDuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertComputedAndAggregatedToZeroInt();
+    assertComputedAndAggregatedToZeroInt(NEW_LINES_DUPLICATED_KEY);
+  }
+
+  @Test
+  public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {
+    TextBlock original = new TextBlock(1, 1);
+    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2), new TextBlock(4, 4), new TextBlock(3, 4));
+    setChangesets(FILE_1_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
+  }
+
+  @Test
+  public void compute_duplicated_blocks_does_not_count_blocks_only_once_it_assumes_consistency_from_duplication_data() {
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), new TextBlock(4, 4));
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(4, 4));
+    setChangesets(FILE_1_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
+  }
+
+  @Test
+  public void compute_duplicated_blocks_one_for_original_and_ignores_InProjectDuplicate() {
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), FILE_2_REF, new TextBlock(2, 2));
+    setChangesets(FILE_1_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
+  }
+
+  @Test
+  public void compute_duplicated_blocks_one_for_original_and_ignores_CrossProjectDuplicate() {
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), SOME_FILE_KEY, new TextBlock(2, 2));
+    setChangesets(FILE_1_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
+  }
+
+  @Test
+  public void compute_and_aggregate_duplicated_blocks_from_single_duplication() {
+    addDuplicatedBlock(FILE_1_REF, 11);
+    addDuplicatedBlock(FILE_2_REF, 2);
+    addDuplicatedBlock(FILE_4_REF, 7);
+    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 10);
+    assertRawMeasureValue(FILE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 2);
+    assertRawMeasureValue(FILE_3_REF, NEW_BLOCKS_DUPLICATED_KEY, 0);
+    assertRawMeasureValue(FILE_4_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
+    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
+    assertRawMeasureValue(SUB_MODULE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
+    assertRawMeasureValue(MODULE_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
+    assertRawMeasureValue(ROOT_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
+  }
+
+  @Test
+  public void compute_and_aggregate_duplicated_blocks_to_zero_when_no_duplication() {
+    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
+
+    underTest.execute();
+
+    assertComputedAndAggregatedToZeroInt(NEW_BLOCKS_DUPLICATED_KEY);
   }
 
   /**
@@ -226,55 +291,43 @@ public class ReportNewDuplicationMeasuresStepTest {
     duplicationRepository.addDuplication(fileRef, original, duplicates);
   }
 
-  private void setChangesets(int componentRef) {
-    scmInfoRepository.setScmInfo(componentRef,
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      // line 3 is older, part of no period
-      Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build());
+  private void setChangesets(int... componentRefs) {
+    Arrays.stream(componentRefs)
+      .forEach(componentRef -> scmInfoRepository.setScmInfo(componentRef,
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        // line 3 is older, part of no period
+        Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build()));
   }
 
-  private void assertRawMeasureValue(int componentRef, double period2Value) {
-    assertRawMeasureValue(componentRef, period2Value, 0d);
+  private void assertRawMeasureValue(int componentRef, String metricKey, double period2Value) {
+    assertRawMeasureValue(componentRef, metricKey, period2Value, 0d);
   }
 
-  private void assertRawMeasureValue(int componentRef, double period2Value, double period5Value) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnlyOnce(
-      entryOf(NEW_LINES_DUPLICATED_KEY, createMeasure(period2Value, period5Value)));
+  private void assertRawMeasureValue(int componentRef, String metricKey, double period2Value, double period5Value) {
+    MeasureVariations variations = measureRepository.getAddedRawMeasure(componentRef, metricKey).get().getVariations();
+    assertThat(variations.getVariation2()).isEqualTo(period2Value);
+    assertThat(variations.getVariation5()).isEqualTo(period5Value);
   }
 
-  private void assertComputedAndAggregatedToZeroInt() {
-    assertRawMeasureValue(FILE_1_REF, 0);
-    assertRawMeasureValue(FILE_2_REF, 0);
-    assertRawMeasureValue(FILE_3_REF, 0);
-    assertRawMeasureValue(FILE_4_REF, 0);
-    assertRawMeasureValue(DIRECTORY_REF, 0);
-    assertRawMeasureValue(SUB_MODULE_1_REF, 0);
-    assertRawMeasureValue(SUB_MODULE_2_REF, 0);
-    assertRawMeasureValue(MODULE_REF, 0);
-    assertRawMeasureValue(ROOT_REF, 0);
+  private void assertComputedAndAggregatedToZeroInt(String metricKey) {
+    assertRawMeasureValue(FILE_1_REF, metricKey, 0);
+    assertRawMeasureValue(FILE_2_REF, metricKey, 0);
+    assertRawMeasureValue(FILE_3_REF, metricKey, 0);
+    assertRawMeasureValue(FILE_4_REF, metricKey, 0);
+    assertRawMeasureValue(DIRECTORY_REF, metricKey, 0);
+    assertRawMeasureValue(SUB_MODULE_1_REF, metricKey, 0);
+    assertRawMeasureValue(SUB_MODULE_2_REF, metricKey, 0);
+    assertRawMeasureValue(MODULE_REF, metricKey, 0);
+    assertRawMeasureValue(ROOT_REF, metricKey, 0);
   }
-
-  private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
-    MeasureVariations.Builder variationBuilder = newMeasureVariationsBuilder();
-    if (variationPeriod2 != null) {
-      variationBuilder.setVariation(new Period(2, "", null, 1L, "u2"), variationPeriod2);
-    }
-    if (variationPeriod5 != null) {
-      variationBuilder.setVariation(new Period(5, "", null, 1L, "u2"), variationPeriod5);
-    }
-    return newMeasureBuilder()
-      .setVariations(variationBuilder.build())
-      .createNoValue();
-  }
-
 }

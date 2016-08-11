@@ -21,17 +21,20 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.SetMultimap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -44,7 +47,6 @@ import org.sonar.server.computation.task.projectanalysis.formula.CounterInitiali
 import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.task.projectanalysis.formula.VariationSumFormula;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
@@ -56,38 +58,28 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_DUPLICATED_KEY;
-import static org.sonar.server.computation.task.projectanalysis.period.PeriodPredicates.viewsRestrictedPeriods;
 
 /**
  * Computes new duplication measures on files and then aggregates them on higher components.
- *
  */
 public class NewDuplicationMeasuresStep implements ComputationStep {
-
-  private final ImmutableList<Formula> formulas;
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
+  private final NewDuplicationFormula duplicationFormula;
 
   public NewDuplicationMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    ScmInfoRepository scmInfoRepository, @Nullable DuplicationRepository duplicationRepository) {
+                                    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.formulas = ImmutableList.of(NewDuplicationFormula.from(scmInfoRepository, duplicationRepository));
-  }
-
-  /**
-   * Constructor used by Pico in Governance where no DuplicationRepository is available.
-   */
-  public NewDuplicationMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this(treeRootHolder, periodsHolder, metricRepository, measureRepository, null, null);
+    this.duplicationFormula = new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
   }
 
   @Override
@@ -100,17 +92,17 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .withVariationSupport(periodsHolder)
-        .buildFor(formulas))
-          .visit(treeRootHolder.getRoot());
+        .buildFor(ImmutableList.of(duplicationFormula)))
+      .visit(treeRootHolder.getRoot());
   }
 
   private static class NewDuplicationCounter implements Counter<NewDuplicationCounter> {
-    @CheckForNull
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
     private final IntVariationValue.Array newLines = IntVariationValue.newArray();
+    private final IntVariationValue.Array newBlocks = IntVariationValue.newArray();
 
-    private NewDuplicationCounter(@Nullable DuplicationRepository duplicationRepository, ScmInfoRepository scmInfoRepository) {
+    private NewDuplicationCounter(DuplicationRepository duplicationRepository, ScmInfoRepository scmInfoRepository) {
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
     }
@@ -118,53 +110,75 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
     @Override
     public void aggregate(NewDuplicationCounter counter) {
       this.newLines.incrementAll(counter.newLines);
+      this.newBlocks.incrementAll(counter.newBlocks);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
-      Iterable<Duplication> duplications = requireNonNull(this.duplicationRepository, "DuplicationRepository missing").getDuplications(leaf);
+      if (leaf.getType() != Component.Type.FILE) {
+        context.getPeriods().forEach(period -> {
+          newLines.increment(period, 0);
+          newBlocks.increment(period, 0);
+        });
+        return;
+      }
+      Iterable<Duplication> duplications = duplicationRepository.getDuplications(leaf);
       Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
 
       if (!scmInfo.isPresent()) {
         return;
       }
 
-      NewLinesDuplicatedAccumulator newLinesDuplicatedAccumulator = new NewLinesDuplicatedAccumulator(scmInfo.get(), context.getPeriods());
+      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo.get(), context.getPeriods());
 
       for (Duplication duplication : duplications) {
-        newLinesDuplicatedAccumulator.addBlock(duplication.getOriginal());
+        duplicationCounters.addBlock(duplication.getOriginal());
         duplication.getDuplicates().stream()
           .filter(InnerDuplicate.class::isInstance)
           .map(duplicate -> (InnerDuplicate) duplicate)
-          .forEach(duplicate -> newLinesDuplicatedAccumulator.addBlock(duplicate.getTextBlock()));
+          .forEach(duplicate -> duplicationCounters.addBlock(duplicate.getTextBlock()));
       }
 
-      Map<Period, Integer> newLinesDuplicatedByPeriod = newLinesDuplicatedAccumulator.getNewLinesDuplicated();
-      context.getPeriods().forEach(period -> newLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0)));
+      Map<Period, Integer> newLinesDuplicatedByPeriod = duplicationCounters.getNewLinesDuplicated();
+      context.getPeriods().forEach(period -> {
+        newLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0));
+        newBlocks.increment(period, duplicationCounters.getNewBlocksDuplicated().getOrDefault(period, 0));
+      });
     }
   }
 
-  private static class NewLinesDuplicatedAccumulator {
+  private static class DuplicationCounters {
     private final ScmInfo scmInfo;
     private final List<Period> periods;
-    private final SetMultimap<Period, Integer> counts;
+    private final SetMultimap<Period, Integer> lineCounts;
+    private final Multiset<Period> blockCounts;
 
-    private NewLinesDuplicatedAccumulator(ScmInfo scmInfo, List<Period> periods) {
+    private DuplicationCounters(ScmInfo scmInfo, List<Period> periods) {
       this.scmInfo = scmInfo;
       this.periods = periods;
-      this.counts = LinkedHashMultimap.create(periods.size(), Iterables.size(scmInfo.getAllChangesets()));
+      this.lineCounts = LinkedHashMultimap.create(periods.size(), Iterables.size(scmInfo.getAllChangesets()));
+      this.blockCounts = HashMultiset.create();
     }
 
     void addBlock(TextBlock textBlock) {
+      Set<Period> periodWithNewCode = new HashSet<>();
       IntStream.rangeClosed(textBlock.getStart(), textBlock.getEnd())
         .forEach(line -> periods.stream()
           .filter(period -> isLineInPeriod(line, period))
-          .forEach(period -> counts.put(period, line)));
+          .forEach(period -> {
+            lineCounts.put(period, line);
+            periodWithNewCode.add(period);
+          }));
+      blockCounts.addAll(periodWithNewCode);
     }
 
     Map<Period, Integer> getNewLinesDuplicated() {
-      return ImmutableMap.copyOf(counts.keySet().stream().collect(toMap(Function.identity(), period -> counts.get(period).size())));
+      return ImmutableMap.copyOf(lineCounts.keySet().stream().collect(toMap(Function.identity(), period -> lineCounts.get(period).size())));
+    }
+
+    Map<Period, Integer> getNewBlocksDuplicated() {
+      return blockCounts.entrySet().stream().collect(Collectors.toMap(Multiset.Entry::getElement, Multiset.Entry::getCount));
     }
 
     private boolean isLineInPeriod(int lineNumber, Period period) {
@@ -173,20 +187,12 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
   }
 
   private static final class NewDuplicationFormula implements Formula<NewDuplicationCounter> {
-    private static final Formula VIEW_FORMULA = new VariationSumFormula(NEW_LINES_DUPLICATED_KEY, viewsRestrictedPeriods(), 0.0d);
-
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
 
-    private NewDuplicationFormula(ScmInfoRepository scmInfoRepository, @Nullable DuplicationRepository duplicationRepository) {
+    private NewDuplicationFormula(ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
-    }
-
-    public static Formula<?> from(@Nullable ScmInfoRepository scmInfoRepository, @Nullable DuplicationRepository duplicationRepository) {
-      return scmInfoRepository == null
-        ? VIEW_FORMULA
-        : new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
     }
 
     @Override
@@ -197,19 +203,25 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
     @Override
     public Optional<Measure> createMeasure(NewDuplicationCounter counter, CreateMeasureContext context) {
       String metricKey = context.getMetric().getKey();
-      if (NEW_LINES_DUPLICATED_KEY.equals(metricKey)) {
-        Optional<MeasureVariations> variations = counter.newLines.toMeasureVariations();
-        return variations.isPresent()
-          ? Optional.of(Measure.newMeasureBuilder().setVariations(variations.get()).createNoValue())
-          : Optional.absent();
+      switch (metricKey) {
+        case NEW_LINES_DUPLICATED_KEY:
+          Optional<MeasureVariations> newLinesDuplicated = counter.newLines.toMeasureVariations();
+          return newLinesDuplicated.isPresent()
+            ? Optional.of(Measure.newMeasureBuilder().setVariations(newLinesDuplicated.get()).createNoValue())
+            : Optional.absent();
+        case NEW_BLOCKS_DUPLICATED_KEY:
+          Optional<MeasureVariations> newBlocksDuplicated = counter.newBlocks.toMeasureVariations();
+          return newBlocksDuplicated.isPresent()
+            ? Optional.of(Measure.newMeasureBuilder().setVariations(newBlocksDuplicated.get()).createNoValue())
+            : Optional.absent();
+        default:
+          throw new IllegalArgumentException("Unsupported metric " + context.getMetric());
       }
-
-      throw new IllegalArgumentException("Unsupported metric " + context.getMetric());
     }
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_LINES_DUPLICATED_KEY};
+      return new String[]{NEW_LINES_DUPLICATED_KEY, NEW_BLOCKS_DUPLICATED_KEY};
     }
   }
 }

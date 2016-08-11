@@ -1334,6 +1334,16 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  public static final String NEW_BLOCKS_DUPLICATED_KEY = "new_duplicated_blocks";
+  public static final Metric<Integer> NEW_BLOCKS_DUPLICATED = new Metric.Builder(NEW_BLOCKS_DUPLICATED_KEY, "Duplicated Blocks on New Code", Metric.ValueType.INT)
+    .setDescription("Duplicated blocks on new code")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_DUPLICATIONS)
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
   public static final String DUPLICATED_FILES_KEY = "duplicated_files";
 
   /**
