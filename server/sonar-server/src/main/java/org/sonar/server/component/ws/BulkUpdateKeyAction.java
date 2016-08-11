@@ -77,7 +77,6 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
-        "<li>'Browse' on the specified project</li>" +
         "</ul>",
         PARAM_DRY_RUN,
         PARAM_KEY, PARAM_FROM, PARAM_TO,
