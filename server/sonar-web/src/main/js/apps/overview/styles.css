@@ -256,11 +256,6 @@
   white-space: nowrap;
 }
 
-.overview-meta-list [class^="icon-"] {
-  position: relative;
-  top: -1px;
-}
-
 /*
  * Other
  */
