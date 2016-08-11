@@ -19,15 +19,12 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
-import java.io.File;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -44,9 +41,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -75,7 +70,6 @@ public class TaskActionTest {
   @Before
   public void setUp() {
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), PROJECT);
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
   }
 
   @Test

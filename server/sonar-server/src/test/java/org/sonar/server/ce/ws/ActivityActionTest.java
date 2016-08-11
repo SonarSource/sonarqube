@@ -20,13 +20,11 @@
 
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +32,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
@@ -56,9 +53,7 @@ import org.sonarqube.ws.client.ce.CeWsParameters;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
@@ -85,11 +80,6 @@ public class ActivityActionTest {
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
   ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   WsActionTester ws = new WsActionTester(underTest);
-
-  @Before
-  public void setUp() {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.absent());
-  }
 
   @Test
   public void get_all_past_activity() {

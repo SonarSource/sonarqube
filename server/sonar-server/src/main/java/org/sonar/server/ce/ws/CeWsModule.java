@@ -31,7 +31,6 @@ public class CeWsModule extends Module {
       CancelAction.class,
       CancelAllAction.class,
       IsQueueEmptyWs.class,
-      LogsAction.class,
       ComponentAction.class,
       SubmitAction.class,
       TaskFormatter.class,

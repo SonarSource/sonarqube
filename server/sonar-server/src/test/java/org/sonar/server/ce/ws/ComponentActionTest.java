@@ -19,15 +19,11 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
-import java.io.File;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -40,9 +36,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ComponentActionTest {
 
@@ -56,11 +50,6 @@ public class ComponentActionTest {
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
   ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
-
-  @Before
-  public void setUp() {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
-  }
 
   @Test
   public void empty_queue_and_empty_activity() {
@@ -109,9 +98,9 @@ public class ComponentActionTest {
     insertActivity("T5", "PROJECT_1", CeActivityDto.Status.CANCELED);
 
     TestResponse wsResponse = tester.newRequest()
-        .setParam("componentId", "PROJECT_1")
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute();
+      .setParam("componentId", "PROJECT_1")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
 
     WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
     assertThat(response.getQueueCount()).isEqualTo(0);

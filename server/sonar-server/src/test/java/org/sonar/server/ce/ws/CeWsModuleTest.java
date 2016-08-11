@@ -30,6 +30,6 @@ public class CeWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(12 + 2 /* injected by ComponentContainer */);
+    assertThat(container.size()).isEqualTo(11 + 2 /* injected by ComponentContainer */);
   }
 }

@@ -598,7 +598,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // JvmPropsMonitor.class, no Monitor in CE, responsibility of Web Server
       // DatabaseMonitor.class, no Monitor in CE, responsibility of Web Server
       // MigrateDbAction.class, no Web Service in CE
-      // LogsAction.class, no Web Service in CE
       // ChangeLogLevelAction.class, no Web Service in CE
       // DbMigrationStatusAction.class, no Web Service in CE
 
