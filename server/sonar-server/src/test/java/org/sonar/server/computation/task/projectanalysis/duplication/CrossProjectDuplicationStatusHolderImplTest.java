@@ -30,18 +30,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CrossProjectDuplicationStatusHolderImplTest {
 
-  static String BRANCH = "origin/master";
+  private static String BRANCH = "origin/master";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public LogTester logTester = new LogTester();
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  CrossProjectDuplicationStatusHolderImpl underTest = new CrossProjectDuplicationStatusHolderImpl(analysisMetadataHolder);
+  private CrossProjectDuplicationStatusHolderImpl underTest = new CrossProjectDuplicationStatusHolderImpl(analysisMetadataHolder);
 
   @Test
   public void cross_project_duplication_is_enabled_when_enabled_in_report_and_no_branch() throws Exception {
@@ -51,7 +49,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
     underTest.start();
 
     assertThat(underTest.isEnabled()).isTrue();
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Cross project duplication is enabled");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Cross project duplication is enabled");
   }
 
   @Test
@@ -62,7 +60,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Cross project duplication is disabled because it's disabled in the analysis report");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Cross project duplication is disabled because it's disabled in the analysis report");
   }
 
   @Test
@@ -73,7 +71,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Cross project duplication is disabled because of a branch is used");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Cross project duplication is disabled because of a branch is used");
   }
 
   @Test
@@ -84,7 +82,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
     underTest.start();
 
     assertThat(underTest.isEnabled()).isFalse();
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Cross project duplication is disabled because it's disabled in the analysis report");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Cross project duplication is disabled because it's disabled in the analysis report");
   }
 
   @Test

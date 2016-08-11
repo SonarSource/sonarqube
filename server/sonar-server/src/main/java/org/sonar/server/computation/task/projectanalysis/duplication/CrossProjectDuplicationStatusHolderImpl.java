@@ -19,12 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.duplication;
 
-import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class CrossProjectDuplicationStatusHolderImpl implements CrossProjectDuplicationStatusHolder, Startable {
 
@@ -40,7 +41,7 @@ public class CrossProjectDuplicationStatusHolderImpl implements CrossProjectDupl
 
   @Override
   public boolean isEnabled() {
-    Preconditions.checkState(enabled != null, "Flag hasn't been initialized, the start() should have been called before.");
+    checkState(enabled != null, "Flag hasn't been initialized, the start() should have been called before.");
     return enabled;
   }
 
@@ -49,13 +50,13 @@ public class CrossProjectDuplicationStatusHolderImpl implements CrossProjectDupl
     boolean crossProjectDuplicationIsEnabledInReport = analysisMetadataHolder.isCrossProjectDuplicationEnabled();
     boolean branchIsUsed = analysisMetadataHolder.getBranch() != null;
     if (crossProjectDuplicationIsEnabledInReport && !branchIsUsed) {
-      LOGGER.info("Cross project duplication is enabled");
+      LOGGER.debug("Cross project duplication is enabled");
       this.enabled = true;
     } else {
       if (!crossProjectDuplicationIsEnabledInReport) {
-        LOGGER.info("Cross project duplication is disabled because it's disabled in the analysis report");
+        LOGGER.debug("Cross project duplication is disabled because it's disabled in the analysis report");
       } else {
-        LOGGER.info("Cross project duplication is disabled because of a branch is used");
+        LOGGER.debug("Cross project duplication is disabled because of a branch is used");
       }
       this.enabled = false;
     }
