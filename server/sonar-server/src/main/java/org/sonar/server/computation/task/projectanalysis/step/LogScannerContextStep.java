@@ -40,7 +40,7 @@ public class LogScannerContextStep implements ComputationStep {
     CloseableIterator<String> logs = reportReader.readScannerLogs();
     try {
       while (logs.hasNext()) {
-        LOGGER.info(logs.next());
+        LOGGER.debug(logs.next());
       }
     } finally {
       logs.close();

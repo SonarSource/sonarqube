@@ -44,7 +44,7 @@ public class LogScannerContextStepTest {
 
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly("log1", "log2");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("log1", "log2");
   }
 
 }
