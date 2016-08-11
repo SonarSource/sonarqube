@@ -10,6 +10,7 @@
     <result property="deprecatedKey" column="deprecated_kee"/>
     <result property="rootUuid" column="root_uuid"/>
     <result property="scope" column="scope"/>
+    <result property="enabled" column="enabled"/>
   </resultMap>
 
   <select id="countResourceByKey" parameterType="String" resultType="int">
@@ -23,11 +24,11 @@
   </select>
 
   <select id="selectProjectResources" parameterType="String" resultMap="resourceResultMap">
-    select * from projects where root_uuid=#{rootUuid} AND scope!='PRJ'
+    select * from projects where root_uuid=#{rootUuid} AND scope!='PRJ' and enabled=${_true}
   </select>
 
   <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">
-    select * from projects where scope='PRJ' and root_uuid=#{rootUuid} and uuid!=#{rootUuid}
+    select * from projects where scope='PRJ' and root_uuid=#{rootUuid} and uuid!=#{rootUuid} and enabled=${_true}
   </select>
 
   <update id="update" parameterType="Resource">

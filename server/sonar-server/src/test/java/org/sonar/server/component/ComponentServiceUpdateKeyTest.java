@@ -70,8 +70,8 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void update_project_key() {
     ComponentDto project = insertSampleRootProject();
-    ComponentDto file = ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo");
-    dbClient.componentDao().insert(dbSession, file);
+    ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 
@@ -86,6 +86,8 @@ public class ComponentServiceUpdateKeyTest {
     // Check file key has been updated
     assertThat(underTest.getNullableByKey(file.key())).isNull();
     assertThat(underTest.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
+
+    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
   }
 
   @Test

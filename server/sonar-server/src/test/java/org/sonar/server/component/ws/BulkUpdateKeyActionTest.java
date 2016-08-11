@@ -117,7 +117,9 @@ public class BulkUpdateKeyActionTest {
   public void bulk_update_project_key() {
     ComponentDto project = insertMyProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
+    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
     BulkUpdateKeyWsResponse result = callByUuid(project.uuid(), FROM, TO);
 
@@ -130,6 +132,8 @@ public class BulkUpdateKeyActionTest {
     assertComponentKeyUpdated(project.key(), "your_project");
     assertComponentKeyUpdated(module.key(), "your_project:root:module");
     assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
+    assertComponentKeyNotUpdated(inactiveModule.key());
+    assertComponentKeyNotUpdated(inactiveFile.key());
   }
 
   @Test
@@ -242,6 +246,10 @@ public class BulkUpdateKeyActionTest {
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
+  }
+
+  private void assertComponentKeyNotUpdated(String key) {
+    assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
   private ComponentDto insertMyProject() {

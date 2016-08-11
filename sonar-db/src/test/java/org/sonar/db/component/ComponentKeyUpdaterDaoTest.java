@@ -20,18 +20,22 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
@@ -41,7 +45,8 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  private DbSession dbSession = db.getSession();
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
   ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
@@ -56,6 +61,22 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
+  public void update_key_does_not_updated_inactive_components() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("my_project"));
+    ComponentDto directory = componentDb.insertComponent(newDirectory(project, "/directory").setKey("my_project:directory"));
+    componentDb.insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
+    ComponentDto inactiveDirectory = componentDb.insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
+    componentDb.insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
+
+    underTest.updateKey("A", "your_project");
+    db.commit();
+
+    List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
+    assertThat(result).hasSize(5).extracting(ComponentDto::getKey)
+      .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "my_project:inactive_directory", "my_project:inactive_directory/file");
+  }
+
+  @Test
   public void shouldNotUpdateKey() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -63,6 +84,19 @@ public class ComponentKeyUpdaterDaoTest {
     thrown.expectMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
 
     underTest.updateKey("B", "org.struts:struts-ui");
+  }
+
+  @Test
+  public void bulk_update_key_does_not_update_inactive_components() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("my_project"));
+    componentDb.insertComponent(newModuleDto(project).setKey("my_project:module"));
+    componentDb.insertComponent(newModuleDto(project).setKey("my_project:inactive_module").setEnabled(false));
+
+    underTest.bulkUpdateKey(dbSession, "A", "my_", "your_");
+
+    List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
+    assertThat(result).hasSize(3).extracting(ComponentDto::getKey)
+      .containsOnlyOnce("your_project", "your_project:module", "my_project:inactive_module");
   }
 
   @Test
@@ -151,6 +185,18 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
+  public void check_component_keys_checks_inactive_components() {
+    componentDb.insertComponent(newProjectDto().setKey("my-project"));
+    componentDb.insertComponent(newProjectDto().setKey("your-project").setEnabled(false));
+
+    Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("my-project", "your-project", "new-project"));
+
+    assertThat(result)
+      .hasSize(3)
+      .containsOnly(entry("my-project", true), entry("your-project", true), entry("new-project", false));
+  }
+
+  @Test
   public void simulate_bulk_update_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -159,5 +205,18 @@ public class ComponentKeyUpdaterDaoTest {
     assertThat(result)
       .hasSize(3)
       .containsOnly(entry("org.struts:struts", "foo:struts"), entry("org.struts:struts-core", "foo:struts-core"), entry("org.struts:struts-ui", "foo:struts-ui"));
+  }
+
+  @Test
+  public void simulate_bulk_update_key_do_not_return_disable_components() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("project"));
+    componentDb.insertComponent(newModuleDto(project).setKey("project:enabled-module"));
+    componentDb.insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
+
+    Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "project", "new-project");
+
+    assertThat(result)
+      .hasSize(2)
+      .containsOnly(entry("project", "new-project"), entry("project:enabled-module", "new-project:enabled-module"));
   }
 }
