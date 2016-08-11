@@ -49,14 +49,11 @@ public class CeProcessLoggingTest {
   private CeProcessLogging underTest = new CeProcessLogging();
 
   /**
-   * Path to data dir must be set for Compute Engine logging.
-   * @see CeFileAppenderFactory
    * Path to log dir must be set for Compute Engine Activity logging.
    * @see org.sonar.ce.log.CeLogging#createCeActivityAppenderConfiguration(LogbackHelper, LoggerContext, Props)
    */
   @Before
   public void setUp() throws IOException {
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
   }
 

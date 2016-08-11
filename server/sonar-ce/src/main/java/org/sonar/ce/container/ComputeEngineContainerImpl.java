@@ -71,7 +71,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.computation.CeModule;
 import org.sonar.server.computation.CeQueueModule;
-import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
@@ -657,7 +656,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // RegisterIssueFilters.class, DB maintenance, responsibility of Web Server
       // RenameIssueWidgets.class, UI related, anyway, DB maintenance, responsibility of Web Server
       ServerLifecycleNotifier.class,
-      PurgeCeActivities.class,
       // DisplayLogOnDeprecatedProjects.class, responsibility of Web Server
       // ClearRulesOverloadedDebt.class, DB maintenance, responsibility of Web Server
     };
