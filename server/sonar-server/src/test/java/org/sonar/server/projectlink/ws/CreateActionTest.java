@@ -21,6 +21,7 @@ package org.sonar.server.projectlink.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -123,10 +124,29 @@ public class CreateActionTest {
   }
 
   @Test
+  public void with_long_name() throws IOException {
+    insertProject();
+
+    String longName = StringUtils.leftPad("", 60, "a");
+    String expectedType = StringUtils.leftPad("", 20, "a");
+    createAndTest(longName, "http://example.org", expectedType);
+  }
+
+  @Test
   public void fail_if_no_name() {
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_long_name() {
+    expectedException.expect(IllegalArgumentException.class);
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, StringUtils.leftPad("", 129, "*"))
       .setParam(PARAM_URL, "http://example.org")
       .execute();
   }
@@ -137,6 +157,16 @@ public class CreateActionTest {
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_NAME, "Custom")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_long_url() {
+    expectedException.expect(IllegalArgumentException.class);
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, "random")
+      .setParam(PARAM_URL, StringUtils.leftPad("", 2049, "*"))
       .execute();
   }
 
@@ -187,12 +217,12 @@ public class CreateActionTest {
     return project;
   }
 
-  private void createAndTest() throws IOException {
+  private void createAndTest(String name, String url, String type) throws IOException {
     InputStream responseStream = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
-      .setParam(PARAM_NAME, "Custom")
-      .setParam(PARAM_URL, "http://example.org")
+      .setParam(PARAM_NAME, name)
+      .setParam(PARAM_URL, url)
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
@@ -201,8 +231,12 @@ public class CreateActionTest {
     long newId = Long.valueOf(response.getLink().getId());
 
     ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, newId);
-    assertThat(link.getName()).isEqualTo("Custom");
-    assertThat(link.getHref()).isEqualTo("http://example.org");
-    assertThat(link.getType()).isEqualTo("custom");
+    assertThat(link.getName()).isEqualTo(name);
+    assertThat(link.getHref()).isEqualTo(url);
+    assertThat(link.getType()).isEqualTo(type);
+  }
+
+  private void createAndTest() throws IOException {
+    createAndTest("Custom", "http://example.org", "custom");
   }
 }
