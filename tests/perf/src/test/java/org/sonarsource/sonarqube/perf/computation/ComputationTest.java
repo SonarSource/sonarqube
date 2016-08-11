@@ -19,13 +19,11 @@
  */
 package org.sonarsource.sonarqube.perf.computation;
 
-import com.google.common.base.Charsets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -33,8 +31,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarsource.sonarqube.perf.MavenLogs;
 import org.sonarsource.sonarqube.perf.PerfTestCase;
+import org.sonarsource.sonarqube.perf.ServerLogs;
 
 public class ComputationTest extends PerfTestCase {
   private static int MAX_HEAP_SIZE_IN_MEGA = 600;
@@ -82,9 +80,7 @@ public class ComputationTest extends PerfTestCase {
   }
 
   private void assertComputationDurationAround(long expectedDuration) throws IOException {
-    File report = new File(orchestrator.getServer().getLogs().getParent(), "sonar.log");
-    List<String> logsLines = FileUtils.readLines(report, Charsets.UTF_8);
-    Long duration = MavenLogs.extractComputationTotalTime(logsLines);
+    Long duration = ServerLogs.extractComputationTotalTime(orchestrator);
 
     assertDurationAround(duration, expectedDuration);
   }

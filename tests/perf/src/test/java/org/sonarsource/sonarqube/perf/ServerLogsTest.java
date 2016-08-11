@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.sonarqube.perf.scanner;
+package org.sonarsource.sonarqube.perf;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonarsource.sonarqube.perf.MavenLogs;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MavenLogsTest {
+public class ServerLogsTest {
   @Test
-  public void testExtractTotalTime() throws Exception {
-    assertThat(MavenLogs.extractTotalTime(" \n  Total time: 6.015s \n ")).isEqualTo(6015);
-    assertThat(MavenLogs.extractTotalTime(" \n  Total time: 3:14.025s\n  ")).isEqualTo(194025);
+  public void logs_with_different_computations_take_the_last_one() throws Exception {
+    assertThat(ServerLogs.extractComputationTotalTime(Lists.newArrayList(
+      "2015.09.29 16:57:45 INFO  web[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms",
+      "2015.09.29 16:57:45 INFO  web[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=1234ms")))
+        .isEqualTo(1234L);
   }
 
-  @Test
-  public void testMaxMemory() throws Exception {
-    assertThat(MavenLogs.extractMaxMemory("  Final Memory: 68M/190M  ")).isEqualTo(190);
-  }
-
-  @Test
-  public void testEndMemory() throws Exception {
-    assertThat(MavenLogs.extractEndMemory("  Final Memory: 68M/190M  ")).isEqualTo(68);
-  }
 }

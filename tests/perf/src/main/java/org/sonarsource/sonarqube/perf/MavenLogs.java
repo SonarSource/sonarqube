@@ -64,21 +64,4 @@ public class MavenLogs {
     }
     return null;
   }
-
-  /**
-   * 2015.09.29 16:57:45 INFO  web[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms
-   */
-  public static Long extractComputationTotalTime(List<String> logs) {
-    Pattern pattern = Pattern.compile(".*INFO.*Executed task.* \\| time=(\\d+)ms.*");
-    for (int i = logs.size() - 1; i >= 0; i--) {
-      String line = logs.get(i);
-      Matcher matcher = pattern.matcher(line);
-      if (matcher.matches()) {
-        String duration = matcher.group(1);
-        return Long.parseLong(duration);
-      }
-    }
-
-    return null;
-  }
 }

@@ -20,12 +20,15 @@
 package org.sonarsource.sonarqube.perf;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.apache.commons.io.FileUtils;
-
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 
 public class ServerLogs {
 
@@ -56,6 +59,29 @@ public class ServerLogs {
     if (orch.getServer() != null && orch.getServer().getLogs() != null) {
       FileUtils.write(orch.getServer().getLogs(), "", false);
     }
+  }
+
+  /**
+   * 2015.09.29 16:57:45 INFO ce[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms
+   */
+  public static Long extractComputationTotalTime(Orchestrator orchestrator) throws IOException {
+    File report = new File(orchestrator.getServer().getLogs().getParent(), "ce_activity.log");
+    List<String> logsLines = FileUtils.readLines(report, Charsets.UTF_8);
+    return extractComputationTotalTime(logsLines);
+  }
+
+  static Long extractComputationTotalTime(List<String> logs) {
+    Pattern pattern = Pattern.compile(".*INFO.*Executed task.* \\| time=(\\d+)ms.*");
+    for (int i = logs.size() - 1; i >= 0; i--) {
+      String line = logs.get(i);
+      Matcher matcher = pattern.matcher(line);
+      if (matcher.matches()) {
+        String duration = matcher.group(1);
+        return Long.parseLong(duration);
+      }
+    }
+
+    return null;
   }
 
 }
