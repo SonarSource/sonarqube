@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
+import Helmet from 'react-helmet';
 
 import IssuesApp from '../issues-app';
+import { translate } from '../../../helpers/l10n';
 
 export default class Issues extends Component {
   componentDidMount () {
@@ -34,6 +36,16 @@ export default class Issues extends Component {
   }
 
   render () {
-    return <div ref="container"></div>;
+    const title = translate('my_account.page') + ' - ' +
+        translate('issues.page');
+
+    return (
+        <div>
+          <Helmet
+              title={title}
+              titleTemplate="SonarQube - %s"/>
+          <div ref="container"></div>
+        </div>
+    );
   }
 }

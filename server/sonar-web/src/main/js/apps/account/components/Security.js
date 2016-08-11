@@ -18,13 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
+import Helmet from 'react-helmet';
 import Password from './Password';
 import Tokens from './Tokens';
+import { translate } from '../../../helpers/l10n';
 
 const Security = ({ user }) => {
+  const title = translate('my_account.page') + ' - ' +
+      translate('my_account.security');
+
   return (
       <div className="page page-limited">
+        <Helmet
+            title={title}
+            titleTemplate="SonarQube - %s"/>
+
         <div className="columns">
           <div className="column-half">
             <Tokens user={user}/>

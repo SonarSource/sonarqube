@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
+import { translate } from '../../../helpers/l10n';
 
 export default class ProjectsContainer extends React.Component {
   state = {
@@ -83,13 +85,22 @@ export default class ProjectsContainer extends React.Component {
       );
     }
 
+    const title = translate('my_account.page') + ' - ' +
+        translate('my_account.projects');
+
     return (
-        <Projects
-            projects={this.state.projects}
-            total={this.state.total}
-            loading={this.state.loading}
-            loadMore={this.loadMore}
-            search={this.search}/>
+        <div>
+          <Helmet
+              title={title}
+              titleTemplate="SonarQube - %s"/>
+
+          <Projects
+              projects={this.state.projects}
+              total={this.state.total}
+              loading={this.state.loading}
+              loadMore={this.loadMore}
+              search={this.search}/>
+        </div>
     );
   }
 }

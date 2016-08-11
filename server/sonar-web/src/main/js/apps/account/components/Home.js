@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 
 import Favorites from './Favorites';
 import FavoriteIssueFilters from './FavoriteIssueFilters';
@@ -27,6 +28,10 @@ import { translate } from '../../../helpers/l10n';
 
 const Home = ({ user, favorites, issueFilters, measureFilters }) => (
     <div className="page page-limited">
+      <Helmet
+          title={translate('my_account.page')}
+          titleTemplate="SonarQube - %s"/>
+
       <div className="columns">
         <div className="column-third">
           <Favorites favorites={favorites}/>

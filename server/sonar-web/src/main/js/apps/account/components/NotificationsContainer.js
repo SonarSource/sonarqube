@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import Notifications from './Notifications';
+import { translate } from '../../../helpers/l10n';
 
 export default class NotificationsContainer extends React.Component {
   state = {
@@ -60,12 +62,21 @@ export default class NotificationsContainer extends React.Component {
   }
 
   render () {
+    const title = translate('my_account.page') + ' - ' +
+        translate('my_account.notifications');
+
     return (
-        <Notifications
-            globalNotifications={this.state.globalNotifications}
-            projectNotifications={this.state.projectNotifications}
-            onAddProject={this.handleAddProject}
-            onRemoveProject={this.handleRemoveProject}/>
+        <div>
+          <Helmet
+              title={title}
+              titleTemplate="SonarQube - %s"/>
+
+          <Notifications
+              globalNotifications={this.state.globalNotifications}
+              projectNotifications={this.state.projectNotifications}
+              onAddProject={this.handleAddProject}
+              onRemoveProject={this.handleRemoveProject}/>
+        </div>
     );
   }
 }
