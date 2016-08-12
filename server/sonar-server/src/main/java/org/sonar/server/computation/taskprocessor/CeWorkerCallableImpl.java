@@ -53,7 +53,11 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
       return false;
     }
 
-    executeTask(ceTask.get());
+    try {
+      executeTask(ceTask.get());
+    } catch (Exception e) {
+      LOG.error("An error occurred while managing task " + ceTask.get().getUuid(), e);
+    }
     return true;
   }
 
