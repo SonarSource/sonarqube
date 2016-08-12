@@ -50,6 +50,7 @@ import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
 import static ch.qos.logback.classic.Level.TRACE;
 import static ch.qos.logback.classic.Level.WARN;
+import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -139,28 +140,32 @@ public class CeLoggingTest {
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Runnable_and_remove_flag_even_if_Runnable_throws_exception() {
     callLogCeActivityOfRunnableAndVerify("ce_only", ERROR);
+    callLogCeActivityOfFailingRunnableAndVerify("ce_only", ERROR);
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Runnable_and_remove_flag_even_if_Runnable_throws_exception() {
     callLogCeActivityOfRunnableAndVerify("ce_only", WARN);
+    callLogCeActivityOfFailingRunnableAndVerify("ce_only", WARN);
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Runnable_and_remove_flag_even_if_Runnable_throws_exception() {
     callLogCeActivityOfRunnableAndVerify("ce_only", INFO);
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Runnable_and_remove_flag_even_if_Runnable_throws_exception() {
     callLogCeActivityOfRunnableAndVerify("all", DEBUG);
+    callLogCeActivityOfFailingRunnableAndVerify("all", DEBUG);
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Runnable_and_remove_flag_even_if_Runnable_throws_exception() {
     callLogCeActivityOfRunnableAndVerify("all", TRACE);
+    callLogCeActivityOfFailingRunnableAndVerify("all", TRACE);
   }
 
   private void callLogCeActivityOfRunnableAndVerify(String expectedMdcValue, Level logLevel) {
@@ -175,6 +180,27 @@ public class CeLoggingTest {
     assertThat(called.get()).isTrue();
   }
 
+  private void callLogCeActivityOfFailingRunnableAndVerify(String expectedMdcValue, Level logLevel) {
+    RuntimeException exception = new RuntimeException("Simulates a failing Runnable");
+
+    AtomicBoolean called = new AtomicBoolean(false);
+    try {
+      underTest.logCeActivity(
+        createLogger(logLevel),
+        () -> {
+          assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedMdcValue);
+          called.compareAndSet(false, true);
+          throw exception;
+        });
+      fail("exception should have been raised");
+    } catch (Exception e) {
+      assertThat(e).isSameAs(exception);
+    } finally {
+      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
+      assertThat(called.get()).isTrue();
+    }
+  }
+
   private static Logger createLogger(Level info) {
     Logger logger = mock(Logger.class);
     when(logger.isDebugEnabled()).thenReturn(DEBUG.isGreaterOrEqual(info));
@@ -183,28 +209,33 @@ public class CeLoggingTest {
   }
 
   @Test
-  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Supplier_and_remove_flag_even_if_Supplier_throws_exception() {
     callLogCeActivityOfSupplierAndVerify(ERROR, "ce_only");
+    callLogCeActivityOfFailingSupplierAndVerify(ERROR, "ce_only");
   }
 
   @Test
-  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Supplier_and_remove_flag_even_if_Supplier_throws_exception() {
     callLogCeActivityOfSupplierAndVerify(WARN, "ce_only");
+    callLogCeActivityOfFailingSupplierAndVerify(WARN, "ce_only");
   }
 
   @Test
-  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Supplier_and_remove_flag_even_if_Supplier_throws_exception() {
     callLogCeActivityOfSupplierAndVerify(INFO, "ce_only");
+    callLogCeActivityOfFailingSupplierAndVerify(INFO, "ce_only");
   }
 
   @Test
-  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Supplier_and_remove_flag_even_if_Supplier_throws_exception() {
     callLogCeActivityOfSupplierAndVerify(DEBUG, "all");
+    callLogCeActivityOfFailingSupplierAndVerify(DEBUG, "all");
   }
 
   @Test
-  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Supplier_and_remove_flag_even_if_Supplier_throws_exception() {
     callLogCeActivityOfSupplierAndVerify(TRACE, "all");
+    callLogCeActivityOfFailingSupplierAndVerify(TRACE, "all");
   }
 
   private void callLogCeActivityOfSupplierAndVerify(Level logLevel, String expectedFlag) {
@@ -218,6 +249,27 @@ public class CeLoggingTest {
       });
     assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
     assertThat(called.get()).isTrue();
+  }
+
+  private void callLogCeActivityOfFailingSupplierAndVerify(Level logLevel, String expectedFlag) {
+    RuntimeException exception = new RuntimeException("Simulates a failing Supplier");
+
+    AtomicBoolean called = new AtomicBoolean(false);
+    try {
+      underTest.logCeActivity(
+        createLogger(logLevel),
+        () -> {
+          assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedFlag);
+          called.compareAndSet(false, true);
+          throw exception;
+        });
+      fail("exception should have been raised");
+    } catch (Exception e) {
+      assertThat(e).isSameAs(exception);
+    } finally {
+      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
+      assertThat(called.get()).isTrue();
+    }
   }
 
 }

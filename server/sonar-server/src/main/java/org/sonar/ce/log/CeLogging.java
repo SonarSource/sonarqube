@@ -58,15 +58,20 @@ public class CeLogging {
 
   public void logCeActivity(Logger logger, Runnable logProducer) {
     MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
-    logProducer.run();
-    MDC.remove(MDC_CE_ACTIVITY_FLAG);
+    try {
+      logProducer.run();
+    } finally {
+      MDC.remove(MDC_CE_ACTIVITY_FLAG);
+    }
   }
 
   public <T> T logCeActivity(Logger logger, Supplier<T> logProducer) {
     MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
-    T res = logProducer.get();
-    MDC.remove(MDC_CE_ACTIVITY_FLAG);
-    return res;
+    try {
+      return logProducer.get();
+    } finally {
+      MDC.remove(MDC_CE_ACTIVITY_FLAG);
+    }
   }
 
   private static String computeCeActivityFlag(Logger logger) {
