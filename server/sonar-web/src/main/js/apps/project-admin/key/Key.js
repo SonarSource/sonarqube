@@ -35,6 +35,7 @@ import {
 } from '../../../components/store/globalMessages';
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
+import RecentHistory from '../../../main/nav/component/RecentHistory';
 
 class Key extends React.Component {
   static propTypes = {
@@ -63,6 +64,7 @@ class Key extends React.Component {
       this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
 
       if (key === this.props.component.key) {
+        RecentHistory.remove(key);
         reloadUpdateKeyPage(newKey);
       }
     }).catch(e => {

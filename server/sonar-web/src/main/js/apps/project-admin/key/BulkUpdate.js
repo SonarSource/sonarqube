@@ -30,6 +30,7 @@ import {
     closeAllGlobalMessages
 } from '../../../components/store/globalMessages';
 import { reloadUpdateKeyPage } from './utils';
+import RecentHistory from '../../../main/nav/component/RecentHistory';
 
 class BulkUpdate extends React.Component {
   static propTypes = {
@@ -58,6 +59,10 @@ class BulkUpdate extends React.Component {
     bulkChangeKey(component.key, replace, by).then(r => {
       const result = r.keys.find(result => result.key === component.key);
       const newComponentKey = result != null ? result.newKey : component.key;
+
+      if (newComponentKey !== component.key) {
+        RecentHistory.remove(component.key);
+      }
 
       this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
       this.setState({ updating: false });

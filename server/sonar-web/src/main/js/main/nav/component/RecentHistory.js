@@ -57,4 +57,10 @@ export default class RecentHistory {
       RecentHistory.set(newHistory);
     }
   }
+
+  static remove (componentKey) {
+    const history = RecentHistory.get();
+    const newHistory = _.reject(history, entry => entry.key === componentKey);
+    RecentHistory.set(newHistory);
+  }
 }
