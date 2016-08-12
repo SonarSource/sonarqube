@@ -23,12 +23,11 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.log.CeLogging;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.server.computation.task.step.ComputationStep;
-
-import static org.sonar.ce.log.CeLogging.logCeActivity;
 
 public class ExecuteVisitorsStep implements ComputationStep {
 
@@ -36,10 +35,12 @@ public class ExecuteVisitorsStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final List<ComponentVisitor> visitors;
+  private final CeLogging ceLogging;
 
-  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, List<ComponentVisitor> visitors) {
+  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, List<ComponentVisitor> visitors, CeLogging ceLogging) {
     this.treeRootHolder = treeRootHolder;
     this.visitors = visitors;
+    this.ceLogging = ceLogging;
   }
 
   @Override
@@ -51,7 +52,7 @@ public class ExecuteVisitorsStep implements ComputationStep {
   public void execute() {
     VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors);
     visitorsCrawler.visit(treeRootHolder.getRoot());
-    logCeActivity(LOGGER, () -> logVisitorExecutionDurations(visitors, visitorsCrawler));
+    ceLogging.logCeActivity(LOGGER, () -> logVisitorExecutionDurations(visitors, visitorsCrawler));
   }
 
   private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {

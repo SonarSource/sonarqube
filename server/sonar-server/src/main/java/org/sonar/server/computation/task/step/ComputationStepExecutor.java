@@ -23,14 +23,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.log.CeLogging;
 import org.sonar.core.util.logs.Profiler;
-
-import static org.sonar.ce.log.CeLogging.logCeActivity;
 
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
 
   private final ComputationSteps steps;
+  private final CeLogging ceLogging;
   @CheckForNull
   private final Listener listener;
 
@@ -38,12 +38,13 @@ public final class ComputationStepExecutor {
    * Used when no {@link ComputationStepExecutor.Listener} is available in pico
    * container.
    */
-  public ComputationStepExecutor(ComputationSteps steps) {
-    this(steps, null);
+  public ComputationStepExecutor(ComputationSteps steps, CeLogging ceLogging) {
+    this(steps, ceLogging, null);
   }
 
-  public ComputationStepExecutor(ComputationSteps steps, @Nullable Listener listener) {
+  public ComputationStepExecutor(ComputationSteps steps, CeLogging ceLogging, @Nullable Listener listener) {
     this.steps = steps;
+    this.ceLogging = ceLogging;
     this.listener = listener;
   }
 
@@ -64,7 +65,7 @@ public final class ComputationStepExecutor {
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
       step.execute();
-      logCeActivity(LOGGER, () -> stepProfiler.stopInfo(step.getDescription()));
+      ceLogging.logCeActivity(LOGGER, () -> stepProfiler.stopInfo(step.getDescription()));
     }
   }
 

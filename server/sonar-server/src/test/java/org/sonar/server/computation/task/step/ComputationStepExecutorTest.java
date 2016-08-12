@@ -27,9 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.task.step.ComputationStepExecutor;
-import org.sonar.server.computation.task.step.ComputationSteps;
+import org.sonar.ce.log.CeLogging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,9 +49,11 @@ public class ComputationStepExecutorTest {
   private final ComputationStep computationStep2 = mockComputationStep("step2");
   private final ComputationStep computationStep3 = mockComputationStep("step3");
 
+  private CeLogging ceLogging = new CeLogging();
+
   @Test
   public void execute_call_execute_on_each_ComputationStep_in_order_returned_by_instances_method() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3))
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3), ceLogging)
       .execute();
 
     InOrder inOrder = inOrder(computationStep1, computationStep2, computationStep3);
@@ -75,7 +75,7 @@ public class ComputationStepExecutorTest {
       .when(computationStep)
       .execute();
 
-    ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep));
+    ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep), ceLogging);
 
     expectedException.expect(RuntimeException.class);
     expectedException.expectMessage(message);
@@ -85,8 +85,8 @@ public class ComputationStepExecutorTest {
 
   @Test
   public void execute_logs_end_timing_for_each_ComputationStep_called() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2))
-        .execute();
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), ceLogging)
+      .execute();
 
     List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
     assertThat(infoLogs).hasSize(2);
@@ -96,8 +96,8 @@ public class ComputationStepExecutorTest {
 
   @Test
   public void execute_calls_listener_finished_method_with_all_step_runs() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
-        .execute();
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), ceLogging, listener)
+      .execute();
 
     verify(listener).finished(true);
     verifyNoMoreInteractions(listener);
@@ -107,12 +107,12 @@ public class ComputationStepExecutorTest {
   public void execute_calls_listener_finished_method_even_if_a_step_throws_an_exception() {
     RuntimeException toBeThrown = new RuntimeException("simulating failing execute Step method");
     doThrow(toBeThrown)
-        .when(computationStep1)
-        .execute();
+      .when(computationStep1)
+      .execute();
 
     try {
-      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
-          .execute();
+      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), ceLogging, listener)
+        .execute();
       fail("exception toBeThrown should have been raised");
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(toBeThrown);

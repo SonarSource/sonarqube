@@ -31,7 +31,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.server.computation.queue.InternalCeQueue;
 
 import static java.lang.String.format;
-import static org.sonar.ce.log.CeLogging.logCeActivity;
 
 public class CeWorkerCallableImpl implements CeWorkerCallable {
 
@@ -92,18 +91,18 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     }
   }
 
-  private static Profiler startActivityProfiler(CeTask task) {
+  private Profiler startActivityProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
     addContext(profiler, task);
-    return logCeActivity(LOG, () -> profiler.startInfo("Execute task"));
+    return ceLogging.logCeActivity(LOG, () -> profiler.startInfo("Execute task"));
   }
 
-  private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+  private void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
-      logCeActivity(LOG, () -> profiler.stopError("Executed task"));
+      ceLogging.logCeActivity(LOG, () -> profiler.stopError("Executed task"));
     } else {
-      logCeActivity(LOG, () -> profiler.stopInfo("Executed task"));
+      ceLogging.logCeActivity(LOG, () -> profiler.stopInfo("Executed task"));
     }
   }
 

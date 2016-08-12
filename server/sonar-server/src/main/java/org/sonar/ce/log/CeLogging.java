@@ -55,13 +55,13 @@ public class CeLogging {
     // TODO clear task UUID from MDF (cf. SONAR-7960)
   }
 
-  public static void logCeActivity(Logger logger, Runnable logProducer) {
+  public void logCeActivity(Logger logger, Runnable logProducer) {
     MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
     logProducer.run();
     MDC.remove(MDC_CE_ACTIVITY_FLAG);
   }
 
-  public static <T> T logCeActivity(Logger logger, Supplier<T> logProducer) {
+  public <T> T logCeActivity(Logger logger, Supplier<T> logProducer) {
     MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
     T res = logProducer.get();
     MDC.remove(MDC_CE_ACTIVITY_FLAG);

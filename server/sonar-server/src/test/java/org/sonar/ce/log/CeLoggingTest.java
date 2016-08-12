@@ -63,6 +63,8 @@ public class CeLoggingTest {
   private LogbackHelper helper = new LogbackHelper();
   private File logDir;
 
+  private CeLogging underTest = new CeLogging();
+
   @Before
   public void setUp() throws Exception {
     this.logDir = temp.newFolder();
@@ -136,7 +138,7 @@ public class CeLoggingTest {
 
   private void callLogCeActivityOfRunnableAndVerify(String expectedMdcValue, Level logLevel) {
     AtomicBoolean called = new AtomicBoolean(false);
-    CeLogging.logCeActivity(
+    underTest.logCeActivity(
       createLogger(logLevel),
       () -> {
         assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedMdcValue);
@@ -180,7 +182,7 @@ public class CeLoggingTest {
 
   private void callLogCeActivityOfSupplierAndVerify(Level logLevel, String expectedFlag) {
     AtomicBoolean called = new AtomicBoolean(false);
-    CeLogging.logCeActivity(
+    underTest.logCeActivity(
       createLogger(logLevel),
       () -> {
         assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedFlag);
