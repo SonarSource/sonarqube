@@ -38,6 +38,7 @@ import org.sonar.server.computation.task.projectanalysis.taskprocessor.ReportTas
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +51,7 @@ public class CeWorkerCallableImplTest {
 
   InternalCeQueue queue = mock(InternalCeQueue.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
-  CeLogging ceLogging = mock(CeLogging.class);
+  CeLogging ceLogging = spy(CeLogging.class);
   CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);
   InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
 

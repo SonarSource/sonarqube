@@ -46,11 +46,11 @@ import static org.mockito.Mockito.mock;
 
 public class LogbackHelperTest {
 
-  Props props = new Props(new Properties());
-  LogbackHelper underTest = new LogbackHelper();
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  private Props props = new Props(new Properties());
+  private LogbackHelper underTest = new LogbackHelper();
 
   @Before
   public void setUp() throws Exception {

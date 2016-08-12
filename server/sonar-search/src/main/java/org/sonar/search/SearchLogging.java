@@ -28,7 +28,7 @@ import org.sonar.process.LogbackHelper;
 
 public class SearchLogging {
 
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level  es[%logger{20}] %X %msg%n";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level  es[][%logger{20}] %X %msg%n";
 
   private LogbackHelper helper = new LogbackHelper();
 

@@ -30,7 +30,7 @@ import org.sonar.server.platform.ServerLogging;
 
 public abstract class ServerProcessLogging {
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%logger{20}] %msg%n";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%X{ceTaskUuid}][%logger{20}] %msg%n";
   private final String processName;
   private final LogbackHelper helper = new LogbackHelper();
 

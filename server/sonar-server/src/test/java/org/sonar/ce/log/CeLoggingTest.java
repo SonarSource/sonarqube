@@ -40,6 +40,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.slf4j.MDC;
 import org.sonar.api.utils.log.Logger;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -50,8 +51,10 @@ import static ch.qos.logback.classic.Level.INFO;
 import static ch.qos.logback.classic.Level.TRACE;
 import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.log.CeLogging.MDC_CE_ACTIVITY_FLAG;
+import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
 
 public class CeLoggingTest {
 
@@ -78,6 +81,30 @@ public class CeLoggingTest {
   @After
   public void cleanMDC() throws Exception {
     MDC.clear();
+  }
+
+  @Test
+  public void initForTask_stores_task_uuid_in_MDC() {
+    String uuid = "ce_task_uuid";
+
+    underTest.initForTask(createCeTask(uuid));
+
+    assertThat(MDC.get(MDC_CE_TASK_UUID)).isEqualTo(uuid);
+  }
+
+  private CeTask createCeTask(String uuid) {
+    CeTask ceTask = Mockito.mock(CeTask.class);
+    when(ceTask.getUuid()).thenReturn(uuid);
+    return ceTask;
+  }
+
+  @Test
+  public void clearForTask_removes_task_uuid_from_MDC() {
+    MDC.put(MDC_CE_TASK_UUID, "some_value");
+
+    underTest.clearForTask();
+
+    assertThat(MDC.get(MDC_CE_TASK_UUID)).isNull();
   }
 
   @Test
@@ -149,7 +176,7 @@ public class CeLoggingTest {
   }
 
   private static Logger createLogger(Level info) {
-    Logger logger = Mockito.mock(Logger.class);
+    Logger logger = mock(Logger.class);
     when(logger.isDebugEnabled()).thenReturn(DEBUG.isGreaterOrEqual(info));
     when(logger.isTraceEnabled()).thenReturn(TRACE.isGreaterOrEqual(info));
     return logger;

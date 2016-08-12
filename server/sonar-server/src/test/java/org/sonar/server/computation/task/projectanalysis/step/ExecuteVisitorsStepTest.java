@@ -145,39 +145,21 @@ public class ExecuteVisitorsStepTest {
     assertThat(logs.get(3)).startsWith("  - VisitorC | time=");
   }
 
-  private static class VisitorA implements ComponentVisitor {
-    @Override
-    public Order getOrder() {
-      return Order.PRE_ORDER;
-    }
-
-    @Override
-    public CrawlerDepthLimit getMaxDepth() {
-      return CrawlerDepthLimit.PROJECT;
+  private static class VisitorA extends TypeAwareVisitorAdapter {
+    public VisitorA() {
+      super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 
-  private static class VisitorB implements ComponentVisitor {
-    @Override
-    public Order getOrder() {
-      return Order.PRE_ORDER;
-    }
-
-    @Override
-    public CrawlerDepthLimit getMaxDepth() {
-      return CrawlerDepthLimit.PROJECT;
+  private static class VisitorB extends TypeAwareVisitorAdapter {
+    public VisitorB() {
+      super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 
-  private static class VisitorC implements ComponentVisitor {
-    @Override
-    public Order getOrder() {
-      return Order.PRE_ORDER;
-    }
-
-    @Override
-    public CrawlerDepthLimit getMaxDepth() {
-      return CrawlerDepthLimit.PROJECT;
+  private static class VisitorC extends TypeAwareVisitorAdapter {
+    public VisitorC() {
+      super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 

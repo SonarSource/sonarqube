@@ -40,7 +40,7 @@ class AppLogging {
   static final String CONSOLE_APPENDER = "CONSOLE";
   static final String GOBBLER_LOGGER = "gobbler";
   static final String GOBBLER_APPENDER = "GOBBLER";
-  static final String APP_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level app[%logger{20}] %msg%n";
+  static final String APP_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level app[][%logger{20}] %msg%n";
 
   private final LogbackHelper helper = new LogbackHelper();
 

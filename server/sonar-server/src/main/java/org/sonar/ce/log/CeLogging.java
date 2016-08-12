@@ -42,17 +42,18 @@ public class CeLogging {
 
   private static final String CE_ACTIVITY_APPENDER_NAME = "ce_activity";
   private static final String CE_ACTIVITY_FILE_NAME_PREFIX = "ce_activity";
-  private static final String CE_ACTIVITY_ENCODER_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level [%logger{20}] %msg%n";
+  private static final String CE_ACTIVITY_ENCODER_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level [%X{ceTaskUuid}][%logger{20}] %msg%n";
 
   static final String MDC_CE_ACTIVITY_FLAG = "ceActivityFlag";
+  static final String MDC_CE_TASK_UUID = "ceTaskUuid";
   public static final String MAX_LOGS_PROPERTY = "sonar.ce.maxLogsPerTask";
 
   public void initForTask(CeTask task) {
-    // TODO put task UUID in MDC (cf. SONAR-7960)
+    MDC.put(MDC_CE_TASK_UUID, task.getUuid());
   }
 
   public void clearForTask() {
-    // TODO clear task UUID from MDF (cf. SONAR-7960)
+    MDC.remove(MDC_CE_TASK_UUID);
   }
 
   public void logCeActivity(Logger logger, Runnable logProducer) {
