@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -218,5 +219,11 @@ public class ComponentKeyUpdaterDaoTest {
     assertThat(result)
       .hasSize(2)
       .containsOnly(entry("project", "new-project"), entry("project:enabled-module", "new-project:enabled-module"));
+  }
+
+  @Test
+  public void compute_new_key() {
+    assertThat(computeNewKey("my_project", "my_", "your_")).isEqualTo("your_project");
+    assertThat(computeNewKey("my_project", "my_", "$()_")).isEqualTo("$()_project");
   }
 }

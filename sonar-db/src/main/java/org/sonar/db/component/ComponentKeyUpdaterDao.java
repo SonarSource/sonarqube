@@ -83,7 +83,7 @@ public class ComponentKeyUpdaterDao implements Dao {
     try {
       Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
       for (ResourceDto module : modules) {
-        String newKey = computeNewKey(module, stringToReplace, replacementString);
+        String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
         if (mapper.countResourceByKey(newKey) > 0) {
           result.put(module.getKey(), "#duplicate_key#");
         } else {
@@ -109,7 +109,7 @@ public class ComponentKeyUpdaterDao implements Dao {
       .stream()
       .collect(Collectors.toMap(
         ResourceDto::getKey,
-        component -> computeNewKey(component, stringToReplace, replacementString)));
+        component -> computeNewKey(component.getKey(), stringToReplace, replacementString)));
   }
 
   /**
@@ -117,6 +117,10 @@ public class ComponentKeyUpdaterDao implements Dao {
    */
   public Map<String, Boolean> checkComponentKeys(DbSession dbSession, List<String> newComponentKeys) {
     return newComponentKeys.stream().collect(Collectors.toMap(Function.identity(), key -> mapper(dbSession).countResourceByKey(key) > 0));
+  }
+
+  public static String computeNewKey(String key, String stringToReplace, String replacementString) {
+    return key.replace(stringToReplace, replacementString);
   }
 
   public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
@@ -132,15 +136,11 @@ public class ComponentKeyUpdaterDao implements Dao {
     // and then proceed with the batch UPDATE at once
     for (ResourceDto module : modules) {
       String oldModuleKey = module.getKey();
-      String newModuleKey = computeNewKey(module, stringToReplace, replacementString);
+      String newModuleKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
       Collection<ResourceDto> resources = Lists.newArrayList(module);
       resources.addAll(allResourcesByModuleMap.get(module));
       runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
     }
-  }
-
-  private static String computeNewKey(ResourceDto resource, String stringToReplace, String replacementString) {
-    return resource.getKey().replaceAll(stringToReplace, replacementString);
   }
 
   private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper) {
@@ -171,7 +171,7 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ComponentKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
-      String newKey = computeNewKey(module, stringToReplace, replacementString);
+      String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
       checkArgument(isValidModuleKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
       if (mapper.countResourceByKey(newKey) > 0) {
         throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
