@@ -20,13 +20,11 @@
 import React from 'react';
 import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import QualityGate from '../qualityGate/QualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
-import Size from '../main/Size';
 import Meta from './../meta/Meta';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getTimeMachineData } from '../../../api/time-machine';
@@ -34,7 +32,6 @@ import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { ComponentType } from '../propTypes';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-
 import '../styles.css';
 
 const METRICS = [
@@ -191,13 +188,12 @@ export default class OverviewApp extends React.Component {
                   <CodeSmells {...domainProps}/>
                   <Coverage {...domainProps}/>
                   <Duplications {...domainProps}/>
-                  <Size {...domainProps}/>
                 </div>
               </TooltipsContainer>
             </div>
 
             <div className="page-sidebar-fixed">
-              <Meta component={component}/>
+              <Meta component={component} measures={measures}/>
             </div>
           </div>
         </div>

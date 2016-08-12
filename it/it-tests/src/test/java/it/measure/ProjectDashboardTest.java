@@ -27,12 +27,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import pageobjects.Navigation;
+import pageobjects.ProjectDashboardPage;
 import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
 import static util.ItUtils.projectDir;
 
-public class ProjectOverviewTest {
+public class ProjectDashboardTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -43,13 +45,24 @@ public class ProjectOverviewTest {
   }
 
   @Test
-  public void test_project_overview_after_first_analysis() throws Exception {
+  public void after_first_analysis() throws Exception {
     executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_overview_after_first_analysis",
-      "/measure/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("after_first_analysis",
+      "/measure/ProjectDashboardTest/test_project_overview_after_first_analysis.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  @Test
+  public void display_size() {
+    executeBuild("shared/xoo-sample", "sample", "Sample");
+
+    Navigation nav = Navigation.get(orchestrator);
+    ProjectDashboardPage page = nav.openProjectDashboard("sample");
+
+    page.getLinesOfCode().should(hasText("13"));
+    page.getLanguageDistribution().should(hasText("Xoo"), hasText("13"));
   }
 
   @Test

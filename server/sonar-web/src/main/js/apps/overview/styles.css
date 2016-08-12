@@ -256,6 +256,22 @@
   white-space: nowrap;
 }
 
+.overview-meta-size-ncloc {
+  display: inline-block;
+  vertical-align: middle;
+  width: 80px;
+  text-align: center;
+}
+
+.overview-meta-size-lang-dist {
+  display: inline-block;
+  vertical-align: middle;
+  width: 180px;
+  min-height: 40px;
+  border-left: 1px solid #e6e6e6;
+  box-sizing: border-box;
+}
+
 /*
  * Other
  */

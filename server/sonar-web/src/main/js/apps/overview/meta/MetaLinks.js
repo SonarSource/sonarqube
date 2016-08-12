@@ -67,7 +67,7 @@ export default class MetaLinks extends React.Component {
     const orderedLinks = orderLinks(links);
 
     return (
-        <ul className="overview-meta-list big-spacer-bottom">
+        <ul className="overview-meta-list">
           {orderedLinks.map(link => (
               <li key={link.id}>
                 <a className="link-with-icon" href={link.url} target="_blank">
