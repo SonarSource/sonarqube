@@ -20,7 +20,6 @@
 import React from 'react';
 import UpdateKeyForm from './UpdateKeyForm';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
-import { translate } from '../../../helpers/l10n';
 
 export default class FineGrainedUpdate extends React.Component {
   render () {

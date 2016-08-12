@@ -17,27 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../../../components/common/modal-form';
-import Template from './UpdateKeyConfirmation.hbs';
-import { parseError } from '../../../code/utils';
-
-export default ModalForm.extend({
-  template: Template,
-
-  onFormSubmit () {
-    ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    this.disableForm();
-    this.showSpinner();
-
-    this.options.onChange(this.options.component.key, this.options.newKey);
-    this.destroy();
-  },
-
-  serializeData () {
-    return {
-      component: this.options.component,
-      newKey: this.options.newKey
-    };
-  }
-});
-
+export const reloadUpdateKeyPage = componentKey => {
+  setTimeout(() => {
+    window.location = window.baseUrl +
+        '/project/key?id=' + encodeURIComponent(componentKey);
+  }, 1000);
+};

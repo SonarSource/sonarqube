@@ -24,15 +24,26 @@ import Header from './Header';
 import UpdateForm from './UpdateForm';
 import BulkUpdate from './BulkUpdate';
 import FineGrainedUpdate from './FineGrainedUpdate';
+import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { getProjectModules } from '../store/rootReducer';
 import { fetchProjectModules, changeKey } from '../store/actions';
 import { translate } from '../../../helpers/l10n';
+import {
+    addGlobalErrorMessage,
+    closeAllGlobalMessages,
+    addGlobalSuccessMessage
+} from '../../../components/store/globalMessages';
+import { parseError } from '../../code/utils';
+import { reloadUpdateKeyPage } from './utils';
 
 class Key extends React.Component {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     fetchProjectModules: React.PropTypes.func.isRequired,
-    changeKey: React.PropTypes.func.isRequired
+    changeKey: React.PropTypes.func.isRequired,
+    addGlobalErrorMessage: React.PropTypes.func.isRequired,
+    addGlobalSuccessMessage: React.PropTypes.func.isRequired,
+    closeAllGlobalMessages: React.PropTypes.func.isRequired
   };
 
   state = {
@@ -49,10 +60,13 @@ class Key extends React.Component {
 
   handleChangeKey (key, newKey) {
     return this.props.changeKey(key, newKey).then(() => {
+      this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
+
       if (key === this.props.component.key) {
-        window.location = window.baseUrl +
-            '/project/key?id=' + encodeURIComponent(newKey);
+        reloadUpdateKeyPage(newKey);
       }
+    }).catch(e => {
+      parseError(e).then(this.props.addGlobalErrorMessage);
     });
   }
 
@@ -60,6 +74,7 @@ class Key extends React.Component {
     e.preventDefault();
     e.target.blur();
     this.setState({ tab });
+    this.props.closeAllGlobalMessages();
   }
 
   render () {
@@ -79,9 +94,12 @@ class Key extends React.Component {
           )}
 
           {noModules && (
-              <UpdateForm
-                  component={component}
-                  onKeyChange={this.handleChangeKey.bind(this)}/>
+              <div>
+                <GlobalMessagesContainer/>
+                <UpdateForm
+                    component={component}
+                    onKeyChange={this.handleChangeKey.bind(this)}/>
+              </div>
           )}
 
           {hasModules && (
@@ -107,6 +125,8 @@ class Key extends React.Component {
                   </ul>
                 </div>
 
+                <GlobalMessagesContainer/>
+
                 {tab === 'bulk' && (
                     <BulkUpdate component={component}/>
                 )}
@@ -115,7 +135,9 @@ class Key extends React.Component {
                     <FineGrainedUpdate
                         component={component}
                         modules={modules}
-                        onKeyChange={this.handleChangeKey.bind(this)}/>
+                        onKeyChange={this.handleChangeKey.bind(this)}
+                        onSuccess={this.props.closeAllGlobalMessages}
+                        onError={this.props.addGlobalErrorMessage}/>
                 )}
               </div>
           )}
@@ -129,6 +151,11 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(
-    mapStateToProps,
-    { fetchProjectModules, changeKey }
+    mapStateToProps, {
+      fetchProjectModules,
+      changeKey,
+      addGlobalErrorMessage,
+      addGlobalSuccessMessage,
+      closeAllGlobalMessages
+    }
 )(Key);

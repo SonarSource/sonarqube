@@ -37,6 +37,13 @@ export const addGlobalErrorMessage = message =>
 export const addGlobalSuccessMessage = message =>
     addGlobalMessage(message, SUCCESS);
 
+const CLOSE_ALL_GLOBAL_MESSAGES = 'CLOSE_ALL_GLOBAL_MESSAGES';
+
+export const closeAllGlobalMessages = id => ({
+  type: CLOSE_ALL_GLOBAL_MESSAGES,
+  id
+});
+
 /* Reducer */
 const globalMessages = (state = [], action = {}) => {
   if (action.type === ADD_GLOBAL_MESSAGE) {
@@ -45,6 +52,10 @@ const globalMessages = (state = [], action = {}) => {
       message: action.message,
       level: action.level
     }];
+  }
+
+  if (action.type === CLOSE_ALL_GLOBAL_MESSAGES) {
+    return [];
   }
 
   return state;

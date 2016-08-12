@@ -18,15 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import BulkUpdateForm from './BulkUpdateForm';
 import BulkUpdateResults from './BulkUpdateResults';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { bulkChangeKey } from '../../../api/components';
-import { getComponentUrl } from '../../../helpers/urls';
+import { parseError } from '../../code/utils';
+import {
+    addGlobalErrorMessage,
+    addGlobalSuccessMessage,
+    closeAllGlobalMessages
+} from '../../../components/store/globalMessages';
+import { reloadUpdateKeyPage } from './utils';
 
-export default class BulkUpdate extends React.Component {
+class BulkUpdate extends React.Component {
   static propTypes = {
-    component: React.PropTypes.object.isRequired
+    component: React.PropTypes.object.isRequired,
+    addGlobalErrorMessage: React.PropTypes.func.isRequired,
+    addGlobalSuccessMessage: React.PropTypes.func.isRequired,
+    closeAllGlobalMessages: React.PropTypes.func.isRequired
   };
 
   state = {
@@ -41,17 +51,20 @@ export default class BulkUpdate extends React.Component {
 
   handleConfirm () {
     this.setState({ updating: true });
-    
+
     const { component } = this.props;
     const { replace, by } = this.state;
+
     bulkChangeKey(component.key, replace, by).then(r => {
       const result = r.keys.find(result => result.key === component.key);
       const newComponentKey = result != null ? result.newKey : component.key;
-      this.setState({
-        updating: false,
-        updated: true,
-        newComponentKey
-      });
+
+      this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
+      this.setState({ updating: false });
+      reloadUpdateKeyPage(newComponentKey);
+    }).catch(e => {
+      this.setState({ updating: false });
+      parseError(e).then(message => this.props.addGlobalErrorMessage(message));
     });
   }
 
@@ -59,6 +72,9 @@ export default class BulkUpdate extends React.Component {
     const { component } = this.props;
     bulkChangeKey(component.key, replace, by, true).then(r => {
       this.setState({ results: r.keys, replace, by });
+      this.props.closeAllGlobalMessages();
+    }).catch(e => {
+      parseError(e).then(message => this.props.addGlobalErrorMessage(message));
     });
   }
 
@@ -66,20 +82,6 @@ export default class BulkUpdate extends React.Component {
     return (
         <div id="project-key-bulk-update">
           <i className="spinner"/>
-        </div>
-    );
-  }
-
-  renderUpdated () {
-    return (
-        <div id="project-key-bulk-update">
-          <div className="alert alert-success">
-            {translate('update_key.key_updated')}
-            {' '}
-            <a href={getComponentUrl(this.state.newComponentKey)}>
-              {translate('check_project')}
-            </a>
-          </div>
         </div>
     );
   }
@@ -125,3 +127,11 @@ export default class BulkUpdate extends React.Component {
     );
   }
 }
+
+export default connect(
+    null, {
+      addGlobalErrorMessage,
+      addGlobalSuccessMessage,
+      closeAllGlobalMessages
+    }
+)(BulkUpdate);

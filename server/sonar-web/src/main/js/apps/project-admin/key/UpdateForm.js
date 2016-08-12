@@ -46,6 +46,11 @@ export default class UpdateForm extends React.Component {
     this.setState({ newKey });
   }
 
+  handleReset (e) {
+    e.preventDefault();
+    this.setState({ newKey: null });
+  }
+
   render () {
     const value = this.state.newKey != null ?
         this.state.newKey :
@@ -68,6 +73,11 @@ export default class UpdateForm extends React.Component {
           <div className="spacer-top">
             <button id="update-key-submit" disabled={!hasChanged}>
               {translate('update_verb')}
+            </button>
+            {' '}
+            <button id="update-key-reset" disabled={!hasChanged}
+                    onClick={this.handleReset.bind(this)}>
+              {translate('reset_verb')}
             </button>
           </div>
         </form>

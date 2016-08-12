@@ -163,6 +163,11 @@ export function loadMoreChildren (componentKey, page) {
       });
 }
 
+/**
+ * Parse response of failed request
+ * @param {Error} error
+ * @returns {Promise}
+ */
 export function parseError (error) {
   const DEFAULT_MESSAGE = translate('default_error_message');
 
