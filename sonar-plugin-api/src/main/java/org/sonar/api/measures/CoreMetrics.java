@@ -123,10 +123,25 @@ public final class CoreMetrics {
 
   public static final String NCLOC_KEY = "ncloc";
   public static final Metric<Integer> NCLOC = new Metric.Builder(NCLOC_KEY, "Lines of Code", Metric.ValueType.INT)
-    .setDescription("Non Commenting Lines of Code")
+    .setDescription("Non commenting lines of code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
+    .create();
+
+  /**
+   * @since 6.1
+   */
+  public static final String NEW_NCLOC_KEY = "new_ncloc";
+  /**
+   * @since 6.1
+   */
+  public static final Metric<Integer> NEW_NCLOC = new Metric.Builder(NEW_NCLOC_KEY, "New Lines of Code", Metric.ValueType.INT)
+    .setDescription("New non commenting lines of code")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(false)
+    .setDomain(DOMAIN_SIZE)
+    .setDeleteHistoricalData(true)
     .create();
 
   /**
@@ -1314,7 +1329,13 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  /**
+   * @since 6.1
+   */
   public static final String NEW_LINES_DUPLICATED_KEY = "new_duplicated_lines";
+  /**
+   * @since 6.1
+   */
   public static final Metric<Integer> NEW_LINES_DUPLICATED = new Metric.Builder(NEW_LINES_DUPLICATED_KEY, "New Duplicated Lines", Metric.ValueType.INT)
     .setDescription("New duplicated lines")
     .setDirection(Metric.DIRECTION_WORST)
@@ -1334,7 +1355,13 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  /**
+   * @since 6.1
+    */
   public static final String NEW_BLOCKS_DUPLICATED_KEY = "new_duplicated_blocks";
+  /**
+   * @since 6.1
+   */
   public static final Metric<Integer> NEW_BLOCKS_DUPLICATED = new Metric.Builder(NEW_BLOCKS_DUPLICATED_KEY, "Duplicated Blocks on New Code", Metric.ValueType.INT)
     .setDescription("Duplicated blocks on new code")
     .setDirection(Metric.DIRECTION_WORST)

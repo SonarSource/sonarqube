@@ -59,6 +59,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // data computation
     SizeMeasuresStep.class,
+    NewLinesMeasureStep.class,
     NewCoverageMeasuresStep.class,
     CoverageMeasuresStep.class,
     CommentMeasuresStep.class,

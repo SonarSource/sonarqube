@@ -115,10 +115,10 @@ public class PurgeTest {
     // must be a different date, else a single snapshot is kept per day
     scan(PROJECT_SAMPLE_PATH, DateFormatUtils.ISO_DATE_FORMAT.format(today));
 
-    int newMeasuresOnTrk = 55;
-    int newMeasuresOnBrc = 286;
-    int newMeasuresOnDir = 44;
-    int newMeasuresOnFil = 0;
+    int newMeasuresOnTrk = 56;
+    int newMeasuresOnBrc = 292;
+    int newMeasuresOnDir = 48;
+    int newMeasuresOnFil = 4;
 
     assertMeasuresCountForQualifier("TRK", measuresOnTrk + newMeasuresOnTrk);
     assertMeasuresCountForQualifier("BRC", measuresOnBrc + newMeasuresOnBrc);
@@ -129,7 +129,7 @@ public class PurgeTest {
     collector.checkThat(
       "Wrong number of measure of new_ metrics",
       count("project_measures, metrics where metrics.id = project_measures.metric_id and metrics.name like 'new_%'"),
-      equalTo(121));
+      equalTo(136));
 
     // added measures relate to project and new_* metrics
     expectedMeasures += newMeasuresOnTrk + newMeasuresOnBrc + newMeasuresOnDir + newMeasuresOnFil;
@@ -256,8 +256,9 @@ public class PurgeTest {
 
     scan(PROJECT_SAMPLE_PATH, "2012-02-02");
 
-    assertThat(count(COUNT_FILE_MEASURES)).isEqualTo(fileMeasures);
-    assertThat(count(COUNT_DIR_MEASURES)).isLessThan(2 * dirMeasures); // second analysis as NEW_* metrics
+    // second analysis with new_* metrics
+    assertThat(count(COUNT_FILE_MEASURES)).isLessThan(2 * fileMeasures);
+    assertThat(count(COUNT_DIR_MEASURES)).isLessThan(2 * dirMeasures);
   }
 
   /**
@@ -274,8 +275,9 @@ public class PurgeTest {
 
     scan(PROJECT_SAMPLE_PATH, "2012-02-02");
 
-    assertThat(count(COUNT_FILE_MEASURES)).isEqualTo(fileMeasures);
-    assertThat(count(COUNT_DIR_MEASURES)).isGreaterThan(2 * dirMeasures); // second analysis as NEW_* metrics
+    // second analysis as NEW_* metrics
+    assertThat(count(COUNT_FILE_MEASURES)).isLessThan( 2 * fileMeasures);
+    assertThat(count(COUNT_DIR_MEASURES)).isGreaterThan(2 * dirMeasures);
   }
 
   /**
@@ -359,8 +361,8 @@ public class PurgeTest {
   private void logMeasures(String title, String qualifier) {
     String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3 "
       +
-      "FROM project_measures pm, snapshots s, metrics m " +
-      "WHERE pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='"
+      "FROM project_measures pm, projects p, metrics m " +
+      "WHERE pm.component_uuid=p.uuid and pm.metric_id=m.id and p.qualifier='"
       + qualifier + "'";
     List<Map<String, String>> rows = orchestrator.getDatabase().executeSql(sql);
 
