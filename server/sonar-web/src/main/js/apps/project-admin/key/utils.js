@@ -21,5 +21,5 @@ export const reloadUpdateKeyPage = componentKey => {
   setTimeout(() => {
     window.location = window.baseUrl +
         '/project/key?id=' + encodeURIComponent(componentKey);
-  }, 1000);
+  }, 3000);
 };

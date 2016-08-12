@@ -61,11 +61,14 @@ class Key extends React.Component {
 
   handleChangeKey (key, newKey) {
     return this.props.changeKey(key, newKey).then(() => {
-      this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
-
       if (key === this.props.component.key) {
+        this.props.addGlobalSuccessMessage(
+            translate('update_key.key_updated.reload'));
         RecentHistory.remove(key);
         reloadUpdateKeyPage(newKey);
+      } else {
+        this.props.addGlobalSuccessMessage(
+            translate('update_key.key_updated'));
       }
     }).catch(e => {
       parseError(e).then(this.props.addGlobalErrorMessage);

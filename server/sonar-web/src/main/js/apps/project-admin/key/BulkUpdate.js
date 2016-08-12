@@ -64,7 +64,8 @@ class BulkUpdate extends React.Component {
         RecentHistory.remove(component.key);
       }
 
-      this.props.addGlobalSuccessMessage(translate('update_key.key_updated'));
+      this.props.addGlobalSuccessMessage(
+          translate('update_key.key_updated.reload'));
       this.setState({ updating: false });
       reloadUpdateKeyPage(newComponentKey);
     }).catch(e => {
@@ -79,6 +80,7 @@ class BulkUpdate extends React.Component {
       this.setState({ results: r.keys, replace, by });
       this.props.closeAllGlobalMessages();
     }).catch(e => {
+      this.setState({ results: null });
       parseError(e).then(message => this.props.addGlobalErrorMessage(message));
     });
   }
