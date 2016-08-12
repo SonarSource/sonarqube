@@ -162,14 +162,14 @@ public class ClusterTest {
   }
 
   private static boolean isDbWriteOperation(String log) {
-    return log.contains("web[sql]") && (containsIgnoreCase(log, "sql=insert") ||
+    return log.contains("web[][sql]") && (containsIgnoreCase(log, "sql=insert") ||
       containsIgnoreCase(log, "sql=update") ||
       containsIgnoreCase(log, "sql=delete") ||
       containsIgnoreCase(log, "sql=create"));
   }
 
   private static boolean isEsWriteOperation(String log) {
-    return log.contains("web[es]") && (containsIgnoreCase(log, "Create index") ||
+    return log.contains("web[][es]") && (containsIgnoreCase(log, "Create index") ||
       containsIgnoreCase(log, "Create type") ||
       containsIgnoreCase(log, "put mapping request") ||
       containsIgnoreCase(log, "refresh request") ||
