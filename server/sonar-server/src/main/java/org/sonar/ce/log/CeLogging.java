@@ -26,6 +26,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import java.util.function.Supplier;
 import org.apache.log4j.MDC;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
@@ -54,17 +55,21 @@ public class CeLogging {
     // TODO clear task UUID from MDF (cf. SONAR-7960)
   }
 
-  public static void logCeActivity(Runnable logProducer) {
-    MDC.put(MDC_CE_ACTIVITY_FLAG, "true");
+  public static void logCeActivity(Logger logger, Runnable logProducer) {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
     logProducer.run();
     MDC.remove(MDC_CE_ACTIVITY_FLAG);
   }
 
-  public static <T> T logCeActivity(Supplier<T> logProducer) {
-    MDC.put(MDC_CE_ACTIVITY_FLAG, "true");
+  public static <T> T logCeActivity(Logger logger, Supplier<T> logProducer) {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, computeCeActivityFlag(logger));
     T res = logProducer.get();
     MDC.remove(MDC_CE_ACTIVITY_FLAG);
     return res;
+  }
+
+  private static String computeCeActivityFlag(Logger logger) {
+    return logger.isDebugEnabled() || logger.isTraceEnabled() ? "all" : "ce_only";
   }
 
   public static Appender<ILoggingEvent> createCeActivityAppenderConfiguration(LogbackHelper helper, LoggerContext ctx, Props processProps) {

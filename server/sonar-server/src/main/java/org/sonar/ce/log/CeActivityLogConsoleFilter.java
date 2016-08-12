@@ -19,19 +19,26 @@
  */
 package org.sonar.ce.log;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import java.util.Objects;
 import org.slf4j.MDC;
 
+import static ch.qos.logback.core.spi.FilterReply.ACCEPT;
+import static ch.qos.logback.core.spi.FilterReply.DENY;
+
 /**
- * Ignores Compute Engine activity logs.
+ * Ignores Compute Engine activity logs in console unless level is DEBUG or lower.
  */
-public class CeActivityLogDenyFilter<E> extends Filter<E> {
+public class CeActivityLogConsoleFilter extends Filter<ILoggingEvent> {
 
   @Override
-  public FilterReply decide(E o) {
-    return Objects.equals("true", MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG)) ? FilterReply.DENY : FilterReply.ACCEPT;
+  public FilterReply decide(ILoggingEvent o) {
+    String ceActivityFlag = MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG);
+    if (ceActivityFlag == null || "all".equals(ceActivityFlag)) {
+      return ACCEPT;
+    }
+    return DENY;
   }
 
 }

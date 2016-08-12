@@ -186,10 +186,7 @@ public class CeWorkerCallableImplTest {
     assertThat(logs.get(0)).contains(" | submitter=FooBar");
     assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    logs = logTester.logs(LoggerLevel.DEBUG);
-    assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=FooBar");
-    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
   @Test
@@ -207,13 +204,10 @@ public class CeWorkerCallableImplTest {
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).contains(" | submitter=FooBar");
     logs = logTester.logs(LoggerLevel.ERROR);
-    assertThat(logs).hasSize(3);
+    assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
     assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
-    assertThat(logs.get(2)).contains(" | submitter=FooBar | time=");
-    logs = logTester.logs(LoggerLevel.DEBUG);
-    assertThat(logs).hasSize(1);
-    assertThat(logs.get(0)).contains(" | submitter=FooBar");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {

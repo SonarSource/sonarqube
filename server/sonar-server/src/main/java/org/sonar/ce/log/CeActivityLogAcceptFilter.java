@@ -21,7 +21,6 @@ package org.sonar.ce.log;
 
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import java.util.Objects;
 import org.slf4j.MDC;
 
 /**
@@ -31,7 +30,11 @@ public class CeActivityLogAcceptFilter<E> extends Filter<E> {
 
   @Override
   public FilterReply decide(E o) {
-    return Objects.equals("true", MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG)) ? FilterReply.ACCEPT : FilterReply.DENY;
+    String ceActivityFlag = MDC.get(CeLogging.MDC_CE_ACTIVITY_FLAG);
+    if (ceActivityFlag != null) {
+      return FilterReply.ACCEPT;
+    }
+    return FilterReply.DENY;
   }
 
 }

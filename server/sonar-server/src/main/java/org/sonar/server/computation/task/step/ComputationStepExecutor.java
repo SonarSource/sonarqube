@@ -64,7 +64,7 @@ public final class ComputationStepExecutor {
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
       step.execute();
-      logCeActivity(() -> stepProfiler.stopInfo(step.getDescription()));
+      logCeActivity(LOGGER, () -> stepProfiler.stopInfo(step.getDescription()));
     }
   }
 

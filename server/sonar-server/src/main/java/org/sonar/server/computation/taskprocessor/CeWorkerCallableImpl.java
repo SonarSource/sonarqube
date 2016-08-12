@@ -68,8 +68,6 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
   }
 
   private void executeTask(CeTask task) {
-    // logging twice: once in sonar.log and once in CE appender
-    Profiler regularProfiler = startProfiler(task);
     ceLogging.initForTask(task);
     Profiler ceProfiler = startActivityProfiler(task);
 
@@ -89,44 +87,23 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);
     } finally {
       queue.remove(task, status, process);
-      // logging twice: once in sonar.log and once in CE appender
       stopActivityProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();
-      stopProfiler(regularProfiler, task, status);
     }
-  }
-
-  private static Profiler startProfiler(CeTask task) {
-    Profiler profiler = Profiler.create(LOG);
-    addContext(profiler, task);
-    return profiler.startDebug("Execute task");
   }
 
   private static Profiler startActivityProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
     addContext(profiler, task);
-    return logCeActivity(() -> profiler.startInfo("Execute task"));
-  }
-
-  private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
-    if (!profiler.isDebugEnabled()) {
-      return;
-    }
-
-    addContext(profiler, task);
-    if (status == CeActivityDto.Status.FAILED) {
-      profiler.stopError("Executed task");
-    } else {
-      profiler.stopDebug("Executed task");
-    }
+    return logCeActivity(LOG, () -> profiler.startInfo("Execute task"));
   }
 
   private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
-      logCeActivity(() -> profiler.stopError("Executed task"));
+      logCeActivity(LOG, () -> profiler.stopError("Executed task"));
     } else {
-      logCeActivity(() -> profiler.stopInfo("Executed task"));
+      logCeActivity(LOG, () -> profiler.stopInfo("Executed task"));
     }
   }
 

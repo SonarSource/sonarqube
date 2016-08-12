@@ -51,7 +51,7 @@ public class ExecuteVisitorsStep implements ComputationStep {
   public void execute() {
     VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors);
     visitorsCrawler.visit(treeRootHolder.getRoot());
-    logCeActivity(() -> logVisitorExecutionDurations(visitors, visitorsCrawler));
+    logCeActivity(LOGGER, () -> logVisitorExecutionDurations(visitors, visitorsCrawler));
   }
 
   private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {

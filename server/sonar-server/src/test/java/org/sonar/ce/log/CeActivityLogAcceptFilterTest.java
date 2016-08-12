@@ -19,11 +19,12 @@
  */
 package org.sonar.ce.log;
 
-import ch.qos.logback.core.spi.FilterReply;
 import org.apache.log4j.MDC;
 import org.junit.After;
 import org.junit.Test;
 
+import static ch.qos.logback.core.spi.FilterReply.ACCEPT;
+import static ch.qos.logback.core.spi.FilterReply.DENY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.log.CeLogging.MDC_CE_ACTIVITY_FLAG;
 
@@ -39,25 +40,37 @@ public class CeActivityLogAcceptFilterTest {
 
   @Test
   public void rejects_logs_when_property_is_not_set_in_MDC() {
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
+    assertThat(underTest.decide(UNUSED)).isEqualTo(DENY);
   }
 
   @Test
-  public void rejects_logs_when_property_is_not_true_in_MDC() {
+  public void accepts_logs_when_property_is_neither_ce_only_nor_all_in_MDC() {
     MDC.put(MDC_CE_ACTIVITY_FLAG, "bla");
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
+    assertThat(underTest.decide(UNUSED)).isEqualTo(ACCEPT);
   }
 
   @Test
-  public void rejects_logs_when_property_is_not_true_in_lowercase_in_MDC() {
-    MDC.put(MDC_CE_ACTIVITY_FLAG, "TrUE");
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
+  public void accepts_logs_when_property_is_ce_only_not_in_lowercase_in_MDC() {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "Ce_ONly");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(ACCEPT);
   }
 
   @Test
-  public void accepts_logs_when_property_is_true_in_lowercase_in_MDC() {
-    MDC.put(MDC_CE_ACTIVITY_FLAG, "true");
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
+  public void accepts_logs_when_property_is_ce_only_in_lowercase_in_MDC() {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "ce_only");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(ACCEPT);
+  }
+
+  @Test
+  public void accepts_logs_when_property_is_all_in_lowercase_in_MDC() {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "all");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(ACCEPT);
+  }
+
+  @Test
+  public void accepts_logs_when_property_is_all_not_in_lowercase_in_MDC() {
+    MDC.put(MDC_CE_ACTIVITY_FLAG, "aLl");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(ACCEPT);
   }
 
 }

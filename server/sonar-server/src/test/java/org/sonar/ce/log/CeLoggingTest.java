@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.log;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -36,12 +37,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.slf4j.MDC;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static ch.qos.logback.classic.Level.DEBUG;
+import static ch.qos.logback.classic.Level.ERROR;
+import static ch.qos.logback.classic.Level.INFO;
+import static ch.qos.logback.classic.Level.TRACE;
+import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.log.CeLogging.MDC_CE_ACTIVITY_FLAG;
 
 public class CeLoggingTest {
@@ -101,24 +110,83 @@ public class CeLoggingTest {
   }
 
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_calls_Runnable_and_remove_flag() {
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Runnable_and_remove_flag() {
+    callLogCeActivityOfRunnableAndVerify("ce_only", ERROR);
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Runnable_and_remove_flag() {
+    callLogCeActivityOfRunnableAndVerify("ce_only", WARN);
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Runnable_and_remove_flag() {
+    callLogCeActivityOfRunnableAndVerify("ce_only", INFO);
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Runnable_and_remove_flag() {
+    callLogCeActivityOfRunnableAndVerify("all", DEBUG);
+  }
+
+  @Test
+  public void logCeActivity_of_Runnable_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Runnable_and_remove_flag() {
+    callLogCeActivityOfRunnableAndVerify("all", TRACE);
+  }
+
+  private void callLogCeActivityOfRunnableAndVerify(String expectedMdcValue, Level logLevel) {
     AtomicBoolean called = new AtomicBoolean(false);
-    CeLogging.logCeActivity(() -> {
-      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo("true");
-      called.compareAndSet(false, true);
-    });
+    CeLogging.logCeActivity(
+      createLogger(logLevel),
+      () -> {
+        assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedMdcValue);
+        called.compareAndSet(false, true);
+      });
     assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
     assertThat(called.get()).isTrue();
   }
 
+  private static Logger createLogger(Level info) {
+    Logger logger = Mockito.mock(Logger.class);
+    when(logger.isDebugEnabled()).thenReturn(DEBUG.isGreaterOrEqual(info));
+    when(logger.isTraceEnabled()).thenReturn(TRACE.isGreaterOrEqual(info));
+    return logger;
+  }
+
   @Test
-  public void logCeActivity_of_Runnable_set_flag_in_MDC_calls_Supplier_and_remove_flag() {
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_ERROR_and_calls_Supplier_and_remove_flag() {
+    callLogCeActivityOfSupplierAndVerify(ERROR, "ce_only");
+  }
+
+  @Test
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_WARN_and_calls_Supplier_and_remove_flag() {
+    callLogCeActivityOfSupplierAndVerify(WARN, "ce_only");
+  }
+
+  @Test
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_ce_only_when_log_level_is_INFO_and_calls_Supplier_and_remove_flag() {
+    callLogCeActivityOfSupplierAndVerify(INFO, "ce_only");
+  }
+
+  @Test
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_DEBUG_and_calls_Supplier_and_remove_flag() {
+    callLogCeActivityOfSupplierAndVerify(DEBUG, "all");
+  }
+
+  @Test
+  public void logCeActivity_of_Supplier_set_flag_in_MDC_to_all_when_log_level_is_TRACE_and_calls_Supplier_and_remove_flag() {
+    callLogCeActivityOfSupplierAndVerify(TRACE, "all");
+  }
+
+  private void callLogCeActivityOfSupplierAndVerify(Level logLevel, String expectedFlag) {
     AtomicBoolean called = new AtomicBoolean(false);
-    CeLogging.logCeActivity(() -> {
-      assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo("true");
-      called.compareAndSet(false, true);
-      return 1;
-    });
+    CeLogging.logCeActivity(
+      createLogger(logLevel),
+      () -> {
+        assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isEqualTo(expectedFlag);
+        called.compareAndSet(false, true);
+        return 1;
+      });
     assertThat(MDC.get(MDC_CE_ACTIVITY_FLAG)).isNull();
     assertThat(called.get()).isTrue();
   }
