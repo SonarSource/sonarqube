@@ -169,6 +169,16 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
+  public void fail_to_dry_bulk_update_with_invalid_new_key() {
+    insertMyProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed key for 'my?project'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+
+    callDryRunByKey(MY_PROJECT_KEY, FROM, "my?");
+  }
+
+  @Test
   public void fail_to_bulk_update_if_not_project_or_module() {
     ComponentDto project = insertMyProject();
     ComponentDto file = componentDb.insertComponent(newFileDto(project, null));

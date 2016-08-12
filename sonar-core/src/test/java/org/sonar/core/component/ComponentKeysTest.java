@@ -19,7 +19,9 @@
  */
 package org.sonar.core.component;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Directory;
@@ -28,6 +30,8 @@ import org.sonar.api.resources.Project;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentKeysTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_effective_key() {
@@ -57,7 +61,7 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.isValidModuleKey("ab_12")).isTrue();
     assertThat(ComponentKeys.isValidModuleKey("ab/12")).isFalse();
   }
-  
+
   @Test
   public void isValidModuleKeyIssuesMode() {
     assertThat(ComponentKeys.isValidModuleKeyIssuesMode("")).isFalse();
@@ -80,4 +84,38 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.isValidBranch("ab\n")).isFalse();
   }
 
+  @Test
+  public void checkModuleKey_with_correct_keys() {
+    ComponentKeys.checkModuleKey("abc");
+    ComponentKeys.checkModuleKey("a-b_1.:2");
+  }
+
+  @Test
+  public void checkModuleKey_fail_if_only_digit() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed key for '0123'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+
+    ComponentKeys.checkModuleKey("0123");
+  }
+
+  @Test
+  public void checkModuleKey_fail_if_key_is_empty() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    ComponentKeys.checkModuleKey("");
+  }
+
+  @Test
+  public void checkModuleKey_fail_if_space() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    ComponentKeys.checkModuleKey("ab 12");
+  }
+
+  @Test
+  public void checkModuleKey_fail_if_special_characters_not_allowed() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    ComponentKeys.checkModuleKey("ab/12");
+  }
 }

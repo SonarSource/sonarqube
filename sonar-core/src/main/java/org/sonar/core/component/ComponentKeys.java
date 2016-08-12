@@ -26,6 +26,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public final class ComponentKeys {
 
   public static final int MAX_COMPONENT_KEY_LENGTH = 400;
@@ -94,6 +96,15 @@ public final class ComponentKeys {
    */
   public static boolean isValidModuleKey(String keyCandidate) {
     return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  }
+
+  /**
+   * Checks if given parameter is valid for a project/module following {@link #isValidModuleKey(String)} contract.
+   *
+   * @throws IllegalArgumentException if the format is incorrect
+   */
+  public static void checkModuleKey(String keyCandidate) {
+    checkArgument(isValidModuleKey(keyCandidate), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", keyCandidate);
   }
 
   /**

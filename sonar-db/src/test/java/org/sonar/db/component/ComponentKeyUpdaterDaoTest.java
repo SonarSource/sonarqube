@@ -222,6 +222,17 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
+  public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("project"));
+    componentDb.insertComponent(newModuleDto(project).setKey("project:enabled-module"));
+    componentDb.insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
+
+    thrown.expect(IllegalArgumentException.class);
+
+    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
+  }
+
+  @Test
   public void compute_new_key() {
     assertThat(computeNewKey("my_project", "my_", "your_")).isEqualTo("your_project");
     assertThat(computeNewKey("my_project", "my_", "$()_")).isEqualTo("$()_project");

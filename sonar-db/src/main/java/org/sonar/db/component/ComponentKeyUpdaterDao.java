@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.component.ComponentKeys.checkModuleKey;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 
 /**
@@ -109,7 +110,11 @@ public class ComponentKeyUpdaterDao implements Dao {
       .stream()
       .collect(Collectors.toMap(
         ResourceDto::getKey,
-        component -> computeNewKey(component.getKey(), stringToReplace, replacementString)));
+        component -> {
+          String newKey = computeNewKey(component.getKey(), stringToReplace, replacementString);
+          checkModuleKey(newKey);
+          return newKey;
+        }));
   }
 
   /**
