@@ -1,75 +1,38 @@
-var path = require('path');
-
+/* eslint no-var: 0 */
 var del = require('del');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
-var webpack = require('webpack');
+var gulpif = require('gulp-if');
+var less = require('gulp-less');
+var nano = require('gulp-cssnano');
+var autoprefixer = require('gulp-autoprefixer');
+var paths = require('./config/paths');
+var autoprefixerOptions = require('./config/autoprefixer');
 
-var argv = require('yargs').argv;
-var output = argv.output || path.join(__dirname, 'src/main/webapp');
+var nanoOptions = {
+  zindex: false,
+  discardComments: { removeAll: true }
+};
 
-var styles = require('./gulp/styles').styles;
-var webpackConfig = require('./webpack.config.js');
-webpackConfig.output.path = path.join(output, 'js/bundles');
-
-
-// Clean
+function styles (output, production) {
+  return gulp.src(['src/main/less/sonar.less'])
+      .pipe(less())
+      .pipe(autoprefixer(autoprefixerOptions))
+      .pipe(gulpif(production, nano(nanoOptions)))
+      .pipe(gulp.dest(output));
+}
 
 gulp.task('clean', function (done) {
-  del([
-    path.join(output, 'js'),
-    path.join(output, 'css')
-  ], done);
+  del(paths.cssBuild, done);
 });
 
-
-// Styles
-
 gulp.task('styles:prod', function () {
-  return styles(output, true);
+  return styles(paths.cssBuild, true);
 });
 
 gulp.task('styles:dev', function () {
-  return styles(output, false, true);
+  return styles(paths.cssBuild, false);
 });
 
-
-// Webpack
-
-gulp.task('webpack:prod', function (callback) {
-  var webpackProdConfig = Object.create(webpackConfig);
-  webpackProdConfig.plugins = webpackProdConfig.plugins.concat(
-      new webpack.DefinePlugin({
-        'process.env': {
-          'NODE_ENV': JSON.stringify('production'),
-          'OUTPUT': output
-        }
-      }),
-      new webpack.optimize.DedupePlugin(),
-      new webpack.optimize.UglifyJsPlugin()
-  );
-
-  webpack(webpackProdConfig, function (err) {
-    if (err) {
-      throw new gutil.PluginError('webpack:prod', err);
-    }
-    callback();
-  });
-});
-
-gulp.task('webpack:dev', function (callback) {
-  // run webpack
-  webpack(webpackConfig, function (err) {
-    if (err) {
-      throw new gutil.PluginError('webpack:dev', err);
-    }
-    callback();
-  });
-});
-
-
-// Tasks
-
-gulp.task('build', ['clean', 'styles:prod', 'webpack:prod']);
-gulp.task('build:dev', ['clean', 'styles:dev', 'webpack:dev']);
-gulp.task('default', ['build']);
+gulp.task('default', ['clean', 'styles:prod']);
+gulp.task('build', ['clean', 'styles:prod']);
+gulp.task('build-fast', ['clean', 'styles:dev']);
