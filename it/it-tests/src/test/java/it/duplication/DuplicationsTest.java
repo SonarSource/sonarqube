@@ -26,6 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -60,6 +61,11 @@ public class DuplicationsTest {
     // Set minimum tokens to a big value in order to not get duplications
     setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", "1000");
     analyzeProject(WITHOUT_ENOUGH_TOKENS);
+  }
+
+  @AfterClass
+  public static void resetProperties() throws Exception {
+    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", null);
   }
 
   @Test

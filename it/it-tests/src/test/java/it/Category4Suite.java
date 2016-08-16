@@ -30,6 +30,7 @@ import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
+import it.duplication.NewDuplicationsTest;
 import it.http.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
@@ -77,6 +78,7 @@ import static util.ItUtils.xooPlugin;
   CrossProjectDuplicationsTest.class,
   CrossProjectDuplicationsOnRemoveFileTest.class,
   DuplicationsTest.class,
+  NewDuplicationsTest.class,
   // db cleaner
   PurgeTest.class,
   // project event
@@ -122,5 +124,6 @@ public class Category4Suite {
 
     // Used by LogsTest
     .setServerProperty("sonar.web.accessLogs.pattern", LogsTest.ACCESS_LOGS_PATTERN)
+
     .build();
 }
