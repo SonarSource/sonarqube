@@ -21,7 +21,11 @@ package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
 
@@ -42,10 +46,20 @@ public class ClobColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    if (MsSql.ID.equals(dialect.getId())) {
-      return "NVARCHAR (MAX)";
+    switch (dialect.getId()) {
+      case MsSql.ID:
+        return "NVARCHAR (MAX)";
+      case MySql.ID:
+        return "LONGTEXT";
+      case Oracle.ID:
+        return "CLOB";
+      case H2.ID:
+        return "CLOB(2147483647)";
+      case PostgreSql.ID:
+        return "TEXT";
+      default:
+        throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
     }
-    throw new UnsupportedOperationException(String.format("Database %s is not yet supported", dialect.getId()));
   }
 
   public static class Builder {

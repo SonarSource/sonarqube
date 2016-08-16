@@ -33,16 +33,15 @@ public class ClobColumnDefTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  private final ClobColumnDef underTest = new ClobColumnDef.Builder()
+    .setColumnName("issues")
+    .setIsNullable(true)
+    .build();
 
   @Test
   public void build_string_column_def() throws Exception {
-    ClobColumnDef def = new ClobColumnDef.Builder()
-      .setColumnName("issues")
-      .setIsNullable(true)
-      .build();
-
-    assertThat(def.getName()).isEqualTo("issues");
-    assertThat(def.isNullable()).isTrue();
+    assertThat(underTest.getName()).isEqualTo("issues");
+    assertThat(underTest.isNullable()).isTrue();
   }
 
   @Test
@@ -56,49 +55,23 @@ public class ClobColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
-    ClobColumnDef def = new ClobColumnDef.Builder()
-      .setColumnName("issues")
-      .setIsNullable(true)
-      .build();
-
-    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (MAX)");
+  public void generate_sql_type_on_mssql() throws Exception {
+    assertThat(underTest.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (MAX)");
   }
 
   @Test
-  public void fail_with_UOE_to_generate_sql_on_h2() throws Exception {
-    ClobColumnDef def = new ClobColumnDef.Builder()
-      .setColumnName("issues")
-      .setIsNullable(true)
-      .build();
-
-    thrown.expect(UnsupportedOperationException.class);
-
-    def.generateSqlType(new H2());
+  public void generate_sql_type_on_h2() throws Exception {
+    assertThat(underTest.generateSqlType(new H2())).isEqualTo("CLOB(2147483647)");
   }
 
   @Test
-  public void fail_with_UOE_to_generate_sql_on_mysql() throws Exception {
-    ClobColumnDef def = new ClobColumnDef.Builder()
-      .setColumnName("issues")
-      .setIsNullable(true)
-      .build();
-
-    thrown.expect(UnsupportedOperationException.class);
-
-    def.generateSqlType(new MySql());
+  public void generate_sql_type_on_mysql() throws Exception {
+    assertThat(underTest.generateSqlType(new MySql())).isEqualTo("LONGTEXT");
   }
 
   @Test
-  public void fail_with_UOE_to_generate_sql_on_oracle() throws Exception {
-    ClobColumnDef def = new ClobColumnDef.Builder()
-      .setColumnName("issues")
-      .setIsNullable(true)
-      .build();
-
-    thrown.expect(UnsupportedOperationException.class);
-
-    def.generateSqlType(new Oracle());
+  public void generate_sql_type_on_oracle() throws Exception {
+    assertThat(underTest.generateSqlType(new Oracle())).isEqualTo("CLOB");
   }
 
   @Test
