@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
-import org.sonar.db.ce.CeTaskDataDao;
+import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
@@ -100,7 +100,7 @@ public class DbClient {
   private final IssueChangeDao issueChangeDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
-  private final CeTaskDataDao ceTaskDataDao;
+  private final CeTaskInputDao ceTaskInputDao;
   private final DashboardDao dashboardDao;
   private final ActiveDashboardDao activeDashboardDao;
   private final WidgetDao widgetDao;
@@ -156,7 +156,7 @@ public class DbClient {
     issueChangeDao = getDao(map, IssueChangeDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
-    ceTaskDataDao = getDao(map, CeTaskDataDao.class);
+    ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
     activeDashboardDao = getDao(map, ActiveDashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
@@ -301,8 +301,8 @@ public class DbClient {
     return ceQueueDao;
   }
 
-  public CeTaskDataDao ceTaskDataDao() {
-    return ceTaskDataDao;
+  public CeTaskInputDao ceTaskInputDao() {
+    return ceTaskInputDao;
   }
 
   public DashboardDao dashboardDao() {

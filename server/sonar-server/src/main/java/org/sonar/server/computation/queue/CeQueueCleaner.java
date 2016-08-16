@@ -69,8 +69,8 @@ public class CeQueueCleaner {
     // Reports that have been processed are not kept in database yet.
     // They are supposed to be systematically dropped.
     // Let's clean-up orphans if any.
-    List<String> uuids = dbClient.ceTaskDataDao().selectUuidsNotInQueue(dbSession);
-    dbClient.ceTaskDataDao().deleteByUuids(dbSession, uuids);
+    List<String> uuids = dbClient.ceTaskInputDao().selectUuidsNotInQueue(dbSession);
+    dbClient.ceTaskInputDao().deleteByUuids(dbSession, uuids);
     dbSession.commit();
   }
 }

@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
@@ -31,18 +32,18 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
-public class CeTaskDataDao implements Dao {
+public class CeTaskInputDao implements Dao {
 
   private final System2 system;
 
-  public CeTaskDataDao(System2 system) {
+  public CeTaskInputDao(System2 system) {
     this.system = system;
   }
 
   public void insert(DbSession dbSession, String taskUuid, InputStream data) {
     long now = system.now();
     try (PreparedStatement stmt = dbSession.getConnection().prepareStatement(
-      "INSERT INTO ce_task_data (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)")) {
+      "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)")) {
       stmt.setString(1, taskUuid);
       stmt.setLong(2, now);
       stmt.setLong(3, now);
@@ -58,7 +59,7 @@ public class CeTaskDataDao implements Dao {
     ResultSet rs = null;
     DataStream result = null;
     try {
-      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM ce_task_data WHERE task_uuid=? AND data IS NOT NULL");
+      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM ce_task_input WHERE task_uuid=? AND data IS NOT NULL");
       stmt.setString(1, taskUuid);
       rs = stmt.executeQuery();
       if (rs.next()) {
@@ -77,11 +78,11 @@ public class CeTaskDataDao implements Dao {
   }
 
   public List<String> selectUuidsNotInQueue(DbSession dbSession) {
-    return dbSession.getMapper(CeTaskDataMapper.class).selectUuidsNotInQueue();
+    return dbSession.getMapper(CeTaskInputMapper.class).selectUuidsNotInQueue();
   }
 
-  public void deleteByUuids(DbSession dbSession, List<String> uuids) {
-    CeTaskDataMapper mapper = dbSession.getMapper(CeTaskDataMapper.class);
+  public void deleteByUuids(DbSession dbSession, Collection<String> uuids) {
+    CeTaskInputMapper mapper = dbSession.getMapper(CeTaskInputMapper.class);
     DatabaseUtils.executeLargeUpdates(uuids, mapper::deleteByUuids);
   }
 

@@ -28,7 +28,7 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskDataDao;
+import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,8 +75,8 @@ public class CeQueueCleanerTest {
 
     underTest.clean(dbTester.getSession());
 
-    CeTaskDataDao dataDao = dbTester.getDbClient().ceTaskDataDao();
-    Optional<CeTaskDataDao.DataStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
+    CeTaskInputDao dataDao = dbTester.getDbClient().ceTaskInputDao();
+    Optional<CeTaskInputDao.DataStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
     assertThat(task1Data).isPresent();
     task1Data.get().close();
 
@@ -95,7 +95,7 @@ public class CeQueueCleanerTest {
   }
 
   private void insertTaskData(String taskUuid) throws IOException {
-    dbTester.getDbClient().ceTaskDataDao().insert(dbTester.getSession(), taskUuid, IOUtils.toInputStream("{binary}"));
+    dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), taskUuid, IOUtils.toInputStream("{binary}"));
     dbTester.getSession().commit();
   }
 }

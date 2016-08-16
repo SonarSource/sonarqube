@@ -41,7 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 
 @ComputeEngineSide
@@ -171,7 +171,7 @@ public class CeQueueImpl implements CeQueue {
   protected void remove(DbSession dbSession, CeQueueDto queueDto, CeActivityDto activityDto) {
     dbClient.ceActivityDao().insert(dbSession, activityDto);
     dbClient.ceQueueDao().deleteByUuid(dbSession, queueDto.getUuid());
-    dbClient.ceTaskDataDao().deleteByUuids(dbSession, singletonList(queueDto.getUuid()));
+    dbClient.ceTaskInputDao().deleteByUuids(dbSession, singleton(queueDto.getUuid()));
     dbSession.commit();
   }
 

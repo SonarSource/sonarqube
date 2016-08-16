@@ -28,26 +28,26 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CeTaskDataDaoTest {
+public class CeTaskInputDaoTest {
 
   private static final String A_UUID = "U1";
   private static final String SOME_DATA = "this_is_a_report";
   private static final long NOW = 1_500_000_000_000L;
-  private static final String TABLE_NAME = "ce_task_data";
+  private static final String TABLE_NAME = "ce_task_input";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system = mock(System2.class);
-  private CeTaskDataDao underTest = new CeTaskDataDao(system);
+  private CeTaskInputDao underTest = new CeTaskInputDao(system);
 
   @Test
   public void insert_and_select_data_stream() throws Exception {
@@ -56,7 +56,7 @@ public class CeTaskDataDaoTest {
     InputStream report = IOUtils.toInputStream(SOME_DATA);
     underTest.insert(dbTester.getSession(), A_UUID, report);
 
-    Optional<CeTaskDataDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isPresent();
     try {
       assertThat(IOUtils.toString(result.get().getInputStream())).isEqualTo(SOME_DATA);
@@ -73,7 +73,7 @@ public class CeTaskDataDaoTest {
 
   @Test
   public void selectData_returns_absent_if_uuid_not_found() {
-    Optional<CeTaskDataDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
   }
 
@@ -82,7 +82,7 @@ public class CeTaskDataDaoTest {
     insertData(A_UUID);
     dbTester.commit();
 
-    Optional<CeTaskDataDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
   }
 
@@ -102,7 +102,7 @@ public class CeTaskDataDaoTest {
     insertData(A_UUID);
     assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isEqualTo(1);
 
-    underTest.deleteByUuids(dbTester.getSession(), asList(A_UUID));
+    underTest.deleteByUuids(dbTester.getSession(), singleton(A_UUID));
     dbTester.commit();
     assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isEqualTo(0);
   }

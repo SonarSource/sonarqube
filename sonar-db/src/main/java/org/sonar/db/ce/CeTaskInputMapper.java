@@ -22,7 +22,7 @@ package org.sonar.db.ce;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-public interface CeTaskDataMapper {
+public interface CeTaskInputMapper {
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
 

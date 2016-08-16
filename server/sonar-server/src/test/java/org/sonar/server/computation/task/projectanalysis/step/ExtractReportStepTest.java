@@ -73,7 +73,7 @@ public class ExtractReportStepTest {
   public void unzip_report() throws Exception {
     File reportFile = generateReport();
     try (InputStream input = FileUtils.openInputStream(reportFile)) {
-      dbTester.getDbClient().ceTaskDataDao().insert(dbTester.getSession(), TASK_UUID, input);
+      dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), TASK_UUID, input);
     }
     dbTester.getSession().commit();
     dbTester.getSession().close();

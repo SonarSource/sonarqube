@@ -187,7 +187,7 @@ public class ReportSubmitterTest {
   }
 
   private void verifyReportIsPersisted(String taskUuid) {
-    assertThat(dbTester.selectFirst("select task_uuid from ce_task_data where task_uuid='" + taskUuid + "'")).isNotNull();
+    assertThat(dbTester.selectFirst("select task_uuid from ce_task_input where task_uuid='" + taskUuid + "'")).isNotNull();
   }
 
 }

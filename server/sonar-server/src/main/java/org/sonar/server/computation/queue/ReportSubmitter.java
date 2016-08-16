@@ -97,7 +97,7 @@ public class ReportSubmitter {
     // the report file must be saved before submitting the task
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.ceTaskDataDao().insert(dbSession, submit.getUuid(), reportInput);
+      dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
       dbSession.commit();
     }
 
