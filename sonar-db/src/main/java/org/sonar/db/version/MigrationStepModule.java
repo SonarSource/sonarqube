@@ -145,6 +145,7 @@ import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
 import org.sonar.db.version.v60.PopulateUuidPathColumnOnProjects;
 import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
 import org.sonar.db.version.v61.AddBUuidPathToProjects;
+import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
 import org.sonar.db.version.v61.DeleteProjectDashboards;
 import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
 import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
@@ -316,6 +317,7 @@ public class MigrationStepModule extends Module {
       DropIsGlobalFromDashboards.class,
       DeleteReportsFromCeQueue.class,
       ShrinkModuleUuidPathOfProjects.class,
-      AddBUuidPathToProjects.class);
+      AddBUuidPathToProjects.class,
+      AddErrorColumnsToCeActivity.class);
   }
 }
