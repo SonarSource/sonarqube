@@ -132,12 +132,12 @@ public final class CoreMetrics {
   /**
    * @since 6.1
    */
-  public static final String NEW_NCLOC_KEY = "new_ncloc";
+  public static final String NEW_LINES_KEY = "new_lines";
   /**
    * @since 6.1
    */
-  public static final Metric<Integer> NEW_NCLOC = new Metric.Builder(NEW_NCLOC_KEY, "New Lines of Code", Metric.ValueType.INT)
-    .setDescription("New non commenting lines of code")
+  public static final Metric<Integer> NEW_LINES = new Metric.Builder(NEW_LINES_KEY, "Lines on New Code", Metric.ValueType.INT)
+    .setDescription("Non commenting lines on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)

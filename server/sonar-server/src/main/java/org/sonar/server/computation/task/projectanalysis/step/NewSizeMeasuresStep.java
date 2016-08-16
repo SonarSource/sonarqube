@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -53,7 +52,6 @@ import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVari
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
-import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
@@ -63,12 +61,10 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
-import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 
 /**
  * Computes measures on new code related to the size
@@ -87,7 +83,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     this.periodsHolder = periodsHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.duplicationFormula = new NewDuplicationFormula(measureRepository, metricRepository, scmInfoRepository, duplicationRepository);
+    this.duplicationFormula = new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
   }
 
   @Override
@@ -105,20 +101,16 @@ public class NewSizeMeasuresStep implements ComputationStep {
   }
 
   private static class NewSizeCounter implements Counter<NewSizeCounter> {
-    private final MeasureRepository measureRepository;
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
-    private final Metric nclocDataMetric;
     private final IntVariationValue.Array newLines = IntVariationValue.newArray();
     private final IntVariationValue.Array newDuplicatedLines = IntVariationValue.newArray();
     private final IntVariationValue.Array newDuplicatedBlocks = IntVariationValue.newArray();
 
-    private NewSizeCounter(MeasureRepository measureRepository, MetricRepository metricRepository, DuplicationRepository duplicationRepository,
+    private NewSizeCounter(DuplicationRepository duplicationRepository,
       ScmInfoRepository scmInfoRepository) {
-      this.measureRepository = measureRepository;
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
-      this.nclocDataMetric = metricRepository.getByKey(NCLOC_DATA_KEY);
     }
 
     @Override
@@ -144,20 +136,14 @@ public class NewSizeMeasuresStep implements ComputationStep {
         return;
       }
 
-      initNewLines(leaf, scmInfo.get(), context.getPeriods());
+      initNewLines(scmInfo.get(), context.getPeriods());
       initNewDuplicated(leaf, scmInfo.get(), context.getPeriods());
     }
 
-    private void initNewLines(Component component, ScmInfo scmInfo, List<Period> periods) {
-      Optional<Measure> nclocData = measureRepository.getRawMeasure(component, nclocDataMetric);
-      if (!nclocData.isPresent()) {
-        return;
-      }
-      nclocLineNumbers(nclocData.get()).stream()
-        .map(scmInfo::getChangesetForLine)
-        .forEach(changeset -> periods.stream()
-          .filter(period -> isLineInPeriod(changeset, period))
-          .forEach(period -> newLines.increment(period, 1)));
+    private void initNewLines(ScmInfo scmInfo, List<Period> periods) {
+      scmInfo.getAllChangesets().forEach(changeset -> periods.stream()
+        .filter(period -> isLineInPeriod(changeset, period))
+        .forEach(period -> newLines.increment(period, 1)));
     }
 
     private void initNewDuplicated(Component component, ScmInfo scmInfo, List<Period> periods) {
@@ -176,21 +162,6 @@ public class NewSizeMeasuresStep implements ComputationStep {
         newDuplicatedLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0));
         newDuplicatedBlocks.increment(period, duplicationCounters.getNewBlocksDuplicated().getOrDefault(period, 0));
       });
-    }
-
-    /**
-     * NCLOC_DATA contains Key-value pairs, where key - is a line number, and value - is an indicator of whether line
-     * contains code (1) or not (0).
-     *
-     * This method parses the value of the NCLOC_DATA measure and return the line numbers which contain code.
-     */
-    private static List<Integer> nclocLineNumbers(Measure nclocDataMeasure) {
-      Map<Integer, Integer> parsedNclocData = KeyValueFormat.parse(nclocDataMeasure.getData(), newIntegerConverter(), newIntegerConverter());
-      return parsedNclocData.entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() == 1)
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toList());
     }
 
     private static boolean isLineInPeriod(Changeset changeset, Period period) {
@@ -237,29 +208,25 @@ public class NewSizeMeasuresStep implements ComputationStep {
   }
 
   private static final class NewDuplicationFormula implements Formula<NewSizeCounter> {
-    private final MeasureRepository measureRepository;
-    private final MetricRepository metricRepository;
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
 
-    private NewDuplicationFormula(MeasureRepository measureRepository, MetricRepository metricRepository, ScmInfoRepository scmInfoRepository,
+    private NewDuplicationFormula(ScmInfoRepository scmInfoRepository,
       DuplicationRepository duplicationRepository) {
-      this.measureRepository = measureRepository;
-      this.metricRepository = metricRepository;
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
     }
 
     @Override
     public NewSizeCounter createNewCounter() {
-      return new NewSizeCounter(measureRepository, metricRepository, duplicationRepository, scmInfoRepository);
+      return new NewSizeCounter(duplicationRepository, scmInfoRepository);
     }
 
     @Override
     public Optional<Measure> createMeasure(NewSizeCounter counter, CreateMeasureContext context) {
       String metricKey = context.getMetric().getKey();
       switch (metricKey) {
-        case NEW_NCLOC_KEY:
+        case NEW_LINES_KEY:
           return createMeasure(counter.newLines.toMeasureVariations());
         case NEW_DUPLICATED_LINES_KEY:
           return createMeasure(counter.newDuplicatedLines.toMeasureVariations());
@@ -298,7 +265,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_NCLOC_KEY, NEW_DUPLICATED_LINES_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_BLOCKS_DUPLICATED_KEY};
+      return new String[] {NEW_LINES_KEY, NEW_DUPLICATED_LINES_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_BLOCKS_DUPLICATED_KEY};
     }
   }
 }

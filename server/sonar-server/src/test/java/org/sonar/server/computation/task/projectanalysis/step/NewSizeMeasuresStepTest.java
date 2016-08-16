@@ -21,20 +21,13 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
-import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
@@ -46,16 +39,14 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRu
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC;
-import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE;
@@ -113,8 +104,7 @@ public class NewSizeMeasuresStepTest {
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(NCLOC_DATA)
-    .add(NEW_NCLOC)
+    .add(NEW_LINES)
     .add(NEW_DUPLICATED_LINES)
     .add(NEW_DUPLICATED_LINES_DENSITY)
     .add(NEW_BLOCKS_DUPLICATED);
@@ -130,40 +120,34 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_new_lines() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
-    setNclocsExcept(FILE_1_REF, 2, 4, 6);
-    setNclocsExcept(FILE_2_REF);
-    setNclocsExcept(FILE_3_REF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-    setNclocsExcept(FILE_4_REF, 1, 2);
+    setChangesets(FILE_1_REF, FILE_2_REF, FILE_4_REF);
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_NCLOC_KEY, 12 - 1 - 3);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_NCLOC_KEY, 12 - 1);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_NCLOC_KEY, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_NCLOC_KEY, 12 - 1 - 2);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_NCLOC_KEY, 19);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_2_REF, NEW_NCLOC_KEY, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_NCLOC_KEY, 19);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_NCLOC_KEY, 9);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_NCLOC_KEY, 28);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, NEW_NCLOC_KEY, 28);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_LINES_KEY, 0);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_LINES_KEY, 22);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_2_REF, NEW_LINES_KEY, 0);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_LINES_KEY, 22);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_LINES_KEY, 33);
+    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, NEW_LINES_KEY, 33);
   }
 
   @Test
   public void compute_new_lines_with_no_changeset() {
-    setNclocsExcept(FILE_1_REF);
-
     underTest.execute();
 
-    assertComputedAndAggregatedToZeroInt(NEW_NCLOC_KEY);
+    assertComputedAndAggregatedToZeroInt(NEW_LINES_KEY);
   }
 
   @Test
   public void compute_new_lines_with_no_ncloc_data() {
     underTest.execute();
 
-    assertComputedAndAggregatedToZeroInt(NEW_NCLOC_KEY);
+    assertComputedAndAggregatedToZeroInt(NEW_LINES_KEY);
   }
 
   @Test
@@ -343,45 +327,30 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_new_duplicated_lines_density() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
-    setNclocsExcept(FILE_1_REF, 2, 4, 6);
-    setNclocsExcept(FILE_2_REF);
-    setNclocsExcept(FILE_3_REF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-    setNclocsExcept(FILE_4_REF, 1, 2);
+    setChangesets(FILE_1_REF, FILE_2_REF, FILE_4_REF);
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_3_REF, 10);
     addDuplicatedBlock(FILE_4_REF, 12);
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 25d, null);
+    assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 18.2d, null);
     assertRawMeasureValue(FILE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 0d, null);
     assertNoRawMeasure(FILE_3_REF, NEW_DUPLICATED_LINES_DENSITY_KEY);
     assertRawMeasureValue(FILE_4_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d, null);
-    assertRawMeasureValue(DIRECTORY_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 10.5d, null);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d, null);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 10.5d,null);
+    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d, null);
     assertRawMeasureValue(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d, null);
-    assertRawMeasureValue(MODULE_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 78.6d, null);
-    assertRawMeasureValue(ROOT_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 78.6d, null);
+    assertRawMeasureValue(MODULE_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d, null);
+    assertRawMeasureValue(ROOT_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d, null);
   }
 
   @Test
   public void compute_no_new_duplicated_lines_density_when_no_lines() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
-
     underTest.execute();
 
     assertNoRawMeasures(NEW_DUPLICATED_LINES_DENSITY_KEY);
-  }
-
-  private void setNclocsExcept(int componentRef, Integer... lineNumbersNotLineOfCode) {
-    List<Integer> notLocNumbers = Arrays.asList(lineNumbersNotLineOfCode);
-    Map<Integer, Integer> nclocData = IntStream.rangeClosed(1, 12)
-      .filter(lineNumber -> !notLocNumbers.contains(lineNumber))
-      .boxed()
-      .collect(Collectors.toMap(Function.identity(), lineNumber -> 1));
-    measureRepository.addRawMeasure(componentRef, NCLOC_DATA_KEY, Measure.newMeasureBuilder().create(KeyValueFormat.format(nclocData)));
   }
 
   /**

@@ -52,16 +52,16 @@ public class NewDuplicationsTest {
   @Test
   public void new_duplications_on_project() throws Exception {
     Resource project = getComponent("new-duplications");
-    assertThat(project.getMeasure("new_ncloc").getVariation1()).isEqualTo(75d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(83d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(71d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(94.7d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(85.5d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(12d, DEFAULT_OFFSET);
   }
 
   @Test
   public void new_duplications_on_directory() throws Exception {
     Resource project = getComponent("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
-    assertThat(project.getMeasure("new_ncloc").getVariation1()).isEqualTo(24d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(24d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(24d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(100d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(7d, DEFAULT_OFFSET);
@@ -70,15 +70,15 @@ public class NewDuplicationsTest {
   @Test
   public void new_duplications_on_file() throws Exception {
     Resource project = getComponent("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
-    assertThat(project.getMeasure("new_ncloc").getVariation1()).isEqualTo(33d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(41d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(29d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(87.9d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(70.7d, DEFAULT_OFFSET);
     assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(2d, DEFAULT_OFFSET);
   }
 
   private static Resource getComponent(String key) {
     Resource component = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(key, "new_ncloc", "new_duplicated_lines", "new_duplicated_lines_density", "new_duplicated_blocks").setIncludeTrends(true));
+      .find(ResourceQuery.createForMetrics(key, "new_lines", "new_duplicated_lines", "new_duplicated_lines_density", "new_duplicated_blocks").setIncludeTrends(true));
     assertThat(component).isNotNull();
     return component;
   }
