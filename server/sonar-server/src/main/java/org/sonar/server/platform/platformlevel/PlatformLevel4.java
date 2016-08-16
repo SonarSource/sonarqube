@@ -176,7 +176,6 @@ import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
-import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -235,6 +234,8 @@ import org.sonar.server.rule.ws.RuleMapper;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
+import org.sonar.server.settings.ProjectSettingsFactory;
+import org.sonar.server.settings.ws.SettingsWsModule;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.HashAction;
@@ -580,8 +581,9 @@ public class PlatformLevel4 extends PlatformLevel {
       TestIndex.class,
       TestIndexer.class,
 
-      // Properties
+      // Settings
       PropertiesWs.class,
+      SettingsWsModule.class,
 
       TypeValidationModule.class,
 

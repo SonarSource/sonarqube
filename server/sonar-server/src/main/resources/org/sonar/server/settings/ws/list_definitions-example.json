@@ -1,0 +1,70 @@
+{
+  "definitions": [
+    {
+      "key": "sonar.string",
+      "name": "String",
+      "description": "String property",
+      "type": "STRING",
+      "category": "general",
+      "subCategory": "test",
+      "multiValues": false,
+      "defaultValue": "123",
+      "options": [],
+      "fields": []
+    },
+    {
+      "key": "sonar.list",
+      "name": "List",
+      "description": "List property",
+      "type": "SINGLE_SELECT_LIST",
+      "category": "general",
+      "subCategory": "general",
+      "multiValues": false,
+      "options": [
+        "a",
+        "b"
+      ],
+      "fields": []
+    },
+    {
+      "key": "sonar.multiValues",
+      "name": "Multi values",
+      "description": "Multi values property",
+      "type": "STRING",
+      "category": "general",
+      "subCategory": "general",
+      "multiValues": true,
+      "options": [],
+      "fields": []
+    },
+    {
+      "key": "sonar.propertySet",
+      "name": "Property Set",
+      "description": "Property Set property",
+      "type": "PROPERTY_SET",
+      "category": "property",
+      "subCategory": "set",
+      "multiValues": false,
+      "options": [],
+      "fields": [
+        {
+          "key": "text",
+          "name": "Text",
+          "type": "TEXT",
+          "indicativeSize": 10,
+          "options": []
+        },
+        {
+          "key": "list",
+          "name": "List",
+          "type": "SINGLE_SELECT_LIST",
+          "indicativeSize": 20,
+          "options": [
+            "value1",
+            "value2"
+          ]
+        }
+      ]
+    }
+  ]
+}

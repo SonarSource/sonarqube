@@ -32,7 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.server.settings.ProjectSettingsFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;

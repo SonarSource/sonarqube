@@ -22,7 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.component;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.config.Settings;
-import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.server.settings.ProjectSettingsFactory;
 import org.sonar.server.util.cache.CacheLoader;
 import org.sonar.server.util.cache.MemoryCache;
 

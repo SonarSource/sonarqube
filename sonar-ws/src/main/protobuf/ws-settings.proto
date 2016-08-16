@@ -1,0 +1,68 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2015 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.settings;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Settings";
+option optimize_for = SPEED;
+
+// Response of GET api/settings/list_definitions
+message ListDefinitionsWsResponse {
+  repeated Definition definitions = 1;
+}
+
+message Definition {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional Type type = 4;
+  optional string category = 5;
+  optional string subCategory = 6;
+  optional string defaultValue = 7;
+  optional bool multiValues = 8;
+  repeated string options = 9;
+  repeated Field fields = 10;
+}
+
+message Field {
+  optional string key = 1;
+  optional string name = 2;
+  optional Type type = 3;
+  optional int32 indicativeSize = 4;
+  repeated string options = 5;
+}
+
+enum Type {
+  STRING = 0;
+  TEXT = 1;
+  PASSWORD = 2;
+  BOOLEAN = 3;
+  INTEGER = 4;
+  FLOAT = 5;
+  LONG = 6;
+  REGULAR_EXPRESSION = 7;
+  METRIC = 8;
+  USER_LOGIN = 9;
+  METRIC_LEVEL = 10;
+  SINGLE_SELECT_LIST = 11;
+  PROPERTY_SET = 12;
+}
+
