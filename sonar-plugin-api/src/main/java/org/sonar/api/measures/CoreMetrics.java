@@ -1332,11 +1332,12 @@ public final class CoreMetrics {
   /**
    * @since 6.1
    */
-  public static final String NEW_LINES_DUPLICATED_KEY = "new_duplicated_lines";
+  public static final String NEW_DUPLICATED_LINES_KEY = "new_duplicated_lines";
+
   /**
    * @since 6.1
    */
-  public static final Metric<Integer> NEW_LINES_DUPLICATED = new Metric.Builder(NEW_LINES_DUPLICATED_KEY, "New Duplicated Lines", Metric.ValueType.INT)
+  public static final Metric<Integer> NEW_DUPLICATED_LINES = new Metric.Builder(NEW_DUPLICATED_LINES_KEY, "New Duplicated Lines", Metric.ValueType.INT)
     .setDescription("New duplicated lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1387,6 +1388,7 @@ public final class CoreMetrics {
     .create();
 
   public static final String DUPLICATED_LINES_DENSITY_KEY = "duplicated_lines_density";
+
   public static final Metric<Double> DUPLICATED_LINES_DENSITY = new Metric.Builder(DUPLICATED_LINES_DENSITY_KEY, "Duplicated Lines (%)", Metric.ValueType.PERCENT)
     .setDescription("Duplicated lines balanced by statements")
     .setDirection(Metric.DIRECTION_WORST)
@@ -1396,6 +1398,24 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
+
+  /**
+   * @since 6.1
+   */
+  public static final String NEW_DUPLICATED_LINES_DENSITY_KEY = "new_duplicated_lines_density";
+
+  /**
+   * @since 6.1
+   */
+  public static final Metric<Integer> NEW_DUPLICATED_LINES_DENSITY = new Metric.Builder(NEW_DUPLICATED_LINES_DENSITY_KEY, "Duplicated Lines on New Code (%)",
+    Metric.ValueType.PERCENT)
+      .setDescription("Duplicated lines on new code balanced by statements")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DUPLICATIONS)
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @deprecated since 4.5. Internal storage of duplication is not an API.

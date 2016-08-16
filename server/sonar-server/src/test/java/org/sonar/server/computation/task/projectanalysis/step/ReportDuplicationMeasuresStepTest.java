@@ -268,8 +268,7 @@ public class ReportDuplicationMeasuresStepTest {
   public void compute_and_aggregate_zero_duplicated_line_when_no_duplication() {
     underTest.execute();
 
-    String metricKey = DUPLICATED_LINES_KEY;
-    assertComputedAndAggregatedToZeroInt(metricKey);
+    assertComputedAndAggregatedToZeroInt(DUPLICATED_LINES_KEY);
   }
 
   @Test

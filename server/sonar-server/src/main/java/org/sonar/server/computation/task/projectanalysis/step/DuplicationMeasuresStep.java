@@ -207,7 +207,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
 
     private Optional<Measure> createDuplicatedLinesDensityMeasure(DuplicationCounter counter, CreateMeasureContext context) {
       int duplicatedLines = counter.lineCount;
-      Optional<Integer> nbLines = getNbLinesFromLocOrNcloc(context);
+      java.util.Optional<Integer> nbLines = getNbLinesFromLocOrNcloc(context);
       if (nbLines.isPresent() && nbLines.get() > 0) {
         double density = Math.min(100d, 100d * duplicatedLines / nbLines.get());
         return Optional.of(Measure.newMeasureBuilder().create(density, context.getMetric().getDecimalScale()));
@@ -215,18 +215,18 @@ public class DuplicationMeasuresStep implements ComputationStep {
       return Optional.absent();
     }
 
-    private Optional<Integer> getNbLinesFromLocOrNcloc(CreateMeasureContext context) {
+    private java.util.Optional<Integer> getNbLinesFromLocOrNcloc(CreateMeasureContext context) {
       Optional<Measure> lines = measureRepository.getRawMeasure(context.getComponent(), linesMetric);
       if (lines.isPresent()) {
-        return Optional.of(lines.get().getIntValue());
+        return java.util.Optional.of(lines.get().getIntValue());
       }
       Optional<Measure> nclocs = measureRepository.getRawMeasure(context.getComponent(), nclocMetric);
       if (nclocs.isPresent()) {
         Optional<Measure> commentLines = measureRepository.getRawMeasure(context.getComponent(), commentLinesMetric);
         int nbLines = nclocs.get().getIntValue();
-        return Optional.of(commentLines.isPresent() ? (nbLines + commentLines.get().getIntValue()) : nbLines);
+        return java.util.Optional.of(commentLines.isPresent() ? (nbLines + commentLines.get().getIntValue()) : nbLines);
       }
-      return Optional.absent();
+      return java.util.Optional.empty();
     }
 
     @Override

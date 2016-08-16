@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -47,25 +48,32 @@ import org.sonar.server.computation.task.projectanalysis.formula.CounterInitiali
 import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleVariationValue;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
+import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_LINES_DUPLICATED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
+import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 
 /**
- * Computes new duplication measures on files and then aggregates them on higher components.
+ * Computes measures on new code related to the size
  */
-public class NewDuplicationMeasuresStep implements ComputationStep {
+public class NewSizeMeasuresStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
@@ -73,18 +81,18 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final NewDuplicationFormula duplicationFormula;
 
-  public NewDuplicationMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-                                    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+  public NewSizeMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
+    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.duplicationFormula = new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
+    this.duplicationFormula = new NewDuplicationFormula(measureRepository, metricRepository, scmInfoRepository, duplicationRepository);
   }
 
   @Override
   public String getDescription() {
-    return "Compute new duplication measures";
+    return "Compute size measures on new code";
   }
 
   @Override
@@ -93,45 +101,68 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .withVariationSupport(periodsHolder)
         .buildFor(ImmutableList.of(duplicationFormula)))
-      .visit(treeRootHolder.getRoot());
+          .visit(treeRootHolder.getRoot());
   }
 
-  private static class NewDuplicationCounter implements Counter<NewDuplicationCounter> {
+  private static class NewSizeCounter implements Counter<NewSizeCounter> {
+    private final MeasureRepository measureRepository;
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
+    private final Metric nclocDataMetric;
     private final IntVariationValue.Array newLines = IntVariationValue.newArray();
-    private final IntVariationValue.Array newBlocks = IntVariationValue.newArray();
+    private final IntVariationValue.Array newDuplicatedLines = IntVariationValue.newArray();
+    private final IntVariationValue.Array newDuplicatedBlocks = IntVariationValue.newArray();
 
-    private NewDuplicationCounter(DuplicationRepository duplicationRepository, ScmInfoRepository scmInfoRepository) {
+    private NewSizeCounter(MeasureRepository measureRepository, MetricRepository metricRepository, DuplicationRepository duplicationRepository,
+      ScmInfoRepository scmInfoRepository) {
+      this.measureRepository = measureRepository;
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
+      this.nclocDataMetric = metricRepository.getByKey(NCLOC_DATA_KEY);
     }
 
     @Override
-    public void aggregate(NewDuplicationCounter counter) {
+    public void aggregate(NewSizeCounter counter) {
+      this.newDuplicatedLines.incrementAll(counter.newDuplicatedLines);
+      this.newDuplicatedBlocks.incrementAll(counter.newDuplicatedBlocks);
       this.newLines.incrementAll(counter.newLines);
-      this.newBlocks.incrementAll(counter.newBlocks);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
+      context.getPeriods().forEach(period -> newLines.increment(period, 0));
       if (leaf.getType() != Component.Type.FILE) {
         context.getPeriods().forEach(period -> {
-          newLines.increment(period, 0);
-          newBlocks.increment(period, 0);
+          newDuplicatedLines.increment(period, 0);
+          newDuplicatedBlocks.increment(period, 0);
         });
         return;
       }
-      Iterable<Duplication> duplications = duplicationRepository.getDuplications(leaf);
       Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
-
       if (!scmInfo.isPresent()) {
         return;
       }
 
-      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo.get(), context.getPeriods());
+      initNewLines(leaf, scmInfo.get(), context.getPeriods());
+      initNewDuplicated(leaf, scmInfo.get(), context.getPeriods());
+    }
 
+    private void initNewLines(Component component, ScmInfo scmInfo, List<Period> periods) {
+      Optional<Measure> nclocData = measureRepository.getRawMeasure(component, nclocDataMetric);
+      if (!nclocData.isPresent()) {
+        return;
+      }
+      nclocLineNumbers(nclocData.get()).stream()
+        .map(scmInfo::getChangesetForLine)
+        .forEach(changeset -> periods.stream()
+          .filter(period -> isLineInPeriod(changeset, period))
+          .forEach(period -> newLines.increment(period, 1)));
+    }
+
+    private void initNewDuplicated(Component component, ScmInfo scmInfo, List<Period> periods) {
+      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, periods);
+      Iterable<Duplication> duplications = duplicationRepository.getDuplications(component);
       for (Duplication duplication : duplications) {
         duplicationCounters.addBlock(duplication.getOriginal());
         duplication.getDuplicates().stream()
@@ -141,10 +172,29 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
       }
 
       Map<Period, Integer> newLinesDuplicatedByPeriod = duplicationCounters.getNewLinesDuplicated();
-      context.getPeriods().forEach(period -> {
-        newLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0));
-        newBlocks.increment(period, duplicationCounters.getNewBlocksDuplicated().getOrDefault(period, 0));
+      periods.forEach(period -> {
+        newDuplicatedLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0));
+        newDuplicatedBlocks.increment(period, duplicationCounters.getNewBlocksDuplicated().getOrDefault(period, 0));
       });
+    }
+
+    /**
+     * NCLOC_DATA contains Key-value pairs, where key - is a line number, and value - is an indicator of whether line
+     * contains code (1) or not (0).
+     *
+     * This method parses the value of the NCLOC_DATA measure and return the line numbers which contain code.
+     */
+    private static List<Integer> nclocLineNumbers(Measure nclocDataMeasure) {
+      Map<Integer, Integer> parsedNclocData = KeyValueFormat.parse(nclocDataMeasure.getData(), newIntegerConverter(), newIntegerConverter());
+      return parsedNclocData.entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() == 1)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+    }
+
+    private static boolean isLineInPeriod(Changeset changeset, Period period) {
+      return changeset.getDate() > period.getSnapshotDate();
     }
   }
 
@@ -186,42 +236,69 @@ public class NewDuplicationMeasuresStep implements ComputationStep {
     }
   }
 
-  private static final class NewDuplicationFormula implements Formula<NewDuplicationCounter> {
+  private static final class NewDuplicationFormula implements Formula<NewSizeCounter> {
+    private final MeasureRepository measureRepository;
+    private final MetricRepository metricRepository;
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
 
-    private NewDuplicationFormula(ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+    private NewDuplicationFormula(MeasureRepository measureRepository, MetricRepository metricRepository, ScmInfoRepository scmInfoRepository,
+      DuplicationRepository duplicationRepository) {
+      this.measureRepository = measureRepository;
+      this.metricRepository = metricRepository;
       this.duplicationRepository = duplicationRepository;
       this.scmInfoRepository = scmInfoRepository;
     }
 
     @Override
-    public NewDuplicationCounter createNewCounter() {
-      return new NewDuplicationCounter(duplicationRepository, scmInfoRepository);
+    public NewSizeCounter createNewCounter() {
+      return new NewSizeCounter(measureRepository, metricRepository, duplicationRepository, scmInfoRepository);
     }
 
     @Override
-    public Optional<Measure> createMeasure(NewDuplicationCounter counter, CreateMeasureContext context) {
+    public Optional<Measure> createMeasure(NewSizeCounter counter, CreateMeasureContext context) {
       String metricKey = context.getMetric().getKey();
       switch (metricKey) {
-        case NEW_LINES_DUPLICATED_KEY:
-          Optional<MeasureVariations> newLinesDuplicated = counter.newLines.toMeasureVariations();
-          return newLinesDuplicated.isPresent()
-            ? Optional.of(Measure.newMeasureBuilder().setVariations(newLinesDuplicated.get()).createNoValue())
-            : Optional.absent();
+        case NEW_NCLOC_KEY:
+          return createMeasure(counter.newLines.toMeasureVariations());
+        case NEW_DUPLICATED_LINES_KEY:
+          return createMeasure(counter.newDuplicatedLines.toMeasureVariations());
+        case NEW_DUPLICATED_LINES_DENSITY_KEY:
+          return createNewDuplicatedLinesDensityMeasure(counter, context);
         case NEW_BLOCKS_DUPLICATED_KEY:
-          Optional<MeasureVariations> newBlocksDuplicated = counter.newBlocks.toMeasureVariations();
-          return newBlocksDuplicated.isPresent()
-            ? Optional.of(Measure.newMeasureBuilder().setVariations(newBlocksDuplicated.get()).createNoValue())
-            : Optional.absent();
+          return createMeasure(counter.newDuplicatedBlocks.toMeasureVariations());
         default:
           throw new IllegalArgumentException("Unsupported metric " + context.getMetric());
       }
     }
 
+    private static Optional<Measure> createMeasure(Optional<MeasureVariations> measure) {
+      return measure.isPresent()
+        ? Optional.of(Measure.newMeasureBuilder().setVariations(measure.get()).createNoValue())
+        : Optional.absent();
+    }
+
+    private static Optional<Measure> createNewDuplicatedLinesDensityMeasure(NewSizeCounter counter, CreateMeasureContext context) {
+      Optional<MeasureVariations> newLines = counter.newLines.toMeasureVariations();
+      Optional<MeasureVariations> newDuplicatedLines = counter.newDuplicatedLines.toMeasureVariations();
+      DoubleVariationValue.Array newDuplicatedLinesDensity = DoubleVariationValue.newArray();
+      if (newLines.isPresent() && newDuplicatedLines.isPresent()) {
+        MeasureVariations newLinesVariations = newLines.get();
+        MeasureVariations newDuplicatedLinesVariations = newDuplicatedLines.get();
+        for (Period period : context.getPeriods()) {
+          double currentNewLines = newLinesVariations.getVariation(period.getIndex());
+          if (currentNewLines > 0d) {
+            double density = Math.min(100d, 100d * newDuplicatedLinesVariations.getVariation(period.getIndex()) / currentNewLines);
+            newDuplicatedLinesDensity.increment(period, density);
+          }
+        }
+      }
+      return createMeasure(newDuplicatedLinesDensity.toMeasureVariations());
+    }
+
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[]{NEW_LINES_DUPLICATED_KEY, NEW_BLOCKS_DUPLICATED_KEY};
+      return new String[] {NEW_NCLOC_KEY, NEW_DUPLICATED_LINES_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_BLOCKS_DUPLICATED_KEY};
     }
   }
 }
