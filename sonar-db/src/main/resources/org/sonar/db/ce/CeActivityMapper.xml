@@ -18,12 +18,14 @@
     ca.updated_at as updatedAt,
     ca.is_last as isLast,
     ca.is_last_key as isLastKey,
-    ca.execution_time_ms as executionTimeMs
+    ca.execution_time_ms as executionTimeMs,
+    ca.error_message as errorMessage
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
     select
-    <include refid="columns"/>
+    <include refid="columns"/>,
+    ca.error_stacktrace as errorStacktrace
     from ce_activity ca
     where ca.uuid=#{uuid}
   </select>
@@ -121,25 +123,41 @@
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
-    insert into ce_activity
-    (uuid, component_uuid, analysis_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at,
-    started_at,
-    executed_at, created_at, updated_at, execution_time_ms)
+    insert into ce_activity (
+      uuid,
+      component_uuid,
+      analysis_uuid,
+      status,
+      task_type,
+      is_last,
+      is_last_key,
+      submitter_login,
+      submitted_at,
+      started_at,
+      executed_at,
+      created_at,
+      updated_at,
+      execution_time_ms,
+      error_message,
+      error_stacktrace
+    )
     values (
-    #{uuid,jdbcType=VARCHAR},
-    #{componentUuid,jdbcType=VARCHAR},
-    #{analysisUuid,jdbcType=VARCHAR},
-    #{status,jdbcType=VARCHAR},
-    #{taskType,jdbcType=VARCHAR},
-    #{isLast,jdbcType=BOOLEAN},
-    #{isLastKey,jdbcType=VARCHAR},
-    #{submitterLogin,jdbcType=VARCHAR},
-    #{submittedAt,jdbcType=BIGINT},
-    #{startedAt,jdbcType=BIGINT},
-    #{executedAt,jdbcType=BIGINT},
-    #{createdAt,jdbcType=BIGINT},
-    #{updatedAt,jdbcType=BIGINT},
-    #{executionTimeMs,jdbcType=BIGINT}
+      #{uuid,jdbcType=VARCHAR},
+      #{componentUuid,jdbcType=VARCHAR},
+      #{analysisUuid,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR},
+      #{taskType,jdbcType=VARCHAR},
+      #{isLast,jdbcType=BOOLEAN},
+      #{isLastKey,jdbcType=VARCHAR},
+      #{submitterLogin,jdbcType=VARCHAR},
+      #{submittedAt,jdbcType=BIGINT},
+      #{startedAt,jdbcType=BIGINT},
+      #{executedAt,jdbcType=BIGINT},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT},
+      #{executionTimeMs,jdbcType=BIGINT},
+      #{errorMessage,jdbcType=VARCHAR},
+      #{errorStacktrace,jdbcType=CLOB}
     )
   </insert>
 

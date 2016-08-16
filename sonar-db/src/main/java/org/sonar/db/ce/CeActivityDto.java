@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -47,6 +48,24 @@ public class CeActivityDto {
   private long createdAt;
   private long updatedAt;
   private Long executionTimeMs;
+  /**
+   * The error message of the activity. Shall be non null only when status is FAILED. When status is FAILED, can be null
+   * (eg. for activity created before the column has been introduced).
+   * <p>
+   * This property is populated when inserting <strong>AND when reading</strong>
+   * </p>
+   */
+  private String errorMessage;
+  /**
+   * The error stacktrace (if any). Shall be non null only when status is FAILED. When status is FAILED, can be null
+   * because exception such as MessageException do not have a stacktrace (ie. functional exceptions).
+   * <p>
+   * This property can be populated when inserting but <strong>is populated only when reading by a specific UUID.</strong>
+   * </p>
+   *
+   * @see CeActivityDao#selectByUuid(DbSession, String)
+   */
+  private String errorStacktrace;
 
   CeActivityDto() {
     // required for MyBatis
@@ -187,6 +206,27 @@ public class CeActivityDto {
     return this;
   }
 
+  @CheckForNull
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public CeActivityDto setErrorMessage(@Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
+    return this;
+  }
+
+  @CheckForNull
+  public String getErrorStacktrace() {
+    return errorStacktrace;
+  }
+
+  @CheckForNull
+  public CeActivityDto setErrorStacktrace(@Nullable String errorStacktrace) {
+    this.errorStacktrace = errorStacktrace;
+    return this;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -204,6 +244,8 @@ public class CeActivityDto {
       .add("createdAt", createdAt)
       .add("updatedAt", updatedAt)
       .add("executionTimeMs", executionTimeMs)
+      .add("errorMessage", errorMessage)
+      .add("errorStacktrace", errorStacktrace)
       .toString();
   }
 }
