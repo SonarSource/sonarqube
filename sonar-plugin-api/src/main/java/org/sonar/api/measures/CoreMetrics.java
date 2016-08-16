@@ -1337,8 +1337,8 @@ public final class CoreMetrics {
   /**
    * @since 6.1
    */
-  public static final Metric<Integer> NEW_DUPLICATED_LINES = new Metric.Builder(NEW_DUPLICATED_LINES_KEY, "New Duplicated Lines", Metric.ValueType.INT)
-    .setDescription("New duplicated lines")
+  public static final Metric<Integer> NEW_DUPLICATED_LINES = new Metric.Builder(NEW_DUPLICATED_LINES_KEY, "Duplicated Lines on New Code", Metric.ValueType.INT)
+    .setDescription("Duplicated Lines on New Code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_DUPLICATIONS)
