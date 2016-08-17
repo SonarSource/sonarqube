@@ -126,6 +126,10 @@ public class TaskFormatter {
     if (dto.getExecutionTimeMs() != null) {
       builder.setExecutionTimeMs(dto.getExecutionTimeMs());
     }
+    if (dto.getErrorMessage() != null) {
+      builder.setErrorMessage(dto.getErrorMessage());
+    }
+    builder.setHasErrorStacktrace(dto.isHasErrorStacktrace());
     return builder.build();
   }
 

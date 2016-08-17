@@ -77,6 +77,8 @@ message Task {
   optional bool isLastExecuted = 13;
   optional int64 executionTimeMs = 14;
   optional bool logs = 15;
+  optional string errorMessage = 16;
+  optional bool hasErrorStacktrace = 17;
 }
 
 enum TaskStatus {

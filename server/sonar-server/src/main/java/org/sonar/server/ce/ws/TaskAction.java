@@ -20,11 +20,19 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -42,6 +50,8 @@ public class TaskAction implements CeWsAction {
 
   public static final String ACTION = "task";
   public static final String PARAM_TASK_UUID = "id";
+
+  private static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
 
   private final DbClient dbClient;
   private final TaskFormatter wsTaskFormatter;

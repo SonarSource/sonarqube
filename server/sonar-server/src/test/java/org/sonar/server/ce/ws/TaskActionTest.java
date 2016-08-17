@@ -45,6 +45,8 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.ce.CeActivityDtoTestHelper.setHasErrorStacktrace;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
 
@@ -82,11 +84,10 @@ public class TaskActionTest {
     queueDto.setComponentUuid(PROJECT.uuid());
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setSubmitterLogin("john");
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    persist(queueDto);
 
     TestResponse wsResponse = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+      .setMediaType(PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
@@ -105,19 +106,11 @@ public class TaskActionTest {
   public void task_is_archived() throws Exception {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setUuid("TASK_1");
-    queueDto.setComponentUuid(PROJECT.uuid());
-    CeActivityDto activityDto = new CeActivityDto(queueDto);
-    activityDto.setStatus(CeActivityDto.Status.FAILED);
-    activityDto.setExecutionTimeMs(500L);
-    activityDto.setAnalysisUuid("U1");
-    dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
-    dbTester.commit();
+    CeActivityDto activityDto = createActivityDto("TASK_1");
+    persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+      .setMediaType(PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
@@ -131,6 +124,74 @@ public class TaskActionTest {
     assertThat(task.getAnalysisId()).isEqualTo("U1");
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
+  }
+
+  @Test
+  public void return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_set() {
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+
+    CeActivityDto activityDto = createActivityDto("TASK_1")
+      .setErrorMessage("error msg")
+      .setErrorStacktrace("error stack");
+    setHasErrorStacktrace(activityDto, true);
+    persist(activityDto);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("id", "TASK_1")
+      .setParam("additionalFields", "stacktrace")
+      .execute();
+
+    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
+    assertThat(task.hasHasErrorStacktrace()).isTrue();
+    assertThat(task.getHasErrorStacktrace()).isTrue();
+  }
+
+  @Test
+  public void do_not_return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_not_set() {
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+
+    CeActivityDto activityDto = createActivityDto("TASK_1")
+      .setErrorMessage("error msg")
+      .setErrorStacktrace("error stack");
+    setHasErrorStacktrace(activityDto, true);
+    persist(activityDto);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("id", "TASK_1")
+      .execute();
+
+    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
+    assertThat(task.hasHasErrorStacktrace()).isTrue();
+    assertThat(task.getHasErrorStacktrace()).isTrue();
+  }
+
+  @Test
+  public void do_not_return_stacktrace_of_failed_activity_without_stacktrace() {
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+
+    CeActivityDto activityDto = createActivityDto("TASK_1")
+      .setErrorMessage("error msg");
+    persist(activityDto);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("id", "TASK_1")
+      .execute();
+
+    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
+    assertThat(task.hasHasErrorStacktrace()).isTrue();
+    assertThat(task.getHasErrorStacktrace()).isFalse();
   }
 
   @Test
@@ -151,8 +212,7 @@ public class TaskActionTest {
     queueDto.setTaskType("fake");
     queueDto.setUuid("TASK_1");
     queueDto.setStatus(CeQueueDto.Status.PENDING);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -168,8 +228,7 @@ public class TaskActionTest {
     queueDto.setTaskType("fake");
     queueDto.setUuid("TASK_1");
     queueDto.setStatus(CeQueueDto.Status.PENDING);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -185,12 +244,11 @@ public class TaskActionTest {
     queueDto.setTaskType("fake");
     queueDto.setUuid("TASK_1");
     queueDto.setStatus(CeQueueDto.Status.PENDING);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    persist(queueDto);
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+      .setMediaType(PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
   }
@@ -204,8 +262,7 @@ public class TaskActionTest {
     queueDto.setUuid("TASK_1");
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setComponentUuid(PROJECT.uuid());
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.commit();
+    persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -217,22 +274,36 @@ public class TaskActionTest {
   public void not_fail_on_archived_task_linked_on_project_with_project_scan_permission() throws Exception {
     userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, PROJECT.uuid());
 
+    CeActivityDto activityDto = createActivityDto("TASK_1")
+      .setComponentUuid(PROJECT.uuid());
+    persist(activityDto);
+
+    ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("id", "TASK_1")
+      .execute();
+  }
+
+  private CeActivityDto createActivityDto(String uuid) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(uuid);
     queueDto.setComponentUuid(PROJECT.uuid());
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
     activityDto.setAnalysisUuid("U1");
-    activityDto.setComponentUuid(PROJECT.uuid());
+    return activityDto;
+  }
+
+  private void persist(CeQueueDto queueDto) {
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+    dbTester.commit();
+  }
+
+  private void persist(CeActivityDto activityDto) {
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
-
-    ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("id", "TASK_1")
-      .execute();
   }
 
 }

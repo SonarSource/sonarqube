@@ -23,6 +23,7 @@
     "submittedAt": "2015-09-21T19:25:49+0200",
     "startedAt": "2015-09-21T19:25:57+0200",
     "finishedAt": "2015-09-21T19:25:58+0200",
-    "executionTimeMs": 1371
+    "executionTimeMs": 1371,
+    "hasErrorStacktrace": false
   }
 }

@@ -7,10 +7,12 @@
     "componentName": "Project One",
     "componentQualifier": "TRK",
     "analysisId": "123456",
-    "status": "SUCCESS",
+    "status": "FAILED",
     "submittedAt": "2015-10-02T11:32:15+0200",
     "startedAt": "2015-10-02T11:32:16+0200",
     "executedAt": "2015-10-02T11:32:22+0200",
-    "executionTimeMs": 5286
+    "executionTimeMs": 5286,
+    "errorMessage": "Failed to unzip analysis report",
+    "hasErrorStacktrace": true
   }
 }
