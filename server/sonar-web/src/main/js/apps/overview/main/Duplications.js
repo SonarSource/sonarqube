@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import enhance from './enhance';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { getMetricName } from '../helpers/metrics';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
 class Duplications extends React.Component {
@@ -72,6 +71,64 @@ class Duplications extends React.Component {
     );
   }
 
+  renderNewDuplications () {
+    const { component, measures, leakPeriod } = this.props;
+    const newDuplicationsMeasure = measures
+        .find(measure => measure.metric.key === 'new_duplicated_lines_density');
+    const newLinesMeasure = measures
+        .find(measure => measure.metric.key === 'new_lines');
+
+    const newDuplicationsValue = newDuplicationsMeasure ?
+        getPeriodValue(newDuplicationsMeasure, leakPeriod.index) : null;
+    const newLinesValue = newLinesMeasure ?
+        getPeriodValue(newLinesMeasure, leakPeriod.index) : null;
+
+    const formattedValue = newDuplicationsValue != null ? (
+        <div>
+          <DrilldownLink
+              component={component.key}
+              metric={newDuplicationsMeasure.metric.key}
+              period={leakPeriod.index}>
+            <span className="js-overview-main-new-duplications">
+              {formatMeasure(newDuplicationsValue, 'PERCENT')}
+            </span>
+          </DrilldownLink>
+        </div>
+    ) : (
+        <span>—</span>
+    );
+
+    const label = newLinesValue != null ? (
+        <div className="overview-domain-measure-label">
+          {translate('overview.duplications_on')}
+          <br/>
+          <DrilldownLink
+              className="spacer-right overview-domain-secondary-measure-value"
+              component={component.key}
+              metric={newLinesMeasure.metric.key}
+              period={leakPeriod.index}>
+            <span className="js-overview-main-new-lines">
+              {formatMeasure(newLinesValue, 'SHORT_INT')}
+            </span>
+          </DrilldownLink>
+          {getMetricName('new_lines')}
+        </div>
+    ) : (
+        <div className="overview-domain-measure-label">
+          {getMetricName('new_duplications')}
+        </div>
+    );
+
+    return (
+        <div className="overview-domain-measure">
+          <div className="overview-domain-measure-value">
+            {formattedValue}
+          </div>
+          {label}
+        </div>
+    );
+  }
+
   renderNutshell () {
     return (
         <div className="overview-domain-nutshell">
@@ -92,14 +149,10 @@ class Duplications extends React.Component {
       return null;
     }
 
-    const measure = this.props.renderMeasureVariation(
-        'duplicated_lines_density',
-        getMetricName('duplications'));
-
     return (
         <div className="overview-domain-leak">
           <div className="overview-domain-measures">
-            {measure}
+            {this.renderNewDuplications()}
           </div>
 
           {this.renderTimeline('after')}
