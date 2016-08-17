@@ -25,12 +25,15 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
+
+import javax.annotation.CheckForNull;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -47,6 +50,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
@@ -76,11 +81,15 @@ public class ScannerReportViewerApp {
   private JEditorPane sourceEditor;
   private JScrollPane coverageTab;
   private JEditorPane coverageEditor;
+  private JScrollPane testsTab;
+  private JEditorPane testsEditor;
   private TextLineNumber textLineNumber;
   private JScrollPane duplicationTab;
   private JEditorPane duplicationEditor;
   private JScrollPane issuesTab;
   private JEditorPane issuesEditor;
+  private JScrollPane measuresTab;
+  private JEditorPane measuresEditor;
 
   /**
    * Create the application.
@@ -112,6 +121,10 @@ public class ScannerReportViewerApp {
   private void loadReport() {
     final JFileChooser fc = new JFileChooser();
     fc.setDialogTitle("Choose scanner report directory");
+    File lastReport = getLastUsedReport();
+    if(lastReport != null) {
+      fc.setCurrentDirectory(lastReport);
+    }
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     fc.setFileHidingEnabled(false);
     fc.setApproveButtonText("Open scanner report");
@@ -119,6 +132,7 @@ public class ScannerReportViewerApp {
     if (returnVal == JFileChooser.APPROVE_OPTION) {
       File file = fc.getSelectedFile();
       try {
+        setLastUsedReport(file);
         loadReport(file);
       } catch (Exception e) {
         JOptionPane.showMessageDialog(frame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -128,6 +142,31 @@ public class ScannerReportViewerApp {
       exit();
     }
 
+  }
+  
+  @CheckForNull
+  private File getLastUsedReport()  {
+    File f = new File(System.getProperty("java.io.tmpdir"), ".last_batch_report_dir");
+    if(f.exists()) {
+      String path;
+      try {
+        path = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        return null;
+      }
+      File lastReport = new File(path);
+      if(lastReport.exists() && lastReport.isDirectory()) {
+        return lastReport;
+      }
+    }
+    return null;
+  }
+  
+  private void setLastUsedReport(File lastReport) throws IOException {
+    
+    File f = new File(System.getProperty("java.io.tmpdir"), ".last_batch_report_dir");
+    String fullPath = lastReport.getAbsolutePath();
+    FileUtils.write(f, fullPath, StandardCharsets.UTF_8);
   }
 
   private void exit() {
@@ -193,8 +232,10 @@ public class ScannerReportViewerApp {
     updateSymbols(component);
     updateSource(component);
     updateCoverage(component);
+    updateTests(component);
     updateDuplications(component);
     updateIssues(component);
+    updateMeasures(component);
   }
 
   private void updateDuplications(Component component) {
@@ -235,6 +276,23 @@ public class ScannerReportViewerApp {
       throw new IllegalStateException("Can't read code coverage for " + getNodeName(component), e);
     }
   }
+  
+  private void updateTests(Component component) {
+    testsEditor.setText("");
+    File tests = reader.readTests(component.getRef());
+    if(tests == null) {
+      return;
+    }
+    try (InputStream inputStream = FileUtils.openInputStream(tests)) {
+      ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
+      while (test != null) {
+        testsEditor.getDocument().insertString(testsEditor.getDocument().getEndPosition().getOffset(), test.toString() + "\n", null);
+        test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
 
   private void updateSource(Component component) {
     File sourceFile = reader.getFileStructure().fileFor(Domain.SOURCE, component.getRef());
@@ -262,6 +320,18 @@ public class ScannerReportViewerApp {
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read syntax highlighting for " + getNodeName(component), e);
+    }
+  }
+  
+  private void updateMeasures(Component component) {
+    measuresEditor.setText("");
+    try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(component.getRef())) {
+      while (it.hasNext()) {
+        ScannerReport.Measure measure = it.next();
+        measuresEditor.getDocument().insertString(measuresEditor.getDocument().getEndPosition().getOffset(), measure.toString() + "\n", null);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read measures for " + getNodeName(component), e);
     }
   }
 
@@ -340,12 +410,24 @@ public class ScannerReportViewerApp {
 
     duplicationEditor = new JEditorPane();
     duplicationTab.setViewportView(duplicationEditor);
+    
+    testsTab = new JScrollPane();
+    tabbedPane.addTab("Tests", null, testsTab, null);
+
+    testsEditor = new JEditorPane();
+    testsTab.setViewportView(testsEditor);
 
     issuesTab = new JScrollPane();
     tabbedPane.addTab("Issues", null, issuesTab, null);
 
     issuesEditor = new JEditorPane();
     issuesTab.setViewportView(issuesEditor);
+    
+    measuresTab = new JScrollPane();
+    tabbedPane.addTab("Measures", null, measuresTab, null);
+
+    measuresEditor = new JEditorPane();
+    measuresTab.setViewportView(measuresEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));

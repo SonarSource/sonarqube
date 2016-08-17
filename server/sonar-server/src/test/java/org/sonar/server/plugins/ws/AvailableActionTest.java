@@ -20,6 +20,8 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -108,6 +110,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
+  @Ignore
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     loggedAsAdmin();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(

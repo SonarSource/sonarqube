@@ -21,7 +21,6 @@ package org.sonar.scanner.report;
 
 import com.google.common.base.Function;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
@@ -44,7 +43,8 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
   private static final class MapEntryToContextPropertyFunction implements Function<Map.Entry<String, String>, ScannerReport.ContextProperty> {
     private final ScannerReport.ContextProperty.Builder builder = ScannerReport.ContextProperty.newBuilder();
 
-    public ScannerReport.ContextProperty apply(@Nonnull Map.Entry<String, String> input) {
+    @Override
+    public ScannerReport.ContextProperty apply(Map.Entry<String, String> input) {
       return builder.clear().setKey(input.getKey()).setValue(input.getValue()).build();
     }
   }
