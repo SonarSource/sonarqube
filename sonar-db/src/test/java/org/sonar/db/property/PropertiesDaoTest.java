@@ -20,18 +20,27 @@
 package org.sonar.db.property;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
+import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 public class PropertiesDaoTest {
 
@@ -40,6 +49,9 @@ public class PropertiesDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
+  DbSession session = dbTester.getSession();
 
   PropertiesDao dao = dbTester.getDbClient().propertiesDao();
 
@@ -98,18 +110,18 @@ public class PropertiesDaoTest {
     dbTester.prepareDbUnit(getClass(), "findNotificationSubscribers.xml");
 
     // Nobody is subscribed
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("NotSexyDispatcher"))).isFalse();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("NotSexyDispatcher"))).isFalse();
 
     // Global subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithGlobalSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithGlobalSubscribers"))).isTrue();
 
     // Project subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithProjectSubscribers"))).isTrue();
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", Arrays.asList("DispatcherWithProjectSubscribers"))).isFalse();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithProjectSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", asList("DispatcherWithProjectSubscribers"))).isFalse();
 
     // Global + Project subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", Arrays.asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", Arrays.asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
+    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
   }
 
   @Test
@@ -191,6 +203,51 @@ public class PropertiesDaoTest {
     results = dao.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), dbTester.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("one");
+  }
+
+  @Test
+  public void select_global_properties_by_keys() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project);
+    UserDto user = UserTesting.newUserDto();
+    dbClient.userDao().insert(session, user);
+
+    String key = "key";
+    String anotherKey = "anotherKey";
+    insertProperties(
+      newGlobalPropertyDto().setKey(key),
+      newComponentPropertyDto(project).setKey(key),
+      newUserPropertyDto(user).setKey(key),
+      newGlobalPropertyDto().setKey(anotherKey));
+
+    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key))).extracting("key").containsOnly(key);
+    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey))).extracting("key").containsOnly(key, anotherKey);
+    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown"))).extracting("key").containsOnly(key, anotherKey);
+
+    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet("unknown"))).isEmpty();
+  }
+
+  @Test
+  public void select_component_properties_by_keys() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project);
+    UserDto user = UserTesting.newUserDto();
+    dbClient.userDao().insert(session, user);
+
+    String key = "key";
+    String anotherKey = "anotherKey";
+    insertProperties(
+      newGlobalPropertyDto().setKey(key),
+      newComponentPropertyDto(project).setKey(key),
+      newUserPropertyDto(user).setKey(key),
+      newComponentPropertyDto(project).setKey(anotherKey));
+
+    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
+    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
+    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
+
+    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet("unknown"), project.getId())).isEmpty();
+    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key), 123456789L)).isEmpty();
   }
 
   @Test
@@ -335,5 +392,12 @@ public class PropertiesDaoTest {
       }
     }
     return null;
+  }
+
+  private void insertProperties(PropertyDto... properties) {
+    for (PropertyDto propertyDto : properties) {
+      dao.insertProperty(session, propertyDto);
+    }
+    session.commit();
   }
 }

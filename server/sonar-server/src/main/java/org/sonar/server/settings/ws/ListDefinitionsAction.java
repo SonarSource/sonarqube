@@ -28,34 +28,27 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_KEY;
+import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListDefinitionsAction implements SettingsWsAction {
 
-  private static final String PARAM_COMPONENT_ID = "componentId";
-  private static final String PARAM_COMPONENT_KEY = "componentKey";
-
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
-  private final UserSession userSession;
+  private final SettingsWsComponentParameters settingsWsComponentParameters;
   private final PropertyDefinitions propertyDefinitions;
 
-  public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions) {
+  public ListDefinitionsAction(DbClient dbClient, SettingsWsComponentParameters settingsWsComponentParameters, PropertyDefinitions propertyDefinitions) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
-    this.userSession = userSession;
+    this.settingsWsComponentParameters = settingsWsComponentParameters;
     this.propertyDefinitions = propertyDefinitions;
   }
 
@@ -73,13 +66,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setSince("6.1")
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT_KEY)
-      .setDescription("Component key")
-      .setExampleValue("my_component_key");
+    addComponentParameters(action);
   }
 
   @Override
@@ -150,15 +137,9 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private String getQualifier(Request request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (request.hasParam(PARAM_COMPONENT_ID) || request.hasParam(PARAM_COMPONENT_KEY)) {
-        ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_COMPONENT_ID), request.param(PARAM_COMPONENT_KEY),
-          ComponentFinder.ParamNames.ID_AND_KEY);
-        userSession.checkComponentUuidPermission(UserRole.ADMIN, component.uuid());
-        return component.qualifier();
-      } else {
-        userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-        return null;
-      }
+      ComponentDto component = settingsWsComponentParameters.getComponent(dbSession, request);
+      settingsWsComponentParameters.checkAdminPermission(component);
+      return component == null ? null : component.qualifier();
     } finally {
       dbClient.closeSession(dbSession);
     }

@@ -55,6 +55,7 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Type.BOOLEAN;
 import static org.sonarqube.ws.Settings.Type.PROPERTY_SET;
 import static org.sonarqube.ws.Settings.Type.SINGLE_SELECT_LIST;
@@ -78,12 +79,13 @@ public class ListDefinitionsActionTest {
   ComponentDto project;
 
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  SettingsWsComponentParameters settingsWsComponentParameters = new SettingsWsComponentParameters(new ComponentFinder(dbClient), userSession);
 
-  WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions));
+  WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, settingsWsComponentParameters, propertyDefinitions));
 
   @Before
   public void setUp() throws Exception {
-    project = insertProject();
+    project = componentDb.insertComponent(newProjectDto());
   }
 
   @Test
@@ -369,12 +371,8 @@ public class ListDefinitionsActionTest {
             .build())
         .build()));
 
-    String result = ws.newRequest().setMediaType(MediaTypes.JSON).execute().getInput();
+    String result = ws.newRequest().setMediaType(JSON).execute().getInput();
     JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
-  }
-
-  private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto());
   }
 
   private ListDefinitionsWsResponse newRequest() {

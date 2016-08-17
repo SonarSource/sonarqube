@@ -66,3 +66,21 @@ enum Type {
   PROPERTY_SET = 12;
 }
 
+// Response of GET api/settings/values
+message ValuesWsResponse {
+  repeated Value values = 1;
+}
+
+message Value {
+  optional string key = 1;
+  optional string value = 2;
+  repeated string values = 3;
+  map<string, SetValue> setValues = 4;
+  optional bool isDefault = 5;
+  optional bool isInherited = 6;
+}
+
+message SetValue {
+  repeated string values = 1;
+}
+

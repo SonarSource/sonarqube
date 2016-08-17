@@ -48,8 +48,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.db.property.PropertyTesting.newGlobalProperty;
-import static org.sonar.db.property.PropertyTesting.newProjectProperty;
+import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
 public class SetActionTest {
 
@@ -90,7 +90,7 @@ public class SetActionTest {
 
   @Test
   public void update_existing_global_property() {
-    propertyDb.insertProperty(newGlobalProperty("my.key", "my value"));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my value"));
     assertGlobalProperty("my.key", "my value");
 
     callForGlobalProperty("my.key", "my new value");
@@ -100,7 +100,7 @@ public class SetActionTest {
 
   @Test
   public void persist_new_project_property() {
-    propertyDb.insertProperty(newGlobalProperty("my.key", "my global value"));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
     ComponentDto project = componentDb.insertProject();
 
     callForProjectPropertyByUuid("my.key", "my project value", project.uuid());
@@ -121,9 +121,9 @@ public class SetActionTest {
 
   @Test
   public void update_existing_project_property() {
-    propertyDb.insertProperty(newGlobalProperty("my.key", "my global value"));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
     ComponentDto project = componentDb.insertProject();
-    propertyDb.insertProperty(newProjectProperty("my.key", "my project value", project.getId()));
+    propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project));
     assertProjectProperty("my.key", "my project value", project.getId());
 
     callForProjectPropertyByKey("my.key", "my new project value", project.key());
@@ -133,8 +133,8 @@ public class SetActionTest {
 
   @Test
   public void user_property_is_not_updated() {
-    propertyDb.insertProperty(newGlobalProperty("my.key", "my user value").setUserId(42L));
-    propertyDb.insertProperty(newGlobalProperty("my.key", "my global value"));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserId(42L));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
 
     callForGlobalProperty("my.key", "my new global value");
 

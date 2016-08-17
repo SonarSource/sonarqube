@@ -39,6 +39,8 @@ public interface PropertiesMapper {
 
   PropertyDto selectByKey(PropertyDto key);
 
+  List<PropertyDto> selectByKeys(@Param("keys") List<String> keys, @Nullable @Param("componentId") Long componentId);
+
   List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);
 
   List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,

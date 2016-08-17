@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.DbUtils;
@@ -37,6 +38,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PropertiesDao implements Dao {
 
@@ -159,6 +162,18 @@ public class PropertiesDao implements Dao {
 
   public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
     return session.getMapper(PropertiesMapper.class).selectByQuery(query);
+  }
+
+  public List<PropertyDto> selectGlobalPropertiesByKeys(DbSession session, Set<String> keys) {
+    return selectByKeys(session, keys, null);
+  }
+
+  public List<PropertyDto> selectComponentPropertiesByKeys(DbSession session, Set<String> keys, long componentId) {
+    return selectByKeys(session, keys, componentId);
+  }
+
+  private List<PropertyDto> selectByKeys(DbSession session, Set<String> keys, @Nullable Long componentId) {
+    return executeLargeInputs(keys, propertyKeys -> session.getMapper(PropertiesMapper.class).selectByKeys(propertyKeys, componentId));
   }
 
   public void insertProperty(DbSession session, PropertyDto property) {

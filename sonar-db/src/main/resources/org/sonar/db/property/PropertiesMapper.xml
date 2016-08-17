@@ -81,6 +81,24 @@
     </if>
   </select>
 
+  <select id="selectByKeys" parameterType="map" resultType="Property">
+    SELECT p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    FROM properties p
+    <where>
+      AND p.prop_key in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
+      </foreach>
+      <if test="componentId == null">
+        AND p.resource_id is null
+      </if>
+      <if test="componentId != null">
+        AND p.resource_id=#{componentId}
+      </if>
+      AND p.user_id is null
+    </where>
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p
