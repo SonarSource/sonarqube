@@ -104,6 +104,15 @@
       </foreach>
   </delete>
 
+  <delete id="deleteScannerContexts" parameterType="map">
+    delete from scanner_context
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+  </delete>
+
   <delete id="deleteAnalyses" parameterType="map">
     delete from snapshots
     where

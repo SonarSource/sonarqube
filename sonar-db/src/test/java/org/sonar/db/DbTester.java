@@ -57,6 +57,7 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -380,6 +381,7 @@ public class DbTester extends ExternalResource {
         }
       }
     } catch (DatabaseUnitException e) {
+      e.printStackTrace();
       fail(e.getMessage());
     } catch (Exception e) {
       throw translateException("Error while checking results", e);

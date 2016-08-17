@@ -166,6 +166,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
+    profiler.start("deleteAnalyses (scanner_context)");
+    analysisUuidsPartitions.forEach(purgeMapper::deleteScannerContexts);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteAnalyses (snapshots)");
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
     session.commit();

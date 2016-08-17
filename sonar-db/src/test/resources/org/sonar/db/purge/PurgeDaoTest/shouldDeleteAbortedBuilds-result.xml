@@ -21,7 +21,7 @@ Snapshot 2 has been deleted
             authorization_updated_at="[null]"
             id="1"
             enabled="[true]"
-            root_id="[null]"/>
+            root_uuid="P1"/>
 
   <!-- past snapshot with status "processed" and already purged -->
   <snapshots id="1"

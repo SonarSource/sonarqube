@@ -38,6 +38,8 @@ public interface PurgeMapper {
 
   void deleteAnalysisEvents(@Param("analysisUuids") List<String> analysisUuids);
 
+  void deleteScannerContexts(@Param("analysisUuids") List<String> analysisUuids);
+
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteSnapshotMeasures(@Param("analysisUuids") List<String> analysisUuids);

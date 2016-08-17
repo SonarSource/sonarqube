@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,6 +40,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,23 +52,26 @@ public class PurgeDaoTest {
   private static final String THE_PROJECT_UUID = "P1";
   private static final long THE_PROJECT_ID = 1L;
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession dbSession = dbTester.getSession();
-
-  PurgeDao underTest = dbTester.getDbClient().purgeDao();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private PurgeDao underTest = dbTester.getDbClient().purgeDao();
 
   @Test
   public void shouldDeleteAbortedBuilds() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAbortedBuilds.xml");
+    insertScannerContext("u1", "bla!");
+    insertScannerContext("u2", "blo!");
+
     underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
+
     dbTester.assertDbUnit(getClass(), "shouldDeleteAbortedBuilds-result.xml", "snapshots");
+    assertSingleScannerContext("u1");
   }
 
   @Test
@@ -102,8 +108,12 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteAnalyses() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAnalyses.xml");
+    insertScannerContext("u1", "pop");
+    insertScannerContext("u3", "pup");
+
     underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(3, "u3")));
     dbTester.assertDbUnit(getClass(), "shouldDeleteAnalyses-result.xml", "snapshots");
+    assertSingleScannerContext("u1");
   }
 
   @Test
@@ -123,13 +133,17 @@ public class PurgeDaoTest {
   @Test
   public void delete_project_and_associated_data() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteProject.xml");
+    insertScannerContext("u1", "ppppp");
+
     underTest.deleteProject(dbSession, "A");
     dbSession.commit();
+
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
     assertThat(dbTester.countRowsOfTable("file_sources")).isZero();
+    assertThat(dbTester.countRowsOfTable("scanner_context")).isZero();
   }
 
   @Test
@@ -237,5 +251,16 @@ public class PurgeDaoTest {
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String... disabledComponentUuids) {
     return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2, Arrays.asList(disabledComponentUuids));
+  }
+
+  private void insertScannerContext(String analysisUuid, String scannerContext) {
+    dbTester.getDbClient().scannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
+    dbTester.commit();
+  }
+
+  private void assertSingleScannerContext(String expected) {
+    List<Map<String, Object>> rows = dbTester.select("select analysis_uuid as \"analysisUuid\" from scanner_context");
+    assertThat(rows).hasSize(1);
+    assertThat(rows.iterator().next().get("analysisUuid")).isEqualTo(expected);
   }
 }
