@@ -146,14 +146,6 @@ public class CorePropertyDefinitions {
         .type(PropertyType.BOOLEAN)
         .defaultValue(String.valueOf(false))
         .build(),
-      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS)
-        .name("Local/technical users")
-        .description("Comma separated list of user logins that will always be authenticated using SonarQube database. "
-          + "When using the LDAP plugin, for these accounts, the user attributes (name, email, ...) are not re-synchronized")
-        .type(PropertyType.STRING)
-        .multiValues(true)
-        .defaultValue("admin")
-        .build(),
       PropertyDefinition.builder(CoreProperties.SCM_DISABLED_KEY)
         .name("Disable the SCM Sensor")
         .description("Disable the retrieval of blame information from Source Control Manager")

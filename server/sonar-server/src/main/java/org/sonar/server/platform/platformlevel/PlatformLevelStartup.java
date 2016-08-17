@@ -32,7 +32,6 @@ import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DeleteOldAnalysisReportsFromFs;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
-import org.sonar.server.startup.FeedUsersLocalStartupTask;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterMetrics;
@@ -53,7 +52,7 @@ public class PlatformLevelStartup extends PlatformLevel {
     add(GeneratePluginIndex.class,
       RegisterServletFilters.class,
       ServerLifecycleNotifier.class);
-    
+
     addIfStartupLeader(
       CheckDatabaseCollationDuringMigration.class,
       IndexerStartupTask.class,
@@ -69,9 +68,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       RenameIssueWidgets.class,
       DisplayLogOnDeprecatedProjects.class,
       ClearRulesOverloadedDebt.class,
-      DeleteOldAnalysisReportsFromFs.class,
-      FeedUsersLocalStartupTask.class);
-
+      DeleteOldAnalysisReportsFromFs.class);
   }
 
   @Override

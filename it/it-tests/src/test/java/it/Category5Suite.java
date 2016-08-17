@@ -24,7 +24,7 @@ import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.updateCenter.UpdateCenterTest;
-import it.user.RailsExternalAuthenticationTest;
+import it.user.RealmAuthenticationTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -41,7 +41,7 @@ import org.junit.runners.Suite;
   SettingsTestRestartingOrchestrator.class,
   // update center
   UpdateCenterTest.class,
-  RailsExternalAuthenticationTest.class
+  RealmAuthenticationTest.class
   })
 public class Category5Suite {
 

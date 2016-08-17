@@ -56,11 +56,11 @@ import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.setServerProperty;
 
 /**
- * Test deprecated authentication done by Rails. It's kept has every features has not bee migrated to java yet.
+ * Test REALM authentication.
  *
  * It starts its own server as it's using a different authentication system
  */
-public class RailsExternalAuthenticationTest {
+public class RealmAuthenticationTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
