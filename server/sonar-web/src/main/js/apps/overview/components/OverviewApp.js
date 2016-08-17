@@ -70,11 +70,13 @@ const METRICS = [
 
   // duplications
   'duplicated_lines_density',
+  'new_duplicated_lines_density',
   'duplicated_blocks',
 
   // size
   'ncloc',
-  'ncloc_language_distribution'
+  'ncloc_language_distribution',
+  'new_lines'
 ];
 
 const HISTORY_METRICS_LIST = [
