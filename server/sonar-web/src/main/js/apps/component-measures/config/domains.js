@@ -132,12 +132,16 @@ export const domains = {
 
   'Duplications': {
     main: [
-      'duplicated_lines_density'
+      'duplicated_lines_density',
+      'new_duplicated_lines_density'
     ],
     order: [
       'duplicated_lines_density',
+      'new_duplicated_lines_density',
       'duplicated_blocks',
+      'new_duplicated_blocks',
       'duplicated_lines',
+      'new_duplicated_lines',
       'duplicated_files'
     ]
   },
@@ -149,6 +153,7 @@ export const domains = {
     order: [
       'ncloc',
       'lines',
+      'new_lines',
       'statements',
       'functions',
       'classes',
