@@ -20,8 +20,14 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.log4j.Logger;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.monitoring.CEQueueStatus;
@@ -34,7 +40,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 
-import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
@@ -46,8 +53,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   // state
   private AtomicBoolean peekPaused = new AtomicBoolean(false);
 
-  public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory,
-    CEQueueStatus queueStatus) {
+  public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus) {
     super(dbClient, uuidFactory);
     this.system2 = system2;
     this.dbClient = dbClient;
@@ -80,19 +86,18 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public void remove(CeTask task, CeActivityDto.Status status, CeTaskResult taskResult) {
+  public void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+    checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid());
-      if (!queueDto.isPresent()) {
-        throw new IllegalStateException(format("Task does not exist anymore: %s", task));
-      }
+      checkState(queueDto.isPresent(), "Task does not exist anymore: %s", task);
       CeActivityDto activityDto = new CeActivityDto(queueDto.get());
       activityDto.setStatus(status);
       updateQueueStatus(status, activityDto);
       updateTaskResult(activityDto, taskResult);
+      updateError(activityDto, error);
       remove(dbSession, queueDto.get(), activityDto);
-
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -104,6 +109,31 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       if (analysisUuid.isPresent()) {
         activityDto.setAnalysisUuid(analysisUuid.get());
       }
+    }
+  }
+
+  private static void updateError(CeActivityDto activityDto, @Nullable Throwable error) {
+    if (error == null) {
+      return;
+    }
+
+    activityDto.setErrorMessage(error.getMessage());
+    String stacktrace = getStackTraceForPersistence(error);
+    if (stacktrace != null) {
+      activityDto.setErrorStacktrace(stacktrace);
+    }
+  }
+
+  @CheckForNull
+  private static String getStackTraceForPersistence(Throwable error) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+         LineReturnEnforcedPrintStream printStream = new LineReturnEnforcedPrintStream(out);) {
+      error.printStackTrace(printStream);
+      printStream.flush();
+      return out.toString();
+    } catch (IOException e) {
+      Logger.getLogger(InternalCeQueueImpl.class).debug("Failed to getStacktrace out of error", e);
+      return null;
     }
   }
 
@@ -140,6 +170,75 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   @Override
   public boolean isPeekPaused() {
     return peekPaused.get();
+  }
+
+  /**
+   * A {@link PrintWriter} subclass which enforces that line returns are {@code \n} whichever the platform.
+   */
+  private static class LineReturnEnforcedPrintStream extends PrintWriter {
+
+    LineReturnEnforcedPrintStream(OutputStream out) {
+      super(out);
+    }
+
+    @Override
+    public void println() {
+      super.print('\n');
+    }
+
+    @Override
+    public void println(boolean x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(char x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(int x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(long x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(float x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(double x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(char[] x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(String x) {
+      super.print(x);
+      println();
+    }
+
+    @Override
+    public void println(Object x) {
+      super.print(x);
+      println();
+    }
   }
 
 }

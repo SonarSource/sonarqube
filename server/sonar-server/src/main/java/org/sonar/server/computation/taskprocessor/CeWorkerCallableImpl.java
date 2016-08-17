@@ -75,12 +75,13 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     Profiler ceProfiler = startActivityProfiler(task);
 
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
-    CeTaskResult process = null;
+    CeTaskResult taskResult = null;
+    Throwable error = null;
     try {
       // TODO delegate the message to the related task processor, according to task type
       Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
       if (taskProcessor.isPresent()) {
-        process = taskProcessor.get().process(task);
+        taskResult = taskProcessor.get().process(task);
         status = CeActivityDto.Status.SUCCESS;
       } else {
         LOG.error("No CeTaskProcessor is defined for task of type {}. Plugin configuration may have changed", task.getType());
@@ -88,8 +89,9 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
       }
     } catch (Throwable e) {
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);
+      error = e;
     } finally {
-      queue.remove(task, status, process);
+      queue.remove(task, status, taskResult, error);
       stopActivityProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();
     }

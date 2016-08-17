@@ -73,7 +73,7 @@ public class CeWorkerCallableImplTest {
     assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, null);
     inOrder.verify(ceLogging).clearForTask();
   }
 
@@ -87,7 +87,7 @@ public class CeWorkerCallableImplTest {
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS, null);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS, null, null);
     inOrder.verify(ceLogging).clearForTask();
   }
 
@@ -96,13 +96,13 @@ public class CeWorkerCallableImplTest {
     CeTask task = createCeTask(null);
     when(queue.peek()).thenReturn(Optional.of(task));
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
-    makeTaskProcessorFail(task);
+    Throwable error = makeTaskProcessorFail(task);
 
     assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, error);
     inOrder.verify(ceLogging).clearForTask();
   }
 
@@ -215,7 +215,9 @@ public class CeWorkerCallableImplTest {
     return new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(submitterLogin).build();
   }
 
-  private void makeTaskProcessorFail(CeTask task) {
-    doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
+  private IllegalStateException makeTaskProcessorFail(CeTask task) {
+    IllegalStateException error = new IllegalStateException("simulate exception thrown by TaskProcessor#process");
+    doThrow(error).when(taskProcessor).process(task);
+    return error;
   }
 }

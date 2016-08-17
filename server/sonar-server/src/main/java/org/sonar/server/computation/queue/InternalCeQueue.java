@@ -25,7 +25,7 @@ import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
 
 /**
@@ -50,7 +50,7 @@ public interface InternalCeQueue extends CeQueue {
 
   /**
    * Removes all the tasks from the queue, whatever their status. They are marked
-   * as {@link CeActivityDto.Status#CANCELED} in past activity.
+   * as {@link Status#CANCELED} in past activity.
    * This method can NOT be called when  workers are being executed, as in progress
    * tasks can't be killed.
    *
@@ -63,8 +63,9 @@ public interface InternalCeQueue extends CeQueue {
    * is called by Compute Engine workers when task is processed and can include an option {@link CeTaskResult} object.
    *
    * @throws IllegalStateException if the task does not exist in the queue
+   * @throws IllegalArgumentException if {@code error} is non {@code null} but {@code status} is not {@link Status#FAILED}
    */
-  void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult);
+  void remove(CeTask task, Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
 
   void cancel(DbSession dbSession, CeQueueDto ceQueueDto);
 

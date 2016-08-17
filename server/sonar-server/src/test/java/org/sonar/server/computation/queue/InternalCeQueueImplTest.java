@@ -20,6 +20,8 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -44,6 +46,7 @@ import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -134,7 +137,7 @@ public class InternalCeQueueImplTest {
   public void test_remove() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     Optional<CeTask> peek = underTest.peek();
-    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null);
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
     // queue is empty
     assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), task.getUuid()).isPresent()).isFalse();
@@ -149,10 +152,26 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
+  public void remove_throws_IAE_if_exception_is_provided_but_status_is_SUCCESS() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Error can be provided only when status is FAILED");
+
+    underTest.remove(mock(CeTask.class), CeActivityDto.Status.SUCCESS, null, new RuntimeException("Some error"));
+  }
+
+  @Test
+  public void remove_throws_IAE_if_exception_is_provided_but_status_is_CANCELED() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Error can be provided only when status is FAILED");
+
+    underTest.remove(mock(CeTask.class), CeActivityDto.Status.CANCELED, null, new RuntimeException("Some error"));
+  }
+
+  @Test
   public void remove_does_not_set_analysisUuid_in_CeActivity_when_CeTaskResult_has_no_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     Optional<CeTask> peek = underTest.peek();
-    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null));
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null), null);
 
     // available in history
     Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
@@ -165,7 +184,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
     Optional<CeTask> peek = underTest.peek();
-    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID));
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
 
     // available in history
     Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
@@ -174,13 +193,34 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
+  public void remove_saves_error_message_and_stacktrace_when_exception_is_provided() {
+    Throwable error = new NullPointerException("Fake NPE to test persistence to DB");
+
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    Optional<CeTask> peek = underTest.peek();
+    underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
+
+    Optional<CeActivityDto> activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
+    assertThat(activityDto).isPresent();
+
+    assertThat(activityDto.get().getErrorMessage()).isEqualTo(error.getMessage());
+    assertThat(activityDto.get().getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
+  }
+
+  private static String stacktraceToString(Throwable error) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    error.printStackTrace(new PrintStream(out));
+    return out.toString();
+  }
+
+  @Test
   public void fail_to_remove_if_not_in_queue() throws Exception {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
+    underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
 
     expectedException.expect(IllegalStateException.class);
 
-    underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
+    underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
   }
 
   @Test
