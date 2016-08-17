@@ -110,7 +110,6 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
-  @Ignore
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     loggedAsAdmin();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
