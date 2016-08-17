@@ -52,7 +52,7 @@ public class ReportComputationStepsTest {
   @Test
   public void instances_throws_ISE_if_container_does_not_have_second_step() throws Exception {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Component not found: class org.sonar.server.computation.task.projectanalysis.step.LogScannerContextStep");
+    expectedException.expectMessage("Component not found: class org.sonar.server.computation.task.projectanalysis.step.GenerateAnalysisUuid");
 
     final ExtractReportStep reportExtractionStep = mock(ExtractReportStep.class);
     ComponentContainer componentContainer = new ComponentContainer() {

@@ -22,13 +22,14 @@ package org.sonar.db.ce;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
@@ -42,13 +43,13 @@ public class CeActivityDaoTest {
 
   private static final String AN_ANALYSIS_UUID = "U1";
 
-  TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
+  private TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
   @Rule
   public DbTester db = DbTester.create(system2);
-  DbSession dbSession = db.getSession();
 
-  CeActivityDao underTest = new CeActivityDao(system2);
+  private DbSession dbSession = db.getSession();
+  private CeActivityDao underTest = new CeActivityDao(system2);
 
   @Test
   public void test_insert() {
@@ -330,7 +331,7 @@ public class CeActivityDaoTest {
     return dto;
   }
 
-  private void insertWithCreationDate(String uuid, long date) {
+  private CeActivityDto insertWithCreationDate(String uuid, long date) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
     queueDto.setTaskType("fake");
@@ -339,10 +340,18 @@ public class CeActivityDaoTest {
     dto.setStatus(CeActivityDto.Status.SUCCESS);
     system2.setNow(date);
     underTest.insert(db.getSession(), dto);
+    return dto;
+  }
+
+  private void insertScannerContext(String analysisUuid) {
+    db.getDbClient().scannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singletonList("scanner context of " + analysisUuid).iterator()));
+    dbSession.commit();
   }
 
   private List<String> selectPageOfUuids(int offset, int pageSize) {
-    return FluentIterable.from(underTest.selectByQuery(db.getSession(), new CeTaskQuery(), offset, pageSize)).transform(CeActivityToUuid.INSTANCE).toList();
+    return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), offset, pageSize).stream()
+        .map(CeActivityToUuid.INSTANCE::apply)
+        .collect(Collectors.toList());
   }
 
   private enum CeActivityToUuid implements Function<CeActivityDto, String> {

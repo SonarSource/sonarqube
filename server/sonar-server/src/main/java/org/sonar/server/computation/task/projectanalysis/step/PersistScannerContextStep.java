@@ -19,36 +19,38 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-public class LogScannerContextStep implements ComputationStep {
-
-  private static final Logger LOGGER = Loggers.get(LogScannerContextStep.class);
-
+public class PersistScannerContextStep implements ComputationStep {
   private final BatchReportReader reportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final DbClient dbClient;
 
-  public LogScannerContextStep(BatchReportReader reportReader) {
+  public PersistScannerContextStep(BatchReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.reportReader = reportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void execute() {
-    CloseableIterator<String> logs = reportReader.readScannerLogs();
-    try {
-      while (logs.hasNext()) {
-        LOGGER.debug(logs.next());
+    try (CloseableIterator<String> logsIterator = reportReader.readScannerLogs()) {
+      if (logsIterator.hasNext()) {
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          dbClient.scannerContextDao().insert(dbSession, analysisMetadataHolder.getUuid(), logsIterator);
+          dbSession.commit();
+        }
       }
-    } finally {
-      logs.close();
     }
   }
 
   @Override
   public String getDescription() {
-    return "Log scanner context";
+    return "Persist scanner context";
   }
 }

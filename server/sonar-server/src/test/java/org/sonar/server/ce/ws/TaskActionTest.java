@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -39,6 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -293,8 +295,14 @@ public class TaskActionTest {
     dbTester.commit();
   }
 
-  private void persist(CeActivityDto activityDto) {
+  private CeActivityDto persist(CeActivityDto activityDto) {
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
+    dbTester.commit();
+    return activityDto;
+  }
+
+  private void persistScannerContext(String analysisUuid, String scannerContext) {
+    dbTester.getDbClient().scannerContextDao().insert(dbTester.getSession(), analysisUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
     dbTester.commit();
   }
 

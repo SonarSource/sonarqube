@@ -19,24 +19,37 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LogScannerContextStepTest {
+public class PersistScannerContextStepTest {
+  private static final String ANALYSIS_UUID = "UUID";
+
+  @ClassRule
+  public static final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
-  public LogTester logTester = new LogTester();
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setUuid(ANALYSIS_UUID);
 
-  LogScannerContextStep underTest = new LogScannerContextStep(reportReader);
+  private DbClient dbClient = dbTester.getDbClient();
+  private PersistScannerContextStep underTest = new PersistScannerContextStep(reportReader, analysisMetadataHolder, dbClient);
+
+  @Test
+  public void getDescription() {
+    assertThat(underTest.getDescription()).isEqualTo("Persist scanner context");
+  }
 
   @Test
   public void log_scanner_logs() {
@@ -44,7 +57,8 @@ public class LogScannerContextStepTest {
 
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("log1", "log2");
+    assertThat(dbClient.scannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
+      .contains("log1" + '\n' + "log2");
   }
 
 }
