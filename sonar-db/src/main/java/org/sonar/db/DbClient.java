@@ -60,6 +60,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.scannercontext.ScannerContextDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -121,6 +122,7 @@ public class DbClient {
   private final GroupDao groupDao;
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
+  private final ScannerContextDao scannerContextDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -177,6 +179,7 @@ public class DbClient {
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
+    scannerContextDao = getDao(map, ScannerContextDao.class);
     doOnLoad(map);
   }
 
@@ -383,6 +386,10 @@ public class DbClient {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
+  }
+
+  public ScannerContextDao scannerContextDao() {
+    return scannerContextDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

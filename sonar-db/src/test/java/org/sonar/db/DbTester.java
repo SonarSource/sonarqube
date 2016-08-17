@@ -20,8 +20,7 @@
 package org.sonar.db;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.InputStream;
@@ -59,6 +58,7 @@ import org.junit.rules.ExternalResource;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.sql.ResultSetMetaData.columnNoNulls;
@@ -133,7 +133,7 @@ public class DbTester extends ExternalResource {
   }
 
   public void executeUpdateSql(String sql, Object... params) {
-    try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
+    try (Connection connection = getConnection()) {
       new QueryRunner().update(connection, sql, params);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
@@ -186,8 +186,16 @@ public class DbTester extends ExternalResource {
    * <pre>int issues = countRowsOfTable("issues")</pre>
    */
   public int countRowsOfTable(String tableName) {
-    Preconditions.checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
-    return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH));
+    return countRowsOfTable(tableName, this::getConnection);
+  }
+
+  public int countRowsOfTable(DbSession dbSession, String tableName) {
+    return countRowsOfTable(tableName, () -> dbSession.getConnection());
+  }
+
+  private int countRowsOfTable(String tableName, SqlExceptionSupplier<Connection> connectionSupplier) {
+    checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
+    return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH), connectionSupplier);
   }
 
   /**
@@ -195,10 +203,18 @@ public class DbTester extends ExternalResource {
    * <pre>int OpenIssues = countSql("select count('id') from issues where status is not null")</pre>
    */
   public int countSql(String sql) {
-    Preconditions.checkArgument(StringUtils.contains(sql, "count("),
+    return countSql(sql, this::getConnection);
+  }
+
+  public int countSql(DbSession dbSession, String sql) {
+    return countSql(sql, () -> dbSession.getConnection());
+  }
+
+  private int countSql(String sql, SqlExceptionSupplier<Connection> connectionSupplier) {
+    checkArgument(StringUtils.contains(sql, "count("),
       "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     try (
-      Connection connection = db.getDatabase().getDataSource().getConnection();
+      Connection connection = connectionSupplier.get();
       PreparedStatement stmt = connection.prepareStatement(sql);
       ResultSet rs = stmt.executeQuery()) {
       if (rs.next()) {
@@ -212,8 +228,12 @@ public class DbTester extends ExternalResource {
   }
 
   public List<Map<String, Object>> select(String selectSql) {
+    return select(selectSql, this::getConnection);
+  }
+
+  private List<Map<String, Object>> select(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
     try (
-      Connection connection = db.getDatabase().getDataSource().getConnection();
+      Connection connection = connectionSupplier.get();
       PreparedStatement stmt = connection.prepareStatement(selectSql);
       ResultSet rs = stmt.executeQuery()) {
       return getHashMap(rs);
@@ -223,7 +243,15 @@ public class DbTester extends ExternalResource {
   }
 
   public Map<String, Object> selectFirst(String selectSql) {
-    List<Map<String, Object>> rows = select(selectSql);
+    return selectFirst(selectSql, this::getConnection);
+  }
+
+  public Map<String, Object> selectFirst(DbSession dbSession, String selectSql) {
+    return selectFirst(selectSql, () -> dbSession.getConnection());
+  }
+
+  private Map<String, Object> selectFirst(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
+    List<Map<String, Object>> rows = select(selectSql, connectionSupplier);
     if (rows.isEmpty()) {
       throw new IllegalStateException("No results for " + selectSql);
     } else if (rows.size() > 1) {
@@ -365,7 +393,7 @@ public class DbTester extends ExternalResource {
   }
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
-    try (Connection connection = db.getDatabase().getDataSource().getConnection();
+    try (Connection connection = getConnection();
       PreparedStatement stmt = connection.prepareStatement("select * from " + table);
       ResultSet res = stmt.executeQuery()) {
       Integer columnIndex = getColumnIndex(res, column);
@@ -456,6 +484,10 @@ public class DbTester extends ExternalResource {
 
   @Deprecated
   public Connection openConnection() throws Exception {
+    return getConnection();
+  }
+
+  private Connection getConnection() throws SQLException {
     return db.getDatabase().getDataSource().getConnection();
   }
 
@@ -466,6 +498,14 @@ public class DbTester extends ExternalResource {
 
   public DatabaseCommands getCommands() {
     return db.getCommands();
+  }
+
+  /**
+   * A {@link Supplier} that declares the checked exception {@link SQLException}.
+   */
+  @FunctionalInterface
+  private interface SqlExceptionSupplier<T> {
+    T get() throws SQLException;
   }
 
 }

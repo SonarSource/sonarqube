@@ -27,10 +27,10 @@ import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
@@ -50,8 +50,8 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
-import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
+import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -60,6 +60,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.scannercontext.ScannerContextDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -102,11 +103,12 @@ public class DaoModule extends Module {
     PermissionTemplateDao.class,
     PermissionTemplateCharacteristicDao.class,
     PropertiesDao.class,
+    ProjectQgateAssociationDao.class,
+    PurgeDao.class,
     QualityGateDao.class,
     QualityGateConditionDao.class,
-    ProjectQgateAssociationDao.class,
     QualityProfileDao.class,
-    PurgeDao.class,
+    ScannerContextDao.class,
     RuleDao.class,
     ActiveRuleDao.class,
     ResourceIndexDao.class,
