@@ -129,7 +129,9 @@ public class TaskFormatter {
     if (dto.getErrorMessage() != null) {
       builder.setErrorMessage(dto.getErrorMessage());
     }
-    builder.setHasErrorStacktrace(dto.isHasErrorStacktrace());
+    if (dto.getErrorStacktrace() != null) {
+      builder.setErrorStacktrace(dto.getErrorStacktrace());
+    }
     return builder.build();
   }
 

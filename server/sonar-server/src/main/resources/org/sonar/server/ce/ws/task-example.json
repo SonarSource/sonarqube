@@ -12,7 +12,8 @@
     "startedAt": "2015-10-02T11:32:16+0200",
     "executedAt": "2015-10-02T11:32:22+0200",
     "executionTimeMs": 5286,
-    "errorMessage": "Failed to unzip analysis report",
-    "hasErrorStacktrace": true
+    "errorMessage": "Fail to extract report AVaXuGAi_te3Ldc_YItm from database",
+    "hasErrorStacktrace": true,
+    "errorStacktrace": "java.lang.IllegalStateException: Fail to extract report AVaXuGAi_te3Ldc_YItm from database\\n\tat org.sonar.server.computation.task.projectanalysis.step.ExtractReportStep.execute(ExtractReportStep.java:50)"
   }
 }

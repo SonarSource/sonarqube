@@ -45,7 +45,6 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.ce.CeActivityDtoTestHelper.setHasErrorStacktrace;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
@@ -133,7 +132,6 @@ public class TaskActionTest {
     CeActivityDto activityDto = createActivityDto("TASK_1")
       .setErrorMessage("error msg")
       .setErrorStacktrace("error stack");
-    setHasErrorStacktrace(activityDto, true);
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
@@ -146,8 +144,8 @@ public class TaskActionTest {
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo("TASK_1");
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
-    assertThat(task.hasHasErrorStacktrace()).isTrue();
-    assertThat(task.getHasErrorStacktrace()).isTrue();
+    assertThat(task.hasErrorStacktrace()).isTrue();
+    assertThat(task.getErrorStacktrace()).isEqualTo(activityDto.getErrorStacktrace());
   }
 
   @Test
@@ -157,7 +155,6 @@ public class TaskActionTest {
     CeActivityDto activityDto = createActivityDto("TASK_1")
       .setErrorMessage("error msg")
       .setErrorStacktrace("error stack");
-    setHasErrorStacktrace(activityDto, true);
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
@@ -169,8 +166,7 @@ public class TaskActionTest {
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo("TASK_1");
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
-    assertThat(task.hasHasErrorStacktrace()).isTrue();
-    assertThat(task.getHasErrorStacktrace()).isTrue();
+    assertThat(task.hasErrorStacktrace()).isFalse();
   }
 
   @Test
@@ -190,8 +186,7 @@ public class TaskActionTest {
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo("TASK_1");
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
-    assertThat(task.hasHasErrorStacktrace()).isTrue();
-    assertThat(task.getHasErrorStacktrace()).isFalse();
+    assertThat(task.hasErrorStacktrace()).isFalse();
   }
 
   @Test

@@ -78,6 +78,10 @@ public class TaskAction implements CeWsAction {
       .setRequired(true)
       .setDescription("Id of task")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
+    action.createParam(PARAM_ADDITIONAL_FIELDS)
+      .setSince("6.1")
+      .setDescription("Comma-separated list of the optional fields to be returned in response.")
+      .setPossibleValues(AdditionalField.possibleValues());
   }
 
   @Override
@@ -93,14 +97,15 @@ public class TaskAction implements CeWsAction {
       } else {
         Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
         if (activityDto.isPresent()) {
-          checkPermission(activityDto.get().getComponentUuid());
-          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
+          CeActivityDto ceActivityDto = activityDto.get();
+          checkPermission(ceActivityDto.getComponentUuid());
+          maskErrorStacktrace(wsRequest, ceActivityDto);
+          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, ceActivityDto));
         } else {
           throw new NotFoundException();
         }
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
-
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -111,6 +116,42 @@ public class TaskAction implements CeWsAction {
       && !userSession.hasPermission(SCAN_EXECUTION)
       && (projectUuid == null || !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid))) {
       throw insufficientPrivilegesException();
+    }
+  }
+
+  private static void maskErrorStacktrace(Request wsRequest, CeActivityDto ceActivityDto) {
+    Set<AdditionalField> fromRequest = TaskAction.AdditionalField.getFromRequest(wsRequest);
+    if (!fromRequest.contains(TaskAction.AdditionalField.STACKTRACE)) {
+      ceActivityDto.setErrorStacktrace(null);
+    }
+  }
+
+  private enum AdditionalField {
+    STACKTRACE;
+
+    public static Set<AdditionalField> getFromRequest(Request wsRequest) {
+      List<String> strings = wsRequest.paramAsStrings(PARAM_ADDITIONAL_FIELDS);
+      if (strings == null) {
+        return Collections.emptySet();
+      }
+      return strings.stream()
+        .map(s -> {
+          for (AdditionalField field : AdditionalField.values()) {
+            if (field.name().equalsIgnoreCase(s)) {
+              return field;
+            }
+          }
+          return null;
+        })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+    }
+
+    public static Collection<String> possibleValues() {
+      return Arrays.stream(values())
+        .map(Enum::name)
+        .map(s -> s.toLowerCase(Locale.ENGLISH))
+        .collect(Collectors.toList(values().length));
     }
   }
 }
