@@ -26,6 +26,7 @@ import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,6 +73,11 @@ public class ClobColumnDefTest {
   @Test
   public void generate_sql_type_on_oracle() throws Exception {
     assertThat(underTest.generateSqlType(new Oracle())).isEqualTo("CLOB");
+  }
+
+  @Test
+  public void generate_sql_type_on_postgre() throws Exception {
+    assertThat(underTest.generateSqlType(new PostgreSql())).isEqualTo("TEXT");
   }
 
   @Test
