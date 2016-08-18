@@ -44,14 +44,6 @@
     where ca.uuid=#{uuid}
   </select>
 
-  <select id="selectByComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
-    select
-    <include refid="columns"/>
-    from ce_activity ca
-    where ca.component_uuid=#{componentUuid}
-    order by ca.id asc
-  </select>
-
   <select id="selectUuidsOfRecentlyCreatedByIsLastKey" parameterType="String" resultType="String">
     select uuid
     from ce_activity
