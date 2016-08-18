@@ -125,35 +125,6 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteSnapshots(PurgeSnapshotQuery... queries) {
-    List<IdUuidPair> snapshotIds = from(asList(queries))
-      .transformAndConcat(purgeMapper::selectAnalysisIdsAndUuids)
-      .toList();
-    deleteSnapshots(snapshotIds);
-  }
-
-  @VisibleForTesting
-  protected void deleteSnapshots(List<IdUuidPair> snapshotIds) {
-    List<List<String>> snapshotUuidsPartitions = Lists.partition(IdUuidPairs.uuids(snapshotIds), MAX_SNAPSHOTS_PER_QUERY);
-
-    deleteAnalysisDuplications(snapshotUuidsPartitions);
-
-    profiler.start("deleteSnapshots (events)");
-    snapshotUuidsPartitions.forEach(purgeMapper::deleteAnalysisEvents);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteSnapshots (project_measures)");
-    snapshotUuidsPartitions.forEach(purgeMapper::deleteSnapshotMeasures);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteSnapshots (snapshots)");
-    snapshotUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
-    session.commit();
-    profiler.stop();
-  }
-
   public void deleteComponentMeasures(List<String> analysisUuids, List<String> componentUuids) {
     if (analysisUuids.isEmpty() || componentUuids.isEmpty()) {
       return;

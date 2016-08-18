@@ -38,27 +38,6 @@ public class PurgeCommandsTest {
   private PurgeProfiler profiler = new PurgeProfiler();
 
   /**
-   * Test that all related data is deleted.
-   */
-  @Test
-  public void shouldDeleteSnapshot() {
-    dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshot.xml");
-
-    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(new PurgeSnapshotQuery().setComponentUuid("uuid_5"));
-
-    dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
-  }
-
-  /**
-   * Test that SQL queries execution do not fail with a huge number of parameter
-   */
-  @Test
-  public void should_not_fail_when_deleting_huge_number_of_snapshots() {
-    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(getHugeNumberOfIdUuidPairs());
-    // The goal of this test is only to check that the query do no fail, not to check result
-  }
-
-  /**
    * Test that SQL queries execution do not fail with a huge number of parameter
    */
   @Test
