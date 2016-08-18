@@ -21,6 +21,7 @@ package org.sonar.db.ce;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +72,27 @@ public class CeActivityDaoTest {
     assertThat(dto.toString()).isNotEmpty();
     assertThat(dto.getErrorMessage()).isNull();
     assertThat(dto.getErrorStacktrace()).isNull();
+  }
+
+  @Test
+  public void test_insert_of_errorMessage_of_1_000_chars() {
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED)
+        .setErrorMessage(Strings.repeat("x", 1_000));
+    underTest.insert(db.getSession(), dto);
+
+    Optional<CeActivityDto> saved = underTest.selectByUuid(db.getSession(), "TASK_1");
+    assertThat(saved.get().getErrorMessage()).isEqualTo(dto.getErrorMessage());
+  }
+
+  @Test
+  public void test_insert_of_errorMessage_of_1_001_chars_is_truncated_to_1000() {
+    String expected = Strings.repeat("x", 1_000);
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED)
+        .setErrorMessage(expected + "y");
+    underTest.insert(db.getSession(), dto);
+
+    Optional<CeActivityDto> saved = underTest.selectByUuid(db.getSession(), "TASK_1");
+    assertThat(saved.get().getErrorMessage()).isEqualTo(expected);
   }
 
   @Test

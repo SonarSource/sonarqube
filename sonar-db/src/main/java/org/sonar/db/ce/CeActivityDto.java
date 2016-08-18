@@ -30,6 +30,8 @@ import static java.lang.String.format;
 
 public class CeActivityDto {
 
+  private static final int MAX_SIZE_ERROR_MESSAGE = 1000;
+
   public enum Status {
     SUCCESS, FAILED, CANCELED
   }
@@ -212,8 +214,19 @@ public class CeActivityDto {
   }
 
   public CeActivityDto setErrorMessage(@Nullable String errorMessage) {
-    this.errorMessage = errorMessage;
+    this.errorMessage = ensureNotTooBig(errorMessage, MAX_SIZE_ERROR_MESSAGE);
     return this;
+  }
+
+  @CheckForNull
+  private static String ensureNotTooBig(@Nullable String str, int maxSize) {
+    if (str == null) {
+      return null;
+    }
+    if (str.length() <= maxSize) {
+      return str;
+    }
+    return str.substring(0, maxSize);
   }
 
   @CheckForNull
