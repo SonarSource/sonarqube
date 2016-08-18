@@ -136,6 +136,7 @@ public class TaskFormatter {
     if (scannerContext != null) {
       builder.setScannerContext(scannerContext);
     }
+    builder.setHasScannerContext(dto.isHasScannerContext());
     return builder.build();
   }
 

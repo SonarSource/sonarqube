@@ -80,6 +80,7 @@ message Task {
   optional string errorMessage = 16;
   optional string errorStacktrace = 17;
   optional string scannerContext = 18;
+  optional bool hasScannerContext = 19;
 }
 
 enum TaskStatus {

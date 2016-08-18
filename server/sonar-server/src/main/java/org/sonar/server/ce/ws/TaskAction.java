@@ -102,7 +102,7 @@ public class TaskAction implements CeWsAction {
           Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
           maskErrorStacktrace(ceActivityDto, additionalFields);
           wsTaskResponse.setTask(
-            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, taskUuid, additionalFields)));
+            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
         } else {
           throw new NotFoundException();
         }
@@ -128,9 +128,9 @@ public class TaskAction implements CeWsAction {
   }
 
   @CheckForNull
-  private String extractScannerContext(DbSession dbSession, String taskUuid, Set<AdditionalField> additionalFields) {
+  private String extractScannerContext(DbSession dbSession, CeActivityDto activityDto, Set<AdditionalField> additionalFields) {
     if (additionalFields.contains(AdditionalField.SCANNER_CONTEXT)) {
-      return dbClient.scannerContextDao().selectScannerContext(dbSession, taskUuid)
+      return dbClient.scannerContextDao().selectScannerContext(dbSession, activityDto.getAnalysisUuid())
         .orElse(null);
     }
     return null;

@@ -26,6 +26,7 @@
     "finishedAt": "2015-09-21T19:25:58+0200",
     "executionTimeMs": 1371,
     "logs": false,
-    "hasErrorStacktrace": false
+    "hasErrorStacktrace": false,
+    "hasScannerContext": true
   }
 }
