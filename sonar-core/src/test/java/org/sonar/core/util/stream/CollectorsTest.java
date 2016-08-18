@@ -28,12 +28,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -47,6 +50,8 @@ import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 
 public class CollectorsTest {
 
+  private static final List<String> HUGE_LIST = IntStream.range(0, 2_000).mapToObj(String::valueOf).collect(java.util.stream.Collectors.toList());
+  private static final Set<String> HUGE_SET = new HashSet<>(HUGE_LIST);
   private static final MyObj MY_OBJ_1_A = new MyObj(1, "A");
   private static final MyObj MY_OBJ_1_C = new MyObj(1, "C");
   private static final MyObj MY_OBJ_2_B = new MyObj(2, "B");
@@ -66,10 +71,20 @@ public class CollectorsTest {
   }
 
   @Test
+  public void toList_parallel_stream() {
+    assertThat(HUGE_LIST.parallelStream().collect(toList())).isEqualTo(HUGE_LIST);
+  }
+
+  @Test
   public void toList_with_size_builds_an_ImmutableList() {
     List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toList(30));
     assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toList_with_size_parallel_stream() {
+    assertThat(HUGE_LIST.parallelStream().collect(toList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
   }
 
   @Test
@@ -80,10 +95,20 @@ public class CollectorsTest {
   }
 
   @Test
+  public void toSet_parallel_stream() {
+    assertThat(HUGE_SET.parallelStream().collect(toSet())).isEqualTo(HUGE_SET);
+  }
+
+  @Test
   public void toSet_with_size_builds_an_ImmutableSet() {
     Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toSet(30));
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toSet_with_size_parallel_stream() {
+    assertThat(HUGE_SET.parallelStream().collect(toSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
   }
 
   @Test
@@ -94,10 +119,20 @@ public class CollectorsTest {
   }
 
   @Test
+  public void toArrayList_parallel_stream() {
+    assertThat(HUGE_LIST.parallelStream().collect(toArrayList())).isEqualTo(HUGE_LIST);
+  }
+
+  @Test
   public void toArrayList_with_size_builds_an_ArrayList() {
     List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toArrayList(30));
     assertThat(res).isInstanceOf(ArrayList.class)
       .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toArrayList_with_size_parallel_stream() {
+    assertThat(HUGE_LIST.parallelStream().collect(toArrayList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
   }
 
   @Test
@@ -108,10 +143,20 @@ public class CollectorsTest {
   }
 
   @Test
+  public void toHashSet_parallel_stream() {
+    assertThat(HUGE_SET.parallelStream().collect(toHashSet())).isEqualTo(HUGE_SET);
+  }
+
+  @Test
   public void toHashSet_with_size_builds_an_ArrayList() {
     Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toHashSet(30));
     assertThat(res).isInstanceOf(HashSet.class)
       .containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void toHashSet_with_size_parallel_stream() {
+    assertThat(HUGE_SET.parallelStream().collect(toHashSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
   }
 
   @Test
@@ -269,6 +314,34 @@ public class CollectorsTest {
   }
 
   @Test
+  public void uniqueIndex_parallel_stream() {
+    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity()));
+    assertThat(map.keySet()).isEqualTo(HUGE_SET);
+    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
+  }
+
+  @Test
+  public void uniqueIndex_with_expected_size_parallel_stream() {
+    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), HUGE_LIST.size()));
+    assertThat(map.keySet()).isEqualTo(HUGE_SET);
+    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
+  }
+
+  @Test
+  public void uniqueIndex_with_valueFunction_parallel_stream() {
+    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), identity()));
+    assertThat(map.keySet()).isEqualTo(HUGE_SET);
+    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
+  }
+
+  @Test
+  public void uniqueIndex_with_valueFunction_and_expected_size_parallel_stream() {
+    Map<String, String> map = HUGE_LIST.parallelStream().collect(uniqueIndex(identity(), identity(), HUGE_LIST.size()));
+    assertThat(map.keySet()).isEqualTo(HUGE_SET);
+    assertThat(map.values()).containsExactlyElementsOf(HUGE_SET);
+  }
+
+  @Test
   public void index_empty_stream_returns_empty_map() {
     assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId))).isEmpty();
     assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId, MyObj::getText))).isEmpty();
@@ -338,19 +411,33 @@ public class CollectorsTest {
   }
 
   @Test
-  public void uniqueIndex_returns_multimap() {
-    Multimap<Integer, MyObj> myObjImmutableListMultimap = LIST.stream().collect(index(MyObj::getId));
+  public void index_returns_multimap() {
+    Multimap<Integer, MyObj> multimap = LIST.stream().collect(index(MyObj::getId));
 
-    assertThat(myObjImmutableListMultimap).hasSize(3);
-    assertThat(myObjImmutableListMultimap).contains(entry(1, MY_OBJ_1_A), entry(2, MY_OBJ_2_B), entry(3, MY_OBJ_3_C));
+    assertThat(multimap).hasSize(3);
+    assertThat(multimap).contains(entry(1, MY_OBJ_1_A), entry(2, MY_OBJ_2_B), entry(3, MY_OBJ_3_C));
   }
 
   @Test
-  public void index_with_valueFunction_returns_map() {
+  public void index_with_valueFunction_returns_multimap() {
     Multimap<Integer, String> multimap = LIST.stream().collect(index(MyObj::getId, MyObj::getText));
 
     assertThat(multimap).hasSize(3);
     assertThat(multimap).contains(entry(1, "A"), entry(2, "B"), entry(3, "C"));
+  }
+
+  @Test
+  public void index_parallel_stream() {
+    Multimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity()));
+
+    assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
+  }
+
+  @Test
+  public void index_with_valueFunction_parallel_stream() {
+    Multimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity(), identity()));
+
+    assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
   }
 
   @Test
@@ -370,6 +457,16 @@ public class CollectorsTest {
   public void join_applies_joiner_to_stream() {
     assertThat(Arrays.asList("1", "2", "3", "4").stream().collect(join(Joiner.on(","))))
       .isEqualTo("1,2,3,4");
+  }
+
+  @Test
+  public void join_does_not_support_parallel_stream_and_fails_with_ISE() {
+    Stream<String> hugeStream = HUGE_LIST.parallelStream();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Parallel processing is not supported");
+
+    hugeStream.collect(join(Joiner.on(" ")));
   }
 
   @Test
