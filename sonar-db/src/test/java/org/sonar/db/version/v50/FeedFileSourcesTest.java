@@ -89,6 +89,32 @@ public class FeedFileSourcesTest {
   }
 
   @Test
+  public void migrate_ignores_duplicate_multiple_rows_in_snapshots_with_islast_true() throws Exception {
+    db.prepareDbUnit(getClass(), "before.xml");
+    db.executeUpdateSql("insert into snapshots " +
+        "(id,project_id,parent_snapshot_id,root_project_id,root_snapshot_id,status,islast) " +
+        "values " +
+        "(9,3,4,1,2,'P',true)");
+    db.executeUpdateSql("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')");
+
+    db.executeUpdateSql("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(9, 'class Bar {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')");
+
+    migration.execute();
+
+    List<Map<String, Object>> results = getFileSources();
+    assertThat(results).hasSize(2);
+
+    // the lastest inserted row is the one taken into account
+    assertThat(results.get(1).get("data")).isEqualTo(",,,,,,,,,,,,,,,class Bar {\r\n,,,,,,,,,,,,,,,  // Empty\r\n,,,,,,,,,,,,,,,}\r\n,,,,,,,,,,,,,,,\r\n");
+  }
+
+  @Test
   public void migrate_sources_with_no_scm_no_coverage() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
