@@ -31,7 +31,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
@@ -67,6 +66,7 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 public class ActivityActionTest {
 
   private static final long EXECUTED_AT = System2.INSTANCE.now();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -76,8 +76,7 @@ public class ActivityActionTest {
 
   ComponentDbTester componentDb = new ComponentDbTester(dbTester);
 
-  CeLogging ceLogging = mock(CeLogging.class);
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
   ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   WsActionTester ws = new WsActionTester(underTest);
 

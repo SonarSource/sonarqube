@@ -24,11 +24,8 @@ import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -44,14 +41,10 @@ import static org.mockito.Mockito.when;
 public class TaskFormatterTest {
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  System2 system2 = mock(System2.class);
-  CeLogging ceLogging = mock(CeLogging.class, Mockito.RETURNS_DEEP_STUBS);
-  TaskFormatter underTest = new TaskFormatter(db.getDbClient(), ceLogging, system2);
+  private System2 system2 = mock(System2.class);
+  private TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);
 
   @Test
   public void formatQueue_without_component() {
