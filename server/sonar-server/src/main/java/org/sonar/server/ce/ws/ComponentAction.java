@@ -54,7 +54,7 @@ public class ComponentAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component " +
         "(usually a project). Requires the administration permission on the component.<br/>" +
-        "Since 6.1, field \"logs\" is deprecated and its value will always be false")
+        "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);

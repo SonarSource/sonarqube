@@ -68,7 +68,7 @@ public class TaskAction implements CeWsAction {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
         "Requires 'Administer System' or 'Execute Analysis' permission.<br/>" +
-        "Since 6.1, field \"logs\" is deprecated and its value will always be false")
+        "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setHandler(this);

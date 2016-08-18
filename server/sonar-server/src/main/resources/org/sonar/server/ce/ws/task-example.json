@@ -13,6 +13,7 @@
     "executedAt": "2015-10-02T11:32:22+0200",
     "executionTimeMs": 5286,
     "errorMessage": "Fail to extract report AVaXuGAi_te3Ldc_YItm from database",
+    "logs": false,
     "hasErrorStacktrace": true,
     "errorStacktrace": "java.lang.IllegalStateException: Fail to extract report AVaXuGAi_te3Ldc_YItm from database\n\tat org.sonar.server.computation.task.projectanalysis.step.ExtractReportStep.execute(ExtractReportStep.java:50)",
     "scannerContext": "SonarQube plugins:\n\t- Git 1.0 (scmgit)\n\t- Java 3.13.1 (java)"
