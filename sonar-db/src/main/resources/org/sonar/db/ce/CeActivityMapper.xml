@@ -3,6 +3,18 @@
 
 <mapper namespace="org.sonar.db.ce.CeActivityMapper">
 
+
+  <!--assumes query includes an left left outer join on table scanner_context with alias ct -->
+  <sql id="hasScannerContextColumn" databaseId="mssql">
+    cast(case when ct.analysis_uuid is null then 0 else 1 end as bit) as hasScannerContext
+  </sql>
+  <sql id="hasScannerContextColumn" databaseId="oracle">
+    case when ct.analysis_uuid is null then 0 else 1 end as hasScannerContext
+  </sql>
+  <sql id="hasScannerContextColumn">
+    ct.analysis_uuid is not null as hasScannerContext
+  </sql>
+
   <sql id="columns">
     ca.id,
     ca.uuid,
@@ -19,7 +31,8 @@
     ca.is_last as isLast,
     ca.is_last_key as isLastKey,
     ca.execution_time_ms as executionTimeMs,
-    ca.error_message as errorMessage
+    ca.error_message as errorMessage,
+    <include refid="hasScannerContextColumn"/>
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
@@ -27,6 +40,7 @@
     <include refid="columns"/>,
     ca.error_stacktrace as errorStacktrace
     from ce_activity ca
+    left outer join scanner_context ct on ca.analysis_uuid = ct.analysis_uuid
     where ca.uuid=#{uuid}
   </select>
 
@@ -78,6 +92,7 @@
 
   <sql id="sqlSelectByQuery">
     from ce_activity ca
+    left outer join scanner_context ct on ct.analysis_uuid = ca.analysis_uuid
     <where>
       <if test="query.onlyCurrents">
         and ca.is_last=${_true}
@@ -107,15 +122,21 @@
   </sql>
 
   <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
-    select <include refid="columns"/>
+    select
+      <include refid="columns"/>
     from ce_activity ca
-    where ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
+    left outer join scanner_context ct on ct.analysis_uuid = ca.analysis_uuid
+    where
+      ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>
   
   <select id="countLastByStatusAndComponentUuid" resultType="int">
-    select count(1)
-    from ce_activity
-    where status=#{status} 
+    select
+      count(1)
+    from
+      ce_activity
+    where
+      status=#{status}
       and is_last=${_true}
       <if test="componentUuid!=null">
         and component_uuid=#{componentUuid}

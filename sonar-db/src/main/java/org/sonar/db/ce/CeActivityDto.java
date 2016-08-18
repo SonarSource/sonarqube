@@ -68,6 +68,13 @@ public class CeActivityDto {
    * @see CeActivityDao#selectByUuid(DbSession, String)
    */
   private String errorStacktrace;
+  /**
+   * Flag indicating whether the analysis of the current activity has a scanner context or not.
+   * <p>
+   * This property can not be populated when inserting but <strong>is populated when reading</strong>.
+   * </p>
+   */
+  private boolean hasScannerContext;
 
   CeActivityDto() {
     // required for MyBatis
@@ -240,6 +247,14 @@ public class CeActivityDto {
     return this;
   }
 
+  public boolean isHasScannerContext() {
+    return hasScannerContext;
+  }
+
+  protected void setHasScannerContext(boolean hasScannerContext) {
+    this.hasScannerContext = hasScannerContext;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -259,6 +274,7 @@ public class CeActivityDto {
       .add("executionTimeMs", executionTimeMs)
       .add("errorMessage", errorMessage)
       .add("errorStacktrace", errorStacktrace)
+      .add("hasScannerContext", hasScannerContext)
       .toString();
   }
 }
