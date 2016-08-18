@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.dialect.H2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -42,6 +43,7 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -53,6 +55,7 @@ public class TaskActionTest {
     .setUuid("PROJECT_1")
     .setName("Project One")
     .setKey("P1");
+  private static final String SOME_TASK_UUID = "TASK_1";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -78,7 +81,7 @@ public class TaskActionTest {
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setComponentUuid(PROJECT.uuid());
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setSubmitterLogin("john");
@@ -86,11 +89,11 @@ public class TaskActionTest {
 
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
-    assertThat(taskResponse.getTask().getId()).isEqualTo("TASK_1");
+    assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo("john");
     assertThat(taskResponse.getTask().getComponentId()).isEqualTo(PROJECT.uuid());
@@ -104,22 +107,22 @@ public class TaskActionTest {
   public void task_is_archived() throws Exception {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    CeActivityDto activityDto = createActivityDto("TASK_1");
+    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
-    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(PROJECT.uuid());
     assertThat(task.getComponentKey()).isEqualTo(PROJECT.key());
     assertThat(task.getComponentName()).isEqualTo(PROJECT.name());
-    assertThat(task.getAnalysisId()).isEqualTo("U1");
+    assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
   }
@@ -128,20 +131,20 @@ public class TaskActionTest {
   public void return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_set() {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    CeActivityDto activityDto = createActivityDto("TASK_1")
+    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg")
       .setErrorStacktrace("error stack");
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .setParam("additionalFields", "stacktrace")
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
-    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
     assertThat(task.hasErrorStacktrace()).isTrue();
     assertThat(task.getErrorStacktrace()).isEqualTo(activityDto.getErrorStacktrace());
@@ -151,39 +154,85 @@ public class TaskActionTest {
   public void do_not_return_stacktrace_of_failed_activity_with_stacktrace_when_additionalField_is_not_set() {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    CeActivityDto activityDto = createActivityDto("TASK_1")
+    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg")
       .setErrorStacktrace("error stack");
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
-    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
     assertThat(task.hasErrorStacktrace()).isFalse();
+  }
+
+  @Test
+  public void return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_set() {
+    // H2 version we use (1.3.176) has lock bugs when table has CLOB columns which makes this test fail
+    assumeTrue(!dbTester.database().getDialect().getId().equals(H2.ID));
+
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+
+    String scannerContext = "this is some scanner context, yeah!";
+    CeActivityDto activityDto = persist(createActivityDto(SOME_TASK_UUID));
+    persistScannerContext(activityDto.getAnalysisUuid(), scannerContext);
+
+    TestResponse wsResponse = ws.newRequest()
+        .setMediaType(PROTOBUF)
+        .setParam("id", SOME_TASK_UUID)
+        .setParam("additionalFields", "scannerContext")
+        .execute();
+
+    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
+    assertThat(task.getScannerContext()).isEqualTo(scannerContext);
+  }
+
+  @Test
+  public void do_not_return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_not_set() {
+    // H2 version we use (1.3.176) has lock bugs when table has CLOB columns which makes this test fail
+    assumeTrue(!dbTester.database().getDialect().getId().equals(H2.ID));
+
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+
+    String scannerContext = "this is some scanner context, yeah!";
+    CeActivityDto activityDto = persist(createActivityDto(SOME_TASK_UUID));
+    persistScannerContext(activityDto.getAnalysisUuid(), scannerContext);
+
+    TestResponse wsResponse = ws.newRequest()
+        .setMediaType(PROTOBUF)
+        .setParam("id", SOME_TASK_UUID)
+        .setParam("additionalFields", "stacktrace")
+        .execute();
+
+    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
+    assertThat(task.hasScannerContext()).isFalse();
   }
 
   @Test
   public void do_not_return_stacktrace_of_failed_activity_without_stacktrace() {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    CeActivityDto activityDto = createActivityDto("TASK_1")
+    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setErrorMessage("error msg");
     persist(activityDto);
 
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
-    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
     assertThat(task.hasErrorStacktrace()).isFalse();
   }
@@ -204,13 +253,13 @@ public class TaskActionTest {
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
   }
 
@@ -220,13 +269,13 @@ public class TaskActionTest {
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
   }
 
@@ -236,14 +285,14 @@ public class TaskActionTest {
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     persist(queueDto);
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
   }
 
@@ -253,14 +302,14 @@ public class TaskActionTest {
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
-    queueDto.setUuid("TASK_1");
+    queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setComponentUuid(PROJECT.uuid());
     persist(queueDto);
 
     ws.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
   }
 
@@ -268,13 +317,13 @@ public class TaskActionTest {
   public void not_fail_on_archived_task_linked_on_project_with_project_scan_permission() throws Exception {
     userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, PROJECT.uuid());
 
-    CeActivityDto activityDto = createActivityDto("TASK_1")
+    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
       .setComponentUuid(PROJECT.uuid());
     persist(activityDto);
 
     ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam("id", "TASK_1")
+      .setParam("id", SOME_TASK_UUID)
       .execute();
   }
 
@@ -286,7 +335,7 @@ public class TaskActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
-    activityDto.setAnalysisUuid("U1");
+    activityDto.setAnalysisUuid(uuid + "u1");
     return activityDto;
   }
 

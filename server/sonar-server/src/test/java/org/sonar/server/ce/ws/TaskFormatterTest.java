@@ -61,6 +61,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
     assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
+    assertThat(wsTask.hasScannerContext()).isFalse();
 
     assertThat(wsTask.hasExecutionTimeMs()).isFalse();
     assertThat(wsTask.hasSubmitterLogin()).isFalse();
@@ -100,6 +101,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");
     assertThat(wsTask.hasExecutionTimeMs()).isTrue();
     assertThat(wsTask.hasExecutedAt()).isFalse();
+    assertThat(wsTask.hasScannerContext()).isFalse();
   }
 
   @Test
@@ -162,11 +164,22 @@ public class TaskFormatterTest {
     assertThat(wsTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(wsTask.getId()).isEqualTo("UUID");
     assertThat(wsTask.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
-    assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
     assertThat(wsTask.getLogs()).isFalse();
+    assertThat(wsTask.hasScannerContext()).isFalse();
+  }
+
+  @Test
+  public void formatActivity_set_scanner_context_if_argument_is_non_null() {
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
+
+    String expected = "scanner context baby!";
+    WsCe.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected);
+
+    assertThat(wsTask.hasScannerContext()).isTrue();
+    assertThat(wsTask.getScannerContext()).isEqualTo(expected);
   }
 
   @Test

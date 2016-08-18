@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -99,8 +99,10 @@ public class TaskAction implements CeWsAction {
         if (activityDto.isPresent()) {
           CeActivityDto ceActivityDto = activityDto.get();
           checkPermission(ceActivityDto.getComponentUuid());
-          maskErrorStacktrace(wsRequest, ceActivityDto);
-          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, ceActivityDto));
+          Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
+          maskErrorStacktrace(ceActivityDto, additionalFields);
+          wsTaskResponse.setTask(
+            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, taskUuid, additionalFields)));
         } else {
           throw new NotFoundException();
         }
@@ -119,15 +121,34 @@ public class TaskAction implements CeWsAction {
     }
   }
 
-  private static void maskErrorStacktrace(Request wsRequest, CeActivityDto ceActivityDto) {
-    Set<AdditionalField> fromRequest = TaskAction.AdditionalField.getFromRequest(wsRequest);
-    if (!fromRequest.contains(TaskAction.AdditionalField.STACKTRACE)) {
+  private static void maskErrorStacktrace(CeActivityDto ceActivityDto, Set<AdditionalField> additionalFields) {
+    if (!additionalFields.contains(AdditionalField.STACKTRACE)) {
       ceActivityDto.setErrorStacktrace(null);
     }
   }
 
+  @CheckForNull
+  private String extractScannerContext(DbSession dbSession, String taskUuid, Set<AdditionalField> additionalFields) {
+    if (additionalFields.contains(AdditionalField.SCANNER_CONTEXT)) {
+      return dbClient.scannerContextDao().selectScannerContext(dbSession, taskUuid)
+        .orElse(null);
+    }
+    return null;
+  }
+
   private enum AdditionalField {
-    STACKTRACE;
+    STACKTRACE("stacktrace"),
+    SCANNER_CONTEXT("scannerContext");
+
+    private final String label;
+
+    AdditionalField(String label) {
+      this.label = label;
+    }
+
+    public String getLabel() {
+      return label;
+    }
 
     public static Set<AdditionalField> getFromRequest(Request wsRequest) {
       List<String> strings = wsRequest.paramAsStrings(PARAM_ADDITIONAL_FIELDS);
@@ -137,7 +158,7 @@ public class TaskAction implements CeWsAction {
       return strings.stream()
         .map(s -> {
           for (AdditionalField field : AdditionalField.values()) {
-            if (field.name().equalsIgnoreCase(s)) {
+            if (field.label.equalsIgnoreCase(s)) {
               return field;
             }
           }
@@ -149,8 +170,7 @@ public class TaskAction implements CeWsAction {
 
     public static Collection<String> possibleValues() {
       return Arrays.stream(values())
-        .map(Enum::name)
-        .map(s -> s.toLowerCase(Locale.ENGLISH))
+        .map(AdditionalField::getLabel)
         .collect(Collectors.toList(values().length));
     }
   }

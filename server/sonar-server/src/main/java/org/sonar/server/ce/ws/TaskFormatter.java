@@ -89,15 +89,19 @@ public class TaskFormatter {
   }
 
   public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto) {
-    return formatActivity(dto, new ComponentDtoCache(dbSession, dto.getComponentUuid()));
+    return formatActivity(dbSession, dto, null);
+  }
+
+  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
+    return formatActivity(dto, new ComponentDtoCache(dbSession, dto.getComponentUuid()), scannerContext);
   }
 
   public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
     ComponentDtoCache cache = new ComponentDtoCache(dbSession, ceActivityDtoToComponentUuids(dtos));
-    return dtos.stream().map(input -> formatActivity(input, cache)).collect(Collectors.toList());
+    return dtos.stream().map(input -> formatActivity(input, cache, null)).collect(Collectors.toList());
   }
 
-  private WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache) {
+  private WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
@@ -128,6 +132,9 @@ public class TaskFormatter {
     }
     if (dto.getErrorStacktrace() != null) {
       builder.setErrorStacktrace(dto.getErrorStacktrace());
+    }
+    if (scannerContext != null) {
+      builder.setScannerContext(scannerContext);
     }
     return builder.build();
   }
