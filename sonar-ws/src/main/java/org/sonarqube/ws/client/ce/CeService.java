@@ -73,6 +73,15 @@ public class CeService extends BaseService {
     return call(new GetRequest(path("task")).setParam("id", id), WsCe.TaskResponse.parser());
   }
 
+  public WsCe.TaskResponse task(TaskWsRequest taskWsRequest) {
+    GetRequest request = new GetRequest(path("task"))
+      .setParam("id", taskWsRequest.getTaskUuid());
+    if (!taskWsRequest.getAdditionalFields().isEmpty()) {
+      request.setParam("additionalFields", inlineMultipleParamValue(taskWsRequest.getAdditionalFields()));
+    }
+    return call(request, WsCe.TaskResponse.parser());
+  }
+
   public WsCe.ActivityStatusWsResponse activityStatus(ActivityStatusWsRequest request) {
     return call(
       new GetRequest(path("activity_status"))

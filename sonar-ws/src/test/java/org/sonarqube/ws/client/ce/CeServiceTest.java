@@ -97,10 +97,21 @@ public class CeServiceTest {
   }
 
   @Test
-  public void task() {
+  public void task_by_id_only() {
     underTest.task("task_id");
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"));
+  }
+
+  @Test
+  public void task() {
+    underTest.task(TaskWsRequest.newBuilder("task_id")
+        .withErrorStacktrace()
+        .withScannerContext()
+        .build());
+
+    assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
+    assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace,scannerContext"));
   }
 }
