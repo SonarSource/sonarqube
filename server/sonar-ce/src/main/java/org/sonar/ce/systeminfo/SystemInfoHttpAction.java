@@ -26,6 +26,8 @@ import org.sonar.ce.httpd.HttpAction;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
 public class SystemInfoHttpAction implements HttpAction {
@@ -46,12 +48,16 @@ public class SystemInfoHttpAction implements HttpAction {
 
   @Override
   public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
+    if (session.getMethod() != NanoHTTPD.Method.GET) {
+      return newFixedLengthResponse(METHOD_NOT_ALLOWED, MIME_PLAINTEXT, null);
+    }
+
     ProtobufSystemInfo.SystemInfo.Builder infoBuilder = ProtobufSystemInfo.SystemInfo.newBuilder();
     for (SystemInfoSection sectionProvider : sectionProviders) {
       ProtobufSystemInfo.Section section = sectionProvider.toProtobuf();
       infoBuilder.addSections(section);
     }
     byte[] bytes = infoBuilder.build().toByteArray();
-    return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, PROTOBUF_MIME_TYPE, new ByteArrayInputStream(bytes), bytes.length);
+    return newFixedLengthResponse(OK, PROTOBUF_MIME_TYPE, new ByteArrayInputStream(bytes), bytes.length);
   }
 }

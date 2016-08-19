@@ -30,9 +30,13 @@ import org.sonar.process.systeminfo.ProcessStateSystemInfo;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+import static fi.iki.elonen.NanoHTTPD.Method.GET;
+import static fi.iki.elonen.NanoHTTPD.Method.POST;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SystemInfoHttpActionTest {
 
@@ -58,13 +62,25 @@ public class SystemInfoHttpActionTest {
   }
 
   @Test
-  public void start_starts_http_server_and_publishes_URL_in_IPC() throws Exception {
-    NanoHTTPD.Response response = underTest.serve(mock(NanoHTTPD.IHTTPSession.class));
-    assertThat(response.getStatus()).isEqualTo(NanoHTTPD.Response.Status.OK);
+  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_GET() {
+    NanoHTTPD.Response response = underTest.serve(createHttpSession(POST));
+    assertThat(response.getStatus()).isEqualTo(METHOD_NOT_ALLOWED);
+  }
+
+  @Test
+  public void serves_data_from_SystemInfoSections() throws Exception {
+    NanoHTTPD.Response response = underTest.serve(createHttpSession(GET));
+    assertThat(response.getStatus()).isEqualTo(OK);
     ProtobufSystemInfo.SystemInfo systemInfo = ProtobufSystemInfo.SystemInfo.parseFrom(response.getData());
     assertThat(systemInfo.getSectionsCount()).isEqualTo(2);
     assertThat(systemInfo.getSections(0).getName()).isEqualTo("state1");
     assertThat(systemInfo.getSections(1).getName()).isEqualTo("state2");
+  }
+
+  private NanoHTTPD.IHTTPSession createHttpSession(NanoHTTPD.Method method) {
+    NanoHTTPD.IHTTPSession res = mock(NanoHTTPD.IHTTPSession.class);
+    when(res.getMethod()).thenReturn(method);
+    return res;
   }
 
 }
