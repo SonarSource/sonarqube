@@ -24,12 +24,13 @@ import com.google.common.base.Joiner;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -48,7 +49,9 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.entry;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
@@ -95,14 +98,14 @@ public class ValuesActionTest {
     insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     ValuesWsResponse result = newRequestForGlobalProperties("foo");
-    assertThat(result.getValuesList()).hasSize(1);
+    assertThat(result.getSettingsList()).hasSize(1);
 
-    Settings.Value value = result.getValues(0);
+    Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.getValue()).isEqualTo("one");
-    assertThat(value.getValuesCount()).isZero();
-    assertThat(value.getSetValues()).isEmpty();
-    assertThat(value.getIsDefault()).isFalse();
+    assertThat(value.hasValues()).isFalse();
+    assertThat(value.hasFieldsValues()).isFalse();
+    assertThat(value.getDefault()).isFalse();
   }
 
   @Test
@@ -122,19 +125,77 @@ public class ValuesActionTest {
     insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four"));
 
     ValuesWsResponse result = newRequestForGlobalProperties("default", "global");
-    assertThat(result.getValuesList()).hasSize(2);
+    assertThat(result.getSettingsList()).hasSize(2);
 
-    Settings.Value foo = result.getValues(0);
+    Settings.Setting foo = result.getSettings(0);
     assertThat(foo.getKey()).isEqualTo("default");
     assertThat(foo.hasValue()).isFalse();
-    assertThat(foo.getValuesList()).containsOnly("one", "two");
-    assertThat(foo.getSetValues()).isEmpty();
+    assertThat(foo.getValues().getValuesList()).containsOnly("one", "two");
+    assertThat(foo.hasFieldsValues()).isFalse();
 
-    Settings.Value bar = result.getValues(1);
+    Settings.Setting bar = result.getSettings(1);
     assertThat(bar.getKey()).isEqualTo("global");
     assertThat(bar.hasValue()).isFalse();
-    assertThat(bar.getValuesList()).containsOnly("three", "four");
-    assertThat(bar.getSetValues()).isEmpty();
+    assertThat(bar.getValues().getValuesList()).containsOnly("three", "four");
+    assertThat(bar.hasFieldsValues()).isFalse();
+  }
+
+  @Test
+  public void return_property_set() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("size").name("Size").build()))
+      .build());
+    insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("1,2"),
+      newGlobalPropertyDto().setKey("foo.1.key").setValue("key1"),
+      newGlobalPropertyDto().setKey("foo.1.size").setValue("size1"),
+      newGlobalPropertyDto().setKey("foo.2.key").setValue("key2"));
+
+    ValuesWsResponse result = newRequestForGlobalProperties("foo");
+    assertThat(result.getSettingsList()).hasSize(1);
+
+    Settings.Setting value = result.getSettings(0);
+    assertThat(value.getKey()).isEqualTo("foo");
+    assertThat(value.hasValue()).isFalse();
+    assertThat(value.hasValues()).isFalse();
+
+    assertThat(value.getFieldsValues().getFieldsValuesList()).hasSize(2);
+    assertThat(value.getFieldsValues().getFieldsValuesList().get(0).getValue()).containsOnly(entry("key", "key1"), entry("size", "size1"));
+    assertThat(value.getFieldsValues().getFieldsValuesList().get(1).getValue()).containsOnly(entry("key", "key2"));
+  }
+
+  @Test
+  public void return_property_set_for_component() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("size").name("Size").build()))
+      .build());
+    insertProperties(
+      newComponentPropertyDto(project).setKey("foo").setValue("1,2"),
+      newComponentPropertyDto(project).setKey("foo.1.key").setValue("key1"),
+      newComponentPropertyDto(project).setKey("foo.1.size").setValue("size1"),
+      newComponentPropertyDto(project).setKey("foo.2.key").setValue("key2"));
+
+    ValuesWsResponse result = newRequestForProjectProperties("foo");
+    assertThat(result.getSettingsList()).hasSize(1);
+
+    Settings.Setting value = result.getSettings(0);
+    assertThat(value.getKey()).isEqualTo("foo");
+    assertThat(value.hasValue()).isFalse();
+    assertThat(value.hasValues()).isFalse();
+
+    assertThat(value.getFieldsValues().getFieldsValuesList()).hasSize(2);
+    assertThat(value.getFieldsValues().getFieldsValuesList().get(0).getValue()).containsOnly(entry("key", "key1"), entry("size", "size1"));
+    assertThat(value.getFieldsValues().getFieldsValuesList().get(1).getValue()).containsOnly(entry("key", "key2"));
   }
 
   @Test
@@ -146,13 +207,13 @@ public class ValuesActionTest {
       .build());
 
     ValuesWsResponse result = newRequestForGlobalProperties("foo");
-    assertThat(result.getValuesList()).hasSize(1);
+    assertThat(result.getSettingsList()).hasSize(1);
 
-    Settings.Value value = result.getValues(0);
+    Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.getValue()).isEqualTo("default");
-    assertThat(value.getIsDefault()).isTrue();
-    assertThat(value.getIsInherited()).isFalse();
+    assertThat(value.getDefault()).isTrue();
+    assertThat(value.getInherited()).isFalse();
   }
 
   @Test
@@ -164,17 +225,17 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("property").setValue("one"));
 
     ValuesWsResponse result = newRequestForGlobalProperties("property");
-    assertThat(result.getValuesList()).hasSize(1);
+    assertThat(result.getSettingsList()).hasSize(1);
 
-    Settings.Value globalPropertyValue = result.getValues(0);
+    Settings.Setting globalPropertyValue = result.getSettings(0);
     assertThat(globalPropertyValue.getKey()).isEqualTo("property");
     assertThat(globalPropertyValue.getValue()).isEqualTo("one");
-    assertThat(globalPropertyValue.getIsDefault()).isFalse();
-    assertThat(globalPropertyValue.getIsInherited()).isFalse();
+    assertThat(globalPropertyValue.getDefault()).isFalse();
+    assertThat(globalPropertyValue.getInherited()).isFalse();
   }
 
   @Test
-  public void return_component_values() throws Exception {
+  public void return_project_values() throws Exception {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     insertProperties(
@@ -183,13 +244,13 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
     ValuesWsResponse result = newRequestForProjectProperties("property");
-    assertThat(result.getValuesList()).hasSize(1);
+    assertThat(result.getSettingsList()).hasSize(1);
 
-    Settings.Value globalPropertyValue = result.getValues(0);
+    Settings.Setting globalPropertyValue = result.getSettings(0);
     assertThat(globalPropertyValue.getKey()).isEqualTo("property");
     assertThat(globalPropertyValue.getValue()).isEqualTo("two");
-    assertThat(globalPropertyValue.getIsDefault()).isFalse();
-    assertThat(globalPropertyValue.getIsInherited()).isFalse();
+    assertThat(globalPropertyValue.getDefault()).isFalse();
+    assertThat(globalPropertyValue.getInherited()).isFalse();
   }
 
   @Test
@@ -200,13 +261,13 @@ public class ValuesActionTest {
     insertProperties(newGlobalPropertyDto().setKey("property").setValue("one"));
 
     ValuesWsResponse result = newRequestForProjectProperties("property");
-    assertThat(result.getValuesList()).hasSize(1);
+    assertThat(result.getSettingsList()).hasSize(1);
 
-    Settings.Value globalPropertyValue = result.getValues(0);
+    Settings.Setting globalPropertyValue = result.getSettings(0);
     assertThat(globalPropertyValue.getKey()).isEqualTo("property");
     assertThat(globalPropertyValue.getValue()).isEqualTo("one");
-    assertThat(globalPropertyValue.getIsDefault()).isFalse();
-     assertThat(globalPropertyValue.getIsInherited()).isTrue();
+    assertThat(globalPropertyValue.getDefault()).isFalse();
+    assertThat(globalPropertyValue.getInherited()).isTrue();
   }
 
   @Test
@@ -215,10 +276,10 @@ public class ValuesActionTest {
     insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
     ValuesWsResponse result = newRequestForGlobalProperties("globalPropertyWithoutDefinition");
-    Settings.Value globalPropertyWithoutDefinitionValue = result.getValues(0);
+    Settings.Setting globalPropertyWithoutDefinitionValue = result.getSettings(0);
     assertThat(globalPropertyWithoutDefinitionValue.getKey()).isEqualTo("globalPropertyWithoutDefinition");
     assertThat(globalPropertyWithoutDefinitionValue.getValue()).isEqualTo("value");
-    assertThat(globalPropertyWithoutDefinitionValue.getIsDefault()).isFalse();
+    assertThat(globalPropertyWithoutDefinitionValue.getDefault()).isFalse();
   }
 
   @Test
@@ -227,10 +288,9 @@ public class ValuesActionTest {
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
-    insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("foo", "bar");
-    assertThat(result.getValuesList()).isEmpty();
+    ValuesWsResponse result = newRequestForGlobalProperties("foo");
+    assertThat(result.getSettingsList()).isEmpty();
   }
 
   @Test
@@ -243,17 +303,34 @@ public class ValuesActionTest {
     insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
 
     ValuesWsResponse result = newRequestForGlobalProperties("unknown");
-    assertThat(result.getValuesList()).isEmpty();
+    assertThat(result.getSettingsList()).isEmpty();
   }
 
   @Test
-  @Ignore
   public void test_example_json_response() {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("sonar.test.jira")
       .defaultValue("abc")
       .build());
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("sonar.autogenerated")
+      .multiValues(true)
+      .build());
+    insertProperties(newGlobalPropertyDto().setKey("sonar.autogenerated").setValue("val1,val2,val3"));
+
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("sonar.demo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(PropertyFieldDefinition.build("text").name("Text").build(),
+        PropertyFieldDefinition.build("boolean").name("Boolean").build())
+      .build());
+    insertProperties(
+      newGlobalPropertyDto().setKey("sonar.demo").setValue("1,2"),
+      newGlobalPropertyDto().setKey("sonar.demo.1.text").setValue("foo"),
+      newGlobalPropertyDto().setKey("sonar.demo.1.boolean").setValue("true"),
+      newGlobalPropertyDto().setKey("sonar.demo.2.text").setValue("bar"),
+      newGlobalPropertyDto().setKey("sonar.demo.2.boolean").setValue("false"));
 
     String result = ws.newRequest()
       .setParam("keys", "sonar.test.jira,sonar.autogenerated,sonar.demo")

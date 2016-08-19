@@ -68,19 +68,29 @@ enum Type {
 
 // Response of GET api/settings/values
 message ValuesWsResponse {
-  repeated Value values = 1;
+  repeated Setting settings = 1;
 }
 
-message Value {
+message Setting {
   optional string key = 1;
   optional string value = 2;
-  repeated string values = 3;
-  map<string, SetValue> setValues = 4;
-  optional bool isDefault = 5;
-  optional bool isInherited = 6;
+  optional Values values = 3;
+  optional FieldsValues fieldsValues = 4;
+  optional bool default = 5;
+  optional bool inherited = 6;
 }
 
-message SetValue {
+message Values {
   repeated string values = 1;
 }
+
+message FieldsValues {
+  repeated Value fieldsValues = 1;
+
+  message Value {
+    map<string, string> value = 1;
+  }
+}
+
+
 

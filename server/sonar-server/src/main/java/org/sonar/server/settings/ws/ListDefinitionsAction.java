@@ -55,8 +55,8 @@ public class ListDefinitionsAction implements SettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("list_definitions")
-      .setDescription(String.format("Returns definitions of properties.<br>" +
-        "Either '%s' or '%s' could be provided, not both.<br> " +
+      .setDescription(String.format("List settings definitions.<br>" +
+        "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
