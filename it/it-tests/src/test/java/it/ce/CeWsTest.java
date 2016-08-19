@@ -21,6 +21,7 @@
 package it.ce;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import org.junit.Before;
@@ -38,14 +39,16 @@ import static util.ItUtils.projectDir;
 public class CeWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
-  WsClient wsClient;
+
+  private WsClient wsClient;
+  private String taskUuid;
 
   @Before
   public void inspectProject() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-
-    wsClient = ItUtils.newAdminWsClient(orchestrator);
+    BuildResult buildResult = orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    this.taskUuid = ItUtils.extractCeTaskId(buildResult);
+    this.wsClient = ItUtils.newAdminWsClient(orchestrator);
   }
 
   @Test
@@ -61,6 +64,18 @@ public class CeWsTest {
     assertThat(response.getTasksCount()).isGreaterThan(0);
     WsCe.Task firstTask = response.getTasks(0);
     assertThat(firstTask.getId()).isNotEmpty();
+  }
+
+  @Test
+  public void task() {
+    WsCe.TaskResponse taskResponse = wsClient.ce().task(taskUuid);
+
+    assertThat(taskResponse.hasTask()).isTrue();
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo(taskUuid);
+    assertThat(task.hasErrorMessage()).isFalse();
+    assertThat(task.hasHasScannerContext()).isTrue();
+    assertThat(task.getScannerContext()).isNotNull();
   }
 
   @Test
