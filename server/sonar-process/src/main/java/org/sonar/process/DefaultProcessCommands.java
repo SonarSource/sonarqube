@@ -92,13 +92,13 @@ public class DefaultProcessCommands implements ProcessCommands {
   }
 
   @Override
-  public void setSystemInfoUrl(String s) {
-    delegate.setSystemInfoUrl(s);
+  public void setHttpUrl(String s) {
+    delegate.setHttpUrl(s);
   }
 
   @Override
-  public String getSystemInfoUrl() {
-    return delegate.getSystemInfoUrl();
+  public String getHttpUrl() {
+    return delegate.getHttpUrl();
   }
 
   @Override

@@ -69,7 +69,7 @@ public class CeHttpServerTest {
   @Test
   public void start_publishes_URL_in_IPC() throws Exception {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(this.sharedDir, 1)) {
-      assertThat(commands.getSystemInfoUrl()).startsWith("http://127.0.0.1:");
+      assertThat(commands.getHttpUrl()).startsWith("http://127.0.0.1:");
     }
   }
 

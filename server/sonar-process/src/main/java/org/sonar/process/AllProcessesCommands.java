@@ -277,12 +277,12 @@ public class AllProcessesCommands implements AutoCloseable {
     }
 
     @Override
-    public void setSystemInfoUrl(String s) {
+    public void setHttpUrl(String s) {
       AllProcessesCommands.this.setSystemInfoUrl(processNumber, s);
     }
 
     @Override
-    public String getSystemInfoUrl() {
+    public String getHttpUrl() {
       return AllProcessesCommands.this.getSystemInfoUrl(processNumber);
     }
 

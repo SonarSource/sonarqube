@@ -81,7 +81,7 @@ public class CeHttpServer {
     File shareDir = new File(processProps.getProperty(PROPERTY_SHARED_PATH));
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
       String url = getUrl();
-      commands.setSystemInfoUrl(url);
+      commands.setHttpUrl(url);
       LoggerFactory.getLogger(getClass()).debug("System Info HTTP server listening at {}", url);
     }
   }

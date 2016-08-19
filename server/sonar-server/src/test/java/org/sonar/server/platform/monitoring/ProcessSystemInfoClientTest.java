@@ -75,7 +75,7 @@ public class ProcessSystemInfoClientTest {
     // initialize registration of process
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(ipcSharedDir, ProcessId.COMPUTE_ENGINE.getIpcIndex())) {
       processCommands.setUp();
-      processCommands.setSystemInfoUrl(format("http://%s:%d", server.getHostName(), server.getPort()));
+      processCommands.setHttpUrl(format("http://%s:%d", server.getHostName(), server.getPort()));
     }
 
     Optional<ProtobufSystemInfo.SystemInfo> info = underTest.connect(ProcessId.COMPUTE_ENGINE);
@@ -89,7 +89,7 @@ public class ProcessSystemInfoClientTest {
     // initialize registration of process
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(ipcSharedDir, ProcessId.COMPUTE_ENGINE.getIpcIndex())) {
       processCommands.setUp();
-      processCommands.setSystemInfoUrl(format("http://%s:%d", server.getHostName(), server.getPort()));
+      processCommands.setHttpUrl(format("http://%s:%d", server.getHostName(), server.getPort()));
     }
 
     expectedException.expect(IllegalStateException.class);

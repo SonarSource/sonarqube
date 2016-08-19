@@ -55,9 +55,9 @@ public interface ProcessCommands extends AutoCloseable {
 
   long getLastPing();
 
-  void setSystemInfoUrl(String s);
+  void setHttpUrl(String s);
 
-  String getSystemInfoUrl();
+  String getHttpUrl();
 
   /**
    * To be executed by monitor process to ask for child process termination

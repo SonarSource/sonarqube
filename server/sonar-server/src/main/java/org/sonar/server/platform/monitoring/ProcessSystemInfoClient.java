@@ -49,7 +49,7 @@ public class ProcessSystemInfoClient {
   public Optional<ProtobufSystemInfo.SystemInfo> connect(ProcessId processId) {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, processId.getIpcIndex())) {
       if (commands.isUp()) {
-        String url = commands.getSystemInfoUrl() + "/systemInfo";
+        String url = commands.getHttpUrl() + "/systemInfo";
         byte[] protobuf = IOUtils.toByteArray(new URI(url));
         return Optional.of(ProtobufSystemInfo.SystemInfo.parseFrom(protobuf));
       }
