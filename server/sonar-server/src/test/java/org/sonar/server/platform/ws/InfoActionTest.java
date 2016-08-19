@@ -21,13 +21,14 @@ package org.sonar.server.platform.ws;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
-import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
+import org.sonar.ce.http.CeHttpClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -43,9 +44,9 @@ public class InfoActionTest {
 
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
-  ProcessSystemInfoClient processSystemInfoClient = mock(ProcessSystemInfoClient.class, Mockito.RETURNS_MOCKS);
+  CeHttpClient ceHttpClient = mock(CeHttpClient.class, Mockito.RETURNS_MOCKS);
 
-  WsActionTester ws = new WsActionTester(new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2));
+  WsActionTester ws = new WsActionTester(new InfoAction(userSessionRule, ceHttpClient, monitor1, monitor2));
 
   @Test
   public void test_definition() throws Exception {
@@ -75,6 +76,7 @@ public class InfoActionTest {
     when(monitor1.attributes()).thenReturn(attributes1);
     when(monitor2.name()).thenReturn("Monitor Two");
     when(monitor2.attributes()).thenReturn(attributes2);
+    when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
 
     TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Monitor Three"

@@ -145,7 +145,6 @@ import org.sonar.server.platform.monitoring.DatabaseMonitor;
 import org.sonar.server.platform.monitoring.EsMonitor;
 import org.sonar.server.platform.monitoring.JvmPropsMonitor;
 import org.sonar.server.platform.monitoring.PluginsMonitor;
-import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.platform.monitoring.SettingsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
@@ -591,7 +590,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectLinksModule.class,
 
       // System
-      ProcessSystemInfoClient.class,
       ServerLogging.class,
       RestartAction.class,
       InfoAction.class,

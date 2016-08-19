@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.ce.http;
 
-import com.google.common.base.Optional;
+import java.io.File;
+import java.util.Optional;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import java.io.File;
 import okio.Buffer;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,36 +38,34 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProcessSystemInfoClientTest {
+public class CeHttpClientTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public MockWebServer server = new MockWebServer();
 
-  File ipcSharedDir;
-  ProcessSystemInfoClient underTest;
+  private File ipcSharedDir;
+  private CeHttpClient underTest;
 
   @Before
   public void setUp() throws Exception {
     ipcSharedDir = temp.newFolder();
     Settings settings = new Settings();
     settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, ipcSharedDir.getAbsolutePath());
-    underTest = new ProcessSystemInfoClient(settings);
+    underTest = new CeHttpClient(settings);
   }
 
   @Test
-  public void connect_returns_absent_if_process_is_down() throws Exception {
-    Optional<ProtobufSystemInfo.SystemInfo> info = underTest.connect(ProcessId.COMPUTE_ENGINE);
+  public void retrieveSystemInfo_returns_absent_if_process_is_down() throws Exception {
+    Optional<ProtobufSystemInfo.SystemInfo> info = underTest.retrieveSystemInfo();
 
     assertThat(info.isPresent()).isFalse();
   }
 
   @Test
-  public void get_information_if_process_is_up() throws Exception {
+  public void retrieveSystemInfo_get_information_if_process_is_up() throws Exception {
     Buffer response = new Buffer();
     response.read(ProtobufSystemInfo.Section.newBuilder().build().toByteArray());
     server.enqueue(new MockResponse().setBody(response));
@@ -78,12 +76,12 @@ public class ProcessSystemInfoClientTest {
       processCommands.setHttpUrl(format("http://%s:%d", server.getHostName(), server.getPort()));
     }
 
-    Optional<ProtobufSystemInfo.SystemInfo> info = underTest.connect(ProcessId.COMPUTE_ENGINE);
+    Optional<ProtobufSystemInfo.SystemInfo> info = underTest.retrieveSystemInfo();
     assertThat(info.get().getSectionsCount()).isEqualTo(0);
   }
 
   @Test
-  public void throws_ISE_if_http_error() throws Exception {
+  public void retrieveSystemInfo_throws_ISE_if_http_error() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(500));
 
     // initialize registration of process
@@ -94,6 +92,6 @@ public class ProcessSystemInfoClientTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not get system info of process " + ProcessId.COMPUTE_ENGINE);
-    underTest.connect(ProcessId.COMPUTE_ENGINE);
+    underTest.retrieveSystemInfo();
   }
 }

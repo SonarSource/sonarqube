@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.ce.http;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.net.URI;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.ProcessId;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 
 /**
- * Connects to the System Info HTTP server of another JVM process.
+ * Client for the HTTP server of the Compute Engine.
  */
-public class ProcessSystemInfoClient {
+public class CeHttpClient {
 
   private final File ipcSharedDir;
 
-  public ProcessSystemInfoClient(Settings props) {
+  public CeHttpClient(Settings props) {
     this.ipcSharedDir = new File(props.getString(PROPERTY_SHARED_PATH));
   }
 
@@ -46,16 +46,16 @@ public class ProcessSystemInfoClient {
    * @return the system info, or absent if the process is not up or if its HTTP URL
    * is not registered into IPC.
    */
-  public Optional<ProtobufSystemInfo.SystemInfo> connect(ProcessId processId) {
-    try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, processId.getIpcIndex())) {
+  public Optional<ProtobufSystemInfo.SystemInfo> retrieveSystemInfo() {
+    try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, COMPUTE_ENGINE.getIpcIndex())) {
       if (commands.isUp()) {
         String url = commands.getHttpUrl() + "/systemInfo";
         byte[] protobuf = IOUtils.toByteArray(new URI(url));
         return Optional.of(ProtobufSystemInfo.SystemInfo.parseFrom(protobuf));
       }
-      return Optional.absent();
+      return Optional.empty();
     } catch (Exception e) {
-      throw new IllegalStateException("Can not get system info of process " + processId, e);
+      throw new IllegalStateException("Can not get system info of process " + COMPUTE_ENGINE, e);
     }
   }
 }

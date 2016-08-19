@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.http;
 
-import org.sonar.ce.http.CeHttpClient;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.queue.CeQueueImpl;
-import org.sonar.ce.taskprocessor.ReportTaskProcessorDeclaration;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.queue.ReportSubmitter;
-
-public class CeModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(CeLogging.class,
-      CeHttpClient.class,
-
-      // Queue
-      CeQueueImpl.class,
-      ReportSubmitter.class,
-
-      // Core tasks processors
-      ReportTaskProcessorDeclaration.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

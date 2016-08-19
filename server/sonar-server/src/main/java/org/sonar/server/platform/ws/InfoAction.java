@@ -19,17 +19,16 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.base.Optional;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.ce.http.CeHttpClient;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.process.ProcessId;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.Monitor;
-import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -38,12 +37,12 @@ import org.sonar.server.user.UserSession;
 public class InfoAction implements SystemWsAction {
 
   private final UserSession userSession;
-  private final ProcessSystemInfoClient processSystemInfoClient;
+  private final CeHttpClient ceHttpClient;
   private final Monitor[] monitors;
 
-  public InfoAction(UserSession userSession, ProcessSystemInfoClient processSystemInfoClient, Monitor... monitors) {
+  public InfoAction(UserSession userSession, CeHttpClient ceHttpClient, Monitor... monitors) {
     this.userSession = userSession;
-    this.processSystemInfoClient = processSystemInfoClient;
+    this.ceHttpClient = ceHttpClient;
     this.monitors = monitors;
   }
 
@@ -78,7 +77,7 @@ public class InfoAction implements SystemWsAction {
       }
       json.endObject();
     }
-    Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = processSystemInfoClient.connect(ProcessId.COMPUTE_ENGINE);
+    Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = ceHttpClient.retrieveSystemInfo();
     if (ceSysInfo.isPresent()) {
       for (ProtobufSystemInfo.Section section : ceSysInfo.get().getSectionsList()) {
         json.name(section.getName());
