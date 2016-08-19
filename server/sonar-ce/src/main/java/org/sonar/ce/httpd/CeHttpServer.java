@@ -17,21 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.systeminfo;
+package org.sonar.ce.httpd;
 
 import fi.iki.elonen.NanoHTTPD;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.INTERNAL_ERROR;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.NOT_FOUND;
 import static java.lang.Integer.parseInt;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
@@ -39,29 +46,34 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
  * This HTTP server exports data required for display of System Info page (and the related web service).
  * It listens on loopback address only, so it does not need to be secure (no HTTPS, no authentication).
  */
-public class SystemInfoHttpServer {
-
-  private static final String PROTOBUF_MIME_TYPE = "application/x-protobuf";
+public class CeHttpServer {
 
   private final Properties processProps;
-  private final List<SystemInfoSection> sectionProviders;
-  private final SystemInfoNanoHttpd nanoHttpd;
+  private final List<HttpAction> actions;
+  private final ActionRegistryImpl actionRegistry;
+  private final CeNanoHttpd nanoHttpd;
 
-  public SystemInfoHttpServer(Properties processProps, List<SystemInfoSection> sectionProviders) throws UnknownHostException {
+  public CeHttpServer(Properties processProps, List<HttpAction> actions) throws UnknownHostException {
     this.processProps = processProps;
-    this.sectionProviders = sectionProviders;
+    this.actions = actions;
+    this.actionRegistry = new ActionRegistryImpl();
     InetAddress loopbackAddress = InetAddress.getByName(null);
-    this.nanoHttpd = new SystemInfoNanoHttpd(loopbackAddress.getHostAddress(), 0);
+    this.nanoHttpd = new CeNanoHttpd(loopbackAddress.getHostAddress(), 0, actionRegistry);
   }
 
   // do not rename. This naming convention is required for picocontainer.
   public void start() {
     try {
+      registerActions();
       nanoHttpd.start();
       registerHttpUrl();
     } catch (IOException e) {
       throw new IllegalStateException("Can not start local HTTP server for System Info monitoring", e);
     }
+  }
+
+  private void registerActions() {
+    actions.forEach(action -> action.register(this.actionRegistry));
   }
 
   private void registerHttpUrl() {
@@ -84,21 +96,49 @@ public class SystemInfoHttpServer {
     return "http://" + nanoHttpd.getHostname() + ":" + nanoHttpd.getListeningPort();
   }
 
-  private class SystemInfoNanoHttpd extends NanoHTTPD {
+  private class CeNanoHttpd extends NanoHTTPD {
+    private final NanoHTTPD.Response response404 = newFixedLengthResponse(NOT_FOUND, MIME_PLAINTEXT, "Error 404, not found.");
 
-    SystemInfoNanoHttpd(String hostname, int port) {
+    private final ActionRegistryImpl actionRegistry;
+
+    CeNanoHttpd(String hostname, int port, ActionRegistryImpl actionRegistry) {
       super(hostname, port);
+      this.actionRegistry = actionRegistry;
     }
 
     @Override
     public Response serve(IHTTPSession session) {
-      ProtobufSystemInfo.SystemInfo.Builder infoBuilder = ProtobufSystemInfo.SystemInfo.newBuilder();
-      for (SystemInfoSection sectionProvider : sectionProviders) {
-        ProtobufSystemInfo.Section section = sectionProvider.toProtobuf();
-        infoBuilder.addSections(section);
+      return actionRegistry.getAction(session)
+        .map(action -> serveFromAction(session, action))
+        .orElse(response404);
+    }
+
+    private Response serveFromAction(IHTTPSession session, HttpAction action) {
+      try {
+        return action.serve(session);
+      } catch (Exception e) {
+        return newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT, e.getMessage());
       }
-      byte[] bytes = infoBuilder.build().toByteArray();
-      return newFixedLengthResponse(Response.Status.OK, PROTOBUF_MIME_TYPE, new ByteArrayInputStream(bytes), bytes.length);
+    }
+  }
+
+  private static final class ActionRegistryImpl implements HttpAction.ActionRegistry {
+    private final Map<String, HttpAction> actionsByPath = new HashMap<>();
+
+    @Override
+    public void register(String path, HttpAction action) {
+      requireNonNull(path, "path can't be null");
+      requireNonNull(action, "action can't be null");
+      checkArgument(!path.isEmpty(), "path can't be empty");
+      checkArgument(!path.startsWith("/"), "path must not start with '/'");
+      String fixedPath = path.toLowerCase(Locale.ENGLISH);
+      HttpAction existingAction = actionsByPath.put(fixedPath, action);
+      checkState(existingAction == null, "Action '%s' already registered for path '%s'", existingAction, fixedPath);
+    }
+
+    Optional<HttpAction> getAction(NanoHTTPD.IHTTPSession session) {
+      String path = session.getUri().substring(1).toLowerCase(Locale.ENGLISH);
+      return Optional.ofNullable(actionsByPath.get(path));
     }
   }
 }

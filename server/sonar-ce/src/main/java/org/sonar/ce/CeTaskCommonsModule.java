@@ -19,29 +19,18 @@
  */
 package org.sonar.ce;
 
-import org.sonar.ce.log.CeLogging;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.process.systeminfo.ProcessStateSystemInfo;
-import org.sonar.process.systeminfo.SystemInfoHttpServer;
-import org.sonar.server.computation.configuration.CeConfigurationImpl;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.computation.monitoring.CeDatabaseMBeanImpl;
 
 /**
- * Globally available components in CE
+ * Globally available components in CE for tasks to use.
  */
-public class CeModule extends Module {
+public class CeTaskCommonsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      CeConfigurationImpl.class,
-      CeLogging.class,
-      CeDatabaseMBeanImpl.class,
-      SystemInfoHttpServer.class,
-      new ProcessStateSystemInfo("Compute Engine State"),
-
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
       IndexPurgeListener.class);

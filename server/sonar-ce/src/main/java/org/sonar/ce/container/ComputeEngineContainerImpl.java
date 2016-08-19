@@ -39,6 +39,10 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
+import org.sonar.ce.CeConfigurationModule;
+import org.sonar.ce.CeHttpModule;
+import org.sonar.ce.CeQueueModule;
+import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -69,8 +73,6 @@ import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
-import org.sonar.ce.CeModule;
-import org.sonar.ce.CeQueueModule;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
@@ -622,8 +624,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       PrivilegedPluginsStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
-      CeModule.class,
+      CeConfigurationModule.class,
       CeQueueModule.class,
+      CeHttpModule.class,
+      CeTaskCommonsModule.class,
       ProjectAnalysisTaskModule.class,
       CeTaskProcessorModule.class,
       // CeWsModule.class, no Web Service in CE
