@@ -23,6 +23,7 @@ cache:
 before_cache:
   # remove all the artifacts (JAR, ZIP) that are installed in local repo because of mvn deploy
   - rm -rf $HOME/.m2/repository/org/sonarsource/sonarqube
+  - find $HOME/.m2 -name resolver-status.properties -exec rm {} \;
 
 notifications:
   email: false
