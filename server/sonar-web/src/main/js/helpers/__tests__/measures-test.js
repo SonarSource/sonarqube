@@ -1,32 +1,14 @@
-/*
- * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 import { expect } from 'chai';
 
 import { resetBundle } from '../l10n';
 import { formatMeasure, formatMeasureVariation } from '../measures';
 
+
 describe('Measures', function () {
-  const HOURS_IN_DAY = 8;
-  const ONE_MINUTE = 1;
-  const ONE_HOUR = ONE_MINUTE * 60;
-  const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+  var HOURS_IN_DAY = 8,
+      ONE_MINUTE = 1,
+      ONE_HOUR = ONE_MINUTE * 60,
+      ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
   before(function () {
     resetBundle({
@@ -111,10 +93,14 @@ describe('Measures', function () {
       expect(formatMeasure(0, 'SHORT_WORK_DUR')).to.equal('0');
       expect(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR')).to.equal('5d');
       expect(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('2h');
-      expect(formatMeasure(40 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('40min');
       expect(formatMeasure(ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('1min');
+      expect(formatMeasure(40 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('40min');
+      expect(formatMeasure(58 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('1h');
       expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('5d');
       expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('2h');
+      expect(formatMeasure(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('2h');
+      expect(formatMeasure(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('4d');
+      expect(formatMeasure(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('1d');
       expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('5d');
       expect(formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('15d');
       expect(formatMeasure(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('7min');
@@ -221,8 +207,13 @@ describe('Measures', function () {
       expect(formatMeasureVariation(5 * ONE_DAY, 'SHORT_WORK_DUR')).to.equal('+5d');
       expect(formatMeasureVariation(2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('+2h');
       expect(formatMeasureVariation(ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+1min');
+      expect(formatMeasureVariation(30 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+30min');
+      expect(formatMeasureVariation(58 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+1h');
       expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('+5d');
       expect(formatMeasureVariation(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+2h');
+      expect(formatMeasureVariation(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+2h');
+      expect(formatMeasureVariation(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('+4d');
+      expect(formatMeasureVariation(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+1d');
       expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+5d');
       expect(formatMeasureVariation(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+15d');
       expect(formatMeasureVariation(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('+7min');

@@ -266,20 +266,20 @@ function shouldDisplayDays (days) {
   return days > 0;
 }
 
+function shouldDisplayDaysInShortFormat(days) {
+  return days > 0.9;
+}
+
 function shouldDisplayHours (days, hours) {
   return hours > 0 && days < 10;
 }
 
-function shouldDisplayHoursInShortFormat (days, hours) {
-  return hours > 0 && days === 0;
+function shouldDisplayHoursInShortFormat (hours) {
+  return hours > 0.9;
 }
 
 function shouldDisplayMinutes (days, hours, minutes) {
   return minutes > 0 && hours < 10 && days === 0;
-}
-
-function shouldDisplayMinutesInShortFormat (days, hours, minutes) {
-  return minutes > 0 && hours === 0 && days === 0;
 }
 
 function addSpaceIfNeeded (value) {
@@ -305,22 +305,20 @@ function formatDuration (isNegative, days, hours, minutes) {
 }
 
 function formatDurationShort (isNegative, days, hours, minutes) {
-  let formatted = '';
-  if (shouldDisplayDays(days)) {
-    const formattedDays = formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
-    formatted += translateWithParameters('work_duration.x_days', formattedDays);
+  if (shouldDisplayDaysInShortFormat(days)) {
+    const roundedDays = Math.round(days);
+    const formattedDays = formatMeasure(isNegative ? -1 * roundedDays : roundedDays, 'SHORT_INT');
+    return translateWithParameters('work_duration.x_days', formattedDays);
   }
-  if (shouldDisplayHoursInShortFormat(days, hours)) {
-    formatted = addSpaceIfNeeded(formatted);
-    formatted += translateWithParameters('work_duration.x_hours',
-        isNegative && formatted.length === 0 ? -1 * hours : hours);
+
+  if (shouldDisplayHoursInShortFormat(hours)) {
+    const roundedHours = Math.round(hours);
+    const formattedHours = formatMeasure(isNegative ? -1 * roundedHours : roundedHours, 'SHORT_INT');
+    return translateWithParameters('work_duration.x_hours', formattedHours);
   }
-  if (shouldDisplayMinutesInShortFormat(days, hours, minutes)) {
-    formatted = addSpaceIfNeeded(formatted);
-    formatted += translateWithParameters('work_duration.x_minutes',
-        isNegative && formatted.length === 0 ? -1 * minutes : minutes);
-  }
-  return formatted;
+
+  const formattedMinutes = formatMeasure(isNegative ? -1 * minutes : minutes, 'SHORT_INT');
+  return translateWithParameters('work_duration.x_minutes', formattedMinutes);
 }
 
 function durationFormatter (value) {
@@ -345,10 +343,10 @@ function shortDurationFormatter (value) {
   const hoursInDay = window.SS.hoursInDay;
   const isNegative = value < 0;
   const absValue = Math.abs(value);
-  const days = Math.floor(absValue / hoursInDay / 60);
-  let remainingValue = absValue - days * hoursInDay * 60;
-  const hours = Math.floor(remainingValue / 60);
-  remainingValue -= hours * 60;
+  const days = absValue / hoursInDay / 60;
+  let remainingValue = absValue - Math.floor(days) * hoursInDay * 60;
+  const hours = remainingValue / 60;
+  remainingValue -= Math.floor(hours) * 60;
   return formatDurationShort(isNegative, days, hours, remainingValue);
 }
 
