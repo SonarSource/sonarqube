@@ -22,6 +22,7 @@ import shallowCompare from 'react-addons-shallow-compare';
 
 import TaskStatus from './TaskStatus';
 import TaskComponent from './TaskComponent';
+import TaskId from './TaskId';
 import TaskDay from './TaskDay';
 import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
@@ -57,6 +58,7 @@ export default class Task extends React.Component {
         <tr>
           <TaskStatus task={task}/>
           <TaskComponent task={task} types={types}/>
+          <TaskId task={task}/>
           <TaskDay task={task} prevTask={prevTask}/>
           <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
           <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>

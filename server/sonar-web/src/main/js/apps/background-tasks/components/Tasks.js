@@ -49,13 +49,14 @@ export default class Tasks extends React.Component {
         <table className={className}>
           <thead>
           <tr>
+            <th>{translate('background_tasks.table.status')}</th>
+            <th>{translate('background_tasks.table.task')}</th>
+            <th>{translate('background_tasks.table.id')}</th>
             <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>{translate('background_tasks.table.submitted')}</th>
-            <th>{translate('background_tasks.table.started')}</th>
-            <th>{translate('background_tasks.table.finished')}</th>
-            <th>{translate('background_tasks.table.duration')}</th>
+            <th className="text-right">{translate('background_tasks.table.submitted')}</th>
+            <th className="text-right">{translate('background_tasks.table.started')}</th>
+            <th className="text-right">{translate('background_tasks.table.finished')}</th>
+            <th className="text-right">{translate('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
           </tr>
           </thead>

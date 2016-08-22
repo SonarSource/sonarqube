@@ -21,14 +21,14 @@ import React from 'react';
 
 import { translate } from '../../../helpers/l10n';
 
-const TaskType = ({ task }) => {
+const TaskId = ({ task }) => {
   return (
-      <span className="note nowrap spacer-left">
-        {'['}
-        {translate('background_task.type', task.type)}
-        {']'}
-      </span>
+      <td className="thin nowrap">
+        <div className="note">
+          {task.id}
+        </div>
+      </td>
   );
 };
 
-export default TaskType;
+export default TaskId;
