@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -37,6 +36,9 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.PropertyType.PROPERTY_SET;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
@@ -506,12 +508,15 @@ public final class PropertyDefinition {
     }
 
     public PropertyDefinition build() {
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
+      checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
-      Preconditions.checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
-      Preconditions.checkArgument(!hidden || (onQualifiers.isEmpty() && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
+      checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
+      checkArgument(!hidden || (onQualifiers.isEmpty() && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
       if (hidden) {
         global = false;
+      }
+      if (!fields.isEmpty()) {
+        type = PROPERTY_SET;
       }
       return new PropertyDefinition(this);
     }

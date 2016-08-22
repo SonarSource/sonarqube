@@ -152,6 +152,7 @@ public class PropertyDefinitionTest {
         PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build())
       .build();
 
+    assertThat(def.type()).isEqualTo(PropertyType.PROPERTY_SET);
     assertThat(def.fields()).hasSize(2);
     assertThat(def.fields().get(0).key()).isEqualTo("first");
     assertThat(def.fields().get(0).name()).isEqualTo("First");
@@ -173,6 +174,7 @@ public class PropertyDefinitionTest {
 
     PropertyDefinition def = PropertyDefinition.create(prop);
 
+    assertThat(def.type()).isEqualTo(PropertyType.PROPERTY_SET);
     assertThat(def.fields()).hasSize(2);
     assertThat(def.fields().get(0).key()).isEqualTo("first");
     assertThat(def.fields().get(0).name()).isEqualTo("First");
