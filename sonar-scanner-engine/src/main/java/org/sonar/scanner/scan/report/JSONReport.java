@@ -100,9 +100,8 @@ public class JSONReport implements Reporter {
     File exportFile = new File(fileSystem.workDir(), exportPath);
 
     LOG.info("Export issues to {}", exportFile.getAbsolutePath());
-    try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), StandardCharsets.UTF_8))) {
-      writeJson(output);
-
+    try (FileOutputStream fos = new FileOutputStream(exportFile)) {
+      writeJson(new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8)));
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write report results in file " + exportFile.getAbsolutePath(), e);
     }
