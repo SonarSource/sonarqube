@@ -7,7 +7,7 @@ function installPhantomJs {
   mkdir -p ~/phantomjs
   pushd ~/phantomjs > /dev/null
   if [ ! -d "phantomjs-2.1.1-linux-x86_64" ]; then
-    wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O phantomjs-2.1.1-linux-x86_64.tar.bz2
+    wget https://repox.sonarsource.com/public-3rd-parties/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O phantomjs-2.1.1-linux-x86_64.tar.bz2
     tar -xf phantomjs-2.1.1-linux-x86_64.tar.bz2
     rm phantomjs-2.1.1-linux-x86_64.tar.bz2
   fi
