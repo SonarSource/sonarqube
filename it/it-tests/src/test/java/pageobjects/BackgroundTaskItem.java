@@ -53,4 +53,20 @@ public class BackgroundTaskItem {
     $(".js-task-scanner-context").should(hasText(text));
     return this;
   }
+
+  public BackgroundTaskItem openErrorStacktrace () {
+    elt.$(".js-task-show-stacktrace").click();
+    $(".js-task-error-message").shouldBe(visible);
+    return this;
+  }
+
+  public BackgroundTaskItem assertErrorMessageContains(String text) {
+    $(".js-task-error-message").should(hasText(text));
+    return this;
+  }
+
+  public BackgroundTaskItem assertErrorStacktraceContains(String text) {
+    $(".js-task-stacktrace").should(hasText(text));
+    return this;
+  }
 }

@@ -25,6 +25,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import pageobjects.BackgroundTaskItem;
 import pageobjects.BackgroundTasksPage;
@@ -36,7 +37,10 @@ import static util.ItUtils.projectDir;
 public class BackgroundTasksTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+
+  @Rule
+  public Navigation nav = Navigation.get(ORCHESTRATOR);
 
   @BeforeClass
   public static void beforeClass() {
@@ -49,13 +53,12 @@ public class BackgroundTasksTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_not_display_failing_and_search_and_filter_elements_on_project_level_page",
       "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html"
     ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    new SeleneseTest(selenese).runOn(ORCHESTRATOR);
   }
 
   @Test
   public void display_scanner_context() {
-    Navigation nav = Navigation.get(orchestrator);
-    nav.openHomepage().logIn().submitCredentials("admin", "admin");
+    nav.logIn().submitCredentials("admin", "admin");
     BackgroundTasksPage page = nav.openBackgroundTasksPage();
 
     BackgroundTaskItem task = page.getTasksAsItems().get(0);
@@ -65,11 +68,32 @@ public class BackgroundTasksTest {
       .assertScannerContextContains("Global properties:");
   }
 
+  @Test
+  public void display_error_message_and_stacktrace() {
+    executeBuild("test-project", "Test Project", "2010-01-01");
+
+    nav.logIn().submitCredentials("admin", "admin");
+    BackgroundTasksPage page = nav.openBackgroundTasksPage();
+
+    BackgroundTaskItem task = page.getTasksAsItems().get(0);
+    task.openActions()
+      .openErrorStacktrace()
+      .assertErrorMessageContains("Date of analysis cannot be older than the date of the last known analysis")
+      .assertErrorStacktraceContains("Date of analysis cannot be older than the date of the last known analysis");
+  }
+
   private static void executeBuild(String projectKey, String projectName) {
-    orchestrator.executeBuild(
+    ORCHESTRATOR.executeBuild(
+      SonarScanner.create(projectDir("shared/xoo-sample"))
+        .setProjectKey(projectKey)
+        .setProjectName(projectName));
+  }
+
+  private static void executeBuild(String projectKey, String projectName, String date) {
+    ORCHESTRATOR.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey(projectKey)
         .setProjectName(projectName)
-    );
+        .setProperty("sonar.projectDate", date));
   }
 }

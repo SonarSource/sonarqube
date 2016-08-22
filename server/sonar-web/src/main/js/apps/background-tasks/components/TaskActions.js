@@ -20,8 +20,9 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import ScannerContextView from '../views/ScannerContextView';
+import StacktraceView from '../views/StacktraceView';
 import { STATUSES } from './../constants';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class TaskActions extends React.Component {
   shouldComponentUpdate (nextProps, nextState) {
@@ -43,8 +44,22 @@ export default class TaskActions extends React.Component {
     new ScannerContextView({ task: this.props.task }).render();
   }
 
+  handleShowStacktraceClick (e) {
+    e.preventDefault();
+    new StacktraceView({ task: this.props.task }).render();
+  }
+
   render () {
     const { component, task } = this.props;
+
+    const canFilter = component == null;
+    const canCancel = task.status === STATUSES.PENDING;
+    const canShowStacktrace = task.errorMessage != null;
+    const hasActions = canFilter || canCancel || task.hasScannerContext || canShowStacktrace;
+
+    if (!hasActions) {
+      return <td>&nbsp;</td>;
+    }
 
     return (
         <td className="thin nowrap">
@@ -53,15 +68,15 @@ export default class TaskActions extends React.Component {
               <i className="icon-dropdown"/>
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
-              {!component && (
+              {canFilter && (
                   <li>
                     <a className="js-task-filter" href="#" onClick={this.handleFilterClick.bind(this)}>
-                      <i className="spacer-right icon-filter icon-half-transparent"/>
-                      Show only {task.componentName} tasks
+                      <i className="spacer-right icon-filter icon-gray"/>
+                      {translateWithParameters('background_tasks.filter_by_component_x', task.componentName)}
                     </a>
                   </li>
               )}
-              {task.status === STATUSES.PENDING && (
+              {canCancel && (
                   <li>
                     <a className="js-task-cancel" href="#" onClick={this.handleCancelClick.bind(this)}>
                       <i className="spacer-right icon-delete"/>
@@ -74,7 +89,18 @@ export default class TaskActions extends React.Component {
                     <a className="js-task-show-scanner-context"
                        href="#"
                        onClick={this.handleShowScannerContextClick.bind(this)}>
+                      <i className="spacer-right icon-list icon-gray"/>
                       {translate('background_tasks.show_scanner_context')}
+                    </a>
+                  </li>
+              )}
+              {canShowStacktrace && (
+                  <li>
+                    <a className="js-task-show-stacktrace"
+                       href="#"
+                       onClick={this.handleShowStacktraceClick.bind(this)}>
+                      <i className="spacer-right icon-list icon-red"/>
+                      {translate('background_tasks.show_stacktrace')}
                     </a>
                   </li>
               )}
