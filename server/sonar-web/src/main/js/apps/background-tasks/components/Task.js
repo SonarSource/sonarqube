@@ -19,15 +19,13 @@
  */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import TaskStatus from './TaskStatus';
 import TaskComponent from './TaskComponent';
 import TaskId from './TaskId';
 import TaskDay from './TaskDay';
 import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
-import TaskCancelButton from './TaskCancelButton';
-import { STATUSES } from './../constants';
+import TaskActions from './TaskActions';
 
 export default class Task extends React.Component {
   static propTypes = {
@@ -44,13 +42,8 @@ export default class Task extends React.Component {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleFilterTask (task, e) {
-    e.preventDefault();
-    this.props.onFilterTask(task);
-  }
-
   render () {
-    const { task, index, tasks, component, types, onCancelTask } = this.props;
+    const { task, index, tasks, component, types, onCancelTask, onFilterTask } = this.props;
 
     const prevTask = index > 0 ? tasks[index - 1] : null;
 
@@ -64,20 +57,11 @@ export default class Task extends React.Component {
           <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>
           <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
           <TaskExecutionTime task={task}/>
-
-          <td className="thin nowrap">
-            {!component && (
-                <a
-                    onClick={this.handleFilterTask.bind(this, task)}
-                    className="icon-filter icon-half-transparent spacer-left"
-                    href="#"
-                    title={`Show only "${task.componentName}" tasks`}
-                    data-toggle="tooltip"/>
-            )}
-            {task.status === STATUSES.PENDING && (
-                <TaskCancelButton task={task} onCancelTask={onCancelTask}/>
-            )}
-          </td>
+          <TaskActions
+              component={component}
+              task={task}
+              onFilterTask={onFilterTask}
+              onCancelTask={onCancelTask}/>
         </tr>
     );
   }

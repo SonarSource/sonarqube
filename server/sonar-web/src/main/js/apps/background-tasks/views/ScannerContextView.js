@@ -17,23 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import Modal from '../../../components/common/modals';
+import Template from './ScannerContextView.hbs';
+import { getTask } from '../../../api/ce';
 
-const TaskCancelButton = ({ task, onCancelTask }) => {
-  function handleClick (e) {
-    e.preventDefault();
-    onCancelTask(task);
+export default Modal.extend({
+  template: Template,
+  className: 'modal modal-large',
+
+  initialize () {
+    this.scannerContext = null;
+    this.loadScannerContext();
+  },
+
+  loadScannerContext() {
+    getTask(this.options.task.id, ['scannerContext']).then(task => {
+      this.scannerContext = task.scannerContext;
+      this.render();
+    });
+  },
+
+  serializeData() {
+    return {
+      task: this.options.task,
+      scannerContext: this.scannerContext
+    };
   }
+});
 
-  return (
-      <a
-          onClick={handleClick}
-          className="spacer-left icon-delete"
-          title={translate('background_tasks.cancel_task')}
-          data-toggle="tooltip"
-          href="#"/>
-  );
-};
-
-export default TaskCancelButton;

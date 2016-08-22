@@ -39,9 +39,9 @@ export function getStatus (componentId) {
   return getJSON(url, data);
 }
 
-export function getTask (id) {
+export function getTask (id, additionalFields) {
   const url = '/api/ce/task';
-  return getJSON(url, { id }).then(r => r.task);
+  return getJSON(url, { id, additionalFields }).then(r => r.task);
 }
 
 export function cancelTask (id) {

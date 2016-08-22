@@ -80,6 +80,10 @@ public class Navigation extends ExternalResource {
     return open(url, ProjectKeyPage.class);
   }
 
+  public BackgroundTasksPage openBackgroundTasksPage() {
+    return open("/background_tasks", BackgroundTasksPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }

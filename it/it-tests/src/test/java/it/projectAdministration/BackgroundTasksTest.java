@@ -23,8 +23,12 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import pageobjects.BackgroundTaskItem;
+import pageobjects.BackgroundTasksPage;
+import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
@@ -34,18 +38,34 @@ public class BackgroundTasksTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @Test
-  public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() throws Exception {
+  @BeforeClass
+  public static void beforeClass() {
     executeBuild("test-project", "Test Project");
     executeBuild("test-project-2", "Another Test Project");
+  }
 
+  @Test
+  public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() throws Exception {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_not_display_failing_and_search_and_filter_elements_on_project_level_page",
       "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  private void executeBuild(String projectKey, String projectName) {
+  @Test
+  public void display_scanner_context() {
+    Navigation nav = Navigation.get(orchestrator);
+    nav.openHomepage().logIn().submitCredentials("admin", "admin");
+    BackgroundTasksPage page = nav.openBackgroundTasksPage();
+
+    BackgroundTaskItem task = page.getTasksAsItems().get(0);
+    task.openActions()
+      .openScannerContext()
+      .assertScannerContextContains("SonarQube plugins:")
+      .assertScannerContextContains("Global properties:");
+  }
+
+  private static void executeBuild(String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey(projectKey)
