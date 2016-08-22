@@ -1,14 +1,9 @@
 /* eslint no-var: 0 */
-/* eslint object-shorthand: 0 */
-/* jscs:disable requireEnhancedObjectLiterals */
 var path = require('path');
 var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
-
-var autoprefixerOptions = require('./gulp/styles').autoprefixerOptions;
-
-var baseOutput = process.env.OUTPUT || path.join(__dirname, 'src/main/webapp');
-var output = path.join(baseOutput, 'js/bundles');
+var autoprefixerOptions = require('./../autoprefixer');
+var paths = require('./../paths');
 
 module.exports = {
   entry: {
@@ -59,21 +54,21 @@ module.exports = {
     'widgets': './src/main/js/widgets/widgets.js'
   },
   output: {
-    path: output,
+    path: paths.jsBuild,
     filename: '[name].js'
   },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js')
   ],
   resolve: {
-    root: path.join(__dirname, 'src/main/js')
+    root: path.join(__dirname, '../../src/main/js')
   },
   module: {
     loaders: [
       {
         test: /\.js$/,
         loader: 'babel',
-        exclude: /(node_modules|libs)/
+        exclude: /(node_modules|libs)/,
       },
       {
         test: /(blueimp-md5|numeral)/,
@@ -81,9 +76,9 @@ module.exports = {
       },
       {
         test: /\.hbs$/,
-        loader: 'handlebars-loader',
+        loader: 'handlebars',
         query: {
-          helperDirs: path.join(__dirname, 'src/main/js/helpers/handlebars')
+          helperDirs: path.join(__dirname, '../../src/main/js/helpers/handlebars')
         }
       },
       {

@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-var: 0 */
-var webpack = require('webpack');
+var path = require('path');
 
-var config = require('./webpack.config');
+var base = process.env.OUTPUT || path.join(__dirname, '../src/main/webapp');
 
-config.devtool = 'cheap-module-eval-source-map';
-config.output.publicPath = '/js/bundles/';
-config.entry.vendor.unshift('webpack-hot-middleware/client');
-config.plugins = [].concat(config.plugins, [
-  new webpack.HotModuleReplacementPlugin()
-]);
-
-module.exports = config;
+module.exports = {
+  jsBuild: path.join(base, 'js/bundles'),
+  cssBuild: path.join(base, 'css')
+};

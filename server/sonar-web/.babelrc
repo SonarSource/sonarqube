@@ -1,17 +1,28 @@
 {
-  "presets": ["es2015", "stage-0", "react"],
+  "presets": ["es2015", "es2016", "react"],
   "ignore": [
     "**/libs/**"
   ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread"
+  ],
   "env": {
-    "hot": {
-      "plugins": [["react-transform", {
-        "transforms": [{
-          "transform": "react-transform-hmr",
-          "imports": ["react"],
-          "locals": ["module"]
+    "production": {
+      "plugins": [
+        "transform-react-constant-elements"
+      ]
+    },
+    "development": {
+      "plugins": [
+        ["react-transform", {
+          "transforms": [{
+            "transform": "react-transform-hmr",
+            "imports": ["react"],
+            "locals": ["module"]
+          }]
         }]
-      }]]
+      ]
     }
   }
 }
