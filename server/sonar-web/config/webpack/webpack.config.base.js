@@ -45,6 +45,7 @@ module.exports = {
     'projects': './src/main/js/apps/projects/app.js',
     'quality-gates': './src/main/js/apps/quality-gates/app.js',
     'quality-profiles': './src/main/js/apps/quality-profiles/app.js',
+    'settings': './src/main/js/apps/settings/app.js',
     'source-viewer': './src/main/js/apps/source-viewer/app.js',
     'system': './src/main/js/apps/system/app.js',
     'update-center': './src/main/js/apps/update-center/app.js',

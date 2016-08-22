@@ -24,6 +24,9 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
 
@@ -82,6 +85,13 @@ public class Navigation extends ExternalResource {
 
   public BackgroundTasksPage openBackgroundTasksPage() {
     return open("/background_tasks", BackgroundTasksPage.class);
+  }
+
+  public SettingsPage openSettings(@Nullable String projectKey) throws UnsupportedEncodingException {
+    String url = projectKey != null ?
+      "/project/settings2?id=" + URLEncoder.encode(projectKey, "UTF-8") :
+      "/settings2";
+    return open(url, SettingsPage.class);
   }
 
   public void open(String relativeUrl) {

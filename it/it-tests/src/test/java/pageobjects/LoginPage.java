@@ -36,6 +36,10 @@ public class LoginPage {
     return submitCredentials(login, password, Navigation.class);
   }
 
+  public Navigation asAdmin() {
+    return submitCredentials("admin", "admin");
+  }
+
   public LoginPage submitWrongCredentials(String login, String password) {
     $("#login").val(login);
     $("#password").val(password);

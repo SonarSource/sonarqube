@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -37,18 +38,24 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
+import pageobjects.Navigation;
+import pageobjects.SettingsPage;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class ProjectAdministrationTest {
-
   private static final String DELETE_WS_ENDPOINT = "api/projects/bulk_delete";
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   private static final String PROJECT_KEY = "sample";
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
@@ -116,7 +123,7 @@ public class ProjectAdministrationTest {
 
       new SeleneseTest(
         Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/projectAdministration/ProjectAdministrationTest/project-deletion/project-deletion.html").build())
-          .runOn(orchestrator);
+        .runOn(orchestrator);
     } finally {
       wsClient.userClient().deactivate(projectAdminUser);
     }
@@ -179,17 +186,30 @@ public class ProjectAdministrationTest {
     assertThat(orchestrator.getServer().getAdminWsClient().findAll(PropertyQuery.createForResource(null, "sample"))).isNotEmpty();
   }
 
-  /**
-   * SONAR-4060
-   */
   @Test
-  public void display_module_settings() {
+  public void display_project_settings() throws UnsupportedEncodingException {
+    scanSample(null, null);
+
+    SettingsPage page = nav.logIn().asAdmin().openSettings("sample")
+      .assertMenuContains("Analysis Scope")
+      .assertMenuContains("Category 1")
+      .assertMenuContains("DEV")
+      .assertMenuContains("project-only")
+      .assertMenuContains("Xoo")
+      .assertSettingDisplayed("sonar.dbcleaner.daysBeforeDeletingClosedIssues");
+
+    page.openCategory("project-only")
+      .assertSettingDisplayed("prop_only_on_project");
+  }
+
+  @Test
+  public void display_module_settings() throws UnsupportedEncodingException {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("module-settings",
-      // SONAR-3425
-      "/projectAdministration/ProjectAdministrationTest/module-settings/display-module-settings.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    nav.logIn().asAdmin()
+      .openSettings("com.sonarsource.it.samples:multi-modules-sample:module_a")
+      .assertMenuContains("Analysis Scope")
+      .assertSettingDisplayed("sonar.coverage.exclusions");
   }
 
   private void scanSampleWithDate(String date) {

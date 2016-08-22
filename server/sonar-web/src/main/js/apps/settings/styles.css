@@ -1,0 +1,106 @@
+.settings-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.settings-main {
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+  padding: 15px 20px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+}
+
+.settings-side {
+  position: relative;
+  z-index: 3;
+  width: 120px;
+  padding: 10px 0;
+  flex-shrink: 0;
+  margin-right: -1px;
+}
+
+.settings-menu {
+}
+
+.settings-menu > li {
+  margin-bottom: 4px;
+}
+
+.settings-menu > li > a {
+  display: block;
+  padding: 10px 10px;
+  line-height: 1.5;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border: 1px solid #e6e6e6;
+  border-right: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.settings-menu > li > a:hover,
+.settings-menu > li > a:focus,
+.settings-menu > li > a.active {
+  background-color: #fff;
+}
+
+.settings-menu > li > a.active {
+  color: #444;
+  cursor: default;
+}
+
+.settings-definitions-list > li + li {
+  margin-top: 30px;
+}
+
+.settings-definition {
+}
+
+.settings-definition-left {
+  float: left;
+  width: 160px;
+  padding-right: 10px;
+}
+
+.settings-definition-right {
+  overflow: hidden;
+}
+
+.settings-definition-name {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-definition-default,
+.settings-definition-key {
+  line-height: 1.5;
+}
+
+.settings-sub-categories-list {
+}
+
+.settings-sub-categories-list > li {
+}
+
+.settings-sub-categories-list > li + li {
+  margin: 30px -20px 0;
+  padding: 30px 20px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.settings-sub-category-name {
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.settings-sub-category-description {
+  margin-top: -15px;
+  margin-bottom: 20px;
+  color: #777;
+}

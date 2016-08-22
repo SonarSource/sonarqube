@@ -90,6 +90,10 @@ class ProjectController < ApplicationController
     processProperties(definitions_per_category)
   end
 
+  def settings2
+    @project = get_current_project(params[:id])
+  end
+
   def update_version
     snapshot=Snapshot.find(params[:sid], :include => 'project')
     not_found("Snapshot not found") unless snapshot

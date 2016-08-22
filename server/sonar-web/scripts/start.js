@@ -121,14 +121,10 @@ function setupCompiler () {
 function runDevServer (port) {
   app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true,
-    quiet: true,
     publicPath: config.output.publicPath
   }));
 
-  app.use(require('webpack-hot-middleware')(compiler, {
-    noInfo: true,
-    quiet: true
-  }));
+  app.use(require('webpack-hot-middleware')(compiler));
 
   app.all('*', proxy(API_HOST, {
     forwardPath: function (req) {
