@@ -30,6 +30,6 @@ class CreateTableCeTaskInput < ActiveRecord::Migration
       t.column 'created_at', :big_integer, :null => false
       t.column 'updated_at', :big_integer, :null => false
     end
-    add_index 'ce_task_input', 'task_uuid', :name => 'ce_task_input_uuid', :unique => true
+    add_primary_key 'ce_task_input', 'task_uuid'
   end
 end
