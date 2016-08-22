@@ -17,18 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
 
+package org.sonarqube.ws.client.setting;
+
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SettingsWsModuleTest {
+public class SetRequestTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  SetRequest.Builder underTest = SetRequest.builder();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(3 + 2);
+  public void create_set_request() {
+    SetRequest result = underTest.setKey("my.key").setValue("my value").build();
+
+    assertThat(result.getKey()).isEqualTo("my.key");
+    assertThat(result.getValue()).isEqualTo("my value");
+  }
+
+  @Test
+  public void fail_when_empty_key() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    underTest
+      .setKey("")
+      .setValue("value")
+      .build();
+  }
+
+  @Test
+  public void fail_when_empty_value() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    underTest
+      .setKey("key")
+      .setValue(null)
+      .build();
   }
 }

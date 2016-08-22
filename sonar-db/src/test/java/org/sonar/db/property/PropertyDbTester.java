@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonar.db.property;
 
-public class SettingsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      SettingsWs.class,
-      SetAction.class,
-      ListDefinitionsAction.class);
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+
+public class PropertyDbTester {
+  private final DbTester db;
+  private final DbClient dbClient;
+  private final DbSession dbSession;
+
+  public PropertyDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
+  }
+
+  public PropertyDto insertProperty(PropertyDto property) {
+    dbClient.propertiesDao().insertProperty(dbSession, property);
+    db.commit();
+
+    return property;
   }
 }

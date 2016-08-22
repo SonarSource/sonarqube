@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonar.db.property;
 
-public class SettingsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      SettingsWs.class,
-      SetAction.class,
-      ListDefinitionsAction.class);
+public class PropertyTesting {
+
+  public static PropertyDto newGlobalProperty(String key, String value) {
+    return new PropertyDto().setKey(key).setValue(value);
+  }
+
+  public static PropertyDto newProjectProperty(String key, String value, long componentId) {
+    return new PropertyDto().setKey(key).setValue(value).setResourceId(componentId);
   }
 }
