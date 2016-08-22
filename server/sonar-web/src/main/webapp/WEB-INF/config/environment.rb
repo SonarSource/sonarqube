@@ -220,6 +220,14 @@ class ActiveRecord::Migration
     end
   end
 
+  def self.add_primary_key(tablename, columnname)
+    if dialect()=="mysql"
+      execute "ALTER TABLE `#{tablename}` ADD PRIMARY KEY (`#{columnname}`)"
+    else
+      execute "ALTER TABLE #{tablename} ADD CONSTRAINT pk_#{tablename} PRIMARY KEY (#{columnname})"
+    end
+  end
+
   # SONAR-4178
   def self.create_table(table_name, options = {})
     # Oracle constraint (see names of triggers and indices)
