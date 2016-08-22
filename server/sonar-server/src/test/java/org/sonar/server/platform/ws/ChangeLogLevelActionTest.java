@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.ce.http.CeHttpClient;
 import org.sonar.db.Database;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerLogging;
@@ -37,14 +38,14 @@ public class ChangeLogLevelActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  ServerLogging serverLogging = mock(ServerLogging.class);
-  Database db = mock(Database.class);
-  ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging, db);
-  WsActionTester actionTester = new WsActionTester(underTest);
+  private ServerLogging serverLogging = mock(ServerLogging.class);
+  private Database db = mock(Database.class);
+  private CeHttpClient ceHttpClient = mock(CeHttpClient.class);
+  private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging, db, ceHttpClient);
+  private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
   public void enable_debug_logs() {
@@ -55,6 +56,7 @@ public class ChangeLogLevelActionTest {
       .setMethod("POST")
       .execute();
     verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
+    verify(ceHttpClient).changeLogLevel(LoggerLevel.DEBUG);
     verify(db).enableSqlLogging(false);
   }
 
@@ -67,6 +69,7 @@ public class ChangeLogLevelActionTest {
       .setMethod("POST")
       .execute();
     verify(serverLogging).changeLevel(LoggerLevel.TRACE);
+    verify(ceHttpClient).changeLogLevel(LoggerLevel.TRACE);
     verify(db).enableSqlLogging(true);
   }
 

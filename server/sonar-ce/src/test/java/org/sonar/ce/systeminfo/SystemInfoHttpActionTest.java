@@ -32,11 +32,12 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static fi.iki.elonen.NanoHTTPD.Method.GET;
 import static fi.iki.elonen.NanoHTTPD.Method.POST;
-import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.METHOD_NOT_ALLOWED;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 
 public class SystemInfoHttpActionTest {
 
@@ -75,12 +76,6 @@ public class SystemInfoHttpActionTest {
     assertThat(systemInfo.getSectionsCount()).isEqualTo(2);
     assertThat(systemInfo.getSections(0).getName()).isEqualTo("state1");
     assertThat(systemInfo.getSections(1).getName()).isEqualTo("state2");
-  }
-
-  private NanoHTTPD.IHTTPSession createHttpSession(NanoHTTPD.Method method) {
-    NanoHTTPD.IHTTPSession res = mock(NanoHTTPD.IHTTPSession.class);
-    when(res.getMethod()).thenReturn(method);
-    return res;
   }
 
 }

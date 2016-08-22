@@ -17,19 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.httpd;
 
-import org.sonar.ce.httpd.CeHttpServer;
-import org.sonar.ce.logging.ChangeLogLevelHttpAction;
-import org.sonar.ce.systeminfo.SystemInfoHttpAction;
-import org.sonar.core.platform.Module;
+import fi.iki.elonen.NanoHTTPD;
+import java.util.Map;
+import javax.annotation.Nullable;
 
-public class CeHttpModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeHttpServer.class,
-      SystemInfoHttpAction.class,
-      ChangeLogLevelHttpAction.class);
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public abstract class CeHttpUtils {
+  private CeHttpUtils() {
+    // prevents instantiation
+  }
+
+  public static NanoHTTPD.IHTTPSession createHttpSession(NanoHTTPD.Method method) {
+    return createHttpSession(method, null);
+  }
+
+  public static NanoHTTPD.IHTTPSession createHttpSession(NanoHTTPD.Method method, @Nullable Map<String, String> params) {
+    NanoHTTPD.IHTTPSession res = mock(NanoHTTPD.IHTTPSession.class);
+    when(res.getMethod()).thenReturn(method);
+    if (params != null) {
+      when(res.getParms()).thenReturn(params);
+    }
+    return res;
   }
 }

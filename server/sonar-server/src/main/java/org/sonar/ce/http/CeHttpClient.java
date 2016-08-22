@@ -22,10 +22,15 @@ package org.sonar.ce.http;
 import java.io.File;
 import java.net.URI;
 import java.util.Optional;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.platform.ws.ChangeLogLevelAction;
 
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
@@ -34,6 +39,9 @@ import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
  * Client for the HTTP server of the Compute Engine.
  */
 public class CeHttpClient {
+
+  private static final String PATH_CHANGE_LOG_LEVEL = "changeLogLevel";
+  private static final String PATH_SYSTEM_INFO = "systemInfo";
 
   private final File ipcSharedDir;
 
@@ -47,15 +55,92 @@ public class CeHttpClient {
    * is not registered into IPC.
    */
   public Optional<ProtobufSystemInfo.SystemInfo> retrieveSystemInfo() {
+    return call(SystemInfoActionClient.INSTANCE);
+  }
+
+  private enum SystemInfoActionClient implements ActionClient<Optional<ProtobufSystemInfo.SystemInfo>> {
+    INSTANCE;
+
+    @Override
+    public String getPath() {
+      return PATH_SYSTEM_INFO;
+    }
+
+    @Override
+    public Optional<ProtobufSystemInfo.SystemInfo> getDefault() {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<ProtobufSystemInfo.SystemInfo> call(String url) throws Exception {
+      byte[] protobuf = IOUtils.toByteArray(new URI(url));
+      return Optional.of(ProtobufSystemInfo.SystemInfo.parseFrom(protobuf));
+    }
+  }
+
+  public void changeLogLevel(LoggerLevel level) {
+    call(new ChangeLogLevelActionClient(level));
+  }
+
+  private static final class ChangeLogLevelActionClient implements ActionClient<Void> {
+    private final LoggerLevel newLogLevel;
+
+    private ChangeLogLevelActionClient(LoggerLevel newLogLevel) {
+      this.newLogLevel = newLogLevel;
+    }
+
+    @Override
+    public String getPath() {
+      return PATH_CHANGE_LOG_LEVEL;
+    }
+
+    @Override
+    public Void getDefault() {
+      return null;
+    }
+
+    @Override
+    public Void call(String url) throws Exception {
+      okhttp3.Request request = new okhttp3.Request.Builder()
+        .post(RequestBody.create(null, new byte[0]))
+        .url(url + "?level=" + newLogLevel.name())
+        .build();
+      okhttp3.Response response = new OkHttpClient().newCall(request).execute();
+      if (response.code() != 200) {
+        Loggers.get(ChangeLogLevelAction.class).error(
+          "Failed to change log level in Compute Engine. Code was '{}' and response was '{}'",
+          response.code(),
+          response.body().string());
+      }
+      return null;
+    }
+  }
+
+  private <T> T call(ActionClient<T> actionClient) {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, COMPUTE_ENGINE.getIpcIndex())) {
       if (commands.isUp()) {
-        String url = commands.getHttpUrl() + "/systemInfo";
-        byte[] protobuf = IOUtils.toByteArray(new URI(url));
-        return Optional.of(ProtobufSystemInfo.SystemInfo.parseFrom(protobuf));
+        return actionClient.call(commands.getHttpUrl() + "/" + actionClient.getPath());
       }
-      return Optional.empty();
+      return actionClient.getDefault();
     } catch (Exception e) {
       throw new IllegalStateException("Can not get system info of process " + COMPUTE_ENGINE, e);
     }
+  }
+
+  private interface ActionClient<T> {
+    /**
+     * Path of the action.
+     */
+    String getPath();
+
+    /**
+     * Value to return when the Compute Engine is not ready.
+     */
+    T getDefault();
+
+    /**
+     * Delegates to perform the call to the Compute Engine's specified absolute URL.
+     */
+    T call(String url) throws Exception;
   }
 }

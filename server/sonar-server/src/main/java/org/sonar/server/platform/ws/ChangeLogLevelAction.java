@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.ce.http.CeHttpClient;
 import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
@@ -35,11 +36,13 @@ public class ChangeLogLevelAction implements SystemWsAction {
   private final UserSession userSession;
   private final ServerLogging logging;
   private final Database db;
+  private final CeHttpClient ceHttpClient;
 
-  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db) {
+  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db, CeHttpClient ceHttpClient) {
     this.userSession = userSession;
     this.logging = logging;
     this.db = db;
+    this.ceHttpClient = ceHttpClient;
   }
 
   @Override
@@ -63,6 +66,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
     db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     logging.changeLevel(level);
+    ceHttpClient.changeLogLevel(level);
     wsResponse.noContent();
   }
 }

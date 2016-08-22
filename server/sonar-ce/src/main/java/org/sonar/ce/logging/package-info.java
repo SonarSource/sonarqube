@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.logging;
 
-import org.sonar.ce.httpd.CeHttpServer;
-import org.sonar.ce.logging.ChangeLogLevelHttpAction;
-import org.sonar.ce.systeminfo.SystemInfoHttpAction;
-import org.sonar.core.platform.Module;
-
-public class CeHttpModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeHttpServer.class,
-      SystemInfoHttpAction.class,
-      ChangeLogLevelHttpAction.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
