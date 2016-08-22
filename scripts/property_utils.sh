@@ -10,7 +10,7 @@ set -euo pipefail
 
 function cnt_lines() {
   local FILE=$1
-  wc -l $1
+  cat $FILE | wc -l
 }
 
 function write_prop() {
