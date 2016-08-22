@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.primitives.Ints;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,8 +33,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Hex;
@@ -229,9 +226,9 @@ public class FileMetadata {
   }
 
   private static class LineOffsetCounter extends CharHandler {
-    private int currentOriginalOffset = 0;
-    private List<Integer> originalLineOffsets = new ArrayList<>();
-    private int lastValidOffset = 0;
+    private long currentOriginalOffset = 0;
+    private IntArrayList originalLineOffsets = new IntArrayList();
+    private long lastValidOffset = 0;
 
     public LineOffsetCounter() {
       originalLineOffsets.add(0);
@@ -244,7 +241,10 @@ public class FileMetadata {
 
     @Override
     protected void newLine() {
-      originalLineOffsets.add(currentOriginalOffset);
+      if (currentOriginalOffset > Integer.MAX_VALUE) {
+        throw new IllegalStateException("File is too big: " + currentOriginalOffset);
+      }
+      originalLineOffsets.add((int) currentOriginalOffset);
     }
 
     @Override
@@ -252,12 +252,15 @@ public class FileMetadata {
       lastValidOffset = currentOriginalOffset;
     }
 
-    public List<Integer> getOriginalLineOffsets() {
-      return originalLineOffsets;
+    public int[] getOriginalLineOffsets() {
+      return originalLineOffsets.trimAndGet();
     }
 
     public int getLastValidOffset() {
-      return lastValidOffset;
+      if (lastValidOffset > Integer.MAX_VALUE) {
+        throw new IllegalStateException("File is too big: " + lastValidOffset);
+      }
+      return (int) lastValidOffset;
     }
 
   }
@@ -355,11 +358,11 @@ public class FileMetadata {
     final int[] originalLineOffsets;
     final int lastValidOffset;
 
-    private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, int lastValidOffset) {
+    private Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {
       this.lines = lines;
       this.nonBlankLines = nonBlankLines;
       this.hash = hash;
-      this.originalLineOffsets = Ints.toArray(originalLineOffsets);
+      this.originalLineOffsets = originalLineOffsets;
       this.lastValidOffset = lastValidOffset;
     }
   }

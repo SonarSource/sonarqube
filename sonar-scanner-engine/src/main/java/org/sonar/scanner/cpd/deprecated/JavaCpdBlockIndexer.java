@@ -90,12 +90,12 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
 
       List<Statement> statements;
 
-      try(Reader reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding())) {
+      try (Reader reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding())) {
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
-      } catch (IOException e ) {
-        throw new IllegalStateException("Exception hnadling file: " + inputFile.file(), e);
+      } catch (IOException e) {
+        throw new IllegalStateException("Exception handling file: " + inputFile.file(), e);
       }
 
       List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
