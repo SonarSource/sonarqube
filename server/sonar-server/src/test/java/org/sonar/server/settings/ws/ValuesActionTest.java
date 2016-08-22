@@ -56,6 +56,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
@@ -79,10 +80,11 @@ public class ValuesActionTest {
   ComponentDbTester componentDb = new ComponentDbTester(db);
   SettingsWsComponentParameters settingsWsComponentParameters = new SettingsWsComponentParameters(new ComponentFinder(dbClient), userSession);
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  SettingsFinder settingsFinder = new SettingsFinder(dbClient, propertyDefinitions);
 
   ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, settingsWsComponentParameters, propertyDefinitions));
+  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, settingsWsComponentParameters, propertyDefinitions, settingsFinder));
 
   @Before
   public void setUp() throws Exception {
@@ -208,12 +210,7 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = newRequestForGlobalProperties("foo");
     assertThat(result.getSettingsList()).hasSize(1);
-
-    Settings.Setting value = result.getSettings(0);
-    assertThat(value.getKey()).isEqualTo("foo");
-    assertThat(value.getValue()).isEqualTo("default");
-    assertThat(value.getDefault()).isTrue();
-    assertThat(value.getInherited()).isFalse();
+    assertSetting(result.getSettings(0), "foo", "default", true, false);
   }
 
   @Test
@@ -226,12 +223,7 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = newRequestForGlobalProperties("property");
     assertThat(result.getSettingsList()).hasSize(1);
-
-    Settings.Setting globalPropertyValue = result.getSettings(0);
-    assertThat(globalPropertyValue.getKey()).isEqualTo("property");
-    assertThat(globalPropertyValue.getValue()).isEqualTo("one");
-    assertThat(globalPropertyValue.getDefault()).isFalse();
-    assertThat(globalPropertyValue.getInherited()).isFalse();
+    assertSetting(result.getSettings(0), "property", "one", false, false);
   }
 
   @Test
@@ -245,12 +237,7 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = newRequestForProjectProperties("property");
     assertThat(result.getSettingsList()).hasSize(1);
-
-    Settings.Setting globalPropertyValue = result.getSettings(0);
-    assertThat(globalPropertyValue.getKey()).isEqualTo("property");
-    assertThat(globalPropertyValue.getValue()).isEqualTo("two");
-    assertThat(globalPropertyValue.getDefault()).isFalse();
-    assertThat(globalPropertyValue.getInherited()).isFalse();
+    assertSetting(result.getSettings(0), "property", "two", false, false);
   }
 
   @Test
@@ -262,12 +249,7 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = newRequestForProjectProperties("property");
     assertThat(result.getSettingsList()).hasSize(1);
-
-    Settings.Setting globalPropertyValue = result.getSettings(0);
-    assertThat(globalPropertyValue.getKey()).isEqualTo("property");
-    assertThat(globalPropertyValue.getValue()).isEqualTo("one");
-    assertThat(globalPropertyValue.getDefault()).isFalse();
-    assertThat(globalPropertyValue.getInherited()).isTrue();
+    assertSetting(result.getSettings(0), "property", "one", false, true);
   }
 
   @Test
@@ -304,6 +286,46 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = newRequestForGlobalProperties("unknown");
     assertThat(result.getSettingsList()).isEmpty();
+  }
+
+  @Test
+  public void return_module_values() throws Exception {
+    setUserAsSystemAdmin();
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+
+    propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    insertProperties(
+      newGlobalPropertyDto().setKey("property").setValue("one"),
+      // The property is overriding global value
+      newComponentPropertyDto(module).setKey("property").setValue("two"));
+
+    ValuesWsResponse result = newRequestForComponentProperties(module, "property");
+    assertThat(result.getSettingsList()).hasSize(1);
+    assertSetting(result.getSettings(0), "property", "two", false, false);
+  }
+
+  @Test
+  public void return_inherited_values_on_sub_module() throws Exception {
+    setUserAsSystemAdmin();
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
+
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
+      PropertyDefinition.builder("globalProperty").build(),
+      PropertyDefinition.builder("projectProperty").build(),
+      PropertyDefinition.builder("moduleProperty").build()));
+    insertProperties(
+      newGlobalPropertyDto().setKey("globalProperty").setValue("global"),
+      newComponentPropertyDto(project).setKey("projectProperty").setValue("project"),
+      newComponentPropertyDto(module).setKey("moduleProperty").setValue("module"));
+
+    ValuesWsResponse result = newRequestForComponentProperties(subModule, "defaultProperty", "globalProperty", "projectProperty", "moduleProperty");
+    assertThat(result.getSettingsList()).hasSize(4);
+    assertSetting(result.getSettings(0), "defaultProperty", "default", true, false);
+    assertSetting(result.getSettings(1), "globalProperty", "global", false, true);
+    assertSetting(result.getSettings(2), "projectProperty", "project", false, true);
+    assertSetting(result.getSettings(3), "moduleProperty", "module", false, true);
   }
 
   @Test
@@ -376,6 +398,10 @@ public class ValuesActionTest {
     assertThat(action.params()).hasSize(3);
   }
 
+  private ValuesWsResponse newRequestForComponentProperties(ComponentDto componentDto, String... keys) {
+    return newRequest(componentDto.uuid(), null, keys);
+  }
+
   private ValuesWsResponse newRequestForProjectProperties(String... keys) {
     return newRequest(project.uuid(), null, keys);
   }
@@ -414,6 +440,13 @@ public class ValuesActionTest {
       dbClient.propertiesDao().insertProperty(dbSession, propertyDto);
     }
     dbSession.commit();
+  }
+
+  private void assertSetting(Settings.Setting setting, String expectedKey, String expectedValue, boolean expectedDefault, boolean expectedInherited) {
+    assertThat(setting.getKey()).isEqualTo(expectedKey);
+    assertThat(setting.getValue()).isEqualTo(expectedValue);
+    assertThat(setting.getDefault()).isEqualTo(expectedDefault);
+    assertThat(setting.getInherited()).isEqualTo(expectedInherited);
   }
 
 }

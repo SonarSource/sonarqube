@@ -21,6 +21,7 @@ package org.sonar.db.property;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -242,12 +243,48 @@ public class PropertiesDaoTest {
       newUserPropertyDto(user).setKey(key),
       newComponentPropertyDto(project).setKey(anotherKey));
 
-    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
-    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
-    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
+    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
+    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
+    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
 
-    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet("unknown"), project.getId())).isEmpty();
-    assertThat(dao.selectComponentPropertiesByKeys(session, newHashSet(key), 123456789L)).isEmpty();
+    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet("unknown"), project.getId())).isEmpty();
+    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key), 123456789L)).isEmpty();
+  }
+
+  @Test
+  public void select_properties_by_keys_and_component_ids() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project);
+    ComponentDto project2 = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project2);
+
+    UserDto user = UserTesting.newUserDto();
+    dbClient.userDao().insert(session, user);
+
+    String key = "key";
+    String anotherKey = "anotherKey";
+    insertProperties(
+      newGlobalPropertyDto().setKey(key),
+      newComponentPropertyDto(project).setKey(key),
+      newComponentPropertyDto(project2).setKey(key),
+      newComponentPropertyDto(project2).setKey(anotherKey),
+      newUserPropertyDto(user).setKey(key));
+
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId())))
+      .extracting("key", "resourceId").containsOnly(Tuple.tuple(key, project.getId()));
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId(), project2.getId())))
+      .extracting("key", "resourceId").containsOnly(
+        Tuple.tuple(key, project.getId()),
+        Tuple.tuple(key, project2.getId()));
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key, anotherKey), newHashSet(project.getId(), project2.getId())))
+      .extracting("key", "resourceId").containsOnly(
+        Tuple.tuple(key, project.getId()),
+        Tuple.tuple(key, project2.getId()),
+        Tuple.tuple(anotherKey, project2.getId()));
+
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
+    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
   }
 
   @Test

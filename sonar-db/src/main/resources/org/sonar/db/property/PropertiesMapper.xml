@@ -99,6 +99,22 @@
     </where>
   </select>
 
+  <select id="selectByKeysAndComponentIds" parameterType="map" resultType="Property">
+    SELECT p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    FROM properties p
+    <where>
+      AND p.prop_key in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
+      </foreach>
+      AND p.resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
+      AND p.user_id is null
+    </where>
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p

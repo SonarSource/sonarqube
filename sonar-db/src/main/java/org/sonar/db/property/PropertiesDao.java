@@ -168,12 +168,17 @@ public class PropertiesDao implements Dao {
     return selectByKeys(session, keys, null);
   }
 
-  public List<PropertyDto> selectComponentPropertiesByKeys(DbSession session, Set<String> keys, long componentId) {
+  public List<PropertyDto> selectPropertiesByKeysAndComponentId(DbSession session, Set<String> keys, long componentId) {
     return selectByKeys(session, keys, componentId);
   }
 
+  public List<PropertyDto> selectPropertiesByKeysAndComponentIds(DbSession session, Set<String> keys, Set<Long> componentIds) {
+    return executeLargeInputs(keys, partitionKeys -> executeLargeInputs(componentIds,
+      partitionComponentIds -> session.getMapper(PropertiesMapper.class).selectByKeysAndComponentIds(partitionKeys, partitionComponentIds)));
+  }
+
   private List<PropertyDto> selectByKeys(DbSession session, Set<String> keys, @Nullable Long componentId) {
-    return executeLargeInputs(keys, propertyKeys -> session.getMapper(PropertiesMapper.class).selectByKeys(propertyKeys, componentId));
+    return executeLargeInputs(keys, partitionKeys -> session.getMapper(PropertiesMapper.class).selectByKeys(partitionKeys, componentId));
   }
 
   public void insertProperty(DbSession session, PropertyDto property) {

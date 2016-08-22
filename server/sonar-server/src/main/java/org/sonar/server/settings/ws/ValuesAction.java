@@ -20,24 +20,24 @@
 package org.sonar.server.settings.ws;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableTable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
@@ -52,16 +52,18 @@ public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
 
-  static final String PARAM_KEYS = "keys";
+  private static final String PARAM_KEYS = "keys";
 
   private final DbClient dbClient;
   private final SettingsWsComponentParameters settingsWsComponentParameters;
   private final PropertyDefinitions propertyDefinitions;
+  private final SettingsFinder settingsFinder;
 
-  public ValuesAction(DbClient dbClient, SettingsWsComponentParameters settingsWsComponentParameters, PropertyDefinitions propertyDefinitions) {
+  public ValuesAction(DbClient dbClient, SettingsWsComponentParameters settingsWsComponentParameters, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder) {
     this.dbClient = dbClient;
     this.settingsWsComponentParameters = settingsWsComponentParameters;
     this.propertyDefinitions = propertyDefinitions;
+    this.settingsFinder = settingsFinder;
   }
 
   @Override
@@ -93,89 +95,63 @@ public class ValuesAction implements SettingsWsAction {
   private ValuesWsResponse doHandle(Request request) {
     DbSession dbSession = dbClient.openSession(true);
     try {
-      ComponentDto component = settingsWsComponentParameters.getComponent(dbSession, request);
-      settingsWsComponentParameters.checkAdminPermission(component);
+      ComponentDto componentDto = settingsWsComponentParameters.getComponent(dbSession, request);
+      settingsWsComponentParameters.checkAdminPermission(componentDto);
       Set<String> keys = new HashSet<>(request.mandatoryParamAsStrings(PARAM_KEYS));
-
-      ValuesWsResponse.Builder valuesBuilder = ValuesWsResponse.newBuilder();
-      new SettingsBuilder(dbSession, valuesBuilder, getDefinitions(keys), keys, component).build();
-      ValuesWsResponse response = valuesBuilder.build();
-      return response;
+      Optional<ComponentDto> component = Optional.ofNullable(componentDto);
+      return new ValuesResponseBuilder(loadSettings(dbSession, component, keys), component).build();
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private class SettingsBuilder {
-    private final DbSession dbSession;
-    private final ComponentDto component;
+  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-    private final ValuesWsResponse.Builder valuesWsBuilder;
-    private final Map<String, PropertyDefinition> definitionsByKey;
-    private final Set<String> keys;
-    private final Set<String> propertySetKeys;
+    // List of settings must be kept in the following orders : default -> global -> component
+    List<Setting> settings = new ArrayList<>();
+    settings.addAll(loadDefaultSettings(keys));
+    settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
+    if (component.isPresent()) {
+      settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, component.get()).values());
+    }
+    return settings;
+  }
 
+  private List<Setting> loadDefaultSettings(Set<String> keys) {
+    return propertyDefinitions.getAll().stream()
+      .filter(definition -> keys.contains(definition.key()))
+      .filter(defaultProperty -> !isNullOrEmpty(defaultProperty.defaultValue()))
+      .map(Setting::new)
+      .collect(Collectors.toList());
+  }
+
+  private class ValuesResponseBuilder {
+    private final List<Setting> settings;
+    private final Optional<ComponentDto> component;
+
+    private final ValuesWsResponse.Builder valuesWsBuilder = ValuesWsResponse.newBuilder();
     private final Map<String, Settings.Setting.Builder> settingsBuilderByKey = new HashMap<>();
 
-    SettingsBuilder(DbSession dbSession, ValuesWsResponse.Builder valuesWsBuilder, List<PropertyDefinition> definitions,
-      Set<String> keys, @Nullable ComponentDto component) {
-      this.dbSession = dbSession;
-      this.valuesWsBuilder = valuesWsBuilder;
-      this.definitionsByKey = definitions.stream()
-        .collect(Collectors.toMap(PropertyDefinition::key, Function.identity()));
-      this.keys = keys;
+    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> component) {
+      this.settings = settings;
       this.component = component;
-
-      this.propertySetKeys = definitions.stream()
-        .filter(definition -> definition.type().equals(PROPERTY_SET))
-        .map(PropertyDefinition::key)
-        .collect(Collectors.toSet());
     }
 
-    void build() {
-      processDefinitions();
-      processPropertyDtos(true);
-      if (component != null) {
-        processPropertyDtos(false);
-      }
+    ValuesWsResponse build() {
+      processSettings();
       settingsBuilderByKey.values().forEach(Settings.Setting.Builder::build);
+      return valuesWsBuilder.build();
     }
 
-    private void processDefinitions() {
-      definitionsByKey.values().stream()
-        .filter(defaultProperty -> !isNullOrEmpty(defaultProperty.defaultValue()))
-        .forEach(this::processDefaultValue);
-    }
-
-    private void processDefaultValue(PropertyDefinition definition) {
-      Settings.Setting.Builder settingBuilder = valuesWsBuilder.addSettingsBuilder()
-        .setKey(definition.key())
-        .setInherited(false)
-        .setDefault(true);
-      setValue(settingBuilder, definition.defaultValue());
-      settingsBuilderByKey.put(definition.key(), settingBuilder);
-    }
-
-    private void processPropertyDtos(boolean loadGlobal) {
-      List<PropertyDto> properties = loadProperties(dbSession, loadGlobal, keys);
-      PropertySetValues propertySetValues = new PropertySetValues(properties, loadGlobal);
-
-      properties.forEach(property -> {
-        String key = property.getKey();
-        Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(key);
-        valueBuilder.setInherited(component != null && property.getResourceId() == null);
-        valueBuilder.setDefault(false);
-
-        PropertyDefinition definition = definitionsByKey.get(key);
-        if (definition != null && definition.type().equals(PROPERTY_SET)) {
-          Settings.FieldsValues.Builder builder = Settings.FieldsValues.newBuilder();
-          for (Map<String, String> propertySetMap : propertySetValues.get(key)) {
-            builder.addFieldsValuesBuilder().putAllValue(propertySetMap);
-          }
-          valueBuilder.setFieldsValues(builder);
-        } else {
-          setValue(valueBuilder, property.getValue());
-        }
+    private void processSettings() {
+      settings.forEach(setting -> {
+        Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(setting.getKey());
+        valueBuilder.setDefault(setting.isDefault());
+        setInherited(setting, valueBuilder);
+        setValue(setting, valueBuilder);
       });
     }
 
@@ -188,107 +164,32 @@ public class ValuesAction implements SettingsWsAction {
       return valueBuilder;
     }
 
-    private void setValue(Settings.Setting.Builder valueBuilder, String value) {
-      PropertyDefinition definition = definitionsByKey.get(valueBuilder.getKey());
-      if (definition != null && definition.multiValues()) {
+    private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
+      PropertyDefinition definition = setting.getDefinition();
+      String value = setting.getValue();
+      if (definition == null) {
+        valueBuilder.setValue(value);
+        return;
+      }
+      if (definition.type().equals(PROPERTY_SET)) {
+        Settings.FieldsValues.Builder builder = Settings.FieldsValues.newBuilder();
+        for (Map<String, String> propertySetMap : setting.getPropertySets()) {
+          builder.addFieldsValuesBuilder().putAllValue(propertySetMap);
+        }
+        valueBuilder.setFieldsValues(builder);
+      } else if (definition.multiValues()) {
         valueBuilder.setValues(Settings.Values.newBuilder().addAllValues(COMMA_SPLITTER.split(value)));
       } else {
         valueBuilder.setValue(value);
       }
     }
 
-    private List<PropertyDto> loadProperties(DbSession dbSession, boolean loadGlobal, Set<String> keys) {
-      if (loadGlobal) {
-        return dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
+    private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
+      if (setting.isDefault()) {
+        valueBuilder.setInherited(false);
+      } else {
+        valueBuilder.setInherited(component.isPresent() && !Objects.equals(setting.getComponentId(), component.get().getId()));
       }
-      return dbClient.propertiesDao().selectComponentPropertiesByKeys(dbSession, keys, component.getId());
-    }
-
-    private class PropertySetValues {
-      private final Map<String, PropertyKeyWithFieldAndSetId> propertyKeyWithFieldAndSetIds = new HashMap<>();
-      private final Map<String, PropertySetValue> propertySetValuesByPropertyKey = new HashMap<>();
-
-      PropertySetValues(List<PropertyDto> properties, boolean loadGlobal) {
-        properties.stream()
-          .filter(propertyDto -> propertySetKeys.contains(propertyDto.getKey()))
-          .forEach(propertyDto -> definitionsByKey.get(propertyDto.getKey()).fields()
-            .forEach(field -> COMMA_SPLITTER.splitToList(propertyDto.getValue())
-              .forEach(value -> add(propertyDto.getKey(), field.key(), value))));
-
-        loadProperties(dbSession, loadGlobal, propertyKeyWithFieldAndSetIds.keySet())
-          .forEach(propertySetDto -> {
-            PropertyKeyWithFieldAndSetId propertyKeyWithFieldAndSetIdKey = propertyKeyWithFieldAndSetIds.get(propertySetDto.getKey());
-            PropertySetValue propertySetValue = getOrCreatePropertySetValue(propertyKeyWithFieldAndSetIdKey.getPropertyKey());
-            propertySetValue.add(propertyKeyWithFieldAndSetIdKey.getSetId(), propertyKeyWithFieldAndSetIdKey.getFieldKey(), propertySetDto.getValue());
-          });
-      }
-
-      private void add(String propertyKey, String fieldKey, String value) {
-        String propertySetKey = generatePropertySetKey(propertyKey, value, fieldKey);
-        propertyKeyWithFieldAndSetIds.put(propertySetKey, new PropertyKeyWithFieldAndSetId(propertyKey, fieldKey, value));
-      }
-
-      private PropertySetValue getOrCreatePropertySetValue(String propertyKey) {
-        PropertySetValue propertySetValue = propertySetValuesByPropertyKey.get(propertyKey);
-        if (propertySetValue == null) {
-          propertySetValue = new PropertySetValue();
-          propertySetValuesByPropertyKey.put(propertyKey, propertySetValue);
-        }
-        return propertySetValue;
-      }
-
-      List<Map<String, String>> get(String propertyKey) {
-        return propertySetValuesByPropertyKey.get(propertyKey).get();
-      }
-
-      private String generatePropertySetKey(String propertyKey, String id, String fieldKey) {
-        return propertyKey + "." + id + "." + fieldKey;
-      }
-    }
-  }
-
-  private List<PropertyDefinition> getDefinitions(Set<String> keys) {
-    return propertyDefinitions.getAll().stream()
-      .filter(def -> keys.contains(def.key()))
-      .collect(Collectors.toList());
-  }
-
-  private static class PropertyKeyWithFieldAndSetId {
-    private final String propertyKey;
-    private final String fieldKey;
-    private final String setId;
-
-    PropertyKeyWithFieldAndSetId(String propertyKey, String fieldKey, String setId) {
-      this.propertyKey = propertyKey;
-      this.fieldKey = fieldKey;
-      this.setId = setId;
-    }
-
-    public String getPropertyKey() {
-      return propertyKey;
-    }
-
-    public String getFieldKey() {
-      return fieldKey;
-    }
-
-    public String getSetId() {
-      return setId;
-    }
-  }
-
-  private static class PropertySetValue {
-    ImmutableTable.Builder<String, String, String> tableBuilder = new ImmutableTable.Builder<>();
-
-    public void add(String setId, String fieldKey, String value) {
-      tableBuilder.put(setId, fieldKey, value);
-    }
-
-    public List<Map<String, String>> get() {
-      ImmutableTable<String, String, String> table = tableBuilder.build();
-      return table.rowKeySet().stream()
-        .map(table::row)
-        .collect(Collectors.toList());
     }
   }
 
