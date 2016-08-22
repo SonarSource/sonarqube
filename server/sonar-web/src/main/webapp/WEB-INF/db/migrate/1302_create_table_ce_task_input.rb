@@ -21,10 +21,15 @@
 #
 # SonarQube 6.1
 #
-class RenameCeTaskDataToCeTaskInput < ActiveRecord::Migration
+class CreateTableCeTaskInput < ActiveRecord::Migration
 
   def self.up
-    rename_table 'ce_task_data', 'ce_task_input'
+    create_table 'ce_task_input', :id => false do |t|
+      t.column 'task_uuid', :string, :limit => 40, :null => false
+      t.column 'data', :binary, :null => true
+      t.column 'created_at', :big_integer, :null => false
+      t.column 'updated_at', :big_integer, :null => false
+    end
     add_index 'ce_task_input', 'task_uuid', :name => 'ce_task_input_uuid', :unique => true
   end
 end
