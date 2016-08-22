@@ -29,7 +29,7 @@ const TaskCancelButton = ({ task, onCancelTask }) => {
   return (
       <a
           onClick={handleClick}
-          className="icon-delete"
+          className="spacer-left icon-delete"
           title={translate('background_tasks.cancel_task')}
           data-toggle="tooltip"
           href="#"/>

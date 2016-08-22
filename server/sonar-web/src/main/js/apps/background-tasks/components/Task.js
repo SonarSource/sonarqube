@@ -26,7 +26,6 @@ import TaskDay from './TaskDay';
 import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
 import TaskCancelButton from './TaskCancelButton';
-import TaskLogsLink from './TaskLogsLink';
 import { STATUSES } from './../constants';
 
 export default class Task extends React.Component {
@@ -64,15 +63,6 @@ export default class Task extends React.Component {
           <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
           <TaskExecutionTime task={task}/>
 
-          <td className="thin nowrap text-right">
-            {task.logs && (
-                <TaskLogsLink task={task}/>
-            )}
-            {task.status === STATUSES.PENDING && (
-                <TaskCancelButton task={task} onCancelTask={onCancelTask}/>
-            )}
-          </td>
-
           <td className="thin nowrap">
             {!component && (
                 <a
@@ -81,6 +71,9 @@ export default class Task extends React.Component {
                     href="#"
                     title={`Show only "${task.componentName}" tasks`}
                     data-toggle="tooltip"/>
+            )}
+            {task.status === STATUSES.PENDING && (
+                <TaskCancelButton task={task} onCancelTask={onCancelTask}/>
             )}
           </td>
         </tr>
