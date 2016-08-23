@@ -22,6 +22,7 @@ package org.sonar.db.version.v50;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
@@ -96,10 +97,7 @@ public class FeedFileSources extends BaseDataChange {
 
     // duplication_data
     "m13.text_value, " +
-    "m13.measure_data, " +
-
-    // to detect multiple rows in snapshot_sources for the same snapshot
-    "s.id " +
+    "m13.measure_data " +
 
     "FROM snapshots s " +
     "JOIN snapshot_sources ss " +
@@ -141,7 +139,13 @@ public class FeedFileSources extends BaseDataChange {
     "AND f.scope = 'FIL' " +
     "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' " +
     "AND fs.file_uuid IS NULL " +
-    "ORDER BY s.id, ss.id desc";
+    "ORDER BY " +
+      // to be able to detect duplicate  a given file uuid only once
+      "f.uuid, " +
+      // to take into account the (presumably) most recent snapshot in case of duplicate
+      "s.id desc," +
+      // to take into account the (presumably) most recent line in FILE_SOURCES in case of duplicate
+      "ss.id desc";
 
   public FeedFileSources(Database db, System2 system) {
     super(db);
@@ -150,7 +154,7 @@ public class FeedFileSources extends BaseDataChange {
 
   private static final class FileSourceBuilder implements MassUpdate.Handler {
     private final long now;
-    private long previousSnapshotId = -1;
+    private String previousFileUuid = null;
 
     public FileSourceBuilder(System2 system) {
       now = system.now();
@@ -188,12 +192,11 @@ public class FeedFileSources extends BaseDataChange {
       byte[] longOverallCovCond = row.getNullableBytes(28);
       byte[] shortDuplicationData = row.getNullableBytes(29);
       byte[] longDuplicationData = row.getNullableBytes(30);
-      long snapshotId = row.getLong(31);
 
-      if (snapshotId == previousSnapshotId) {
+      if (Objects.equals(fileUuid, previousFileUuid)) {
         return false;
       }
-      this.previousSnapshotId = snapshotId;
+      this.previousFileUuid = fileUuid;
 
       String[] sourceData = new FileSourceDto(source,
         ofNullableBytes(shortRevisions, longRevisions),
