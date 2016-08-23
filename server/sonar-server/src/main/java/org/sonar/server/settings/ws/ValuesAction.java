@@ -34,41 +34,49 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
+import org.sonarqube.ws.client.setting.ValuesRequest;
 
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
 
-  private static final String PARAM_KEYS = "keys";
-
   private final DbClient dbClient;
-  private final SettingsWsComponentParameters settingsWsComponentParameters;
+  private final ComponentFinder componentFinder;
+  private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsFinder settingsFinder;
 
-  public ValuesAction(DbClient dbClient, SettingsWsComponentParameters settingsWsComponentParameters, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder) {
+  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder) {
     this.dbClient = dbClient;
-    this.settingsWsComponentParameters = settingsWsComponentParameters;
+    this.componentFinder = componentFinder;
+    this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsFinder = settingsFinder;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("values")
+    WebService.NewAction action = context.createAction(ACTION_VALUES)
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "Either '%s' or '%s' can be provided, not both.<br> " +
@@ -82,7 +90,7 @@ public class ValuesAction implements SettingsWsAction {
       .setHandler(this);
     addComponentParameters(action);
     action.createParam(PARAM_KEYS)
-      .setDescription("List of property keys")
+      .setDescription("List of setting keys")
       .setRequired(true)
       .setExampleValue("sonar.technicalDebt.hoursInDay,sonar.dbcleaner.cleanDirectory");
   }
@@ -95,13 +103,38 @@ public class ValuesAction implements SettingsWsAction {
   private ValuesWsResponse doHandle(Request request) {
     DbSession dbSession = dbClient.openSession(true);
     try {
-      ComponentDto componentDto = settingsWsComponentParameters.getComponent(dbSession, request);
-      settingsWsComponentParameters.checkAdminPermission(componentDto);
-      Set<String> keys = new HashSet<>(request.mandatoryParamAsStrings(PARAM_KEYS));
-      Optional<ComponentDto> component = Optional.ofNullable(componentDto);
+      ValuesRequest valuesRequest = toWsRequest(request);
+      Optional<ComponentDto> component = getComponent(dbSession, valuesRequest);
+      checkAdminPermission(component);
+      Set<String> keys = new HashSet<>(valuesRequest.getKeys());
       return new ValuesResponseBuilder(loadSettings(dbSession, component, keys), component).build();
     } finally {
       dbClient.closeSession(dbSession);
+    }
+  }
+
+  private static ValuesRequest toWsRequest(Request request) {
+    return ValuesRequest.builder()
+      .setKeys(request.mandatoryParamAsStrings(PARAM_KEYS))
+      .setComponentId(request.param(PARAM_COMPONENT_ID))
+      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .build();
+  }
+
+  private Optional<ComponentDto> getComponent(DbSession dbSession, ValuesRequest valuesRequest) {
+    String componentId = valuesRequest.getComponentId();
+    String componentKey = valuesRequest.getComponentKey();
+    if (componentId != null || componentKey != null) {
+      return Optional.of(componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY));
+    }
+    return Optional.empty();
+  }
+
+  private void checkAdminPermission(Optional<ComponentDto> component) {
+    if (component.isPresent()) {
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.get().uuid());
+    } else {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
   }
 

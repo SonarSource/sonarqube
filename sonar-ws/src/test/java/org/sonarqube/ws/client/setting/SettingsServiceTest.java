@@ -22,7 +22,8 @@ package org.sonarqube.ws.client.setting;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
+import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
@@ -30,6 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class SettingsServiceTest {
 
@@ -40,15 +42,28 @@ public class SettingsServiceTest {
 
   @Test
   public void list_definitions() {
-    ListDefinitionsRequest request = ListDefinitionsRequest.builder()
+    underTest.listDefinitions(ListDefinitionsRequest.builder()
       .setComponentKey("KEY")
-      .build();
-
-    underTest.listDefinitions(request);
+      .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(Settings.ListDefinitionsWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(ListDefinitionsWsResponse.parser());
     serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void values() {
+    underTest.values(ValuesRequest.builder()
+      .setKeys("sonar.debt,sonar.issue")
+      .setComponentKey("KEY")
+      .build());
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ValuesWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_KEYS, "sonar.debt,sonar.issue")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();
   }

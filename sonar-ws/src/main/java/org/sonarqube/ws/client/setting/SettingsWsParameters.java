@@ -24,8 +24,14 @@ public class SettingsWsParameters {
   public static final String CONTROLLER_SETTINGS = "api/settings";
 
   public static final String ACTION_LIST_DEFINITIONS = "list_definitions";
+  public static final String ACTION_VALUES = "values";
 
   public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String PARAM_KEYS = "keys";
+
+  private SettingsWsParameters() {
+    // Only static stuff
+  }
 
 }

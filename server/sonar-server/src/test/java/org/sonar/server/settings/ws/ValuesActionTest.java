@@ -78,13 +78,12 @@ public class ValuesActionTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
   ComponentDbTester componentDb = new ComponentDbTester(db);
-  SettingsWsComponentParameters settingsWsComponentParameters = new SettingsWsComponentParameters(new ComponentFinder(dbClient), userSession);
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
   SettingsFinder settingsFinder = new SettingsFinder(dbClient, propertyDefinitions);
 
   ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, settingsWsComponentParameters, propertyDefinitions, settingsFinder));
+  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions, settingsFinder));
 
   @Before
   public void setUp() throws Exception {
@@ -376,7 +375,7 @@ public class ValuesActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequestForGlobalProperties();
+    newRequestForGlobalProperties("foo");
   }
 
   @Test
@@ -385,7 +384,7 @@ public class ValuesActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequest(project.uuid(), null);
+    newRequest(project.uuid(), null, "foo");
   }
 
   @Test
