@@ -19,11 +19,9 @@
  */
 package org.sonar.db.charset;
 
-import com.google.common.base.Predicate;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.version.DatabaseVersion;
 
@@ -95,15 +93,6 @@ public class ColumnDef {
 
       return new ColumnDef(
         rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getLong(6), nullable);
-    }
-  }
-
-  public enum IsInSonarQubeTablePredicate implements Predicate<ColumnDef> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull ColumnDef input) {
-      return input.isInSonarQubeTable();
     }
   }
 }

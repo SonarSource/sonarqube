@@ -45,7 +45,7 @@ public class SelectExecutorTest {
     session.commit();
 
     try (Connection connection = dbTester.openConnection()) {
-      List<String[]> rows = underTest.executeSelect(connection, "select login, name from users order by login", new SqlExecutor.StringsConverter(2));
+      List<String[]> rows = underTest.select(connection, "select login, name from users order by login", new SqlExecutor.StringsConverter(2));
       assertThat(rows).hasSize(2);
       assertThat(rows.get(0)[0]).isEqualTo("her");
       assertThat(rows.get(0)[1]).isEqualTo("Her");

@@ -22,20 +22,15 @@ package org.sonar.db.charset;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-abstract class CharsetHandler {
+public class PostgresMetadataReader {
 
-  protected static final String UTF8 = "utf8";
+  private final SqlExecutor sqlExecutor;
 
-  private final SqlExecutor selectExecutor;
-
-  protected CharsetHandler(SqlExecutor selectExecutor) {
-    this.selectExecutor = selectExecutor;
+  public PostgresMetadataReader(SqlExecutor sqlExecutor) {
+    this.sqlExecutor = sqlExecutor;
   }
 
-  abstract void handle(Connection connection, DatabaseCharsetChecker.State state) throws SQLException;
-
-  protected SqlExecutor getSqlExecutor() {
-    return selectExecutor;
+  public String getDefaultCharset(Connection connection) throws SQLException {
+    return sqlExecutor.selectSingleString(connection, "select pg_encoding_to_char(encoding) from pg_database where datname = current_database()");
   }
-
 }

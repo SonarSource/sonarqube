@@ -23,7 +23,6 @@ import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
-import org.sonar.server.platform.db.CheckDatabaseCollationDuringMigration;
 import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
@@ -53,7 +52,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       ServerLifecycleNotifier.class);
 
     addIfStartupLeader(
-      CheckDatabaseCollationDuringMigration.class,
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,

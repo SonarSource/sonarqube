@@ -23,8 +23,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
-import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
-
 /**
  * Checks charset of all existing database columns at startup, before executing db migrations. This requires
  * to be defined in platform level 2 ({@link org.sonar.server.platform.platformlevel.PlatformLevel2}).
@@ -41,7 +39,13 @@ public class CheckDatabaseCharsetAtStartup implements Startable {
 
   @Override
   public void start() {
-    check();
+    DatabaseCharsetChecker.State state = DatabaseCharsetChecker.State.STARTUP;
+    if (upgradeStatus.isUpgraded()) {
+      state = DatabaseCharsetChecker.State.UPGRADE;
+    } else if (upgradeStatus.isFreshInstall()) {
+      state = DatabaseCharsetChecker.State.FRESH_INSTALL;
+    }
+    charsetChecker.check(state);
   }
 
   @Override
@@ -49,11 +53,4 @@ public class CheckDatabaseCharsetAtStartup implements Startable {
     // do nothing
   }
 
-  protected final void check() {
-    if (upgradeStatus.isFreshInstall()) {
-      charsetChecker.check(ENFORCE_UTF8);
-    } else if (!upgradeStatus.isUpgraded()) {
-      charsetChecker.check();
-    }
-  }
 }

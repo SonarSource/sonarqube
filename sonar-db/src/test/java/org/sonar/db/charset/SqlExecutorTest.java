@@ -58,7 +58,7 @@ public class SqlExecutorTest {
     dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "login2", NAME_DB_COLUMN, "name two"));
 
     try (Connection connection = dbTester.openConnection()) {
-      List<String[]> users = underTest.executeSelect(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by id", new SqlExecutor.StringsConverter(
+      List<String[]> users = underTest.select(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by id", new SqlExecutor.StringsConverter(
         2));
       assertThat(users).hasSize(2);
       assertThat(users.get(0)[0]).isEqualTo("login1");
@@ -73,7 +73,7 @@ public class SqlExecutorTest {
     dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "the_login", NAME_DB_COLUMN, "the name"));
 
     try (Connection connection = dbTester.openConnection()) {
-      underTest.executeUpdate(connection, "update users set " + NAME_DB_COLUMN + "='new name' where " + LOGIN_DB_COLUMN + "='the_login'");
+      underTest.executeDdl(connection, "update users set " + NAME_DB_COLUMN + "='new name' where " + LOGIN_DB_COLUMN + "='the_login'");
     }
     Map<String, Object> row = dbTester.selectFirst("select " + NAME_DB_COLUMN + " from users where " + LOGIN_DB_COLUMN + "='the_login'");
     assertThat(row).isNotEmpty();

@@ -27,13 +27,12 @@ import org.sonar.db.charset.DatabaseCharsetChecker;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class CheckDatabaseCharsetAtStartupTest {
 
-  ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
-  DatabaseCharsetChecker charsetChecker = mock(DatabaseCharsetChecker.class);
-  CheckDatabaseCharsetAtStartup underTest = new CheckDatabaseCharsetAtStartup(upgradeStatus, charsetChecker);
+  private ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
+  private DatabaseCharsetChecker charsetChecker = mock(DatabaseCharsetChecker.class);
+  private CheckDatabaseCharsetAtStartup underTest = new CheckDatabaseCharsetAtStartup(upgradeStatus, charsetChecker);
 
   @After
   public void tearDown() {
@@ -41,20 +40,29 @@ public class CheckDatabaseCharsetAtStartupTest {
   }
 
   @Test
-  public void enforce_utf8_if_fresh_install() {
+  public void test_fresh_install() {
     when(upgradeStatus.isFreshInstall()).thenReturn(true);
 
     underTest.start();
 
-    verify(charsetChecker).check(ENFORCE_UTF8);
+    verify(charsetChecker).check(DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void do_not_enforce_utf8_and_do_not_repair_at_startup_if_not_fresh_install() {
+  public void test_upgrade() {
+    when(upgradeStatus.isUpgraded()).thenReturn(true);
+
+    underTest.start();
+
+    verify(charsetChecker).check(DatabaseCharsetChecker.State.UPGRADE);
+  }
+
+  @Test
+  public void test_regular_startup() {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
 
     underTest.start();
 
-    verify(charsetChecker).check();
+    verify(charsetChecker).check(DatabaseCharsetChecker.State.STARTUP);
   }
 }

@@ -31,9 +31,6 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
-import static com.google.common.collect.Sets.immutableEnumSet;
-import static java.util.Arrays.asList;
-
 /**
  * On fresh installations, checks that all db columns are UTF8. On all installations on MySQL or MSSQL,
  * whatever fresh or upgrade, fixes case-insensitive columns by converting them to
@@ -43,30 +40,28 @@ import static java.util.Arrays.asList;
  */
 public class DatabaseCharsetChecker {
 
-  public enum Flag {
-    ENFORCE_UTF8, AUTO_REPAIR_COLLATION
+  public enum State {
+    FRESH_INSTALL, UPGRADE, STARTUP
   }
 
   private final Database db;
-  private final SqlExecutor selectExecutor;
+  private final SqlExecutor sqlExecutor;
 
   public DatabaseCharsetChecker(Database db) {
     this(db, new SqlExecutor());
   }
 
   @VisibleForTesting
-  DatabaseCharsetChecker(Database db, SqlExecutor selectExecutor) {
+  DatabaseCharsetChecker(Database db, SqlExecutor sqlExecutor) {
     this.db = db;
-    this.selectExecutor = selectExecutor;
+    this.sqlExecutor = sqlExecutor;
   }
 
-  public void check(Flag... flags) {
-    try {
-      try (Connection connection = db.getDataSource().getConnection()) {
-        CharsetHandler handler = getHandler(db.getDialect());
-        if (handler != null) {
-          handler.handle(connection, immutableEnumSet(asList(flags)));
-        }
+  public void check(State state) {
+    try (Connection connection = db.getDataSource().getConnection()) {
+      CharsetHandler handler = getHandler(db.getDialect());
+      if (handler != null) {
+        handler.handle(connection, state);
       }
     } catch (SQLException e) {
       throw new IllegalStateException(e);
@@ -81,13 +76,13 @@ public class DatabaseCharsetChecker {
         // nothing to check
         return null;
       case Oracle.ID:
-        return new OracleCharsetHandler(selectExecutor);
+        return new OracleCharsetHandler(sqlExecutor);
       case PostgreSql.ID:
-        return new PostgresCharsetHandler(selectExecutor);
+        return new PostgresCharsetHandler(sqlExecutor, new PostgresMetadataReader(sqlExecutor));
       case MySql.ID:
-        return new MysqlCharsetHandler(selectExecutor);
+        return new MysqlCharsetHandler(sqlExecutor);
       case MsSql.ID:
-        return new MssqlCharsetHandler(selectExecutor);
+        return new MssqlCharsetHandler(sqlExecutor, new MssqlMetadataReader(sqlExecutor));
       default:
         throw new IllegalArgumentException("Database not supported: " + dialect.getId());
     }

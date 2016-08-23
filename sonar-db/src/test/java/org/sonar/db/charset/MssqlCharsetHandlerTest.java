@@ -25,26 +25,23 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
 
-import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 
 @RunWith(DataProviderRunner.class)
 public class MssqlCharsetHandlerTest {
@@ -57,80 +54,98 @@ public class MssqlCharsetHandlerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  SqlExecutor selectExecutor = mock(SqlExecutor.class);
-  MssqlCharsetHandler underTest = new MssqlCharsetHandler(selectExecutor);
+  private SqlExecutor sqlExecutor = mock(SqlExecutor.class);
+  private MssqlMetadataReader metadata = mock(MssqlMetadataReader.class);
+  private MssqlCharsetHandler underTest = new MssqlCharsetHandler(sqlExecutor, metadata);
+  private Connection connection = mock(Connection.class);
 
   @Test
-  public void do_not_fail_if_charsets_of_all_columns_are_CS_AS() throws Exception {
-    answerColumns(asList(
-      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
-      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false)));
+  public void fresh_install_verifies_that_default_collation_is_CS_AS() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
 
-    underTest.handle(mock(Connection.class), Collections.<DatabaseCharsetChecker.Flag>emptySet());
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
+
+    verify(metadata).getDefaultCollation(connection);
   }
 
   @Test
-  public void fail_if_a_column_is_case_insensitive_and_repair_is_disabled() throws Exception {
-    answerColumns(asList(
-      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
-      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+  public void fresh_install_fails_if_default_collation_is_not_CS_AS() throws SQLException {
+    answerDefaultCollation("Latin1_General_CI_AI");
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Case-sensitive and accent-sensitive collation is required for database columns [projects.name]");
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, Collections.<DatabaseCharsetChecker.Flag>emptySet());
-
-    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+    expectedException.expectMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void repair_case_insensitive_column_without_index() throws Exception {
-    answerColumns(asList(
-      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
-      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+  public void upgrade_fails_if_default_collation_is_not_CS_AS() throws SQLException {
+    answerDefaultCollation("Latin1_General_CI_AI");
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
-
-    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
   }
 
   @Test
-  public void repair_case_insensitive_column_with_indices() throws Exception {
-    answerColumns(asList(
+  public void upgrade_checks_that_columns_are_CS_AS() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
-      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
-    answerIndices(asList(
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false));
+
+    // do not fail
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+  }
+
+  @Test
+  public void upgrade_repairs_CI_AI_columns() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false));
+
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
+  }
+
+  @Test
+  public void upgrade_repairs_indexed_CI_AI_columns() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false));
+    answerIndices(
       new MssqlCharsetHandler.ColumnIndex("projects_name", false, "name"),
       // This index is on two columns. Note that it does not make sense for table "projects" !
-      new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name")));
+      new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name"));
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_name");
-    verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_login_and_name");
-    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
-    verify(selectExecutor).executeUpdate(connection, "CREATE  INDEX projects_name ON projects (name)");
-    verify(selectExecutor).executeUpdate(connection, "CREATE UNIQUE INDEX projects_login_and_name ON projects (login,name)");
+    verify(sqlExecutor).executeDdl(connection, "DROP INDEX projects.projects_name");
+    verify(sqlExecutor).executeDdl(connection, "DROP INDEX projects.projects_login_and_name");
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
+    verify(sqlExecutor).executeDdl(connection, "CREATE  INDEX projects_name ON projects (name)");
+    verify(sqlExecutor).executeDdl(connection, "CREATE UNIQUE INDEX projects_login_and_name ON projects (login,name)");
   }
 
   @Test
   @UseDataProvider("combinationsOfCsAsAndSuffix")
-  public void repair_case_insensitive_accent_insensitive_combinations_with_or_without_suffix(String collation, String expectedCollation) throws Exception {
-    answerColumns(Collections.singletonList(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", collation, "varchar", 10, false)));
+  public void repair_case_insensitive_accent_insensitive_combinations_with_or_without_suffix(String collation, String expectedCollation)
+    throws Exception {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", collation, "varchar", 10, false));
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE issues ALTER COLUMN kee varchar(10) COLLATE " + expectedCollation + " NOT NULL");
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE issues ALTER COLUMN kee varchar(10) COLLATE " + expectedCollation + " NOT NULL");
   }
 
   @DataProvider
   public static Object[][] combinationsOfCsAsAndSuffix() {
     List<String[]> res = new ArrayList<>();
-    for (String sensitivity : Arrays.asList("CI_AI", "CI_AS", "CS_AI")) {
-      for (String suffix : Arrays.asList("", "_KS_WS")) {
+    for (String sensitivity : asList("CI_AI", "CI_AS", "CS_AI")) {
+      for (String suffix : asList("", "_KS_WS")) {
         res.add(new String[] {
           format("Latin1_General_%s%s", sensitivity, suffix),
           format("Latin1_General_CS_AS%s", suffix)
@@ -142,41 +157,40 @@ public class MssqlCharsetHandlerTest {
 
   @Test
   public void support_the_max_size_of_varchar_column() throws Exception {
+    answerDefaultCollation("Latin1_General_CS_AS");
     // returned size is -1
-    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", -1, false)));
-    answerIndices(Collections.<MssqlCharsetHandler.ColumnIndex>emptyList());
+    answerColumnDefs(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", -1, false));
+    answerIndices();
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(max) COLLATE Latin1_General_CS_AS NOT NULL");
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(max) COLLATE Latin1_General_CS_AS NOT NULL");
   }
 
   @Test
   public void do_not_repair_system_tables_of_sql_azure() throws Exception {
-    answerColumns(asList(new ColumnDef("sys.sysusers", COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("sys.sysusers", COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false));
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+    verify(sqlExecutor, never()).executeDdl(any(Connection.class), anyString());
   }
 
   @Test
   @UseDataProvider("combinationOfBinAndSuffix")
   public void do_not_repair_if_collation_contains_BIN(String collation) throws Exception {
-    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false));
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+    verify(sqlExecutor, never()).executeDdl(any(Connection.class), anyString());
   }
 
   @DataProvider
   public static Object[][] combinationOfBinAndSuffix() {
-    return Arrays.asList("", "_KS_WS")
-      .stream()
+    return Stream.of("", "_KS_WS")
       .map(suffix -> new String[] {format("Latin1_General_BIN%s", suffix)})
       .toArray(Object[][]::new);
   }
@@ -184,27 +198,43 @@ public class MssqlCharsetHandlerTest {
   @Test
   @UseDataProvider("combinationOfBin2AndSuffix")
   public void do_not_repair_if_collation_contains_BIN2(String collation) throws Exception {
-    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false));
 
-    Connection connection = mock(Connection.class);
-    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
 
-    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+    verify(sqlExecutor, never()).executeDdl(any(Connection.class), anyString());
   }
 
   @DataProvider
   public static Object[][] combinationOfBin2AndSuffix() {
-    return Arrays.asList("", "_KS_WS")
-      .stream()
+    return Stream.of("", "_KS_WS")
       .map(suffix -> new String[] {format("Latin1_General_BIN2%s", suffix)})
       .toArray(Object[][]::new);
   }
 
-  private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {
-    when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(ColumnDef.ColumnDefRowConverter.INSTANCE))).thenReturn(columnDefs);
+  /**
+   * SONAR-7988
+   */
+  @Test
+  public void fix_Latin1_CS_AS_columns_created_in_5_x() throws SQLException {
+    answerDefaultCollation("SQL_Latin1_General_CP1_CS_AS");
+    answerColumnDefs(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CS_AS", "nvarchar", 10, false));
+
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(10) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL");
   }
 
-  private void answerIndices(List<MssqlCharsetHandler.ColumnIndex> indices) throws SQLException {
-    when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(MssqlCharsetHandler.ColumnIndexConverter.INSTANCE))).thenReturn(indices);
+  private void answerColumnDefs(ColumnDef... columnDefs) throws SQLException {
+    when(metadata.getColumnDefs(connection)).thenReturn(asList(columnDefs));
+  }
+
+  private void answerDefaultCollation(String defaultCollation) throws SQLException {
+    when(metadata.getDefaultCollation(connection)).thenReturn(defaultCollation);
+  }
+
+  private void answerIndices(MssqlCharsetHandler.ColumnIndex... indices) throws SQLException {
+    when(metadata.getColumnIndices(same(connection), any(ColumnDef.class))).thenReturn(asList(indices));
   }
 }
