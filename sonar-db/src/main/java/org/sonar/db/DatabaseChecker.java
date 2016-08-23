@@ -41,11 +41,10 @@ import org.sonar.db.dialect.PostgreSql;
 public class DatabaseChecker implements Startable {
 
   private static final Map<String, Version> MINIMAL_SUPPORTED_DB_VERSIONS = ImmutableMap.of(
-    // MsSQL 2008 is 10.x
     // MsSQL 2012 is 11.x
     // MsSQL 2014 is 12.x
     // https://support.microsoft.com/en-us/kb/321185
-    MsSql.ID, Version.create(10, 0, 0),
+    MsSql.ID, Version.create(11, 0, 0),
     MySql.ID, Version.create(5, 6, 0),
     Oracle.ID, Version.create(11, 0, 0),
     PostgreSql.ID, Version.create(8, 0, 0));
