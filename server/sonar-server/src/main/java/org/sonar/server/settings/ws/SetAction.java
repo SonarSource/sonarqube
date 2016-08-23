@@ -36,6 +36,12 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
+
 public class SetAction implements SettingsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -49,33 +55,33 @@ public class SetAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("set")
+    WebService.NewAction action = context.createAction(ACTION_SET)
       .setDescription("Update a setting value.<br>" +
         "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
-        "</ul>", "componentId", "componentKey")
+        "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam("key")
+    action.createParam(PARAM_KEY)
       .setDescription("Setting key")
       .setExampleValue("sonar.links.scm")
       .setRequired(true);
 
-    action.createParam("value")
+    action.createParam(PARAM_VALUE)
       .setDescription("Setting value. To reset a value, please use the reset web service.")
       .setExampleValue("git@github.com:SonarSource/sonarqube.git")
       .setRequired(true);
 
-    action.createParam("componentId")
+    action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Component id")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
-    action.createParam("componentKey")
+    action.createParam(PARAM_COMPONENT_KEY)
       .setDescription("Component key")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
   }
@@ -107,10 +113,10 @@ public class SetAction implements SettingsWsAction {
 
   private static SetRequest toWsRequest(Request request) {
     return SetRequest.builder()
-      .setKey(request.mandatoryParam("key"))
-      .setValue(request.mandatoryParam("value"))
-      .setComponentId(request.param("componentId"))
-      .setComponentKey(request.param("componentKey"))
+      .setKey(request.mandatoryParam(PARAM_KEY))
+      .setValue(request.mandatoryParam(PARAM_VALUE))
+      .setComponentId(request.param(PARAM_COMPONENT_ID))
+      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
       .build();
   }
 

@@ -23,14 +23,18 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
 
 public class SettingsService extends BaseService {
   public SettingsService(WsConnector wsConnector) {
@@ -50,6 +54,14 @@ public class SettingsService extends BaseService {
       .setParam(PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(PARAM_COMPONENT_KEY, request.getComponentKey());
     return call(getRequest, ValuesWsResponse.parser());
+  }
+
+  public void set(SetRequest request) {
+    call(new PostRequest(path(ACTION_SET))
+      .setParam(PARAM_KEY, request.getKey())
+      .setParam(PARAM_VALUE, request.getValue())
+      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
+      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
   }
 
 }

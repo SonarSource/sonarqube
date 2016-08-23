@@ -25,13 +25,16 @@ import org.junit.Test;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
 
 public class SettingsServiceTest {
 
@@ -64,6 +67,22 @@ public class SettingsServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(ValuesWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_KEYS, "sonar.debt,sonar.issue")
+      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void set() {
+    underTest.set(SetRequest.builder()
+      .setKey("sonar.debt")
+      .setValue("8h")
+      .setComponentKey("KEY")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasParam(PARAM_KEY, "sonar.debt")
+      .hasParam(PARAM_VALUE, "8h")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();
   }
