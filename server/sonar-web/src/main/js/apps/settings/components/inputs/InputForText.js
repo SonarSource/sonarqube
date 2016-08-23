@@ -17,14 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+import React from 'react';
+import { getUniqueName } from '../../utils';
+import { getSettingValue } from '../../utils';
 
-/**
- * Receive definitions action creator
- * @param {Array} definitions
- * @returns {Object}
- */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
-});
+export default class InputForText extends React.Component {
+  static propTypes = {
+    setting: React.PropTypes.object.isRequired
+  };
+
+  render () {
+    const { setting } = this.props;
+
+    return (
+        <textarea
+            name={getUniqueName(setting.key)}
+            className="input-super-large text-top"
+            rows="5">
+          {getSettingValue(setting)}
+          </textarea>
+    );
+  }
+}

@@ -17,14 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
+import PropertySetInput from './PropertySetInput';
+import MultiValueInput from './MultiValueInput';
+import renderInput from './renderInput';
+import { TYPE_PROPERTY_SET } from '../../constants';
 
-/**
- * Receive definitions action creator
- * @param {Array} definitions
- * @returns {Object}
- */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
-});
+export default class Input extends React.Component {
+  static propTypes = {
+    setting: React.PropTypes.object.isRequired
+  };
+
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
+  }
+
+  render () {
+    const { setting } = this.props;
+
+    if (setting.definition.type === TYPE_PROPERTY_SET) {
+      return <PropertySetInput setting={setting}/>;
+    }
+
+    if (setting.definition.multiValues) {
+      return <MultiValueInput setting={setting}/>;
+    }
+
+    return renderInput(setting);
+  }
+}

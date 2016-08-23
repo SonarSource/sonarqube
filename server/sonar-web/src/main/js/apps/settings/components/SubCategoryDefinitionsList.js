@@ -27,7 +27,7 @@ import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 export default class SubCategoryDefinitionsList extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
-    definitions: React.PropTypes.array.isRequired
+    settings: React.PropTypes.array.isRequired
   };
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -35,11 +35,11 @@ export default class SubCategoryDefinitionsList extends React.Component {
   }
 
   render () {
-    const bySubCategory = groupBy(this.props.definitions, 'subCategory');
+    const bySubCategory = groupBy(this.props.settings, setting => setting.definition.subCategory);
     const subCategories = Object.keys(bySubCategory).map(key => ({
       key,
-      name: getSubCategoryName(bySubCategory[key][0].category, key),
-      description: getSubCategoryDescription(bySubCategory[key][0].category, key)
+      name: getSubCategoryName(bySubCategory[key][0].definition.category, key),
+      description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key)
     }));
     const sortedSubCategories = sortBy(subCategories, subCategory => subCategory.name.toLowerCase());
 
@@ -53,7 +53,7 @@ export default class SubCategoryDefinitionsList extends React.Component {
                       {subCategory.description}
                     </div>
                 )}
-                <DefinitionsList definitions={bySubCategory[subCategory.key]} component={this.props.component}/>
+                <DefinitionsList settings={bySubCategory[subCategory.key]} component={this.props.component}/>
               </li>
           ))}
         </ul>

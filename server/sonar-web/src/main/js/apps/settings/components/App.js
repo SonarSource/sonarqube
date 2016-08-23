@@ -23,14 +23,14 @@ import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
-import { fetchDefinitions } from '../store/definitions/actions';
+import { fetchSettings } from '../store/actions';
 import { getDefaultCategory } from '../store/rootReducer';
 import '../styles.css';
 
 class App extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
-    fetchDefinitions: React.PropTypes.func.isRequired,
+    fetchSettings: React.PropTypes.func.isRequired,
     defaultCategory: React.PropTypes.string
   };
 
@@ -39,7 +39,7 @@ class App extends React.Component {
   componentDidMount () {
     document.querySelector('html').classList.add('dashboard-page');
     const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.fetchDefinitions(componentKey).then(() => {
+    this.props.fetchSettings(componentKey).then(() => {
       this.setState({ loaded: true });
     });
   }
@@ -51,7 +51,7 @@ class App extends React.Component {
   componentDidUpdate (prevProps) {
     if (prevProps.component !== this.props.component) {
       const componentKey = this.props.component ? this.props.component.key : null;
-      this.props.fetchDefinitions(componentKey);
+      this.props.fetchSettings(componentKey);
     }
   }
 
@@ -92,6 +92,6 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { fetchDefinitions }
+    { fetchSettings }
 )(App);
 

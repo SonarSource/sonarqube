@@ -24,3 +24,12 @@ export function getDefinitions (componentKey) {
   const data = componentKey ? { componentKey } : {};
   return getJSON(url, data).then(r => r.definitions);
 }
+
+export function getSettings (keys, componentKey) {
+  const url = '/api/settings/values';
+  const data = { keys };
+  if (componentKey) {
+    data.componentKey = componentKey;
+  }
+  return getJSON(url, data).then(r => r.settings);
+}

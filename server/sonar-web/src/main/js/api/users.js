@@ -39,3 +39,9 @@ export function getIdentityProviders () {
   const url = '/api/users/identity_providers';
   return getJSON(url);
 }
+
+export function searchUsers (query) {
+  const url = '/api/users/search';
+  const data = { q: query };
+  return getJSON(url, data);
+}

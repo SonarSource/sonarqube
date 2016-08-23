@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+export const RECEIVE_SETTINGS = 'RECEIVE_SETTINGS';
 
 /**
- * Receive definitions action creator
- * @param {Array} definitions
+ * Receive settings action creator
+ * @param {Array} settings
  * @returns {Object}
  */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
+export const receiveSettings = settings => ({
+  type: RECEIVE_SETTINGS,
+  settings
 });

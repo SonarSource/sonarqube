@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+import keyBy from 'lodash/keyBy';
+import { RECEIVE_SETTINGS } from './actions';
 
-/**
- * Receive definitions action creator
- * @param {Array} definitions
- * @returns {Object}
- */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
-});
+const reducer = (state = {}, action = {}) => {
+  if (action.type === RECEIVE_SETTINGS) {
+    const settingsByKey = keyBy(action.settings, 'key');
+    return { ...state, ...settingsByKey };
+  }
+
+  return state;
+};
+
+export default reducer;
+
+export const getSetting = (state, key) => state[key];

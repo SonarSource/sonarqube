@@ -19,9 +19,11 @@
  */
 import { combineReducers } from 'redux';
 import definitions, * as fromDefinitions from './definitions/reducer';
+import settings, * as fromSettings from './settings/reducer';
 
 const rootReducer = combineReducers({
   definitions,
+  settings
 });
 
 export default rootReducer;
@@ -32,3 +34,11 @@ export const getDefinitionsForCategory = (state, category) =>
 export const getAllCategories = state => fromDefinitions.getAllCategories(state.definitions);
 
 export const getDefaultCategory = state => fromDefinitions.getDefaultCategory(state.definitions);
+
+export const getSetting = (state, key) => fromSettings.getSetting(state.settings, key);
+
+export const getSettingsForCategory = (state, category) =>
+    fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => ({
+      ...getSetting(state, definition.key),
+      definition
+    }));

@@ -18,22 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import DefinitionInputForString from './DefinitionInputForString';
-import DefinitionInputForBoolean from './DefinitionInputForBoolean';
+import RadioToggle from '../../../../components/controls/RadioToggle';
+import { getUniqueName, getSettingValue } from '../../utils';
 
-export default class DefinitionInput extends React.Component {
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
+export default class InputForBoolean extends React.Component {
+  static propTypes = {
+    setting: React.PropTypes.object.isRequired
+  };
 
   render () {
-    const { definition } = this.props;
+    const { setting } = this.props;
 
-    if (definition.type === 'BOOLEAN') {
-      return <DefinitionInputForBoolean definition={definition}/>;
-    }
+    const options = [
+      { value: '', label: 'Default' },
+      { value: 'true', label: 'True' },
+      { value: 'false', label: 'False' }
+    ];
 
-    return <DefinitionInputForString definition={definition}/>;
+    return (
+        <RadioToggle
+            options={options}
+            value={getSettingValue(setting)}
+            name={getUniqueName(setting.definition.key)}
+            onCheck={() => true}/>
+    );
   }
 }

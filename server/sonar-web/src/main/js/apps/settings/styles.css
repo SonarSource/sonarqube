@@ -2,6 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: stretch;
+  margin-bottom: 60px;
 }
 
 .settings-main {
@@ -58,16 +59,17 @@
 }
 
 .settings-definition {
+  display: flex;
 }
 
 .settings-definition-left {
-  float: left;
   width: 160px;
+  flex-shrink: 0;
   padding-right: 10px;
 }
 
 .settings-definition-right {
-  overflow: hidden;
+  flex-grow: 1;
 }
 
 .settings-definition-name {

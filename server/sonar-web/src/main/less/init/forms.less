@@ -30,6 +30,7 @@ input[type=password],
 input[type=email],
 input[type=search],
 input[type=date],
+input[type=number],
 textarea,
 select {
   border: 1px solid @darkGrey;
@@ -53,7 +54,8 @@ input[type=text],
 input[type=password],
 input[type=email],
 input[type=search],
-input[type=date] {
+input[type=date],
+input[type=number] {
   height: @formControlHeight;
   padding: 0 6px;
 }
@@ -229,6 +231,10 @@ input[type="submit"].button-red {
 .input-super-large {
   width: 100%;
   max-width: 300px;
+}
+
+textarea.input-super-large {
+  max-width: 600px;
 }
 
 em.mandatory {

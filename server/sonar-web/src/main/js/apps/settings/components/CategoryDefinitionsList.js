@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
-import { getDefinitionsForCategory } from '../store/rootReducer';
+import { getSettingsForCategory } from '../store/rootReducer';
 
 class CategoryDefinitionsList extends React.Component {
   render () {
@@ -29,7 +29,7 @@ class CategoryDefinitionsList extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  definitions: getDefinitionsForCategory(state, ownProps.category)
+  settings: getSettingsForCategory(state, ownProps.category)
 });
 
 export default connect(

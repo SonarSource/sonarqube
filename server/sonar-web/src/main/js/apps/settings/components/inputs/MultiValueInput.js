@@ -18,28 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import Definition from './Definition';
+import renderInput from './renderInput';
+import { translate } from '../../../../helpers/l10n';
+import { getSettingValue } from '../../utils';
 
-export default class DefinitionsList extends React.Component {
-  static propTypes = {
-    component: React.PropTypes.object,
-    settings: React.PropTypes.array.isRequired
-  };
-
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+export default class MultiValueInput extends React.Component {
+  prepareSetting (value) {
+    const { setting } = this.props;
+    const newDefinition = { ...setting.definition, multiValues: false };
+    return {
+      ...setting,
+      value,
+      definition: newDefinition,
+      values: undefined
+    };
   }
 
   render () {
+    const { setting } = this.props;
+
+    const values = getSettingValue(setting) || [''];
+
     return (
-        <ul className="settings-definitions-list">
-          {this.props.settings.map(setting => (
-              <li key={setting.definition.key}>
-                <Definition component={this.props.component} setting={setting}/>
-              </li>
-          ))}
-        </ul>
+        <div>
+          <ul>
+            {values.map((value, index) => (
+                <li key={index} className="spacer-bottom">
+                  {renderInput(this.prepareSetting(value))}
+                </li>
+            ))}
+          </ul>
+        </div>
     );
   }
 }

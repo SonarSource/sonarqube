@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+import { getDefinitions, getSettings } from '../../../api/settings';
+import { receiveSettings } from './settings/actions';
+import { receiveDefinitions } from './definitions/actions';
 
-/**
- * Receive definitions action creator
- * @param {Array} definitions
- * @returns {Object}
- */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
-});
+export const fetchSettings = componentKey => dispatch => {
+  return getDefinitions(componentKey).then(definitions => {
+    dispatch(receiveDefinitions(definitions));
+    const keys = definitions.map(definition => definition.key).join();
+    return getSettings(keys, componentKey);
+  }).then(settings => dispatch(receiveSettings(settings)));
+};

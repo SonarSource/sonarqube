@@ -17,29 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import RadioToggle from '../../../components/controls/RadioToggle';
-
-export default class DefinitionInputForBoolean extends React.Component {
-  static propTypes = {
-    definition: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { definition } = this.props;
-
-    const options = [
-      { value: '', label: 'Default' },
-      { value: 'true', label: 'True' },
-      { value: 'false', label: 'False' }
-    ];
-
-    return (
-        <RadioToggle
-            options={options}
-            value=""
-            name={'settings_' + definition.key}
-            onCheck={() => true}/>
-    );
-  }
-}
+export const TYPE_TEXT = 'TEXT';
+export const TYPE_PASSWORD = 'PASSWORD';
+export const TYPE_BOOLEAN = 'BOOLEAN';
+export const TYPE_FLOAT = 'FLOAT';
+export const TYPE_INTEGER = 'INTEGER';
+export const TYPE_LONG = 'LONG';
+export const TYPE_SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST';
+export const TYPE_PROPERTY_SET = 'PROPERTY_SET';

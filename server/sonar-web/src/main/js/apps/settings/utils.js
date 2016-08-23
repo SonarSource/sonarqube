@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import uniqueId from 'lodash/uniqueId';
 import { translate, hasMessage } from '../../helpers/l10n';
+import { TYPE_SINGLE_SELECT_LIST, TYPE_USER } from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -44,4 +46,23 @@ export function getSubCategoryName (category, subCategory) {
 export function getSubCategoryDescription (category, subCategory) {
   const key = `property.category.${category}.${subCategory}.description`;
   return hasMessage(key) ? translate(key) : null;
+}
+
+export function getUniqueName (definition) {
+  return `settings_${definition.key}_${uniqueId('setting_')}`;
+}
+
+export function getSettingValue (setting) {
+  const isComplexValue = [TYPE_SINGLE_SELECT_LIST, TYPE_USER].includes(setting.definition.type);
+  const noValue = isComplexValue ? null : '';
+
+  if (setting.default || setting.inherited) {
+    return noValue;
+  }
+
+  if (setting.definition.multiValues) {
+    return setting.values;
+  }
+
+  return setting.value;
 }

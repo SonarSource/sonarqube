@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_DEFINITIONS = 'RECEIVE_DEFINITIONS';
+import React from 'react';
 
-/**
- * Receive definitions action creator
- * @param {Array} definitions
- * @returns {Object}
- */
-export const receiveDefinitions = definitions => ({
-  type: RECEIVE_DEFINITIONS,
-  definitions
-});
+export default class InputForPassword extends React.Component {
+  static propTypes = {
+    setting: React.PropTypes.object.isRequired
+  };
+
+  render () {
+    return (
+        <button className="button-clean">
+          <span className="note">***</span>
+        </button>
+    );
+  }
+}

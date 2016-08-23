@@ -19,14 +19,14 @@
  */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import DefinitionInput from './DefinitionInput';
+import DefinitionInput from './inputs/Input';
 import { getPropertyName, getPropertyDescription } from '../utils';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 export default class Definition extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
-    definition: React.PropTypes.object.isRequired
+    setting: React.PropTypes.object.isRequired
   };
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -34,7 +34,8 @@ export default class Definition extends React.Component {
   }
 
   render () {
-    const { definition } = this.props;
+    const { setting } = this.props;
+    const { definition } = setting;
     const propertyName = getPropertyName(definition);
 
     return (
@@ -46,7 +47,7 @@ export default class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <DefinitionInput definition={definition}/>
+            <DefinitionInput setting={setting}/>
 
             {definition.defaultValue != null && (
                 <div className="settings-definition-default note spacer-top">

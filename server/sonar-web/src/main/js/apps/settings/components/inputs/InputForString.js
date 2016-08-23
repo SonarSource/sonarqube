@@ -18,22 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { getUniqueName, getSettingValue } from '../../utils';
 
-export default class DefinitionInputForString extends React.Component {
+export default class InputForString extends React.Component {
   static propTypes = {
-    definition: React.PropTypes.object.isRequired
+    setting: React.PropTypes.object.isRequired
   };
 
   render () {
-    const { definition } = this.props;
+    const { setting } = this.props;
 
     return (
         <input
-            id={'input_' + definition.key}
-            name={'settings[' + definition.key + ']'}
-            className="input-super-large"
+            name={getUniqueName(setting.definition.key)}
+            className="input-large text-top"
             type="text"
-            placeholder={definition.defaultValue}/>
+            value={getSettingValue(setting)}
+            onChange={() => true}/>
     );
   }
 }
