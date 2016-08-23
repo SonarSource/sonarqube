@@ -19,64 +19,75 @@
  */
 package org.sonar.db.charset;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 class PostgresCharsetHandler extends CharsetHandler {
 
-  protected PostgresCharsetHandler(SqlExecutor selectExecutor) {
+  private final PostgresMetadataReader metadata;
+
+  PostgresCharsetHandler(SqlExecutor selectExecutor, PostgresMetadataReader metadata) {
     super(selectExecutor);
+    this.metadata = metadata;
   }
 
   @Override
-  void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
-    // PostgreSQL does not support case-insensitive collations. Only charset must be verified.
-    if (flags.contains(ENFORCE_UTF8)) {
-      Loggers.get(getClass()).info("Verify that database collation supports UTF8");
-      checkUtf8(connection);
+  void handle(Connection connection, DatabaseCharsetChecker.State state) throws SQLException {
+    // PostgreSQL does not have concept of case-sensitive collation. Only charset ("encoding" in postgresql terminology)
+    // must be verified.
+    expectUtf8AsDefault(connection);
+
+    if (state == DatabaseCharsetChecker.State.UPGRADE || state == DatabaseCharsetChecker.State.STARTUP) {
+      // no need to check columns on fresh installs... as they are not supposed to exist!
+      expectUtf8Columns(connection);
     }
   }
 
-  private void checkUtf8(Connection connection) throws SQLException {
-    // Character set is defined globally and can be overridden on each column.
-    // This request returns all VARCHAR columns. Collation may be empty.
+  private void expectUtf8AsDefault(Connection connection) throws SQLException {
+    Loggers.get(getClass()).info("Verify that database charset supports UTF8");
+    String collation = metadata.getDefaultCharset(connection);
+    if (!containsIgnoreCase(collation, UTF8)) {
+      throw MessageException.of(format("Database charset is %s. It must support UTF8.", collation));
+    }
+  }
+
+  private void expectUtf8Columns(Connection connection) throws SQLException {
+    // Charset is defined globally and can be overridden on each column.
+    // This request returns all VARCHAR columns. Charset may be empty.
     // Examples:
     // issues | key | ''
     // projects | name | utf8
-    List<String[]> rows = select(connection, "select table_name, column_name, collation_name " +
+    List<String[]> rows = getSqlExecutor().select(connection, "select table_name, column_name, collation_name " +
       "from information_schema.columns " +
       "where table_schema='public' " +
       "and udt_name='varchar' " +
       "order by table_name, column_name", new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
-    boolean mustCheckGlobalCollation = false;
     Set<String> errors = new LinkedHashSet<>();
     for (String[] row : rows) {
-      if (StringUtils.isBlank(row[2])) {
-        mustCheckGlobalCollation = true;
-      } else if (!containsIgnoreCase(row[2], UTF8)) {
+      if (!isBlank(row[2]) && !containsIgnoreCase(row[2], UTF8)) {
         errors.add(format("%s.%s", row[0], row[1]));
       }
     }
 
-    if (mustCheckGlobalCollation) {
-      String charset = selectSingleString(connection, "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()");
-      if (!containsIgnoreCase(charset, UTF8)) {
-        throw MessageException.of(format("Database collation is %s. It must support UTF8.", charset));
-      }
-    }
     if (!errors.isEmpty()) {
-      throw MessageException.of(format("Database columns [%s] must support UTF8 collation.", Joiner.on(", ").join(errors)));
+      throw MessageException.of(format("Database columns [%s] must have UTF8 charset.", Joiner.on(", ").join(errors)));
     }
   }
+
+  @VisibleForTesting
+  PostgresMetadataReader getMetadata() {
+    return metadata;
+  }
+
 }

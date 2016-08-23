@@ -23,84 +23,87 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
-import org.sonar.db.charset.DatabaseCharsetChecker.Flag;
 
-import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class OracleCharsetHandlerTest {
-
-  private static final Set<Flag> ENFORCE_UTF8_FLAGS = immutableEnumSet(ENFORCE_UTF8);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  SqlExecutor selectExecutor = mock(SqlExecutor.class);
-  OracleCharsetHandler underTest = new OracleCharsetHandler(selectExecutor);
+  private SqlExecutor sqlExecutor = mock(SqlExecutor.class);
+  private Connection connection = mock(Connection.class);
+  private OracleCharsetHandler underTest = new OracleCharsetHandler(sqlExecutor);
 
   @Test
-  public void checks_utf8() throws Exception {
-    answerSql(
-      singletonList(new String[] {"UTF8"}), singletonList(new String[] {"BINARY"}));
+  public void fresh_install_verifies_utf8_charset() throws Exception {
+    answerSql(singletonList(new String[] {"UTF8"}), singletonList(new String[] {"BINARY"}));
 
-    underTest.handle(mock(Connection.class), ENFORCE_UTF8_FLAGS);
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void supports_al32utf8() throws Exception {
+  public void upgrade_does_not_verify_utf8_charset() throws Exception {
+    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+
+    verifyZeroInteractions(sqlExecutor);
+  }
+
+  @Test
+  public void fresh_install_supports_al32utf8() throws Exception {
     answerSql(
       singletonList(new String[] {"AL32UTF8"}), singletonList(new String[] {"BINARY"}));
 
-    underTest.handle(mock(Connection.class), ENFORCE_UTF8_FLAGS);
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void fails_if_charset_is_not_utf8() throws Exception {
+  public void fresh_install_fails_if_charset_is_not_utf8() throws Exception {
     answerSql(
       singletonList(new String[] {"LATIN"}), singletonList(new String[] {"BINARY"}));
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is LATIN and NLS_SORT is BINARY.");
 
-    underTest.handle(mock(Connection.class), ENFORCE_UTF8_FLAGS);
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void fails_if_not_case_sensitive() throws Exception {
+  public void fresh_install_fails_if_not_case_sensitive() throws Exception {
     answerSql(
       singletonList(new String[] {"UTF8"}), singletonList(new String[] {"LINGUISTIC"}));
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is UTF8 and NLS_SORT is LINGUISTIC.");
 
-    underTest.handle(mock(Connection.class), ENFORCE_UTF8_FLAGS);
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
   public void fails_if_can_not_get_charset() throws Exception {
-    answerSql(Collections.<String[]>emptyList(), Collections.<String[]>emptyList());
+    answerSql(Collections.emptyList(), Collections.emptyList());
 
     expectedException.expect(MessageException.class);
 
-    underTest.handle(mock(Connection.class), ENFORCE_UTF8_FLAGS);
+    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
-  public void does_nothing_if_utf8_must_not_verified() throws Exception {
-    underTest.handle(mock(Connection.class), Collections.<Flag>emptySet());
+  public void does_nothing_if_regular_startup() throws Exception {
+    underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP);
+    verifyZeroInteractions(sqlExecutor);
   }
 
   private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(selectExecutor.executeSelect(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest, otherRequests);
+    when(sqlExecutor.select(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest, otherRequests);
   }
 }

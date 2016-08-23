@@ -23,13 +23,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.db.DatabaseUtils;
 
 public class SqlExecutor {
 
-  public <T> List<T> executeSelect(Connection connection, String sql, RowConverter<T> rowConverter) throws SQLException {
+  public <T> List<T> select(Connection connection, String sql, RowConverter<T> rowConverter) throws SQLException {
     PreparedStatement stmt = null;
     ResultSet rs = null;
     try {
@@ -47,16 +49,31 @@ public class SqlExecutor {
     }
   }
 
-  public void executeUpdate(Connection connection, String sql) throws SQLException {
-    PreparedStatement stmt = null;
-    try {
-      stmt = connection.prepareStatement(sql);
-      stmt.executeUpdate();
-    } finally {
-      DatabaseUtils.closeQuietly(stmt);
+  public void executeDdl(Connection connection, String sql) throws SQLException {
+    try (Statement stmt = connection.createStatement()) {
+      stmt.execute(sql);
     }
   }
 
+  @CheckForNull
+  public final String selectSingleString(Connection connection, String sql) throws SQLException {
+    String[] cols = selectSingleRow(connection, sql, new SqlExecutor.StringsConverter(1));
+    return cols == null ? null : cols[0];
+  }
+
+  @CheckForNull
+  public final <T> T selectSingleRow(Connection connection, String sql, SqlExecutor.RowConverter<T> rowConverter) throws SQLException {
+    List<T> rows = select(connection, sql, rowConverter);
+    if (rows.isEmpty()) {
+      return null;
+    }
+    if (rows.size() == 1) {
+      return rows.get(0);
+    }
+    throw new IllegalStateException("Expecting only one result for [" + sql + "]");
+  }
+
+  @FunctionalInterface
   public interface RowConverter<T> {
     T convert(ResultSet rs) throws SQLException;
   }
