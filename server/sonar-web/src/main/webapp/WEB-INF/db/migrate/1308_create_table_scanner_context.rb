@@ -30,6 +30,6 @@ class CreateTableScannerContext < ActiveRecord::Migration
       t.column 'created_at', :big_integer, :null => false
       t.column 'updated_at', :big_integer, :null => false
     end
-    add_index 'scanner_context', 'analysis_uuid', :name => 'scanner_context_analysis_uuid', :unique => true
+    add_primary_key 'scanner_context', 'analysis_uuid'
   end
 end
