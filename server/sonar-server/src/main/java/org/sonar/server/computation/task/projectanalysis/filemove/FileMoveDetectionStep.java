@@ -144,7 +144,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       movedFilesRepository.setOriginalFile(
         reportFilesByKey.get(validatedMatch.getReportKey()),
         toOriginalFile(dbFilesByKey.get(validatedMatch.getDbKey())));
-      LOG.info("File move found: " + validatedMatch);
+      LOG.debug("File move found: {}", validatedMatch);
     }
   }
 
