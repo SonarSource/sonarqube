@@ -256,7 +256,7 @@ public class FileMoveDetectionStep implements ComputationStep {
         continue;
       }
       if (matchesToValidate.size() == 1) {
-        Match match = matches.get(0);
+        Match match = matchesToValidate.get(0);
         electedMatches.add(match);
       } else {
         matchesPerFileForScore.clear();
