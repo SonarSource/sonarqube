@@ -17,28 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
 
-import org.sonar.api.server.ws.WebService;
+package org.sonarqube.ws.client.setting;
 
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+public class SettingsWsParameters {
+  public static final String CONTROLLER_SETTINGS = "api/settings";
 
-public class SettingsWs implements WebService {
+  public static final String ACTION_LIST_DEFINITIONS = "list_definitions";
 
-  private final SettingsWsAction[] actions;
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_KEY = "componentKey";
 
-  public SettingsWs(SettingsWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER_SETTINGS)
-      .setDescription("Manage settings.")
-      .setSince("6.1");
-    for (SettingsWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
-  }
 }

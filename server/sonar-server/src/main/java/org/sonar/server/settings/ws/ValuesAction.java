@@ -43,10 +43,10 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_KEY;
 import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
 
 public class ValuesAction implements SettingsWsAction {
 

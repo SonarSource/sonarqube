@@ -29,6 +29,7 @@ import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.rule.RulesService;
+import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
@@ -53,6 +54,7 @@ class DefaultWsClient implements WsClient {
   private final RulesService rulesService;
   private final ProjectsService projectsService;
   private final ProjectLinksService projectLinksService;
+  private final SettingsService settingsService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -68,6 +70,7 @@ class DefaultWsClient implements WsClient {
     this.rulesService = new RulesService(wsConnector);
     this.projectsService = new ProjectsService(wsConnector);
     this.projectLinksService = new ProjectLinksService(wsConnector);
+    this.settingsService = new SettingsService(wsConnector);
   }
 
   @Override
@@ -133,5 +136,10 @@ class DefaultWsClient implements WsClient {
   @Override
   public ProjectLinksService projectLinks() {
     return projectLinksService;
+  }
+
+  @Override
+  public SettingsService settingsService() {
+    return settingsService;
   }
 }

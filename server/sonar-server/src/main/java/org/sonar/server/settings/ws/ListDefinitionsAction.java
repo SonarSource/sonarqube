@@ -20,7 +20,7 @@
 package org.sonar.server.settings.ws;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -28,33 +28,42 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
+import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.PARAM_COMPONENT_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
 
 public class ListDefinitionsAction implements SettingsWsAction {
 
   private final DbClient dbClient;
-  private final SettingsWsComponentParameters settingsWsComponentParameters;
+  private final ComponentFinder componentFinder;
+  private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
 
-  public ListDefinitionsAction(DbClient dbClient, SettingsWsComponentParameters settingsWsComponentParameters, PropertyDefinitions propertyDefinitions) {
+  public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions) {
     this.dbClient = dbClient;
-    this.settingsWsComponentParameters = settingsWsComponentParameters;
+    this.componentFinder = componentFinder;
+    this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("list_definitions")
+    WebService.NewAction action = context.createAction(ACTION_LIST_DEFINITIONS)
       .setDescription(String.format("List settings definitions.<br>" +
         "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
@@ -65,7 +74,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
       .setSince("6.1")
       .setHandler(this);
-
     addComponentParameters(action);
   }
 
@@ -75,14 +83,50 @@ public class ListDefinitionsAction implements SettingsWsAction {
   }
 
   private ListDefinitionsWsResponse doHandle(Request request) {
-    String qualifier = getQualifier(request);
+    ListDefinitionsRequest wsRequest = toWsRequest(request);
+    Optional<String> qualifier = getQualifier(wsRequest);
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
 
     propertyDefinitions.getAll().stream()
-      .filter(definition -> qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier))
+      .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
       .filter(definition -> !definition.type().equals(PropertyType.LICENSE))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
+  }
+
+  private static ListDefinitionsRequest toWsRequest(Request request) {
+    return ListDefinitionsRequest.builder()
+      .setComponentId(request.param(PARAM_COMPONENT_ID))
+      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .build();
+  }
+
+  private Optional<String> getQualifier(ListDefinitionsRequest wsRequest) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<ComponentDto> component = getComponent(dbSession, wsRequest);
+      checkAdminPermission(component);
+      return component.isPresent() ? Optional.of(component.get().qualifier()) : Optional.empty();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private Optional<ComponentDto> getComponent(DbSession dbSession, ListDefinitionsRequest wsRequest) {
+    String componentId = wsRequest.getComponentId();
+    String componentKey = wsRequest.getComponentKey();
+    if (componentId != null || componentKey != null) {
+      return Optional.of(componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY));
+    }
+    return Optional.empty();
+  }
+
+  private void checkAdminPermission(Optional<ComponentDto> component) {
+    if (component.isPresent()) {
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.get().uuid());
+    } else {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    }
   }
 
   private void addDefinition(PropertyDefinition definition, ListDefinitionsWsResponse.Builder wsResponse) {
@@ -131,18 +175,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setType(Settings.Type.valueOf(fieldDefinition.type().name()))
       .addAllOptions(fieldDefinition.options())
       .build();
-  }
-
-  @CheckForNull
-  private String getQualifier(Request request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      ComponentDto component = settingsWsComponentParameters.getComponent(dbSession, request);
-      settingsWsComponentParameters.checkAdminPermission(component);
-      return component == null ? null : component.qualifier();
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
   }
 
 }

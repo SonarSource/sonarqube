@@ -79,9 +79,8 @@ public class ListDefinitionsActionTest {
   ComponentDto project;
 
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
-  SettingsWsComponentParameters settingsWsComponentParameters = new SettingsWsComponentParameters(new ComponentFinder(dbClient), userSession);
 
-  WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, settingsWsComponentParameters, propertyDefinitions));
+  WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions));
 
   @Before
   public void setUp() throws Exception {
