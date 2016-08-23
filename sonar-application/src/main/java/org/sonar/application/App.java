@@ -92,6 +92,7 @@ public class App implements Stoppable {
       .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
       // required for logback tomcat valve
       .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
+      .setEnvVariable("TMPDIR", props.nonNullValue(ProcessProperties.PATH_TEMP))
       .setClassName("org.sonar.server.app.WebServer")
       .setArguments(props.rawProperties())
       .addClasspath("./lib/common/*")
