@@ -45,7 +45,7 @@ export default class Definition extends React.Component {
               {propertyName}
             </h3>
 
-            <div className="settings-definition-description markdown note spacer-top"
+            <div className="settings-definition-description markdown small spacer-top"
                  dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}/>
 
             <div className="settings-definition-key note little-spacer-top">

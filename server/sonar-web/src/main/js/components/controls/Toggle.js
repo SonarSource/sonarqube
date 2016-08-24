@@ -18,29 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Select from 'react-select';
-import { getUniqueName, getSettingValue } from '../../utils';
+import classNames from 'classnames';
+import './styles.css';
 
-export default class InputForSingleSelectList extends React.Component {
+export default class Toggle extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired
+    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool]).isRequired,
+    name: React.PropTypes.string,
+    onChange: React.PropTypes.func
   };
 
-  render () {
-    const { setting } = this.props;
+  handleClick (e, value) {
+    e.preventDefault();
+    e.currentTarget.blur();
+    if (this.props.onChange) {
+      this.props.onChange(!value);
+    }
+  }
 
-    const options = setting.definition.options.map(option => ({
-      label: option,
-      value: option
-    }));
+  render () {
+    const { value } = this.props;
+    const booleanValue = typeof value === 'string' ? value === 'true' : value;
+
+    const className = classNames('boolean-toggle', { 'boolean-toggle-on': booleanValue });
 
     return (
-        <Select
-            name={getUniqueName(setting.definition)}
-            className="input-large"
-            options={options}
-            clearable={false}
-            value={getSettingValue(setting)}/>
+        <button className={className} name={this.props.name} onClick={e => this.handleClick(e, booleanValue)}>
+          <div className="boolean-toggle-handle"/>
+        </button>
     );
   }
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import RadioToggle from '../../../../components/controls/RadioToggle';
+import Toggle from '../../../../components/controls/Toggle';
 import { getUniqueName, getSettingValue } from '../../utils';
 
 export default class InputForBoolean extends React.Component {
@@ -29,17 +29,10 @@ export default class InputForBoolean extends React.Component {
   render () {
     const { setting } = this.props;
 
-    const options = [
-      { value: '', label: 'Default' },
-      { value: 'true', label: 'True' },
-      { value: 'false', label: 'False' }
-    ];
-
     return (
-        <RadioToggle
-            options={options}
+        <Toggle
             value={getSettingValue(setting)}
-            name={getUniqueName(setting.definition.key)}
+            name={getUniqueName(setting.definition)}
             onCheck={() => true}/>
     );
   }

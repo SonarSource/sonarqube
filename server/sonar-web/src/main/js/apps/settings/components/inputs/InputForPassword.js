@@ -26,9 +26,7 @@ export default class InputForPassword extends React.Component {
 
   render () {
     return (
-        <button className="button-clean">
-          <span className="note">***</span>
-        </button>
+        <i className="icon-lock icon-gray"/>
     );
   }
 }

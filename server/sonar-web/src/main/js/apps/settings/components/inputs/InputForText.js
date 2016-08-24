@@ -32,9 +32,9 @@ export default class InputForText extends React.Component {
         <textarea
             name={getUniqueName(setting.definition)}
             className="input-super-large text-top"
-            rows="5">
-          {getSettingValue(setting)}
-          </textarea>
+            rows="5"
+            value={getSettingValue(setting)}
+            onChange={() => true}/>
     );
   }
 }

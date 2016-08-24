@@ -30,7 +30,7 @@ export default class InputForInteger extends React.Component {
 
     return (
         <input
-            name={getUniqueName(setting.definition.key)}
+            name={getUniqueName(setting.definition)}
             className="input-small"
             type="number"
             value={getSettingValue(setting)}

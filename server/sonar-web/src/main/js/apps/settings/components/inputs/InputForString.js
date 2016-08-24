@@ -30,7 +30,7 @@ export default class InputForString extends React.Component {
 
     return (
         <input
-            name={getUniqueName(setting.definition.key)}
+            name={getUniqueName(setting.definition)}
             className="input-large text-top"
             type="text"
             value={getSettingValue(setting)}

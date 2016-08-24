@@ -17,30 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import chai, { expect } from 'chai';
+import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import React from 'react';
-import Select from 'react-select';
-import { getUniqueName, getSettingValue } from '../../utils';
+import Toggle from '../Toggle';
 
-export default class InputForSingleSelectList extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired
-  };
+chai.use(sinonChai);
 
-  render () {
-    const { setting } = this.props;
-
-    const options = setting.definition.options.map(option => ({
-      label: option,
-      value: option
-    }));
-
-    return (
-        <Select
-            name={getUniqueName(setting.definition)}
-            className="input-large"
-            options={options}
-            clearable={false}
-            value={getSettingValue(setting)}/>
-    );
-  }
+function getSample (props) {
+  return (
+      <Toggle value={true} onChange={() => true} {...props}/>);
 }
+
+function click (element) {
+  return element.simulate('click', {
+    currentTarget: { blur () {} },
+    preventDefault () {}
+  });
+}
+
+describe('Components :: Controls :: Toggle', () => {
+  it('should render', () => {
+    const Toggle = shallow(getSample());
+    expect(Toggle.is('button')).to.equal(true);
+  });
+
+  it('should call onChange', () => {
+    const onChange = sinon.spy();
+    const Toggle = shallow(getSample({ onChange }));
+    click(Toggle);
+    expect(onChange).to.have.been.calledWith(false);
+  });
+});
