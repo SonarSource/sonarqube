@@ -32,7 +32,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.dialect.H2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -43,7 +42,6 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -173,9 +171,6 @@ public class TaskActionTest {
 
   @Test
   public void return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_set() {
-    // H2 version we use (1.3.176) has lock bugs when table has CLOB columns which makes this test fail
-    assumeTrue(!dbTester.database().getDialect().getId().equals(H2.ID));
-
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
     String scannerContext = "this is some scanner context, yeah!";
@@ -196,9 +191,6 @@ public class TaskActionTest {
 
   @Test
   public void do_not_return_scannerContext_of_activity_with_scannerContext_when_additionalField_is_not_set() {
-    // H2 version we use (1.3.176) has lock bugs when table has CLOB columns which makes this test fail
-    assumeTrue(!dbTester.database().getDialect().getId().equals(H2.ID));
-
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
     String scannerContext = "this is some scanner context, yeah!";

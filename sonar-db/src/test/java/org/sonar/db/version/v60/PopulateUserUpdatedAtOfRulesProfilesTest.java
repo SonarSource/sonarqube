@@ -21,6 +21,7 @@
 package org.sonar.db.version.v60;
 
 import com.google.common.base.Throwables;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -99,12 +100,14 @@ public class PopulateUserUpdatedAtOfRulesProfilesTest {
 
   private void insertActivity(String profileKey, @Nullable String login, @Nullable Long createdAt) {
     final String sqlInsertActivity = "insert into activities (profile_key, user_login, created_at) values (?, ?, ?) ";
-    try (PreparedStatement ps = db.getSession().getConnection().prepareStatement(sqlInsertActivity)) {
+
+    Connection connection = db.getSession().getConnection();
+    try (PreparedStatement ps = connection.prepareStatement(sqlInsertActivity)) {
       ps.setString(1, profileKey);
       ps.setString(2, login);
       ps.setTimestamp(3, createdAt == null ? null : new Timestamp(createdAt));
       ps.executeUpdate();
-      db.getSession().commit();
+      connection.commit();
     } catch (SQLException e) {
       throw Throwables.propagate(e);
     }
