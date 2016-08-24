@@ -29,6 +29,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PersistScannerContextStepTest {
@@ -52,13 +53,23 @@ public class PersistScannerContextStepTest {
   }
 
   @Test
-  public void log_scanner_logs() {
+  public void executes_persist_lines_of_reportReader() {
     reportReader.setScannerLogs(asList("log1", "log2"));
 
     underTest.execute();
 
     assertThat(dbClient.scannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
       .contains("log1" + '\n' + "log2");
+  }
+
+  @Test
+  public void executes_persist_does_not_persit_any_scanner_context_if_iterator_is_empty() {
+    reportReader.setScannerLogs(emptyList());
+
+    underTest.execute();
+
+    assertThat(dbClient.scannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
+      .isEmpty();
   }
 
 }
