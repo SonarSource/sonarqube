@@ -20,6 +20,7 @@
 package org.sonar.ce.http;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 import okhttp3.OkHttpClient;
@@ -27,11 +28,10 @@ import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.ws.ChangeLogLevelAction;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 
@@ -79,6 +79,7 @@ public class CeHttpClient {
   }
 
   public void changeLogLevel(LoggerLevel level) {
+    requireNonNull(level, "level can't be null");
     call(new ChangeLogLevelActionClient(level));
   }
 
@@ -107,10 +108,12 @@ public class CeHttpClient {
         .build();
       okhttp3.Response response = new OkHttpClient().newCall(request).execute();
       if (response.code() != 200) {
-        Loggers.get(ChangeLogLevelAction.class).error(
-          "Failed to change log level in Compute Engine. Code was '{}' and response was '{}'",
-          response.code(),
-          response.body().string());
+        throw new IOException(
+          String.format(
+            "Failed to change log level in Compute Engine. Code was '%s' and response was '%s' for url '%s'",
+            response.code(),
+            response.body().string(),
+            url));
       }
       return null;
     }
@@ -123,7 +126,7 @@ public class CeHttpClient {
       }
       return actionClient.getDefault();
     } catch (Exception e) {
-      throw new IllegalStateException("Can not get system info of process " + COMPUTE_ENGINE, e);
+      throw new IllegalStateException("Failed to call HTTP server of process " + COMPUTE_ENGINE, e);
     }
   }
 
