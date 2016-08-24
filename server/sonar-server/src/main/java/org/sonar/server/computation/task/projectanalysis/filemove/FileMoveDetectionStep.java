@@ -92,7 +92,7 @@ public class FileMoveDetectionStep implements ComputationStep {
   @Override
   public void execute() {
     // do nothing if no files in db (first analysis)
-    Analysis baseProjectAnalysis = analysisMetadataHolder.getBaseProjectSnapshot();
+    Analysis baseProjectAnalysis = analysisMetadataHolder.getBaseAnalysis();
     if (baseProjectAnalysis == null) {
       LOG.debug("First analysis. Do nothing.");
       return;

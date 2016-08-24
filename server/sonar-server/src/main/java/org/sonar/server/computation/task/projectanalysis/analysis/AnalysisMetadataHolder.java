@@ -37,20 +37,20 @@ public interface AnalysisMetadataHolder {
   long getAnalysisDate();
 
   /**
-   * Convenience method equivalent to calling {@link #getBaseProjectSnapshot() == null}
+   * Convenience method equivalent to calling {@link #getBaseAnalysis() == null}
    *
    * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   boolean isFirstAnalysis();
 
   /**
-   * Return the last snapshot of the project.
+   * Return the last analysis of the project.
    * If it's the first analysis, it will return null.
    *
-   * @throws IllegalStateException if baseProjectSnapshot has not been set
+   * @throws IllegalStateException if baseAnalysis has not been set
    */
   @CheckForNull
-  Analysis getBaseProjectSnapshot();
+  Analysis getBaseAnalysis();
 
   /**
    * @throws IllegalStateException if cross project duplication flag has not been set

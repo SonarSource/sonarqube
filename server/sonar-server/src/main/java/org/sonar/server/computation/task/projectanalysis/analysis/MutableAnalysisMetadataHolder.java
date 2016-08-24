@@ -36,9 +36,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   MutableAnalysisMetadataHolder setAnalysisDate(long date);
 
   /**
-   * @throws IllegalStateException if baseProjectAnalysis has already been set
+   * @throws IllegalStateException if baseAnalysis has already been set
    */
-  MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis);
+  MutableAnalysisMetadataHolder setBaseAnalysis(@Nullable Analysis baseAnalysis);
 
   /**
    * @throws IllegalStateException if cross project duplication flag has already been set

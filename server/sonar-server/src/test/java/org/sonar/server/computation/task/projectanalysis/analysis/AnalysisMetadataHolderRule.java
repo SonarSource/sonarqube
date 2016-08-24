@@ -36,7 +36,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
+  private final InitializedProperty<Analysis> baseAnalysis = new InitializedProperty<>();
 
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
@@ -80,20 +80,20 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   @Override
   public boolean isFirstAnalysis() {
-    return getBaseProjectSnapshot() == null;
+    return getBaseAnalysis() == null;
   }
 
   @Override
-  public AnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
-    this.baseProjectSnapshot.setProperty(baseProjectAnalysis);
+  public AnalysisMetadataHolderRule setBaseAnalysis(@Nullable Analysis baseAnalysis) {
+    this.baseAnalysis.setProperty(baseAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Analysis getBaseProjectSnapshot() {
-    checkState(baseProjectSnapshot.isInitialized(), "Base project snapshot has not been set");
-    return baseProjectSnapshot.getProperty();
+  public Analysis getBaseAnalysis() {
+    checkState(baseAnalysis.isInitialized(), "Base analysis has not been set");
+    return baseAnalysis.getProperty();
   }
 
   @Override

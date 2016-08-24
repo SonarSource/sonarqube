@@ -74,7 +74,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         new SnapshotQuery()
           .setComponentUuid(projectUuid)
           .setIsLast(true));
-      analysisMetadataHolder.setBaseProjectSnapshot(toAnalysis(snapshotDto));
+      analysisMetadataHolder.setBaseAnalysis(toAnalysis(snapshotDto));
     } finally {
       dbClient.closeSession(dbSession);
     }

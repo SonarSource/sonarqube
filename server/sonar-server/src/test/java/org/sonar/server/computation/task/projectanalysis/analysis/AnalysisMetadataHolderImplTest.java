@@ -70,7 +70,7 @@ public class AnalysisMetadataHolderImplTest {
   public void isFirstAnalysis_return_true() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBaseProjectSnapshot(null);
+    underTest.setBaseAnalysis(null);
     assertThat(underTest.isFirstAnalysis()).isTrue();
   }
 
@@ -78,7 +78,7 @@ public class AnalysisMetadataHolderImplTest {
   public void isFirstAnalysis_return_false() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
+    underTest.setBaseAnalysis(baseProjectAnalysis);
     assertThat(underTest.isFirstAnalysis()).isFalse();
   }
 
@@ -95,17 +95,17 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Base project snapshot has not been set");
 
-    new AnalysisMetadataHolderImpl().getBaseProjectSnapshot();
+    new AnalysisMetadataHolderImpl().getBaseAnalysis();
   }
 
   @Test
   public void setBaseProjectSnapshot_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
+    underTest.setBaseAnalysis(baseProjectAnalysis);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Base project snapshot has already been set");
-    underTest.setBaseProjectSnapshot(baseProjectAnalysis);
+    underTest.setBaseAnalysis(baseProjectAnalysis);
   }
 
   @Test

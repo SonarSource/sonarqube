@@ -72,19 +72,19 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   @Override
   public boolean isFirstAnalysis() {
-    return getBaseProjectSnapshot() == null;
+    return getBaseAnalysis() == null;
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
+  public MutableAnalysisMetadataHolder setBaseAnalysis(@Nullable Analysis baseAnalysis) {
     checkState(!this.baseProjectSnapshot.isInitialized(), "Base project snapshot has already been set");
-    this.baseProjectSnapshot.setProperty(baseProjectAnalysis);
+    this.baseProjectSnapshot.setProperty(baseAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Analysis getBaseProjectSnapshot() {
+  public Analysis getBaseAnalysis() {
     checkState(baseProjectSnapshot.isInitialized(), "Base project snapshot has not been set");
     return baseProjectSnapshot.getProperty();
   }
