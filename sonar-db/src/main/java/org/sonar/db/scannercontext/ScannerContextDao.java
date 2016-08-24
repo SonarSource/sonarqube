@@ -22,6 +22,7 @@ package org.sonar.db.scannercontext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,14 +51,16 @@ public class ScannerContextDao implements Dao {
   public void insert(DbSession dbSession, String analysisUuid, CloseableIterator<String> scannerContextLines) {
     checkArgument(scannerContextLines.hasNext(), "Scanner context can not be empty");
     long now = system.now();
-    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement(
-      "INSERT INTO scanner_context (analysis_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)");
+    Connection connection = dbSession.getConnection();
+    try (PreparedStatement stmt = connection.prepareStatement(
+        "INSERT INTO scanner_context (analysis_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)");
       InputStream inputStream = new LogsIteratorInputStream(scannerContextLines, UTF_8)) {
       stmt.setString(1, analysisUuid);
       stmt.setLong(2, now);
       stmt.setLong(3, now);
       stmt.setBinaryStream(4, inputStream);
       stmt.executeUpdate();
+      connection.commit();
     } catch (SQLException | IOException e) {
       throw new IllegalStateException("Fail to insert scanner context for analysis " + analysisUuid, e);
     }
@@ -68,7 +71,8 @@ public class ScannerContextDao implements Dao {
    * whichever the platform SQ is running on ({@see LogsIteratorInputStream}).
    */
   public Optional<String> selectScannerContext(DbSession dbSession, String analysisUuid) {
-    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement("select data from scanner_context where analysis_uuid=?")) {
+    Connection connection = dbSession.getConnection();
+    try (PreparedStatement stmt = connection.prepareStatement("select data from scanner_context where analysis_uuid=?")) {
       stmt.setString(1, analysisUuid);
       try (ResultSet rs = stmt.executeQuery()) {
         if (rs.next()) {

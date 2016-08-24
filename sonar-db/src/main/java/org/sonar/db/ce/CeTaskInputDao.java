@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,13 +43,15 @@ public class CeTaskInputDao implements Dao {
 
   public void insert(DbSession dbSession, String taskUuid, InputStream data) {
     long now = system.now();
-    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement(
+    Connection connection = dbSession.getConnection();
+    try (PreparedStatement stmt = connection.prepareStatement(
       "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)")) {
       stmt.setString(1, taskUuid);
       stmt.setLong(2, now);
       stmt.setLong(3, now);
       stmt.setBinaryStream(4, data);
       stmt.executeUpdate();
+      connection.commit();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to insert data of CE task " + taskUuid, e);
     }

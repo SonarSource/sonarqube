@@ -371,7 +371,6 @@ public class CeActivityDaoTest {
 
   private void insertScannerContext(String analysisUuid) {
     db.getDbClient().scannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singletonList("scanner context of " + analysisUuid).iterator()));
-    dbSession.commit();
   }
 
   private List<String> selectPageOfUuids(int offset, int pageSize) {
