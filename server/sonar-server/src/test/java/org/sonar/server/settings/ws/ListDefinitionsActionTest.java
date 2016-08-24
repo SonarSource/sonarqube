@@ -172,7 +172,7 @@ public class ListDefinitionsActionTest {
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
       .fields(
-        PropertyFieldDefinition.build("boolean").name("Boolean").description("boolean desc").type(PropertyType.BOOLEAN).indicativeSize(15).build(),
+        PropertyFieldDefinition.build("boolean").name("Boolean").description("boolean desc").type(PropertyType.BOOLEAN).build(),
         PropertyFieldDefinition.build("list").name("List").description("list desc").type(PropertyType.SINGLE_SELECT_LIST).options("one", "two").build())
       .build());
 
@@ -188,15 +188,12 @@ public class ListDefinitionsActionTest {
     assertThat(definition.getFields(0).getDescription()).isEqualTo("boolean desc");
     assertThat(definition.getFields(0).getType()).isEqualTo(BOOLEAN);
     assertThat(definition.getFields(0).getOptionsCount()).isZero();
-    assertThat(definition.getFields(0).getIndicativeSize()).isEqualTo(15);
 
     assertThat(definition.getFields(1).getKey()).isEqualTo("list");
     assertThat(definition.getFields(1).getName()).isEqualTo("List");
     assertThat(definition.getFields(1).getDescription()).isEqualTo("list desc");
     assertThat(definition.getFields(1).getType()).isEqualTo(SINGLE_SELECT_LIST);
     assertThat(definition.getFields(1).getOptionsList()).containsExactly("one", "two");
-    // 20 is the default value
-    assertThat(definition.getFields(1).getIndicativeSize()).isEqualTo(20);
   }
 
   @Test
@@ -363,7 +360,6 @@ public class ListDefinitionsActionTest {
             .name("Text")
             .description("Text field description")
             .type(PropertyType.TEXT)
-            .indicativeSize(10)
             .build(),
           PropertyFieldDefinition.build("list")
             .name("List")

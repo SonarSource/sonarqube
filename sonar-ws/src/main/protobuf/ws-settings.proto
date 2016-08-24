@@ -47,8 +47,7 @@ message Field {
   optional string name = 2;
   optional string description = 3;
   optional Type type = 4;
-  optional int32 indicativeSize = 5;
-  repeated string options = 6;
+  repeated string options = 5;
 }
 
 enum Type {
