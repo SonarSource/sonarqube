@@ -45,7 +45,7 @@ export default class CategoriesList extends React.Component {
       query.id = this.props.component.key;
     }
 
-    const className = category.key === this.props.selectedCategory ? 'active' : '';
+    const className = category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
 
     return (
         <IndexLink to={{ pathname: '/', query }} className={className} title={category.name}>

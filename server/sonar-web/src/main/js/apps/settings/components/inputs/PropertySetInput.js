@@ -30,7 +30,7 @@ export default class PropertySetInput extends React.Component {
     const fieldsValues = setting.fieldsValues || [{}];
 
     return (
-        <table className="data zebra" style={{ width: 480, marginTop: -5 }}>
+        <table className="data zebra" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
           <thead>
             <tr>
               {setting.definition.fields.map(field => (

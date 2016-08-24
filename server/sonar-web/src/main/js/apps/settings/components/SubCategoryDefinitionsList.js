@@ -47,7 +47,7 @@ export default class SubCategoryDefinitionsList extends React.Component {
         <ul className="settings-sub-categories-list">
           {sortedSubCategories.map(subCategory => (
               <li key={subCategory.key}>
-                <h3 className="settings-sub-category-name">{subCategory.name}</h3>
+                <h2 className="settings-sub-category-name">{subCategory.name}</h2>
                 {subCategory.description != null && (
                     <div className="settings-sub-category-description markdown">
                       {subCategory.description}

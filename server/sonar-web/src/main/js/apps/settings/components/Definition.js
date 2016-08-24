@@ -41,26 +41,20 @@ export default class Definition extends React.Component {
     return (
         <div className="settings-definition" data-key={definition.key}>
           <div className="settings-definition-left">
-            <h4 className="settings-definition-name" title={propertyName}>
+            <h3 className="settings-definition-name" title={propertyName}>
               {propertyName}
-            </h4>
-          </div>
+            </h3>
 
-          <div className="settings-definition-right">
-            <DefinitionInput setting={setting}/>
-
-            {definition.defaultValue != null && (
-                <div className="settings-definition-default note spacer-top">
-                  {translateWithParameters('settings.default_x', definition.defaultValue)}
-                </div>
-            )}
-
-            <div className="settings-definition-description markdown  spacer-top"
+            <div className="settings-definition-description markdown note spacer-top"
                  dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}/>
 
             <div className="settings-definition-key note little-spacer-top">
               {translateWithParameters('settings.key_x', definition.key)}
             </div>
+          </div>
+
+          <div className="settings-definition-right">
+            <DefinitionInput setting={setting}/>
           </div>
         </div>
     );

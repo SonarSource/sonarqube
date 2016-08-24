@@ -17,7 +17,7 @@
 .settings-side {
   position: relative;
   z-index: 3;
-  width: 120px;
+  width: 160px;
   padding: 10px 0;
   flex-shrink: 0;
   margin-right: -1px;
@@ -63,24 +63,30 @@
 }
 
 .settings-definition-left {
-  width: 160px;
+  width: 300px;
   flex-shrink: 0;
-  padding-right: 10px;
+  padding-right: 30px;
 }
 
 .settings-definition-right {
   flex-grow: 1;
+  padding-top: 35px;
 }
 
 .settings-definition-name {
-  font-size: 13px;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .settings-definition-default,
 .settings-definition-key {
   line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-definition-key:hover {
+  overflow: visible;
 }
 
 .settings-sub-categories-list {
@@ -98,7 +104,6 @@
 .settings-sub-category-name {
   margin-bottom: 20px;
   font-size: 16px;
-  font-weight: 400;
 }
 
 .settings-sub-category-description {
