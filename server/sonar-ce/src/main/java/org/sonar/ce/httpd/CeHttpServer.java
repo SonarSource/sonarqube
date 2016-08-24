@@ -38,6 +38,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static fi.iki.elonen.NanoHTTPD.Response.Status.INTERNAL_ERROR;
 import static fi.iki.elonen.NanoHTTPD.Response.Status.NOT_FOUND;
 import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
@@ -96,9 +97,7 @@ public class CeHttpServer {
     return "http://" + nanoHttpd.getHostname() + ":" + nanoHttpd.getListeningPort();
   }
 
-  private class CeNanoHttpd extends NanoHTTPD {
-    private final NanoHTTPD.Response response404 = newFixedLengthResponse(NOT_FOUND, MIME_PLAINTEXT, "Error 404, not found.");
-
+  private static class CeNanoHttpd extends NanoHTTPD {
     private final ActionRegistryImpl actionRegistry;
 
     CeNanoHttpd(String hostname, int port, ActionRegistryImpl actionRegistry) {
@@ -110,10 +109,10 @@ public class CeHttpServer {
     public Response serve(IHTTPSession session) {
       return actionRegistry.getAction(session)
         .map(action -> serveFromAction(session, action))
-        .orElse(response404);
+        .orElseGet(() -> newFixedLengthResponse(NOT_FOUND, MIME_PLAINTEXT, format("Error 404, '%s' not found.", session.getUri())));
     }
 
-    private Response serveFromAction(IHTTPSession session, HttpAction action) {
+    private static Response serveFromAction(IHTTPSession session, HttpAction action) {
       try {
         return action.serve(session);
       } catch (Exception e) {

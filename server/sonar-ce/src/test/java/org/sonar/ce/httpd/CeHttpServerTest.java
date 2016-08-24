@@ -23,6 +23,7 @@ import fi.iki.elonen.NanoHTTPD;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.Arrays;
 import java.util.Properties;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,7 +37,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.DefaultProcessCommands;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
@@ -48,6 +48,7 @@ public class CeHttpServerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private static final RuntimeException FAILING_ACTION = new IllegalStateException("Simulating the action failed");
   private CeHttpServer underTest;
   private File sharedDir;
 
@@ -57,7 +58,7 @@ public class CeHttpServerTest {
     Properties properties = new Properties();
     properties.setProperty(PROPERTY_PROCESS_INDEX, "1");
     properties.setProperty(PROPERTY_SHARED_PATH, sharedDir.getAbsolutePath());
-    underTest = new CeHttpServer(properties, singletonList(new PomPomAction()));
+    underTest = new CeHttpServer(properties, Arrays.asList(new PomPomAction(), new FailingAction()));
     underTest.start();
   }
 
@@ -74,8 +75,12 @@ public class CeHttpServerTest {
   }
 
   @Test
-  public void unkownUrl_return_a_404() throws IOException {
-    assertThat(call(underTest.getUrl() + "/dfdsfdsfsdsd").code()).isEqualTo(404);
+  public void return_http_response_with_code_404_and_exception_message_as_body_when_url_has_no_matching_action() throws IOException {
+    String action = "/dfdsfdsfsdsd";
+    Response response = call(underTest.getUrl() + action);
+
+    assertThat(response.code()).isEqualTo(404);
+    assertThat(response.body().string()).isEqualTo("Error 404, '" + action + "' not found.");
   }
 
   @Test
@@ -102,16 +107,24 @@ public class CeHttpServerTest {
     assertIsPomPomResponse(response);
   }
 
-  private void assertIsPomPomResponse(Response response) throws IOException {
-    assertThat(response.code()).isEqualTo(200);
-    assertThat(IOUtils.toString(response.body().byteStream())).isEqualTo("ok");
-  }
-
   @Test
   public void stop_stops_http_server() throws Exception {
     underTest.stop();
     expectedException.expect(ConnectException.class);
     call(underTest.getUrl());
+  }
+
+  @Test
+  public void return_http_response_with_code_500_and_exception_message_as_body_when_action_throws_exception() throws IOException {
+    Response response = call(underTest.getUrl() + "/failing");
+
+    assertThat(response.code()).isEqualTo(500);
+    assertThat(response.body().string()).isEqualTo(FAILING_ACTION.getMessage());
+  }
+
+  private void assertIsPomPomResponse(Response response) throws IOException {
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(IOUtils.toString(response.body().byteStream())).isEqualTo("ok");
   }
 
   private static Response call(String url) throws IOException {
@@ -128,6 +141,19 @@ public class CeHttpServerTest {
     @Override
     public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
       return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT, "ok");
+    }
+  }
+
+  private static class FailingAction implements HttpAction {
+
+    @Override
+    public void register(ActionRegistry registry) {
+      registry.register("failing", this);
+    }
+
+    @Override
+    public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
+      throw FAILING_ACTION;
     }
   }
 }
