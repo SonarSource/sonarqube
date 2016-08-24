@@ -38,12 +38,6 @@
  */
 package org.sonar.server.app;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.collect.ImmutableMap;
 import java.net.InetAddress;
 import java.util.Map;
@@ -54,6 +48,12 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.process.Props;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class TomcatConnectorsTest {
 
@@ -104,24 +104,9 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void fail_if_http_connectors_are_disabled() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.port", "-1");
-    Props props = new Props(p);
-
-    try {
-      TomcatConnectors.configure(tomcat, props);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("HTTP connectors are disabled");
-    }
-  }
-
-  @Test
-  public void all_connectors_are_enabled() {
+  public void http_connector_is_enabled() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
-    p.setProperty("sonar.ajp.port", "9009");
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
@@ -133,26 +118,18 @@ public class TomcatConnectorsTest {
         return c.getScheme().equals("http") && c.getPort() == 9000 && c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL);
       }
     }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9009 && c.getProtocol().equals(TomcatConnectors.AJP_PROTOCOL);
-      }
-    }));
   }
 
   @Test
-  public void http_and_ajp_ports_should_be_different() {
+  public void fail_with_ISE_if_http_port_is_invalid() {
     Properties p = new Properties();
-    p.setProperty("sonar.web.port", "9000");
-    p.setProperty("sonar.ajp.port", "9000");
+    p.setProperty("sonar.web.port", "-1");
 
     try {
       TomcatConnectors.configure(tomcat, new Props(p));
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("HTTP and AJP must not use the same port 9000");
+      assertThat(e).hasMessage("HTTP port '-1' is invalid");
     }
   }
 
@@ -160,7 +137,6 @@ public class TomcatConnectorsTest {
   public void bind_to_all_addresses_by_default() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
-    p.setProperty("sonar.ajp.port", "9009");
 
     TomcatConnectors.configure(tomcat, new Props(p));
 
@@ -169,13 +145,6 @@ public class TomcatConnectorsTest {
       public boolean matches(Object o) {
         Connector c = (Connector) o;
         return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0");
-      }
-    }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9009 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0");
       }
     }));
   }

@@ -19,28 +19,21 @@
  */
 package org.sonar.server.app;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
-
-import com.google.common.base.Predicates;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.sonar.process.Props;
+
+import static java.lang.String.format;
 
 /**
  * Configuration of Tomcat connectors
  */
 class TomcatConnectors {
 
-  public static final int DISABLED_PORT = -1;
-  public static final String HTTP_PROTOCOL = "HTTP/1.1";
-  public static final String AJP_PROTOCOL = "AJP/1.3";
-  public static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
+  private static final int UNDEFINED_PORT = 0;
+  protected static final String HTTP_PROTOCOL = "HTTP/1.1";
+  protected static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
   private static final int MAX_POST_SIZE = -1;
 
   private TomcatConnectors() {
@@ -48,55 +41,23 @@ class TomcatConnectors {
   }
 
   static void configure(Tomcat tomcat, Props props) {
-    List<Connector> connectors = from(asList(newHttpConnector(props), newAjpConnector(props)))
-      .filter(Predicates.notNull())
-      .toList();
-
-    verify(connectors);
-
-    tomcat.setConnector(connectors.get(0));
-    for (Connector connector : connectors) {
-      tomcat.getService().addConnector(connector);
-    }
+    Connector httpConnector = newHttpConnector(props);
+    tomcat.setConnector(httpConnector);
+    tomcat.getService().addConnector(httpConnector);
   }
 
-  private static void verify(List<Connector> connectors) {
-    if (connectors.isEmpty()) {
-      throw new IllegalStateException("HTTP connectors are disabled");
-    }
-    Set<Integer> ports = new HashSet<>();
-    for (Connector connector : connectors) {
-      int port = connector.getPort();
-      if (ports.contains(port)) {
-        throw new IllegalStateException(String.format("HTTP and AJP must not use the same port %d", port));
-      }
-      ports.add(port);
-    }
-  }
-
-  @CheckForNull
   private static Connector newHttpConnector(Props props) {
-    Connector connector = null;
     // Not named "sonar.web.http.port" to keep backward-compatibility
     int port = props.valueAsInt("sonar.web.port", 9000);
-    if (port > DISABLED_PORT) {
-      connector = newConnector(props, HTTP_PROTOCOL, "http");
-      configureMaxHttpHeaderSize(connector);
-      connector.setPort(port);
-      connector.setMaxPostSize(MAX_POST_SIZE);
+    if (port < UNDEFINED_PORT) {
+      throw new IllegalStateException(format("HTTP port '%s' is invalid", port));
     }
-    return connector;
-  }
 
-  @CheckForNull
-  private static Connector newAjpConnector(Props props) {
-    int port = props.valueAsInt("sonar.ajp.port", DISABLED_PORT);
-    if (port > DISABLED_PORT) {
-      Connector connector = newConnector(props, AJP_PROTOCOL, "http");
-      connector.setPort(port);
-      return connector;
-    }
-    return null;
+    Connector connector = newConnector(props, HTTP_PROTOCOL, "http");
+    configureMaxHttpHeaderSize(connector);
+    connector.setPort(port);
+    connector.setMaxPostSize(MAX_POST_SIZE);
+    return connector;
   }
 
   /**

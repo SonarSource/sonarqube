@@ -35,18 +35,12 @@ class TomcatStartupLogs {
   void log(Tomcat tomcat) {
     Connector[] connectors = tomcat.getService().findConnectors();
     for (Connector connector : connectors) {
-      if (StringUtils.containsIgnoreCase(connector.getProtocol(), "AJP")) {
-        logAjp(connector);
-      } else if (StringUtils.equalsIgnoreCase(connector.getScheme(), "http")) {
+      if (StringUtils.equalsIgnoreCase(connector.getScheme(), "http")) {
         logHttp(connector);
       } else {
         throw new IllegalArgumentException("Unsupported connector: " + connector);
       }
     }
-  }
-
-  private void logAjp(Connector connector) {
-    log.info(String.format("%s connector enabled on port %d", connector.getProtocol(), connector.getPort()));
   }
 
   private void logHttp(Connector connector) {

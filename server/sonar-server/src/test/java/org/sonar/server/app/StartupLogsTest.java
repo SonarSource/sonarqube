@@ -19,13 +19,13 @@
  */
 package org.sonar.server.app;
 
-import java.util.Properties;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.process.Props;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -34,20 +34,22 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class StartupLogsTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
-  Logger logger = mock(Logger.class);
-  TomcatStartupLogs underTest = new TomcatStartupLogs(logger);
+  private Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
+  private Logger logger = mock(Logger.class);
+  private TomcatStartupLogs underTest = new TomcatStartupLogs(logger);
 
   @Test
-  public void logAjp() {
-    Connector connector = newConnector("AJP/1.3", "http");
+  public void fail_with_IAE_on_unsupported_protocol() {
+    Connector connector = newConnector("AJP/1.3", "ajp");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unsupported connector: Connector[AJP/1.3-1234]");
+    
     underTest.log(tomcat);
-
-    verify(logger).info("AJP/1.3 connector enabled on port 1234");
-    verifyNoMoreInteractions(logger);
   }
 
   @Test
