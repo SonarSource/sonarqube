@@ -45,7 +45,7 @@ Picked up JAVA_TOOL_OPTIONS: -Djava.awt.headless=true
 2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Deploy plugin SVN / 1.2 / d04c3cdb21f48905dd8300d1129ec90281aa6db2
 2015.11.02 09:22:14 INFO  web[o.s.s.d.m.DatabaseMigrator] Create database
 2015.11.02 09:22:14 INFO  web[o.s.s.p.RailsAppsDeployer] Deploying Ruby on Rails applications
-2015.11.02 09:22:15 INFO  web[o.s.s.p.UpdateCenterClient] Update center: http://update.sonarsource.org/update-center.properties (no proxy)
+2015.11.02 09:22:15 INFO  web[o.s.s.p.UpdateCenterClient] Update center: https://update.sonarsource.org/update-center.properties (no proxy)
 2015.11.02 09:22:15 INFO  web[o.s.s.e.IndexCreator] Create index users
 2015.11.02 09:22:15 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [users] creating index, cause [api], templates [], shards [5]/[0], mappings []
 2015.11.02 09:22:15 INFO  web[o.s.s.e.IndexCreator] Create type users/user

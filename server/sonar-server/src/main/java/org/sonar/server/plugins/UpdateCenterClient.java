@@ -37,7 +37,7 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 
 /**
- * HTTP client to load data from the remote update center hosted at http://update.sonarsource.org.
+ * HTTP client to load data from the remote update center hosted at https://update.sonarsource.org.
  *
  * @since 2.4
  */
@@ -53,7 +53,7 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
     type = PropertyType.BOOLEAN),
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
-    defaultValue = "http://update.sonarsource.org/update-center.properties",
+    defaultValue = "https://update.sonarsource.org/update-center.properties",
     name = "Update Center URL",
     category = "Update Center",
     project = false,

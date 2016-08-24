@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 public class UpdateCenterClientTest {
 
-  static final String BASE_URL = "http://update.sonarsource.org";
+  static final String BASE_URL = "https://update.sonarsource.org";
   UriReader reader;
   Settings settings;
 
@@ -51,8 +51,8 @@ public class UpdateCenterClientTest {
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
     settings = new Settings()
-      .setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL)
-      .setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+        .setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL)
+        .setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
     underTest = new UpdateCenterClient(reader, settings);
   }
 
