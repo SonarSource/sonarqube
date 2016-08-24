@@ -23,17 +23,35 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.io.IOException;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.client.setting.SetRequest;
+import org.sonarqube.ws.client.setting.SettingsService;
+import org.sonarqube.ws.client.setting.ValuesRequest;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.setServerProperty;
 
 public class SettingsTest {
 
+  /**
+   * This setting is defined by server-plugin
+   */
+  private final static String PLUGIN_SETTING_KEY = "some-property";
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @After
+  public void reset_settings() throws Exception {
+    setServerProperty(orchestrator, PLUGIN_SETTING_KEY, null);
+  }
 
   // SONAR-4404
   @Test
@@ -52,4 +70,29 @@ public class SettingsTest {
     assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()).contains("Received change: NEWVALUE"));
   }
 
+  @Test
+  public void get_default_value() throws Exception {
+    Settings.Setting setting = getSetting(PLUGIN_SETTING_KEY);
+    assertThat(setting.getValue()).isEqualTo("aDefaultValue");
+    assertThat(setting.getDefault()).isTrue();
+  }
+
+  @Test
+  public void set_value() throws Exception {
+    settingsService().set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+
+    String value = getSetting(PLUGIN_SETTING_KEY).getValue();
+    assertThat(value).isEqualTo("some value");
+  }
+
+  private static SettingsService settingsService() {
+    return newAdminWsClient(orchestrator).settingsService();
+  }
+
+  private Settings.Setting getSetting(String key) {
+    Settings.ValuesWsResponse response = settingsService().values(ValuesRequest.builder().setKeys(key).build());
+    List<Settings.Setting> settings = response.getSettingsList();
+    assertThat(settings).hasSize(1);
+    return settings.get(0);
+  }
 }
