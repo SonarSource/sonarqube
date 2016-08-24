@@ -70,7 +70,7 @@ public class CeService extends BaseService {
    * @since 5.5
    */
   public WsCe.TaskResponse task(String id) {
-    return call(new GetRequest(path("task")).setParam("id", id), WsCe.TaskResponse.parser());
+    return task(TaskWsRequest.newBuilder(id).build());
   }
 
   public WsCe.TaskResponse task(TaskWsRequest taskWsRequest) {

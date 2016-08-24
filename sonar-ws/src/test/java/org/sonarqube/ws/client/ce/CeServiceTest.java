@@ -105,7 +105,7 @@ public class CeServiceTest {
   }
 
   @Test
-  public void task() {
+  public void task_with_stacktrace_and_scanner_context() {
     underTest.task(TaskWsRequest.newBuilder("task_id")
         .withErrorStacktrace()
         .withScannerContext()
@@ -113,5 +113,25 @@ public class CeServiceTest {
 
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace,scannerContext"));
+  }
+
+  @Test
+  public void task_with_scanner_context_only() {
+    underTest.task(TaskWsRequest.newBuilder("task_id")
+        .withScannerContext()
+        .build());
+
+    assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
+    assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "scannerContext"));
+  }
+
+  @Test
+  public void task_with_stacktrace_only() {
+    underTest.task(TaskWsRequest.newBuilder("task_id")
+        .withErrorStacktrace()
+        .build());
+
+    assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
+    assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace"));
   }
 }
