@@ -50,6 +50,7 @@
         {
           "key": "text",
           "name": "Text",
+          "description": "Text field description",
           "type": "TEXT",
           "indicativeSize": 10,
           "options": []
@@ -57,6 +58,7 @@
         {
           "key": "list",
           "name": "List",
+          "description": "List field description",
           "type": "SINGLE_SELECT_LIST",
           "indicativeSize": 20,
           "options": [

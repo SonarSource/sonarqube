@@ -45,9 +45,10 @@ message Definition {
 message Field {
   optional string key = 1;
   optional string name = 2;
-  optional Type type = 3;
-  optional int32 indicativeSize = 4;
-  repeated string options = 5;
+  optional string description = 3;
+  optional Type type = 4;
+  optional int32 indicativeSize = 5;
+  repeated string options = 6;
 }
 
 enum Type {

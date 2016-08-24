@@ -140,6 +140,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     builder.addFieldsBuilder()
       .setKey(fieldDefinition.key())
       .setName(fieldDefinition.name())
+      .setDescription(fieldDefinition.description())
       .setType(Settings.Type.valueOf(fieldDefinition.type().name()))
       .setIndicativeSize(fieldDefinition.indicativeSize())
       .addAllOptions(fieldDefinition.options())
