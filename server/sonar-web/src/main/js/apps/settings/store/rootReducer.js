@@ -28,9 +28,6 @@ const rootReducer = combineReducers({
 
 export default rootReducer;
 
-export const getDefinitionsForCategory = (state, category) =>
-    fromDefinitions.getDefinitionsForCategory(state.definitions, category);
-
 export const getAllCategories = state => fromDefinitions.getAllCategories(state.definitions);
 
 export const getDefaultCategory = state => fromDefinitions.getDefaultCategory(state.definitions);

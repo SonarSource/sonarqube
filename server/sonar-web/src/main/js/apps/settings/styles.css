@@ -77,7 +77,6 @@
   text-overflow: ellipsis;
 }
 
-.settings-definition-default,
 .settings-definition-key {
   line-height: 1.5;
   overflow: hidden;

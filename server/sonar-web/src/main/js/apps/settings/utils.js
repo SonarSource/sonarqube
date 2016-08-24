@@ -19,7 +19,7 @@
  */
 import uniqueId from 'lodash/uniqueId';
 import { translate, hasMessage } from '../../helpers/l10n';
-import { TYPE_SINGLE_SELECT_LIST, TYPE_USER } from './constants';
+import { TYPE_SINGLE_SELECT_LIST } from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -53,7 +53,7 @@ export function getUniqueName (definition) {
 }
 
 export function getSettingValue (setting) {
-  const isComplexValue = [TYPE_SINGLE_SELECT_LIST, TYPE_USER].includes(setting.definition.type);
+  const isComplexValue = setting.definition.type === TYPE_SINGLE_SELECT_LIST;
   const noValue = isComplexValue ? null : '';
 
   if (setting.default || setting.inherited) {

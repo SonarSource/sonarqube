@@ -231,10 +231,12 @@ input[type="submit"].button-red {
 .input-super-large {
   width: 100%;
   max-width: 300px;
+  min-width: 200px;
 }
 
 textarea.input-super-large {
   max-width: 600px;
+  min-width: 300px;
 }
 
 em.mandatory {
@@ -250,6 +252,7 @@ label[for] {
   display: inline-block;
   vertical-align: middle;
   font-size: 0;
+  white-space: nowrap;
 
   & > li {
     display: inline-block;

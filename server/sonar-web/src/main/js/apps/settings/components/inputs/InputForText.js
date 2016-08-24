@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getUniqueName } from '../../utils';
-import { getSettingValue } from '../../utils';
+import { getUniqueName, getSettingValue } from '../../utils';
 
 export default class InputForText extends React.Component {
   static propTypes = {
@@ -31,7 +30,7 @@ export default class InputForText extends React.Component {
 
     return (
         <textarea
-            name={getUniqueName(setting.key)}
+            name={getUniqueName(setting.definition)}
             className="input-super-large text-top"
             rows="5">
           {getSettingValue(setting)}
