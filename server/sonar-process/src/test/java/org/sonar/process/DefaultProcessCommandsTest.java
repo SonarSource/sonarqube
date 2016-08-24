@@ -54,79 +54,116 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
+  public void main_clears_the_memory_space_of_the_specified_process_number() throws IOException {
+    File dir = temp.newFolder();
+
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      commands.setUp();
+      commands.setHttpUrl("bla");
+      commands.setOperational();
+    }
+
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      assertThat(commands.isUp()).isFalse();
+      assertThat(commands.getHttpUrl()).isEmpty();
+      assertThat(commands.isOperational()).isFalse();
+    }
+  }
+
+  @Test
+  public void secondary_does_not_clear_the_memory_space_of_the_specified_process_number() throws IOException {
+    File dir = temp.newFolder();
+
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      commands.setUp();
+      commands.setHttpUrl("bla");
+      commands.setOperational();
+    }
+
+    try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(dir, PROCESS_NUMBER)) {
+      assertThat(commands.isUp()).isTrue();
+      assertThat(commands.getHttpUrl()).isEqualTo("bla");
+      assertThat(commands.isOperational()).isTrue();
+    }
+  }
+
+  @Test
   public void child_process_update_the_mapped_memory() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
-    assertThat(commands.isUp()).isFalse();
-
-    commands.setUp();
-    assertThat(commands.isUp()).isTrue();
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      assertThat(commands.isUp()).isFalse();
+      commands.setUp();
+      assertThat(commands.isUp()).isTrue();
+    }
   }
 
   @Test
   public void reset_clears_only_the_memory_space_of_specified_process_number() throws IOException {
     File dir = temp.newFolder();
 
-    AllProcessesCommands commands = new AllProcessesCommands(dir);
-    for (int i = 0; i < MAX_PROCESSES; i++) {
-      commands.setOperational(i);
-      commands.setUp(i);
-    }
+    try (AllProcessesCommands commands = new AllProcessesCommands(dir)) {
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        commands.setOperational(i);
+        commands.setUp(i);
+      }
 
-    int resetProcess = 3;
-    DefaultProcessCommands.reset(dir, resetProcess);
-    for (int i = 0; i < MAX_PROCESSES; i++) {
-      assertThat(commands.isOperational(i)).isEqualTo(i != resetProcess);
-      assertThat(commands.isUp(i)).isEqualTo(i != resetProcess);
+      int resetProcess = 3;
+      DefaultProcessCommands.reset(dir, resetProcess);
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        assertThat(commands.isOperational(i)).isEqualTo(i != resetProcess);
+        assertThat(commands.isUp(i)).isEqualTo(i != resetProcess);
+      }
     }
-    commands.close();
   }
 
   @Test
   public void ask_for_stop() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
-    assertThat(commands.askedForStop()).isFalse();
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      assertThat(commands.askedForStop()).isFalse();
 
-    commands.askForStop();
-    assertThat(commands.askedForStop()).isTrue();
+      commands.askForStop();
+      assertThat(commands.askedForStop()).isTrue();
+    }
   }
 
   @Test
   public void ask_for_restart() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
-    assertThat(commands.askedForRestart()).isFalse();
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      assertThat(commands.askedForRestart()).isFalse();
 
-    commands.askForRestart();
-    assertThat(commands.askedForRestart()).isTrue();
+      commands.askForRestart();
+      assertThat(commands.askedForRestart()).isTrue();
+    }
   }
 
   @Test
   public void acknowledgeAskForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
-    assertThat(commands.askedForRestart()).isFalse();
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      assertThat(commands.askedForRestart()).isFalse();
 
-    commands.acknowledgeAskForRestart();
-    assertThat(commands.askedForRestart()).isFalse();
+      commands.acknowledgeAskForRestart();
+      assertThat(commands.askedForRestart()).isFalse();
+    }
   }
 
   @Test
   public void acknowledgeAskForRestart_resets_askForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
+    try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
+      commands.askForRestart();
+      assertThat(commands.askedForRestart()).isTrue();
 
-    commands.askForRestart();
-    assertThat(commands.askedForRestart()).isTrue();
-
-    commands.acknowledgeAskForRestart();
-    assertThat(commands.askedForRestart()).isFalse();
+      commands.acknowledgeAskForRestart();
+      assertThat(commands.askedForRestart()).isFalse();
+    }
   }
 
   @Test
@@ -135,7 +172,10 @@ public class DefaultProcessCommandsTest {
 
     expectProcessNumberNoValidIAE(processNumber);
 
-    DefaultProcessCommands.main(temp.newFolder(), processNumber);
+
+    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
+
+    }
   }
 
   @Test
@@ -144,15 +184,20 @@ public class DefaultProcessCommandsTest {
 
     expectProcessNumberNoValidIAE(processNumber);
 
-    DefaultProcessCommands.main(temp.newFolder(), processNumber);
+    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
+
+    }
   }
+
   @Test
   public void main_fails_if_processNumber_is_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES;
 
     expectProcessNumberNoValidIAE(processNumber);
 
-    DefaultProcessCommands.main(temp.newFolder(), processNumber);
+    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
+
+    }
   }
 
   @Test
@@ -170,7 +215,9 @@ public class DefaultProcessCommandsTest {
 
     expectProcessNumberNoValidIAE(processNumber);
 
-    DefaultProcessCommands.secondary(temp.newFolder(), processNumber);
+    try (DefaultProcessCommands secondary = DefaultProcessCommands.secondary(temp.newFolder(), processNumber)) {
+
+    }
   }
 
   @Test
