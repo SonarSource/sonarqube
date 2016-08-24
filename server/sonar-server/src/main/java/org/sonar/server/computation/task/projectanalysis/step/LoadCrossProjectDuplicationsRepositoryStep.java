@@ -118,7 +118,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     private List<DuplicationUnitDto> selectDuplicates(Component file, Collection<String> hashes) {
       DbSession dbSession = dbClient.openSession(false);
       try {
-        Analysis projectAnalysis = analysisMetadataHolder.getBaseProjectSnapshot();
+        Analysis projectAnalysis = analysisMetadataHolder.getBaseAnalysis();
         String analysisUuid = projectAnalysis == null ? null : projectAnalysis.getUuid();
         return dbClient.duplicationDao().selectCandidates(dbSession, analysisUuid, file.getFileAttributes().getLanguageKey(), hashes);
       } finally {

@@ -64,17 +64,17 @@ public class BuildComponentTreeStep implements ComputationStep {
     UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
     Component project = new ComponentRootBuilder(reportProject, uuidFactory, branch).build();
     treeRootHolder.setRoot(project);
-    setBaseProjectSnapshot(project.getUuid());
+    setBaseAnalysis(project.getUuid());
   }
 
-  private void setBaseProjectSnapshot(String projectUuid) {
+  private void setBaseAnalysis(String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SnapshotDto snapshotDto = dbClient.snapshotDao().selectAnalysisByQuery(dbSession,
         new SnapshotQuery()
           .setComponentUuid(projectUuid)
           .setIsLast(true));
-      analysisMetadataHolder.setBaseProjectSnapshot(toAnalysis(snapshotDto));
+      analysisMetadataHolder.setBaseAnalysis(toAnalysis(snapshotDto));
     } finally {
       dbClient.closeSession(dbSession);
     }

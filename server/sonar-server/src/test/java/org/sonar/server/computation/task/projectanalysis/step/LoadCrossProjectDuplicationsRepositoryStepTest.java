@@ -124,7 +124,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void call_compute_cpd_on_one_duplication() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -174,7 +174,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void call_compute_cpd_on_many_duplication() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -262,7 +262,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_cross_project_duplication_is_disabled() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
     SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
@@ -297,7 +297,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_no_cpd_text_blocks_found() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
 
@@ -309,7 +309,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Test
   public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     ScannerReport.CpdTextBlock originBlock = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")

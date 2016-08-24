@@ -60,15 +60,15 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public MutableAnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Analysis baseProjectAnalysis) {
-    delegate.setBaseProjectSnapshot(baseProjectAnalysis);
+  public MutableAnalysisMetadataHolderRule setBaseAnalysis(@Nullable Analysis baseAnalysis) {
+    delegate.setBaseAnalysis(baseAnalysis);
     return this;
   }
 
   @Override
   @CheckForNull
-  public Analysis getBaseProjectSnapshot() {
-    return delegate.getBaseProjectSnapshot();
+  public Analysis getBaseAnalysis() {
+    return delegate.getBaseAnalysis();
   }
 
   @Override

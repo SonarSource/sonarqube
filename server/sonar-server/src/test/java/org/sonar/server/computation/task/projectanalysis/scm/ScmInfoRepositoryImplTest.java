@@ -90,7 +90,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_report() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addChangesetInReport("john", DATE_1, "rev-1");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -101,7 +101,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void getScmInfo_returns_absent_if_CopyFromPrevious_is_false_and_there_is_no_changeset_in_report() {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     // put data in DB, which should not be used
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
@@ -111,7 +111,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void getScmInfo_returns_ScmInfo_from_DB_CopyFromPrevious_is_true_if_hashes_are_the_same() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
     addCopyFromPreviousChangesetInReport();
@@ -124,7 +124,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void getScmInfo_returns_absent_when_CopyFromPrevious_is_true_but_hashes_are_not_the_same() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "_different");
     addFileSourceInReport(1);
     addCopyFromPreviousChangesetInReport();
@@ -136,7 +136,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_report_even_if_data_in_db_exists() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addChangesetInReport("john", DATE_2, "rev-2");
 
@@ -150,7 +150,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
     addChangesetInReport("john", DATE_2, "rev-2", true);
@@ -165,13 +165,13 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void return_nothing_when_no_data_in_report_nor_db() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
 
   @Test
   public void return_nothing_when_nothing_in_report_and_db_has_no_scm() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addFileSourceInDb(null, null, null, "don't care");
     addFileSourceInReport(1);
 
@@ -180,7 +180,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void fail_with_NPE_when_component_is_null() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Component cannot be bull");
@@ -219,7 +219,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void load_scm_info_from_cache_when_already_read() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectAnalysis);
+    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     addChangesetInReport("john", DATE_1, "rev-1");
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
@@ -233,7 +233,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void not_read_in_db_on_first_analysis_when_CopyFromPrevious_is_true() throws Exception {
-    analysisMetadataHolder.setBaseProjectSnapshot(null);
+    analysisMetadataHolder.setBaseAnalysis(null);
     addFileSourceInDb("henry", DATE_1, "rev-1", "don't care");
     addFileSourceInReport(1);
     addCopyFromPreviousChangesetInReport();
