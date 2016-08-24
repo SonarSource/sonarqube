@@ -19,11 +19,18 @@
  */
 package org.sonar.db.property;
 
+import com.google.common.base.Strings;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertyDtoTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  PropertyDto underTest = new PropertyDto();
 
   @Test
   public void testEquals() {
@@ -43,5 +50,14 @@ public class PropertyDtoTest {
   @Test
   public void testToString() {
     assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setResourceId(123L).setUserId(456L).toString()).isEqualTo("PropertyDto{foo:bar, value, 123, 456}");
+  }
+
+  @Test
+  public void fail_if_key_longer_than_512_characters() {
+    String veryLongKey = Strings.repeat("a", 513);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Setting key length (513) is longer than the maximum authorized (512). '" + veryLongKey + "' was provided");
+
+    underTest.setKey(veryLongKey);
   }
 }

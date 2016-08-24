@@ -26,6 +26,10 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -40,7 +44,9 @@ import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -48,6 +54,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
@@ -66,7 +73,10 @@ public class SetActionTest {
   DbSession dbSession = db.getSession();
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
-  SetAction underTest = new SetAction(dbClient, componentFinder, userSession);
+  I18nRule i18n = new I18nRule();
+  PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+
+  SetAction underTest = new SetAction(propertyDefinitions, i18n, dbClient, componentFinder, userSession);
 
   WsActionTester ws = new WsActionTester(underTest);
 
@@ -143,6 +153,24 @@ public class SetActionTest {
   }
 
   @Test
+  public void persist_global_property_with_deprecated_key() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .deprecatedKey("my.old.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.STRING)
+      .defaultValue("default")
+      .build());
+
+    callForGlobalProperty("my.old.key", "My Value");
+
+    assertGlobalProperty("my.key", "My Value");
+  }
+
+  @Test
   public void fail_when_no_key() {
     expectedException.expect(IllegalArgumentException.class);
 
@@ -178,6 +206,79 @@ public class SetActionTest {
     expectedException.expect(ForbiddenException.class);
 
     callForGlobalProperty("my.key", "my value");
+  }
+
+  @Test
+  public void fail_when_data_and_type_do_not_match() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.INTEGER)
+      .defaultValue("default")
+      .build());
+    i18n.put("property.error.notInteger", "Not an integer error message");
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Not an integer error message");
+
+    callForGlobalProperty("my.key", "My Value");
+  }
+
+  @Test
+  public void fail_when_data_and_type_do_not_match_with_unknown_error_key() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.INTEGER)
+      .defaultValue("default")
+      .build());
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Error when validating setting with key 'my.key' and value 'My Value'");
+
+    callForGlobalProperty("my.key", "My Value");
+  }
+
+  @Test
+  public void fail_when_global_with_property_only_on_projects() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.INTEGER)
+      .defaultValue("default")
+      .onlyOnQualifiers(Qualifiers.PROJECT)
+      .build());
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'my.key' cannot be global");
+
+    callForGlobalProperty("my.key", "42");
+  }
+
+  @Test
+  public void fail_when_view_property_when_on_projects_only() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.STRING)
+      .defaultValue("default")
+      .onQualifiers(Qualifiers.PROJECT)
+      .build());
+    ComponentDto view = componentDb.insertComponent(newView("view-uuid"));
+    i18n.put("qualifier." + Qualifiers.VIEW, "View");
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
+
+    callForProjectPropertyByUuid("my.key", "My Value", view.uuid());
   }
 
   @Test

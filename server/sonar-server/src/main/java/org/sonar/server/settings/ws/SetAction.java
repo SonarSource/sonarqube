@@ -20,7 +20,11 @@
 
 package org.sonar.server.settings.ws;
 
+import java.util.Locale;
 import java.util.Optional;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -42,12 +46,18 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONE
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
 public class SetAction implements SettingsWsAction {
+  private final PropertyDefinitions propertyDefinitions;
+  private final I18n i18n;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
 
-  public SetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public SetAction(PropertyDefinitions propertyDefinitions, I18n i18n, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+    this.propertyDefinitions = propertyDefinitions;
+    this.i18n = i18n;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -94,6 +104,7 @@ public class SetAction implements SettingsWsAction {
       Optional<ComponentDto> component = searchComponent(dbSession, setRequest);
       checkPermissions(component);
 
+      validate(setRequest, component);
       dbClient.propertiesDao().insertProperty(dbSession, toProperty(setRequest, component));
       dbSession.commit();
     } finally {
@@ -101,6 +112,25 @@ public class SetAction implements SettingsWsAction {
     }
 
     response.noContent();
+  }
+
+  private void validate(SetRequest request, Optional<ComponentDto> component) {
+    PropertyDefinition definition = propertyDefinitions.get(request.getKey());
+    if (definition == null) {
+      return;
+    }
+
+    PropertyDefinition.Result result = definition.validate(request.getValue());
+
+    checkRequest(result.isValid(),
+      i18n.message(Locale.ENGLISH, "property.error." + result.getErrorKey(), "Error when validating setting with key '%s' and value '%s'"),
+      request.getKey(), request.getValue());
+
+    checkRequest(component.isPresent() || definition.global(), "Setting '%s' cannot be global", request.getKey());
+    String qualifier = component.isPresent() ? component.get().qualifier() : "";
+    checkRequest(!component.isPresent()
+      || definition.qualifiers().contains(component.get().qualifier()),
+      "Setting '%s' cannot be set on a %s", request.getKey(), i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {
@@ -130,9 +160,12 @@ public class SetAction implements SettingsWsAction {
     return Optional.of(project);
   }
 
-  private static PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {
+  private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {
+    PropertyDefinition definition = propertyDefinitions.get(request.getKey());
+    // handles deprecated key but persist the new key
+    String key = definition == null ? request.getKey() : definition.key();
     PropertyDto property = new PropertyDto()
-      .setKey(request.getKey())
+      .setKey(key)
       .setValue(request.getValue());
 
     if (component.isPresent()) {

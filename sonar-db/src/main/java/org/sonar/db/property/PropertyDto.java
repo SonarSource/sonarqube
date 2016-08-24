@@ -22,7 +22,11 @@ package org.sonar.db.property;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class PropertyDto {
+  private static final int MAX_KEY_LENGTH = 512;
+
   private Long id;
   private String key;
   private String value;
@@ -43,6 +47,7 @@ public class PropertyDto {
   }
 
   public PropertyDto setKey(String key) {
+    checkArgument(key.length() <= MAX_KEY_LENGTH, "Setting key length (%s) is longer than the maximum authorized (%s). '%s' was provided", key.length(), MAX_KEY_LENGTH, key);
     this.key = key;
     return this;
   }

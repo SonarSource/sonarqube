@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -119,6 +120,7 @@ public final class PropertyDefinitions {
     return this;
   }
 
+  @CheckForNull
   public PropertyDefinition get(String key) {
     return definitions.get(validKey(key));
   }
