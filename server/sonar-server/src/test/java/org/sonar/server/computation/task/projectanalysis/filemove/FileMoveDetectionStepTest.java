@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -358,6 +359,20 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
+  public void execute_detects_no_move_if_content_of_file_has_no_path_in_DB() {
+    analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
+
+    mockComponents(key -> newComponentDto(key).setPath(null), FILE_1.getKey());
+    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    setFilesInReport(FILE_2);
+    setFileContentInReport(FILE_2_REF, CONTENT1);
+
+    underTest.execute();
+
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+  }
+
+  @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(ANALYSIS);
     mockComponents(FILE_1.getKey());
@@ -508,8 +523,12 @@ public class FileMoveDetectionStepTest {
   }
 
   private ComponentDto[] mockComponents(String... componentKeys) {
+    return mockComponents(key -> newComponentDto(key), componentKeys);
+  }
+
+  private ComponentDto[] mockComponents(Function<String, ComponentDto> newComponentDto, String... componentKeys) {
     List<ComponentDto> componentDtos = stream(componentKeys)
-      .map(key -> newComponentDto(key))
+      .map(newComponentDto)
       .collect(toList());
     when(componentDao.selectDescendants(eq(dbSession), any(ComponentTreeQuery.class)))
       .thenReturn(componentDtos);

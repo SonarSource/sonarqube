@@ -229,6 +229,9 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   @CheckForNull
   private File getFile(DbSession dbSession, DbComponent dbComponent) {
+    if (dbComponent.getPath() == null) {
+      return null;
+    }
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, dbComponent.getUuid());
     if (fileSourceDto == null) {
       return null;
