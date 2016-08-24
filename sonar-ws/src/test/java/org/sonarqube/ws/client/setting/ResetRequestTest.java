@@ -20,22 +20,30 @@
 
 package org.sonarqube.ws.client.setting;
 
-public class SettingsWsParameters {
-  public static final String CONTROLLER_SETTINGS = "api/settings";
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-  public static final String ACTION_LIST_DEFINITIONS = "list_definitions";
-  public static final String ACTION_VALUES = "values";
-  public static final String ACTION_SET = "set";
-  public static final String ACTION_RESET = "reset";
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
-  public static final String PARAM_KEYS = "keys";
-  public static final String PARAM_KEY = "key";
-  public static final String PARAM_VALUE = "value";
+public class ResetRequestTest {
 
-  private SettingsWsParameters() {
-    // Only static stuff
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  ResetRequest.Builder underTest = ResetRequest.builder();
+
+  @Test
+  public void create_set_request() {
+    ResetRequest result = underTest.setKey("my.key").build();
+
+    assertThat(result.getKey()).isEqualTo("my.key");
+  }
+
+  @Test
+  public void fail_when_empty_key() {
+    expectedException.expect(IllegalArgumentException.class);
+    underTest.setKey("").build();
   }
 
 }

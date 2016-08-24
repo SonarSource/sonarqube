@@ -41,4 +41,11 @@ public class PropertyDbTester {
 
     return property;
   }
+
+  public void insertProperties(PropertyDto... properties) {
+    for (PropertyDto propertyDto : properties) {
+      dbClient.propertiesDao().insertProperty(dbSession, propertyDto);
+    }
+    dbSession.commit();
+  }
 }

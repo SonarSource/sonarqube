@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -78,11 +77,23 @@ public class SettingsServiceTest {
       .setValue("8h")
       .setComponentKey("KEY")
       .build());
-    PostRequest request = serviceTester.getPostRequest();
 
-    serviceTester.assertThat(request)
+    serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_KEY, "sonar.debt")
       .hasParam(PARAM_VALUE, "8h")
+      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void reset() {
+    underTest.reset(ResetRequest.builder()
+      .setKey("sonar.debt")
+      .setComponentKey("KEY")
+      .build());
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasParam(PARAM_KEY, "sonar.debt")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();
   }

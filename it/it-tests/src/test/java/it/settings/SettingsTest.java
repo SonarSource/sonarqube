@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
@@ -83,6 +84,13 @@ public class SettingsTest {
 
     String value = getSetting(PLUGIN_SETTING_KEY).getValue();
     assertThat(value).isEqualTo("some value");
+  }
+
+  @Test
+  public void remove_value() throws Exception {
+    settingsService().set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+    settingsService().reset(ResetRequest.builder().setKey(PLUGIN_SETTING_KEY).build());
+    assertThat(getSetting(PLUGIN_SETTING_KEY).getValue()).isEqualTo("aDefaultValue");
   }
 
   private static SettingsService settingsService() {

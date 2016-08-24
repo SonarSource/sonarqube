@@ -30,6 +30,7 @@ public class SettingsWsModule extends Module {
       SettingsWsComponentParameters.class,
       ListDefinitionsAction.class,
       ValuesAction.class,
-      SettingsFinder.class);
+      SettingsFinder.class,
+      ResetAction.class);
   }
 }

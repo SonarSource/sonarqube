@@ -29,6 +29,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
@@ -60,6 +61,13 @@ public class SettingsService extends BaseService {
     call(new PostRequest(path(ACTION_SET))
       .setParam(PARAM_KEY, request.getKey())
       .setParam(PARAM_VALUE, request.getValue())
+      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
+      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
+  }
+
+  public void reset(ResetRequest request) {
+    call(new PostRequest(path(ACTION_RESET))
+      .setParam(PARAM_KEY, request.getKey())
       .setParam(PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
   }
