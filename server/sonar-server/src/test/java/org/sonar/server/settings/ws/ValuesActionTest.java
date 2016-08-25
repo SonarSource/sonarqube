@@ -328,6 +328,23 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_value_of_deprecated_key() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .deprecatedKey("deprecated")
+      .build());
+    insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    ValuesWsResponse result = newRequestForGlobalProperties("deprecated");
+    assertThat(result.getSettingsList()).hasSize(1);
+
+    Settings.Setting value = result.getSettings(0);
+    assertThat(value.getKey()).isEqualTo("deprecated");
+    assertThat(value.getValue()).isEqualTo("one");
+  }
+
+  @Test
   public void test_example_json_response() {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition

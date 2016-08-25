@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
@@ -36,7 +38,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -107,7 +108,8 @@ public class ValuesAction implements SettingsWsAction {
       Optional<ComponentDto> component = getComponent(dbSession, valuesRequest);
       checkAdminPermission(component);
       Set<String> keys = new HashSet<>(valuesRequest.getKeys());
-      return new ValuesResponseBuilder(loadSettings(dbSession, component, keys), component).build();
+      Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
+      return new ValuesResponseBuilder(loadSettings(dbSession, component, keysToDisplayMap.keySet()), component, keysToDisplayMap).build();
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -161,16 +163,23 @@ public class ValuesAction implements SettingsWsAction {
       .collect(Collectors.toList());
   }
 
+  private Map<String, String> getKeysToDisplayMap(Set<String> keys) {
+    return keys.stream()
+      .collect(Collectors.toMap(propertyDefinitions::validKey, Function.identity()));
+  }
+
   private class ValuesResponseBuilder {
     private final List<Setting> settings;
     private final Optional<ComponentDto> component;
 
     private final ValuesWsResponse.Builder valuesWsBuilder = ValuesWsResponse.newBuilder();
     private final Map<String, Settings.Setting.Builder> settingsBuilderByKey = new HashMap<>();
+    private final Map<String, String> keysToDisplayMap;
 
-    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> component) {
+    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> component, Map<String, String> keysToDisplayMap) {
       this.settings = settings;
       this.component = component;
+      this.keysToDisplayMap = keysToDisplayMap;
     }
 
     ValuesWsResponse build() {
@@ -181,18 +190,18 @@ public class ValuesAction implements SettingsWsAction {
 
     private void processSettings() {
       settings.forEach(setting -> {
-        Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(setting.getKey());
+        Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(keysToDisplayMap.get(setting.getKey()));
         valueBuilder.setDefault(setting.isDefault());
         setInherited(setting, valueBuilder);
         setValue(setting, valueBuilder);
       });
     }
 
-    private Settings.Setting.Builder getOrCreateValueBuilder(String propertyKey) {
-      Settings.Setting.Builder valueBuilder = settingsBuilderByKey.get(propertyKey);
+    private Settings.Setting.Builder getOrCreateValueBuilder(String key) {
+      Settings.Setting.Builder valueBuilder = settingsBuilderByKey.get(key);
       if (valueBuilder == null) {
-        valueBuilder = valuesWsBuilder.addSettingsBuilder().setKey(propertyKey);
-        settingsBuilderByKey.put(propertyKey, valueBuilder);
+        valueBuilder = valuesWsBuilder.addSettingsBuilder().setKey(key);
+        settingsBuilderByKey.put(key, valueBuilder);
       }
       return valueBuilder;
     }
