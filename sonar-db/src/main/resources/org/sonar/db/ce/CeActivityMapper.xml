@@ -188,8 +188,13 @@
     where uuid=#{uuid}
   </update>
 
-  <delete id="deleteByUuid" parameterType="string">
-    delete from ce_activity
-    where uuid=#{uuid}
+  <delete id="deleteByUuids" parameterType="string">
+    delete
+      from ce_activity
+    where
+      uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
   </delete>
 </mapper>

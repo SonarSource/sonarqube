@@ -19,7 +19,7 @@
  */
 package org.sonar.db.ce;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static java.lang.System.lineSeparator;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -98,13 +99,38 @@ public class CeScannerContextDaoTest {
   public void insert_and_select_line_reader() {
     String scannerContext = "line 1" + lineSeparator() + "line 2" + lineSeparator() + "line 3";
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(scannerContext));
-    dbSession.commit(true);
+    dbSession.commit();
 
     assertThat(underTest.selectScannerContext(dbSession, SOME_UUID)).contains(scannerContext);
   }
 
+  @Test
+  public void deleteByUuids_does_not_fail_on_empty_table() {
+    underTest.deleteByUuids(dbSession, singleton("some uuid"));
+  }
+
+  @Test
+  public void deleteByUuids_deletes_specified_existing_uuids() {
+    insertScannerContext(SOME_UUID);
+    String data2 = insertScannerContext("UUID_2");
+    insertScannerContext("UUID_3");
+
+    underTest.deleteByUuids(dbSession, ImmutableSet.of(SOME_UUID, "UUID_3", "UUID_4"));
+
+    assertThat(underTest.selectScannerContext(dbSession, SOME_UUID)).isEmpty();
+    assertThat(underTest.selectScannerContext(dbSession, "UUID_2")).contains(data2);
+    assertThat(underTest.selectScannerContext(dbSession, "UUID_3")).isEmpty();
+  }
+
+  private String insertScannerContext(String uuid) {
+    String data = "data of " + uuid;
+    underTest.insert(dbSession, uuid, scannerContextInputStreamOf(data));
+    dbSession.commit();
+    return data;
+  }
+
   private static CloseableIterator<String> scannerContextInputStreamOf(String data) {
-    return CloseableIterator.from(Collections.singleton(data).iterator());
+    return CloseableIterator.from(singleton(data).iterator());
   }
 
 }

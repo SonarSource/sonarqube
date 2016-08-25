@@ -26,11 +26,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -84,4 +86,11 @@ public class CeScannerContextDao implements Dao {
     }
   }
 
+  public void deleteByUuids(DbSession dbSession, Collection<String> uuids) {
+    DatabaseUtils.executeLargeUpdates(uuids, mapper(dbSession)::deleteByUuids);
+  }
+
+  private static CeScannerContextMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(CeScannerContextMapper.class);
+  }
 }

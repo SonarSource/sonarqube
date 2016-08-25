@@ -33,6 +33,7 @@ import org.sonar.db.activity.ActivityDto;
 import org.sonar.db.activity.ActivityMapper;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
+import org.sonar.db.ce.CeScannerContextMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
@@ -234,7 +235,8 @@ public class MyBatis {
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
-      CeQueueMapper.class, CeActivityMapper.class, CeTaskInputMapper.class, ComponentLinkMapper.class,
+      CeQueueMapper.class, CeActivityMapper.class, CeTaskInputMapper.class, CeScannerContextMapper.class,
+      ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class, Migration53Mapper.class
     };
     confBuilder.loadMappers(mappers);

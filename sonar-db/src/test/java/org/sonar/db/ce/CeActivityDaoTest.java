@@ -22,6 +22,7 @@ package org.sonar.db.ce;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -33,6 +34,7 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
@@ -293,21 +295,23 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void deleteByUuid() {
+  public void deleteByUuids() {
     insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
     insert("TASK_2", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_3", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
 
-    underTest.deleteByUuid(db.getSession(), "TASK_1");
+    underTest.deleteByUuids(db.getSession(), ImmutableSet.of("TASK_1", "TASK_3"));
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isFalse();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").isPresent()).isTrue();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").isPresent()).isFalse();
   }
 
   @Test
-  public void deleteByUuid_does_nothing_if_uuid_does_not_exist() {
+  public void deleteByUuids_does_nothing_if_uuid_does_not_exist() {
     insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
 
     // must not fail
-    underTest.deleteByUuid(db.getSession(), "TASK_2");
+    underTest.deleteByUuids(db.getSession(), singleton("TASK_2"));
 
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isTrue();
   }

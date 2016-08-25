@@ -46,5 +46,5 @@ public interface CeActivityMapper {
 
   void updateIsLastToTrueForUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
 
-  void deleteByUuid(@Param("uuid") String uuid);
+  void deleteByUuids(@Param("uuids") List<String> uuids);
 }
