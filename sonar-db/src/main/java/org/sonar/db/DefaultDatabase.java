@@ -49,7 +49,9 @@ public class DefaultDatabase implements Database {
 
   private static final Logger LOG = Loggers.get(Database.class);
 
-  private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
+  // SONAR-7682: with H2 1.4.192, persistence of LOB with MyBatis (potentially only when table has multiple ones) fails
+  // with storage engine NVSTORE (now the default one). So, we disable it but keep MVCC enabled for concurrency management
+  private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar;mv_store=false;MVCC=true";
   private static final String SONAR_JDBC = "sonar.jdbc.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";

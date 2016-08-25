@@ -107,7 +107,9 @@ public class JdbcSettings {
   }
 
   private static String buildH2JdbcUrl(String embeddedDatabasePort) {
-    return "jdbc:h2:tcp://localhost:" + embeddedDatabasePort + "/sonar";
+    // SONAR-7682: with H2 1.4.192, persistence of LOB with MyBatis (potentially only when table has multiple ones) fails
+    // with storage engine NVSTORE (now the default one). So, we disable it but keep MVCC enabled for concurrency management
+    return "jdbc:h2:tcp://localhost:" + embeddedDatabasePort + "/sonar;mv_store=false;MVCC=true";
   }
 
   void checkUrlParameters(Provider provider, String url) {
