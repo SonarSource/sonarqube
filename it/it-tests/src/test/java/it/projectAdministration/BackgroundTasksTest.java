@@ -32,6 +32,7 @@ import pageobjects.BackgroundTasksPage;
 import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static util.ItUtils.projectDir;
 
 public class BackgroundTasksTest {
@@ -61,6 +62,7 @@ public class BackgroundTasksTest {
     nav.logIn().submitCredentials("admin", "admin");
     BackgroundTasksPage page = nav.openBackgroundTasksPage();
 
+    page.getTasks().shouldHave(sizeGreaterThan(0));
     BackgroundTaskItem task = page.getTasksAsItems().get(0);
     task.openActions()
       .openScannerContext()
@@ -75,6 +77,7 @@ public class BackgroundTasksTest {
     nav.logIn().submitCredentials("admin", "admin");
     BackgroundTasksPage page = nav.openBackgroundTasksPage();
 
+    page.getTasks().shouldHave(sizeGreaterThan(0));
     BackgroundTaskItem task = page.getTasksAsItems().get(0);
     task.openActions()
       .openErrorStacktrace()
