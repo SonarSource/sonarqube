@@ -176,7 +176,7 @@ public class PersistFileSourcesStep implements ComputationStep {
             .setLineHashes(lineHashes)
             .setRevision(revision)
             .setUpdatedAt(system2.now());
-          dbClient.fileSourceDao().update(previousDto);
+          dbClient.fileSourceDao().update(session, previousDto);
           session.commit();
         }
       }
