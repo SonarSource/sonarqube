@@ -19,20 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 @Immutable
@@ -53,7 +50,7 @@ public class ComponentImpl implements Component {
   private ComponentImpl(Builder builder) {
     this.type = builder.type;
     this.key = builder.key;
-    this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
+    this.name = builder.name;
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.reportAttributes = builder.reportAttributes;
@@ -108,14 +105,19 @@ public class ComponentImpl implements Component {
     throw new IllegalStateException("Only component of type PROJECT_VIEW have a FileAttributes object");
   }
 
-  public static Builder builder(ScannerReport.Component component) {
-    return new Builder(component);
+  public static Builder builder(Type type) {
+    return new Builder(type);
   }
 
   public static final class Builder {
 
+    private static final String KEY_CANNOT_BE_NULL = "key can't be null";
+    private static final String UUID_CANNOT_BE_NULL = "uuid can't be null";
+    private static final String REPORT_ATTRIBUTES_CANNOT_BE_NULL = "reportAttributes can't be null";
+    private static final String NAME_CANNOT_BE_NULL = "name can't be null";
+
     private final Type type;
-    private final ReportAttributes reportAttributes;
+    private ReportAttributes reportAttributes;
     private String uuid;
     private String key;
     private String name;
@@ -123,22 +125,37 @@ public class ComponentImpl implements Component {
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
-    private Builder(ScannerReport.Component component) {
-      checkNotNull(component);
-      this.type = convertType(component.getType());
-      this.name = component.getName();
-      this.description = trimToNull(component.getDescription());
-      this.reportAttributes = createBatchAttributes(component);
-      this.fileAttributes = createFileAttributes(component);
+    private Builder(Type type){
+      this.type = requireNonNull(type, "type can't be null");
+    }
+
+    public Builder setReportAttributes(ReportAttributes reportAttributes) {
+      this.reportAttributes = requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
+      return this;
     }
 
     public Builder setUuid(String s) {
-      this.uuid = checkNotNull(s);
+      this.uuid = requireNonNull(s, UUID_CANNOT_BE_NULL);
       return this;
     }
 
     public Builder setKey(String s) {
-      this.key = checkNotNull(s);
+      this.key = requireNonNull(s, KEY_CANNOT_BE_NULL);
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = requireNonNull(name, NAME_CANNOT_BE_NULL);
+      return this;
+    }
+
+    public Builder setDescription(@Nullable String description) {
+      this.description = trimToNull(description);
+      return this;
+    }
+
+    public Builder setFileAttributes(@Nullable  FileAttributes fileAttributes) {
+      this.fileAttributes = fileAttributes;
       return this;
     }
 
@@ -151,43 +168,11 @@ public class ComponentImpl implements Component {
     }
 
     public ComponentImpl build() {
-      checkNotNull(key);
-      checkNotNull(uuid);
+      requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
+      requireNonNull(uuid, UUID_CANNOT_BE_NULL);
+      requireNonNull(key, KEY_CANNOT_BE_NULL);
+      requireNonNull(name, NAME_CANNOT_BE_NULL);
       return new ComponentImpl(this);
-    }
-
-    private static ReportAttributes createBatchAttributes(ScannerReport.Component component) {
-      return ReportAttributes.newBuilder(component.getRef())
-        .setVersion(trimToNull(component.getVersion()))
-        .setPath(trimToNull(component.getPath()))
-        .build();
-    }
-
-    @CheckForNull
-    private static FileAttributes createFileAttributes(ScannerReport.Component component) {
-      if (component.getType() != ComponentType.FILE) {
-        return null;
-      }
-
-      return new FileAttributes(
-        component.getIsTest(),
-        trimToNull(component.getLanguage()));
-    }
-
-    @VisibleForTesting
-    static Type convertType(ComponentType type) {
-      switch (type) {
-        case PROJECT:
-          return Type.PROJECT;
-        case MODULE:
-          return Type.MODULE;
-        case DIRECTORY:
-          return Type.DIRECTORY;
-        case FILE:
-          return Type.FILE;
-        default:
-          throw new IllegalArgumentException("Unsupported ComponentType value " + type);
-      }
     }
   }
 

@@ -254,7 +254,7 @@ public class BuildComponentTreeStepTest {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     ComponentDto removedModule = insertComponent(newModuleDto("BCDE", project).setKey(REPORT_MODULE_KEY).setEnabled(false));
     ComponentDto removedDirectory = insertComponent(newDirectory(removedModule, "CDEF", REPORT_DIR_KEY_1).setKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1).setEnabled(false));
-    insertComponent(newFileDto(removedModule, removedModule, "DEFG").setKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1).setEnabled(false));
+    insertComponent(newFileDto(removedModule, removedDirectory, "DEFG").setKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1).setEnabled(false));
 
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
     reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
