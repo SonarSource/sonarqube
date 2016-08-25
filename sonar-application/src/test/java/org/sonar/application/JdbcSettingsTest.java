@@ -49,7 +49,7 @@ public class JdbcSettingsTest {
 
     assertThat(settings.resolveProviderAndEnforceNonnullJdbcUrl(props))
       .isEqualTo(Provider.H2);
-    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo("jdbc:h2:tcp://localhost:9092/sonar");
+    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo("jdbc:h2:tcp://localhost:9092/sonar;mv_store=false;MVCC=true");
   }
 
   @Test
