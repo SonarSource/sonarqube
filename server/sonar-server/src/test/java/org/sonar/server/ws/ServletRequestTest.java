@@ -19,21 +19,22 @@
  */
 package org.sonar.server.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ServletRequestTest {
 
@@ -42,10 +43,12 @@ public class ServletRequestTest {
 
   HttpServletRequest source = mock(HttpServletRequest.class);
 
+  ServletRequest underTest = new ServletRequest(source);
+
   @Test
   public void call_method() {
-    ServletRequest request = new ServletRequest(source);
-    request.method();
+    underTest.method();
+
     verify(source).getMethod();
   }
 
@@ -53,23 +56,23 @@ public class ServletRequestTest {
   public void getMediaType() throws Exception {
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.getMediaType()).isEqualTo(MediaTypes.JSON);
+
+    assertThat(underTest.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void default_media_type_is_octet_stream() throws Exception {
-    ServletRequest request = new ServletRequest(source);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
-    assertThat(request.getMediaType()).isEqualTo(MediaTypes.DEFAULT);
+
+    assertThat(underTest.getMediaType()).isEqualTo(MediaTypes.DEFAULT);
   }
 
   @Test
   public void media_type_taken_in_url_first() throws Exception {
-    ServletRequest request = new ServletRequest(source);
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search.protobuf");
-    assertThat(request.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
+
+    assertThat(underTest.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
   }
 
   @Test
@@ -82,8 +85,35 @@ public class ServletRequestTest {
   @Test
   public void read_param_from_source() {
     when(source.getParameter("param")).thenReturn("value");
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.readParam("param")).isEqualTo("value");
+
+    assertThat(underTest.readParam("param")).isEqualTo("value");
+  }
+
+  @Test
+  public void read_multi_param_from_source_with_values() {
+    when(source.getParameterValues("param")).thenReturn(new String[]{"firstValue", "secondValue", "thirdValue"});
+
+    List<String> result = underTest.readMultiParam("param");
+
+    assertThat(result).containsExactly("firstValue", "secondValue", "thirdValue");
+  }
+
+  @Test
+  public void read_multi_param_from_source_with_one_value() {
+    when(source.getParameterValues("param")).thenReturn(new String[]{"firstValue"});
+
+    List<String> result = underTest.readMultiParam("param");
+
+    assertThat(result).containsExactly("firstValue");
+  }
+
+  @Test
+  public void read_multi_param_from_source_without_value() {
+    when(source.getParameterValues("param")).thenReturn(null);
+
+    List<String> result = underTest.readMultiParam("param");
+
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -95,10 +125,8 @@ public class ServletRequestTest {
     when(part.getSize()).thenReturn(10L);
     when(source.getPart("param1")).thenReturn(part);
 
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.readInputStreamParam("param1")).isEqualTo(file);
-
-    assertThat(request.readInputStreamParam("param2")).isNull();
+    assertThat(underTest.readInputStreamParam("param1")).isEqualTo(file);
+    assertThat(underTest.readInputStreamParam("param2")).isNull();
   }
 
   @Test
@@ -110,22 +138,21 @@ public class ServletRequestTest {
     when(part.getSize()).thenReturn(0L);
     when(source.getPart("param1")).thenReturn(part);
 
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.readInputStreamParam("param1")).isNull();
+    assertThat(underTest.readInputStreamParam("param1")).isNull();
   }
 
   @Test
   public void return_no_input_stream_when_content_type_is_not_multipart() throws Exception {
     when(source.getContentType()).thenReturn("multipart/form-data");
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.readInputStreamParam("param1")).isNull();
+
+    assertThat(underTest.readInputStreamParam("param1")).isNull();
   }
 
   @Test
   public void return_no_input_stream_when_content_type_is_null() throws Exception {
     when(source.getContentType()).thenReturn(null);
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.readInputStreamParam("param1")).isNull();
+
+    assertThat(underTest.readInputStreamParam("param1")).isNull();
   }
 
   @Test
@@ -136,11 +163,11 @@ public class ServletRequestTest {
     when(part.getSize()).thenReturn(0L);
     when(part.getInputStream()).thenReturn(file);
     doThrow(IllegalArgumentException.class).when(source).getPart("param1");
-    ServletRequest request = new ServletRequest(source);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can't read file part");
-    request.readInputStreamParam("param1");
+
+    underTest.readInputStreamParam("param1");
   }
 
   @Test
@@ -148,19 +175,16 @@ public class ServletRequestTest {
     when(source.getRequestURI()).thenReturn("/sonar/path/to/resource/search");
     when(source.getContextPath()).thenReturn("/sonar");
 
-    ServletRequest request = new ServletRequest(source);
-
-    assertThat(request.getPath()).isEqualTo("/path/to/resource/search");
+    assertThat(underTest.getPath()).isEqualTo("/path/to/resource/search");
   }
 
   @Test
   public void to_string() {
     when(source.getRequestURL()).thenReturn(new StringBuffer("http:localhost:9000/api/issues"));
-    ServletRequest request = new ServletRequest(source);
-    assertThat(request.toString()).isEqualTo("http:localhost:9000/api/issues");
+    assertThat(underTest.toString()).isEqualTo("http:localhost:9000/api/issues");
 
     when(source.getQueryString()).thenReturn("components=sonar");
-    request = new ServletRequest(source);
-    assertThat(request.toString()).isEqualTo("http:localhost:9000/api/issues?components=sonar");
+
+    assertThat(underTest.toString()).isEqualTo("http:localhost:9000/api/issues?components=sonar");
   }
 }

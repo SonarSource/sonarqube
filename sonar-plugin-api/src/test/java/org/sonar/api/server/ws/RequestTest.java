@@ -19,11 +19,11 @@
  */
 package org.sonar.api.server.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import com.google.common.collect.Maps;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +35,10 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class RequestTest {
 
@@ -94,6 +98,23 @@ public class RequestTest {
     expectedException.expectMessage("The 'a_required_string' parameter is missing");
 
     underTest.mandatoryParamAsStrings("a_required_string");
+  }
+
+  @Test
+  public void mandatory_multi_param() {
+    underTest.setMultiParam("a_required_multi_param", newArrayList("firstValue", "secondValue", "thirdValue"));
+
+    List<String> result = underTest.mandatoryMultiParam("a_required_multi_param");
+
+    assertThat(result).containsExactly("firstValue", "secondValue", "thirdValue");
+  }
+
+  @Test
+  public void fail_when_no_multi_param() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_required_multi_param' parameter is missing");
+
+    underTest.mandatoryMultiParam("a_required_multi_param");
   }
 
   @Test
@@ -282,8 +303,9 @@ public class RequestTest {
 
   private static class FakeRequest extends ValidatingRequest {
 
-    private final Map<String, String> params = Maps.newHashMap();
-    private final Map<String, Part> parts = Maps.newHashMap();
+    private final ListMultimap<String, String> multiParams = ArrayListMultimap.create();
+    private final Map<String, String> params = new HashMap<>();
+    private final Map<String, Part> parts = new HashMap<>();
 
     @Override
     public String method() {
@@ -312,9 +334,20 @@ public class RequestTest {
       return this;
     }
 
+    public FakeRequest setMultiParam(String key, List<String> values) {
+      multiParams.putAll(key, values);
+
+      return this;
+    }
+
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    protected List<String> readMultiParam(String key) {
+      return multiParams.get(key);
     }
 
     @Override
@@ -360,6 +393,7 @@ public class RequestTest {
       action.createParam("a_required_boolean").setRequired(true);
       action.createParam("a_required_number").setRequired(true);
       action.createParam("a_required_enum").setRequired(true);
+      action.createParam("a_required_multi_param").setRequired(true);
 
       action.createParam("has_default_string").setDefaultValue("the_default_string");
       action.createParam("has_default_number").setDefaultValue("10");

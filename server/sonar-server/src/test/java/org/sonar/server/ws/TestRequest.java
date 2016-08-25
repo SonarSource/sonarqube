@@ -19,16 +19,19 @@
  */
 package org.sonar.server.ws;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class TestRequest extends ValidatingRequest {
 
@@ -41,6 +44,12 @@ public class TestRequest extends ValidatingRequest {
   @Override
   protected String readParam(String key) {
     return params.get(key);
+  }
+
+  @Override
+  protected List<String> readMultiParam(String key) {
+    String value = params.get(key);
+    return value == null ? emptyList() : singletonList(value);
   }
 
   @Override

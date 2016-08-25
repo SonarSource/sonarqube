@@ -19,20 +19,23 @@
  */
 package org.sonar.server.ws;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonarqube.ws.MediaTypes;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Collections.emptyList;
+import static java.util.Locale.ENGLISH;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 public class ServletRequest extends ValidatingRequest {
 
@@ -69,6 +72,12 @@ public class ServletRequest extends ValidatingRequest {
   @Override
   protected String readParam(String key) {
     return source.getParameter(key);
+  }
+
+  @Override
+  protected List<String> readMultiParam(String key) {
+    String[] values = source.getParameterValues(key);
+    return values == null ? emptyList() : ImmutableList.copyOf(values);
   }
 
   @Override

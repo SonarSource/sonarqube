@@ -19,9 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.ws.RequestVerifier.verifyRequest;
-
 import com.google.common.collect.Maps;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -31,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -44,6 +42,11 @@ import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
 /**
  * @since 4.2
@@ -102,6 +105,12 @@ public class WsTester {
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    protected List<String> readMultiParam(String key) {
+      String value = params.get(key);
+      return value == null ? emptyList() : singletonList(value);
     }
 
     @Override

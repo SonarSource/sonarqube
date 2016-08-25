@@ -19,15 +19,18 @@
  */
 package org.sonar.api.server.ws.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.Maps;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * Fake implementation of {@link org.sonar.api.server.ws.Request} used
@@ -65,6 +68,12 @@ public class SimpleGetRequest extends Request {
   @Override
   public String param(String key) {
     return params.get(key);
+  }
+
+  @Override
+  public List<String> multiParam(String key) {
+    String value = params.get(key);
+    return value == null ? emptyList() : singletonList(value);
   }
 
   @Override

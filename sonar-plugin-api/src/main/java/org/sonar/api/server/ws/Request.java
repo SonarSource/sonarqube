@@ -19,8 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -32,6 +30,8 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @since 4.2
@@ -109,6 +109,15 @@ public abstract class Request {
     return values;
   }
 
+  public List<String> mandatoryMultiParam(String key) {
+    List<String> values = multiParam(key);
+    if (values.isEmpty()) {
+      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
+    }
+
+    return values;
+  }
+
   @CheckForNull
   public List<String> paramAsStrings(String key) {
     String value = param(key);
@@ -120,6 +129,8 @@ public abstract class Request {
 
   @CheckForNull
   public abstract String param(String key);
+
+  public abstract List<String> multiParam(String key);
 
   @CheckForNull
   public abstract InputStream paramAsInputStream(String key);

@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
@@ -36,6 +37,11 @@ public class LocalRequestAdapter extends ValidatingRequest {
   @Override
   protected String readParam(String key) {
     return localRequest.getParam(key);
+  }
+
+  @Override
+  protected List<String> readMultiParam(String key) {
+    throw new UnsupportedOperationException("reading multi value param is not supported yet by local WS calls");
   }
 
   @Override

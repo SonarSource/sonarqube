@@ -19,8 +19,6 @@
  */
 package org.sonar.api.server.ws.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -35,6 +33,10 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * @since 4.2
@@ -66,6 +68,16 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public String param(String key) {
     return param(key, true);
+  }
+
+  @Override
+  public List<String> multiParam(String key) {
+    WebService.Param definition = action.param(key);
+    List<String> values = readMultiParamOrDefaultValue(key, definition);
+
+    values.forEach(value -> validate(value, definition));
+
+    return values;
   }
 
   @Override
@@ -139,8 +151,32 @@ public abstract class ValidatingRequest extends Request {
     return value;
   }
 
+  private List<String> readMultiParamOrDefaultValue(String key, @Nullable WebService.Param definition) {
+    if (definition == null) {
+      String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
+      Loggers.get(getClass()).error(message);
+      throw new IllegalArgumentException(message);
+    }
+
+    List<String> keyValues = readMultiParam(key);
+    if (!keyValues.isEmpty()) {
+      return keyValues;
+    }
+
+    String deprecatedKey = definition.deprecatedKey();
+    List<String> deprecatedKeyValues = deprecatedKey == null ? emptyList() : readMultiParam(deprecatedKey);
+    if (!deprecatedKeyValues.isEmpty()) {
+      return deprecatedKeyValues;
+    }
+
+    String defaultValue = definition.defaultValue();
+    return defaultValue == null ? emptyList() : singletonList(defaultValue);
+  }
+
   @CheckForNull
   protected abstract String readParam(String key);
+
+  protected abstract List<String> readMultiParam(String key);
 
   @CheckForNull
   protected abstract InputStream readInputStreamParam(String key);
