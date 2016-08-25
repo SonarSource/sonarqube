@@ -43,7 +43,6 @@ public class CeProcessLogging extends ServerProcessLogging {
   protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat, new CeActivityLogConsoleFilter());
     ctx.getLogger(ROOT_LOGGER_NAME).addAppender(consoleAppender);
-    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(CeLogging.createCeActivityAppenderConfiguration(helper, ctx, props));
   }
 
 }

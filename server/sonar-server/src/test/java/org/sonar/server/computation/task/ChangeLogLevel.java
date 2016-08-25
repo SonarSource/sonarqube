@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.log;
+package org.sonar.server.computation.task;
 
-import org.apache.log4j.MDC;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.log.Loggers;
 
-public class CeLogging {
+public final class ChangeLogLevel implements AutoCloseable {
+  private final Logger logger;
+  private final LoggerLevel previous;
 
-  static final String MDC_CE_ACTIVITY_FLAG = "ceActivityFlag";
-  static final String MDC_CE_TASK_UUID = "ceTaskUuid";
-
-  public void initForTask(CeTask task) {
-    MDC.put(MDC_CE_TASK_UUID, task.getUuid());
+  public ChangeLogLevel(Class<?> clazz, LoggerLevel newLevel) {
+    this.logger = Loggers.get(clazz);
+    this.previous = logger.getLevel();
+    logger.setLevel(newLevel);
   }
 
-  public void clearForTask() {
-    MDC.remove(MDC_CE_TASK_UUID);
+  @Override
+  public void close() {
+    logger.setLevel(previous);
   }
-
 }

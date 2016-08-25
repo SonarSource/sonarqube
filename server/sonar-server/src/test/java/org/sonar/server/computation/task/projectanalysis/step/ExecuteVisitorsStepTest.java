@@ -24,9 +24,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.log.CeLogging;
+import org.sonar.server.computation.task.ChangeLogLevel;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -41,9 +40,6 @@ import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
@@ -74,8 +70,6 @@ public class ExecuteVisitorsStepTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private CeLogging ceLogging = spy(new CeLogging());
-
   @Before
   public void setUp() throws Exception {
     treeRootHolder.setRoot(
@@ -94,7 +88,7 @@ public class ExecuteVisitorsStepTest {
 
   @Test
   public void execute_with_type_aware_visitor() throws Exception {
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestTypeAwareVisitor()), ceLogging);
+    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestTypeAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(2));
@@ -113,7 +107,7 @@ public class ExecuteVisitorsStepTest {
 
   @Test
   public void execute_with_path_aware_visitor() throws Exception {
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestPathAwareVisitor()), ceLogging);
+    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestPathAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(1));
@@ -129,20 +123,24 @@ public class ExecuteVisitorsStepTest {
 
   @Test
   public void execute_logs_at_info_level_all_execution_duration_of_all_visitors() {
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(
-      treeRootHolder,
-      asList(new VisitorA(), new VisitorB(), new VisitorC()),
-      ceLogging);
+    try (ChangeLogLevel executor = new ChangeLogLevel(ExecuteVisitorsStep.class, LoggerLevel.DEBUG);
+      ChangeLogLevel step1 = new ChangeLogLevel(VisitorA.class, LoggerLevel.DEBUG);
+      ChangeLogLevel step2 = new ChangeLogLevel(VisitorB.class, LoggerLevel.DEBUG);
+      ChangeLogLevel step3 = new ChangeLogLevel(VisitorB.class, LoggerLevel.DEBUG)) {
+      ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(
+        treeRootHolder,
+        asList(new VisitorA(), new VisitorB(), new VisitorC()));
 
-    underStep.execute();
+      underStep.execute();
 
-    verify(ceLogging).logCeActivity(any(Logger.class), any(Runnable.class));
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
-    assertThat(logs).hasSize(4);
-    assertThat(logs.get(0)).isEqualTo("  Execution time for each component visitor:");
-    assertThat(logs.get(1)).startsWith("  - VisitorA | time=");
-    assertThat(logs.get(2)).startsWith("  - VisitorB | time=");
-    assertThat(logs.get(3)).startsWith("  - VisitorC | time=");
+      List<String> logs = logTester.logs(LoggerLevel.DEBUG);
+      assertThat(logs).hasSize(4);
+      assertThat(logs.get(0)).isEqualTo("  Execution time for each component visitor:");
+      assertThat(logs.get(1)).startsWith("  - VisitorA | time=");
+      assertThat(logs.get(2)).startsWith("  - VisitorB | time=");
+      assertThat(logs.get(3)).startsWith("  - VisitorC | time=");
+
+    }
   }
 
   private static class VisitorA extends TypeAwareVisitorAdapter {

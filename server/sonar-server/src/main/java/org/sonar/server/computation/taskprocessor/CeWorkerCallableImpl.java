@@ -97,18 +97,18 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     }
   }
 
-  private Profiler startActivityProfiler(CeTask task) {
+  private static Profiler startActivityProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
     addContext(profiler, task);
-    return ceLogging.logCeActivity(LOG, () -> profiler.startInfo("Execute task"));
+    return profiler.startInfo("Execute task");
   }
 
-  private void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+  private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
-      ceLogging.logCeActivity(LOG, () -> profiler.stopError("Executed task"));
+      profiler.stopError("Executed task");
     } else {
-      ceLogging.logCeActivity(LOG, () -> profiler.stopInfo("Executed task"));
+      profiler.stopInfo("Executed task");
     }
   }
 

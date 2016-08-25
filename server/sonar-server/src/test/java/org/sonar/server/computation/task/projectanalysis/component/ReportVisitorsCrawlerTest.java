@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -86,7 +87,7 @@ public class ReportVisitorsCrawlerTest {
   @Test
   public void execute_pre_visitor_before_post_visitor() throws Exception {
     InOrder inOrder = inOrder(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor);
-    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor));
+    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor));
     underTest.visit(COMPONENT_TREE);
 
     inOrder.verify(spyPreOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
@@ -100,6 +101,22 @@ public class ReportVisitorsCrawlerTest {
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_3);
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_2);
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
+  }
+
+  @Test
+  public void getCumulativeDurations_returns_an_empty_map_when_computation_is_disabled_in_constructor() {
+    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor), false);
+    underTest.visit(COMPONENT_TREE);
+
+    assertThat(underTest.getCumulativeDurations()).isEmpty();
+  }
+
+  @Test
+  public void getCumulativeDurations_returns_an_non_empty_map_when_computation_is_enabled_in_constructor() {
+    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor), true);
+    underTest.visit(COMPONENT_TREE);
+
+    assertThat(underTest.getCumulativeDurations()).hasSize(2);
   }
 
   @Test

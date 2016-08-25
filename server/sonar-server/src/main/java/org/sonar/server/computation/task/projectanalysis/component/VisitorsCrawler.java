@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -39,21 +40,30 @@ import static java.util.Objects.requireNonNull;
  */
 public class VisitorsCrawler implements ComponentCrawler {
 
+  private final boolean computeDuration;
   private final Map<ComponentVisitor, VisitorDuration> visitorCumulativeDurations;
   private final List<VisitorWrapper> preOrderVisitorWrappers;
   private final List<VisitorWrapper> postOrderVisitorWrappers;
 
   public VisitorsCrawler(Iterable<ComponentVisitor> visitors) {
+    this(visitors, false);
+  }
+
+  public VisitorsCrawler(Iterable<ComponentVisitor> visitors, boolean computeDuration) {
     List<VisitorWrapper> visitorWrappers = from(visitors).transform(ToVisitorWrapper.INSTANCE).toList();
     this.preOrderVisitorWrappers = from(visitorWrappers).filter(MathPreOrderVisitor.INSTANCE).toList();
     this.postOrderVisitorWrappers = from(visitorWrappers).filter(MatchPostOrderVisitor.INSTANCE).toList();
-    this.visitorCumulativeDurations = from(visitors).toMap(VisitorWrapperToInitialDuration.INSTANCE);
+    this.computeDuration = computeDuration;
+    this.visitorCumulativeDurations = computeDuration ? from(visitors).toMap(VisitorWrapperToInitialDuration.INSTANCE) : Collections.emptyMap();
   }
 
   public Map<ComponentVisitor, Long> getCumulativeDurations() {
-    return ImmutableMap.copyOf(
-      Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
+    if (computeDuration) {
+      return ImmutableMap.copyOf(
+          Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
       );
+    }
+    return Collections.emptyMap();
   }
 
   @Override
@@ -135,7 +145,9 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   private void incrementDuration(VisitorWrapper visitorWrapper, long duration) {
-    visitorCumulativeDurations.get(visitorWrapper.getWrappedVisitor()).increment(duration);
+    if (computeDuration) {
+      visitorCumulativeDurations.get(visitorWrapper.getWrappedVisitor()).increment(duration);
+    }
   }
 
   private enum ToVisitorWrapper implements Function<ComponentVisitor, VisitorWrapper> {

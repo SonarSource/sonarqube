@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.log.CeLogging;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
@@ -35,12 +34,10 @@ public class ExecuteVisitorsStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final List<ComponentVisitor> visitors;
-  private final CeLogging ceLogging;
 
-  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, List<ComponentVisitor> visitors, CeLogging ceLogging) {
+  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, List<ComponentVisitor> visitors) {
     this.treeRootHolder = treeRootHolder;
     this.visitors = visitors;
-    this.ceLogging = ceLogging;
   }
 
   @Override
@@ -50,16 +47,18 @@ public class ExecuteVisitorsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors);
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors, LOGGER.isDebugEnabled());
     visitorsCrawler.visit(treeRootHolder.getRoot());
-    ceLogging.logCeActivity(LOGGER, () -> logVisitorExecutionDurations(visitors, visitorsCrawler));
+    logVisitorExecutionDurations(visitors, visitorsCrawler);
   }
 
   private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {
-    LOGGER.info("  Execution time for each component visitor:");
-    Map<ComponentVisitor, Long> cumulativeDurations = visitorsCrawler.getCumulativeDurations();
-    for (ComponentVisitor visitor : visitors) {
-      LOGGER.info("  - {} | time={}ms", visitor.getClass().getSimpleName(), cumulativeDurations.get(visitor));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("  Execution time for each component visitor:");
+      Map<ComponentVisitor, Long> cumulativeDurations = visitorsCrawler.getCumulativeDurations();
+      for (ComponentVisitor visitor : visitors) {
+        LOGGER.debug("  - {} | time={}ms", visitor.getClass().getSimpleName(), cumulativeDurations.get(visitor));
+      }
     }
   }
 }
