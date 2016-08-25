@@ -46,7 +46,6 @@ import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
-import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.ce.settings.ComputeEngineSettings;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
@@ -156,7 +155,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(props.rawProperties())
       .add(level1Components())
       .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(CePropertyDefinitions.all()))
       .add(toArray(ClusterProperties.definitions()));
     configureFromModules(this.level1);
     this.level1.startComponents();

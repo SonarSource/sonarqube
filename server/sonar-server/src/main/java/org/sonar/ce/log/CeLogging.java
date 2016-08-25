@@ -46,7 +46,6 @@ public class CeLogging {
 
   static final String MDC_CE_ACTIVITY_FLAG = "ceActivityFlag";
   static final String MDC_CE_TASK_UUID = "ceTaskUuid";
-  public static final String MAX_LOGS_PROPERTY = "sonar.ce.maxLogsPerTask";
 
   public void initForTask(CeTask task) {
     MDC.put(MDC_CE_TASK_UUID, task.getUuid());

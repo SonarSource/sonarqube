@@ -28,7 +28,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
@@ -122,7 +121,6 @@ public class PlatformLevel1 extends PlatformLevel {
       // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
       org.sonar.core.properties.PropertiesDao.class);
     addAll(CorePropertyDefinitions.all());
-    addAll(CePropertyDefinitions.all());
 
     // cluster
     addAll(ClusterProperties.definitions());
