@@ -23,6 +23,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -31,6 +32,8 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistScannerContextStepTest {
   private static final String ANALYSIS_UUID = "UUID";
@@ -45,7 +48,8 @@ public class PersistScannerContextStepTest {
     .setUuid(ANALYSIS_UUID);
 
   private DbClient dbClient = dbTester.getDbClient();
-  private PersistScannerContextStep underTest = new PersistScannerContextStep(reportReader, analysisMetadataHolder, dbClient);
+  private CeTask ceTask = mock(CeTask.class);
+  private PersistScannerContextStep underTest = new PersistScannerContextStep(reportReader, dbClient, ceTask);
 
   @Test
   public void getDescription() {
@@ -54,21 +58,23 @@ public class PersistScannerContextStepTest {
 
   @Test
   public void executes_persist_lines_of_reportReader() {
+    String taskUuid = "task uuid";
+    when(ceTask.getUuid()).thenReturn(taskUuid);
     reportReader.setScannerLogs(asList("log1", "log2"));
 
     underTest.execute();
 
-    assertThat(dbClient.scannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
+    assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), taskUuid))
       .contains("log1" + '\n' + "log2");
   }
 
   @Test
-  public void executes_persist_does_not_persit_any_scanner_context_if_iterator_is_empty() {
+  public void executes_persist_does_not_persist_any_scanner_context_if_iterator_is_empty() {
     reportReader.setScannerLogs(emptyList());
 
     underTest.execute();
 
-    assertThat(dbClient.scannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
+    assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
       .isEmpty();
   }
 

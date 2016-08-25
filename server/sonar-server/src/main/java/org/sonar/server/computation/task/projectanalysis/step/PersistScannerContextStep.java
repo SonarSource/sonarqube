@@ -19,22 +19,27 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import org.sonar.ce.queue.CeTask;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 public class PersistScannerContextStep implements ComputationStep {
   private final BatchReportReader reportReader;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
+  private final CeTask ceTask;
 
-  public PersistScannerContextStep(BatchReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
+  public PersistScannerContextStep(BatchReportReader reportReader, DbClient dbClient, CeTask ceTask) {
     this.reportReader = reportReader;
-    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
+    this.ceTask = ceTask;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Persist scanner context";
   }
 
   @Override
@@ -42,15 +47,10 @@ public class PersistScannerContextStep implements ComputationStep {
     try (CloseableIterator<String> logsIterator = reportReader.readScannerLogs()) {
       if (logsIterator.hasNext()) {
         try (DbSession dbSession = dbClient.openSession(false)) {
-          dbClient.scannerContextDao().insert(dbSession, analysisMetadataHolder.getUuid(), logsIterator);
+          dbClient.ceScannerContextDao().insert(dbSession, ceTask.getUuid(), logsIterator);
           dbSession.commit();
         }
       }
     }
-  }
-
-  @Override
-  public String getDescription() {
-    return "Persist scanner context";
   }
 }

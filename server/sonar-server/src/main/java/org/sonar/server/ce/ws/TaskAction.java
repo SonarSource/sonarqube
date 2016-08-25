@@ -130,7 +130,7 @@ public class TaskAction implements CeWsAction {
   @CheckForNull
   private String extractScannerContext(DbSession dbSession, CeActivityDto activityDto, Set<AdditionalField> additionalFields) {
     if (additionalFields.contains(AdditionalField.SCANNER_CONTEXT)) {
-      return dbClient.scannerContextDao().selectScannerContext(dbSession, activityDto.getAnalysisUuid())
+      return dbClient.ceScannerContextDao().selectScannerContext(dbSession, activityDto.getUuid())
         .orElse(null);
     }
     return null;

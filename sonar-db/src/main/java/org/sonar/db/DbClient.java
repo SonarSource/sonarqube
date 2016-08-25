@@ -60,7 +60,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.scannercontext.ScannerContextDao;
+import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -102,6 +102,7 @@ public class DbClient {
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
+  private final CeScannerContextDao ceScannerContextDao;
   private final DashboardDao dashboardDao;
   private final ActiveDashboardDao activeDashboardDao;
   private final WidgetDao widgetDao;
@@ -122,7 +123,6 @@ public class DbClient {
   private final GroupDao groupDao;
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
-  private final ScannerContextDao scannerContextDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -159,6 +159,7 @@ public class DbClient {
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
+    ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
     activeDashboardDao = getDao(map, ActiveDashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
@@ -179,7 +180,6 @@ public class DbClient {
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
-    scannerContextDao = getDao(map, ScannerContextDao.class);
     doOnLoad(map);
   }
 
@@ -308,6 +308,10 @@ public class DbClient {
     return ceTaskInputDao;
   }
 
+  public CeScannerContextDao ceScannerContextDao() {
+    return ceScannerContextDao;
+  }
+
   public DashboardDao dashboardDao() {
     return dashboardDao;
   }
@@ -386,10 +390,6 @@ public class DbClient {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
-  }
-
-  public ScannerContextDao scannerContextDao() {
-    return scannerContextDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

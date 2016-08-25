@@ -4,15 +4,15 @@
 <mapper namespace="org.sonar.db.ce.CeActivityMapper">
 
 
-  <!--assumes query includes an left left outer join on table scanner_context with alias ct -->
+  <!--assumes query includes an left left outer join on table ce_scanner_context with alias csc -->
   <sql id="hasScannerContextColumn" databaseId="mssql">
-    cast(case when ct.analysis_uuid is null then 0 else 1 end as bit) as hasScannerContext
+    cast(case when csc.task_uuid is null then 0 else 1 end as bit) as hasScannerContext
   </sql>
   <sql id="hasScannerContextColumn" databaseId="oracle">
-    case when ct.analysis_uuid is null then 0 else 1 end as hasScannerContext
+    case when csc.task_uuid is null then 0 else 1 end as hasScannerContext
   </sql>
   <sql id="hasScannerContextColumn">
-    ct.analysis_uuid is not null as hasScannerContext
+    csc.task_uuid is not null as hasScannerContext
   </sql>
 
   <sql id="columns">
@@ -40,7 +40,7 @@
     <include refid="columns"/>,
     ca.error_stacktrace as errorStacktrace
     from ce_activity ca
-    left outer join scanner_context ct on ca.analysis_uuid = ct.analysis_uuid
+    left outer join ce_scanner_context csc on ca.uuid = csc.task_uuid
     where ca.uuid=#{uuid}
   </select>
 
@@ -84,7 +84,7 @@
 
   <sql id="sqlSelectByQuery">
     from ce_activity ca
-    left outer join scanner_context ct on ct.analysis_uuid = ca.analysis_uuid
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
     <where>
       <if test="query.onlyCurrents">
         and ca.is_last=${_true}
@@ -117,7 +117,7 @@
     select
       <include refid="columns"/>
     from ce_activity ca
-    left outer join scanner_context ct on ct.analysis_uuid = ca.analysis_uuid
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
     where
       ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>

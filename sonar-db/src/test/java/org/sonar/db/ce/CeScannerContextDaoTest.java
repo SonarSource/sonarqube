@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.scannercontext;
+package org.sonar.db.ce;
 
 import java.util.Collections;
 import org.junit.Rule;
@@ -32,9 +32,9 @@ import static java.lang.System.lineSeparator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ScannerContextDaoTest {
+public class CeScannerContextDaoTest {
 
-  private static final String TABLE_NAME = "scanner_context";
+  private static final String TABLE_NAME = "ce_scanner_context";
   private static final String SOME_UUID = "some UUID";
 
   @Rule
@@ -45,7 +45,7 @@ public class ScannerContextDaoTest {
   private System2 system = mock(System2.class);
   private DbSession dbSession = dbTester.getSession();
 
-  private ScannerContextDao underTest = new ScannerContextDao(system);
+  private CeScannerContextDao underTest = new CeScannerContextDao(system);
 
   @Test
   public void selectScannerContext_returns_empty_on_empty_table() {
@@ -53,7 +53,7 @@ public class ScannerContextDaoTest {
   }
 
   @Test
-  public void selectScannerContext_returns_empty_when_no_row_exist_for_analysisUuid() {
+  public void selectScannerContext_returns_empty_when_no_row_exist_for_taskUuid() {
     String data = "some data";
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(data));
     dbSession.commit();
@@ -82,14 +82,14 @@ public class ScannerContextDaoTest {
   }
 
   @Test
-  public void insert_fails_if_row_already_exists_for_analysis_uuid() {
+  public void insert_fails_if_row_already_exists_for_taskUuid() {
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("bla"));
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable(dbSession, TABLE_NAME)).isEqualTo(1);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to insert scanner context for analysis " + SOME_UUID);
+    expectedException.expectMessage("Fail to insert scanner context for task " + SOME_UUID);
 
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("blo"));
   }

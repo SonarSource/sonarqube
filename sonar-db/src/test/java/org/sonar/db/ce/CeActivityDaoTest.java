@@ -41,8 +41,6 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 public class CeActivityDaoTest {
 
-  private static final String AN_ANALYSIS_UUID = "U1";
-
   private TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
   @Rule
@@ -196,7 +194,7 @@ public class CeActivityDaoTest {
   public void selectByQuery_populates_hasScannerContext_flag() {
     insert("TASK_1", REPORT, "PROJECT_1", SUCCESS);
     CeActivityDto dto2 = insert("TASK_2", REPORT, "PROJECT_2", SUCCESS);
-    insertScannerContext(dto2.getAnalysisUuid());
+    insertScannerContext(dto2.getUuid());
 
     CeActivityDto dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setComponentUuid("PROJECT_1"), 0, 100).iterator().next();
     assertThat(dto.isHasScannerContext()).isFalse();
@@ -275,7 +273,7 @@ public class CeActivityDaoTest {
   public void selectOlder_populates_hasScannerContext_flag() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     CeActivityDto dto2 = insertWithCreationDate("TASK_2", 1_450_000_000_000L);
-    insertScannerContext(dto2.getAnalysisUuid());
+    insertScannerContext(dto2.getUuid());
 
     List<CeActivityDto> dtos = underTest.selectOlderThan(db.getSession(), 1_465_000_000_000L);
     assertThat(dtos).hasSize(2);
@@ -369,8 +367,9 @@ public class CeActivityDaoTest {
     return dto;
   }
 
-  private void insertScannerContext(String analysisUuid) {
-    db.getDbClient().scannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singletonList("scanner context of " + analysisUuid).iterator()));
+  private void insertScannerContext(String taskUuid) {
+    db.getDbClient().ceScannerContextDao().insert(dbSession, taskUuid, CloseableIterator.from(singletonList("scanner context of " + taskUuid).iterator()));
+    dbSession.commit();
   }
 
   private List<String> selectPageOfUuids(int offset, int pageSize) {

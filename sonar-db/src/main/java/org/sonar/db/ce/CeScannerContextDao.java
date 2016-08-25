@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.scannercontext;
+package org.sonar.db.ce;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,34 +35,34 @@ import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class ScannerContextDao implements Dao {
+public class CeScannerContextDao implements Dao {
 
   private static final Charset UTF_8 = Charset.forName("UTF-8");
 
   private final System2 system;
 
-  public ScannerContextDao(System2 system) {
+  public CeScannerContextDao(System2 system) {
     this.system = system;
   }
 
   /**
    * @throws IllegalArgumentException if {@code scannerContextLines} is empty or fully read.
    */
-  public void insert(DbSession dbSession, String analysisUuid, CloseableIterator<String> scannerContextLines) {
+  public void insert(DbSession dbSession, String taskUuid, CloseableIterator<String> scannerContextLines) {
     checkArgument(scannerContextLines.hasNext(), "Scanner context can not be empty");
     long now = system.now();
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-        "INSERT INTO scanner_context (analysis_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)");
+        "INSERT INTO ce_scanner_context (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)");
       InputStream inputStream = new LogsIteratorInputStream(scannerContextLines, UTF_8)) {
-      stmt.setString(1, analysisUuid);
+      stmt.setString(1, taskUuid);
       stmt.setLong(2, now);
       stmt.setLong(3, now);
       stmt.setBinaryStream(4, inputStream);
       stmt.executeUpdate();
       connection.commit();
     } catch (SQLException | IOException e) {
-      throw new IllegalStateException("Fail to insert scanner context for analysis " + analysisUuid, e);
+      throw new IllegalStateException("Fail to insert scanner context for task " + taskUuid, e);
     }
   }
 
@@ -70,9 +70,9 @@ public class ScannerContextDao implements Dao {
    * The scanner context is very likely to contain lines, which are forcefully separated by {@code \n} characters,
    * whichever the platform SQ is running on ({@see LogsIteratorInputStream}).
    */
-  public Optional<String> selectScannerContext(DbSession dbSession, String analysisUuid) {
-    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement("select data from scanner_context where analysis_uuid=?")) {
-      stmt.setString(1, analysisUuid);
+  public Optional<String> selectScannerContext(DbSession dbSession, String taskUuid) {
+    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement("select data from ce_scanner_context where task_uuid=?")) {
+      stmt.setString(1, taskUuid);
       try (ResultSet rs = stmt.executeQuery()) {
         if (rs.next()) {
           return Optional.of(IOUtils.toString(rs.getBinaryStream(1), UTF_8));
@@ -80,7 +80,7 @@ public class ScannerContextDao implements Dao {
         return Optional.empty();
       }
     } catch (SQLException | IOException e) {
-      throw new IllegalStateException("Fail to retrieve scanner context of analysis " + analysisUuid, e);
+      throw new IllegalStateException("Fail to retrieve scanner context of task " + taskUuid, e);
     }
   }
 

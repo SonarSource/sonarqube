@@ -174,8 +174,8 @@ public class TaskActionTest {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
     String scannerContext = "this is some scanner context, yeah!";
-    CeActivityDto activityDto = persist(createActivityDto(SOME_TASK_UUID));
-    persistScannerContext(activityDto.getAnalysisUuid(), scannerContext);
+    persist(createActivityDto(SOME_TASK_UUID));
+    persistScannerContext(SOME_TASK_UUID, scannerContext);
 
     TestResponse wsResponse = ws.newRequest()
         .setMediaType(PROTOBUF)
@@ -194,8 +194,8 @@ public class TaskActionTest {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
     String scannerContext = "this is some scanner context, yeah!";
-    CeActivityDto activityDto = persist(createActivityDto(SOME_TASK_UUID));
-    persistScannerContext(activityDto.getAnalysisUuid(), scannerContext);
+    persist(createActivityDto(SOME_TASK_UUID));
+    persistScannerContext(SOME_TASK_UUID, scannerContext);
 
     TestResponse wsResponse = ws.newRequest()
         .setMediaType(PROTOBUF)
@@ -342,8 +342,8 @@ public class TaskActionTest {
     return activityDto;
   }
 
-  private void persistScannerContext(String analysisUuid, String scannerContext) {
-    dbTester.getDbClient().scannerContextDao().insert(dbTester.getSession(), analysisUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
+  private void persistScannerContext(String taskUuid, String scannerContext) {
+    dbTester.getDbClient().ceScannerContextDao().insert(dbTester.getSession(), taskUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
     dbTester.commit();
   }
 

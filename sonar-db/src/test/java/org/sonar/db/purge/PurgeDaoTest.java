@@ -254,7 +254,7 @@ public class PurgeDaoTest {
   }
 
   private void insertScannerContext(String analysisUuid, String scannerContext) {
-    dbTester.getDbClient().scannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
+    dbTester.getDbClient().ceScannerContextDao().insert(dbSession, analysisUuid, CloseableIterator.from(singleton(scannerContext).iterator()));
     dbTester.commit();
   }
 
