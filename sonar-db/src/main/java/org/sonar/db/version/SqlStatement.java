@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import javax.annotation.Nullable;
 
-public interface SqlStatement<CHILD extends SqlStatement> {
+public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
   CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
 
   CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
@@ -38,5 +38,6 @@ public interface SqlStatement<CHILD extends SqlStatement> {
 
   CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
 
-  CHILD close();
+  @Override
+  void close();
 }

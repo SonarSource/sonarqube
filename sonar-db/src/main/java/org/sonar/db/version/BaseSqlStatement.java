@@ -35,10 +35,9 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
-  public CHILD close() {
+  public void close() {
     DbUtils.closeQuietly(pstmt);
     pstmt = null;
-    return (CHILD) this;
   }
 
   @Override
