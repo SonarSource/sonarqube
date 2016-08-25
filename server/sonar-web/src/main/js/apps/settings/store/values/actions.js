@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import SimpleInput from './SimpleInput';
+export const RECEIVE_VALUES = 'RECEIVE_VALUES';
 
-export default class InputForString extends React.Component {
-  render () {
-    return (
-        <SimpleInput {...this.props} className="input-large" type="text"/>
-    );
-  }
-}
+/**
+ * Receive settings action creator
+ * @param {Array} settings
+ * @returns {Object}
+ */
+export const receiveValues = settings => ({
+  type: RECEIVE_VALUES,
+  settings
+});

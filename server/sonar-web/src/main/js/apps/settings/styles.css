@@ -60,16 +60,18 @@
 
 .settings-definition {
   display: flex;
+  align-items: flex-start;
 }
 
 .settings-definition-left {
-  width: 300px;
-  flex-shrink: 0;
+  width: 330px;
   padding-right: 30px;
+  box-sizing: border-box;
 }
 
 .settings-definition-right {
-  flex-grow: 1;
+  position: relative;
+  width: calc(100% - 330px);
   padding-top: 35px;
 }
 
@@ -86,6 +88,12 @@
 
 .settings-definition-key:hover {
   overflow: visible;
+}
+
+.settings-definition-state {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .settings-sub-categories-list {

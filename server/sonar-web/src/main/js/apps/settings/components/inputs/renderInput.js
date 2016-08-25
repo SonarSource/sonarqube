@@ -22,7 +22,7 @@ import InputForString from './InputForString';
 import InputForText from './InputForText';
 import InputForPassword from './InputForPassword';
 import InputForBoolean from './InputForBoolean';
-import InputForInteger from './InputForInteger';
+import InputForNumber from './InputForNumber';
 import InputForSingleSelectList from './InputForSingleSelectList';
 import {
     TYPE_BOOLEAN,
@@ -33,31 +33,28 @@ import {
     TYPE_FLOAT,
     TYPE_SINGLE_SELECT_LIST
 } from '../../constants';
+import { getSettingValue, getUniqueName } from '../../utils';
 
-const renderInput = setting => {
+const typeMapping = {
+  [TYPE_TEXT]: InputForText,
+  [TYPE_PASSWORD]: InputForPassword,
+  [TYPE_BOOLEAN]: InputForBoolean,
+  [TYPE_INTEGER]: InputForNumber,
+  [TYPE_LONG]: InputForNumber,
+  [TYPE_FLOAT]: InputForNumber
+};
+
+const renderInput = (setting, onChange) => {
   const { definition } = setting;
-
-  if (definition.type === TYPE_TEXT) {
-    return <InputForText setting={setting}/>;
-  }
-
-  if (definition.type === TYPE_PASSWORD) {
-    return <InputForPassword setting={setting}/>;
-  }
-
-  if (definition.type === TYPE_BOOLEAN) {
-    return <InputForBoolean setting={setting}/>;
-  }
-
-  if ([TYPE_INTEGER, TYPE_LONG, TYPE_FLOAT].includes(definition.type)) {
-    return <InputForInteger setting={setting}/>;
-  }
+  const name = getUniqueName(definition);
+  const value = getSettingValue(setting);
 
   if (definition.type === TYPE_SINGLE_SELECT_LIST) {
-    return <InputForSingleSelectList setting={setting}/>;
+    return <InputForSingleSelectList name={name} value={value} options={definition.options} onChange={onChange}/>
   }
 
-  return <InputForString setting={setting}/>;
+  const InputComponent = typeMapping[definition.type] || InputForString;
+  return <InputComponent name={name} value={value} onChange={onChange}/>;
 };
 
 export default renderInput;

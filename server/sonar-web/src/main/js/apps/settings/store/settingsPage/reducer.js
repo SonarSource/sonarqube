@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { getUniqueName, getSettingValue } from '../../utils';
+import { START_LOADING, STOP_LOADING } from './actions';
 
-export default class InputForInteger extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { setting } = this.props;
-
-    return (
-        <input
-            name={getUniqueName(setting.definition)}
-            className="input-small"
-            type="number"
-            value={getSettingValue(setting)}
-            onChange={() => true}/>
-    );
+const reducer = (state = {}, action = {}) => {
+  if (action.type === START_LOADING) {
+    const newItem = { ...state[action.key], key: action.key, loading: true };
+    return { ...state, [action.key]: newItem };
   }
-}
+
+  if (action.type === STOP_LOADING) {
+    const newItem = { ...state[action.key], key: action.key, loading: false };
+    return { ...state, [action.key]: newItem };
+  }
+
+  return state;
+};
+
+export default reducer;
+
+export const isLoading = (state, key) => state[key] ? state[key].loading : false;

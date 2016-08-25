@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
+import { delay } from '../helpers/request';
 
 export function getDefinitions (componentKey) {
   const url = '/api/settings/list_definitions';
@@ -25,11 +26,20 @@ export function getDefinitions (componentKey) {
   return getJSON(url, data).then(r => r.definitions);
 }
 
-export function getSettings (keys, componentKey) {
+export function getValues (keys, componentKey) {
   const url = '/api/settings/values';
   const data = { keys };
   if (componentKey) {
     data.componentKey = componentKey;
   }
   return getJSON(url, data).then(r => r.settings);
+}
+
+export function setSetting (key, value, componentKey) {
+  const url = '/api/settings/set';
+  const data = { key, value };
+  if (componentKey) {
+    data.componentKey = componentKey;
+  }
+  return post(url, data).then(delay);
 }

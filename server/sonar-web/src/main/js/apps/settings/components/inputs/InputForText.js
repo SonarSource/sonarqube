@@ -18,23 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getUniqueName, getSettingValue } from '../../utils';
+import debounce from 'lodash/debounce';
+import { defaultInputPropTypes } from '../../propTypes';
 
 export default class InputForText extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired
-  };
+  static propTypes = defaultInputPropTypes;
+
+  constructor (props) {
+    super(props);
+    this.state = { value: props.value };
+    this.handleChange = debounce(this.handleChange.bind(this), 250);
+  }
+
+  handleInputChange (e) {
+    const { value } = e.target;
+    this.setState({ value });
+    this.handleChange(value);
+  }
+
+  handleChange (value) {
+    this.props.onChange(this.props.setting, value);
+  }
 
   render () {
-    const { setting } = this.props;
-
     return (
         <textarea
-            name={getUniqueName(setting.definition)}
+            name={this.props.name}
             className="input-super-large text-top"
             rows="5"
-            value={getSettingValue(setting)}
-            onChange={() => true}/>
+            value={this.state.value}
+            onChange={e => this.handleInputChange(e)}/>
     );
   }
 }

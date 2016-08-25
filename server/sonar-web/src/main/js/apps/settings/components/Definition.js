@@ -18,23 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
 import DefinitionInput from './inputs/Input';
 import { getPropertyName, getPropertyDescription } from '../utils';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { setValue } from '../store/actions';
+import { isLoading } from '../store/rootReducer';
 
-export default class Definition extends React.Component {
+class Definition extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
-    setting: React.PropTypes.object.isRequired
+    setting: React.PropTypes.object.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    setValue: React.PropTypes.func.isRequired
+  };
+
+  state = {
+    success: false
   };
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
+  handleSet (_, value) {
+    clearTimeout(this.timeout);
+    const componentKey = this.props.component ? this.props.component.key : null;
+    return this.props.setValue(this.props.setting.definition.key, value, componentKey).then(() => {
+      this.setState({ success: true });
+      this.timeout = setTimeout(() => this.setState({ success: false }), 3000);
+    });
+  }
+
   render () {
-    const { setting } = this.props;
+    const { setting, loading } = this.props;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
 
@@ -54,9 +72,32 @@ export default class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <DefinitionInput setting={setting}/>
+            <DefinitionInput setting={setting} onSet={this.handleSet.bind(this)}/>
+
+            <div className="settings-definition-state">
+              {loading && (
+                  <div className="display-inline-block text-info">
+                    <i className="spinner"/> Saving...
+                  </div>
+              )}
+
+              {!loading && this.state.success && (
+                  <div className="display-inline-block text-success">
+                    <i className="icon-check"/> Saved!
+                  </div>
+              )}
+            </div>
           </div>
         </div>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  loading: isLoading(state, ownProps.setting.key)
+});
+
+export default connect(
+    mapStateToProps,
+    { setValue }
+)(Definition);

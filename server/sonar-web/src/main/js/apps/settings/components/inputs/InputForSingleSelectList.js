@@ -19,28 +19,43 @@
  */
 import React from 'react';
 import Select from 'react-select';
-import { getUniqueName, getSettingValue } from '../../utils';
+import { defaultInputPropTypes } from '../../propTypes';
 
 export default class InputForSingleSelectList extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired
+    ...defaultInputPropTypes,
+    options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   };
 
-  render () {
-    const { setting } = this.props;
+  constructor (props) {
+    super(props);
+    this.state = { value: props.value };
+  }
 
-    const options = setting.definition.options.map(option => ({
+  handleInputChange (option) {
+    const { value } = option;
+    this.setState({ value });
+    this.handleChange(value);
+  }
+
+  handleChange (value) {
+    this.props.onChange(this.props.setting, value);
+  }
+
+  render () {
+    const options = this.props.options.map(option => ({
       label: option,
       value: option
     }));
 
     return (
         <Select
-            name={getUniqueName(setting.definition)}
+            name={this.props.name}
             className="input-large"
             options={options}
             clearable={false}
-            value={getSettingValue(setting)}/>
+            value={this.state.value}
+            onChange={option => this.handleInputChange(option)}/>
     );
   }
 }

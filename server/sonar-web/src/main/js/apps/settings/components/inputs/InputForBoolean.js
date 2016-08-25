@@ -18,22 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import debounce from 'lodash/debounce';
 import Toggle from '../../../../components/controls/Toggle';
-import { getUniqueName, getSettingValue } from '../../utils';
+import { defaultInputPropTypes } from '../../propTypes';
+import { translate } from '../../../../helpers/l10n';
 
 export default class InputForBoolean extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired
+    ...defaultInputPropTypes,
+    value: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.string])
   };
 
+  constructor (props) {
+    super(props);
+    this.state = { value: props.value };
+    this.handleChange = debounce(this.handleChange.bind(this), 250);
+  }
+
+  handleInputChange (value) {
+    this.setState({ value });
+    this.handleChange(value);
+  }
+
+  handleChange (value) {
+    this.props.onChange(this.props.setting, value);
+  }
+
   render () {
-    const { setting } = this.props;
+    const hasValue = this.state.value != null;
+    const displayedValue = hasValue ? this.state.value : false;
 
     return (
-        <Toggle
-            value={getSettingValue(setting)}
-            name={getUniqueName(setting.definition)}
-            onCheck={() => true}/>
+        <div className="display-inline-block text-top">
+          <Toggle
+              name={this.props.name}
+              value={displayedValue}
+              onChange={value => this.handleInputChange(value)}/>
+          {!hasValue && (
+              <span className="spacer-left note">{translate('settings.not_set')}</span>
+          )}
+        </div>
     );
   }
 }

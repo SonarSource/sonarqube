@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_SETTINGS = 'RECEIVE_SETTINGS';
+export const START_LOADING = 'settingsPage/START_LOADING';
 
-/**
- * Receive settings action creator
- * @param {Array} settings
- * @returns {Object}
- */
-export const receiveSettings = settings => ({
-  type: RECEIVE_SETTINGS,
-  settings
+export const startLoading = key => ({
+  type: START_LOADING,
+  key
+});
+
+export const STOP_LOADING = 'settingsPage/STOP_LOADING';
+
+export const stopLoading = key => ({
+  type: STOP_LOADING,
+  key
 });

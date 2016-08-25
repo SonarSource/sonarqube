@@ -18,33 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import renderInput from './renderInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import debounce from 'lodash/debounce';
+import { defaultInputPropTypes } from '../../propTypes';
 
-export default class Input extends React.Component {
+export default class SimpleInput extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    onSet: React.PropTypes.func.isRequired
+    ...defaultInputPropTypes,
+    type: React.PropTypes.string.isRequired,
+    className: React.PropTypes.string.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+  constructor (props) {
+    super(props);
+    this.state = { value: props.value };
+    this.handleChange = debounce(this.handleChange.bind(this), 250);
+  }
+
+  handleInputChange (e) {
+    const { value } = e.target;
+    this.setState({ value });
+    this.handleChange(value);
+  }
+
+  handleChange (value) {
+    this.props.onChange(this.props.setting, value);
   }
 
   render () {
-    const { setting, onSet } = this.props;
-
-    if (setting.definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput setting={setting}/>;
-    }
-
-    if (setting.definition.multiValues) {
-      return <MultiValueInput setting={setting} onSet={onSet}/>;
-    }
-
-    return renderInput(setting, onSet);
+    return (
+        <input
+            name={this.props.name}
+            className={this.props.className + ' text-top'}
+            type={this.props.type}
+            value={this.state.value}
+            onChange={e => this.handleInputChange(e)}/>
+    );
   }
 }

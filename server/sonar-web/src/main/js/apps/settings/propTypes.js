@@ -17,18 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import keyBy from 'lodash/keyBy';
-import { RECEIVE_SETTINGS } from './actions';
+import { PropTypes } from 'react';
 
-const reducer = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_SETTINGS) {
-    const settingsByKey = keyBy(action.settings, 'key');
-    return { ...state, ...settingsByKey };
-  }
-
-  return state;
+export const defaultInputPropTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired
 };
-
-export default reducer;
-
-export const getSetting = (state, key) => state[key];

@@ -19,11 +19,13 @@
  */
 import { combineReducers } from 'redux';
 import definitions, * as fromDefinitions from './definitions/reducer';
-import settings, * as fromSettings from './settings/reducer';
+import values, * as fromValues from './values/reducer';
+import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 
 const rootReducer = combineReducers({
   definitions,
-  settings
+  values,
+  settingsPage
 });
 
 export default rootReducer;
@@ -32,10 +34,12 @@ export const getAllCategories = state => fromDefinitions.getAllCategories(state.
 
 export const getDefaultCategory = state => fromDefinitions.getDefaultCategory(state.definitions);
 
-export const getSetting = (state, key) => fromSettings.getSetting(state.settings, key);
+export const getValue = (state, key) => fromValues.getValue(state.values, key);
 
 export const getSettingsForCategory = (state, category) =>
     fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => ({
-      ...getSetting(state, definition.key),
+      ...getValue(state, definition.key),
       definition
     }));
+
+export const isLoading = (state, key) => fromSettingsPage.isLoading(state.settingsPage, key);

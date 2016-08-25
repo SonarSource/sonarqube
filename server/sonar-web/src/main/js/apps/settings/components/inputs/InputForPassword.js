@@ -18,15 +18,73 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { translate } from '../../../../helpers/l10n';
+import { defaultInputPropTypes } from '../../propTypes';
 
 export default class InputForPassword extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired
+  static propTypes = defaultInputPropTypes;
+
+  state = {
+    changing: false
   };
 
-  render () {
+  handleChangeClick (e) {
+    e.preventDefault();
+    e.target.blur();
+    this.setState({ changing: true });
+  }
+
+  handleCancelChangeClick (e) {
+    e.preventDefault();
+    e.target.blur();
+    this.setState({ changing: false });
+  }
+
+  handleFormSubmit (e) {
+    e.preventDefault();
+    const { value } = this.refs.input;
+    this.props.onChange(this.props.setting, value)
+        .then(() => this.setState({ changing: false }));
+  }
+
+  renderInput () {
     return (
-        <i className="icon-lock icon-gray"/>
+        <div>
+          <form onSubmit={e => this.handleFormSubmit(e)}>
+            <input className="hidden" type="password"/>
+            <input
+                ref="input"
+                name={this.props.name}
+                className="input-large text-top"
+                type="password"
+                autoFocus={true}
+                autoComplete={false}/>
+            <button className="spacer-left">{translate('set')}</button>
+            <a className="spacer-left" href="#" onClick={e => this.handleCancelChangeClick(e)}>
+              {translate('cancel')}
+            </a>
+          </form>
+        </div>
+    );
+  }
+
+  render () {
+    if (this.state.changing) {
+      return this.renderInput();
+    }
+
+    const hasValue = !!this.props.value;
+
+    return (
+        <div>
+          {hasValue && (
+              <i className="big-spacer-right icon-lock icon-gray"/>
+          )}
+
+          <button onClick={e => this.handleChangeClick(e)}>
+            {hasValue ? translate('change_verb') : translate('set')}
+          </button>
+        </div>
     );
   }
 }

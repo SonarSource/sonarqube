@@ -48,7 +48,7 @@ export default class PropertySetInput extends React.Component {
                 <tr key={index}>
                   {setting.definition.fields.map(field => (
                       <td key={field.key}>
-                        {renderInput({ definition: field, value: fieldValues[field.key] })}
+                        {renderInput({ definition: field, value: fieldValues[field.key] }, () => true)}
                       </td>
                   ))}
                 </tr>

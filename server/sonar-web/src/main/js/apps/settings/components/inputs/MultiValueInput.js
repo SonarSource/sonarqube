@@ -22,6 +22,18 @@ import renderInput from './renderInput';
 import { getSettingValue } from '../../utils';
 
 export default class MultiValueInput extends React.Component {
+  static propTypes = {
+    setting: React.PropTypes.object.isRequired,
+    onSet: React.PropTypes.func.isRequired
+  };
+
+  handleSingleInputChange (index, _, value) {
+    const values = getSettingValue(this.props.setting) || [''];
+    const newValues = [...values];
+    newValues.splice(index, 1, value);
+    this.props.onSet(this.props.setting, newValues);
+  }
+
   prepareSetting (value) {
     const { setting } = this.props;
     const newDefinition = { ...setting.definition, multiValues: false };
@@ -43,7 +55,7 @@ export default class MultiValueInput extends React.Component {
           <ul>
             {values.map((value, index) => (
                 <li key={index} className="spacer-bottom">
-                  {renderInput(this.prepareSetting(value))}
+                  {renderInput(this.prepareSetting(value), this.handleSingleInputChange.bind(this, index))}
                 </li>
             ))}
           </ul>

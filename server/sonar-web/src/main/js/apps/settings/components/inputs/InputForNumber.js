@@ -18,33 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import renderInput from './renderInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import SimpleInput from './SimpleInput';
 
-export default class Input extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    onSet: React.PropTypes.func.isRequired
-  };
-
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
-
+export default class InputForNumber extends React.Component {
   render () {
-    const { setting, onSet } = this.props;
-
-    if (setting.definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput setting={setting}/>;
-    }
-
-    if (setting.definition.multiValues) {
-      return <MultiValueInput setting={setting} onSet={onSet}/>;
-    }
-
-    return renderInput(setting, onSet);
+    return (
+        <SimpleInput {...this.props} className="input-small" type="number"/>
+    );
   }
 }

@@ -17,13 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import SimpleInput from './SimpleInput';
+import keyBy from 'lodash/keyBy';
+import { RECEIVE_VALUES } from './actions';
 
-export default class InputForString extends React.Component {
-  render () {
-    return (
-        <SimpleInput {...this.props} className="input-large" type="text"/>
-    );
+const reducer = (state = {}, action = {}) => {
+  if (action.type === RECEIVE_VALUES) {
+    const settingsByKey = keyBy(action.settings, 'key');
+    return { ...state, ...settingsByKey };
   }
-}
+
+  return state;
+};
+
+export default reducer;
+
+export const getValue = (state, key) => state[key];

@@ -78,7 +78,9 @@ class App extends React.Component {
                   defaultCategory={this.props.defaultCategory}/>
             </div>
             <div className="settings-main">
-              <CategoryDefinitionsList component={this.props.component} category={selectedCategory}/>
+              <CategoryDefinitionsList
+                  component={this.props.component}
+                  category={selectedCategory}/>
             </div>
           </div>
         </div>

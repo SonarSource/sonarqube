@@ -17,14 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getDefinitions, getSettings } from '../../../api/settings';
-import { receiveSettings } from './settings/actions';
+import { getDefinitions, getValues, setSetting } from '../../../api/settings';
+import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
+import { startLoading, stopLoading } from './settingsPage/actions';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey).then(definitions => {
     dispatch(receiveDefinitions(definitions));
     const keys = definitions.map(definition => definition.key).join();
-    return getSettings(keys, componentKey);
-  }).then(settings => dispatch(receiveSettings(settings)));
+    return getValues(keys, componentKey);
+  }).then(settings => dispatch(receiveValues(settings)));
+};
+
+export const setValue = (key, value, componentKey) => dispatch => {
+  dispatch(startLoading(key));
+  return setSetting(key, value, componentKey).then(() => getValues(key, componentKey)).then(values => {
+    dispatch(receiveValues(values));
+    dispatch(stopLoading(key));
+  });
 };
