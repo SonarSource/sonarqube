@@ -35,9 +35,9 @@ public class DefaultDatabaseTest {
     db.initSettings();
 
     Properties props = db.getProperties();
-    assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar");
+    assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar;mv_store=false;MVCC=true");
     assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.h2.Driver");
-    assertThat(db.toString()).isEqualTo("Database[jdbc:h2:tcp://localhost/sonar]");
+    assertThat(db.toString()).isEqualTo("Database[jdbc:h2:tcp://localhost/sonar;mv_store=false;MVCC=true]");
   }
 
   @Test
