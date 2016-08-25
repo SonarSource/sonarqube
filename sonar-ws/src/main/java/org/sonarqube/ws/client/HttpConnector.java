@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.net.ssl.SSLSocketFactory;
 import okhttp3.Call;
 import okhttp3.ConnectionSpec;
 import okhttp3.Credentials;
@@ -101,17 +100,8 @@ public class HttpConnector implements WsConnector {
       .supportsTlsExtensions(true)
       .build();
     okHttpClientBuilder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
-    okHttpClientBuilder.sslSocketFactory(createSslSocketFactory());
 
     return okHttpClientBuilder.build();
-  }
-
-  private static SSLSocketFactory createSslSocketFactory() {
-    try {
-      return (SSLSocketFactory) SSLSocketFactory.getDefault();
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to init TLS context", e);
-    }
   }
 
   @Override
