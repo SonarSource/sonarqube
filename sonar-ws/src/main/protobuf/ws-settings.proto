@@ -40,6 +40,7 @@ message Definition {
   optional bool multiValues = 8;
   repeated string options = 9;
   repeated Field fields = 10;
+  optional string deprecatedKey = 11;
 }
 
 message Field {

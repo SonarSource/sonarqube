@@ -135,6 +135,10 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setKey(key)
       .setType(Settings.Type.valueOf(definition.type().name()))
       .setMultiValues(definition.multiValues());
+    String deprecatedKey = definition.deprecatedKey();
+    if (!isNullOrEmpty(deprecatedKey)) {
+      builder.setDeprecatedKey(deprecatedKey);
+    }
     String name = definition.name();
     if (!isNullOrEmpty(name)) {
       builder.setName(name);

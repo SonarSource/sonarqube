@@ -101,9 +101,9 @@ public class ListDefinitionsActionTest {
       .multiValues(true)
       .build());
 
-    ListDefinitionsWsResponse result = newRequest();
-    assertThat(result.getDefinitionsList()).hasSize(1);
+    ListDefinitionsWsResponse result = executeRequest();
 
+    assertThat(result.getDefinitionsList()).hasSize(1);
     Settings.Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getName()).isEqualTo("Foo");
@@ -122,9 +122,9 @@ public class ListDefinitionsActionTest {
       .builder("foo")
       .build());
 
-    ListDefinitionsWsResponse result = newRequest();
-    assertThat(result.getDefinitionsList()).hasSize(1);
+    ListDefinitionsWsResponse result = executeRequest();
 
+    assertThat(result.getDefinitionsList()).hasSize(1);
     Settings.Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getType()).isEqualTo(STRING);
@@ -135,6 +135,25 @@ public class ListDefinitionsActionTest {
     assertThat(definition.getMultiValues()).isFalse();
     assertThat(definition.getOptionsCount()).isZero();
     assertThat(definition.getFieldsCount()).isZero();
+    assertThat(definition.hasDeprecatedKey()).isFalse();
+  }
+
+  @Test
+  public void return_settings_definitions_with_deprecated_key() {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .name("Foo")
+      .deprecatedKey("deprecated")
+      .build());
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).hasSize(1);
+    Settings.Definition definition = result.getDefinitions(0);
+    assertThat(definition.getKey()).isEqualTo("foo");
+    assertThat(definition.getName()).isEqualTo("Foo");
+    assertThat(definition.getDeprecatedKey()).isEqualTo("deprecated");
   }
 
   @Test
@@ -143,7 +162,8 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build(), "default");
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").category("").build(), "default");
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).hasSize(1);
     assertThat(result.getDefinitions(0).getCategory()).isEqualTo("default");
     assertThat(result.getDefinitions(0).getSubCategory()).isEqualTo("default");
@@ -158,9 +178,9 @@ public class ListDefinitionsActionTest {
       .options("one", "two")
       .build());
 
-    ListDefinitionsWsResponse result = newRequest();
-    assertThat(result.getDefinitionsList()).hasSize(1);
+    ListDefinitionsWsResponse result = executeRequest();
 
+    assertThat(result.getDefinitionsList()).hasSize(1);
     Settings.Definition definition = result.getDefinitions(0);
     assertThat(definition.getType()).isEqualTo(SINGLE_SELECT_LIST);
     assertThat(definition.getOptionsList()).containsExactly("one", "two");
@@ -177,9 +197,9 @@ public class ListDefinitionsActionTest {
         PropertyFieldDefinition.build("list").name("List").description("list desc").type(PropertyType.SINGLE_SELECT_LIST).options("one", "two").build())
       .build());
 
-    ListDefinitionsWsResponse result = newRequest();
-    assertThat(result.getDefinitionsList()).hasSize(1);
+    ListDefinitionsWsResponse result = executeRequest();
 
+    assertThat(result.getDefinitionsList()).hasSize(1);
     Settings.Definition definition = result.getDefinitions(0);
     assertThat(definition.getType()).isEqualTo(PROPERTY_SET);
     assertThat(definition.getFieldsList()).hasSize(2);
@@ -206,7 +226,8 @@ public class ListDefinitionsActionTest {
       .fields(PropertyFieldDefinition.build("license").name("License").type(PropertyType.LICENSE).build())
       .build());
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).hasSize(1);
     assertThat(result.getDefinitions(0).getFieldsList()).isEmpty();
   }
@@ -216,7 +237,8 @@ public class ListDefinitionsActionTest {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
 
@@ -228,7 +250,8 @@ public class ListDefinitionsActionTest {
       .onQualifiers(PROJECT)
       .build());
 
-    ListDefinitionsWsResponse result = newRequest(null, project.key());
+    ListDefinitionsWsResponse result = executeRequest(null, project.key());
+
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
 
@@ -240,7 +263,8 @@ public class ListDefinitionsActionTest {
       .onQualifiers(PROJECT)
       .build());
 
-    ListDefinitionsWsResponse result = newRequest(project.uuid(), null);
+    ListDefinitionsWsResponse result = executeRequest(project.uuid(), null);
+
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
 
@@ -253,7 +277,8 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
       PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).extracting("key").containsOnly("global", "global-and-project");
   }
 
@@ -266,7 +291,8 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
       PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
 
-    ListDefinitionsWsResponse result = newRequest(project.uuid(), null);
+    ListDefinitionsWsResponse result = executeRequest(project.uuid(), null);
+
     assertThat(result.getDefinitionsList()).extracting("key").containsOnly("global-and-project", "only-on-project");
   }
 
@@ -275,7 +301,8 @@ public class ListDefinitionsActionTest {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).isEmpty();
   }
 
@@ -284,7 +311,8 @@ public class ListDefinitionsActionTest {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("license").type(PropertyType.LICENSE).build());
 
-    ListDefinitionsWsResponse result = newRequest();
+    ListDefinitionsWsResponse result = executeRequest();
+
     assertThat(result.getDefinitionsList()).isEmpty();
   }
 
@@ -293,7 +321,8 @@ public class ListDefinitionsActionTest {
     setUserAsProjectAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    newRequest(project.uuid(), project.key());
+
+    executeRequest(project.uuid(), project.key());
   }
 
   @Test
@@ -302,7 +331,8 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequest();
+
+    executeRequest();
   }
 
   @Test
@@ -311,7 +341,8 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequest(project.uuid(), null);
+
+    executeRequest(project.uuid(), null);
   }
 
   @Test
@@ -371,14 +402,15 @@ public class ListDefinitionsActionTest {
         .build()));
 
     String result = ws.newRequest().setMediaType(JSON).execute().getInput();
+
     JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
-  private ListDefinitionsWsResponse newRequest() {
-    return newRequest(null, null);
+  private ListDefinitionsWsResponse executeRequest() {
+    return executeRequest(null, null);
   }
 
-  private ListDefinitionsWsResponse newRequest(@Nullable String id, @Nullable String key) {
+  private ListDefinitionsWsResponse executeRequest(@Nullable String id, @Nullable String key) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
     if (id != null) {

@@ -168,7 +168,7 @@ public class ValuesAction implements SettingsWsAction {
       .collect(Collectors.toMap(propertyDefinitions::validKey, Function.identity()));
   }
 
-  private class ValuesResponseBuilder {
+  private static class ValuesResponseBuilder {
     private final List<Setting> settings;
     private final Optional<ComponentDto> component;
 
