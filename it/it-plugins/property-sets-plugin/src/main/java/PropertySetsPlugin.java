@@ -106,7 +106,6 @@ import org.sonar.api.SonarPlugin;
     name = "Jira",
     project = true,
     category = "DEV",
-    type = PropertyType.PROPERTY_SET,
     propertySetKey = "sonar.test.jira.servers")})
 public class PropertySetsPlugin extends SonarPlugin {
   public List getExtensions() {
