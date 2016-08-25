@@ -42,10 +42,7 @@ public class Setting {
   private final List<Map<String, String>> propertySets;
   private final boolean isDefault;
 
-  /**
-   * Use this constructor to create setting from a property dto, and that can have a definition or not
-   */
-  Setting(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition) {
+  private Setting(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition) {
     this.key = propertyDto.getKey();
     this.value = propertyDto.getValue();
     this.componentId = propertyDto.getResourceId();
@@ -54,16 +51,21 @@ public class Setting {
     this.isDefault = false;
   }
 
-  /**
-   * Use this constructor to create setting for default value
-   */
-  Setting(PropertyDefinition definition) {
+  private Setting(PropertyDefinition definition) {
     this.key = definition.key();
     this.value = definition.defaultValue();
     this.componentId = null;
     this.definition = definition;
     this.propertySets = Collections.emptyList();
     this.isDefault = true;
+  }
+
+  public static Setting createForDto(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition){
+    return new Setting(propertyDto, propertyDtoSetValues, definition);
+  }
+
+  public static Setting createForDefinition(PropertyDefinition definition){
+    return new Setting(definition);
   }
 
   public String getKey() {

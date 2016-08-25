@@ -159,7 +159,7 @@ public class ValuesAction implements SettingsWsAction {
     return propertyDefinitions.getAll().stream()
       .filter(definition -> keys.contains(definition.key()))
       .filter(defaultProperty -> !isNullOrEmpty(defaultProperty.defaultValue()))
-      .map(Setting::new)
+      .map(Setting::createForDefinition)
       .collect(Collectors.toList());
   }
 
