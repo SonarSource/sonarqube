@@ -39,6 +39,7 @@ public class SetRequestTest {
 
     assertThat(result.getKey()).isEqualTo("my.key");
     assertThat(result.getValue()).isEqualTo("my value");
+    assertThat(result.getValues()).isNotNull().isEmpty();
     assertThat(result.getComponentKey()).isNull();
     assertThat(result.getComponentId()).isNull();
   }
@@ -66,6 +67,7 @@ public class SetRequestTest {
   @Test
   public void fail_when_empty_key() {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Setting key is mandatory and must not be empty");
 
     underTest
       .setKey("")
@@ -74,13 +76,10 @@ public class SetRequestTest {
   }
 
   @Test
-  public void fail_when_empty_value() {
+  public void fail_when_values_is_null() {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Setting values must not be null");
 
-    underTest
-      .setKey("key")
-      .setValue(null)
-      .build();
+    underTest.setKey("my.key").setValues(null).build();
   }
-
 }

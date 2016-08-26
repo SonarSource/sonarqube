@@ -20,20 +20,24 @@
 
 package org.sonarqube.ws.client.setting;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
 
 public class SetRequest {
   private final String key;
   private final String value;
+  private final List<String> values;
   private final String componentId;
   private final String componentKey;
 
   public SetRequest(Builder builder) {
     this.key = builder.key;
     this.value = builder.value;
+    this.values = builder.values;
     this.componentId = builder.componentId;
     this.componentKey = builder.componentKey;
   }
@@ -42,8 +46,13 @@ public class SetRequest {
     return key;
   }
 
+  @CheckForNull
   public String getValue() {
     return value;
+  }
+
+  public List<String> getValues() {
+    return values;
   }
 
   @CheckForNull
@@ -63,6 +72,7 @@ public class SetRequest {
   public static class Builder {
     private String key;
     private String value;
+    private List<String> values = emptyList();
     private String componentId;
     private String componentKey;
 
@@ -75,8 +85,13 @@ public class SetRequest {
       return this;
     }
 
-    public Builder setValue(String value) {
+    public Builder setValue(@Nullable String value) {
       this.value = value;
+      return this;
+    }
+
+    public Builder setValues(List<String> values) {
+      this.values = values;
       return this;
     }
 
@@ -91,8 +106,8 @@ public class SetRequest {
     }
 
     public SetRequest build() {
-      checkArgument(key != null && !key.isEmpty(), "Setting key is mandatory and must not be empty.");
-      checkArgument(value != null && !value.isEmpty(), "Setting value is mandatory and must not be empty.");
+      checkArgument(key != null && !key.isEmpty(), "Setting key is mandatory and must not be empty");
+      checkArgument(values != null, "Setting values must not be null");
       return new SetRequest(this);
     }
   }

@@ -111,9 +111,7 @@ public abstract class Request {
 
   public List<String> mandatoryMultiParam(String key) {
     List<String> values = multiParam(key);
-    if (values.isEmpty()) {
-      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
-    }
+    checkArgument(!values.isEmpty(), "The '%s' parameter is missing", key);
 
     return values;
   }

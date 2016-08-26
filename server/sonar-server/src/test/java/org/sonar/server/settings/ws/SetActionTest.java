@@ -52,6 +52,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -93,9 +94,9 @@ public class SetActionTest {
 
   @Test
   public void persist_new_global_property() {
-    callForGlobalProperty("my.key", "my value");
+    callForGlobalProperty("my.key", "my,value");
 
-    assertGlobalProperty("my.key", "my value");
+    assertGlobalProperty("my.key", "my,value");
   }
 
   @Test
@@ -142,6 +143,20 @@ public class SetActionTest {
   }
 
   @Test
+  public void persist_several_multi_value_property() {
+    callForMultiValueGlobalProperty("my.key", newArrayList("first,Value", "second,Value", "third,Value"));
+
+    assertGlobalProperty("my.key", "first%2CValue,second%2CValue,third%2CValue");
+  }
+
+  @Test
+  public void persist_one_multi_value_property() {
+    callForMultiValueGlobalProperty("my.key", newArrayList("first,Value"));
+
+    assertGlobalProperty("my.key", "first%2CValue");
+  }
+
+  @Test
   public void user_property_is_not_updated() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserId(42L));
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
@@ -180,22 +195,23 @@ public class SetActionTest {
   @Test
   public void fail_when_empty_key_value() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Setting key is mandatory and must not be empty.");
+    expectedException.expectMessage("Setting key is mandatory and must not be empty");
 
     callForGlobalProperty("  ", "my value");
   }
 
   @Test
   public void fail_when_no_value() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Either 'value' or 'values' must be provided, not both");
 
     callForGlobalProperty("my.key", null);
   }
 
   @Test
   public void fail_when_empty_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Setting value is mandatory and must not be empty.");
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Either 'value' or 'values' must be provided, not both");
 
     callForGlobalProperty("my.key", "");
   }
@@ -282,6 +298,48 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_single_and_multi_value_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Either 'value' or 'values' must be provided, not both");
+
+    call("my.key", "My Value", newArrayList("Another Value"), null, null);
+  }
+
+  @Test
+  public void fail_when_multi_definition_and_single_value_provided() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .type(PropertyType.STRING)
+      .multiValues(true)
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
+
+    callForGlobalProperty("my.key", "My Value");
+  }
+
+  @Test
+  public void fail_when_single_definition_and_multi_value_provided() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .type(PropertyType.STRING)
+      .multiValues(false)
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
+
+    callForMultiValueGlobalProperty("my.key", newArrayList("My Value"));
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -289,7 +347,7 @@ public class SetActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
-      .containsOnlyOnce("key", "value");
+      .containsOnly("key", "value", "values", "componentId", "componentKey");
   }
 
   private void assertGlobalProperty(String key, String value) {
@@ -317,18 +375,22 @@ public class SetActionTest {
   }
 
   private void callForGlobalProperty(@Nullable String key, @Nullable String value) {
-    call(key, value, null, null);
+    call(key, value, null, null, null);
+  }
+
+  private void callForMultiValueGlobalProperty(@Nullable String key, @Nullable List<String> values) {
+    call(key, null, values, null, null);
   }
 
   private void callForProjectPropertyByUuid(@Nullable String key, @Nullable String value, @Nullable String componentUuid) {
-    call(key, value, componentUuid, null);
+    call(key, value, null, componentUuid, null);
   }
 
   private void callForProjectPropertyByKey(@Nullable String key, @Nullable String value, @Nullable String componentKey) {
-    call(key, value, null, componentKey);
+    call(key, value, null, null, componentKey);
   }
 
-  private void call(@Nullable String key, @Nullable String value, @Nullable String componentUuid, @Nullable String componentKey) {
+  private void call(@Nullable String key, @Nullable String value, @Nullable List<String> values, @Nullable String componentUuid, @Nullable String componentKey) {
     TestRequest request = ws.newRequest();
 
     if (key != null) {
@@ -337,6 +399,10 @@ public class SetActionTest {
 
     if (value != null) {
       request.setParam("value", value);
+    }
+
+    if (values != null) {
+      request.setMultiParam("values", values);
     }
 
     if (componentUuid != null) {

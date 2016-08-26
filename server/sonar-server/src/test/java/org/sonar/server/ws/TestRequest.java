@@ -20,6 +20,8 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -30,11 +32,11 @@ import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 public class TestRequest extends ValidatingRequest {
 
+  private final ListMultimap<String, String> multiParams = ArrayListMultimap.create();
   private final Map<String, String> params = new HashMap<>();
   private final Map<String, Part> parts = Maps.newHashMap();
   private String method = "GET";
@@ -48,8 +50,7 @@ public class TestRequest extends ValidatingRequest {
 
   @Override
   protected List<String> readMultiParam(String key) {
-    String value = params.get(key);
-    return value == null ? emptyList() : singletonList(value);
+    return multiParams.get(key);
   }
 
   @Override
@@ -112,6 +113,15 @@ public class TestRequest extends ValidatingRequest {
     checkNotNull(key);
     checkNotNull(value);
     this.params.put(key, value);
+    return this;
+  }
+
+  public TestRequest setMultiParam(String key, List<String> values) {
+    requireNonNull(key);
+    requireNonNull(values);
+
+    multiParams.putAll(key, values);
+
     return this;
   }
 

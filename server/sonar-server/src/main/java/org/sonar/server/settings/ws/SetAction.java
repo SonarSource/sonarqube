@@ -20,8 +20,12 @@
 
 package org.sonar.server.settings.ws;
 
+import com.google.common.base.Joiner;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.i18n.I18n;
@@ -40,15 +44,17 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
-
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 
 public class SetAction implements SettingsWsAction {
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
   private final PropertyDefinitions propertyDefinitions;
   private final I18n i18n;
   private final DbClient dbClient;
@@ -67,12 +73,15 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SET)
       .setDescription("Update a setting value.<br>" +
+        "Either '%s' or '%s' must be provided, not both.<br> " +
         "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
-        "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        "</ul>",
+        PARAM_VALUE, PARAM_VALUES,
+        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
@@ -84,8 +93,11 @@ public class SetAction implements SettingsWsAction {
 
     action.createParam(PARAM_VALUE)
       .setDescription("Setting value. To reset a value, please use the reset web service.")
-      .setExampleValue("git@github.com:SonarSource/sonarqube.git")
-      .setRequired(true);
+      .setExampleValue("git@github.com:SonarSource/sonarqube.git");
+
+    action.createParam(PARAM_VALUES)
+      .setDescription("Setting multi value. To set several values, the parameter must be called once for each value.")
+      .setExampleValue("values=firstValue&values=secondValue&values=thirdValue");
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Component id")
@@ -120,17 +132,53 @@ public class SetAction implements SettingsWsAction {
       return;
     }
 
-    PropertyDefinition.Result result = definition.validate(request.getValue());
+    checkType(request, definition);
+    checkSingleOrMultiValue(request, definition);
+    checkGlobalOrProject(request, definition, component);
+    checkComponentQualifier(request, definition, component);
+  }
 
-    checkRequest(result.isValid(),
-      i18n.message(Locale.ENGLISH, "property.error." + result.getErrorKey(), "Error when validating setting with key '%s' and value '%s'"),
-      request.getKey(), request.getValue());
+  private static void checkSingleOrMultiValue(SetRequest request, PropertyDefinition definition) {
+    checkRequest(definition.multiValues() ^ request.getValue() != null,
+      "Parameter '%s' must be used for single value setting. Parameter '%s' must be used for multi value setting.", PARAM_VALUE, PARAM_VALUES);
+  }
 
+  private static void checkGlobalOrProject(SetRequest request, PropertyDefinition definition, Optional<ComponentDto> component) {
     checkRequest(component.isPresent() || definition.global(), "Setting '%s' cannot be global", request.getKey());
+  }
+
+  private void checkComponentQualifier(SetRequest request, PropertyDefinition definition, Optional<ComponentDto> component) {
     String qualifier = component.isPresent() ? component.get().qualifier() : "";
     checkRequest(!component.isPresent()
-      || definition.qualifiers().contains(component.get().qualifier()),
+        || definition.qualifiers().contains(component.get().qualifier()),
       "Setting '%s' cannot be set on a %s", request.getKey(), i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
+  }
+
+  private void checkType(SetRequest request, PropertyDefinition definition) {
+    List<String> values = valuesFromRequest(request);
+    Optional<PropertyDefinition.Result> failingResult = values.stream()
+      .map(definition::validate)
+      .filter(result -> !result.isValid())
+      .findAny();
+    String errorKey = failingResult.isPresent() ? failingResult.get().getErrorKey() : null;
+    checkRequest(errorKey == null,
+      i18n.message(Locale.ENGLISH, "property.error." + errorKey, "Error when validating setting with key '%s' and value '%s'"),
+      request.getKey(), request.getValue());
+  }
+
+  private static void checkValueIsSet(SetRequest request) {
+    checkRequest(isNullOrEmpty(request.getValue()) ^ request.getValues().isEmpty(),
+      "Either '%s' or '%s' must be provided, not both", PARAM_VALUE, PARAM_VALUES);
+  }
+
+  private static List<String> valuesFromRequest(SetRequest request) {
+    return request.getValue() == null ? request.getValues() : Collections.singletonList(request.getValue());
+  }
+
+  private static String persistedValue(SetRequest request) {
+    return request.getValue() == null
+      ? COMMA_JOINER.join(request.getValues().stream().map(value -> value.replace(",", "%2C")).collect(Collectors.toList()))
+      : request.getValue();
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {
@@ -142,12 +190,17 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static SetRequest toWsRequest(Request request) {
-    return SetRequest.builder()
+    SetRequest setRequest = SetRequest.builder()
       .setKey(request.mandatoryParam(PARAM_KEY))
-      .setValue(request.mandatoryParam(PARAM_VALUE))
+      .setValue(request.param(PARAM_VALUE))
+      .setValues(request.multiParam(PARAM_VALUES))
       .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setComponentKey(request.param(PARAM_COMPONENT_KEY))
       .build();
+
+    checkValueIsSet(setRequest);
+
+    return setRequest;
   }
 
   private Optional<ComponentDto> searchComponent(DbSession dbSession, SetRequest request) {
@@ -164,9 +217,11 @@ public class SetAction implements SettingsWsAction {
     PropertyDefinition definition = propertyDefinitions.get(request.getKey());
     // handles deprecated key but persist the new key
     String key = definition == null ? request.getKey() : definition.key();
+    String value = persistedValue(request);
+
     PropertyDto property = new PropertyDto()
       .setKey(key)
-      .setValue(request.getValue());
+      .setValue(value);
 
     if (component.isPresent()) {
       property.setResourceId(component.get().getId());
