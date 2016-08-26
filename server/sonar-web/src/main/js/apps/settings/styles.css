@@ -8,9 +8,10 @@
 .settings-main {
   position: relative;
   z-index: 2;
-  flex-grow: 1;
+  width: calc(100% - 160px);
   padding: 15px 20px;
   border: 1px solid #e6e6e6;
+  box-sizing: border-box;
   background-color: #fff;
 }
 
@@ -19,8 +20,8 @@
   z-index: 3;
   width: 160px;
   padding: 10px 0;
-  flex-shrink: 0;
-  margin-right: -1px;
+  box-sizing: border-box;
+  transform: translateX(1px);
 }
 
 .settings-menu {
@@ -73,6 +74,8 @@
   position: relative;
   width: calc(100% - 330px);
   padding-top: 35px;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .settings-definition-name {
