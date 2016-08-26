@@ -20,7 +20,8 @@
 import { getDefinitions, getValues, setSetting } from '../../../api/settings';
 import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
-import { startLoading, stopLoading } from './settingsPage/actions';
+import { startLoading, failValidation, passValidation } from './settingsPage/actions';
+import { parseError } from '../../code/utils';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey).then(definitions => {
@@ -32,8 +33,16 @@ export const fetchSettings = componentKey => dispatch => {
 
 export const setValue = (key, value, componentKey) => dispatch => {
   dispatch(startLoading(key));
-  return setSetting(key, value, componentKey).then(() => getValues(key, componentKey)).then(values => {
+
+  const request = setSetting(key, value, componentKey);
+
+  return request.then(() => getValues(key, componentKey)).then(values => {
     dispatch(receiveValues(values));
-    dispatch(stopLoading(key));
-  });
+    dispatch(passValidation(key));
+  })
+      .catch(e => {
+        parseError(e).then(message => {
+          dispatch(failValidation(key, message));
+        });
+      });
 };

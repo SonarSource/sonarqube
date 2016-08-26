@@ -43,3 +43,5 @@ export const getSettingsForCategory = (state, category) =>
     }));
 
 export const isLoading = (state, key) => fromSettingsPage.isLoading(state.settingsPage, key);
+
+export const getValidationMessage = (state, key) => fromSettingsPage.getValidationMessage(state.settingsPage, key);

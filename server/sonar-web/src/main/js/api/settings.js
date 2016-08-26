@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
-import { delay } from '../helpers/request';
 
 export function getDefinitions (componentKey) {
   const url = '/api/settings/list_definitions';
@@ -41,5 +40,5 @@ export function setSetting (key, value, componentKey) {
   if (componentKey) {
     data.componentKey = componentKey;
   }
-  return post(url, data).then(delay);
+  return post(url, data);
 }

@@ -24,9 +24,17 @@ export const startLoading = key => ({
   key
 });
 
-export const STOP_LOADING = 'settingsPage/STOP_LOADING';
+export const FAIL_VALIDATION = 'settingsPage/FAIL_VALIDATION';
 
-export const stopLoading = key => ({
-  type: STOP_LOADING,
+export const failValidation = (key, message) => ({
+  type: FAIL_VALIDATION,
+  key,
+  message
+});
+
+export const PASS_VALIDATION = 'settingsPage/PASS_VALIDATION';
+
+export const passValidation = key => ({
+  type: PASS_VALIDATION,
   key
 });

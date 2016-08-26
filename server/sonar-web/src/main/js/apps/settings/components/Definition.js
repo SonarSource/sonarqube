@@ -22,15 +22,16 @@ import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
 import DefinitionInput from './inputs/Input';
 import { getPropertyName, getPropertyDescription } from '../utils';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { setValue } from '../store/actions';
-import { isLoading } from '../store/rootReducer';
+import { isLoading, getValidationMessage } from '../store/rootReducer';
 
 class Definition extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
     setting: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
+    validationMessage: React.PropTypes.string,
     setValue: React.PropTypes.func.isRequired
   };
 
@@ -40,6 +41,12 @@ class Definition extends React.Component {
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
+  }
+
+  componentWillUpdate (nextProps) {
+    if (nextProps.validationMessage != null) {
+      this.setState({ success: false });
+    }
   }
 
   handleSet (_, value) {
@@ -76,15 +83,30 @@ class Definition extends React.Component {
 
             <div className="settings-definition-state">
               {loading && (
-                  <div className="display-inline-block text-info">
-                    <i className="spinner"/> Saving...
-                  </div>
+                  <span className="text-info">
+                    <span className="settings-definition-state-icon">
+                      <i className="spinner"/>
+                    </span>
+                    {translate('settings.state.saving')}
+                  </span>
+              )}
+
+              {!loading && (this.props.validationMessage != null) && (
+                  <span className="text-danger">
+                    <span className="settings-definition-state-icon">
+                      <i className="icon-alert-error"/>
+                    </span>
+                    {translateWithParameters('settings.state.validation_failed', this.props.validationMessage)}
+                  </span>
               )}
 
               {!loading && this.state.success && (
-                  <div className="display-inline-block text-success">
-                    <i className="icon-check"/> Saved!
-                  </div>
+                  <span className="text-success">
+                    <span className="settings-definition-state-icon">
+                      <i className="icon-check"/>
+                    </span>
+                    {translate('settings.state.saved')}
+                  </span>
               )}
             </div>
           </div>
@@ -94,7 +116,8 @@ class Definition extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  loading: isLoading(state, ownProps.setting.key)
+  loading: isLoading(state, ownProps.setting.definition.key),
+  validationMessage: getValidationMessage(state, ownProps.setting.definition.key)
 });
 
 export default connect(

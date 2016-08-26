@@ -17,16 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { START_LOADING, STOP_LOADING } from './actions';
+import { START_LOADING, FAIL_VALIDATION, PASS_VALIDATION } from './actions';
 
-const reducer = (state = {}, action = {}) => {
+const singleSettingReducer = (state = {}, action = {}) => {
   if (action.type === START_LOADING) {
-    const newItem = { ...state[action.key], key: action.key, loading: true };
-    return { ...state, [action.key]: newItem };
+    return { ...state, key: action.key, loading: true };
   }
 
-  if (action.type === STOP_LOADING) {
-    const newItem = { ...state[action.key], key: action.key, loading: false };
+  if (action.type === FAIL_VALIDATION) {
+    return { ...state, key: action.key, loading: false, validationMessage: action.message };
+  }
+
+  if (action.type === PASS_VALIDATION) {
+    return { ...state, key: action.key, loading: false, validationMessage: null };
+  }
+
+  return state;
+};
+
+const reducer = (state = {}, action = {}) => {
+  if ([START_LOADING, FAIL_VALIDATION, PASS_VALIDATION].includes(action.type)) {
+    const newItem = singleSettingReducer(state[action.key], action);
     return { ...state, [action.key]: newItem };
   }
 
@@ -36,3 +47,5 @@ const reducer = (state = {}, action = {}) => {
 export default reducer;
 
 export const isLoading = (state, key) => state[key] ? state[key].loading : false;
+
+export const getValidationMessage = (state, key) => state[key] ? state[key].validationMessage : null;
