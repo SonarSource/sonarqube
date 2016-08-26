@@ -98,9 +98,9 @@ public class ValuesActionTest {
       .build());
     insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("foo");
-    assertThat(result.getSettingsList()).hasSize(1);
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
 
+    assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.getValue()).isEqualTo("one");
@@ -125,7 +125,7 @@ public class ValuesActionTest {
       .build());
     insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("default", "global");
+    ValuesWsResponse result = executeRequestForGlobalProperties("default", "global");
     assertThat(result.getSettingsList()).hasSize(2);
 
     Settings.Setting foo = result.getSettings(0);
@@ -157,9 +157,9 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("foo.1.size").setValue("size1"),
       newGlobalPropertyDto().setKey("foo.2.key").setValue("key2"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("foo");
-    assertThat(result.getSettingsList()).hasSize(1);
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
 
+    assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.hasValue()).isFalse();
@@ -186,9 +186,9 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("foo.1.size").setValue("size1"),
       newComponentPropertyDto(project).setKey("foo.2.key").setValue("key2"));
 
-    ValuesWsResponse result = newRequestForProjectProperties("foo");
-    assertThat(result.getSettingsList()).hasSize(1);
+    ValuesWsResponse result = executeRequestForProjectProperties("foo");
 
+    assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.hasValue()).isFalse();
@@ -207,7 +207,8 @@ public class ValuesActionTest {
       .defaultValue("default")
       .build());
 
-    ValuesWsResponse result = newRequestForGlobalProperties("foo");
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+
     assertThat(result.getSettingsList()).hasSize(1);
     assertSetting(result.getSettings(0), "foo", "default", true, false);
   }
@@ -220,7 +221,8 @@ public class ValuesActionTest {
       // The property is overriding default value
       newGlobalPropertyDto().setKey("property").setValue("one"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("property");
+    ValuesWsResponse result = executeRequestForGlobalProperties("property");
+
     assertThat(result.getSettingsList()).hasSize(1);
     assertSetting(result.getSettings(0), "property", "one", false, false);
   }
@@ -234,7 +236,8 @@ public class ValuesActionTest {
       // The property is overriding global value
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
-    ValuesWsResponse result = newRequestForProjectProperties("property");
+    ValuesWsResponse result = executeRequestForProjectProperties("property");
+
     assertThat(result.getSettingsList()).hasSize(1);
     assertSetting(result.getSettings(0), "property", "two", false, false);
   }
@@ -246,7 +249,8 @@ public class ValuesActionTest {
     // The property is not defined on project
     insertProperties(newGlobalPropertyDto().setKey("property").setValue("one"));
 
-    ValuesWsResponse result = newRequestForProjectProperties("property");
+    ValuesWsResponse result = executeRequestForProjectProperties("property");
+
     assertThat(result.getSettingsList()).hasSize(1);
     assertSetting(result.getSettings(0), "property", "one", false, true);
   }
@@ -256,7 +260,8 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("globalPropertyWithoutDefinition");
+    ValuesWsResponse result = executeRequestForGlobalProperties("globalPropertyWithoutDefinition");
+
     Settings.Setting globalPropertyWithoutDefinitionValue = result.getSettings(0);
     assertThat(globalPropertyWithoutDefinitionValue.getKey()).isEqualTo("globalPropertyWithoutDefinition");
     assertThat(globalPropertyWithoutDefinitionValue.getValue()).isEqualTo("value");
@@ -270,7 +275,8 @@ public class ValuesActionTest {
       .builder("foo")
       .build());
 
-    ValuesWsResponse result = newRequestForGlobalProperties("foo");
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+
     assertThat(result.getSettingsList()).isEmpty();
   }
 
@@ -283,7 +289,8 @@ public class ValuesActionTest {
       .build());
     insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("unknown");
+    ValuesWsResponse result = executeRequestForGlobalProperties("unknown");
+
     assertThat(result.getSettingsList()).isEmpty();
   }
 
@@ -291,14 +298,14 @@ public class ValuesActionTest {
   public void return_module_values() throws Exception {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-
     propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"),
       // The property is overriding global value
       newComponentPropertyDto(module).setKey("property").setValue("two"));
 
-    ValuesWsResponse result = newRequestForComponentProperties(module, "property");
+    ValuesWsResponse result = executeRequestForComponentProperties(module, "property");
+
     assertThat(result.getSettingsList()).hasSize(1);
     assertSetting(result.getSettings(0), "property", "two", false, false);
   }
@@ -308,7 +315,6 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build(),
@@ -319,7 +325,8 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("projectProperty").setValue("project"),
       newComponentPropertyDto(module).setKey("moduleProperty").setValue("module"));
 
-    ValuesWsResponse result = newRequestForComponentProperties(subModule, "defaultProperty", "globalProperty", "projectProperty", "moduleProperty");
+    ValuesWsResponse result = executeRequestForComponentProperties(subModule, "defaultProperty", "globalProperty", "projectProperty", "moduleProperty");
+
     assertThat(result.getSettingsList()).hasSize(4);
     assertSetting(result.getSettings(0), "defaultProperty", "default", true, false);
     assertSetting(result.getSettings(1), "globalProperty", "global", false, true);
@@ -336,9 +343,9 @@ public class ValuesActionTest {
       .build());
     insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
-    ValuesWsResponse result = newRequestForGlobalProperties("deprecated");
-    assertThat(result.getSettingsList()).hasSize(1);
+    ValuesWsResponse result = executeRequestForGlobalProperties("deprecated");
 
+    assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("deprecated");
     assertThat(value.getValue()).isEqualTo("one");
@@ -356,7 +363,6 @@ public class ValuesActionTest {
       .multiValues(true)
       .build());
     insertProperties(newGlobalPropertyDto().setKey("sonar.autogenerated").setValue("val1,val2,val3"));
-
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("sonar.demo")
       .type(PropertyType.PROPERTY_SET)
@@ -375,6 +381,7 @@ public class ValuesActionTest {
       .setMediaType(JSON)
       .execute()
       .getInput();
+
     JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
@@ -383,7 +390,8 @@ public class ValuesActionTest {
     setUserAsProjectAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    newRequest(project.uuid(), project.key());
+
+    executeRequest(project.uuid(), project.key());
   }
 
   @Test
@@ -392,7 +400,8 @@ public class ValuesActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequestForGlobalProperties("foo");
+
+    executeRequestForGlobalProperties("foo");
   }
 
   @Test
@@ -401,7 +410,23 @@ public class ValuesActionTest {
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
-    newRequest(project.uuid(), null, "foo");
+
+    executeRequest(project.uuid(), null, "foo");
+  }
+
+  @Test
+  public void fail_when_deprecated_key_and_new_key_are_used() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .deprecatedKey("deprecated")
+      .build());
+    insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
+
+    executeRequestForGlobalProperties("foo", "deprecated");
   }
 
   @Test
@@ -414,19 +439,19 @@ public class ValuesActionTest {
     assertThat(action.params()).hasSize(3);
   }
 
-  private ValuesWsResponse newRequestForComponentProperties(ComponentDto componentDto, String... keys) {
-    return newRequest(componentDto.uuid(), null, keys);
+  private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {
+    return executeRequest(componentDto.uuid(), null, keys);
   }
 
-  private ValuesWsResponse newRequestForProjectProperties(String... keys) {
-    return newRequest(project.uuid(), null, keys);
+  private ValuesWsResponse executeRequestForProjectProperties(String... keys) {
+    return executeRequest(project.uuid(), null, keys);
   }
 
-  private ValuesWsResponse newRequestForGlobalProperties(String... keys) {
-    return newRequest(null, null, keys);
+  private ValuesWsResponse executeRequestForGlobalProperties(String... keys) {
+    return executeRequest(null, null, keys);
   }
 
-  private ValuesWsResponse newRequest(@Nullable String id, @Nullable String key, String... keys) {
+  private ValuesWsResponse executeRequest(@Nullable String id, @Nullable String key, String... keys) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("keys", COMMA_JOINER.join(keys));

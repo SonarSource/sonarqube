@@ -47,6 +47,7 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.setting.ValuesRequest;
 
+import static java.lang.String.format;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
@@ -165,7 +166,10 @@ public class ValuesAction implements SettingsWsAction {
 
   private Map<String, String> getKeysToDisplayMap(Set<String> keys) {
     return keys.stream()
-      .collect(Collectors.toMap(propertyDefinitions::validKey, Function.identity()));
+      .collect(Collectors.toMap(propertyDefinitions::validKey, Function.identity(),
+        (u, v) -> {
+          throw new IllegalArgumentException(format("'%s' and '%s' cannot be used at the same time as they refer to the same setting", u, v));
+        }));
   }
 
   private static class ValuesResponseBuilder {
