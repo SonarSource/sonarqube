@@ -38,7 +38,7 @@ export default class CategoriesList extends React.Component {
     const query = {};
 
     if (category.key !== this.props.defaultCategory) {
-      query.category = category.key;
+      query.category = category.key.toLowerCase();
     }
 
     if (this.props.component) {
