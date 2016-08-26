@@ -61,6 +61,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
+  private static final String COMMA_ENCODED_VALUE = "%2C";
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -224,7 +225,8 @@ public class ValuesAction implements SettingsWsAction {
         }
         valueBuilder.setFieldsValues(builder);
       } else if (definition.multiValues()) {
-        valueBuilder.setValues(Settings.Values.newBuilder().addAllValues(COMMA_SPLITTER.split(value)));
+        List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
+        valueBuilder.setValues(Settings.Values.newBuilder().addAllValues(values));
       } else {
         valueBuilder.setValue(value);
       }

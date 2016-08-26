@@ -142,6 +142,20 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_multi_value_with_coma() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
+    insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("global");
+
+    assertThat(result.getSettingsList()).hasSize(1);
+    Settings.Setting setting = result.getSettings(0);
+    assertThat(setting.getKey()).isEqualTo("global");
+    assertThat(setting.getValues().getValuesList()).containsOnly("three", "four,five");
+  }
+
+  @Test
   public void return_property_set() throws Exception {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition
