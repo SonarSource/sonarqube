@@ -22,27 +22,30 @@ import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
 import { startLoading, failValidation, passValidation } from './settingsPage/actions';
 import { parseError } from '../../code/utils';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../components/store/globalMessages';
 
 export const fetchSettings = componentKey => dispatch => {
-  return getDefinitions(componentKey).then(definitions => {
-    dispatch(receiveDefinitions(definitions));
-    const keys = definitions.map(definition => definition.key).join();
-    return getValues(keys, componentKey);
-  }).then(settings => dispatch(receiveValues(settings)));
+  return getDefinitions(componentKey)
+      .then(definitions => {
+        dispatch(receiveDefinitions(definitions));
+        const keys = definitions.map(definition => definition.key).join();
+        return getValues(keys, componentKey);
+      })
+      .then(settings => {
+        dispatch(receiveValues(settings));
+        dispatch(closeAllGlobalMessages());
+      })
+      .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
 };
 
 export const setValue = (key, value, componentKey) => dispatch => {
   dispatch(startLoading(key));
 
-  const request = setSetting(key, value, componentKey);
-
-  return request.then(() => getValues(key, componentKey)).then(values => {
-    dispatch(receiveValues(values));
-    dispatch(passValidation(key));
-  })
-      .catch(e => {
-        parseError(e).then(message => {
-          dispatch(failValidation(key, message));
-        });
-      });
+  return setSetting(key, value, componentKey)
+      .then(() => getValues(key, componentKey))
+      .then(values => {
+        dispatch(receiveValues(values));
+        dispatch(passValidation(key));
+      })
+      .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
 };

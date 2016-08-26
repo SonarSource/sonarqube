@@ -21,11 +21,13 @@ import { combineReducers } from 'redux';
 import definitions, * as fromDefinitions from './definitions/reducer';
 import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
+import globalMessages, * as fromGlobalMessages from '../../../components/store/globalMessages';
 
 const rootReducer = combineReducers({
   definitions,
   values,
-  settingsPage
+  settingsPage,
+  globalMessages
 });
 
 export default rootReducer;
@@ -45,3 +47,5 @@ export const getSettingsForCategory = (state, category) =>
 export const isLoading = (state, key) => fromSettingsPage.isLoading(state.settingsPage, key);
 
 export const getValidationMessage = (state, key) => fromSettingsPage.getValidationMessage(state.settingsPage, key);
+
+export const getGlobalMessages = state => fromGlobalMessages.getGlobalMessages(state.globalMessages);
