@@ -259,6 +259,14 @@ public class RequestTest {
   }
 
   @Test
+  public void fail_if_multi_param_is_not_defined() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("BUG - parameter 'unknown' is undefined for action 'my_action'");
+
+    underTest.multiParam("unknown");
+  }
+
+  @Test
   public void verify_possible_values() {
     underTest.setParam("has_possible_values", "foo");
     assertThat(underTest.param("has_possible_values")).isEqualTo("foo");

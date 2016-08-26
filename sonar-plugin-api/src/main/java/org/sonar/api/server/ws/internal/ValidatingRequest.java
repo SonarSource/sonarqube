@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Loggers;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -137,26 +137,16 @@ public abstract class ValidatingRequest extends Request {
 
   @CheckForNull
   private String readParamOrDefaultValue(String key, @Nullable WebService.Param definition) {
-    if (definition == null) {
-      String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
-      Loggers.get(getClass()).error(message);
-      throw new IllegalArgumentException(message);
-    }
+    checkArgument(definition != null, "BUG - parameter '%s' is undefined for action '%s'", key, action.key());
+
     String deprecatedKey = definition.deprecatedKey();
     String value = deprecatedKey != null ? StringUtils.defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
     value = StringUtils.defaultString(value, definition.defaultValue());
-    if (value == null) {
-      return null;
-    }
-    return value;
+    return value == null ? null : value;
   }
 
   private List<String> readMultiParamOrDefaultValue(String key, @Nullable WebService.Param definition) {
-    if (definition == null) {
-      String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
-      Loggers.get(getClass()).error(message);
-      throw new IllegalArgumentException(message);
-    }
+    checkArgument(definition != null, "BUG - parameter '%s' is undefined for action '%s'", key, action.key());
 
     List<String> keyValues = readMultiParam(key);
     if (!keyValues.isEmpty()) {
