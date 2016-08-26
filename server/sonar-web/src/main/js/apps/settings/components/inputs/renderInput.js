@@ -50,11 +50,22 @@ const renderInput = (setting, onChange) => {
   const value = getSettingValue(setting);
 
   if (definition.type === TYPE_SINGLE_SELECT_LIST) {
-    return <InputForSingleSelectList name={name} value={value} options={definition.options} onChange={onChange}/>
+    return (
+        <InputForSingleSelectList
+            name={name}
+            value={value}
+            options={definition.options}
+            onChange={onChange}/>
+    );
   }
 
   const InputComponent = typeMapping[definition.type] || InputForString;
-  return <InputComponent name={name} value={value} onChange={onChange}/>;
+  return (
+      <InputComponent
+          name={name}
+          value={value}
+          onChange={onChange}/>
+  );
 };
 
 export default renderInput;

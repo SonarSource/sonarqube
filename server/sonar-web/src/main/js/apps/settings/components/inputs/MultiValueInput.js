@@ -24,14 +24,14 @@ import { getSettingValue } from '../../utils';
 export default class MultiValueInput extends React.Component {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
-    onSet: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired
   };
 
   handleSingleInputChange (index, _, value) {
     const values = getSettingValue(this.props.setting) || [''];
     const newValues = [...values];
     newValues.splice(index, 1, value);
-    this.props.onSet(this.props.setting, newValues);
+    this.props.onChange(this.props.setting, newValues);
   }
 
   prepareSetting (value) {

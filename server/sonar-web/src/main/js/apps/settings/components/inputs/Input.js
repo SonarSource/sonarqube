@@ -27,7 +27,7 @@ import { TYPE_PROPERTY_SET } from '../../constants';
 export default class Input extends React.Component {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
-    onSet: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired
   };
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -35,16 +35,16 @@ export default class Input extends React.Component {
   }
 
   render () {
-    const { setting, onSet } = this.props;
+    const { setting, onChange } = this.props;
 
     if (setting.definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput setting={setting}/>;
+      return <PropertySetInput setting={setting} onChange={onChange}/>;
     }
 
     if (setting.definition.multiValues) {
-      return <MultiValueInput setting={setting} onSet={onSet}/>;
+      return <MultiValueInput setting={setting} onChange={onChange}/>;
     }
 
-    return renderInput(setting, onSet);
+    return renderInput(setting, onChange);
   }
 }

@@ -200,6 +200,11 @@ public class ProjectAdministrationTest {
 
     page.openCategory("project-only")
       .assertSettingDisplayed("prop_only_on_project");
+
+    page.openCategory("General")
+      .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "30")
+      .assertStringSettingValue("sonar.timemachine.period1", "previous_version")
+      .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true);
   }
 
   @Test

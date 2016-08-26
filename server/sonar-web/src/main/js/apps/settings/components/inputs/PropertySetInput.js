@@ -22,7 +22,8 @@ import renderInput from './renderInput';
 
 export default class PropertySetInput extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired
+    setting: React.PropTypes.object.isRequired,
+    onChange: React.PropTypes.func.isRequired
   };
 
   render () {

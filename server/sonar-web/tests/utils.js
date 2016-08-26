@@ -17,12 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const TYPE_STRING = 'STRING';
-export const TYPE_TEXT = 'TEXT';
-export const TYPE_PASSWORD = 'PASSWORD';
-export const TYPE_BOOLEAN = 'BOOLEAN';
-export const TYPE_FLOAT = 'FLOAT';
-export const TYPE_INTEGER = 'INTEGER';
-export const TYPE_LONG = 'LONG';
-export const TYPE_SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST';
-export const TYPE_PROPERTY_SET = 'PROPERTY_SET';
+export const click = element => {
+  return element.simulate('click', {
+    target: { blur () {} },
+    preventDefault () {}
+  });
+};
+
+export const submit = element => {
+  return element.simulate('submit', {
+    preventDefault () {}
+  });
+};
+
+export const change = (element, value) => {
+  return element.simulate('change', {
+    target: { value },
+    currentTarget: { value }
+  });
+};

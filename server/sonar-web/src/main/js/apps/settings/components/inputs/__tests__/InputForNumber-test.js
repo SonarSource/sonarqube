@@ -17,12 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const TYPE_STRING = 'STRING';
-export const TYPE_TEXT = 'TEXT';
-export const TYPE_PASSWORD = 'PASSWORD';
-export const TYPE_BOOLEAN = 'BOOLEAN';
-export const TYPE_FLOAT = 'FLOAT';
-export const TYPE_INTEGER = 'INTEGER';
-export const TYPE_LONG = 'LONG';
-export const TYPE_SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST';
-export const TYPE_PROPERTY_SET = 'PROPERTY_SET';
+import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import InputForNumber from '../InputForNumber';
+import SimpleInput from '../SimpleInput';
+
+describe('Settings :: Inputs :: InputForNumber', () => {
+  it('should render SimpleInput', () => {
+    const onChange = sinon.spy();
+    const simpleInput = shallow(<InputForNumber name="foo" value={17} onChange={onChange}/>).find(SimpleInput);
+    expect(simpleInput).to.have.length(1);
+    expect(simpleInput.prop('name')).to.equal('foo');
+    expect(simpleInput.prop('value')).to.equal(17);
+    expect(simpleInput.prop('type')).to.equal('number');
+    expect(simpleInput.prop('onChange')).to.be.a('function');
+  });
+});

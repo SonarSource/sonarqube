@@ -19,8 +19,11 @@
  */
 package pageobjects;
 
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
 
+import static com.codeborne.selenide.Condition.cssClass;
+import static com.codeborne.selenide.Condition.exactValue;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -42,6 +45,21 @@ public class SettingsPage {
 
   public SettingsPage openCategory(String categoryName) {
     $(".settings-menu").$(By.linkText(categoryName)).click();
+    return this;
+  }
+
+  public SettingsPage assertStringSettingValue(String settingKey, String value) {
+    $("input[name=\"settings[" + settingKey + "]\"]").shouldHave(exactValue(value));
+    return this;
+  }
+
+  public SettingsPage assertBooleanSettingValue(String settingKey, boolean value) {
+    SelenideElement toggle = $("button[name=\"settings[" + settingKey + "]\"]");
+    if (value) {
+      toggle.shouldHave(cssClass("boolean-toggle-on"));
+    } else {
+      toggle.shouldNotHave(cssClass("boolean-toggle-on"));
+    }
     return this;
   }
 }

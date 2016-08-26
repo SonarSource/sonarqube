@@ -79,7 +79,7 @@ class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <DefinitionInput setting={setting} onSet={this.handleSet.bind(this)}/>
+            <DefinitionInput setting={setting} onChange={this.handleSet.bind(this)}/>
 
             <div className="settings-definition-state">
               {loading && (

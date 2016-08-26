@@ -24,6 +24,7 @@ import { defaultInputPropTypes } from '../../propTypes';
 export default class SimpleInput extends React.Component {
   static propTypes = {
     ...defaultInputPropTypes,
+    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     type: React.PropTypes.string.isRequired,
     className: React.PropTypes.string.isRequired
   };
