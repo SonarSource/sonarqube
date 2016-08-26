@@ -152,12 +152,16 @@ public class PropertiesDao implements Dao {
   @CheckForNull
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {
     DbSession session = mybatis.openSession(false);
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      return mapper.selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
+      return selectProjectProperty(session, resourceId, propertyKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public PropertyDto selectProjectProperty(DbSession dbSession, long resourceId, String propertyKey) {
+    return dbSession.getMapper(PropertiesMapper.class).selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
   }
 
   public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {

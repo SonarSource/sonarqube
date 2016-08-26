@@ -44,12 +44,14 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 public class ResetAction implements SettingsWsAction {
 
   private final DbClient dbClient;
-  private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final SettingsUpdater settingsUpdater;
+  private final UserSession userSession;
   private final PropertyDefinitions definitions;
 
-  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions definitions) {
+  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions) {
     this.dbClient = dbClient;
+    this.settingsUpdater = settingsUpdater;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.definitions = definitions;
@@ -87,9 +89,9 @@ public class ResetAction implements SettingsWsAction {
       PropertyDefinition definition = definitions.get(resetRequest.getKey());
       String key = definition != null ? definition.key() : resetRequest.getKey();
       if (component.isPresent()) {
-        dbClient.propertiesDao().deleteProjectProperty(key, component.get().getId(), dbSession);
+        settingsUpdater.deleteComponentSetting(dbSession, key, component.get());
       } else {
-        dbClient.propertiesDao().deleteGlobalProperty(key, dbSession);
+        settingsUpdater.deleteGlobalSetting(dbSession, key);
       }
       dbSession.commit();
       response.noContent();

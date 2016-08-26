@@ -24,7 +24,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,11 +37,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 
 import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.server.settings.ws.PropertySetExtractor.extractPropertySetKeys;
 
 public class SettingsFinder {
 
   private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
-  private static final Splitter COMMA_SPLITTER = Splitter.on(",");
 
   private final DbClient dbClient;
   private final PropertyDefinitions definitions;
@@ -83,18 +82,11 @@ public class SettingsFinder {
   }
 
   private Set<String> getPropertySetKeys(List<PropertyDto> properties) {
-    Set<String> propertySetKeys = new HashSet<>();
-    properties.stream()
+    return properties.stream()
       .filter(propertyDto -> definitions.get(propertyDto.getKey()) != null)
       .filter(propertyDto -> definitions.get(propertyDto.getKey()).type().equals(PROPERTY_SET))
-      .forEach(propertyDto -> definitions.get(propertyDto.getKey()).fields()
-        .forEach(field -> COMMA_SPLITTER.splitToList(propertyDto.getValue())
-          .forEach(setId -> propertySetKeys.add(generatePropertySetKey(propertyDto.getKey(), setId, field.key())))));
-    return propertySetKeys;
-  }
-
-  private static String generatePropertySetKey(String propertyBaseKey, String id, String fieldKey) {
-    return propertyBaseKey + "." + id + "." + fieldKey;
+      .flatMap(propertyDto -> extractPropertySetKeys(propertyDto, definitions.get(propertyDto.getKey())).stream())
+      .collect(Collectors.toSet());
   }
 
   private static List<PropertyDto> getPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable Long componentId) {

@@ -31,6 +31,7 @@ public class SettingsWsModule extends Module {
       ListDefinitionsAction.class,
       ValuesAction.class,
       SettingsFinder.class,
-      ResetAction.class);
+      ResetAction.class,
+      SettingsUpdater.class);
   }
 }

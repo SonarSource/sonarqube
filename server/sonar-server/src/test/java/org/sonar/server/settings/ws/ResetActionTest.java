@@ -39,6 +39,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -48,6 +49,8 @@ import org.sonarqube.ws.MediaTypes;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -71,10 +74,11 @@ public class ResetActionTest {
   DbSession dbSession = db.getSession();
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
   PropertyDefinitions definitions = new PropertyDefinitions();
+  SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
 
   ComponentDto project;
 
-  ResetAction underTest = new ResetAction(dbClient, componentFinder, userSession, definitions);
+  ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions);
   WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -93,7 +97,7 @@ public class ResetActionTest {
 
   @Test
   public void remove_component_setting() throws Exception {
-    setUserAsSystemAdmin();
+    setUserAsProjectAdmin();
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnProjectSetting("foo");
@@ -114,7 +118,7 @@ public class ResetActionTest {
 
   @Test
   public void ignore_global_setting_when_removing_project_setting() throws Exception {
-    setUserAsSystemAdmin();
+    setUserAsProjectAdmin();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
@@ -136,7 +140,7 @@ public class ResetActionTest {
 
   @Test
   public void ignore_user_setting_when_removing_project_setting() throws Exception {
-    setUserAsSystemAdmin();
+    setUserAsProjectAdmin();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
 
@@ -182,6 +186,26 @@ public class ResetActionTest {
     assertThat(action.params()).hasSize(3);
   }
 
+  @Test
+  public void fail_when_not_system_admin() throws Exception {
+    userSession.login("not-admin").setGlobalPermissions(DASHBOARD_SHARING);
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+
+    expectedException.expect(ForbiddenException.class);
+
+    executeRequestOnGlobalSetting("foo");
+  }
+
+  @Test
+  public void fail_when_not_project_admin() throws Exception {
+    userSession.login("project-admin").addProjectUuidPermissions(USER, project.uuid());
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+
+    expectedException.expect(ForbiddenException.class);
+
+    executeRequestOnComponentSetting("foo", project);
+  }
+
   private void executeRequestOnGlobalSetting(String key) {
     executeRequest(key, null, null);
   }
@@ -216,11 +240,11 @@ public class ResetActionTest {
   }
 
   private void assertGlobalPropertyDoesNotExist(String key) {
-    assertThat(dbClient.propertiesDao().selectGlobalProperty(key)).isNull();
+    assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, key)).isNull();
   }
 
   private void assertGlobalPropertyExists(String key) {
-    assertThat(dbClient.propertiesDao().selectGlobalProperty(key)).isNotNull();
+    assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, key)).isNotNull();
   }
 
   private void assertProjectPropertyDoesNotExist(String key) {
