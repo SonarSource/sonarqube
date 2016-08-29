@@ -22,14 +22,12 @@ package org.sonar.scanner.cpd.deprecated;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.config.Settings;
 
 /**
  * Feed block index using deprecated {@link CpdMapping} extension point if not already
@@ -44,13 +42,11 @@ public class DeprecatedCpdBlockIndexerSensor implements Sensor {
 
   private CpdBlockIndexer javaCpdBlockIndexer;
   private CpdBlockIndexer defaultCpdBlockIndexer;
-  private Settings settings;
   private FileSystem fs;
 
-  public DeprecatedCpdBlockIndexerSensor(JavaCpdBlockIndexer javaCpdBlockIndexer, DefaultCpdBlockIndexer defaultCpdBlockIndexer, Settings settings, FileSystem fs) {
+  public DeprecatedCpdBlockIndexerSensor(JavaCpdBlockIndexer javaCpdBlockIndexer, DefaultCpdBlockIndexer defaultCpdBlockIndexer, FileSystem fs) {
     this.javaCpdBlockIndexer = javaCpdBlockIndexer;
     this.defaultCpdBlockIndexer = defaultCpdBlockIndexer;
-    this.settings = settings;
     this.fs = fs;
   }
 
@@ -67,32 +63,10 @@ public class DeprecatedCpdBlockIndexerSensor implements Sensor {
     return defaultCpdBlockIndexer;
   }
 
-  @VisibleForTesting
-  boolean isSkipped(String language) {
-    String key = "sonar.cpd." + language + ".skip";
-    if (settings.hasKey(key)) {
-      return settings.getBoolean(key);
-    }
-    return settings.getBoolean(CoreProperties.CPD_SKIP_PROPERTY);
-  }
-
   @Override
   public void execute(SensorContext context) {
-    if (settings.hasKey(CoreProperties.CPD_SKIP_PROPERTY)) {
-      LOG.warn("\"sonar.cpd.skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
-    }
 
     for (String language : fs.languages()) {
-      if (settings.hasKey("sonar.cpd." + language + ".skip")) {
-        LOG
-          .warn("\"sonar.cpd." + language + ".skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
-      }
-
-      if (isSkipped(language)) {
-        LOG.info("Detection of duplicated code is skipped for {}", language);
-        continue;
-      }
-
       CpdBlockIndexer blockIndexer = getBlockIndexer(language);
       if (!blockIndexer.isLanguageSupported(language)) {
         LOG.debug("Detection of duplicated code is not supported for {}", language);

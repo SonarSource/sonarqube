@@ -25,10 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.scanner.FakeJava;
-import org.sonar.scanner.cpd.CpdComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,36 +37,14 @@ public class DeprecatedCpdBlockIndexerSensorTest {
   JavaCpdBlockIndexer sonarEngine;
   DefaultCpdBlockIndexer sonarBridgeEngine;
   DeprecatedCpdBlockIndexerSensor sensor;
-  Settings settings;
 
   @Before
   public void setUp() throws IOException {
     sonarEngine = new JavaCpdBlockIndexer(null, null, null);
     sonarBridgeEngine = new DefaultCpdBlockIndexer(new CpdMappings(), null, null, null);
-    settings = new Settings(new PropertyDefinitions(CpdComponents.class));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
-    sensor = new DeprecatedCpdBlockIndexerSensor(sonarEngine, sonarBridgeEngine, settings, fs);
-  }
-
-  @Test
-  public void test_global_skip() {
-    settings.setProperty("sonar.cpd.skip", true);
-    assertThat(sensor.isSkipped(FakeJava.KEY)).isTrue();
-  }
-
-  @Test
-  public void should_not_skip_by_default() {
-    assertThat(sensor.isSkipped(FakeJava.KEY)).isFalse();
-  }
-
-  @Test
-  public void should_skip_by_language() {
-    settings.setProperty("sonar.cpd.skip", false);
-    settings.setProperty("sonar.cpd.php.skip", true);
-
-    assertThat(sensor.isSkipped("php")).isTrue();
-    assertThat(sensor.isSkipped(FakeJava.KEY)).isFalse();
+    sensor = new DeprecatedCpdBlockIndexerSensor(sonarEngine, sonarBridgeEngine, fs);
   }
 
   @Test

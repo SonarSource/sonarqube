@@ -83,38 +83,6 @@ public class DefaultCpdTokensTest {
   }
 
   @Test
-  public void handle_exclusions_by_language() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
-    Settings settings = new Settings();
-    settings.setProperty("sonar.cpd.java.skip", "true");
-    DefaultCpdTokens tokens = new DefaultCpdTokens(settings, sensorStorage)
-      .onFile(INPUT_FILE)
-      .addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
-
-    tokens.save();
-
-    verifyZeroInteractions(sensorStorage);
-
-    assertThat(tokens.getTokenLines()).isEmpty();
-  }
-
-  @Test
-  public void handle_exclusions() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
-    Settings settings = new Settings();
-    settings.setProperty("sonar.cpd.skip", "true");
-    DefaultCpdTokens tokens = new DefaultCpdTokens(settings, sensorStorage)
-      .onFile(INPUT_FILE)
-      .addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
-
-    tokens.save();
-
-    verifyZeroInteractions(sensorStorage);
-
-    assertThat(tokens.getTokenLines()).isEmpty();
-  }
-
-  @Test
   public void save_many_tokens() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultCpdTokens tokens = new DefaultCpdTokens(new Settings(), sensorStorage)

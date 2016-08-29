@@ -135,7 +135,7 @@ public class QualityGateUiTest {
 
   private void scanSample(@Nullable String date, @Nullable String profile) {
     SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"))
-      .setProperties("sonar.cpd.skip", "true");
+      .setProperty("sonar.cpd.exclusions", "**/*");
     if (date != null) {
       scan.setProperty("sonar.projectDate", date);
     }

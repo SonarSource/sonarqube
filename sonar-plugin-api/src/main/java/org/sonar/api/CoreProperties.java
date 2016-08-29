@@ -226,13 +226,6 @@ public interface CoreProperties {
   String CPD_PLUGIN = "cpd";
 
   /**
-   * @deprecated in 5.0
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5339">SONAR-5339</a>
-   */
-  @Deprecated
-  String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
-
-  /**
    * @since 2.11
    */
   String CPD_CROSS_PROJECT = "sonar.cpd.cross_project";

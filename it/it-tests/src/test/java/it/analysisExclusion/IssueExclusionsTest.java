@@ -239,9 +239,9 @@ public class IssueExclusionsTest {
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-exclusions", "xoo", "with-many-rules");
 
     SonarScanner scan = SonarScanner.create(ItUtils.projectDir(PROJECT_DIR))
-      .setProperties("sonar.cpd.skip", "true")
+      .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperties(properties)
-      .setProperties("sonar.verbose", "true");
+      .setProperty("sonar.verbose", "true");
     return orchestrator.executeBuildQuietly(scan);
   }
 

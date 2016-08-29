@@ -54,26 +54,13 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   public DefaultCpdTokens onFile(InputFile inputFile) {
     Preconditions.checkNotNull(inputFile, "file can't be null");
     this.inputFile = (DefaultInputFile) inputFile;
-    String language = inputFile.language();
-    if (language != null && isSkipped(language)) {
-      this.excluded = true;
-    } else {
-      String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
-      for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
-        if (cpdExclusion.match(inputFile)) {
-          this.excluded = true;
-        }
+    String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
+      if (cpdExclusion.match(inputFile)) {
+        this.excluded = true;
       }
     }
     return this;
-  }
-
-  boolean isSkipped(String language) {
-    String key = "sonar.cpd." + language + ".skip";
-    if (settings.hasKey(key)) {
-      return settings.getBoolean(key);
-    }
-    return settings.getBoolean(CoreProperties.CPD_SKIP_PROPERTY);
   }
 
   public InputFile inputFile() {
