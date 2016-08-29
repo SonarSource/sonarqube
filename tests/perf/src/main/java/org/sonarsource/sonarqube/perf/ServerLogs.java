@@ -65,7 +65,7 @@ public class ServerLogs {
    * 2015.09.29 16:57:45 INFO ce[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms
    */
   public static Long extractComputationTotalTime(Orchestrator orchestrator) throws IOException {
-    File report = new File(orchestrator.getServer().getLogs().getParent(), "ce_activity.log");
+    File report = orchestrator.getServer().getLogs();
     List<String> logsLines = FileUtils.readLines(report, Charsets.UTF_8);
     return extractComputationTotalTime(logsLines);
   }
