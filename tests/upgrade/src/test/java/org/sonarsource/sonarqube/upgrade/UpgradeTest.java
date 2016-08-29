@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -44,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpgradeTest {
 
-  public static final String PROJECT_KEY = "org.apache.struts:struts-parent";
+  private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
+  private static final String SQ_VERSION_DEV = "DEV";
+  private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
 
   private Orchestrator orchestrator;
 
@@ -57,34 +61,43 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_5_6() {
-    testDatabaseUpgrade(Version.create("5.6.1"), "3.14");
+  public void test_upgrade_from_5_6_1() {
+    testDatabaseUpgrade("3.14", Version.create("5.6.1"));
   }
 
   @Test
-  public void test_upgrade_from_5_2() {
-    testDatabaseUpgrade(Version.create("5.2"), "3.14");
+  public void test_upgrade_from_5_2_via_5_6() {
+    testDatabaseUpgrade("3.14", Version.create("5.2"), Version.create("5.6"));
   }
 
-  private void testDatabaseUpgrade(Version fromVersion, String javaVersion) {
+  private void testDatabaseUpgrade(String javaVersion, Version fromVersion, Version... intermediaryVersions) {
     startOldServer(fromVersion, javaVersion);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
     stopServer();
 
-    startNewServer();
+    Stream.concat(Arrays.stream(intermediaryVersions).map(Version::toString), Stream.of(SQ_VERSION_DEV))
+      .forEach((sqVersion) -> {
+        upgradeTo(sqVersion, javaVersion);
+
+        assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
+        scanProject();
+        assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
+        browseWebapp();
+
+        stopServer();
+      });
+  }
+
+  private void upgradeTo(String sqVersion, String javaVersion) {
+    startNewServer(sqVersion, SQ_VERSION_DEV.equals(sqVersion) ? LATEST_JAVA_RELEASE : javaVersion);
     checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
     checkUrlsBeforeUpgrade();
 
     upgrade();
     checkSystemStatus(ServerStatusResponse.Status.UP);
     checkUrlsAfterUpgrade();
-
-    assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
-    scanProject();
-    assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
-    browseWebapp();
   }
 
   private void checkSystemStatus(ServerStatusResponse.Status serverStatus) {
@@ -110,7 +123,8 @@ public class UpgradeTest {
     checkUrlIsRedirectedToMaintenancePage("/issues/index");
     checkUrlIsRedirectedToMaintenancePage("/dashboard/index/org.apache.struts:struts-parent");
     checkUrlIsRedirectedToMaintenancePage("/issues/search");
-    checkUrlIsRedirectedToMaintenancePage("/component/index?id=org.apache.struts%3Astruts-core%3Asrc%2Fmain%2Fjava%2Forg%2Fapache%2Fstruts%2Fchain%2Fcommands%2Fgeneric%2FWrappingLookupCommand.java");
+    checkUrlIsRedirectedToMaintenancePage(
+      "/component/index?id=org.apache.struts%3Astruts-core%3Asrc%2Fmain%2Fjava%2Forg%2Fapache%2Fstruts%2Fchain%2Fcommands%2Fgeneric%2FWrappingLookupCommand.java");
     checkUrlIsRedirectedToMaintenancePage("/profiles");
   }
 
@@ -156,11 +170,11 @@ public class UpgradeTest {
     orchestrator.start();
   }
 
-  private void startNewServer() {
+  private void startNewServer(String sqVersion, String javaVersion) {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
-      .setSonarVersion("DEV")
+      .setSonarVersion(sqVersion)
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
-      .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
+      .setOrchestratorProperty("javaVersion", javaVersion)
       .setStartupLogWatcher(log -> log.contains("Process[web] is up"))
       .addPlugin("java");
     orchestrator = builder.build();
