@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getDefinitions, getValues, setSetting } from '../../../api/settings';
+import { getDefinitions, getValues, setSettingValue, resetSettingValue } from '../../../api/settings';
 import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
 import { startLoading, failValidation, passValidation } from './settingsPage/actions';
@@ -41,7 +41,19 @@ export const fetchSettings = componentKey => dispatch => {
 export const setValue = (key, value, componentKey) => dispatch => {
   dispatch(startLoading(key));
 
-  return setSetting(key, value, componentKey)
+  return setSettingValue(key, value, componentKey)
+      .then(() => getValues(key, componentKey))
+      .then(values => {
+        dispatch(receiveValues(values));
+        dispatch(passValidation(key));
+      })
+      .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
+};
+
+export const resetValue = (key, componentKey) => dispatch => {
+  dispatch(startLoading(key));
+
+  return resetSettingValue(key, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         dispatch(receiveValues(values));

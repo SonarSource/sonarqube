@@ -61,7 +61,7 @@
 
 .settings-definition {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .settings-definition-left {
@@ -75,7 +75,8 @@
   width: calc(100% - 330px);
   padding-top: 35px;
   box-sizing: border-box;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .settings-definition-name {

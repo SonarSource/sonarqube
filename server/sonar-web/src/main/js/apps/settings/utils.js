@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, hasMessage } from '../../helpers/l10n';
+import { TYPE_PROPERTY_SET, TYPE_BOOLEAN } from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -54,7 +55,48 @@ export function getUniqueName (definition, index = null) {
 export function getSettingValue (setting) {
   if (setting.definition.multiValues) {
     return setting.values;
+  } else if (setting.definition.type === TYPE_PROPERTY_SET) {
+    return setting.fieldsValues;
+  } else {
+    return setting.value;
   }
+}
 
-  return setting.value;
+export function isEmptyValue (definition, value) {
+  if (value == null) {
+    return true;
+  } else if (definition.type === TYPE_BOOLEAN) {
+    return false;
+  } else {
+    return value.length === 0;
+  }
+}
+
+export function isDefaultOrInherited (setting) {
+  return !!setting.default || !!setting.inherited;
+}
+
+/**
+ * Check if provided definition is a complex one
+ * Complex definitions are property sets or multi values
+ * @param definition
+ * @returns {boolean}
+ */
+export function isComplexDefinition (definition) {
+  return definition.type === TYPE_PROPERTY_SET || definition.multiValues === true;
+}
+
+/**
+ * Get and format the default value
+ * @param definition
+ * @returns {string}
+ */
+export function getDefaultValue (definition) {
+  if (definition.defaultValue == null) {
+    return '<no value>';
+  } else if (definition.type === TYPE_BOOLEAN) {
+    return definition.defaultValue ? translate('settings.boolean.true') : translate('settings.boolean.false');
+  } else {
+    return definition.defaultValue;
+  }
 }

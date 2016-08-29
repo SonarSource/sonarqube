@@ -32,6 +32,12 @@ export default class InputForSingleSelectList extends React.Component {
     this.state = { value: props.value };
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (this.props.isDefault !== nextProps.isDefault) {
+      this.setState({ value: nextProps.value });
+    }
+  }
+
   handleInputChange (option) {
     const { value } = option;
     this.setState({ value });

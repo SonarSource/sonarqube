@@ -34,9 +34,18 @@ export function getValues (keys, componentKey) {
   return getJSON(url, data).then(r => r.settings);
 }
 
-export function setSetting (key, value, componentKey) {
+export function setSettingValue (key, value, componentKey) {
   const url = '/api/settings/set';
   const data = { key, value };
+  if (componentKey) {
+    data.componentKey = componentKey;
+  }
+  return post(url, data);
+}
+
+export function resetSettingValue (key, componentKey) {
+  const url = '/api/settings/reset';
+  const data = { key };
   if (componentKey) {
     data.componentKey = componentKey;
   }

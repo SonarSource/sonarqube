@@ -35,6 +35,12 @@ export default class InputForBoolean extends React.Component {
     this.handleChange = debounce(this.handleChange.bind(this), 250);
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (this.props.isDefault !== nextProps.isDefault) {
+      this.setState({ value: nextProps.value });
+    }
+  }
+
   handleInputChange (value) {
     this.setState({ value });
     this.handleChange(value);

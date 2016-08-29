@@ -20,10 +20,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
-import DefinitionInput from './inputs/Input';
-import { getPropertyName, getPropertyDescription } from '../utils';
+import Input from './inputs/Input';
+import DefinitionDefaults from './DefinitionDefaults';
+import { getPropertyName, getPropertyDescription, isEmptyValue } from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { setValue } from '../store/actions';
+import { setValue, resetValue } from '../store/actions';
 import { isLoading, getValidationMessage } from '../store/rootReducer';
 
 class Definition extends React.Component {
@@ -32,12 +33,17 @@ class Definition extends React.Component {
     setting: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
     validationMessage: React.PropTypes.string,
-    setValue: React.PropTypes.func.isRequired
+    setValue: React.PropTypes.func.isRequired,
+    resetValue: React.PropTypes.func.isRequired
   };
 
   state = {
     success: false
   };
+
+  componentDidMount () {
+    this.mounted = true;
+  }
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
@@ -45,17 +51,36 @@ class Definition extends React.Component {
 
   componentWillUpdate (nextProps) {
     if (nextProps.validationMessage != null) {
-      this.setState({ success: false });
+      this.safeSetState({ success: false });
+    }
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  safeSetState (changes) {
+    if (this.mounted) {
+      this.setState(changes);
     }
   }
 
   handleSet (_, value) {
     clearTimeout(this.timeout);
     const componentKey = this.props.component ? this.props.component.key : null;
-    return this.props.setValue(this.props.setting.definition.key, value, componentKey).then(() => {
-      this.setState({ success: true });
-      this.timeout = setTimeout(() => this.setState({ success: false }), 3000);
+
+    const request = isEmptyValue(this.props.setting.definition, value) ?
+        this.props.resetValue(this.props.setting.definition.key, componentKey) :
+        this.props.setValue(this.props.setting.definition.key, value, componentKey);
+
+    return request.then(() => {
+      this.safeSetState({ success: true });
+      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
     });
+  }
+
+  handleReset () {
+    this.handleSet(null, null);
   }
 
   render () {
@@ -79,7 +104,9 @@ class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <DefinitionInput setting={setting} onChange={this.handleSet.bind(this)}/>
+            <Input setting={setting} onChange={this.handleSet.bind(this)}/>
+
+            <DefinitionDefaults setting={setting} onReset={() => this.handleReset()}/>
 
             <div className="settings-definition-state">
               {loading && (
@@ -122,5 +149,5 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(
     mapStateToProps,
-    { setValue }
+    { setValue, resetValue }
 )(Definition);

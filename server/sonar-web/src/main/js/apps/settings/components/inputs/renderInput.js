@@ -33,7 +33,7 @@ import {
     TYPE_FLOAT,
     TYPE_SINGLE_SELECT_LIST
 } from '../../constants';
-import { getSettingValue, getUniqueName } from '../../utils';
+import { getSettingValue, getUniqueName, isDefaultOrInherited } from '../../utils';
 
 const typeMapping = {
   [TYPE_TEXT]: InputForText,
@@ -54,6 +54,7 @@ const renderInput = (setting, onChange) => {
         <InputForSingleSelectList
             name={name}
             value={value}
+            isDefault={isDefaultOrInherited(setting)}
             options={definition.options}
             onChange={onChange}/>
     );
@@ -64,6 +65,7 @@ const renderInput = (setting, onChange) => {
       <InputComponent
           name={name}
           value={value}
+          isDefault={isDefaultOrInherited(setting)}
           onChange={onChange}/>
   );
 };
