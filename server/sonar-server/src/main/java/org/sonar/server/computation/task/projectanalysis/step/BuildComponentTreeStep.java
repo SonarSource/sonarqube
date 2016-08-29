@@ -73,11 +73,11 @@ public class BuildComponentTreeStep implements ComputationStep {
         () -> dbClient.componentDao().selectByKey(dbSession, projectKey));
       Component project = rootBuilder.build(reportProject, projectKey);
       treeRootHolder.setRoot(project);
-      setBaseProjectSnapshot(dbSession, project.getUuid());
+      setBaseAnalysis(dbSession, project.getUuid());
     }
   }
 
-  private void setBaseProjectSnapshot(DbSession dbSession, String projectUuid) {
+  private void setBaseAnalysis(DbSession dbSession, String projectUuid) {
     SnapshotDto snapshotDto = dbClient.snapshotDao().selectAnalysisByQuery(dbSession,
       new SnapshotQuery()
         .setComponentUuid(projectUuid)
