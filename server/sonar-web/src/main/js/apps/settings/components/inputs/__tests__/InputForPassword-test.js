@@ -27,14 +27,26 @@ import { click, submit } from '../../../../../../../../tests/utils';
 describe('Settings :: Inputs :: InputForPassword', () => {
   it('should render lock icon, but no form', () => {
     const onChange = sinon.spy();
-    const input = shallow(<InputForPassword name="foo" value="bar" onChange={onChange}/>);
+    const input = shallow(
+        <InputForPassword
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    );
     expect(input.find('.icon-lock')).to.have.length(1);
     expect(input.find('form')).to.have.length(0);
   });
 
   it('should open form', () => {
     const onChange = sinon.spy();
-    const input = shallow(<InputForPassword name="foo" value="bar" onChange={onChange}/>);
+    const input = shallow(
+        <InputForPassword
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    );
     const button = input.find('button');
     expect(button).to.have.length(1);
 
@@ -44,7 +56,13 @@ describe('Settings :: Inputs :: InputForPassword', () => {
 
   it('should close form', () => {
     const onChange = sinon.spy();
-    const input = shallow(<InputForPassword name="foo" value="bar" onChange={onChange}/>);
+    const input = shallow(
+        <InputForPassword
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    );
     const button = input.find('button');
     expect(button).to.have.length(1);
 
@@ -57,7 +75,13 @@ describe('Settings :: Inputs :: InputForPassword', () => {
 
   it('should set value', () => {
     const onChange = sinon.stub().returns(Promise.resolve());
-    const input = mount(<InputForPassword name="foo" value="bar" onChange={onChange}/>);
+    const input = mount(
+        <InputForPassword
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    );
     const button = input.find('button');
     expect(button).to.have.length(1);
 

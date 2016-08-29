@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import renderInput from './renderInput';
-import { getSettingValue } from '../../utils';
+import { getSettingValue, isDefaultOrInherited, getEmptyValue } from '../../utils';
+import { translate } from '../../../../helpers/l10n';
 
 export default class MultiValueInput extends React.Component {
   static propTypes = {
@@ -27,11 +29,54 @@ export default class MultiValueInput extends React.Component {
     onChange: React.PropTypes.func.isRequired
   };
 
+  constructor (props) {
+    super(props);
+    this.state = {
+      values: getSettingValue(props.setting) || [],
+      removedIndexes: []
+    };
+  }
+
+  componentWillReceiveProps (nextProps) {
+    const isDefault = isDefaultOrInherited(this.props.setting);
+    const willBeDefault = isDefaultOrInherited(nextProps.setting);
+
+    if (isDefault !== willBeDefault) {
+      this.setState({ values: getSettingValue(nextProps.setting) || [] });
+    }
+  }
+
+  handleChange (values, removedIndexes) {
+    const filtered = values.filter((_, index) => !removedIndexes.includes(index));
+    this.props.onChange(undefined, filtered);
+  }
+
   handleSingleInputChange (index, _, value) {
-    const values = getSettingValue(this.props.setting) || [''];
-    const newValues = [...values];
+    const values = this.state.values;
+    const newValues = values ? [...values] : [];
     newValues.splice(index, 1, value);
-    this.props.onChange(this.props.setting, newValues);
+
+    this.setState({ values: newValues });
+    this.handleChange(newValues, this.state.removedIndexes);
+  }
+
+  handleAddValue (e) {
+    e.preventDefault();
+    e.target.blur();
+
+    const values = [...this.state.values, getEmptyValue(this.props.setting.definition)];
+    this.setState({ values });
+  }
+
+  handleDeleteValue (e, index) {
+    e.preventDefault();
+    e.target.blur();
+
+    // do not actually remove the input, but just hide it in the UI
+    // it allows to use index as a key
+    const removedIndexes = [...this.state.removedIndexes, index];
+    this.setState({ removedIndexes });
+    this.handleChange(this.state.values, removedIndexes);
   }
 
   prepareSetting (value) {
@@ -45,20 +90,31 @@ export default class MultiValueInput extends React.Component {
     };
   }
 
+  renderInput (value, index) {
+    const className = classNames('spacer-bottom', {
+      'hidden': this.state.removedIndexes.includes(index)
+    });
+
+    return (
+        <li key={index} className={className}>
+          {renderInput(
+              this.prepareSetting(value),
+              this.handleSingleInputChange.bind(this, index))}
+
+          <button className="js-remove-value spacer-left button-red" onClick={e => this.handleDeleteValue(e, index)}>
+            {translate('delete')}
+          </button>
+        </li>
+    );
+  }
+
   render () {
-    const { setting } = this.props;
-
-    const values = getSettingValue(setting) || [''];
-
     return (
         <div>
           <ul>
-            {values.map((value, index) => (
-                <li key={index} className="spacer-bottom">
-                  {renderInput(this.prepareSetting(value), this.handleSingleInputChange.bind(this, index))}
-                </li>
-            ))}
+            {this.state.values.map((value, index) => this.renderInput(value, index))}
           </ul>
+          <button className="js-add-value" onClick={e => this.handleAddValue(e)}>{translate('add_verb')}</button>
         </div>
     );
   }

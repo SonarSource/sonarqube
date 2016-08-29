@@ -34,12 +34,22 @@ export function getValues (keys, componentKey) {
   return getJSON(url, data).then(r => r.settings);
 }
 
-export function setSettingValue (key, value, componentKey) {
+export function setSettingValue (definition, value, componentKey) {
   const url = '/api/settings/set';
-  const data = { key, value };
+
+  const { key } = definition;
+  const data = { key };
+
+  if (definition.multiValues) {
+    data.values = value;
+  } else {
+    data.value = value;
+  }
+
   if (componentKey) {
     data.componentKey = componentKey;
   }
+
   return post(url, data);
 }
 

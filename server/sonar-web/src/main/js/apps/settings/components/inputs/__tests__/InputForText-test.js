@@ -27,7 +27,13 @@ import { change } from '../../../../../../../../tests/utils';
 describe('Settings :: Inputs :: InputForText', () => {
   it('should render textarea', () => {
     const onChange = sinon.spy();
-    const textarea = shallow(<InputForText name="foo" value="bar" onChange={onChange}/>).find('textarea');
+    const textarea = shallow(
+        <InputForText
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    ).find('textarea');
     expect(textarea).to.have.length(1);
     expect(textarea.prop('name')).to.equal('foo');
     expect(textarea.prop('value')).to.equal('bar');
@@ -36,7 +42,13 @@ describe('Settings :: Inputs :: InputForText', () => {
 
   it('should call onChange', done => {
     const onChange = sinon.spy();
-    const textarea = shallow(<InputForText name="foo" value="bar" onChange={onChange}/>).find('textarea');
+    const textarea = shallow(
+        <InputForText
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    ).find('textarea');
     expect(textarea).to.have.length(1);
     expect(textarea.prop('onChange')).to.be.a('function');
 

@@ -27,7 +27,13 @@ import SimpleInput from '../SimpleInput';
 describe('Settings :: Inputs :: InputForString', () => {
   it('should render SimpleInput', () => {
     const onChange = sinon.spy();
-    const simpleInput = shallow(<InputForString name="foo" value="bar" onChange={onChange}/>).find(SimpleInput);
+    const simpleInput = shallow(
+        <InputForString
+            name="foo"
+            value="bar"
+            isDefault={false}
+            onChange={onChange}/>
+    ).find(SimpleInput);
     expect(simpleInput).to.have.length(1);
     expect(simpleInput.prop('name')).to.equal('foo');
     expect(simpleInput.prop('value')).to.equal('bar');

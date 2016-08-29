@@ -71,7 +71,7 @@ class Definition extends React.Component {
 
     const request = isEmptyValue(this.props.setting.definition, value) ?
         this.props.resetValue(this.props.setting.definition.key, componentKey) :
-        this.props.setValue(this.props.setting.definition.key, value, componentKey);
+        this.props.setValue(this.props.setting.definition, value, componentKey);
 
     return request.then(() => {
       this.safeSetState({ success: true });

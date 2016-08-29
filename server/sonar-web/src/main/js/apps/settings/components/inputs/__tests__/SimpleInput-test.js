@@ -33,6 +33,7 @@ describe('Settings :: Inputs :: SimpleInput', () => {
             className="input-large"
             name="foo"
             value="bar"
+            isDefault={false}
             onChange={onChange}/>
     ).find('input');
     expect(input).to.have.length(1);
@@ -51,6 +52,7 @@ describe('Settings :: Inputs :: SimpleInput', () => {
             className="input-large"
             name="foo"
             value="bar"
+            isDefault={false}
             onChange={onChange}/>
     ).find('input');
     expect(input).to.have.length(1);

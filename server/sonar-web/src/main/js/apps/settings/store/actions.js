@@ -38,10 +38,12 @@ export const fetchSettings = componentKey => dispatch => {
       .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
 };
 
-export const setValue = (key, value, componentKey) => dispatch => {
+export const setValue = (definition, value, componentKey) => dispatch => {
+  const { key } = definition;
+
   dispatch(startLoading(key));
 
-  return setSettingValue(key, value, componentKey)
+  return setSettingValue(definition, value, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         dispatch(receiveValues(values));

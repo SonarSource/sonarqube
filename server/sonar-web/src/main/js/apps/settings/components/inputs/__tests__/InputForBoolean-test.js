@@ -27,7 +27,13 @@ import Toggle from '../../../../../components/controls/Toggle';
 describe('Settings :: Inputs :: InputForBoolean', () => {
   it('should render Toggle', () => {
     const onChange = sinon.spy();
-    const toggle = shallow(<InputForBoolean name="foo" value={true} onChange={onChange}/>).find(Toggle);
+    const toggle = shallow(
+        <InputForBoolean
+            name="foo"
+            value={true}
+            isDefault={false}
+            onChange={onChange}/>
+    ).find(Toggle);
     expect(toggle).to.have.length(1);
     expect(toggle.prop('name')).to.equal('foo');
     expect(toggle.prop('value')).to.equal(true);
@@ -36,7 +42,12 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
 
   it('should render Toggle without value', () => {
     const onChange = sinon.spy();
-    const input = shallow(<InputForBoolean name="foo" onChange={onChange}/>);
+    const input = shallow(
+        <InputForBoolean
+            name="foo"
+            isDefault={false}
+            onChange={onChange}/>
+    );
     const toggle = input.find(Toggle);
     expect(toggle).to.have.length(1);
     expect(toggle.prop('name')).to.equal('foo');
@@ -47,7 +58,13 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
 
   it('should call onChange', done => {
     const onChange = sinon.spy();
-    const input = shallow(<InputForBoolean name="foo" value={true} onChange={onChange}/>);
+    const input = shallow(
+        <InputForBoolean
+            name="foo"
+            value={true}
+            isDefault={false}
+            onChange={onChange}/>
+    );
     const toggle = input.find(Toggle);
     expect(toggle).to.have.length(1);
     expect(toggle.prop('onChange')).to.be.a('function');

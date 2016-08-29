@@ -32,6 +32,7 @@ describe('Settings :: Inputs :: InputForSingleSelectList', () => {
             name="foo"
             value="bar"
             options={['foo', 'bar', 'baz']}
+            isDefault={false}
             onChange={onChange}/>
     ).find(Select);
     expect(select).to.have.length(1);
@@ -52,6 +53,7 @@ describe('Settings :: Inputs :: InputForSingleSelectList', () => {
             name="foo"
             value="bar"
             options={['foo', 'bar', 'baz']}
+            isDefault={false}
             onChange={onChange}/>
     ).find(Select);
     expect(select).to.have.length(1);
