@@ -42,9 +42,11 @@ export default class SimpleInput extends React.Component {
   }
 
   handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.handleChange(value);
+    if (e.target.validity.valid) {
+      const { value } = e.target;
+      this.setState({ value });
+      this.handleChange(value);
+    }
   }
 
   handleChange (value) {
@@ -58,6 +60,7 @@ export default class SimpleInput extends React.Component {
             className={this.props.className + ' text-top'}
             type={this.props.type}
             value={this.state.value}
+            step="any"
             onChange={e => this.handleInputChange(e)}/>
     );
   }
