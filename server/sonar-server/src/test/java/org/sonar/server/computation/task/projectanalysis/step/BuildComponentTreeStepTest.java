@@ -81,22 +81,18 @@ public class BuildComponentTreeStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
-
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule()
     .setRootComponentRef(ROOT_REF)
     .setAnalysisDate(ANALYSIS_DATE)
     .setBranch(null);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
+  private DbClient dbClient = dbTester.getDbClient();
+  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Test(expected = NullPointerException.class)
   public void fails_if_root_component_does_not_exist_in_reportReader() {

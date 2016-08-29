@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,7 +45,8 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNSET;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentRootBuilder.createFileAttributes;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentRootBuilder.createReportAttributes;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentRootBuilder.createOtherReportAttributes;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentRootBuilder.createProjectReportAttributes;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class ComponentRootBuilderTest {
@@ -59,14 +61,17 @@ public class ComponentRootBuilderTest {
   private static final String FILE_KEY = MODULE_KEY + ":" + FILE_PATH;
   private static final ComponentDto PROJECT_DTO = new ComponentDto().setName("name in db");
   private static final Supplier<Optional<ComponentDto>> NO_COMPONENT_DTO_FOR_PROJECT = Optional::absent;
+  private static final Function<String, Optional<SnapshotDto>> NO_BASEANALYSIS = (projectUuid) -> Optional.absent();
   private static final Supplier<Optional<ComponentDto>> COMPONENT_DTO_FOR_PROJECT = () -> Optional.of(PROJECT_DTO);
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(
     PROJECT, MODULE, DIRECTORY, FILE);
+  private static final String PROJECT_UUID = "project uuid";
+  private static final String DEFAULT_VERSION = "not provided";
 
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
 
-  private ComponentRootBuilder underTest = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT);
+  private ComponentRootBuilder underTest = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS);
 
   @Test
   public void build_throws_IAE_for_all_types_but_PROJECT_MODULE_DIRECTORY_FILE() {
@@ -95,7 +100,7 @@ public class ComponentRootBuilderTest {
   @Test
   public void name_of_project_is_name_in_Scanner_Component_when_set_even_if_there_is_a_ComponentDto() {
     String expected = "the name";
-    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT)
+    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS)
       .build(newBuilder().setType(PROJECT).setName(expected).build(), PROJECT_KEY);
     assertThat(root.getName()).isEqualTo(expected);
   }
@@ -115,7 +120,7 @@ public class ComponentRootBuilderTest {
 
   @Test
   public void name_of_project_is_name_of_ComponentDto_when_name_is_unset_in_Scanner_Component_and_there_is_a_ComponentDto() {
-    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT)
+    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS)
       .build(newBuilder().setType(PROJECT).build(), PROJECT_KEY);
 
     assertThat(root.getName()).isEqualTo(PROJECT_DTO.name());
@@ -123,7 +128,7 @@ public class ComponentRootBuilderTest {
 
   @Test
   public void name_of_project_is_name_of_ComponentDto_when_name_is_empty_in_Scanner_Component_and_there_is_a_ComponentDto() {
-    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT)
+    Component root = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS)
       .build(newBuilder().setType(PROJECT).setName("").build(), PROJECT_KEY);
 
     assertThat(root.getName()).isEqualTo(PROJECT_DTO.name());
@@ -137,7 +142,7 @@ public class ComponentRootBuilderTest {
     scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH));
 
     String branch = "BRANCH";
-    ComponentRootBuilder builder = new ComponentRootBuilder(branch, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT);
+    ComponentRootBuilder builder = new ComponentRootBuilder(branch, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS);
 
     Component root = builder.build(project, PROJECT_KEY);
     assertThat(root.getKey()).isEqualTo(PROJECT_KEY);
@@ -226,6 +231,108 @@ public class ComponentRootBuilderTest {
   }
 
   @Test
+  public void version_of_project_is_set_to_default_value_when_unset_in_Scanner_Component_and_no_base_analysis() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).build();
+
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider,
+      NO_COMPONENT_DTO_FOR_PROJECT, this::noBaseAnalysisButValidateProjectUuidArgument);
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(DEFAULT_VERSION);
+  }
+
+  @Test
+  public void version_of_project_is_set_to_default_value_when_empty_in_Scanner_Component_and_no_base_analysis() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).setVersion("").build();
+
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider,
+      NO_COMPONENT_DTO_FOR_PROJECT, this::noBaseAnalysisButValidateProjectUuidArgument);
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(DEFAULT_VERSION);
+  }
+
+  private Optional<SnapshotDto> noBaseAnalysisButValidateProjectUuidArgument(String projectUuid) {
+    assertThat(projectUuid).isEqualTo(SIMPLE_UUID_GENERATOR.apply(PROJECT_KEY));
+    return Optional.absent();
+  }
+
+  @Test
+  public void version_of_project_is_set_to_base_analysis_version_when_unset_in_Scanner_Component_and_base_analysis_has_a_version() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).build();
+
+    String expected = "some version";
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider,
+      NO_COMPONENT_DTO_FOR_PROJECT,
+      (projectUuid) -> {
+        assertThat(projectUuid).isEqualTo(SIMPLE_UUID_GENERATOR.apply(PROJECT_KEY));
+        return Optional.of(new SnapshotDto().setVersion(expected));
+      });
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(expected);
+  }
+
+  @Test
+  public void version_of_project_is_set_to_base_analysis_version_when_empty_in_Scanner_Component_and_base_analysis_has_a_version() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).setVersion("").build();
+
+    String expected = "some version";
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT,
+      (projectUuid) -> {
+        assertThat(projectUuid).isEqualTo(SIMPLE_UUID_GENERATOR.apply(PROJECT_KEY));
+        return Optional.of(new SnapshotDto().setVersion(expected));
+      });
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(expected);
+  }
+
+  @Test
+  public void version_of_project_is_set_to_default_value_when_unset_in_Scanner_Component_and_base_analysis_has_no_version() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).build();
+
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider,
+      NO_COMPONENT_DTO_FOR_PROJECT,
+      (projectUuid) -> {
+        assertThat(projectUuid).isEqualTo(SIMPLE_UUID_GENERATOR.apply(PROJECT_KEY));
+        return Optional.of(new SnapshotDto());
+      });
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(DEFAULT_VERSION);
+  }
+
+  @Test
+  public void version_of_project_is_set_to_default_value_when_empty_in_Scanner_Component_and_base_analysis_has_no_version() {
+    ScannerReport.Component project = newBuilder().setType(PROJECT).setVersion("").build();
+
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT,
+      (projectUuid) -> {
+        assertThat(projectUuid).isEqualTo(SIMPLE_UUID_GENERATOR.apply(PROJECT_KEY));
+        return Optional.of(new SnapshotDto());
+      });
+
+    Component root = builder.build(project, PROJECT_KEY);
+    assertThat(root.getReportAttributes().getVersion()).isEqualTo(DEFAULT_VERSION);
+  }
+
+  @Test
+  public void version_of_project_is_set_to_value_in_Scanner_Component_when_set() {
+    String expected = "some version";
+    ScannerReport.Component project = newBuilder().setType(PROJECT).setVersion(expected).build();
+    ComponentRootBuilder builder = new ComponentRootBuilder(NO_BRANCH, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT,
+      this::noBaseAnalysisButEnsureIsNotCalled);
+
+    assertThat(builder.build(project, PROJECT_KEY).getReportAttributes().getVersion()).isEqualTo(expected);
+  }
+
+  private Optional<SnapshotDto> noBaseAnalysisButEnsureIsNotCalled(String projectUuid) {
+    fail("baseAnalysis provider should not have been called");
+    return Optional.absent();
+  }
+
+  @Test
   public void uuid_is_value_from_uuid_supplier_for_project_module_directory_and_file() {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setKey(MODULE_KEY).addChildRef(3));
@@ -295,12 +402,12 @@ public class ComponentRootBuilderTest {
   }
 
   @Test
-  public void createReportAttributes_takes_ref_version_and_path_from_Scanner_Component() {
+  public void createOtherReportAttributes_takes_ref_version_and_path_from_Scanner_Component() {
     int ref = 123;
     String version = "1.0";
     String path = "some path";
 
-    ReportAttributes reportAttributes = createReportAttributes(newBuilder()
+    ReportAttributes reportAttributes = createOtherReportAttributes(newBuilder()
       .setRef(ref)
       .setVersion(version)
       .setPath(path)
@@ -311,26 +418,38 @@ public class ComponentRootBuilderTest {
   }
 
   @Test
-  public void createReportAttributes_sets_null_version_when_unset_in_Scanner_Component() {
-    ReportAttributes reportAttributes = createReportAttributes(newBuilder().build());
+  public void createOtherReportAttributes_sets_null_version_when_unset_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createOtherReportAttributes(newBuilder().build());
     assertThat(reportAttributes.getVersion()).isNull();
   }
 
   @Test
-  public void createReportAttributes_sets_null_path_when_unset_in_Scanner_Component() {
-    ReportAttributes reportAttributes = createReportAttributes(newBuilder().build());
+  public void createOtherReportAttributes_sets_null_version_when_empty_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createOtherReportAttributes(newBuilder().setVersion("").build());
+    assertThat(reportAttributes.getVersion()).isNull();
+  }
+
+  @Test
+  public void createOtherReportAttributes_sets_null_path_when_unset_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createOtherReportAttributes(newBuilder().build());
     assertThat(reportAttributes.getPath()).isNull();
   }
 
   @Test
-  public void createReportAttributes_sets_null_version_when_empty_in_Scanner_Component() {
-    ReportAttributes reportAttributes = createReportAttributes(newBuilder().setVersion("").build());
-    assertThat(reportAttributes.getVersion()).isNull();
+  public void createOtherReportAttributes_sets_null_path_when_empty_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createOtherReportAttributes(newBuilder().setPath("").build());
+    assertThat(reportAttributes.getPath()).isNull();
   }
 
   @Test
-  public void createReportAttributes_sets_null_path_when_empty_in_Scanner_Component() {
-    ReportAttributes reportAttributes = createReportAttributes(newBuilder().setPath("").build());
+  public void createProjectReportAttributes_sets_null_path_when_unset_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createProjectReportAttributes(newBuilder().build(), PROJECT_UUID, NO_BASEANALYSIS);
+    assertThat(reportAttributes.getPath()).isNull();
+  }
+
+  @Test
+  public void createProjectReportAttributes_sets_null_path_when_empty_in_Scanner_Component() {
+    ReportAttributes reportAttributes = createProjectReportAttributes(newBuilder().setPath("").build(), PROJECT_UUID, NO_BASEANALYSIS);
     assertThat(reportAttributes.getPath()).isNull();
   }
 
@@ -385,12 +504,12 @@ public class ComponentRootBuilderTest {
   private static Map<Integer, Component> indexComponentByRef(Component root) {
     Map<Integer, Component> componentsByRef = new HashMap<>();
     new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, PRE_ORDER) {
-          @Override
-          public void visitAny(Component any) {
-            componentsByRef.put(any.getReportAttributes().getRef(), any);
-          }
-        }).visit(root);
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, PRE_ORDER) {
+        @Override
+        public void visitAny(Component any) {
+          componentsByRef.put(any.getReportAttributes().getRef(), any);
+        }
+      }).visit(root);
     return componentsByRef;
   }
 }

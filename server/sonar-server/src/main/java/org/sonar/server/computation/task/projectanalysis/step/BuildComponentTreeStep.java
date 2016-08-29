@@ -19,8 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import com.google.common.base.Optional;
+import java.util.Objects;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -35,6 +37,7 @@ import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRo
 import org.sonar.server.computation.task.projectanalysis.component.UuidFactory;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.core.component.ComponentKeys.createKey;
 
 /**
@@ -67,34 +70,65 @@ public class BuildComponentTreeStep implements ComputationStep {
     UuidFactory uuidFactory = new UuidFactory(dbClient, projectKey);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      BaseAnalysisSupplier baseAnalysisSupplier = new BaseAnalysisSupplier(dbClient, dbSession);
       ComponentRootBuilder rootBuilder = new ComponentRootBuilder(branch,
         uuidFactory::getOrCreateForKey,
         reportReader::readComponent,
-        () -> dbClient.componentDao().selectByKey(dbSession, projectKey));
+        () -> dbClient.componentDao().selectByKey(dbSession, projectKey),
+        baseAnalysisSupplier);
       Component project = rootBuilder.build(reportProject, projectKey);
       treeRootHolder.setRoot(project);
-      setBaseAnalysis(dbSession, project.getUuid());
+      analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysisSupplier.apply(project.getUuid())));
     }
   }
 
-  private void setBaseAnalysis(DbSession dbSession, String projectUuid) {
-    SnapshotDto snapshotDto = dbClient.snapshotDao().selectAnalysisByQuery(dbSession,
-      new SnapshotQuery()
-        .setComponentUuid(projectUuid)
-        .setIsLast(true));
-    analysisMetadataHolder.setBaseAnalysis(toAnalysis(snapshotDto));
+  /**
+   * A supplier of the base analysis of the project (if it exists) that will cache the retrieved SnapshotDto and
+   * implement a sanity check to ensure it is always call with the same UUID value (since it's the project's UUID, it
+   * is unique for a whole task).
+   */
+  private static final class BaseAnalysisSupplier implements Function<String, Optional<SnapshotDto>> {
+    private final DbClient dbClient;
+    private final DbSession dbSession;
+    private String projectUuid = null;
+    private Optional<SnapshotDto> cache = null;
+
+    private BaseAnalysisSupplier(DbClient dbClient, DbSession dbSession) {
+      this.dbClient = dbClient;
+      this.dbSession = dbSession;
+    }
+
+    @Override
+    public Optional<SnapshotDto> apply(String projectUuid) {
+      if (this.cache == null) {
+        this.cache = Optional.fromNullable(
+          dbClient.snapshotDao().selectAnalysisByQuery(
+            dbSession,
+            new SnapshotQuery()
+              .setComponentUuid(projectUuid)
+              .setIsLast(true)));
+        this.projectUuid = projectUuid;
+      } else {
+        checkState(
+          Objects.equals(this.projectUuid, projectUuid),
+          "BaseAnalysisSupplier called with different project uuid values. First one was %s but current one is %s",
+          this.projectUuid, projectUuid);
+      }
+      return this.cache;
+    }
   }
 
   @CheckForNull
-  private static Analysis toAnalysis(@Nullable SnapshotDto snapshotDto) {
-    if (snapshotDto == null) {
-      return null;
+  private static Analysis toAnalysis(Optional<SnapshotDto> snapshotDto) {
+    if (snapshotDto.isPresent()) {
+      SnapshotDto dto = snapshotDto.get();
+      return new Analysis.Builder()
+        .setId(dto.getId())
+        .setUuid(dto.getUuid())
+        .setCreatedAt(dto.getCreatedAt())
+        .build();
     }
-    return new Analysis.Builder()
-      .setId(snapshotDto.getId())
-      .setUuid(snapshotDto.getUuid())
-      .setCreatedAt(snapshotDto.getCreatedAt())
-      .build();
+    return null;
   }
 
 }

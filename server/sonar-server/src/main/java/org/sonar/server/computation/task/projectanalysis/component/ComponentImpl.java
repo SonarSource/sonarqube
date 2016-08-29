@@ -139,6 +139,11 @@ public class ComponentImpl implements Component {
       return this;
     }
 
+    @CheckForNull
+    public String getUuid() {
+      return uuid;
+    }
+
     public Builder setKey(String s) {
       this.key = requireNonNull(s, KEY_CANNOT_BE_NULL);
       return this;
