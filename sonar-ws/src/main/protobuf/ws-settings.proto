@@ -76,17 +76,19 @@ message Setting {
   optional string key = 1;
   optional string value = 2;
   optional Values values = 3;
-  optional FieldsValues fieldsValues = 4;
-  optional bool default = 5;
-  optional bool inherited = 6;
+  optional FieldValues fieldsValues = 4;
+  optional bool inherited = 5;
+  optional string parentValue = 6;
+  optional Values parentValues = 7;
+  optional FieldValues parentFieldValues = 8;
 }
 
 message Values {
   repeated string values = 1;
 }
 
-message FieldsValues {
-  repeated Value fieldsValues = 1;
+message FieldValues {
+  repeated Value fieldValues = 1;
 
   message Value {
     map<string, string> value = 1;

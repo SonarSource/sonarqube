@@ -68,14 +68,14 @@ public class SettingsTest {
   @Test
   public void global_property_change_extension_point() throws IOException {
     orchestrator.getServer().adminWsClient().post("api/properties/create?id=globalPropertyChange.received&value=NEWVALUE");
-    assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()).contains("Received change: NEWVALUE"));
+    assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs())).contains("Received change: [key=globalPropertyChange.received, newValue=NEWVALUE]");
   }
 
   @Test
   public void get_default_value() throws Exception {
     Settings.Setting setting = getSetting(PLUGIN_SETTING_KEY);
     assertThat(setting.getValue()).isEqualTo("aDefaultValue");
-    assertThat(setting.getDefault()).isTrue();
+    assertThat(setting.getInherited()).isTrue();
   }
 
   @Test

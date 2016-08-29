@@ -21,7 +21,6 @@ package org.sonar.server.settings.ws;
 
 import com.google.common.base.Splitter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -143,10 +142,6 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
-    if (keys.isEmpty()) {
-      return Collections.emptyList();
-    }
-
     // List of settings must be kept in the following orders : default -> global -> component
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultSettings(keys));
@@ -175,15 +170,16 @@ public class ValuesAction implements SettingsWsAction {
 
   private static class ValuesResponseBuilder {
     private final List<Setting> settings;
-    private final Optional<ComponentDto> component;
+    private final Optional<ComponentDto> requestedComponent;
 
     private final ValuesWsResponse.Builder valuesWsBuilder = ValuesWsResponse.newBuilder();
     private final Map<String, Settings.Setting.Builder> settingsBuilderByKey = new HashMap<>();
+    private final Map<String, Setting> settingsByParentKey = new HashMap<>();
     private final Map<String, String> keysToDisplayMap;
 
-    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> component, Map<String, String> keysToDisplayMap) {
+    ValuesResponseBuilder(List<Setting> settings, Optional<ComponentDto> requestedComponent, Map<String, String> keysToDisplayMap) {
       this.settings = settings;
-      this.component = component;
+      this.requestedComponent = requestedComponent;
       this.keysToDisplayMap = keysToDisplayMap;
     }
 
@@ -196,9 +192,9 @@ public class ValuesAction implements SettingsWsAction {
     private void processSettings() {
       settings.forEach(setting -> {
         Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(keysToDisplayMap.get(setting.getKey()));
-        valueBuilder.setDefault(setting.isDefault());
         setInherited(setting, valueBuilder);
         setValue(setting, valueBuilder);
+        setParent(setting, valueBuilder);
       });
     }
 
@@ -211,6 +207,14 @@ public class ValuesAction implements SettingsWsAction {
       return valueBuilder;
     }
 
+    private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
+      boolean isDefault = setting.isDefault();
+      boolean isGlobal = !requestedComponent.isPresent();
+      boolean isOnComponent = requestedComponent.isPresent() && Objects.equals(setting.getComponentId(), requestedComponent.get().getId());
+      boolean isSet = isGlobal || isOnComponent;
+      valueBuilder.setInherited(isDefault || !isSet);
+    }
+
     private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
       PropertyDefinition definition = setting.getDefinition();
       String value = setting.getValue();
@@ -219,25 +223,46 @@ public class ValuesAction implements SettingsWsAction {
         return;
       }
       if (definition.type().equals(PROPERTY_SET)) {
-        Settings.FieldsValues.Builder builder = Settings.FieldsValues.newBuilder();
-        for (Map<String, String> propertySetMap : setting.getPropertySets()) {
-          builder.addFieldsValuesBuilder().putAllValue(propertySetMap);
-        }
-        valueBuilder.setFieldsValues(builder);
+        valueBuilder.setFieldsValues(createFieldValuesBuilder(setting.getPropertySets()));
       } else if (definition.multiValues()) {
-        List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
-        valueBuilder.setValues(Settings.Values.newBuilder().addAllValues(values));
+        valueBuilder.setValues(createValuesBuilder(value));
       } else {
         valueBuilder.setValue(value);
       }
     }
 
-    private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
-      if (setting.isDefault()) {
-        valueBuilder.setInherited(false);
-      } else {
-        valueBuilder.setInherited(component.isPresent() && !Objects.equals(setting.getComponentId(), component.get().getId()));
+    private void setParent(Setting setting, Settings.Setting.Builder valueBuilder) {
+      Setting parent = settingsByParentKey.get(setting.getKey());
+      if (parent != null) {
+        String value = valueBuilder.getInherited() ? setting.getValue() : parent.getValue();
+        PropertyDefinition definition = setting.getDefinition();
+        if (definition == null) {
+          valueBuilder.setParentValue(value);
+          return;
+        }
+
+        if (definition.type().equals(PROPERTY_SET)) {
+          valueBuilder.setParentFieldValues(createFieldValuesBuilder(valueBuilder.getInherited() ? setting.getPropertySets() : parent.getPropertySets()));
+        } else if (definition.multiValues()) {
+          valueBuilder.setParentValues(createValuesBuilder(value));
+        } else {
+          valueBuilder.setParentValue(value);
+        }
       }
+      settingsByParentKey.put(setting.getKey(), setting);
+    }
+
+    private static Settings.Values.Builder createValuesBuilder(String value) {
+      List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
+      return Settings.Values.newBuilder().addAllValues(values);
+    }
+
+    private static Settings.FieldValues.Builder createFieldValuesBuilder(List<Map<String, String>> fieldValues) {
+      Settings.FieldValues.Builder builder = Settings.FieldValues.newBuilder();
+      for (Map<String, String> propertySetMap : fieldValues) {
+        builder.addFieldValuesBuilder().putAllValue(propertySetMap);
+      }
+      return builder;
     }
   }
 
