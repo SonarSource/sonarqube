@@ -21,6 +21,7 @@
 package org.sonarqube.ws.client.setting;
 
 import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -31,6 +32,7 @@ public class SetRequest {
   private final String key;
   private final String value;
   private final List<String> values;
+  private final List<Map<String, String>> fieldValues;
   private final String componentId;
   private final String componentKey;
 
@@ -38,6 +40,7 @@ public class SetRequest {
     this.key = builder.key;
     this.value = builder.value;
     this.values = builder.values;
+    this.fieldValues = builder.fieldValues;
     this.componentId = builder.componentId;
     this.componentKey = builder.componentKey;
   }
@@ -53,6 +56,10 @@ public class SetRequest {
 
   public List<String> getValues() {
     return values;
+  }
+
+  public List<Map<String, String>> getFieldValues() {
+    return fieldValues;
   }
 
   @CheckForNull
@@ -73,6 +80,7 @@ public class SetRequest {
     private String key;
     private String value;
     private List<String> values = emptyList();
+    private List<Map<String, String>> fieldValues = emptyList();
     private String componentId;
     private String componentKey;
 
@@ -95,6 +103,11 @@ public class SetRequest {
       return this;
     }
 
+    public Builder setFieldValues(List<Map<String, String>> fieldValues) {
+      this.fieldValues = fieldValues;
+      return this;
+    }
+
     public Builder setComponentId(@Nullable String componentId) {
       this.componentId = componentId;
       return this;
@@ -108,6 +121,7 @@ public class SetRequest {
     public SetRequest build() {
       checkArgument(key != null && !key.isEmpty(), "Setting key is mandatory and must not be empty");
       checkArgument(values != null, "Setting values must not be null");
+      checkArgument(fieldValues != null, "Setting fields values must not be null");
       return new SetRequest(this);
     }
   }

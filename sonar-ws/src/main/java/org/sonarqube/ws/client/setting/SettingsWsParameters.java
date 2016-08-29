@@ -34,6 +34,7 @@ public class SettingsWsParameters {
   public static final String PARAM_KEY = "key";
   public static final String PARAM_VALUE = "value";
   public static final String PARAM_VALUES = "values";
+  public static final String PARAM_FIELD_VALUES = "fieldValues";
 
   private SettingsWsParameters() {
     // Only static stuff

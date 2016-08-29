@@ -38,6 +38,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public abstract class Request {
 
+  private static final String MSG_PARAMETER_MISSING = "The '%s' parameter is missing";
+
   /**
    * Returns the name of the HTTP method with which this request was made. Possible
    * values are GET and POST. Others are not supported.
@@ -62,7 +64,7 @@ public abstract class Request {
   public String mandatoryParam(String key) {
     String value = param(key);
     if (value == null) {
-      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
+      throw new IllegalArgumentException(String.format(MSG_PARAMETER_MISSING, key));
     }
     return value;
   }
@@ -104,14 +106,14 @@ public abstract class Request {
   public List<String> mandatoryParamAsStrings(String key) {
     List<String> values = paramAsStrings(key);
     if (values == null) {
-      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
+      throw new IllegalArgumentException(String.format(MSG_PARAMETER_MISSING, key));
     }
     return values;
   }
 
   public List<String> mandatoryMultiParam(String key) {
     List<String> values = multiParam(key);
-    checkArgument(!values.isEmpty(), "The '%s' parameter is missing", key);
+    checkArgument(!values.isEmpty(), MSG_PARAMETER_MISSING, key);
 
     return values;
   }
@@ -138,7 +140,7 @@ public abstract class Request {
 
   public Part mandatoryParamAsPart(String key) {
     Part part = paramAsPart(key);
-    checkArgument(part != null, "The '%s' parameter is missing", key);
+    checkArgument(part != null, MSG_PARAMETER_MISSING, key);
     return part;
   }
 

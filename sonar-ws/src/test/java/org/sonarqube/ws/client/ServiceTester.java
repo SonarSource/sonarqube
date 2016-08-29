@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
+import com.google.common.base.Joiner;
 import com.google.protobuf.Parser;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,8 @@ import static org.mockito.Mockito.spy;
  *
  */
 public class ServiceTester<T extends BaseService> extends ExternalResource {
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
+
   private final T underTest;
   private final List<GetCall> getCalls = new ArrayList<>();
   private final List<PostCall> postCalls = new ArrayList<>();
@@ -312,6 +315,16 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
       isNotNull();
 
       MapEntry<String, String> entry = MapEntry.entry(key, String.valueOf(value));
+      Assertions.assertThat(actual.getParams()).contains(entry);
+      this.assertedParams.add(entry);
+
+      return this;
+    }
+
+    public RequestAssert hasParam(String key, List<String> values) {
+      isNotNull();
+
+      MapEntry<String, String> entry = MapEntry.entry(key, values.toString());
       Assertions.assertThat(actual.getParams()).contains(entry);
       this.assertedParams.add(entry);
 

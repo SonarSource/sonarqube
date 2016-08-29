@@ -21,6 +21,8 @@ package org.sonar.db.property;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -61,20 +63,22 @@ public class PropertyDto {
     return this;
   }
 
+  @CheckForNull
   public Long getResourceId() {
     return resourceId;
   }
 
-  public PropertyDto setResourceId(Long resourceId) {
+  public PropertyDto setResourceId(@Nullable Long resourceId) {
     this.resourceId = resourceId;
     return this;
   }
 
+  @CheckForNull
   public Long getUserId() {
     return userId;
   }
 
-  public PropertyDto setUserId(Long userId) {
+  public PropertyDto setUserId(@Nullable Long userId) {
     this.userId = userId;
     return this;
   }

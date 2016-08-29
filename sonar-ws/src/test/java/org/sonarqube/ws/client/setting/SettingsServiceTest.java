@@ -30,6 +30,7 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
@@ -75,12 +76,15 @@ public class SettingsServiceTest {
     underTest.set(SetRequest.builder()
       .setKey("sonar.debt")
       .setValue("8h")
+      // TODO WS Client must handle multi value param
+      .setComponentId("UUID")
       .setComponentKey("KEY")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_KEY, "sonar.debt")
       .hasParam(PARAM_VALUE, "8h")
+      .hasParam(PARAM_COMPONENT_ID, "UUID")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();
   }
