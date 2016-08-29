@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
@@ -27,9 +29,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -58,7 +57,6 @@ public class ModuleFileSystemInitializerTest {
   @Test
   public void should_init_directories() throws IOException {
     File baseDir = temp.newFolder("base");
-    File buildDir = temp.newFolder("build");
     File sourceDir = new File(baseDir, "src/main/java");
     FileUtils.forceMkdir(sourceDir);
     File testDir = new File(baseDir, "src/test/java");
@@ -68,14 +66,12 @@ public class ModuleFileSystemInitializerTest {
 
     ProjectDefinition project = ProjectDefinition.create()
       .setBaseDir(baseDir)
-      .setBuildDir(buildDir)
       .addSources("src/main/java", "src/main/unknown")
       .addTests("src/test/java", "src/test/unknown");
 
     ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
-    assertThat(initializer.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
     assertThat(initializer.sources()).hasSize(1);
     assertThat(path(initializer.sources().get(0))).endsWith("src/main/java");
     assertThat(initializer.tests()).hasSize(1);

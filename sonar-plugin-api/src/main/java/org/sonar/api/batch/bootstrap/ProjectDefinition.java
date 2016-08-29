@@ -83,11 +83,19 @@ public class ProjectDefinition {
     return workDir;
   }
 
+  /**
+   * @deprecated since 6.1 notion of buildDir is not well defined
+   */
+  @Deprecated
   public ProjectDefinition setBuildDir(File d) {
     this.buildDir = d;
     return this;
   }
 
+  /**
+   * @deprecated since 6.1 notion of buildDir is not well defined
+   */
+  @Deprecated
   public File getBuildDir() {
     return buildDir;
   }

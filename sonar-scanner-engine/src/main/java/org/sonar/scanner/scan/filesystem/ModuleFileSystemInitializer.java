@@ -20,16 +20,13 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
-
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * @since 3.5
@@ -39,13 +36,11 @@ public class ModuleFileSystemInitializer {
 
   private File baseDir;
   private File workingDir;
-  private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
 
   public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();
-    buildDir = module.getBuildDir();
     initWorkingDir(module, tempUtils);
     initSources(module, pathResolver);
     initTests(module, pathResolver);
@@ -88,11 +83,6 @@ public class ModuleFileSystemInitializer {
 
   File workingDir() {
     return workingDir;
-  }
-
-  @CheckForNull
-  File buildDir() {
-    return buildDir;
   }
 
   List<File> sources() {

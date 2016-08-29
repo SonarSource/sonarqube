@@ -20,41 +20,28 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 /**
  * @since 3.5
  */
-public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
+public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   private String moduleKey;
   private FileIndexer indexer;
   private Settings settings;
 
-  private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
   private ComponentIndexer componentIndexer;
@@ -80,7 +67,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.settings = settings;
     this.indexer = indexer;
     setWorkDir(initializer.workingDir());
-    this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
 
@@ -98,43 +84,12 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     return moduleKey;
   }
 
-  @Override
-  @CheckForNull
-  public File buildDir() {
-    return buildDir;
-  }
-
-  @Override
-  public List<File> sourceDirs() {
-    return keepOnlyDirs(sourceDirsOrFiles);
-  }
-
   public List<File> sources() {
     return sourceDirsOrFiles;
   }
 
-  @Override
-  public List<File> testDirs() {
-    return keepOnlyDirs(testDirsOrFiles);
-  }
-
   public List<File> tests() {
     return testDirsOrFiles;
-  }
-
-  private static List<File> keepOnlyDirs(List<File> dirsOrFiles) {
-    List<File> result = new ArrayList<>();
-    for (File f : dirsOrFiles) {
-      if (f.isDirectory()) {
-        result.add(f);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public List<File> binaryDirs() {
-    return Collections.emptyList();
   }
 
   @Override
@@ -154,57 +109,8 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
-  /**
-   * Should not be used - only for old plugins
-   *
-   * @deprecated since 4.0
-   */
-  @Deprecated
-  void addSourceDir(File dir) {
-    throw modificationNotPermitted();
-  }
-
-  /**
-   * Should not be used - only for old plugins
-   *
-   * @deprecated since 4.0
-   */
-  @Deprecated
-  void addTestDir(File dir) {
-    throw modificationNotPermitted();
-  }
-
   private static UnsupportedOperationException modificationNotPermitted() {
     return new UnsupportedOperationException("Modifications of the file system are not permitted");
-  }
-
-  /**
-   * @return
-   * @deprecated in 4.2. Replaced by {@link #encoding()}
-   */
-  @Override
-  @Deprecated
-  public Charset sourceCharset() {
-    return encoding();
-  }
-
-  /**
-   * @deprecated in 4.2. Replaced by {@link #workDir()}
-   */
-  @Deprecated
-  @Override
-  public File workingDir() {
-    return workDir();
-  }
-
-  @Override
-  public List<File> files(FileQuery query) {
-    doPreloadFiles();
-    Collection<FilePredicate> predicates = Lists.newArrayList();
-    for (Map.Entry<String, Collection<String>> entry : query.attributes().entrySet()) {
-      predicates.add(fromDeprecatedAttribute(entry.getKey(), entry.getValue()));
-    }
-    return ImmutableList.copyOf(files(predicates().and(predicates)));
   }
 
   @Override
@@ -223,42 +129,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     if (componentIndexer != null) {
       componentIndexer.execute(this);
     }
-  }
-
-  private FilePredicate fromDeprecatedAttribute(String key, Collection<String> value) {
-    if ("TYPE".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.valueOf(s));
-        }
-      }));
-    }
-    if ("STATUS".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : predicates().hasStatus(org.sonar.api.batch.fs.InputFile.Status.valueOf(s));
-        }
-      }));
-    }
-    if ("LANG".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : predicates().hasLanguage(s);
-        }
-      }));
-    }
-    if ("CMP_KEY".equals(key)) {
-      return predicates().or(Collections2.transform(value, new Function<String, FilePredicate>() {
-        @Override
-        public FilePredicate apply(@Nullable String s) {
-          return s == null ? predicates().all() : new AdditionalFilePredicates.KeyPredicate(s);
-        }
-      }));
-    }
-    throw new IllegalArgumentException("Unsupported file attribute: " + key);
   }
 
   @Override

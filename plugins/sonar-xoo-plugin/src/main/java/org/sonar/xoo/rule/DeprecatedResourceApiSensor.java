@@ -21,14 +21,14 @@ package org.sonar.xoo.rule;
 
 import java.io.File;
 import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.xoo.Xoo;
 
@@ -36,26 +36,27 @@ import org.sonar.xoo.Xoo;
 public class DeprecatedResourceApiSensor implements Sensor {
 
   public static final String RULE_KEY = "DeprecatedResourceApi";
-  private final ModuleFileSystem fileSystem;
+  private final FileSystem fs;
   private final ResourcePerspectives perspectives;
   private final ActiveRules activeRules;
 
-  public DeprecatedResourceApiSensor(ModuleFileSystem fileSystem, ResourcePerspectives perspectives, ActiveRules activeRules) {
-    this.fileSystem = fileSystem;
+  public DeprecatedResourceApiSensor(FileSystem fileSystem, ResourcePerspectives perspectives, ActiveRules activeRules) {
+    this.fs = fileSystem;
     this.perspectives = perspectives;
     this.activeRules = activeRules;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !fileSystem.files(FileQuery.onMain().onLanguage(Xoo.KEY)).isEmpty() && activeRules.find(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY)) != null;
+    return fs.hasFiles(fs.predicates().and(fs.predicates().hasType(Type.MAIN), fs.predicates().hasLanguage(Xoo.KEY)))
+      && activeRules.find(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY)) != null;
   }
 
   @Override
   public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
-    for (File f : fileSystem.files(FileQuery.onMain().onLanguage(Xoo.KEY))) {
-      String relativePathFromSourceDir = new PathResolver().relativePath(fileSystem.baseDir(), f);
-      org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(relativePathFromSourceDir);
+    for (File f : fs.files(fs.predicates().and(fs.predicates().hasType(Type.MAIN), fs.predicates().hasLanguage(Xoo.KEY)))) {
+      String relativePathFromBaseDir = new PathResolver().relativePath(fs.baseDir(), f);
+      org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(relativePathFromBaseDir);
       Issuable issuable = perspectives.as(Issuable.class, sonarFile);
       issuable.addIssue(issuable.newIssueBuilder()
         .ruleKey(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY))

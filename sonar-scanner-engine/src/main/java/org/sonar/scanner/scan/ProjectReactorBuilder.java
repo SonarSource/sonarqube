@@ -70,6 +70,10 @@ public class ProjectReactorBuilder {
   private static final String MODULE_KEY_PROPERTY = "sonar.moduleKey";
 
   protected static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
+  /**
+   * @deprecated since 6.1 notion of buildDir is not well defined
+   */
+  @Deprecated
   private static final String PROPERTY_PROJECT_BUILDDIR = "sonar.projectBuildDir";
   private static final String PROPERTY_MODULES = "sonar.modules";
 
