@@ -84,7 +84,12 @@ class Definition extends React.Component {
   }
 
   handleReset () {
-    this.handleSet(null, null);
+    const componentKey = this.props.component ? this.props.component.key : null;
+    const { definition } = this.props.setting;
+    return this.props.resetValue(definition.key, componentKey).then(() => {
+      this.safeSetState({ success: true });
+      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
+    });
   }
 
   render () {
