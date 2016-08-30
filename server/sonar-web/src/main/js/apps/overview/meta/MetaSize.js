@@ -20,8 +20,8 @@
 import React from 'react';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
-import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { getMetricName } from '../helpers/metrics';
 
 export default class MetaSize extends React.Component {
   static propTypes = {
@@ -41,23 +41,15 @@ export default class MetaSize extends React.Component {
 
     return (
         <div id="overview-size" className="overview-meta-card">
-          <h4 className="overview-meta-header">
-            {translate('overview.domain.size')}
-          </h4>
-
-          <div>
-            <div id="overview-ncloc" className="overview-meta-size-ncloc">
-              <DrilldownLink
-                  className="overview-domain-secondary-measure-value"
-                  component={this.props.component.key}
-                  metric="ncloc">
-                {formatMeasure(ncloc.value, 'SHORT_INT')}
-              </DrilldownLink>
-            </div>
-            <div id="overview-language-distribution"
-                 className="overview-meta-size-lang-dist">
-              <LanguageDistribution distribution={languageDistribution.value}/>
-            </div>
+          <div id="overview-ncloc" className="overview-meta-size-ncloc">
+            <DrilldownLink component={this.props.component.key} metric="ncloc">
+              {formatMeasure(ncloc.value, 'SHORT_INT')}
+            </DrilldownLink>
+            <div className="overview-domain-measure-label text-muted">{getMetricName('ncloc')}</div>
+          </div>
+          <div id="overview-language-distribution"
+               className="overview-meta-size-lang-dist">
+            <LanguageDistribution distribution={languageDistribution.value}/>
           </div>
         </div>
     );

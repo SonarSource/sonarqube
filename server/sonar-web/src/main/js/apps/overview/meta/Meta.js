@@ -44,15 +44,11 @@ const Meta = ({ component, measures }) => {
 
   return (
       <div className="overview-meta">
-        <div className="overview-meta-card">
-          {hasDescription && (
-              <div className="overview-meta-description big-spacer-bottom">
-                {description}
-              </div>
-          )}
-
-          <MetaLinks component={component}/>
-        </div>
+        {hasDescription && (
+            <div className="overview-meta-card overview-meta-description">
+              {description}
+            </div>
+        )}
 
         <MetaSize component={component} measures={measures}/>
 
@@ -63,6 +59,8 @@ const Meta = ({ component, measures }) => {
         {shouldShowQualityProfiles && (
             <MetaQualityProfiles profiles={profiles}/>
         )}
+
+        <MetaLinks component={component}/>
 
         <MetaKey component={component}/>
 

@@ -67,17 +67,19 @@ export default class MetaLinks extends React.Component {
     const orderedLinks = orderLinks(links);
 
     return (
-        <ul className="overview-meta-list">
-          {orderedLinks.map(link => (
-              <li key={link.id}>
-                <a className="link-with-icon" href={link.url} target="_blank">
-                  {this.renderLinkIcon(link)}
-                  &nbsp;
-                  {link.name}
-                </a>
-              </li>
-          ))}
-        </ul>
+        <div className="overview-meta-card">
+          <ul className="overview-meta-list">
+            {orderedLinks.map(link => (
+                <li key={link.id}>
+                  <a className="link-with-icon" href={link.url} target="_blank">
+                    {this.renderLinkIcon(link)}
+                    &nbsp;
+                    {link.name}
+                  </a>
+                </li>
+            ))}
+          </ul>
+        </div>
     );
   }
 }

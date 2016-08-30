@@ -259,14 +259,20 @@
 .overview-meta-size-ncloc {
   display: inline-block;
   vertical-align: middle;
-  width: 80px;
+  width: 100px;
   text-align: center;
+}
+
+.overview-meta-size-ncloc a {
+  line-height: 1;
+  font-size: 24px;
+  font-weight: 300;
 }
 
 .overview-meta-size-lang-dist {
   display: inline-block;
   vertical-align: middle;
-  width: 180px;
+  width: 160px;
   min-height: 40px;
   border-left: 1px solid #e6e6e6;
   box-sizing: border-box;
