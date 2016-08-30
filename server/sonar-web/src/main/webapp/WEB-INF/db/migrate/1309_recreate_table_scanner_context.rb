@@ -24,8 +24,6 @@
 class RecreateTableScannerContext < ActiveRecord::Migration
 
   def self.up
-    drop_table 'scanner_context'
-
     create_table 'ce_scanner_context', :id => false do |t|
       t.column 'task_uuid', :string, :limit => 40, :null => false
       t.column 'data', :binary, :null => false
