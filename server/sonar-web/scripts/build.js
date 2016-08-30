@@ -34,10 +34,15 @@ var config = isFastBuild ?
 
 // Remove all content but keep the directory so that
 // if you're in it, you don't end up in Trash
-console.log(chalk.cyan.bold('Cleaning output directory...'));
+console.log(chalk.cyan.bold('Cleaning output directories...'));
+
 console.log(paths.jsBuild + '/*');
-console.log();
 rimrafSync(paths.jsBuild + '/*');
+
+console.log(paths.cssBuild + '/*');
+rimrafSync(paths.cssBuild + '/*');
+
+console.log();
 
 if (isFastBuild) {
   console.log(chalk.magenta.bold('Running fast build...'));
@@ -46,10 +51,18 @@ if (isFastBuild) {
 }
 console.log();
 
-webpack(config).run(function (err, stats) {
+webpack(config, function (err, stats) {
   if (err) {
     console.log(chalk.red.bold('Failed to create a production build!'));
     console.log(chalk.red(err.message || err));
+    process.exit(1);
+  }
+
+  if (stats.compilation.errors && stats.compilation.errors.length) {
+    console.log(chalk.red.bold('Failed to create a production build!'));
+    stats.compilation.errors.forEach(function (err) {
+      console.log(chalk.red(err.message || err));
+    });
     process.exit(1);
   }
 

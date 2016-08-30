@@ -29,6 +29,8 @@ import { installGlobal, requestMessages } from '../helpers/l10n';
 import * as measures from '../helpers/measures';
 import * as request from '../helpers/request';
 
+import '../../less/sonar.less';
+
 // set the Backbone's $
 Backbone.$ = $;
 

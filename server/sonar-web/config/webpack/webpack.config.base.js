@@ -2,6 +2,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var autoprefixerOptions = require('./../autoprefixer');
 var paths = require('./../paths');
 
@@ -59,7 +60,8 @@ module.exports = {
     filename: '[name].js'
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js')
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
+    new ExtractTextPlugin('../../css/sonar.css', { allChunks: true })
   ],
   resolve: {
     root: path.join(__dirname, '../../src/main/js')
@@ -83,8 +85,12 @@ module.exports = {
         }
       },
       {
-        test: /\.css/,
-        loader: 'style-loader!css-loader!postcss-loader'
+        test: /\.css$/,
+        loader: 'style!css!postcss'
+      },
+      {
+        test: /\.less$/,
+        loader: ExtractTextPlugin.extract('style', 'css?-url!postcss!less')
       },
       { test: require.resolve('jquery'), loader: 'expose?$!expose?jQuery' },
       { test: require.resolve('underscore'), loader: 'expose?_' },
