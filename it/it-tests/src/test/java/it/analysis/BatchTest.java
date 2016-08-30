@@ -193,45 +193,50 @@ public class BatchTest {
   }
 
   @Test
-  public void should_create_project_without_name() {
+  public void should_create_project_without_name_version() {
     //some of the sub-modules have a name defined, others don't
-    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name");
+    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name-version");
     assertThat(buildResult.isSuccess()).isTrue();
 
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample", "not provided");
     
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b", "not provided");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1", "not provided");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2", "not provided");
     
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2");
-
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A", "not provided");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1", "not provided");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2", "not provided");
   }
   
   @Test
-  public void should_analyze_project_without_name() {
+  public void should_analyze_project_without_name_version() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "My project name");
-    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name");
+    BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name-version",
+      "sonar.projectName", "My project name",
+      "sonar.projectVersion", "1.0");
+    assertThat(buildResult.isSuccess()).isTrue();
+    
+    buildResult = scan("shared/xoo-multi-module-sample-without-project-name-version");
     assertThat(buildResult.isSuccess()).isTrue();
 
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample", "My project name");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample", "My project name", "1.0");
     
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b", "1.0");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1", "1.0");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2", "1.0");
     
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1");
-    assertProjectName("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A", "1.0");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1", "1.0");
+    assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2", "1.0");
   }
   
-  private void assertProjectName(String projectKey, String expectedProjectName) {
-    ShowWsRequest req = new ShowWsRequest();
-    req.setKey(projectKey);
-    ShowWsResponse response = ItUtils.newWsClient(orchestrator).components().show(req);
-    assertThat(response.getComponent().getName()).isEqualTo(expectedProjectName);
+  private void assertNameAndVersion(String projectKey, String expectedProjectName, String expectedProjectVersion) {
+    // new WS Client with api/components doesn't return the project version, so use the old one
+    Resource resource = orchestrator.getServer().getAdminWsClient().find(new ResourceQuery(projectKey));
+    assertThat(resource.getName()).isEqualTo(expectedProjectName);
+    assertThat(resource.getVersion()).isEqualTo(expectedProjectVersion);
+
   }
 
   @Test

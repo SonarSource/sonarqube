@@ -186,9 +186,18 @@ public class ProjectDefinition {
     }
     return null;
   }
+  
+  @CheckForNull
+  public String getOriginalVersion() {
+    return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
+  }
 
   public String getVersion() {
-    return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
+    String version = properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
+    if (StringUtils.isBlank(version)) {
+      version = "not provided";
+    }
+    return version;
   }
   
   @CheckForNull

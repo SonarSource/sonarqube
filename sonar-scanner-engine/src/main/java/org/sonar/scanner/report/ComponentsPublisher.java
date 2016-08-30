@@ -109,13 +109,19 @@ public class ComponentsPublisher implements ReportPublisherStep {
     if (c.isProjectOrModule()) {
       ProjectDefinition def = reactor.getProjectDefinition(c.key());
       String version = getVersion(def);
-      builder.setVersion(version);
+      if(version != null) {
+        builder.setVersion(version);
+      }
     }
   }
 
   private static String getVersion(ProjectDefinition def) {
-    String version = def.getVersion();
-    return StringUtils.isNotBlank(version) ? version : getVersion(def.getParent());
+    String version = def.getOriginalVersion();
+    if(StringUtils.isNotBlank(version)) {
+      return version;
+    }
+    
+    return def.getParent() != null ? getVersion(def.getParent()) : null;
   }
 
   private void writeLinks(BatchComponent c, ScannerReport.Component.Builder builder) {

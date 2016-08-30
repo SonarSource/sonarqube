@@ -42,6 +42,14 @@ public class ProjectDefinitionTest {
   }
 
   @Test
+  public void shouldSupportNoVersion() {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setVersion(null);
+    assertThat(def.getVersion()).isEqualTo("not provided");
+    assertThat(def.getOriginalVersion()).isEqualTo("");
+  }
+
+  @Test
   public void shouldSetOptionalFields() {
     ProjectDefinition def = ProjectDefinition.create();
     def.setName("myname");

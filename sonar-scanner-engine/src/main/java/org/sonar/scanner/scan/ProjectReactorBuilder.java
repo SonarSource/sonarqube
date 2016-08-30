@@ -89,15 +89,13 @@ public class ProjectReactorBuilder {
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
-    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY,
-    CoreProperties.PROJECT_VERSION_PROPERTY, PROPERTY_SOURCES
+    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, PROPERTY_SOURCES
   };
 
   /**
    * Array of all mandatory properties required for a project with children.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT = {PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY,
-    CoreProperties.PROJECT_VERSION_PROPERTY};
+  private static final String[] MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT = {PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY};
 
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
