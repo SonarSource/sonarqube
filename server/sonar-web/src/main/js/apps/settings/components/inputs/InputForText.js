@@ -20,6 +20,7 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { defaultInputPropTypes } from '../../propTypes';
+import { DEBOUNCE_WAIT } from '../../constants';
 
 export default class InputForText extends React.Component {
   static propTypes = defaultInputPropTypes;
@@ -27,7 +28,7 @@ export default class InputForText extends React.Component {
   constructor (props) {
     super(props);
     this.state = { value: props.value };
-    this.handleChange = debounce(this.handleChange.bind(this), 250);
+    this.handleChange = debounce(this.handleChange.bind(this), DEBOUNCE_WAIT);
   }
 
   handleInputChange (e) {

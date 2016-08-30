@@ -13,6 +13,7 @@
   border: 1px solid #e6e6e6;
   box-sizing: border-box;
   background-color: #fff;
+  overflow: auto;
 }
 
 .settings-side {
@@ -75,8 +76,6 @@
   width: calc(100% - 330px);
   padding-top: 35px;
   box-sizing: border-box;
-  overflow-x: auto;
-  overflow-y: visible;
 }
 
 .settings-definition-name {

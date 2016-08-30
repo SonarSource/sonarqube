@@ -37,7 +37,7 @@ describe('Settings :: Inputs :: InputForNumber', () => {
     expect(simpleInput).to.have.length(1);
     expect(simpleInput.prop('name')).to.equal('foo');
     expect(simpleInput.prop('value')).to.equal(17);
-    expect(simpleInput.prop('type')).to.equal('number');
+    expect(simpleInput.prop('type')).to.equal('text');
     expect(simpleInput.prop('onChange')).to.be.a('function');
   });
 });

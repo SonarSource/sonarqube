@@ -22,6 +22,7 @@ import debounce from 'lodash/debounce';
 import Toggle from '../../../../components/controls/Toggle';
 import { defaultInputPropTypes } from '../../propTypes';
 import { translate } from '../../../../helpers/l10n';
+import { DEBOUNCE_WAIT } from '../../constants';
 
 export default class InputForBoolean extends React.Component {
   static propTypes = {
@@ -32,7 +33,7 @@ export default class InputForBoolean extends React.Component {
   constructor (props) {
     super(props);
     this.state = { value: props.value };
-    this.handleChange = debounce(this.handleChange.bind(this), 250);
+    this.handleChange = debounce(this.handleChange.bind(this), DEBOUNCE_WAIT);
   }
 
   componentWillReceiveProps (nextProps) {

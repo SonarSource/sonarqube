@@ -23,6 +23,7 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import InputForText from '../InputForText';
 import { change } from '../../../../../../../../tests/utils';
+import { DEBOUNCE_WAIT } from '../../../constants';
 
 describe('Settings :: Inputs :: InputForText', () => {
   it('should render textarea', () => {
@@ -58,6 +59,6 @@ describe('Settings :: Inputs :: InputForText', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, 'qux']);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 });

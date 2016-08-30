@@ -23,6 +23,7 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import InputForBoolean from '../InputForBoolean';
 import Toggle from '../../../../../components/controls/Toggle';
+import { DEBOUNCE_WAIT } from '../../../constants';
 
 describe('Settings :: Inputs :: InputForBoolean', () => {
   it('should render Toggle', () => {
@@ -75,6 +76,6 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, false]);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 });

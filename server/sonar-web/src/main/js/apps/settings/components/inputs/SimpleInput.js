@@ -20,6 +20,7 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { defaultInputPropTypes } from '../../propTypes';
+import { DEBOUNCE_WAIT } from '../../constants';
 
 export default class SimpleInput extends React.Component {
   static propTypes = {
@@ -32,7 +33,7 @@ export default class SimpleInput extends React.Component {
   constructor (props) {
     super(props);
     this.state = { value: props.value };
-    this.handleChange = debounce(this.handleChange.bind(this), 250);
+    this.handleChange = debounce(this.handleChange.bind(this), DEBOUNCE_WAIT);
   }
 
   componentWillReceiveProps (nextProps) {
@@ -42,11 +43,9 @@ export default class SimpleInput extends React.Component {
   }
 
   handleInputChange (e) {
-    if (e.target.validity.valid) {
-      const { value } = e.target;
-      this.setState({ value });
-      this.handleChange(value);
-    }
+    const { value } = e.target;
+    this.setState({ value });
+    this.handleChange(value);
   }
 
   handleChange (value) {

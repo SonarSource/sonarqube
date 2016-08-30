@@ -24,6 +24,7 @@ import sinon from 'sinon';
 import MultiValueInput from '../MultiValueInput';
 import InputForString from '../InputForString';
 import { click, change } from '../../../../../../../../tests/utils';
+import { DEBOUNCE_WAIT } from '../../../constants';
 
 const definition = { multiValues: true };
 
@@ -123,7 +124,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'qux', 'baz']]);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 
   it('should change existing value', done => {
@@ -137,7 +138,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'qux', 'baz']]);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 
   it('should add and save new value', done => {
@@ -152,7 +153,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'bar']]);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 
   it('should remove and save', done => {
@@ -166,6 +167,6 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo']]);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 });

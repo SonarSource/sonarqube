@@ -26,6 +26,7 @@ import { getPropertyName, getPropertyDescription, isEmptyValue } from '../utils'
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { setValue, resetValue } from '../store/actions';
 import { isLoading, getValidationMessage } from '../store/rootReducer';
+import { failValidation } from '../store/settingsPage/actions';
 
 class Definition extends React.Component {
   static propTypes = {
@@ -34,7 +35,8 @@ class Definition extends React.Component {
     loading: React.PropTypes.bool.isRequired,
     validationMessage: React.PropTypes.string,
     setValue: React.PropTypes.func.isRequired,
-    resetValue: React.PropTypes.func.isRequired
+    resetValue: React.PropTypes.func.isRequired,
+    failValidation: React.PropTypes.func.isRequired
   };
 
   state = {
@@ -68,12 +70,14 @@ class Definition extends React.Component {
   handleSet (_, value) {
     clearTimeout(this.timeout);
     const componentKey = this.props.component ? this.props.component.key : null;
+    const { definition } = this.props.setting;
 
-    const request = isEmptyValue(this.props.setting.definition, value) ?
-        this.props.resetValue(this.props.setting.definition.key, componentKey) :
-        this.props.setValue(this.props.setting.definition, value, componentKey);
+    if (isEmptyValue(definition, value)) {
+      this.props.failValidation(definition.key, translate('settings.state.value_cant_be_empty'));
+      return;
+    }
 
-    return request.then(() => {
+    return this.props.setValue(definition, value, componentKey).then(() => {
       this.safeSetState({ success: true });
       this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
     });
@@ -149,5 +153,5 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(
     mapStateToProps,
-    { setValue, resetValue }
+    { setValue, resetValue, failValidation }
 )(Definition);

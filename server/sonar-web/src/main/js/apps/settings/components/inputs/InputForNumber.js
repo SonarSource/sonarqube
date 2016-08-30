@@ -23,7 +23,7 @@ import SimpleInput from './SimpleInput';
 export default class InputForNumber extends React.Component {
   render () {
     return (
-        <SimpleInput {...this.props} className="input-small" type="number"/>
+        <SimpleInput {...this.props} className="input-small" type="text"/>
     );
   }
 }

@@ -23,6 +23,7 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import SimpleInput from '../SimpleInput';
 import { change } from '../../../../../../../../tests/utils';
+import { DEBOUNCE_WAIT } from '../../../constants';
 
 describe('Settings :: Inputs :: SimpleInput', () => {
   it('should render input', () => {
@@ -64,6 +65,6 @@ describe('Settings :: Inputs :: SimpleInput', () => {
       expect(onChange.called).to.equal(true);
       expect(onChange.lastCall.args).to.deep.equal([undefined, 'qux']);
       done();
-    }, 300);
+    }, DEBOUNCE_WAIT + 100);
   });
 });
