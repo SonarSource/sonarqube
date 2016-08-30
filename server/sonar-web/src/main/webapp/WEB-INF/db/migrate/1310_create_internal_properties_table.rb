@@ -21,16 +21,17 @@
 #
 # SonarQube 6.1
 #
-class CreateInternalPropsTable < ActiveRecord::Migration
+class CreateInternalPropertiesTable < ActiveRecord::Migration
 
   def self.up
-    create_table 'internal_props', :id => false do |t|
+    create_table 'internal_properties', :id => false do |t|
       t.column 'kee', :string, :limit => 20, :null => false
+      t.column 'is_empty', :boolean, :null => false
+      t.column 'value', :string, :limit => 4000, :null => true
       t.column 'clob_value', :text, :null => true
-      t.column 'created_at',   :big_integer, :null => false
-      t.column 'updated_at',   :big_integer, :null => false
+      t.column 'created_at', :big_integer, :null => false
     end
-    add_primary_key 'internal_props', 'kee'
+    add_primary_key 'internal_properties', 'kee'
   end
 
 end
