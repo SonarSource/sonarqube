@@ -78,12 +78,12 @@ public class ValuesActionTest {
   DbClient dbClient = db.getDbClient();
   PropertyDbTester propertyDb = new PropertyDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
-  PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
-  SettingsFinder settingsFinder = new SettingsFinder(dbClient, propertyDefinitions);
+  PropertyDefinitions definitions = new PropertyDefinitions();
+  SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
 
   ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions, settingsFinder));
+  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder));
 
   @Before
   public void setUp() throws Exception {
@@ -93,7 +93,7 @@ public class ValuesActionTest {
   @Test
   public void return_simple_value() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -114,13 +114,13 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
 
     // Property never defined, default value is returned
-    propertyDefinitions.addComponent(PropertyDefinition.builder("default")
+    definitions.addComponent(PropertyDefinition.builder("default")
       .multiValues(true)
       .defaultValue("one,two")
       .build());
 
     // Property defined at global level
-    propertyDefinitions.addComponent(PropertyDefinition.builder("global")
+    definitions.addComponent(PropertyDefinition.builder("global")
       .multiValues(true)
       .build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four"));
@@ -144,7 +144,7 @@ public class ValuesActionTest {
   @Test
   public void return_multi_value_with_coma() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
+    definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("global");
@@ -158,7 +158,7 @@ public class ValuesActionTest {
   @Test
   public void return_property_set() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
       .fields(asList(
@@ -180,7 +180,7 @@ public class ValuesActionTest {
   @Test
   public void return_property_set_for_component() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
       .fields(asList(
@@ -202,7 +202,7 @@ public class ValuesActionTest {
   @Test
   public void return_default_values() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
       .build());
@@ -216,7 +216,7 @@ public class ValuesActionTest {
   @Test
   public void return_global_values() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       // The property is overriding default value
       newGlobalPropertyDto().setKey("property").setValue("one"));
@@ -230,7 +230,7 @@ public class ValuesActionTest {
   @Test
   public void return_project_values() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"),
       // The property is overriding global value
@@ -245,7 +245,7 @@ public class ValuesActionTest {
   @Test
   public void return_is_inherited_to_true_when_property_is_defined_only_at_global_level() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     // The property is not defined on project
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("property").setValue("one"));
 
@@ -271,7 +271,7 @@ public class ValuesActionTest {
   @Test
   public void return_empty_when_property_def_exists_but_no_value() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
 
@@ -283,7 +283,7 @@ public class ValuesActionTest {
   @Test
   public void return_nothing_when_unknown_keys() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
       .build());
@@ -298,7 +298,7 @@ public class ValuesActionTest {
   public void return_module_values() throws Exception {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    propertyDefinitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"),
       // The property is overriding global value
@@ -314,7 +314,7 @@ public class ValuesActionTest {
   public void return_inherited_values_on_module() throws Exception {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    propertyDefinitions.addComponents(asList(
+    definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build(),
       PropertyDefinition.builder("projectProperty").build(),
@@ -336,7 +336,7 @@ public class ValuesActionTest {
   @Test
   public void return_inherited_values_on_global_setting() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponents(asList(
+    definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build()));
     propertyDb.insertProperties(
@@ -354,7 +354,7 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    propertyDefinitions.addComponents(asList(
+    definitions.addComponents(asList(
       PropertyDefinition.builder("foo").defaultValue("default").build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("global"),
@@ -372,7 +372,7 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    propertyDefinitions.addComponents(asList(
+    definitions.addComponents(asList(
       PropertyDefinition.builder("foo").defaultValue("default1,default2").multiValues(true).build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("global1,global2"),
@@ -390,7 +390,7 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
       .fields(asList(
@@ -412,7 +412,7 @@ public class ValuesActionTest {
     setUserAsSystemAdmin();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    propertyDefinitions.addComponents(asList(
+    definitions.addComponents(asList(
       PropertyDefinition.builder("simple").build(),
       PropertyDefinition.builder("multi").multiValues(true).build(),
       PropertyDefinition.builder("set")
@@ -447,7 +447,7 @@ public class ValuesActionTest {
   @Test
   public void return_value_of_deprecated_key() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .deprecatedKey("deprecated")
       .build());
@@ -464,16 +464,16 @@ public class ValuesActionTest {
   @Test
   public void test_example_json_response() {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("sonar.test.jira")
       .defaultValue("abc")
       .build());
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("sonar.autogenerated")
       .multiValues(true)
       .build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("sonar.autogenerated").setValue("val1,val2,val3"));
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("sonar.demo")
       .type(PropertyType.PROPERTY_SET)
       .fields(PropertyFieldDefinition.build("text").name("Text").build(),
@@ -502,7 +502,7 @@ public class ValuesActionTest {
   @Test
   public void fail_when_not_system_admin() throws Exception {
     userSession.login("not-admin").setGlobalPermissions(DASHBOARD_SHARING);
-    propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
 
@@ -512,7 +512,7 @@ public class ValuesActionTest {
   @Test
   public void fail_when_not_project_admin() throws Exception {
     userSession.login("project-admin").addProjectUuidPermissions(USER, project.uuid());
-    propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
 
@@ -522,7 +522,7 @@ public class ValuesActionTest {
   @Test
   public void fail_when_deprecated_key_and_new_key_are_used() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("foo")
       .deprecatedKey("deprecated")
       .build());

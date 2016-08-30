@@ -119,6 +119,7 @@ import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
+import org.sonar.server.license.ws.LicensesWsModule;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -583,6 +584,9 @@ public class PlatformLevel4 extends PlatformLevel {
       // Settings
       PropertiesWs.class,
       SettingsWsModule.class,
+
+      // Licences
+      LicensesWsModule.class,
 
       TypeValidationModule.class,
 

@@ -1,0 +1,28 @@
+{
+  "licenses": [
+    {
+      "key": "sonar.devcockpit.license.secured",
+      "value": "T3JnYW5pc2F0aW9uOiBVbmtub3duIApTZXJ2ZXI6IDU0MzIxIApQcm9kdWN0OiBvdGhlciAKRXhwaXJhdGlvbjogMjAxMC0wMS0wMSAKVHlwZTogRVZBTFVBVElPTiAK",
+      "product": "other",
+      "organization": "Unknown",
+      "expiration": "2010-01-01",
+      "serverId": "54321",
+      "type": "EVALUATION",
+      "invalidProduct": true,
+      "invalidExpiration": true,
+      "invalidServerId": true
+    },
+    {
+      "key": "sonar.governance.license.secured",
+      "value": "T3JnYW5pc2F0aW9uOiBTb25hclNvdXJjZSAKU2VydmVyOiAxMjM0NSAKUHJvZHVjdDogZ292ZXJuYW5jZSAKRXhwaXJhdGlvbjogMjA5OS0wMS0wMSAKVHlwZTogUFJPRFVDVElPTiAKb3RoZXI6IHZhbHVlIAo\u003d",
+      "product": "governance",
+      "organization": "SonarSource",
+      "expiration": "2099-01-01",
+      "serverId": "12345",
+      "type": "PRODUCTION",
+      "additionalProperties": {
+        "other": "value"
+      }
+    }
+  ]
+}
