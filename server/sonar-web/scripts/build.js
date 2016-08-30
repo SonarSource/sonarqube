@@ -25,6 +25,7 @@ var path = require('path');
 var rimrafSync = require('rimraf').sync;
 var webpack = require('webpack');
 var paths = require('../config/paths');
+var formatSize = require('./utils/formatSize');
 
 var isFastBuild = process.argv.some(arg => arg.indexOf('--fast') > -1);
 
@@ -51,7 +52,7 @@ if (isFastBuild) {
 }
 console.log();
 
-webpack(config, function (err, stats) {
+webpack(config, (err, stats) => {
   if (err) {
     console.log(chalk.red.bold('Failed to create a production build!'));
     console.log(chalk.red(err.message || err));
@@ -60,16 +61,26 @@ webpack(config, function (err, stats) {
 
   if (stats.compilation.errors && stats.compilation.errors.length) {
     console.log(chalk.red.bold('Failed to create a production build!'));
-    stats.compilation.errors.forEach(function (err) {
-      console.log(chalk.red(err.message || err));
-    });
+    stats.compilation.errors.forEach(err => console.log(chalk.red(err.message || err)));
     process.exit(1);
   }
 
-  console.log(chalk.green.bold('Compiled successfully!'));
-
   var jsonStats = stats.toJson();
+
+  console.log('Assets:');
+  var assets = jsonStats.assets.slice();
+  assets.sort((a, b) => b.size - a.size);
+  assets.forEach(asset => {
+    var sizeLabel = formatSize(asset.size);
+    var leftPadding = ' '.repeat(8 - sizeLabel.length);
+    sizeLabel = leftPadding + sizeLabel;
+    console.log('', chalk.yellow(sizeLabel), asset.name);
+  });
+  console.log();
+
   var seconds = jsonStats.time / 1000;
   console.log('Duration: ' + seconds.toFixed(2) + 's');
   console.log();
+
+  console.log(chalk.green.bold('Compiled successfully!'));
 });
