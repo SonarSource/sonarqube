@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -93,7 +94,13 @@ public class HttpHeadersTest {
   private static Response call(String url) {
     Request request = new Request.Builder().get().url(url).build();
     try {
-      return new OkHttpClient().newCall(request).execute();
+      // SonarQube ws-client cannot be used as it does not
+      // expose HTTP headers
+      return new OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+        .newCall(request).execute();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

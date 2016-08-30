@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -71,7 +72,12 @@ public class ReportDumpTest {
       .url(httpUrl)
       .get()
       .build();
-    Response response = new OkHttpClient().newCall(request).execute();
+    Response response = new OkHttpClient.Builder()
+      .connectTimeout(30, TimeUnit.SECONDS)
+      .readTimeout(30, TimeUnit.SECONDS)
+      .build()
+      .newCall(request)
+      .execute();
     assertThat(response.isSuccessful()).as(httpUrl.toString()).isTrue();
     assertThat(response.body().string()).as(httpUrl.toString()).isNotEmpty();
   }
