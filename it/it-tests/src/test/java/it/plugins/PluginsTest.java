@@ -27,16 +27,14 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.plugins.checks.CCheck;
 import it.plugins.checks.Check;
-import it.plugins.checks.CobolCheck;
 import it.plugins.checks.CppCheck;
-import it.plugins.checks.CssCheck;
 import it.plugins.checks.FlexCheck;
 import it.plugins.checks.GroovyCheck;
 import it.plugins.checks.JavaCheck;
 import it.plugins.checks.JavascriptCheck;
 import it.plugins.checks.PhpCheck;
+import it.plugins.checks.PliCheck;
 import it.plugins.checks.PythonCheck;
-import it.plugins.checks.RpgCheck;
 import it.plugins.checks.SwiftCheck;
 import it.plugins.checks.Validation;
 import it.plugins.checks.VbCheck;
@@ -72,9 +70,6 @@ public class PluginsTest {
     // https://jira.sonarsource.com/browse/MAIF-213
     "maifcobolplugin",
 
-    // waiting for release of ABAP 3.3
-    "abap",
-
     // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
     "crowd", "ldap", "pam");
 
@@ -89,13 +84,24 @@ public class PluginsTest {
     // this property must be deactivated in preview mode.
     "scmstats");
 
-  // TODO new PliCheck() is temporarily disabled as PLI plugin does not support multi-language feature. See sonar-project.properties
   static final List<Check> CHECKS = Arrays.<Check>asList(
+    // waiting for release of ABAP 3.3 (ABAP-287)
     // new AbapCheck(),
     new CCheck(), new CppCheck(),
-    new CobolCheck(), new CssCheck(),
-    new FlexCheck(), new GroovyCheck(), new JavaCheck(), new JavascriptCheck(), new PhpCheck(), new RpgCheck(),
-    new PythonCheck(), new SwiftCheck(),
+    // waiting for new Cobol release (COBOL-1332)
+    // new CobolCheck(),
+    // waiting for release of CSS 2.1 (https://github.com/SonarQubeCommunity/sonar-css/issues/261)
+    // new CssCheck(),
+    new FlexCheck(),
+    new GroovyCheck(),
+    new JavaCheck(),
+    new JavascriptCheck(),
+    new PhpCheck(),
+    new PliCheck(),
+    new PythonCheck(),
+    // waiting for new RPG release (RPG-136)
+    // new RpgCheck(),
+    new SwiftCheck(),
     new VbCheck(),
     new WebCheck());
 
