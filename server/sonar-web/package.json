@@ -9,7 +9,7 @@
     "babel-core": "6.13.2",
     "babel-eslint": "^6.0.4",
     "babel-loader": "6.2.4",
-    "babel-plugin-react-transform": "^2.0.2",
+    "babel-plugin-react-transform": "2.0.2",
     "babel-plugin-transform-class-properties": "6.11.5",
     "babel-plugin-transform-object-rest-spread": "6.8.0",
     "babel-plugin-transform-react-constant-elements": "6.9.1",
