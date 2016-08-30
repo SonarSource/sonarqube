@@ -59,7 +59,6 @@ export default class SimpleInput extends React.Component {
             className={this.props.className + ' text-top'}
             type={this.props.type}
             value={this.state.value}
-            step="any"
             onChange={e => this.handleInputChange(e)}/>
     );
   }
