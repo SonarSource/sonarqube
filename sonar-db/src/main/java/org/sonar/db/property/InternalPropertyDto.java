@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.property;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public final class InternalPropertyDto {
+  private String key;
+  private boolean empty;
+  private String value;
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public String getKey() {
+    return key;
+  }
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 49);
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public boolean isEmpty() {
+    return empty;
+  }
+
+  public void setEmpty(boolean empty) {
+    this.empty = empty;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }

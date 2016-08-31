@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.property;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface InternalPropertiesMapper {
+  InternalPropertyDto selectAsText(@Param("key") String key);
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 49);
-  }
+  InternalPropertyDto selectAsClob(@Param("key") String key);
+
+  void insertAsEmpty(@Param("key") String key, @Param("createdAt") long createdAt);
+
+  void insertAsText(@Param("key") String key, @Param("value") String value, @Param("createdAt") long createdAt);
+
+  void insertAsClob(@Param("key") String key, @Param("value") String value, @Param("createdAt") long createdAt);
+
+  void deleteByKey(@Param("key") String key);
 }
