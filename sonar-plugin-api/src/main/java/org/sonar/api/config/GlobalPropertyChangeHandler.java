@@ -19,18 +19,17 @@
  */
 package org.sonar.api.config;
 
+import javax.annotation.Nullable;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
-import javax.annotation.Nullable;
-
 /**
- * Observe changes of global properties done from web application. It does not support :
+ * Observe changes of global properties done from web application. It does not support:
  * <ul>
  * <li>changes done by end-users from the page "Project Settings"</li>
- * <li>changes done programmatically on the component org.sonar.api.config.Settings</li>
- * <li>changes done when restoring settings from XML using backup/restore feature</li>
- * </ul>
+ * <li>changes done in file conf/sonar.properties</li>
+ * <li>change of default values</li>
+  * </ul>
  *
  * @since 3.0
  */
