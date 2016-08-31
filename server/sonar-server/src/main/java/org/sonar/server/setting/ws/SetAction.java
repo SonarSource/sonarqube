@@ -216,7 +216,10 @@ public class SetAction implements SettingsWsAction {
       .map(oneFieldValues -> readOneFieldValues(oneFieldValues, request.getKey()))
       .flatMap(map -> map.entrySet().stream())
       .peek(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()))
-      .forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
+      .forEach(entry -> {
+        checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey());
+        checkRequest(entry.getValue() != null, "Parameter field '%s' must not be null", entry.getKey());
+      });
 
     checkFieldType(request, definition, valuesByFieldKeys);
   }

@@ -545,6 +545,29 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_property_set_has_a_null_field_value() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.PROPERTY_SET)
+      .defaultValue("default")
+      .fields(newArrayList(
+        PropertyFieldDefinition.build("field")
+          .name("Field")
+          .type(PropertyType.STRING)
+          .build()))
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Parameter field 'field' must not be null");
+
+    callForGlobalPropertySet("my.key", newArrayList("{\"field\": null}"));
+  }
+
+  @Test
   public void fail_when_property_set_with_invalid_json() {
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("my.key")
