@@ -1,5 +1,3 @@
-<div class="page" name="settings">
-  <div class="yui-g widget" id="widget_plugins">
-    <%= render :partial => 'settings/settings' %>
-  </div>
-</div>
+<% content_for :extra_script do %>
+<script src="<%= ApplicationController.root_context -%>/js/bundles/settings.js?v=<%= sonar_version -%>"></script>
+<% end %>

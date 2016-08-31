@@ -29,7 +29,7 @@ import configureStore from '../../components/store/configureStore';
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
-  const controller = options.component ? '/project/settings2' : '/settings2';
+  const controller = options.component ? '/project/settings' : '/settings';
   const history = useRouterHistory(createHistory)({
     basename: window.baseUrl + controller
   });

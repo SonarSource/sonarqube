@@ -28,6 +28,10 @@ class ProjectController < ApplicationController
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'}
   end
 
+  def settings
+      @project = get_current_project(params[:id])
+    end
+
   def deletion
     @project = get_current_project(params[:id])
   end
@@ -76,22 +80,6 @@ class ProjectController < ApplicationController
     @snapshot = @project.last_analysis
     @analyses = Snapshot.all(:conditions => ["status='P' AND component_uuid=?", @project.uuid],
                               :include => 'events', :order => 'snapshots.created_at DESC')
-  end
-
-  def settings
-    @resource = get_current_project(params[:id])
-
-    if !java_facade.getResourceTypeBooleanProperty(@resource.qualifier, 'configurable')
-      redirect_to :action => 'index', :id => params[:id]
-    end
-
-    @snapshot = @resource.last_snapshot
-    definitions_per_category = java_facade.propertyDefinitions.propertiesByCategory(@resource.qualifier)
-    processProperties(definitions_per_category)
-  end
-
-  def settings2
-    @project = get_current_project(params[:id])
   end
 
   def update_version
