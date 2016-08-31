@@ -20,10 +20,7 @@
 package org.sonarsource.sonarqube.perf.scanner.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarsource.sonarqube.perf.PerfRule;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
 import java.io.File;
 import java.io.IOException;
 import org.junit.Before;
@@ -31,6 +28,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarsource.sonarqube.perf.PerfRule;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
 
 public class IssuesModeTest extends PerfTestCase {
 
@@ -68,6 +67,6 @@ public class IssuesModeTest extends PerfTestCase {
     long duration = System.currentTimeMillis() - start;
     System.out.println("Issues analysis: " + duration + "ms");
 
-    perfRule.assertDurationAround(duration, 3600L);
+    perfRule.assertDurationAround(duration, 3700L);
   }
 }
