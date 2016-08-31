@@ -57,7 +57,7 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -187,11 +187,11 @@ public class DbTester extends ExternalResource {
    * <pre>int issues = countRowsOfTable("issues")</pre>
    */
   public int countRowsOfTable(String tableName) {
-    return countRowsOfTable(tableName, this::getConnection);
+    return countRowsOfTable(tableName, new NewConnectionSupplier());
   }
 
   public int countRowsOfTable(DbSession dbSession, String tableName) {
-    return countRowsOfTable(tableName, () -> dbSession.getConnection());
+    return countRowsOfTable(tableName, new DbSessionConnectionSupplier(dbSession));
   }
 
   private int countRowsOfTable(String tableName, SqlExceptionSupplier<Connection> connectionSupplier) {
@@ -204,11 +204,11 @@ public class DbTester extends ExternalResource {
    * <pre>int OpenIssues = countSql("select count('id') from issues where status is not null")</pre>
    */
   public int countSql(String sql) {
-    return countSql(sql, this::getConnection);
+    return countSql(sql, new NewConnectionSupplier());
   }
 
   public int countSql(DbSession dbSession, String sql) {
-    return countSql(sql, () -> dbSession.getConnection());
+    return countSql(sql, new DbSessionConnectionSupplier(dbSession));
   }
 
   private int countSql(String sql, SqlExceptionSupplier<Connection> connectionSupplier) {
@@ -229,7 +229,7 @@ public class DbTester extends ExternalResource {
   }
 
   public List<Map<String, Object>> select(String selectSql) {
-    return select(selectSql, this::getConnection);
+    return select(selectSql, new NewConnectionSupplier());
   }
 
   private List<Map<String, Object>> select(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
@@ -244,11 +244,11 @@ public class DbTester extends ExternalResource {
   }
 
   public Map<String, Object> selectFirst(String selectSql) {
-    return selectFirst(selectSql, this::getConnection);
+    return selectFirst(selectSql, new NewConnectionSupplier());
   }
 
   public Map<String, Object> selectFirst(DbSession dbSession, String selectSql) {
-    return selectFirst(selectSql, () -> dbSession.getConnection());
+    return selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
   }
 
   private Map<String, Object> selectFirst(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
@@ -505,9 +505,52 @@ public class DbTester extends ExternalResource {
   /**
    * A {@link Supplier} that declares the checked exception {@link SQLException}.
    */
-  @FunctionalInterface
-  private interface SqlExceptionSupplier<T> {
+  private interface SqlExceptionSupplier<T> extends AutoCloseable {
     T get() throws SQLException;
+
+    @Override
+    void close();
   }
 
+  private static class DbSessionConnectionSupplier implements SqlExceptionSupplier<Connection> {
+    private final DbSession dbSession;
+
+    public DbSessionConnectionSupplier(DbSession dbSession) {
+      this.dbSession = dbSession;
+    }
+
+    @Override
+    public Connection get() throws SQLException {
+      return dbSession.getConnection();
+    }
+
+    @Override
+    public void close() {
+      // closing dbSession is not our responsability
+    }
+  }
+
+  private class NewConnectionSupplier implements SqlExceptionSupplier<Connection> {
+    private Connection connection;
+
+    @Override
+    public Connection get() throws SQLException {
+      if (this.connection == null) {
+        this.connection = getConnection();
+      }
+      return this.connection;
+    }
+
+    @Override
+    public void close() {
+      if (this.connection != null) {
+        try {
+          this.connection.close();
+        } catch (SQLException e) {
+          Loggers.get(DbTester.class).warn("Fail to close connection", e);
+          // do not re-throw the exception
+        }
+      }
+    }
+  }
 }
