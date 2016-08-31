@@ -17,31 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { defaultInputPropTypes } from '../../propTypes';
+import { START_LOADING, STOP_LOADING } from './actions';
 
-export default class SimpleInput extends React.Component {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-    type: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string.isRequired
-  };
-
-  handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
+const reducer = (state = {}, action = {}) => {
+  if (action.type === START_LOADING) {
+    return { ...state, [action.key]: true };
   }
 
-  render () {
-    return (
-        <input
-            name={this.props.name}
-            className={this.props.className + ' text-top'}
-            type={this.props.type}
-            value={this.props.value}
-            onChange={e => this.handleInputChange(e)}/>
-    );
+  if (action.type === STOP_LOADING) {
+    return { ...state, [action.key]: false };
   }
-}
+
+  return state;
+};
+
+export default reducer;
+
+export const isLoading = (state, key) => !!state[key];

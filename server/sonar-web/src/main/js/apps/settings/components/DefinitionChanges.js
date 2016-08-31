@@ -19,33 +19,41 @@
  */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import renderInput from './renderInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import { translate } from '../../../helpers/l10n';
 
-export default class Input extends React.Component {
+export default class DefinitionChanges extends React.Component {
   static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    value: React.PropTypes.any,
-    onChange: React.PropTypes.func.isRequired
+    onSave: React.PropTypes.func.isRequired,
+    onCancel: React.PropTypes.func.isRequired
   };
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
+  handleSaveClick (e) {
+    e.preventDefault();
+    e.target.blur();
+    this.props.onSave();
+  }
+
+  handleCancelChange (e) {
+    e.preventDefault();
+    e.target.blur();
+    this.props.onCancel();
+  }
+
   render () {
-    const { setting, value, onChange } = this.props;
+    return (
+        <div className="settings-definition-changes">
+          <button className="js-save-changes button-success" onClick={e => this.handleSaveClick(e)}>
+            {translate('save')}
+          </button>
 
-    if (setting.definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput setting={setting} value={value} onChange={onChange}/>;
-    }
-
-    if (setting.definition.multiValues) {
-      return <MultiValueInput setting={setting} value={value} onChange={onChange}/>;
-    }
-
-    return renderInput(setting, value, onChange);
+          <button className="js-cancel-changes big-spacer-left button-link" onClick={e => this.handleCancelChange(e)}>
+            {translate('cancel')}
+          </button>
+        </div>
+    );
   }
 }

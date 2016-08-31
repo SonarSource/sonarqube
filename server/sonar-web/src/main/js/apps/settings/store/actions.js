@@ -20,9 +20,12 @@
 import { getDefinitions, getValues, setSettingValue, resetSettingValue } from '../../../api/settings';
 import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
-import { startLoading, failValidation, passValidation } from './settingsPage/actions';
+import { startLoading, stopLoading } from './settingsPage/loading/actions';
 import { parseError } from '../../code/utils';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../components/store/globalMessages';
+import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
+import { cancelChange } from './settingsPage/changedValues/actions';
+import { getDefinition, getChangedValue } from './rootReducer';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey)
@@ -38,16 +41,22 @@ export const fetchSettings = componentKey => dispatch => {
       .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
 };
 
-export const setValue = (definition, value, componentKey) => dispatch => {
-  const { key } = definition;
-
+export const saveValue = (key, componentKey) => (dispatch, getState) => {
   dispatch(startLoading(key));
+
+  const state = getState();
+  const definition = getDefinition(state, key);
+  const value = getChangedValue(state, key);
+
+  // TODO avoid call to #getValues()
 
   return setSettingValue(definition, value, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         dispatch(receiveValues(values));
+        dispatch(cancelChange(key));
         dispatch(passValidation(key));
+        dispatch(stopLoading(key));
       })
       .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
 };
@@ -55,11 +64,14 @@ export const setValue = (definition, value, componentKey) => dispatch => {
 export const resetValue = (key, componentKey) => dispatch => {
   dispatch(startLoading(key));
 
+  // TODO avoid call to #getValues()
+
   return resetSettingValue(key, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
         dispatch(receiveValues(values));
         dispatch(passValidation(key));
+        dispatch(stopLoading(key));
       })
       .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
 };

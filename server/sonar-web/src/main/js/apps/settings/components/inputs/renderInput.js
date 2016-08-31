@@ -44,10 +44,9 @@ const typeMapping = {
   [TYPE_FLOAT]: InputForNumber
 };
 
-const renderInput = (setting, onChange) => {
+const renderInput = (setting, value, onChange) => {
   const { definition } = setting;
   const name = getUniqueName(definition);
-  const value = getSettingValue(setting);
 
   if (definition.type === TYPE_SINGLE_SELECT_LIST) {
     return (

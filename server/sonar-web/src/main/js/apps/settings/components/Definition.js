@@ -20,23 +20,31 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
+import classNames from 'classnames';
 import Input from './inputs/Input';
 import DefinitionDefaults from './DefinitionDefaults';
-import { getPropertyName, getPropertyDescription, isEmptyValue } from '../utils';
+import DefinitionChanges from './DefinitionChanges';
+import { getPropertyName, getPropertyDescription, isEmptyValue, getSettingValue, isDefaultOrInherited } from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { setValue, resetValue } from '../store/actions';
-import { isLoading, getValidationMessage } from '../store/rootReducer';
-import { failValidation } from '../store/settingsPage/actions';
+import { resetValue, saveValue } from '../store/actions';
+import { isLoading, getValidationMessage, getChangedValue } from '../store/rootReducer';
+import { failValidation, passValidation } from '../store/settingsPage/validationMessages/actions';
+import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
 
 class Definition extends React.Component {
   static propTypes = {
     component: React.PropTypes.object,
     setting: React.PropTypes.object.isRequired,
+    changedValue: React.PropTypes.any,
     loading: React.PropTypes.bool.isRequired,
     validationMessage: React.PropTypes.string,
-    setValue: React.PropTypes.func.isRequired,
+
+    changeValue: React.PropTypes.func.isRequired,
+    cancelChange: React.PropTypes.func.isRequired,
+    saveValue: React.PropTypes.func.isRequired,
     resetValue: React.PropTypes.func.isRequired,
-    failValidation: React.PropTypes.func.isRequired
+    failValidation: React.PropTypes.func.isRequired,
+    passValidation: React.PropTypes.func.isRequired
   };
 
   state = {
@@ -51,12 +59,6 @@ class Definition extends React.Component {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentWillUpdate (nextProps) {
-    if (nextProps.validationMessage != null) {
-      this.safeSetState({ success: false });
-    }
-  }
-
   componentWillUnmount () {
     this.mounted = false;
   }
@@ -69,18 +71,15 @@ class Definition extends React.Component {
 
   handleSet (_, value) {
     clearTimeout(this.timeout);
-    const componentKey = this.props.component ? this.props.component.key : null;
     const { definition } = this.props.setting;
 
     if (isEmptyValue(definition, value)) {
       this.props.failValidation(definition.key, translate('settings.state.value_cant_be_empty'));
-      return;
+    } else {
+      this.props.passValidation(definition.key);
     }
 
-    return this.props.setValue(definition, value, componentKey).then(() => {
-      this.safeSetState({ success: true });
-      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-    });
+    return this.props.changeValue(definition.key, value);
   }
 
   handleReset () {
@@ -92,13 +91,36 @@ class Definition extends React.Component {
     });
   }
 
+  handleCancel () {
+    this.props.cancelChange(this.props.setting.definition.key);
+    this.props.passValidation(this.props.setting.definition.key);
+  }
+
+  handleSave () {
+    const componentKey = this.props.component ? this.props.component.key : null;
+    this.props.saveValue(this.props.setting.definition.key, componentKey).then(() => {
+      this.safeSetState({ success: true });
+      this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
+    });
+  }
+
   render () {
-    const { setting, loading } = this.props;
+    const { setting, changedValue, loading } = this.props;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
 
+    const hasValueChanged = changedValue != null;
+
+    const className = classNames('settings-definition', {
+      'settings-definition-changed': hasValueChanged
+    });
+
+    const effectiveValue = hasValueChanged ? changedValue : getSettingValue(setting);
+
+    const isDefault = isDefaultOrInherited(setting) && !hasValueChanged;
+
     return (
-        <div className="settings-definition" data-key={definition.key}>
+        <div className={className} data-key={definition.key}>
           <div className="settings-definition-left">
             <h3 className="settings-definition-name" title={propertyName}>
               {propertyName}
@@ -113,9 +135,20 @@ class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <Input setting={setting} onChange={this.handleSet.bind(this)}/>
+            <Input setting={setting} value={effectiveValue} onChange={this.handleSet.bind(this)}/>
 
-            <DefinitionDefaults setting={setting} onReset={() => this.handleReset()}/>
+            {!hasValueChanged && (
+                <DefinitionDefaults
+                    setting={setting}
+                    isDefault={isDefault}
+                    onReset={() => this.handleReset()}/>
+            )}
+
+            {hasValueChanged && (
+                <DefinitionChanges
+                    onSave={this.handleSave.bind(this)}
+                    onCancel={this.handleCancel.bind(this)}/>
+            )}
 
             <div className="settings-definition-state">
               {loading && (
@@ -152,11 +185,12 @@ class Definition extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  changedValue: getChangedValue(state, ownProps.setting.definition.key),
   loading: isLoading(state, ownProps.setting.definition.key),
   validationMessage: getValidationMessage(state, ownProps.setting.definition.key)
 });
 
 export default connect(
     mapStateToProps,
-    { setValue, resetValue, failValidation }
+    { changeValue, saveValue, resetValue, failValidation, passValidation, cancelChange }
 )(Definition);

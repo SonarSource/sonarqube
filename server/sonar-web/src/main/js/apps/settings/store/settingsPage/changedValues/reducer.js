@@ -17,31 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { defaultInputPropTypes } from '../../propTypes';
+import omit from 'lodash/omit';
+import { CHANGE_VALUE, CANCEL_CHANGE } from './actions';
 
-export default class SimpleInput extends React.Component {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-    type: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string.isRequired
-  };
-
-  handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
+const reducer = (state = {}, action = {}) => {
+  if (action.type === CHANGE_VALUE) {
+    return { ...state, [action.key]: action.value };
   }
 
-  render () {
-    return (
-        <input
-            name={this.props.name}
-            className={this.props.className + ' text-top'}
-            type={this.props.type}
-            value={this.props.value}
-            onChange={e => this.handleInputChange(e)}/>
-    );
+  if (action.type === CANCEL_CHANGE) {
+    return omit(state, action.key);
   }
-}
+
+  return state;
+};
+
+export default reducer;
+
+export const getChangedValue = (state, key) => state[key];

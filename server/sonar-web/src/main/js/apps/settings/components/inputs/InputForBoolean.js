@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import debounce from 'lodash/debounce';
 import Toggle from '../../../../components/controls/Toggle';
 import { defaultInputPropTypes } from '../../propTypes';
 import { translate } from '../../../../helpers/l10n';
-import { DEBOUNCE_WAIT } from '../../constants';
 
 export default class InputForBoolean extends React.Component {
   static propTypes = {
@@ -30,30 +28,13 @@ export default class InputForBoolean extends React.Component {
     value: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.string])
   };
 
-  constructor (props) {
-    super(props);
-    this.state = { value: props.value };
-    this.handleChange = debounce(this.handleChange.bind(this), DEBOUNCE_WAIT);
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (this.props.isDefault !== nextProps.isDefault) {
-      this.setState({ value: nextProps.value });
-    }
-  }
-
   handleInputChange (value) {
-    this.setState({ value });
-    this.handleChange(value);
-  }
-
-  handleChange (value) {
-    this.props.onChange(this.props.setting, value);
+    this.props.onChange(undefined, value);
   }
 
   render () {
-    const hasValue = this.state.value != null;
-    const displayedValue = hasValue ? this.state.value : false;
+    const hasValue = this.props.value != null;
+    const displayedValue = hasValue ? this.props.value : false;
 
     return (
         <div className="display-inline-block text-top">
@@ -61,6 +42,7 @@ export default class InputForBoolean extends React.Component {
               name={this.props.name}
               value={displayedValue}
               onChange={value => this.handleInputChange(value)}/>
+
           {!hasValue && (
               <span className="spacer-left note">{translate('settings.not_set')}</span>
           )}

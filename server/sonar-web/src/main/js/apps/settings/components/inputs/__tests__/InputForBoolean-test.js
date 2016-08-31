@@ -23,7 +23,6 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import InputForBoolean from '../InputForBoolean';
 import Toggle from '../../../../../components/controls/Toggle';
-import { DEBOUNCE_WAIT } from '../../../constants';
 
 describe('Settings :: Inputs :: InputForBoolean', () => {
   it('should render Toggle', () => {
@@ -57,7 +56,7 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
     expect(input.find('.note')).to.have.length(1);
   });
 
-  it('should call onChange', done => {
+  it('should call onChange', () => {
     const onChange = sinon.spy();
     const input = shallow(
         <InputForBoolean
@@ -72,10 +71,7 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
 
     toggle.prop('onChange')(false);
 
-    setTimeout(() => {
-      expect(onChange.called).to.equal(true);
-      expect(onChange.lastCall.args).to.deep.equal([undefined, false]);
-      done();
-    }, DEBOUNCE_WAIT + 100);
+    expect(onChange.called).to.equal(true);
+    expect(onChange.lastCall.args).to.deep.equal([undefined, false]);
   });
 });

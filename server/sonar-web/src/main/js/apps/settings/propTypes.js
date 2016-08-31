@@ -21,7 +21,7 @@ import { PropTypes } from 'react';
 
 export const defaultInputPropTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.any,
   isDefault: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired
 };

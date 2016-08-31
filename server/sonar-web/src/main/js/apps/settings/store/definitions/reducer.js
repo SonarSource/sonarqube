@@ -34,6 +34,8 @@ const reducer = (state = {}, action = {}) => {
 
 export default reducer;
 
+export const getDefinition = (state, key) => state[key];
+
 export const getAllDefinitions = state => Object.values(state);
 
 export const getDefinitionsForCategory = (state, category) =>

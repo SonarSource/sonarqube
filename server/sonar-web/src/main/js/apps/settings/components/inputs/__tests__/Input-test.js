@@ -39,47 +39,47 @@ describe('Settings :: Inputs :: Input', () => {
   it('should render InputForString by default', () => {
     const setting = exampleSetting('UNKNOWN');
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForString);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForString);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('sample');
+    expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
   it('should render InputForString', () => {
     const setting = exampleSetting(constants.TYPE_STRING);
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForString);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForString);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('sample');
+    expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
   it('should render InputForText', () => {
     const setting = exampleSetting(constants.TYPE_TEXT);
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForText);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForText);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('sample');
+    expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
   it('should render InputForPassword', () => {
     const setting = exampleSetting(constants.TYPE_PASSWORD);
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForPassword);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForPassword);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('sample');
+    expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
   it('should render InputForBoolean', () => {
     const setting = { ...exampleSetting(constants.TYPE_BOOLEAN), value: true };
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForBoolean);
+    const input = shallow(<Input setting={setting} value={true} onChange={onChange}/>).find(InputForBoolean);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
     expect(input.prop('value')).to.equal(true);
@@ -89,10 +89,10 @@ describe('Settings :: Inputs :: Input', () => {
   it('should render InputForNumber', () => {
     const setting = exampleSetting(constants.TYPE_INTEGER);
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForNumber);
+    const input = shallow(<Input setting={setting} value={17} onChange={onChange}/>).find(InputForNumber);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('sample');
+    expect(input.prop('value')).to.equal(17);
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
@@ -103,7 +103,7 @@ describe('Settings :: Inputs :: Input', () => {
       value: 'bar'
     };
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} onChange={onChange}/>).find(InputForSingleSelectList);
+    const input = shallow(<Input setting={setting} value="bar" onChange={onChange}/>).find(InputForSingleSelectList);
     expect(input).to.have.length(1);
     expect(input.prop('name')).to.be.a('string');
     expect(input.prop('value')).to.equal('bar');

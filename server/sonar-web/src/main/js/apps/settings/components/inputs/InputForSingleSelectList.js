@@ -27,25 +27,10 @@ export default class InputForSingleSelectList extends React.Component {
     options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
   };
 
-  constructor (props) {
-    super(props);
-    this.state = { value: props.value };
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (this.props.isDefault !== nextProps.isDefault) {
-      this.setState({ value: nextProps.value });
-    }
-  }
-
   handleInputChange (option) {
     const { value } = option;
     this.setState({ value });
-    this.handleChange(value);
-  }
-
-  handleChange (value) {
-    this.props.onChange(this.props.setting, value);
+    this.props.onChange(undefined, value);
   }
 
   render () {
@@ -60,7 +45,7 @@ export default class InputForSingleSelectList extends React.Component {
             className="input-large"
             options={options}
             clearable={false}
-            value={this.state.value}
+            value={this.props.value}
             onChange={option => this.handleInputChange(option)}/>
     );
   }

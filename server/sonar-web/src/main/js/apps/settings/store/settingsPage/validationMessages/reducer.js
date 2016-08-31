@@ -17,31 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { defaultInputPropTypes } from '../../propTypes';
+import { FAIL_VALIDATION, PASS_VALIDATION } from './actions';
 
-export default class SimpleInput extends React.Component {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-    type: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string.isRequired
-  };
-
-  handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
+const reducer = (state = {}, action = {}) => {
+  if (action.type === FAIL_VALIDATION) {
+    return { ...state, [action.key]: action.message };
   }
 
-  render () {
-    return (
-        <input
-            name={this.props.name}
-            className={this.props.className + ' text-top'}
-            type={this.props.type}
-            value={this.props.value}
-            onChange={e => this.handleInputChange(e)}/>
-    );
+  if (action.type === PASS_VALIDATION) {
+    return { ...state, [action.key]: null };
   }
-}
+
+  return state;
+};
+
+export default reducer;
+
+export const getValidationMessage = (state, key) => state[key];

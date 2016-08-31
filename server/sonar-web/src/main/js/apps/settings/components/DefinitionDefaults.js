@@ -24,6 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default class DefinitionDefaults extends React.Component {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
+    isDefault: React.PropTypes.bool.isRequired,
     onReset: React.PropTypes.func.isRequired
   };
 
@@ -34,10 +35,9 @@ export default class DefinitionDefaults extends React.Component {
   }
 
   render () {
-    const { setting } = this.props;
+    const { setting, isDefault } = this.props;
     const { definition } = setting;
 
-    const isDefault = isDefaultOrInherited(setting);
     const isExplicitlySet = !isDefault && !isEmptyValue(definition, getSettingValue(setting));
 
     return (

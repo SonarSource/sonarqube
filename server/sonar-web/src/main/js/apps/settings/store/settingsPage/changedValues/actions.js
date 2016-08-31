@@ -17,31 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { defaultInputPropTypes } from '../../propTypes';
+export const CHANGE_VALUE = 'settingsPage/CHANGE_VALUE';
 
-export default class SimpleInput extends React.Component {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
-    type: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string.isRequired
-  };
+export const changeValue = (key, value) => ({
+  type: CHANGE_VALUE,
+  key,
+  value
+});
 
-  handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
-  }
+export const CANCEL_CHANGE = 'settingsOage/CANCEL_CHANGE';
 
-  render () {
-    return (
-        <input
-            name={this.props.name}
-            className={this.props.className + ' text-top'}
-            type={this.props.type}
-            value={this.props.value}
-            onChange={e => this.handleInputChange(e)}/>
-    );
-  }
-}
+export const cancelChange = key => ({
+  type: CANCEL_CHANGE,
+  key
+});

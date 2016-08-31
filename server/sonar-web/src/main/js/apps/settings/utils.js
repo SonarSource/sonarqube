@@ -73,11 +73,21 @@ export function isEmptyValue (definition, value) {
 }
 
 export function getEmptyValue (definition) {
+  if (definition.multiValues) {
+    return [getEmptyValue({ ...definition, multiValues: false })];
+  }
+
+  if (definition.type === TYPE_PROPERTY_SET) {
+    const value = {};
+    definition.fields.forEach(field => value[field.key] = getEmptyValue(field));
+    return [value];
+  }
+
   if (definition.type === TYPE_BOOLEAN || definition.type === TYPE_SINGLE_SELECT_LIST) {
     return null;
-  } else {
-    return '';
   }
+
+  return '';
 }
 
 export function isDefaultOrInherited (setting) {

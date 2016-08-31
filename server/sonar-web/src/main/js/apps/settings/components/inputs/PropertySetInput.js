@@ -18,89 +18,61 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
 import renderInput from './renderInput';
 import { translate } from '../../../../helpers/l10n';
-import { getEmptyValue, getSettingValue, isDefaultOrInherited } from '../../utils';
+import { getEmptyValue } from '../../utils';
 
 export default class PropertySetInput extends React.Component {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
+    value: React.PropTypes.array,
     onChange: React.PropTypes.func.isRequired
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      fieldValues: getSettingValue(props.setting) || [],
-      removedIndexes: []
-    };
+  ensureValue () {
+    return this.props.value || [];
   }
 
-  componentWillReceiveProps (nextProps) {
-    const isDefault = isDefaultOrInherited(this.props.setting);
-    const willBeDefault = isDefaultOrInherited(nextProps.setting);
-
-    if (isDefault !== willBeDefault) {
-      this.setState({ fieldValues: getSettingValue(nextProps.setting) || [] });
-    }
-  }
-
-  handleChange (fieldValues, removedIndexes) {
-    const filtered = fieldValues.filter((_, index) => !removedIndexes.includes(index));
-    return this.props.onChange(undefined, filtered);
-  }
-
-  handleAddValue (e) {
-    e.preventDefault();
-    e.target.blur();
-
-    const newValue = {};
-    this.props.setting.definition.fields.forEach(field => {
-      newValue[field.key] = getEmptyValue(field);
-    });
-
-    const fieldValues = [...this.state.fieldValues, newValue];
-    this.setState({ fieldValues });
+  handleChange (newValue) {
+    return this.props.onChange(undefined, newValue);
   }
 
   handleDeleteValue (e, index) {
     e.preventDefault();
     e.target.blur();
 
-    // do not actually remove the input, but just hide it in the UI
-    // it allows to use index as a key
-    const removedIndexes = [...this.state.removedIndexes, index];
-    this.setState({ removedIndexes });
-    this.handleChange(this.state.fieldValues, removedIndexes);
+    const newValue = [...this.ensureValue()];
+    newValue.splice(index, 1);
+    this.handleChange(newValue);
   }
 
   handleInputChange (index, fieldKey, _, value) {
-    const { fieldValues } = this.state;
-    const newValues = [...fieldValues];
-    newValues.splice(index, 1, { ...fieldValues[index], [fieldKey]: value });
-
-    this.setState({ fieldValues: newValues });
-    return this.handleChange(newValues, this.state.removedIndexes);
+    const emptyValue = getEmptyValue(this.props.setting.definition)[0];
+    const newValue = [...this.ensureValue()];
+    const newFields = { ...emptyValue, ...newValue[index], [fieldKey]: value };
+    newValue.splice(index, 1, newFields);
+    return this.handleChange(newValue);
   }
 
-  renderFields (fieldValues, index) {
+  renderFields (fieldValues, index, isLast) {
     const { setting } = this.props;
-    const className = classNames({ 'hidden': this.state.removedIndexes.includes(index) });
 
     return (
-        <tr key={index} className={className}>
+        <tr key={index}>
           {setting.definition.fields.map(field => (
               <td key={field.key}>
                 {renderInput(
                     { definition: field, value: fieldValues[field.key] },
+                    fieldValues[field.key],
                     this.handleInputChange.bind(this, index, field.key))}
               </td>
           ))}
           <td className="thin nowrap">
-            <button className="js-remove-value button-red" onClick={e => this.handleDeleteValue(e, index)}>
-              {translate('delete')}
-            </button>
+            {!isLast && (
+                <button className="js-remove-value button-link" onClick={e => this.handleDeleteValue(e, index)}>
+                  <i className="icon-delete"/>
+                </button>
+            )}
           </td>
         </tr>
     );
@@ -108,11 +80,12 @@ export default class PropertySetInput extends React.Component {
 
   render () {
     const { setting } = this.props;
-    const { fieldValues } = this.state;
+
+    const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
 
     return (
         <div>
-          <table className="data no-outer-padding" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
+          <table className="data zebra-hover no-outer-padding" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
             <thead>
               <tr>
                 {setting.definition.fields.map(field => (
@@ -127,13 +100,10 @@ export default class PropertySetInput extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {fieldValues.map((fieldValues, index) => this.renderFields(fieldValues, index))}
+              {displayedValue.map((fieldValues, index) =>
+                  this.renderFields(fieldValues, index, index === displayedValue.length - 1))}
             </tbody>
           </table>
-
-          <div className="spacer-top">
-            <button className="js-add-value" onClick={e => this.handleAddValue(e)}>{translate('add_verb')}</button>
-          </div>
         </div>
     );
   }

@@ -18,27 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import debounce from 'lodash/debounce';
 import { defaultInputPropTypes } from '../../propTypes';
-import { DEBOUNCE_WAIT } from '../../constants';
 
 export default class InputForText extends React.Component {
   static propTypes = defaultInputPropTypes;
 
-  constructor (props) {
-    super(props);
-    this.state = { value: props.value };
-    this.handleChange = debounce(this.handleChange.bind(this), DEBOUNCE_WAIT);
-  }
-
   handleInputChange (e) {
     const { value } = e.target;
-    this.setState({ value });
-    this.handleChange(value);
-  }
-
-  handleChange (value) {
-    this.props.onChange(this.props.setting, value);
+    this.props.onChange(undefined, value);
   }
 
   render () {
@@ -47,7 +34,7 @@ export default class InputForText extends React.Component {
             name={this.props.name}
             className="input-super-large text-top"
             rows="5"
-            value={this.state.value}
+            value={this.props.value}
             onChange={e => this.handleInputChange(e)}/>
     );
   }

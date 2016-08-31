@@ -32,6 +32,8 @@ const rootReducer = combineReducers({
 
 export default rootReducer;
 
+export const getDefinition = (state, key) => fromDefinitions.getDefinition(state.definitions, key);
+
 export const getAllCategories = state => fromDefinitions.getAllCategories(state.definitions);
 
 export const getDefaultCategory = state => fromDefinitions.getDefaultCategory(state.definitions);
@@ -43,6 +45,8 @@ export const getSettingsForCategory = (state, category) =>
       ...getValue(state, definition.key),
       definition
     }));
+
+export const getChangedValue = (state, key) => fromSettingsPage.getChangedValue(state.settingsPage, key);
 
 export const isLoading = (state, key) => fromSettingsPage.isLoading(state.settingsPage, key);
 

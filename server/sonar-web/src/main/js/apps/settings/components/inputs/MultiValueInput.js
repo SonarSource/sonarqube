@@ -18,103 +18,76 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
 import renderInput from './renderInput';
-import { getSettingValue, isDefaultOrInherited, getEmptyValue } from '../../utils';
-import { translate } from '../../../../helpers/l10n';
+import { getEmptyValue, isEmptyValue } from '../../utils';
 
 export default class MultiValueInput extends React.Component {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
+    value: React.PropTypes.array,
     onChange: React.PropTypes.func.isRequired
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      values: getSettingValue(props.setting) || [],
-      removedIndexes: []
-    };
+  ensureValue () {
+    return this.props.value || [];
   }
 
-  componentWillReceiveProps (nextProps) {
-    const isDefault = isDefaultOrInherited(this.props.setting);
-    const willBeDefault = isDefaultOrInherited(nextProps.setting);
-
-    if (isDefault !== willBeDefault) {
-      this.setState({ values: getSettingValue(nextProps.setting) || [] });
-    }
-  }
-
-  handleChange (values, removedIndexes) {
-    const filtered = values.filter((_, index) => !removedIndexes.includes(index));
-    this.props.onChange(undefined, filtered);
+  handleChange (newValue) {
+    this.props.onChange(undefined, newValue);
   }
 
   handleSingleInputChange (index, _, value) {
-    const values = this.state.values;
-    const newValues = values ? [...values] : [];
-    newValues.splice(index, 1, value);
-
-    this.setState({ values: newValues });
-    this.handleChange(newValues, this.state.removedIndexes);
-  }
-
-  handleAddValue (e) {
-    e.preventDefault();
-    e.target.blur();
-
-    const values = [...this.state.values, getEmptyValue(this.props.setting.definition)];
-    this.setState({ values });
+    const newValue = [...this.ensureValue()];
+    newValue.splice(index, 1, value);
+    this.handleChange(newValue);
   }
 
   handleDeleteValue (e, index) {
     e.preventDefault();
     e.target.blur();
 
-    // do not actually remove the input, but just hide it in the UI
-    // it allows to use index as a key
-    const removedIndexes = [...this.state.removedIndexes, index];
-    this.setState({ removedIndexes });
-    this.handleChange(this.state.values, removedIndexes);
+    const newValue = [...this.ensureValue()];
+    newValue.splice(index, 1);
+    this.handleChange(newValue);
   }
 
-  prepareSetting (value) {
+  prepareSetting () {
     const { setting } = this.props;
     const newDefinition = { ...setting.definition, multiValues: false };
     return {
       ...setting,
-      value,
       definition: newDefinition,
       values: undefined
     };
   }
 
-  renderInput (value, index) {
-    const className = classNames('spacer-bottom', {
-      'hidden': this.state.removedIndexes.includes(index)
-    });
-
+  renderInput (value, index, isLast) {
     return (
-        <li key={index} className={className}>
+        <li key={index} className="spacer-bottom">
           {renderInput(
-              this.prepareSetting(value),
+              this.prepareSetting(),
+              value,
               this.handleSingleInputChange.bind(this, index))}
 
-          <button className="js-remove-value spacer-left button-red" onClick={e => this.handleDeleteValue(e, index)}>
-            {translate('delete')}
-          </button>
+          {!isLast && (
+              <div className="display-inline-block spacer-left">
+                <button className="js-remove-value button-clean" onClick={e => this.handleDeleteValue(e, index)}>
+                  <i className="icon-delete"/>
+                </button>
+              </div>
+          )}
         </li>
     );
   }
 
   render () {
+    const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
+
     return (
         <div>
           <ul>
-            {this.state.values.map((value, index) => this.renderInput(value, index))}
+            {displayedValue.map((value, index) => this.renderInput(value, index, index === displayedValue.length - 1))}
           </ul>
-          <button className="js-add-value" onClick={e => this.handleAddValue(e)}>{translate('add_verb')}</button>
         </div>
     );
   }

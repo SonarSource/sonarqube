@@ -23,7 +23,6 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import InputForText from '../InputForText';
 import { change } from '../../../../../../../../tests/utils';
-import { DEBOUNCE_WAIT } from '../../../constants';
 
 describe('Settings :: Inputs :: InputForText', () => {
   it('should render textarea', () => {
@@ -41,7 +40,7 @@ describe('Settings :: Inputs :: InputForText', () => {
     expect(textarea.prop('onChange')).to.be.a('function');
   });
 
-  it('should call onChange', done => {
+  it('should call onChange', () => {
     const onChange = sinon.spy();
     const textarea = shallow(
         <InputForText
@@ -55,10 +54,7 @@ describe('Settings :: Inputs :: InputForText', () => {
 
     change(textarea, 'qux');
 
-    setTimeout(() => {
-      expect(onChange.called).to.equal(true);
-      expect(onChange.lastCall.args).to.deep.equal([undefined, 'qux']);
-      done();
-    }, DEBOUNCE_WAIT + 100);
+    expect(onChange.called).to.equal(true);
+    expect(onChange.lastCall.args).to.deep.equal([undefined, 'qux']);
   });
 });
