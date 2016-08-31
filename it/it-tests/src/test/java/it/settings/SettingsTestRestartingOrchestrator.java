@@ -22,11 +22,13 @@ package it.settings;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.pluginArtifact;
@@ -51,7 +53,7 @@ public class SettingsTestRestartingOrchestrator {
   }
 
   @Test
-  public void test_settings() {
+  public void test_settings() throws UnsupportedEncodingException {
     URL secretKeyUrl = getClass().getResource("/settings/SettingsTest/sonar-secret.txt");
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("settings-plugin"))
@@ -60,33 +62,28 @@ public class SettingsTestRestartingOrchestrator {
       .build();
     orchestrator.start();
 
+    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings(null)
+      .assertMenuContains("General")
+      .assertSettingDisplayed("sonar.dbcleaner.cleanDirectory")
+      .assertSettingNotDisplayed("settings.extension.hidden")
+      .assertSettingNotDisplayed("settings.extension.global");
+
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_settings",
-      "/settings/SettingsTest/general-settings.html",
-
-      // SONAR-2869 the annotation @Properties can be used on extensions and not only on plugin entry points
-      "/settings/SettingsTest/hidden-extension-property.html",
-      "/settings/SettingsTest/global-extension-property.html",
-
-      // SONAR-3344 - licenses
-      "/settings/SettingsTest/ignore-corrupted-license.html",
-      "/settings/SettingsTest/display-license.html",
-      "/settings/SettingsTest/display-untyped-license.html",
-
-      // SONAR-2084 - encryption
+      // test encryption
       "/settings/SettingsTest/generate-secret-key.html",
-      "/settings/SettingsTest/encrypt-text.html",
+      "/settings/SettingsTest/encrypt-text.html"
 
-      // SONAR-1378 - property types
-      "/settings/SettingsTest/validate-property-type.html",
-
-      // SONAR-3127 - hide passwords
-      "/settings/SettingsTest/hide-passwords.html"
-      ).build();
+      // test licenses
+      // TODO enable when license page will be rewritten
+      // "/settings/SettingsTest/ignore-corrupted-license.html",
+      // "/settings/SettingsTest/display-license.html",
+      // "/settings/SettingsTest/display-untyped-license.html"
+    ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   @Test
-  public void property_relocation() {
+  public void property_relocation() throws UnsupportedEncodingException {
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("property-relocation-plugin"))
       .addPlugin(xooPlugin())
@@ -101,10 +98,10 @@ public class SettingsTestRestartingOrchestrator {
     // should not fail
     orchestrator.executeBuilds(withDeprecatedKey, withNewKey);
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("property_relocation",
-      "/settings/SettingsTest/property_relocation.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings(null)
+      .assertMenuContains("General")
+      .assertSettingDisplayed("sonar.newKey")
+      .assertSettingNotDisplayed("sonar.deprecatedKey");
   }
 
 }

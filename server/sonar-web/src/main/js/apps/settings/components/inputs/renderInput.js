@@ -44,7 +44,7 @@ const typeMapping = {
   [TYPE_FLOAT]: InputForNumber
 };
 
-const renderInput = (setting, value, onChange) => {
+const renderInput = (setting, value, onChange, props = {}) => {
   const { definition } = setting;
   const name = getUniqueName(definition);
 
@@ -55,7 +55,8 @@ const renderInput = (setting, value, onChange) => {
             value={value}
             isDefault={isDefaultOrInherited(setting)}
             options={definition.options}
-            onChange={onChange}/>
+            onChange={onChange}
+            {...props}/>
     );
   }
 
@@ -65,7 +66,8 @@ const renderInput = (setting, value, onChange) => {
           name={name}
           value={value}
           isDefault={isDefaultOrInherited(setting)}
-          onChange={onChange}/>
+          onChange={onChange}
+          {...props}/>
   );
 };
 

@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
+import pageobjects.settings.SettingsPage;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
@@ -89,8 +90,8 @@ public class Navigation extends ExternalResource {
 
   public SettingsPage openSettings(@Nullable String projectKey) throws UnsupportedEncodingException {
     String url = projectKey != null ?
-      "/project/settings2?id=" + URLEncoder.encode(projectKey, "UTF-8") :
-      "/settings2";
+      "/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8") :
+      "/settings";
     return open(url, SettingsPage.class);
   }
 

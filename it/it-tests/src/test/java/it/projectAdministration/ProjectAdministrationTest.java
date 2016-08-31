@@ -35,11 +35,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import pageobjects.Navigation;
-import pageobjects.SettingsPage;
+import pageobjects.settings.SettingsPage;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -163,29 +162,6 @@ public class ProjectAdministrationTest {
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
   }
 
-  /**
-   * SONAR-3425
-   */
-  @Test
-  public void project_settings() {
-    scanSampleWithDate("2012-01-01");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-settings",
-      // SONAR-3425
-      "/projectAdministration/ProjectAdministrationTest/project-settings/override-global-settings.html",
-
-      "/projectAdministration/ProjectAdministrationTest/project-settings/only-on-project-settings.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-
-    // GET /api/properties/sonar.exclusions?resource=sample
-    assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.exclusions", "sample")).getValue())
-      .isEqualTo("my-exclusions");
-
-    // GET /api/properties?resource=sample
-    // Note that this WS is used by SonarLint
-    assertThat(orchestrator.getServer().getAdminWsClient().findAll(PropertyQuery.createForResource(null, "sample"))).isNotEmpty();
-  }
-
   @Test
   public void display_project_settings() throws UnsupportedEncodingException {
     scanSample(null, null);
@@ -205,6 +181,10 @@ public class ProjectAdministrationTest {
       .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "30")
       .assertStringSettingValue("sonar.timemachine.period1", "previous_version")
       .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true);
+
+    page.openCategory("General")
+      .setStringValue("sonar.timemachine.period1", "1.0")
+      .assertStringSettingValue("sonar.timemachine.period1", "1.0");
   }
 
   @Test

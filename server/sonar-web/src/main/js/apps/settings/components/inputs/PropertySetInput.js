@@ -20,6 +20,7 @@
 import React from 'react';
 import renderInput from './renderInput';
 import { getEmptyValue } from '../../utils';
+import { getUniqueName } from '../../utils';
 
 export default class PropertySetInput extends React.Component {
   static propTypes = {
@@ -30,6 +31,10 @@ export default class PropertySetInput extends React.Component {
 
   ensureValue () {
     return this.props.value || [];
+  }
+
+  getFieldName (field) {
+    return getUniqueName(this.props.setting.definition, field.key);
   }
 
   handleChange (newValue) {
@@ -63,7 +68,9 @@ export default class PropertySetInput extends React.Component {
                 {renderInput(
                     { definition: field, value: fieldValues[field.key] },
                     fieldValues[field.key],
-                    this.handleInputChange.bind(this, index, field.key))}
+                    this.handleInputChange.bind(this, index, field.key),
+                    { name: this.getFieldName(field) }
+                )}
               </td>
           ))}
           <td className="thin nowrap">

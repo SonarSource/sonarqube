@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package pageobjects;
+package pageobjects.settings;
 
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.exactValue;
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -40,6 +41,11 @@ public class SettingsPage {
 
   public SettingsPage assertSettingDisplayed(String settingKey) {
     $(".settings-definition[data-key='" + settingKey + "']").shouldBe(visible);
+    return this;
+  }
+
+  public SettingsPage assertSettingNotDisplayed(String settingKey) {
+    $(".settings-definition[data-key='" + settingKey + "']").shouldNotBe(visible);
     return this;
   }
 
@@ -61,5 +67,18 @@ public class SettingsPage {
       toggle.shouldNotHave(cssClass("boolean-toggle-on"));
     }
     return this;
+  }
+
+  public SettingsPage setStringValue(String settingKey, String value) {
+    SelenideElement setting = $(".settings-definition[data-key=\"" + settingKey + "\"]");
+    setting.find("input").val(value);
+    setting.find(".js-save-changes").click();
+    setting.find(".js-save-changes").shouldNot(exist);
+    return this;
+  }
+
+  public PropertySetInput getPropertySetInput(String settingKey) {
+    SelenideElement setting = $(".settings-definition[data-key=\"" + settingKey + "\"]");
+    return new PropertySetInput(setting);
   }
 }

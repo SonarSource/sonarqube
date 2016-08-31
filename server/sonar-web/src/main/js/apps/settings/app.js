@@ -20,7 +20,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, Route, useRouterHistory } from 'react-router';
+import { Router, Route, Redirect, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import App from './components/App';
 import rootReducer from './store/rootReducer';
@@ -42,6 +42,7 @@ window.sonarqube.appStarted.then(options => {
   render((
       <Provider store={store}>
         <Router history={history}>
+          <Redirect from="/index" to="/"/>
           <Route path="/" component={withComponent(App)}/>
         </Router>
       </Provider>
