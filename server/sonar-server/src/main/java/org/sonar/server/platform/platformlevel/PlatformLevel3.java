@@ -20,7 +20,6 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
@@ -37,7 +36,6 @@ public class PlatformLevel3 extends PlatformLevel {
     addIfStartupLeader(StartupMetadataPersister.class);
     add(
       PersistentSettings.class,
-      DefaultHttpDownloader.class,
       UriReader.class,
       ServerIdLoader.class,
       ServerIdGenerator.class,

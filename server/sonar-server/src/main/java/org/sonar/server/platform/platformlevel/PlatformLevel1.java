@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
@@ -81,6 +82,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       ServerSettingsImpl.class,
+      DefaultHttpDownloader.class,
       UuidFactoryImpl.INSTANCE,
       UrlSettings.class,
       EmbeddedDatabaseFactory.class,
