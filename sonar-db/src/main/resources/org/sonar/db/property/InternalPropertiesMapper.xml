@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.property.InternalPropertiesMapper">
+
+  <select id="selectAsText" parameterType="map" resultType="InternalProperty">
+    select
+      is_empty as empty,
+      text_value as value,
+      created_at as createdAt
+    from
+      internal_properties
+    where
+      kee = #{key}
+  </select>
+
+  <select id="selectAsClob" parameterType="map" resultType="InternalProperty">
+    select
+      is_empty as empty,
+      clob_value as value,
+      created_at as createdAt
+    from
+      internal_properties
+    where
+      kee = #{key}
+  </select>
+
+  <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO internal_properties
+    (
+      kee, is_empty, created_at
+    )
+    VALUES (
+      #{key}, ${_true}, #{createdAt}
+    )
+  </insert>
+
+  <insert id="insertAsText" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO internal_properties
+    (
+      kee,
+      is_empty,
+      text_value,
+      created_at
+    )
+    VALUES (
+      #{key},
+      ${_false},
+      #{value},
+      #{createdAt}
+    )
+  </insert>
+
+  <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO internal_properties
+    (
+      kee,
+      is_empty,
+      clob_value,
+      created_at
+    )
+    VALUES (
+      #{key},
+      ${_false},
+      #{value},
+      #{createdAt}
+    )
+  </insert>
+
+  <delete id="deleteByKey" parameterType="String">
+    delete from internal_properties
+    where
+      kee=#{key}
+  </delete>
+
+
+</mapper>

@@ -92,6 +92,8 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateMapper;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.property.InternalPropertiesMapper;
+import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.purge.IdUuidPair;
@@ -175,6 +177,7 @@ public class MyBatis {
     confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Property", PropertyDto.class);
+    confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
@@ -227,7 +230,8 @@ public class MyBatis {
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, MeasureFilterFavouriteMapper.class,
       PermissionTemplateMapper.class, PermissionTemplateCharacteristicMapper.class,
-      PropertiesMapper.class, PurgeMapper.class, ComponentKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
+      PropertiesMapper.class, InternalPropertiesMapper.class,
+      PurgeMapper.class, ComponentKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,
       FileSourceMapper.class,
