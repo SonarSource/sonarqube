@@ -120,9 +120,9 @@ public class PropertySetsTest {
 
   private void assertPropertySet(String baseSettingKey, List<Map.Entry<String, String>>... fieldsValues) {
     Settings.Setting setting = getSetting(baseSettingKey);
-    assertThat(setting.getFieldsValues().getFieldValuesList()).hasSize(fieldsValues.length);
+    assertThat(setting.getFieldValues().getFieldValuesList()).hasSize(fieldsValues.length);
     int index = 0;
-    for (Settings.FieldValues.Value fieldsValue : setting.getFieldsValues().getFieldValuesList()) {
+    for (Settings.FieldValues.Value fieldsValue : setting.getFieldValues().getFieldValuesList()) {
       assertThat(fieldsValue.getValue()).containsOnly(fieldsValues[index].toArray(new Map.Entry[] {}));
       index++;
     }

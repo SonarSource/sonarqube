@@ -76,7 +76,7 @@ message Setting {
   optional string key = 1;
   optional string value = 2;
   optional Values values = 3;
-  optional FieldValues fieldsValues = 4;
+  optional FieldValues fieldValues = 4;
   optional bool inherited = 5;
   optional string parentValue = 6;
   optional Values parentValues = 7;

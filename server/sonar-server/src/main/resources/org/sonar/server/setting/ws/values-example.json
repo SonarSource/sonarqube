@@ -16,7 +16,7 @@
     },
     {
       "key": "sonar.demo",
-      "fieldsValues": [
+      "fieldValues": [
         {
           "boolean": "true",
           "text": "foo"

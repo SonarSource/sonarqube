@@ -105,7 +105,7 @@ public class ValuesActionTest {
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.getValue()).isEqualTo("one");
     assertThat(value.hasValues()).isFalse();
-    assertThat(value.hasFieldsValues()).isFalse();
+    assertThat(value.hasFieldValues()).isFalse();
     assertThat(value.getInherited()).isFalse();
   }
 
@@ -132,13 +132,13 @@ public class ValuesActionTest {
     assertThat(foo.getKey()).isEqualTo("default");
     assertThat(foo.hasValue()).isFalse();
     assertThat(foo.getValues().getValuesList()).containsOnly("one", "two");
-    assertThat(foo.hasFieldsValues()).isFalse();
+    assertThat(foo.hasFieldValues()).isFalse();
 
     Settings.Setting bar = result.getSettings(1);
     assertThat(bar.getKey()).isEqualTo("global");
     assertThat(bar.hasValue()).isFalse();
     assertThat(bar.getValues().getValuesList()).containsOnly("three", "four");
-    assertThat(bar.hasFieldsValues()).isFalse();
+    assertThat(bar.hasFieldValues()).isFalse();
   }
 
   @Test
@@ -588,9 +588,9 @@ public class ValuesActionTest {
   }
 
   private void assertFieldValues(Settings.Setting setting, Map<String, String>... fieldsValues) {
-    assertThat(setting.getFieldsValues().getFieldValuesList()).hasSize(fieldsValues.length);
+    assertThat(setting.getFieldValues().getFieldValuesList()).hasSize(fieldsValues.length);
     int index = 0;
-    for (Settings.FieldValues.Value fieldsValue : setting.getFieldsValues().getFieldValuesList()) {
+    for (Settings.FieldValues.Value fieldsValue : setting.getFieldValues().getFieldValuesList()) {
       assertThat(fieldsValue.getValue()).isEqualTo(fieldsValues[index]);
       index++;
     }

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Settings;
@@ -48,6 +49,13 @@ public class SettingsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  static SettingsService SETTINGS;
+
+  @BeforeClass
+  public static void initSettingsService() throws Exception {
+    SETTINGS = newAdminWsClient(orchestrator).settingsService();
+  }
 
   @After
   public void reset_settings() throws Exception {
@@ -80,7 +88,7 @@ public class SettingsTest {
 
   @Test
   public void set_value() throws Exception {
-    settingsService().set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+    SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
 
     String value = getSetting(PLUGIN_SETTING_KEY).getValue();
     assertThat(value).isEqualTo("some value");
@@ -88,17 +96,13 @@ public class SettingsTest {
 
   @Test
   public void remove_value() throws Exception {
-    settingsService().set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
-    settingsService().reset(ResetRequest.builder().setKey(PLUGIN_SETTING_KEY).build());
+    SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+    SETTINGS.reset(ResetRequest.builder().setKey(PLUGIN_SETTING_KEY).build());
     assertThat(getSetting(PLUGIN_SETTING_KEY).getValue()).isEqualTo("aDefaultValue");
   }
 
-  private static SettingsService settingsService() {
-    return newAdminWsClient(orchestrator).settingsService();
-  }
-
   private Settings.Setting getSetting(String key) {
-    Settings.ValuesWsResponse response = settingsService().values(ValuesRequest.builder().setKeys(key).build());
+    Settings.ValuesWsResponse response = SETTINGS.values(ValuesRequest.builder().setKeys(key).build());
     List<Settings.Setting> settings = response.getSettingsList();
     assertThat(settings).hasSize(1);
     return settings.get(0);

@@ -224,7 +224,7 @@ public class ValuesAction implements SettingsWsAction {
         return;
       }
       if (definition.type().equals(PROPERTY_SET)) {
-        valueBuilder.setFieldsValues(createFieldValuesBuilder(setting.getPropertySets()));
+        valueBuilder.setFieldValues(createFieldValuesBuilder(setting.getPropertySets()));
       } else if (definition.multiValues()) {
         valueBuilder.setValues(createValuesBuilder(value));
       } else {
