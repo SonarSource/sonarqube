@@ -61,6 +61,6 @@ describe('Settings :: Inputs :: InputForSingleSelectList', () => {
 
     select.prop('onChange')({ value: 'baz', label: 'baz' });
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, 'baz']);
+    expect(onChange.lastCall.args).to.deep.equal(['baz']);
   });
 });

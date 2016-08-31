@@ -24,8 +24,7 @@ export default class InputForText extends React.Component {
   static propTypes = defaultInputPropTypes;
 
   handleInputChange (e) {
-    const { value } = e.target;
-    this.props.onChange(undefined, value);
+    this.props.onChange(e.target.value);
   }
 
   render () {

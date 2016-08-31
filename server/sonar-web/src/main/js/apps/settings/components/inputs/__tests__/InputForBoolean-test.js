@@ -72,6 +72,6 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
     toggle.prop('onChange')(false);
 
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, false]);
+    expect(onChange.lastCall.args).to.deep.equal([false]);
   });
 });

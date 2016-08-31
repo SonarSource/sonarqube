@@ -69,7 +69,7 @@ class Definition extends React.Component {
     }
   }
 
-  handleSet (_, value) {
+  handleChange (value) {
     clearTimeout(this.timeout);
     const { definition } = this.props.setting;
 
@@ -135,7 +135,7 @@ class Definition extends React.Component {
           </div>
 
           <div className="settings-definition-right">
-            <Input setting={setting} value={effectiveValue} onChange={this.handleSet.bind(this)}/>
+            <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)}/>
 
             {!hasValueChanged && (
                 <DefinitionDefaults

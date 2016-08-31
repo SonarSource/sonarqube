@@ -32,14 +32,10 @@ export default class MultiValueInput extends React.Component {
     return this.props.value || [];
   }
 
-  handleChange (newValue) {
-    this.props.onChange(undefined, newValue);
-  }
-
-  handleSingleInputChange (index, _, value) {
+  handleSingleInputChange (index, value) {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1, value);
-    this.handleChange(newValue);
+    this.props.onChange(newValue);
   }
 
   handleDeleteValue (e, index) {
@@ -48,7 +44,7 @@ export default class MultiValueInput extends React.Component {
 
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1);
-    this.handleChange(newValue);
+    this.props.onChange(newValue);
   }
 
   prepareSetting () {

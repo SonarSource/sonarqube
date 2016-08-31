@@ -55,6 +55,6 @@ describe('Settings :: Inputs :: InputForText', () => {
     change(textarea, 'qux');
 
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, 'qux']);
+    expect(onChange.lastCall.args).to.deep.equal(['qux']);
   });
 });

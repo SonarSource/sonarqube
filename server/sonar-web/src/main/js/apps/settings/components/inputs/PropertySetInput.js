@@ -36,25 +36,21 @@ export default class PropertySetInput extends React.Component {
     return getUniqueName(this.props.setting.definition, field.key);
   }
 
-  handleChange (newValue) {
-    return this.props.onChange(undefined, newValue);
-  }
-
   handleDeleteValue (e, index) {
     e.preventDefault();
     e.target.blur();
 
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1);
-    this.handleChange(newValue);
+    this.props.onChange(newValue);
   }
 
-  handleInputChange (index, fieldKey, _, value) {
+  handleInputChange (index, fieldKey, value) {
     const emptyValue = getEmptyValue(this.props.setting.definition)[0];
     const newValue = [...this.ensureValue()];
     const newFields = { ...emptyValue, ...newValue[index], [fieldKey]: value };
     newValue.splice(index, 1, newFields);
-    return this.handleChange(newValue);
+    return this.props.onChange(newValue);
   }
 
   renderFields (fieldValues, index, isLast) {

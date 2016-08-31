@@ -28,9 +28,7 @@ export default class InputForSingleSelectList extends React.Component {
   };
 
   handleInputChange (option) {
-    const { value } = option;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
+    this.props.onChange(option.value);
   }
 
   render () {

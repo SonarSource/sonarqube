@@ -70,7 +70,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
 
     click(multiValueInput.find('.js-remove-value').at(1));
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'baz']]);
+    expect(onChange.lastCall.args).to.deep.equal([['foo', 'baz']]);
   });
 
   it('should change existing value', () => {
@@ -84,7 +84,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
 
     change(multiValueInput.find(InputForString).at(1).find('input'), 'qux');
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'qux', 'baz']]);
+    expect(onChange.lastCall.args).to.deep.equal([['foo', 'qux', 'baz']]);
   });
 
   it('should add new value', () => {
@@ -98,6 +98,6 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
 
     change(multiValueInput.find(InputForString).at(1).find('input'), 'bar');
     expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([undefined, ['foo', 'bar']]);
+    expect(onChange.lastCall.args).to.deep.equal([['foo', 'bar']]);
   });
 });

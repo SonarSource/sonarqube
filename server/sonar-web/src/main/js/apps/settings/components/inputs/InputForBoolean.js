@@ -28,10 +28,6 @@ export default class InputForBoolean extends React.Component {
     value: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.string])
   };
 
-  handleInputChange (value) {
-    this.props.onChange(undefined, value);
-  }
-
   render () {
     const hasValue = this.props.value != null;
     const displayedValue = hasValue ? this.props.value : false;
@@ -41,7 +37,7 @@ export default class InputForBoolean extends React.Component {
           <Toggle
               name={this.props.name}
               value={displayedValue}
-              onChange={value => this.handleInputChange(value)}/>
+              onChange={this.props.onChange}/>
 
           {!hasValue && (
               <span className="spacer-left note">{translate('settings.not_set')}</span>

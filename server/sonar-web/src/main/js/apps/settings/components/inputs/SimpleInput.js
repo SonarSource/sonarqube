@@ -29,9 +29,7 @@ export default class SimpleInput extends React.Component {
   };
 
   handleInputChange (e) {
-    const { value } = e.target;
-    this.setState({ value });
-    this.props.onChange(undefined, value);
+    this.props.onChange(e.target.value);
   }
 
   render () {
