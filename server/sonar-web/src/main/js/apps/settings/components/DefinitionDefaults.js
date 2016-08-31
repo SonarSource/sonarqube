@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getSettingValue, isEmptyValue, isComplexDefinition, isDefaultOrInherited } from '../utils';
+import { getSettingValue, isEmptyValue, isComplexDefinition, getDefaultValue, isDefaultOrInherited } from '../utils';
 import { translate } from '../../../helpers/l10n';
-
-// TODO display value to which the setting will be reset
 
 export default class DefinitionDefaults extends React.Component {
   static propTypes = {
@@ -50,9 +48,13 @@ export default class DefinitionDefaults extends React.Component {
               </div>
           )}
 
-          {isExplicitlySet && !isComplexDefinition(definition) && (
-              <div className="spacer-top">
+          {isExplicitlySet && (
+              <div className="spacer-top nowrap">
                 <button onClick={e => this.handleReset(e)}>{translate('reset_verb')}</button>
+                <span className="spacer-left note">{translate('default')}{': '}</span>
+                <span className="display-inline-block text-top note" style={{ lineHeight: '24px', whiteSpace: 'normal' }}>
+                  {getDefaultValue(setting)}
+                </span>
               </div>
           )}
         </div>

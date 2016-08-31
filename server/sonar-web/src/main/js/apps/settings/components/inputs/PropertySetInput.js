@@ -117,7 +117,7 @@ export default class PropertySetInput extends React.Component {
 
     return (
         <div>
-          <table className="data zebra-hover" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
+          <table className="data no-outer-padding" style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
             <thead>
               <tr>
                 {setting.definition.fields.map(field => (
@@ -136,7 +136,7 @@ export default class PropertySetInput extends React.Component {
             </tbody>
           </table>
 
-          <div className="spacer-top" style={{ paddingLeft: 10 }}>
+          <div className="spacer-top">
             <button className="js-add-value" onClick={e => this.handleAddValue(e)}>{translate('add_verb')}</button>
           </div>
         </div>

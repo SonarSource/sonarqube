@@ -19,6 +19,7 @@
  */
 import { translate, hasMessage } from '../../helpers/l10n';
 import { TYPE_PROPERTY_SET, TYPE_BOOLEAN, TYPE_SINGLE_SELECT_LIST } from './constants';
+import { TYPE_PASSWORD } from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -94,17 +95,43 @@ export function isComplexDefinition (definition) {
   return definition.type === TYPE_PROPERTY_SET || definition.multiValues === true;
 }
 
+function getParentValue (setting) {
+  if (setting.definition.multiValues) {
+    return setting.parentValues;
+  } else if (setting.definition.type === TYPE_PROPERTY_SET) {
+    return setting.parentFieldValues;
+  } else {
+    return setting.parentValue;
+  }
+}
+
 /**
  * Get and format the default value
- * @param definition
+ * @param setting
  * @returns {string}
  */
-export function getDefaultValue (definition) {
-  if (definition.defaultValue == null) {
-    return '<no value>';
-  } else if (definition.type === TYPE_BOOLEAN) {
-    return definition.defaultValue ? translate('settings.boolean.true') : translate('settings.boolean.false');
-  } else {
-    return definition.defaultValue;
+export function getDefaultValue (setting) {
+  const parentValue = getParentValue(setting);
+
+  if (parentValue == null) {
+    return translate('settings.default.no_value');
   }
+
+  if (setting.definition.multiValues) {
+    return parentValue.join(', ');
+  }
+
+  if (setting.definition.type === TYPE_PROPERTY_SET) {
+    return translate('settings.default.complex_value');
+  }
+
+  if (setting.definition.type === TYPE_PASSWORD) {
+    return translate('settings.default.password');
+  }
+
+  if (setting.definition.type === TYPE_BOOLEAN) {
+    return parentValue ? translate('settings.boolean.true') : translate('settings.boolean.false');
+  }
+
+  return parentValue;
 }

@@ -97,6 +97,26 @@ table.data.condensed > tbody > tr > td {
   padding-bottom: 5px;
 }
 
+table.data.no-outer-padding > thead > tr {
+  > th:first-child {
+    padding-left: 0
+  }
+
+  > th:last-child {
+    padding-right: 0
+  }
+}
+
+table.data.no-outer-padding > tbody > tr {
+  > td:first-child {
+    padding-left: 0
+  }
+
+  > td:last-child {
+    padding-right: 0
+  }
+}
+
 .data thead tr.total {
   background-color: #EFEFEF;
   font-weight: normal;
