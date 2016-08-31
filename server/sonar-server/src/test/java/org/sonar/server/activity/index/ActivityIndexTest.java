@@ -24,7 +24,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActivityIndexTest {
 
   @Rule
-  public EsTester es = new EsTester(new ActivityIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new ActivityIndexDefinition(new MapSettings()));
 
   ActivityIndex underTest;
 

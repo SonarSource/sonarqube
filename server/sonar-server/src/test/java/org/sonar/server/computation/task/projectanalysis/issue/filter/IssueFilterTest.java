@@ -28,11 +28,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +72,7 @@ public class IssueFilterTest {
 
   @Test
   public void accept_everything_when_no_filter_properties() throws Exception {
-    IssueFilter underTest = newIssueFilter(new Settings());
+    IssueFilter underTest = newIssueFilter(new MapSettings());
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isTrue();
     assertThat(underTest.accept(ISSUE_2, COMPONENT_2)).isTrue();
@@ -188,7 +189,7 @@ public class IssueFilterTest {
   }
 
   private static Settings newSettings(List<String> exclusionsProperties, List<String> inclusionsProperties) {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     if (!exclusionsProperties.isEmpty()) {
       addProperties(exclusionsProperties, "ignore", settings);
     }

@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
@@ -53,7 +54,7 @@ public class SettingsNavigationActionTest {
 
   @Before
   public void before() {
-    settings = new Settings();
+    settings = new MapSettings();
     i18n = mock(I18n.class);
     when(i18n.message(any(Locale.class), anyString(), anyString())).thenAnswer(new Answer<String>() {
       @Override

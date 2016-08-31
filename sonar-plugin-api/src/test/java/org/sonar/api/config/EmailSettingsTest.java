@@ -19,31 +19,24 @@
  */
 package org.sonar.api.config;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.EmailSettings;
-import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailSettingsTest {
-  EmailSettings emailSettings;
 
-  @Before
-  public void setUp() {
-    emailSettings = new EmailSettings(new Settings());
-  }
+  private EmailSettings underTest = new EmailSettings(new MapSettings());
 
   @Test
   public void should_return_default_values() {
-    assertThat(emailSettings.getSmtpHost()).isEqualTo("");
-    assertThat(emailSettings.getSmtpPort()).isEqualTo(25);
-    assertThat(emailSettings.getSmtpUsername()).isEmpty();
-    assertThat(emailSettings.getSmtpPassword()).isEmpty();
-    assertThat(emailSettings.getSecureConnection()).isEmpty();
-    assertThat(emailSettings.getFrom()).isEqualTo("noreply@nowhere");
-    assertThat(emailSettings.getPrefix()).isEqualTo("[SONARQUBE]");
-    assertThat(emailSettings.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+    assertThat(underTest.getSmtpHost()).isEqualTo("");
+    assertThat(underTest.getSmtpPort()).isEqualTo(25);
+    assertThat(underTest.getSmtpUsername()).isEmpty();
+    assertThat(underTest.getSmtpPassword()).isEmpty();
+    assertThat(underTest.getSecureConnection()).isEmpty();
+    assertThat(underTest.getFrom()).isEqualTo("noreply@nowhere");
+    assertThat(underTest.getPrefix()).isEqualTo("[SONARQUBE]");
+    assertThat(underTest.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 }

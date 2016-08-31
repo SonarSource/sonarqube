@@ -52,6 +52,7 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 
@@ -146,31 +147,31 @@ public class DefaultHttpDownloaderTest {
       public void describeTo(Description arg0) {
       }
     });
-    DefaultHttpDownloader downloader = new DefaultHttpDownloader(new Settings(), 10, 50000);
+    DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings(), 10, 50000);
     downloader.openStream(new URI(url));
   }
 
   @Test
   public void downloadBytes() throws URISyntaxException {
-    byte[] bytes = new DefaultHttpDownloader(new Settings()).readBytes(new URI(baseUrl));
+    byte[] bytes = new DefaultHttpDownloader(new MapSettings()).readBytes(new URI(baseUrl));
     assertThat(bytes.length).isGreaterThan(10);
   }
 
   @Test
   public void readString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(new MapSettings()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
   public void readGzipString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(new MapSettings()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
     assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
+    String text = new DefaultHttpDownloader(new MapSettings()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
@@ -186,7 +187,7 @@ public class DefaultHttpDownloaderTest {
       public void describeTo(Description arg0) {
       }
     });
-    new DefaultHttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
+    new DefaultHttpDownloader(new MapSettings(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
   }
 
   @Test
@@ -194,7 +195,7 @@ public class DefaultHttpDownloaderTest {
     File toDir = temporaryFolder.newFolder();
     File toFile = new File(toDir, "downloadToFile.txt");
 
-    new DefaultHttpDownloader(new Settings()).download(new URI(baseUrl), toFile);
+    new DefaultHttpDownloader(new MapSettings()).download(new URI(baseUrl), toFile);
     assertThat(toFile).exists();
     assertThat(toFile.length()).isGreaterThan(10l);
   }
@@ -206,7 +207,7 @@ public class DefaultHttpDownloaderTest {
 
     try {
       int port = new InetSocketAddress("localhost", 0).getPort();
-      new DefaultHttpDownloader(new Settings()).download(new URI("http://localhost:" + port), toFile);
+      new DefaultHttpDownloader(new MapSettings()).download(new URI("http://localhost:" + port), toFile);
     } catch (SonarException e) {
       assertThat(toFile).doesNotExist();
     }
@@ -217,7 +218,7 @@ public class DefaultHttpDownloaderTest {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
-    InputStream stream = new DefaultHttpDownloader(server, new Settings()).openStream(new URI(baseUrl));
+    InputStream stream = new DefaultHttpDownloader(server, new MapSettings()).openStream(new URI(baseUrl));
     Properties props = new Properties();
     props.load(stream);
     stream.close();
@@ -227,7 +228,7 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void followRedirect() throws URISyntaxException {
-    String content = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
+    String content = new DefaultHttpDownloader(new MapSettings()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
     assertThat(content).contains("agent");
   }
 
@@ -247,19 +248,19 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void supported_schemes() {
-    assertThat(new DefaultHttpDownloader(new Settings()).getSupportedSchemes()).contains("http");
+    assertThat(new DefaultHttpDownloader(new MapSettings()).getSupportedSchemes()).contains("http");
   }
 
   @Test
   public void uri_description() throws URISyntaxException {
-    String description = new DefaultHttpDownloader(new Settings()).description(new URI("http://sonarsource.org"));
+    String description = new DefaultHttpDownloader(new MapSettings()).description(new URI("http://sonarsource.org"));
     assertThat(description).matches("http://sonarsource.org \\(.*\\)");
   }
 
   @Test
   public void configure_http_and_https_proxies() {
     DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("http.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyPort", "80");
     settings.setProperty("https.proxyHost", "5.6.7.8");
@@ -277,7 +278,7 @@ public class DefaultHttpDownloaderTest {
   @Test
   public void https_defaults_are_http_properties() {
     DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("http.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyPort", "80");
 
@@ -292,7 +293,7 @@ public class DefaultHttpDownloaderTest {
   @Test
   public void configure_http_proxy_credentials() {
     DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("https.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyUser", "the_login");
     settings.setProperty("http.proxyPassword", "the_passwd");
@@ -317,7 +318,7 @@ public class DefaultHttpDownloaderTest {
   @Test
   public void no_http_proxy_settings_by_default() {
     DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
 
     verify(system, never()).setProperty(eq("http.proxyHost"), anyString());

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.Math.abs;
@@ -34,7 +35,7 @@ public class CeConfigurationImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
 
   @Test
   public void getWorkCount_returns_1_when_worker_property_is_not_defined() {

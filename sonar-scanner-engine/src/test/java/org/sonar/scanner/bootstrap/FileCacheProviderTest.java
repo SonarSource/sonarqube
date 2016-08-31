@@ -21,13 +21,12 @@ package org.sonar.scanner.bootstrap;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.home.cache.FileCache;
-import org.sonar.scanner.bootstrap.FileCacheProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +37,7 @@ public class FileCacheProviderTest {
   @Test
   public void provide() {
     FileCacheProvider provider = new FileCacheProvider();
-    FileCache cache = provider.provide(new Settings());
+    FileCache cache = provider.provide(new MapSettings());
 
     assertThat(cache).isNotNull();
     assertThat(cache.getDir()).isNotNull().exists();
@@ -47,7 +46,7 @@ public class FileCacheProviderTest {
   @Test
   public void keep_singleton_instance() {
     FileCacheProvider provider = new FileCacheProvider();
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     FileCache cache1 = provider.provide(settings);
     FileCache cache2 = provider.provide(settings);
 
@@ -57,7 +56,7 @@ public class FileCacheProviderTest {
   @Test
   public void honor_sonarUserHome() throws IOException {
     FileCacheProvider provider = new FileCacheProvider();
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     File f = temp.newFolder();
     settings.appendProperty("sonar.userHome", f.getAbsolutePath());
     FileCache cache = provider.provide(settings);

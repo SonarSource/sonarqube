@@ -32,21 +32,21 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
-import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
-import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
+import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.report.ReportPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -76,7 +76,7 @@ public class CpdExecutorTest {
   public void setUp() throws IOException {
     File outputDir = temp.newFolder();
 
-    settings = new Settings();
+    settings = new MapSettings();
     index = mock(SonarCpdBlockIndex.class);
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));

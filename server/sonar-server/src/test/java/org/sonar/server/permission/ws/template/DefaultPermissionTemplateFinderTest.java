@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -39,24 +40,24 @@ import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRoot
 
 public class DefaultPermissionTemplateFinderTest {
 
-  ResourceTypes resourceTypes = mock(ResourceTypes.class);
-  Settings settings = new Settings();
-
-  DefaultPermissionTemplateFinder underTest;
+  private ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private Settings settings = new MapSettings();
+  private DefaultPermissionTemplateFinder underTest;
 
   @Before
   public void setUp() {
     underTest = new DefaultPermissionTemplateFinder(settings, resourceTypes);
-    settings
-      .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid")
-      .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), "default-project-template-uuid")
-      .setProperty(defaultRootQualifierTemplateProperty("DEV"), "default-dev-template-uuid")
-      .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.VIEW), "default-view-template-uuid");
     when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
   }
 
   @Test
   public void get_default_template_uuids_in_settings() {
+    settings
+      .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid")
+      .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), "default-project-template-uuid")
+      .setProperty(defaultRootQualifierTemplateProperty("DEV"), "default-dev-template-uuid")
+      .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.VIEW), "default-view-template-uuid");
+
     Set<String> result = underTest.getDefaultTemplateUuids();
 
     assertThat(result).containsOnly("default-project-template-uuid", "default-view-template-uuid", "default-dev-template-uuid");
@@ -64,9 +65,7 @@ public class DefaultPermissionTemplateFinderTest {
 
   @Test
   public void get_default_template_uuid_if_no_property() {
-    settings
-      .clear()
-      .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid");
+    settings.setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid");
     underTest = new DefaultPermissionTemplateFinder(settings, resourceTypes);
 
     Set<String> result = underTest.getDefaultTemplateUuids();
@@ -77,7 +76,6 @@ public class DefaultPermissionTemplateFinderTest {
   @Test
   public void get_default_project_template_uuid_if_no_property_for_views() {
     settings
-      .clear()
       .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid")
       .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), "default-project-template-uuid")
       .setProperty(defaultRootQualifierTemplateProperty("DEV"), "default-dev-template-uuid");

@@ -53,15 +53,14 @@ import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerSettings;
-import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.rule.RuleRepositories;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -191,8 +190,7 @@ public final class JRubyFacade {
   }
 
   public void setGlobalProperty(String key, @Nullable String value) {
-    get(ServerSettings.class).setProperty(key, value);
-    get(SettingsChangeNotifier.class).onGlobalPropertyChange(key, value);
+    get(PersistentSettings.class).saveProperty(key, value);
   }
 
   public Settings getSettings() {

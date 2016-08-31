@@ -20,14 +20,17 @@
 package org.sonar.ce.settings;
 
 import org.picocontainer.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.server.computation.task.container.EagerStart;
 import org.sonar.server.computation.task.container.TaskContainerImpl;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 /**
  * Add this class as the first components in the {@link TaskContainerImpl}
  * to trigger loading of Thread local specific {@link org.sonar.api.config.Settings} in {@link ThreadLocalSettings}.
  */
 @EagerStart
+@ComputeEngineSide
 public class SettingsLoader implements Startable {
   private final ThreadLocalSettings threadLocalSettings;
 

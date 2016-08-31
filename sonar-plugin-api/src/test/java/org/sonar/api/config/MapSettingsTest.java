@@ -19,7 +19,7 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Date;
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,11 +30,9 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.DateUtils;
 
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SettingsTest {
+public class MapSettingsTest {
 
   private PropertyDefinitions definitions;
 
@@ -52,7 +50,7 @@ public class SettingsTest {
     @Property(key = "newKeyWithDefaultValue", name = "New key with default value", deprecatedKey = "oldKeyWithDefaultValue", defaultValue = "default_value"),
     @Property(key = "new_multi_values", name = "New multi values", defaultValue = "1,2,3", multiValues = true, deprecatedKey = "old_multi_values")
   })
-  static class Init {
+  private static class Init {
   }
 
   @Rule
@@ -66,13 +64,13 @@ public class SettingsTest {
 
   @Test
   public void default_values_should_be_loaded_from_definitions() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getDefaultValue("hello")).isEqualTo("world");
   }
 
   @Test
   public void set_property_int() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", 123);
     assertThat(settings.getInt("foo")).isEqualTo(123);
     assertThat(settings.getString("foo")).isEqualTo("123");
@@ -81,7 +79,7 @@ public class SettingsTest {
 
   @Test
   public void default_number_values_are_zero() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     assertThat(settings.getInt("foo")).isEqualTo(0);
     assertThat(settings.getLong("foo")).isEqualTo(0L);
   }
@@ -90,41 +88,34 @@ public class SettingsTest {
   public void getInt_value_must_be_valid() {
     thrown.expect(NumberFormatException.class);
 
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "not a number");
     settings.getInt("foo");
   }
 
   @Test
   public void all_values_should_be_trimmed_set_property() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "   FOO ");
     assertThat(settings.getString("foo")).isEqualTo("FOO");
   }
 
   @Test
-  public void all_values_should_be_trimmed_set_properties() {
-    Settings settings = new Settings();
-    settings.setProperties(ImmutableMap.of("foo", "  FOO "));
-    assertThat(settings.getString("foo")).isEqualTo("FOO");
-  }
-
-  @Test
   public void test_get_default_value() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getDefaultValue("unknown")).isNull();
   }
 
   @Test
   public void test_get_string() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("hello", "Russia");
     assertThat(settings.getString("hello")).isEqualTo("Russia");
   }
 
   @Test
   public void setProperty_date() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
     settings.setProperty("aDate", date);
     settings.setProperty("aDateTime", date, true);
@@ -135,7 +126,7 @@ public class SettingsTest {
 
   @Test
   public void test_get_date() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
     assertThat(settings.getDate("date").getDate()).isEqualTo(18);
     assertThat(settings.getDate("date").getMonth()).isEqualTo(4);
@@ -143,13 +134,13 @@ public class SettingsTest {
 
   @Test
   public void test_get_date_not_found() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
   }
 
   @Test
   public void test_get_datetime() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getDateTime("unknown")).isNull();
     assertThat(settings.getDateTime("datetime").getDate()).isEqualTo(18);
     assertThat(settings.getDateTime("datetime").getMonth()).isEqualTo(4);
@@ -158,7 +149,7 @@ public class SettingsTest {
 
   @Test
   public void test_get_double() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("from_double", 3.14159);
     settings.setProperty("from_string", "3.14159");
     assertThat(settings.getDouble("from_double")).isEqualTo(3.14159, Offset.offset(0.00001));
@@ -168,7 +159,7 @@ public class SettingsTest {
 
   @Test
   public void test_get_float() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("from_float", 3.14159f);
     settings.setProperty("from_string", "3.14159");
     assertThat(settings.getDouble("from_float")).isEqualTo(3.14159f, Offset.offset(0.00001));
@@ -178,7 +169,7 @@ public class SettingsTest {
 
   @Test
   public void test_get_bad_float() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "bar");
 
     thrown.expect(IllegalStateException.class);
@@ -188,7 +179,7 @@ public class SettingsTest {
 
   @Test
   public void test_get_bad_double() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "bar");
 
     thrown.expect(IllegalStateException.class);
@@ -198,28 +189,28 @@ public class SettingsTest {
 
   @Test
   public void testSetNullFloat() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", (Float) null);
     assertThat(settings.getFloat("foo")).isNull();
   }
 
   @Test
   public void testSetNullDouble() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", (Double) null);
     assertThat(settings.getDouble("foo")).isNull();
   }
 
   @Test
   public void getStringArray() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     String[] array = settings.getStringArray("array");
     assertThat(array).isEqualTo(new String[] {"one", "two", "three"});
   }
 
   @Test
   public void setStringArray() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("multi_values", new String[] {"A", "B"});
     String[] array = settings.getStringArray("multi_values");
     assertThat(array).isEqualTo(new String[] {"A", "B"});
@@ -227,7 +218,7 @@ public class SettingsTest {
 
   @Test
   public void setStringArrayTrimValues() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("multi_values", new String[] {" A ", " B "});
     String[] array = settings.getStringArray("multi_values");
     assertThat(array).isEqualTo(new String[] {"A", "B"});
@@ -235,7 +226,7 @@ public class SettingsTest {
 
   @Test
   public void setStringArrayEscapeCommas() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("multi_values", new String[] {"A,B", "C,D"});
     String[] array = settings.getStringArray("multi_values");
     assertThat(array).isEqualTo(new String[] {"A,B", "C,D"});
@@ -243,7 +234,7 @@ public class SettingsTest {
 
   @Test
   public void setStringArrayWithEmptyValues() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("multi_values", new String[] {"A,B", "", "C,D"});
     String[] array = settings.getStringArray("multi_values");
     assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
@@ -251,7 +242,7 @@ public class SettingsTest {
 
   @Test
   public void setStringArrayWithNullValues() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("multi_values", new String[] {"A,B", null, "C,D"});
     String[] array = settings.getStringArray("multi_values");
     assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
@@ -259,20 +250,20 @@ public class SettingsTest {
 
   @Test(expected = IllegalStateException.class)
   public void shouldFailToSetArrayValueOnSingleValueProperty() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("array", new String[] {"A", "B", "C"});
   }
 
   @Test
   public void getStringArray_no_value() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     String[] array = settings.getStringArray("array");
     assertThat(array).isEmpty();
   }
 
   @Test
   public void shouldTrimArray() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "  one,  two, three  ");
     String[] array = settings.getStringArray("foo");
     assertThat(array).isEqualTo(new String[] {"one", "two", "three"});
@@ -280,7 +271,7 @@ public class SettingsTest {
 
   @Test
   public void shouldKeepEmptyValuesWhenSplitting() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "  one,  , two");
     String[] array = settings.getStringArray("foo");
     assertThat(array).isEqualTo(new String[] {"one", "", "two"});
@@ -288,13 +279,13 @@ public class SettingsTest {
 
   @Test
   public void testDefaultValueOfGetString() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getString("hello")).isEqualTo("world");
   }
 
   @Test
   public void set_property_boolean() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", true);
     settings.setProperty("bar", false);
     assertThat(settings.getBoolean("foo")).isTrue();
@@ -305,7 +296,7 @@ public class SettingsTest {
 
   @Test
   public void ignore_case_of_boolean_values() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "true");
     settings.setProperty("bar", "TRUE");
     // labels in UI
@@ -318,7 +309,7 @@ public class SettingsTest {
 
   @Test
   public void get_boolean() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     assertThat(settings.getBoolean("boolean")).isTrue();
     assertThat(settings.getBoolean("falseboolean")).isFalse();
     assertThat(settings.getBoolean("unknown")).isFalse();
@@ -327,7 +318,8 @@ public class SettingsTest {
 
   @Test
   public void shouldCreateByIntrospectingComponent() {
-    Settings settings = Settings.createForComponent(MyComponent.class);
+    Settings settings = new MapSettings();
+    settings.getDefinitions().addComponent(MyComponent.class);
 
     // property definition has been loaded, ie for default value
     assertThat(settings.getDefaultValue("foo")).isEqualTo("bar");
@@ -339,38 +331,20 @@ public class SettingsTest {
   }
 
   @Test
-  public void cloneSettings() {
-    Settings target = new Settings(definitions).setProperty("foo", "bar");
-    Settings settings = new Settings(target);
-
-    assertThat(settings.getString("foo")).isEqualTo("bar");
-    assertThat(settings.getDefinitions()).isSameAs(definitions);
-
-    // do not propagate changes
-    settings.setProperty("foo", "changed");
-    settings.setProperty("new", "value");
-
-    assertThat(settings.getString("foo")).isEqualTo("changed");
-    assertThat(settings.getString("new")).isEqualTo("value");
-    assertThat(target.getString("foo")).isEqualTo("bar");
-    assertThat(target.getString("new")).isNull();
-  }
-
-  @Test
   public void getStringLines_no_value() {
-    assertThat(new Settings().getStringLines("foo")).hasSize(0);
+    assertThat(new MapSettings().getStringLines("foo")).hasSize(0);
   }
 
   @Test
   public void getStringLines_single_line() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "the line");
     assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"the line"});
   }
 
   @Test
   public void getStringLines_linux() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "one\ntwo");
     assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
 
@@ -380,7 +354,7 @@ public class SettingsTest {
 
   @Test
   public void getStringLines_windows() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "one\r\ntwo");
     assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
 
@@ -390,14 +364,14 @@ public class SettingsTest {
 
   @Test
   public void getStringLines_mix() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "one\r\ntwo\nthree");
     assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two", "three"});
   }
 
   @Test
   public void getKeysStartingWith() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "foo");
     settings.setProperty("sonar.jdbc.username", "bar");
     settings.setProperty("sonar.security", "admin");
@@ -409,7 +383,7 @@ public class SettingsTest {
 
   @Test
   public void should_fallback_deprecated_key_to_default_value_of_new_key() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
 
     assertThat(settings.getString("newKeyWithDefaultValue")).isEqualTo("default_value");
     assertThat(settings.getString("oldKeyWithDefaultValue")).isEqualTo("default_value");
@@ -417,7 +391,7 @@ public class SettingsTest {
 
   @Test
   public void should_fallback_deprecated_key_to_new_key() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("newKey", "value of newKey");
 
     assertThat(settings.getString("newKey")).isEqualTo("value of newKey");
@@ -427,7 +401,7 @@ public class SettingsTest {
   @Test
   public void should_load_value_of_deprecated_key() {
     // it's used for example when deprecated settings are set through command-line
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("oldKey", "value of oldKey");
 
     assertThat(settings.getString("newKey")).isEqualTo("value of oldKey");
@@ -436,7 +410,7 @@ public class SettingsTest {
 
   @Test
   public void should_load_values_of_deprecated_key() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("oldKey", "a,b");
 
     assertThat(settings.getStringArray("newKey")).containsOnly("a", "b");
@@ -445,7 +419,7 @@ public class SettingsTest {
 
   @Test
   public void should_support_deprecated_props_with_multi_values() {
-    Settings settings = new Settings(definitions);
+    Settings settings = new MapSettings(definitions);
     settings.setProperty("new_multi_values", new String[] {" A ", " B "});
     assertThat(settings.getStringArray("new_multi_values")).isEqualTo(new String[] {"A", "B"});
     assertThat(settings.getStringArray("old_multi_values")).isEqualTo(new String[] {"A", "B"});

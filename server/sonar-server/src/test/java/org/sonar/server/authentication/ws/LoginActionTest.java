@@ -73,7 +73,7 @@ public class LoginActionTest {
 
   @Before
   public void setUp() throws Exception {
-    threadLocalUserSession.remove();
+    threadLocalUserSession.unload();
     dbClient.userDao().insert(dbSession, user);
     dbSession.commit();
   }

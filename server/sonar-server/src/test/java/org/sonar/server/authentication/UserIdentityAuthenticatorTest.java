@@ -19,11 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
@@ -49,6 +45,11 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class UserIdentityAuthenticatorTest {
 
@@ -80,7 +81,7 @@ public class UserIdentityAuthenticatorTest {
   DbSession dbSession = dbTester.getSession();
   UserDao userDao = dbClient.userDao();
   GroupDao groupDao = dbClient.groupDao();
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);

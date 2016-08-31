@@ -21,11 +21,9 @@ package org.sonar.server.user.ws;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -58,7 +56,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SearchActionTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

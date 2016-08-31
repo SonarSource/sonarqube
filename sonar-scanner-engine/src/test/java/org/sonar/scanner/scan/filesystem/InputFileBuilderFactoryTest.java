@@ -23,13 +23,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.scanner.scan.filesystem.InputFileBuilder;
-import org.sonar.scanner.scan.filesystem.InputFileBuilderFactory;
-import org.sonar.scanner.scan.filesystem.LanguageDetectionFactory;
-import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +38,7 @@ public class InputFileBuilderFactoryTest {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
 
     InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
-      statusDetectionFactory, new Settings(), new FileMetadata());
+      statusDetectionFactory, new MapSettings(), new FileMetadata());
     InputFileBuilder builder = factory.create(fs);
 
     assertThat(builder.langDetection()).isNotNull();

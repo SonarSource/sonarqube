@@ -28,10 +28,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.process.NetworkUtils;
-import org.sonar.server.platform.db.EmbeddedDatabase;
 
 import static junit.framework.Assert.fail;
 import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
@@ -64,7 +63,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_property_Data_Path_is_not_set() {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings());
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property " + PATH_DATA);
@@ -74,7 +73,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_property_Data_Path_is_empty() {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, ""));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -85,7 +84,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_JDBC_URL_settings_is_not_set() throws IOException {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath()));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -96,7 +95,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_fails_with_IAE_if_embedded_port_settings_is_not_set() throws IOException {
-    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc url"));
 
@@ -109,7 +108,7 @@ public class EmbeddedDatabaseTest {
   @Test
   public void start_ignores_URL_to_create_database_and_uses_default_username_and_password_when_then_are_not_set() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new Settings()
+    underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc url")
       .setProperty(PROP_EMBEDDED_PORT, "" + port));
@@ -122,7 +121,7 @@ public class EmbeddedDatabaseTest {
   @Test
   public void start_creates_db_with_specified_user_and_password() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new Settings()
+    underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc url")
       .setProperty(PROP_EMBEDDED_PORT, "" + port)
@@ -137,7 +136,7 @@ public class EmbeddedDatabaseTest {
   @Test
   public void start_supports_in_memory_H2_JDBC_URL() throws IOException {
     int port = NetworkUtils.freePort();
-    underTest = new EmbeddedDatabase(new Settings()
+    underTest = new EmbeddedDatabase(new MapSettings()
       .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(PROP_URL, "jdbc:h2:mem:sonar")
       .setProperty(PROP_EMBEDDED_PORT, "" + port)

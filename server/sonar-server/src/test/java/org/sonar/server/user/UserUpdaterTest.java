@@ -19,17 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
-import static org.sonar.db.user.UserTesting.newDisabledUser;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import com.google.common.base.Strings;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
@@ -38,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -57,6 +47,17 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
+import static org.sonar.db.user.UserTesting.newDisabledUser;
+import static org.sonar.db.user.UserTesting.newUserDto;
+
 public class UserUpdaterTest {
 
   static final long NOW = 1418215735482L;
@@ -65,7 +66,7 @@ public class UserUpdaterTest {
   static final String DEFAULT_LOGIN = "marius";
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   System2 system2 = mock(System2.class);
 
@@ -78,7 +79,7 @@ public class UserUpdaterTest {
 
   ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   UserDao userDao = dbClient.userDao();
   GroupDao groupDao = dbClient.groupDao();
   GroupMembershipFinder groupMembershipFinder = new GroupMembershipFinder(userDao, dbClient.groupMembershipDao());

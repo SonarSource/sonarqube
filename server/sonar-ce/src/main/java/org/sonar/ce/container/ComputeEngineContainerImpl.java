@@ -46,7 +46,7 @@ import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
-import org.sonar.ce.settings.ComputeEngineSettings;
+import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -101,7 +101,6 @@ import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -131,7 +130,9 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
-import org.sonar.server.setting.ProjectSettingsFactory;
+import org.sonar.server.setting.DatabaseSettingLoader;
+import org.sonar.server.setting.DatabaseSettingsEnabler;
+import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.DefaultUserFinder;
@@ -208,11 +209,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static Object[] level1Components() {
     Version apiVersion = ApiVersion.load(System2.INSTANCE);
     return new Object[] {
-      ComputeEngineSettings.class,
+      ThreadLocalSettings.class,
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
       UuidFactoryImpl.INSTANCE,
-      UrlSettings.class,
       ClusterImpl.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
@@ -248,6 +248,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] level2Components() {
     return new Object[] {
+      DatabaseSettingLoader.class,
+      DatabaseSettingsEnabler.class,
+      UrlSettings.class,
+
       // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
       ReadOnlyPropertiesDao.class,
       DefaultServerUpgradeStatus.class,
@@ -270,7 +274,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static Object[] level3Components() {
     return new Object[] {
       new StartupMetadataProvider(),
-      PersistentSettings.class,
       UriReader.class,
       ServerImpl.class
     };

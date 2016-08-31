@@ -28,12 +28,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -66,17 +67,18 @@ public class MeasureComputerContextImplTest {
   private static final String FILE_1_KEY = "fileKey";
   private static final int FILE_2_REF = 12342;
 
-  private static final org.sonar.server.computation.task.projectanalysis.component.Component FILE_1 = builder(org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
-    .setKey(FILE_1_KEY)
-    .build();
+  private static final org.sonar.server.computation.task.projectanalysis.component.Component FILE_1 = builder(
+    org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
+      .setKey(FILE_1_KEY)
+      .build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(builder(org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT, PROJECT_REF).setKey("project")
       .addChildren(
         FILE_1,
-        builder(org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE, FILE_2_REF).setKey("fileKey2").build()
-      ).build());
+        builder(org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE, FILE_2_REF).setKey("fileKey2").build())
+      .build());
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -85,8 +87,7 @@ public class MeasureComputerContextImplTest {
     .add(new MetricImpl(3, DOUBLE_METRIC_KEY, "double metric", Metric.MetricType.FLOAT))
     .add(new MetricImpl(4, LONG_METRIC_KEY, "long metric", Metric.MetricType.MILLISEC))
     .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING))
-    .add(new MetricImpl(6, BOOLEAN_METRIC_KEY, "boolean metric", Metric.MetricType.BOOL))
-    ;
+    .add(new MetricImpl(6, BOOLEAN_METRIC_KEY, "boolean metric", Metric.MetricType.BOOL));
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -104,7 +105,7 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void get_string_settings() throws Exception {
-    org.sonar.api.config.Settings serverSettings = new org.sonar.api.config.Settings();
+    org.sonar.api.config.Settings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "value");
     when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 
@@ -115,7 +116,7 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void get_string_array_settings() throws Exception {
-    org.sonar.api.config.Settings serverSettings = new org.sonar.api.config.Settings();
+    org.sonar.api.config.Settings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "1,3.4,8,50");
     when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 

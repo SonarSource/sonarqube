@@ -19,17 +19,15 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class ProjectBuilderTest {
 
@@ -38,7 +36,7 @@ public class ProjectBuilderTest {
     // this reactor is created and provided by Sonar
     final ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
-    ProjectBuilder builder = new ProjectBuilderSample(new Settings());
+    ProjectBuilder builder = new ProjectBuilderSample(new MapSettings());
     builder.build(new ProjectBuilderContext(projectReactor));
 
     assertThat(projectReactor.getProjects().size(), is(2));

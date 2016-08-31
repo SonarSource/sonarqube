@@ -45,7 +45,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -68,7 +68,7 @@ public class EsTester extends ExternalResource {
 
     if (!indexDefinitions.isEmpty()) {
       container = new ComponentContainer();
-      container.addSingleton(new Settings());
+      container.addSingleton(new MapSettings());
       container.addSingletons(indexDefinitions);
       container.addSingleton(client);
       container.addSingleton(IndexDefinitions.class);

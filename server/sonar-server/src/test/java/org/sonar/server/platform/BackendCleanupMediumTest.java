@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
@@ -40,9 +40,9 @@ public class BackendCleanupMediumTest {
 
   @Rule
   public EsTester esTester = new EsTester(
-    new RuleIndexDefinition(new Settings()),
-    new IssueIndexDefinition(new Settings()),
-    new ViewIndexDefinition(new Settings())
+    new RuleIndexDefinition(new MapSettings()),
+    new IssueIndexDefinition(new MapSettings()),
+    new ViewIndexDefinition(new MapSettings())
     );
 
   @Rule

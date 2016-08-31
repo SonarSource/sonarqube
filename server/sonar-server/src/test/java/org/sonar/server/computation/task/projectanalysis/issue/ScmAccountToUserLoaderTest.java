@@ -21,7 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 public class ScmAccountToUserLoaderTest {
 
   @org.junit.Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @org.junit.Rule
   public LogTester logTester = new LogTester();

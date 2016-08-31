@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
@@ -70,7 +70,7 @@ public class SearchActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   WsTester ws;
   DbClient dbClient = db.getDbClient();

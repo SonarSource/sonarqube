@@ -29,15 +29,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderImpl;
@@ -72,7 +73,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
   DbClient dbClient = dbTester.getDbClient();
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
   LoadPeriodsStep underTest;

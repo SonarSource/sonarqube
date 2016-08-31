@@ -22,7 +22,7 @@ package org.sonar.server.user.index;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -36,7 +36,7 @@ public class UserIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Test
   public void index_nothing() {

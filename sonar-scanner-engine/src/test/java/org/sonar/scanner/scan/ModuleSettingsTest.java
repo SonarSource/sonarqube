@@ -33,11 +33,13 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.ModuleSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -81,9 +83,7 @@ public class ModuleSettingsTest {
 
   @Test
   public void test_loading_of_module_settings() {
-    GlobalSettings globalSettings = mock(GlobalSettings.class);
-    when(globalSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
-    when(globalSettings.getProperties()).thenReturn(ImmutableMap.of(
+    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
@@ -96,15 +96,12 @@ public class ModuleSettingsTest {
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
     assertThat(moduleSettings.getString("on-module")).isEqualTo("true");
-
   }
 
   // SONAR-6386
   @Test
   public void test_loading_of_parent_module_settings_for_new_module() {
-    GlobalSettings globalSettings = mock(GlobalSettings.class);
-    when(globalSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
-    when(globalSettings.getProperties()).thenReturn(ImmutableMap.of(
+    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
@@ -122,16 +119,14 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    GlobalSettings batchSettings = mock(GlobalSettings.class);
-    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
-    when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
+    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
       "sonar.foo.secured", "bar"));
 
     ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -139,9 +134,7 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues() {
-    GlobalSettings batchSettings = mock(GlobalSettings.class);
-    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
-    when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
+    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
       "sonar.foo.secured", "bar"));
 
     ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
@@ -150,7 +143,7 @@ public class ModuleSettingsTest {
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
@@ -159,5 +152,11 @@ public class ModuleSettingsTest {
       .expectMessage(
         "Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     moduleSettings.getString("sonar.foo.secured");
+  }
+
+  private GlobalSettings newGlobalSettings(Map<String, String> props) {
+    GlobalProperties globalProps = new GlobalProperties(props);
+    return new GlobalSettings(globalProps, new PropertyDefinitions(),
+      new GlobalRepositories(), new GlobalMode(globalProps));
   }
 }

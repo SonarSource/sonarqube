@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -45,7 +45,7 @@ import org.sonar.server.ws.WsTester;
 public class ListActionTest {
 
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

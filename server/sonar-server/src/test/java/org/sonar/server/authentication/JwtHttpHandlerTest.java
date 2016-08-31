@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -83,7 +84,7 @@ public class JwtHttpHandlerTest {
   HttpSession httpSession = mock(HttpSession.class);
 
   System2 system2 = mock(System2.class);
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   JwtSerializer jwtSerializer = mock(JwtSerializer.class);
   JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
 

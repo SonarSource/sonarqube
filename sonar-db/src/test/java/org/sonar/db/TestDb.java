@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -38,6 +37,7 @@ import org.dbunit.IDatabaseTester;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
@@ -74,7 +74,7 @@ class TestDb {
 
   private TestDb(@Nullable String schemaPath) {
     if (db == null) {
-      Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
+      Settings settings = new MapSettings().addProperties(System.getProperties());
       if (settings.hasKey("orchestrator.configUrl")) {
         loadOrchestratorSettings(settings);
       }

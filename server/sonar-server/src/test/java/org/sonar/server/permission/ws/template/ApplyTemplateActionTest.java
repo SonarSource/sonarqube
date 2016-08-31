@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -40,8 +40,8 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
@@ -103,7 +103,7 @@ public class ApplyTemplateActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
 
-    PermissionRepository repository = new PermissionRepository(dbClient, new Settings());
+    PermissionRepository repository = new PermissionRepository(dbClient, new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
     PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);

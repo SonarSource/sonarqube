@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
@@ -83,7 +84,7 @@ public class GlobalNavigationActionTest {
 
   @Test
   public void empty_call() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new Settings(), new ResourceTypes(), userSessionRule)));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new MapSettings(), new ResourceTypes(), userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "empty.json");
   }
@@ -103,7 +104,7 @@ public class GlobalNavigationActionTest {
           .addRelations("PAL", "LAP")
           .build()
       });
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new Settings(), resourceTypes, userSessionRule)));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new MapSettings(), resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "with_qualifiers.json");
   }
@@ -111,7 +112,7 @@ public class GlobalNavigationActionTest {
   @Test
   public void only_logo() throws Exception {
     wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule),
-      new Settings()
+      new MapSettings()
         .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
         .setProperty("sonar.lf.logoWidthPx", "123"),
       new ResourceTypes(), userSessionRule)));
@@ -159,7 +160,7 @@ public class GlobalNavigationActionTest {
 
     session.commit();
 
-    Settings settings = new Settings()
+    Settings settings = new MapSettings()
       .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
       .setProperty("sonar.lf.logoWidthPx", "123");
     wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings, new ResourceTypes(), userSessionRule)));

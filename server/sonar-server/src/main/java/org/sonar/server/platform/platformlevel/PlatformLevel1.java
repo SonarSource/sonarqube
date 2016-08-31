@@ -45,7 +45,6 @@ import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
-import org.sonar.server.platform.ServerSettingsImpl;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
@@ -55,6 +54,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
+import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 public class PlatformLevel1 extends PlatformLevel {
@@ -78,10 +78,10 @@ public class PlatformLevel1 extends PlatformLevel {
     add(
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
+      ThreadLocalSettings.class,
       LogServerVersion.class,
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
-      ServerSettingsImpl.class,
       DefaultHttpDownloader.class,
       UuidFactoryImpl.INSTANCE,
       UrlSettings.class,

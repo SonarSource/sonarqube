@@ -21,9 +21,8 @@ package org.sonar.server.platform.db;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.server.platform.db.EmbeddedDatabase;
-import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.verify;
 
 public class EmbeddedDatabaseFactoryTest {
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   @Test
   public void should_start_and_stop_tcp_h2_database() {

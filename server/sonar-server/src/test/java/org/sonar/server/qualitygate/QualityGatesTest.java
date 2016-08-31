@@ -34,7 +34,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -90,7 +89,6 @@ public class QualityGatesTest {
   PropertiesDao propertiesDao = mock(PropertiesDao.class);
   ComponentDao componentDao = mock(ComponentDao.class);
   MetricFinder metricFinder = mock(MetricFinder.class);
-  Settings settings = new Settings();
 
   QualityGates underTest;
 
@@ -104,8 +102,6 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    settings.clear();
-
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.qualityGateDao()).thenReturn(dao);
     when(dbClient.gateConditionDao()).thenReturn(conditionDao);
@@ -114,7 +110,7 @@ public class QualityGatesTest {
 
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(newProjectDto(PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
 
-    underTest = new QualityGates(dbClient, metricFinder, userSessionRule, settings);
+    underTest = new QualityGates(dbClient, metricFinder, userSessionRule);
 
     userSessionRule.set(authorizedProfileAdminUserSession);
   }
@@ -228,7 +224,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_select_default_qgate_and_update_settings() {
+  public void should_select_default_qgate() {
     long defaultId = QUALITY_GATE_ID;
     String defaultName = "Default Name";
     when(dao.selectById(defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
@@ -241,17 +237,6 @@ public class QualityGatesTest {
 
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
-    assertThat(settings.getLong("sonar.qualitygate")).isEqualTo(42);
-  }
-
-  @Test
-  public void should_unset_default_qgate_and_unset_in_settings() {
-    settings.setProperty("sonar.qualitygate", 42l);
-
-    underTest.setDefault(null);
-
-    verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate");
-    assertThat(settings.hasKey("sonar.qualitygate")).isFalse();
   }
 
   @Test

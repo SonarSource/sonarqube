@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.DefaultProcessCommands;
@@ -55,7 +56,7 @@ public class CeHttpClientTest {
   @Before
   public void setUp() throws Exception {
     ipcSharedDir = temp.newFolder();
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, ipcSharedDir.getAbsolutePath());
     underTest = new CeHttpClient(settings);
   }

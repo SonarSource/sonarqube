@@ -23,13 +23,13 @@ import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.test.db.TestTesting;
@@ -45,7 +45,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new TestIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new TestIndexDefinition(new MapSettings()));
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

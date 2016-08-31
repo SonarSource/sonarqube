@@ -25,6 +25,7 @@ import org.assertj.core.data.MapEntry;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,7 +151,7 @@ public class NewIndexTest {
   @Test
   public void default_shards_and_replicas() {
     NewIndex index = new NewIndex("issues");
-    index.configureShards(new org.sonar.api.config.Settings());
+    index.configureShards(new MapSettings());
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
@@ -158,7 +159,7 @@ public class NewIndexTest {
   @Test
   public void five_shards_and_one_replica_by_default_on_cluster() {
     NewIndex index = new NewIndex("issues");
-    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     index.configureShards(settings);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
@@ -168,7 +169,7 @@ public class NewIndexTest {
   @Test
   public void customize_number_of_shards() {
     NewIndex index = new NewIndex("issues");
-    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
     index.configureShards(settings);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
@@ -179,7 +180,7 @@ public class NewIndexTest {
   @Test
   public void customize_number_of_shards_and_replicas() {
     NewIndex index = new NewIndex("issues");
-    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
     settings.setProperty("sonar.search.issues.replicas", "1");
     index.configureShards(settings);

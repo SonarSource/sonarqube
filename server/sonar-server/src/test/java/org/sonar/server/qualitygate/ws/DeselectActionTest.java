@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -64,7 +63,7 @@ public class DeselectActionTest {
   DbSession dbSession = db.getSession();
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession, mock(Settings.class));
+  QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession);
 
   WsActionTester ws;
 

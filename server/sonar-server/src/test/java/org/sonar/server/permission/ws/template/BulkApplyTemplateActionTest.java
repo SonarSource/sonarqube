@@ -20,19 +20,6 @@
 
 package org.sonar.server.permission.ws.template;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
@@ -41,7 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -56,8 +43,8 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
@@ -75,6 +62,19 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class BulkApplyTemplateActionTest {
   @Rule
@@ -103,7 +103,7 @@ public class BulkApplyTemplateActionTest {
 
   @Before
   public void setUp() {
-    PermissionRepository repository = new PermissionRepository(dbClient, new Settings());
+    PermissionRepository repository = new PermissionRepository(dbClient, new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
     PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);

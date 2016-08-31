@@ -28,12 +28,12 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
@@ -63,7 +63,7 @@ public class MetadataPublisherTest {
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     componentCache.add(project, null);
     componentCache.add(sampleFile, project);
-    settings = new Settings();
+    settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
     underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), settings, qProfiles);
   }

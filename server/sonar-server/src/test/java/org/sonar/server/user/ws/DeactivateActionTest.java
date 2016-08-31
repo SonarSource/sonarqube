@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -52,7 +53,7 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class DeactivateActionTest {
 
-  static final Settings settings = new Settings();
+  static final Settings settings = new MapSettings();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);

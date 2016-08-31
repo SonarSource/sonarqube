@@ -19,17 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -44,6 +33,17 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
+
+import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class SetDefaultTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;

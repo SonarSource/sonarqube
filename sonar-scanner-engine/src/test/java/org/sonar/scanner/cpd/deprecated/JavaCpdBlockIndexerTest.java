@@ -19,6 +19,9 @@
  */
 package org.sonar.scanner.cpd.deprecated;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,13 +36,10 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.duplications.block.Block;
-import org.sonar.scanner.cpd.deprecated.JavaCpdBlockIndexer;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.index.BatchComponentCache;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -76,13 +76,13 @@ public class JavaCpdBlockIndexerTest {
     File ioFile = file.file();
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);
 
-    settings = new Settings();
+    settings = new MapSettings();
     engine = new JavaCpdBlockIndexer(fs, settings, index);
   }
 
   @Test
   public void languageSupported() {
-    JavaCpdBlockIndexer engine = new JavaCpdBlockIndexer(mock(FileSystem.class), new Settings(), index);
+    JavaCpdBlockIndexer engine = new JavaCpdBlockIndexer(mock(FileSystem.class), new MapSettings(), index);
     assertThat(engine.isLanguageSupported(JAVA)).isTrue();
     assertThat(engine.isLanguageSupported("php")).isFalse();
   }

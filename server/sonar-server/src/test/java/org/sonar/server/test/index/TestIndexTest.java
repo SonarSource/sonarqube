@@ -23,7 +23,7 @@ import com.google.common.base.Optional;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
@@ -33,7 +33,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestIndexTest {
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
 
   TestIndex underTest = new TestIndex(es.client());
 

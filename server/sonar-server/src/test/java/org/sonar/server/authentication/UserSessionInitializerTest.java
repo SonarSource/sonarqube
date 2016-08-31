@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -66,7 +67,7 @@ public class UserSessionInitializerTest {
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   UserDto user = newUserDto();
 
@@ -176,13 +177,6 @@ public class UserSessionInitializerTest {
 
     verify(response).setStatus(401);
     verifyZeroInteractions(userSession);
-  }
-
-  @Test
-  public void remove_user_session() throws Exception {
-    underTest.removeUserSession();
-
-    verify(userSession).remove();
   }
 
   private void assertPathIsIgnored(String path) {

@@ -20,7 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
@@ -39,7 +39,7 @@ public class DebtCalculatorTest {
   @org.junit.Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
 
-  DebtCalculator underTest = new DebtCalculator(ruleRepository, new Durations(new Settings(), mock(I18n.class)));
+  DebtCalculator underTest = new DebtCalculator(ruleRepository, new Durations(new MapSettings(), mock(I18n.class)));
 
   @Test
   public void no_debt_if_function_is_not_defined() {

@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
@@ -61,7 +61,7 @@ public class ChangelogActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new ActivityIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new ActivityIndexDefinition(new MapSettings()));
 
   private DbClient db = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();

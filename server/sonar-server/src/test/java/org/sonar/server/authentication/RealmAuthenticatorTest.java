@@ -20,22 +20,13 @@
 
 package org.sonar.server.authentication;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.ExternalGroupsProvider;
@@ -47,6 +38,16 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.SecurityRealmFactory;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class RealmAuthenticatorTest {
 
@@ -61,7 +62,7 @@ public class RealmAuthenticatorTest {
   ArgumentCaptor<UserIdentity> userIdentityArgumentCaptor = ArgumentCaptor.forClass(UserIdentity.class);
   ArgumentCaptor<IdentityProvider> identityProviderArgumentCaptor = ArgumentCaptor.forClass(IdentityProvider.class);
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
   SecurityRealm realm = mock(SecurityRealm.class);

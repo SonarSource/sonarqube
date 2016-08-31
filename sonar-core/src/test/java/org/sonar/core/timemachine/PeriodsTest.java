@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.i18n.I18n;
 
 import static org.mockito.Matchers.anyString;
@@ -50,7 +51,7 @@ public class PeriodsTest {
   static int PERIOD_INDEX = 1;
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   I18n i18n = mock(I18n.class);
   Periods periods = new Periods(settings, i18n);
 

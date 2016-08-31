@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -63,7 +64,7 @@ public class PermissionRepositoryTest {
   DbClient dbClient = dbTester.getDbClient();
   DbSession session = dbTester.getSession();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   PermissionRepository underTest = new PermissionRepository(dbTester.getDbClient(), settings);
 
   @Before

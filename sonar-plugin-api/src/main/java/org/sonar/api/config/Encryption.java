@@ -44,8 +44,8 @@ public final class Encryption {
   public Encryption(@Nullable String pathToSecretKey) {
     aesCipher = new AesCipher(pathToSecretKey);
     ciphers = ImmutableMap.of(
-        BASE64_ALGORITHM, new Base64Cipher(),
-        AES_ALGORITHM, aesCipher);
+      BASE64_ALGORITHM, new Base64Cipher(),
+      AES_ALGORITHM, aesCipher);
   }
 
   public void setPathToSecretKey(@Nullable String pathToSecretKey) {

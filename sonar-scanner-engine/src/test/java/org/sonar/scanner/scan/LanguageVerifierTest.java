@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.FakeJava;
@@ -42,7 +43,7 @@ public class LanguageVerifierTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
   private LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(FakeJava.INSTANCE));
   private DefaultFileSystem fs;
 

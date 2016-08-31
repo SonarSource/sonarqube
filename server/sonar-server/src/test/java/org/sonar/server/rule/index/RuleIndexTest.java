@@ -28,7 +28,7 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -76,7 +76,7 @@ public class RuleIndexTest {
   static final String QUALITY_PROFILE_KEY2 = "qp2";
 
   @Rule
-  public EsTester tester = new EsTester(new RuleIndexDefinition(new Settings()));
+  public EsTester tester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   RuleIndex index;
   RuleIndexer ruleIndexer;

@@ -19,17 +19,15 @@
  */
 package org.sonar.server.es;
 
+import java.io.IOException;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
-
-import javax.annotation.CheckForNull;
-
-import java.io.IOException;
-import java.util.Map;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +40,7 @@ public class IndexCreatorTest {
   public void create_index() throws Exception {
     assertThat(mappings()).isEmpty();
 
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new Settings());
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings());
     registry.start();
     IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
@@ -67,7 +65,7 @@ public class IndexCreatorTest {
     assertThat(mappings()).isEmpty();
 
     // v1
-    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new Settings());
+    IndexDefinitions registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinition()}, new MapSettings());
     registry.start();
     IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
@@ -76,7 +74,7 @@ public class IndexCreatorTest {
     assertThat(hashV1).isNotEmpty();
 
     // v2
-    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinitionV2()}, new Settings());
+    registry = new IndexDefinitions(new IndexDefinition[] {new FakeIndexDefinitionV2()}, new MapSettings());
     registry.start();
     creator = new IndexCreator(es.client(), registry);
     creator.start();

@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
@@ -41,18 +42,16 @@ import static org.mockito.Mockito.when;
 
 public class UpdateCenterClientTest {
 
-  static final String BASE_URL = "http://update.sonarsource.org";
-  UriReader reader;
-  Settings settings;
-
-  UpdateCenterClient underTest;
+  private static final String BASE_URL = "http://update.sonarsource.org";
+  private UriReader reader = mock(UriReader.class);
+  private Settings settings = new MapSettings();
+  private UpdateCenterClient underTest;
 
   @Before
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
-    settings = new Settings()
-      .setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL)
-      .setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    settings.setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
+    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
     underTest = new UpdateCenterClient(reader, settings);
   }
 

@@ -19,31 +19,17 @@
  */
 package org.sonar.server.setting;
 
-import java.util.List;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
+import com.google.common.collect.ImmutableMap;
 
-@ServerSide
-@ComputeEngineSide
-public class ProjectSettingsFactory {
-
-  private final PropertiesDao dao;
-  private final Settings settings;
-
-  public ProjectSettingsFactory(Settings settings, PropertiesDao dao) {
-    this.dao = dao;
-    this.settings = settings;
+public class NopSettingLoader implements SettingLoader {
+  @Override
+  public String load(String key) {
+    return null;
   }
 
-  public Settings newProjectSettings(String projectKey) {
-    List<PropertyDto> propertyList = dao.selectProjectProperties(projectKey);
-    Settings projectSettings = new Settings(settings);
-    for (PropertyDto property : propertyList) {
-      projectSettings.setProperty(property.getKey(), property.getValue());
-    }
-    return projectSettings;
+  @Override
+  public void loadAll(ImmutableMap.Builder<String, String> appendTo) {
+    // nothing to load
   }
+
 }

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -72,7 +73,7 @@ public class DeleteActionTest {
     permissionTemplateDao = dbClient.permissionTemplateDao();
     dbSession = db.getSession();
 
-    Settings settings = new Settings().setProperty(CoreProperties.CORE_DEFAULT_GROUP, CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    Settings settings = new MapSettings().setProperty(CoreProperties.CORE_DEFAULT_GROUP, CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
     GroupDto defaultGroup = groupDao.insert(dbSession, new GroupDto().setName(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE));
     defaultGroupId = defaultGroup.getId();
     dbSession.commit();

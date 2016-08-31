@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -56,7 +57,7 @@ import static org.mockito.Mockito.when;
 
 public class ChangePasswordActionTest {
 
-  static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
+  static final Settings settings = new MapSettings().setProperty("sonar.defaultGroup", "sonar-users");
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

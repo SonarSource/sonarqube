@@ -19,93 +19,61 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 
-/**
- * @since 3.2
- */
-public class PersistentSettings implements Startable {
+public class PersistentSettings {
+
+  private final Settings delegate;
   private final DbClient dbClient;
-  private final PropertiesDao propertiesDao;
-  private final ServerSettings serverSettings;
+  private final SettingsChangeNotifier changeNotifier;
 
-  public PersistentSettings(DbClient dbClient, ServerSettings serverSettings) {
+  public PersistentSettings(Settings delegate, DbClient dbClient, SettingsChangeNotifier changeNotifier) {
+    this.delegate = delegate;
     this.dbClient = dbClient;
-    this.propertiesDao = dbClient.propertiesDao();
-    this.serverSettings = serverSettings;
+    this.changeNotifier = changeNotifier;
   }
 
-  @Override
-  public void start() {
-    Map<String, String> databaseProperties = Maps.newHashMap();
-    for (PropertyDto property : getGlobalProperties()) {
-      databaseProperties.put(property.getKey(), property.getValue());
+  @CheckForNull
+  public String getString(String key) {
+    return delegate.getString(key);
+  }
+
+  /**
+   * Insert property into database if value is not {@code null}, else delete property from
+   * database. Session is not committed but {@link org.sonar.api.config.GlobalPropertyChangeHandler}
+   * are executed.
+   */
+  public PersistentSettings saveProperty(DbSession dbSession, String key, @Nullable String value) {
+    if (value == null) {
+      dbClient.propertiesDao().deleteGlobalProperty(key, dbSession);
+    } else {
+      dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(key).setValue(value));
     }
-    serverSettings.activateDatabaseSettings(databaseProperties);
+    // refresh the cache of settings
+    delegate.setProperty(key, value);
+
+    changeNotifier.onGlobalPropertyChange(key, value);
+    return this;
   }
 
-  @Override
-  public void stop() {
-    // nothing to do
-  }
-
+  /**
+   * Same as {@link #saveProperty(DbSession, String, String)} but a new database session is
+   * opened and committed.
+   */
   public PersistentSettings saveProperty(String key, @Nullable String value) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       saveProperty(dbSession, key, value);
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
+      return this;
     }
-    return this;
-  }
-
-  public PersistentSettings saveProperty(DbSession dbSession, String key, @Nullable String value) {
-    serverSettings.setProperty(key, value);
-    propertiesDao.insertProperty(dbSession, new PropertyDto().setKey(key).setValue(value));
-    return this;
-  }
-
-  public PersistentSettings deleteProperty(String key) {
-    serverSettings.removeProperty(key);
-    propertiesDao.deleteGlobalProperty(key);
-    return this;
-  }
-
-  public PersistentSettings deleteProperties() {
-    serverSettings.clear();
-    propertiesDao.deleteGlobalProperties();
-    return this;
-  }
-
-  public PersistentSettings saveProperties(Map<String, String> properties) {
-    serverSettings.addProperties(properties);
-    propertiesDao.insertGlobalProperties(properties);
-    return this;
-  }
-
-  public String getString(String key) {
-    return serverSettings.getString(key);
-  }
-
-  public Map<String, String> getProperties() {
-    return serverSettings.getProperties();
   }
 
   public Settings getSettings() {
-    return serverSettings.getSettings();
-  }
-
-  public List<PropertyDto> getGlobalProperties() {
-    return propertiesDao.selectGlobalProperties();
+    return delegate;
   }
 }

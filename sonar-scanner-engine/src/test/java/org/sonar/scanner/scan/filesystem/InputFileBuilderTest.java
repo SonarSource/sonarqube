@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,15 +28,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
-import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.scanner.scan.filesystem.InputFileBuilder;
-import org.sonar.scanner.scan.filesystem.LanguageDetection;
-import org.sonar.scanner.scan.filesystem.StatusDetection;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -68,7 +64,7 @@ public class InputFileBuilderTest {
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new MapSettings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
     builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
@@ -91,7 +87,7 @@ public class InputFileBuilderTest {
     when(fs.baseDir()).thenReturn(basedir);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new MapSettings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
 
     assertThat(inputFile).isNull();
@@ -111,7 +107,7 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn(null);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new MapSettings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
     inputFile = builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 

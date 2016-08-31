@@ -30,7 +30,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
-import org.sonar.scanner.source.SymbolizableBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
