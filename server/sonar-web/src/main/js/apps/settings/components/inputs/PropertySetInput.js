@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import renderInput from './renderInput';
+import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue, getUniqueName } from '../../utils';
 
 export default class PropertySetInput extends React.Component {
@@ -60,12 +60,11 @@ export default class PropertySetInput extends React.Component {
         <tr key={index}>
           {setting.definition.fields.map(field => (
               <td key={field.key}>
-                {renderInput(
-                    { definition: field, value: fieldValues[field.key] },
-                    fieldValues[field.key],
-                    this.handleInputChange.bind(this, index, field.key),
-                    { name: this.getFieldName(field) }
-                )}
+                <PrimitiveInput
+                    name={this.getFieldName(field)}
+                    setting={{ definition: field, value: fieldValues[field.key] }}
+                    value={fieldValues[field.key]}
+                    onChange={this.handleInputChange.bind(this, index, field.key)}/>
               </td>
           ))}
           <td className="thin nowrap">

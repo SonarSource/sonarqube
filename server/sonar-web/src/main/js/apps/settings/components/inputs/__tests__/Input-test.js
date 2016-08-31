@@ -22,92 +22,39 @@ import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import Input from '../Input';
-import InputForString from '../InputForString';
-import InputForText from '../InputForText';
-import InputForPassword from '../InputForPassword';
-import InputForBoolean from '../InputForBoolean';
-import InputForNumber from '../InputForNumber';
-import InputForSingleSelectList from '../InputForSingleSelectList';
-import * as constants from '../../../constants';
-
-const exampleSetting = type => ({
-  definition: { key: 'example', type },
-  value: 'sample'
-});
+import PrimitiveInput from '../PrimitiveInput';
+import MultiValueInput from '../MultiValueInput';
+import PropertySetInput from '../PropertySetInput';
+import { TYPE_STRING, TYPE_PROPERTY_SET } from '../../../constants';
 
 describe('Settings :: Inputs :: Input', () => {
-  it('should render InputForString by default', () => {
-    const setting = exampleSetting('UNKNOWN');
+  it('should render PrimitiveInput', () => {
+    const setting = { definition: { key: 'example', type: TYPE_STRING } };
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForString);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PrimitiveInput);
     expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
+    expect(input.prop('setting')).to.equal(setting);
     expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
-  it('should render InputForString', () => {
-    const setting = exampleSetting(constants.TYPE_STRING);
+  it('should render MultiValueInput', () => {
+    const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForString);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(MultiValueInput);
     expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
+    expect(input.prop('setting')).to.equal(setting);
     expect(input.prop('value')).to.equal('foo');
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
-  it('should render InputForText', () => {
-    const setting = exampleSetting(constants.TYPE_TEXT);
+  it('should render PropertySetInput', () => {
+    const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForText);
+    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PropertySetInput);
     expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
+    expect(input.prop('setting')).to.equal(setting);
     expect(input.prop('value')).to.equal('foo');
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
-
-  it('should render InputForPassword', () => {
-    const setting = exampleSetting(constants.TYPE_PASSWORD);
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(InputForPassword);
-    expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('foo');
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
-
-  it('should render InputForBoolean', () => {
-    const setting = { ...exampleSetting(constants.TYPE_BOOLEAN), value: true };
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value={true} onChange={onChange}/>).find(InputForBoolean);
-    expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal(true);
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
-
-  it('should render InputForNumber', () => {
-    const setting = exampleSetting(constants.TYPE_INTEGER);
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value={17} onChange={onChange}/>).find(InputForNumber);
-    expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal(17);
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
-
-  it('should render InputForSingleSelectList', () => {
-    const options = ['foo', 'bar', 'baz'];
-    const setting = {
-      definition: { key: 'example', type: constants.TYPE_SINGLE_SELECT_LIST, options },
-      value: 'bar'
-    };
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="bar" onChange={onChange}/>).find(InputForSingleSelectList);
-    expect(input).to.have.length(1);
-    expect(input.prop('name')).to.be.a('string');
-    expect(input.prop('value')).to.equal('bar');
-    expect(input.prop('options')).to.equal(options);
     expect(input.prop('onChange')).to.equal(onChange);
   });
 });

@@ -36,7 +36,7 @@ const assertValues = (inputs, values) => {
 
 describe('Settings :: Inputs :: MultiValueInput', () => {
   it('should render one value', () => {
-    const multiValueInput = shallow(
+    const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
             value={['foo']}
@@ -48,7 +48,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
   });
 
   it('should render several values', () => {
-    const multiValueInput = shallow(
+    const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
             value={['foo', 'bar', 'baz']}
@@ -61,7 +61,7 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
 
   it('should remove value', () => {
     const onChange = sinon.spy();
-    const multiValueInput = shallow(
+    const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
             value={['foo', 'bar', 'baz']}

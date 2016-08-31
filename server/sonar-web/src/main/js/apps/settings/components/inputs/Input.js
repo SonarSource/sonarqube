@@ -21,7 +21,7 @@ import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import PropertySetInput from './PropertySetInput';
 import MultiValueInput from './MultiValueInput';
-import renderInput from './renderInput';
+import PrimitiveInput from './PrimitiveInput';
 import { TYPE_PROPERTY_SET } from '../../constants';
 
 export default class Input extends React.Component {
@@ -36,16 +36,16 @@ export default class Input extends React.Component {
   }
 
   render () {
-    const { setting, value, onChange } = this.props;
+    const { definition } = this.props.setting;
 
-    if (setting.definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput setting={setting} value={value} onChange={onChange}/>;
+    if (definition.multiValues) {
+      return <MultiValueInput {...this.props}/>;
     }
 
-    if (setting.definition.multiValues) {
-      return <MultiValueInput setting={setting} value={value} onChange={onChange}/>;
+    if (definition.type === TYPE_PROPERTY_SET) {
+      return <PropertySetInput {...this.props}/>;
     }
 
-    return renderInput(setting, value, onChange);
+    return <PrimitiveInput {...this.props}/>;
   }
 }

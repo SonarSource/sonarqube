@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import renderInput from './renderInput';
+import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue } from '../../utils';
 
 export default class MultiValueInput extends React.Component {
@@ -60,10 +60,10 @@ export default class MultiValueInput extends React.Component {
   renderInput (value, index, isLast) {
     return (
         <li key={index} className="spacer-bottom">
-          {renderInput(
-              this.prepareSetting(),
-              value,
-              this.handleSingleInputChange.bind(this, index))}
+          <PrimitiveInput
+              setting={this.prepareSetting()}
+              value={value}
+              onChange={this.handleSingleInputChange.bind(this, index)}/>
 
           {!isLast && (
               <div className="display-inline-block spacer-left">
