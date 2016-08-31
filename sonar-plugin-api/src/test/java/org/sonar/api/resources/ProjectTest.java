@@ -36,5 +36,25 @@ public class ProjectTest {
 
     assertThat(project.getKey()).isEqualTo("my:artifact");
   }
+  
+  @Test
+  public void setNameWithBranch() {
+    Project project = new Project("key", "branch", "name");
+    assertThat(project.getName()).isEqualTo("name branch");
+    assertThat(project.getOriginalName()).isEqualTo("name branch");
+
+    project.setOriginalName("Project1");
+    assertThat(project.getOriginalName()).isEqualTo("Project1 branch");
+  }
+  
+  @Test
+  public void setNameWithoutBranch() {
+    Project project = new Project("key", null, "name");
+    assertThat(project.getName()).isEqualTo("name");
+    assertThat(project.getOriginalName()).isEqualTo("name");
+
+    project.setOriginalName("Project1");
+    assertThat(project.getOriginalName()).isEqualTo("Project1");
+  }
 
 }

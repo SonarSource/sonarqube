@@ -77,12 +77,11 @@ public class Project extends Resource implements Component {
     if (StringUtils.isNotBlank(branch)) {
       setKey(String.format(BRANCH_KEY_FORMAT, key, branch));
       this.name = String.format("%s %s", name, branch);
-      this.originalName = String.format("%s %s", name, branch);
     } else {
       setKey(key);
       this.name = name;
-      this.originalName = name;
     }
+    this.originalName = this.name;
     setEffectiveKey(getKey());
     this.branch = branch;
   }
@@ -98,14 +97,18 @@ public class Project extends Resource implements Component {
     this.branch = branch;
     return this;
   }
-  
+
   @CheckForNull
   public String getOriginalName() {
     return originalName;
   }
-  
+
   public void setOriginalName(String originalName) {
-    this.originalName = originalName;
+    if (StringUtils.isNotBlank(branch)) {
+      this.originalName = String.format("%s %s", originalName, branch);
+    } else {
+      this.originalName = originalName;
+    }
   }
 
   @Override
