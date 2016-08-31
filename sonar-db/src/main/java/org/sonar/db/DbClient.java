@@ -25,12 +25,13 @@ import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
+import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
@@ -50,8 +51,9 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
-import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
+import org.sonar.db.permission.template.PermissionTemplateDao;
+import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -60,7 +62,6 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -78,6 +79,7 @@ public class DbClient {
   private final QualityProfileDao qualityProfileDao;
   private final LoadedTemplateDao loadedTemplateDao;
   private final PropertiesDao propertiesDao;
+  private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
   private final ResourceDao resourceDao;
@@ -135,6 +137,7 @@ public class DbClient {
     qualityProfileDao = getDao(map, QualityProfileDao.class);
     loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
+    internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
     componentDao = getDao(map, ComponentDao.class);
     resourceDao = getDao(map, ResourceDao.class);
@@ -226,6 +229,10 @@ public class DbClient {
 
   public PropertiesDao propertiesDao() {
     return propertiesDao;
+  }
+
+  public InternalPropertiesDao internalPropertiesDao() {
+    return internalPropertiesDao;
   }
 
   public SnapshotDao snapshotDao() {

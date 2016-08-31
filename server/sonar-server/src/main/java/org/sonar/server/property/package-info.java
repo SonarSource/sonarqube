@@ -17,27 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+@ParametersAreNonnullByDefault
+package org.sonar.server.property;
 
-import java.sql.SQLException;
-import java.util.Date;
-import javax.annotation.Nullable;
-
-public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
-  CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
-
-  CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
-
-  CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;
-
-  CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
-
-  CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
-
-  CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
-
-  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
-
-  @Override
-  void close();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

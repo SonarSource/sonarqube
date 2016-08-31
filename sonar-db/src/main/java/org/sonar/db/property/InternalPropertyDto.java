@@ -17,27 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.property;
 
-import java.sql.SQLException;
-import java.util.Date;
-import javax.annotation.Nullable;
+public final class InternalPropertyDto {
+  private String key;
+  private boolean empty;
+  private String value;
 
-public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
-  CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
+  public String getKey() {
+    return key;
+  }
 
-  CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-  CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;
+  public boolean isEmpty() {
+    return empty;
+  }
 
-  CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
+  public void setEmpty(boolean empty) {
+    this.empty = empty;
+  }
 
-  CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
+  public String getValue() {
+    return value;
+  }
 
-  CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
-
-  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
-
-  @Override
-  void close();
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

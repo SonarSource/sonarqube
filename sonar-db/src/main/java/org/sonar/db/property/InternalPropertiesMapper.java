@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.property;
 
-import java.sql.SQLException;
-import java.util.Date;
-import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
 
-public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
-  CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
+public interface InternalPropertiesMapper {
+  InternalPropertyDto selectAsText(@Param("key") String key);
 
-  CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
+  InternalPropertyDto selectAsClob(@Param("key") String key);
 
-  CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;
+  void insertAsEmpty(@Param("key") String key, @Param("createdAt") long createdAt);
 
-  CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
+  void insertAsText(@Param("key") String key, @Param("value") String value, @Param("createdAt") long createdAt);
 
-  CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
+  void insertAsClob(@Param("key") String key, @Param("value") String value, @Param("createdAt") long createdAt);
 
-  CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
-
-  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
-
-  @Override
-  void close();
+  void deleteByKey(@Param("key") String key);
 }

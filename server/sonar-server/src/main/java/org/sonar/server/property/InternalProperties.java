@@ -17,27 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.property;
 
-import java.sql.SQLException;
-import java.util.Date;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
-public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
-  CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
+/**
+ * Allows to read and write internal properties.
+ */
+public interface InternalProperties {
 
-  CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
+  /**
+   * Read the value of the specified property.
+   *
+   * @return {@link Optional#empty()} if the property does not exist, an empty string if the property is empty,
+   *         otherwise the value of the property as a String.
+   *
+   * @throws IllegalArgumentException if {@code propertyKey} is {@code null} or empty
+   */
+  Optional<String> read(String propertyKey);
 
-  CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;
-
-  CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
-
-  CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
-
-  CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
-
-  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
-
-  @Override
-  void close();
+  /**
+   * Write the value of the specified property.
+   * <p>
+   *   {@code null} and empty string are valid values which will persist the specified property as empty.
+   * </p>
+   *
+   * @throws IllegalArgumentException if {@code propertyKey} is {@code null} or empty
+   */
+  void write(String propertyKey, @Nullable String value);
 }
