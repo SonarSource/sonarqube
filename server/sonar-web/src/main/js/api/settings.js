@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
+import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
 export function getDefinitions (componentKey) {
   const url = '/api/settings/list_definitions';
@@ -42,6 +43,8 @@ export function setSettingValue (definition, value, componentKey) {
 
   if (definition.multiValues) {
     data.values = value;
+  } else if (definition.type === TYPE_PROPERTY_SET) {
+    data.fieldValues = value.map(JSON.stringify);
   } else {
     data.value = value;
   }

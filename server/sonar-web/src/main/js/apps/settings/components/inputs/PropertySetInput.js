@@ -48,10 +48,7 @@ export default class PropertySetInput extends React.Component {
 
   handleChange (fieldValues, removedIndexes) {
     const filtered = fieldValues.filter((_, index) => !removedIndexes.includes(index));
-
-    console.log('New value: ', JSON.stringify(filtered));
-    return Promise.resolve();
-    // return this.props.onChange(undefined, filtered);
+    return this.props.onChange(undefined, filtered);
   }
 
   handleAddValue (e) {
@@ -79,8 +76,6 @@ export default class PropertySetInput extends React.Component {
   }
 
   handleInputChange (index, fieldKey, _, value) {
-    console.log(`Value has changed: index = ${index}, field = ${fieldKey}, value = ${value}`);
-
     const { fieldValues } = this.state;
     const newValues = [...fieldValues];
     newValues.splice(index, 1, { ...fieldValues[index], [fieldKey]: value });

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getSettingValue, isEmptyValue, isComplexDefinition, getDefaultValue, isDefaultOrInherited } from '../utils';
+import { getSettingValue, isEmptyValue, getDefaultValue, isDefaultOrInherited } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 export default class DefinitionDefaults extends React.Component {
@@ -51,10 +51,7 @@ export default class DefinitionDefaults extends React.Component {
           {isExplicitlySet && (
               <div className="spacer-top nowrap">
                 <button onClick={e => this.handleReset(e)}>{translate('reset_verb')}</button>
-                <span className="spacer-left note">{translate('default')}{': '}</span>
-                <span className="display-inline-block text-top note" style={{ lineHeight: '24px', whiteSpace: 'normal' }}>
-                  {getDefaultValue(setting)}
-                </span>
+                <span className="spacer-left note">{translate('default')}{': '}{getDefaultValue(setting)}</span>
               </div>
           )}
         </div>

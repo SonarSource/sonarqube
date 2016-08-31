@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, hasMessage } from '../../helpers/l10n';
-import { TYPE_PROPERTY_SET, TYPE_BOOLEAN, TYPE_SINGLE_SELECT_LIST } from './constants';
-import { TYPE_PASSWORD } from './constants';
+import { TYPE_PROPERTY_SET, TYPE_BOOLEAN, TYPE_SINGLE_SELECT_LIST, TYPE_PASSWORD } from './constants';
 
 export const DEFAULT_CATEGORY = 'general';
 
