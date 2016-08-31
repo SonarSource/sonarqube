@@ -178,7 +178,7 @@ public class SetAction implements SettingsWsAction {
   }
 
   private String doHandlePropertySet(DbSession dbSession, SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    validatePropertySet(request, definition, component);
+    validatePropertySet(request, definition);
 
     int[] fieldIds = IntStream.rangeClosed(1, request.getFieldValues().size()).toArray();
     String inlinedFieldKeys = IntStream.of(fieldIds).mapToObj(String::valueOf).collect(COMMA_JOINER);
@@ -188,9 +188,10 @@ public class SetAction implements SettingsWsAction {
     deleteSettings(dbSession, component, key);
     dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setResourceId(componentId));
 
-    List<Map<String, String>> fieldValues = request.getFieldValues();
+    List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
-      .flatMap(i -> fieldValues.get(i - 1).entrySet().stream().map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
+      .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
+        .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
       .forEach(keyValue -> dbClient.propertiesDao().insertProperty(dbSession, toFieldProperty(keyValue, componentId)));
 
     return inlinedFieldKeys;
@@ -204,7 +205,7 @@ public class SetAction implements SettingsWsAction {
     }
   }
 
-  private void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+  private void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
     checkRequest(definition != null, "Setting '%s' is undefined", request.getKey());
     checkRequest(PropertyType.PROPERTY_SET.equals(definition.type()), "Parameter '%s' is used for setting of property set type only", PARAM_FIELD_VALUES);
 
@@ -212,6 +213,7 @@ public class SetAction implements SettingsWsAction {
     ListMultimap<String, String> valuesByFieldKeys = ArrayListMultimap.create(fieldKeys.size(), request.getFieldValues().size() * fieldKeys.size());
 
     request.getFieldValues().stream()
+      .map(oneFieldValues -> readOneFieldValues(oneFieldValues, request.getKey()))
       .flatMap(map -> map.entrySet().stream())
       .peek(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()))
       .forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
@@ -305,18 +307,10 @@ public class SetAction implements SettingsWsAction {
       .setKey(request.mandatoryParam(PARAM_KEY))
       .setValue(request.param(PARAM_VALUE))
       .setValues(request.multiParam(PARAM_VALUES))
-      .setFieldValues(readFieldValues(request))
+      .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setComponentKey(request.param(PARAM_COMPONENT_KEY))
       .build();
-  }
-
-  private static List<Map<String, String>> readFieldValues(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
-
-    return request.multiParam(PARAM_FIELD_VALUES).stream()
-      .map(json -> readOneFieldValues(json, key))
-      .collect(Collectors.toList());
   }
 
   private static Map<String, String> readOneFieldValues(String json, String key) {

@@ -21,7 +21,6 @@
 package org.sonarqube.ws.client.setting;
 
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -32,7 +31,7 @@ public class SetRequest {
   private final String key;
   private final String value;
   private final List<String> values;
-  private final List<Map<String, String>> fieldValues;
+  private final List<String> fieldValues;
   private final String componentId;
   private final String componentKey;
 
@@ -58,7 +57,7 @@ public class SetRequest {
     return values;
   }
 
-  public List<Map<String, String>> getFieldValues() {
+  public List<String> getFieldValues() {
     return fieldValues;
   }
 
@@ -80,7 +79,7 @@ public class SetRequest {
     private String key;
     private String value;
     private List<String> values = emptyList();
-    private List<Map<String, String>> fieldValues = emptyList();
+    private List<String> fieldValues = emptyList();
     private String componentId;
     private String componentKey;
 
@@ -103,7 +102,7 @@ public class SetRequest {
       return this;
     }
 
-    public Builder setFieldValues(List<Map<String, String>> fieldValues) {
+    public Builder setFieldValues(List<String> fieldValues) {
       this.fieldValues = fieldValues;
       return this;
     }

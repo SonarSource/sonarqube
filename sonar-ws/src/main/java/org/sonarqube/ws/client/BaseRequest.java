@@ -19,13 +19,22 @@
  */
 package org.sonarqube.ws.client;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
@@ -34,8 +43,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
   private String mediaType = MediaTypes.JSON;
 
-  // keep the same order -> do not use HashMap
-  private final Map<String, String> params = new LinkedHashMap<>();
+  private final DefaultParameters parameters = new DefaultParameters();
 
   BaseRequest(String path) {
     this.path = path;
@@ -60,16 +68,79 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return (SELF) this;
   }
 
+  /**
+   * To set a multi value parameters, provide a Collection with the values
+   */
   public SELF setParam(String key, @Nullable Object value) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
-    if (value != null) {
-      this.params.put(key, value.toString());
+    if (value == null) {
+      return (SELF) this;
+    }
+
+    if (value instanceof Collection) {
+      Collection<Object> values = (Collection<Object>) value;
+      if (values.isEmpty()) {
+        return (SELF) this;
+      }
+      parameters.setValues(key, values.stream().map(Object::toString).collect(Collectors.toList()));
+    } else {
+      parameters.setValue(key, value.toString());
     }
     return (SELF) this;
   }
 
   @Override
   public Map<String, String> getParams() {
-    return params;
+    return parameters.keyValues.keySet().stream()
+      .collect(Collectors.toMap(
+        Function.identity(),
+        key -> parameters.keyValues.get(key).get(0),
+        (v1, v2) -> {
+          throw new IllegalStateException(String.format("Duplicate key '%s' in request", v1));
+        },
+        LinkedHashMap::new));
+  }
+
+  @Override
+  public Parameters getParameters() {
+    return parameters;
+  }
+
+  private static class DefaultParameters implements Parameters {
+    // preserve insertion order
+    private final ListMultimap<String, String> keyValues = LinkedListMultimap.create();
+
+    @Override
+    @CheckForNull
+    public String getValue(String key) {
+      return keyValues.containsKey(key) ? keyValues.get(key).get(0) : null;
+    }
+
+    @Override
+    public List<String> getValues(String key) {
+      return keyValues.get(key);
+    }
+
+    @Override
+    public Set<String> getKeys() {
+      return keyValues.keySet();
+    }
+
+    private DefaultParameters setValue(String key, String value) {
+      checkArgument(!isNullOrEmpty(key));
+      checkArgument(!isNullOrEmpty(value));
+
+      keyValues.putAll(key, singletonList(value));
+      return this;
+    }
+
+    private DefaultParameters setValues(String key, Collection<String> values) {
+      checkArgument(!isNullOrEmpty(key));
+      checkArgument(values != null && !values.isEmpty());
+
+      this.keyValues.putAll(key, values.stream().map(Object::toString).collect(Collectors.toList()));
+
+      return this;
+    }
   }
 }

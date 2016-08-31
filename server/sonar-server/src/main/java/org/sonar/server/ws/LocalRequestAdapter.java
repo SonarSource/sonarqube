@@ -41,7 +41,7 @@ public class LocalRequestAdapter extends ValidatingRequest {
 
   @Override
   protected List<String> readMultiParam(String key) {
-    throw new UnsupportedOperationException("reading multi value param is not supported yet by local WS calls");
+    return localRequest.getMultiParam(key);
   }
 
   @Override

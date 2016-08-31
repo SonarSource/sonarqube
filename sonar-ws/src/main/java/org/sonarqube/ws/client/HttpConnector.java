@@ -162,9 +162,10 @@ public class HttpConnector implements WsConnector {
     HttpUrl.Builder urlBuilder = baseUrl
       .resolve(path.startsWith("/") ? path.replaceAll("^(/)+", "") : path)
       .newBuilder();
-    for (Map.Entry<String, String> param : wsRequest.getParams().entrySet()) {
-      urlBuilder.addQueryParameter(param.getKey(), param.getValue());
-    }
+    wsRequest.getParameters().getKeys()
+      .forEach(key -> wsRequest.getParameters().getValues(key)
+        .forEach(value -> urlBuilder.addQueryParameter(key, value)));
+
     return urlBuilder;
   }
 

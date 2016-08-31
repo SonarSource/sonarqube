@@ -28,13 +28,16 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 
 public class SettingsServiceTest {
 
@@ -76,7 +79,8 @@ public class SettingsServiceTest {
     underTest.set(SetRequest.builder()
       .setKey("sonar.debt")
       .setValue("8h")
-      // TODO WS Client must handle multi value param
+      .setValues(newArrayList("v1", "v2", "v3"))
+      .setFieldValues(newArrayList("json1","json2","json3"))
       .setComponentId("UUID")
       .setComponentKey("KEY")
       .build());
@@ -84,6 +88,8 @@ public class SettingsServiceTest {
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_KEY, "sonar.debt")
       .hasParam(PARAM_VALUE, "8h")
+      .hasParam(PARAM_VALUES, newArrayList("v1", "v2", "v3"))
+      .hasParam(PARAM_FIELD_VALUES, newArrayList("json1", "json2", "json3"))
       .hasParam(PARAM_COMPONENT_ID, "UUID")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();

@@ -19,11 +19,16 @@
  */
 package org.sonarqube.ws.client;
 
+import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.List;
+import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 
@@ -51,12 +56,24 @@ public class BaseRequestTest {
   @Test
   public void keep_order_of_params() {
     assertThat(underTest.getParams()).isEmpty();
+    assertThat(underTest.getParameters().getKeys()).isEmpty();
 
     underTest.setParam("keyB", "b");
     assertThat(underTest.getParams()).containsExactly(entry("keyB", "b"));
+    assertParameters(entry("keyB", "b"));
+    assertMultiValueParameters(entry("keyB", singletonList("b")));
 
     underTest.setParam("keyA", "a");
     assertThat(underTest.getParams()).containsExactly(entry("keyB", "b"), entry("keyA", "a"));
+    assertParameters(entry("keyB", "b"), entry("keyA", "a"));
+    assertMultiValueParameters(entry("keyB", singletonList("b")), entry("keyA", singletonList("a")));
+
+    underTest.setParam("keyC", ImmutableList.of("c1", "c2", "c3"));
+    assertParameters(entry("keyB", "b"), entry("keyA", "a"), entry("keyC", "c1"));
+    assertMultiValueParameters(
+      entry("keyB", singletonList("b")),
+      entry("keyA", singletonList("a")),
+      entry("keyC", ImmutableList.of("c1", "c2", "c3")));
   }
 
   @Test
@@ -69,6 +86,20 @@ public class BaseRequestTest {
   public void fail_if_null_param_key() {
     expectedException.expect(IllegalArgumentException.class);
     underTest.setParam(null, "val");
+  }
+
+  private void assertParameters(MapEntry<String, String>... values) {
+    Parameters parameters = underTest.getParameters();
+    assertThat(parameters.getKeys()).extracting(key -> MapEntry.entry(key, parameters.getValue(key))).containsExactly(values);
+  }
+
+  private void assertMultiValueParameters(MapEntry<String, List<String>>... expectedParameters) {
+    Parameters parameters = underTest.getParameters();
+    String[] expectedKeys = Arrays.stream(expectedParameters).map(MapEntry::getKey).toArray(String[]::new);
+    assertThat(parameters.getKeys()).containsExactly(expectedKeys);
+    Arrays.stream(expectedParameters).forEach(expectedParameter -> {
+      assertThat(parameters.getValues(expectedParameter.getKey())).containsExactly(expectedParameter.getValue().toArray(new String[0]));
+    });
   }
 
   private static class FakeRequest extends BaseRequest<FakeRequest> {

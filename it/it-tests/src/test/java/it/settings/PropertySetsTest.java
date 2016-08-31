@@ -28,13 +28,14 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.setting.ResetRequest;
+import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
 import util.selenium.SeleneseTest;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,13 +95,12 @@ public class PropertySetsTest {
 
   @Test
   public void edit_property_set() {
-    setProperty("sonar.test.jira.servers", "jira1,jira2");
-    setProperty("sonar.test.jira.servers.jira1.key", "jira1");
-    setProperty("sonar.test.jira.servers.jira1.url", "http://jira1");
-    setProperty("sonar.test.jira.servers.jira1.port", "12345");
-    setProperty("sonar.test.jira.servers.jira2.key", "jira2");
-    setProperty("sonar.test.jira.servers.jira2.url", "http://jira2");
-    setProperty("sonar.test.jira.servers.jira2.port", "54321");
+    SETTINGS.set(SetRequest.builder()
+      .setKey("sonar.test.jira.servers")
+      .setFieldValues(newArrayList(
+        "{\"key\":\"jira1\", \"url\":\"http://jira1\", \"port\":\"12345\"}",
+        "{\"key\":\"jira2\", \"url\":\"http://jira2\", \"port\":\"54321\"}"))
+      .build());
 
     assertPropertySet("sonar.test.jira.servers",
       asList(entry("key", "jira1"), entry("url", "http://jira1"), entry("port", "12345")),
@@ -109,9 +109,10 @@ public class PropertySetsTest {
 
   @Test
   public void delete_property_set() throws Exception {
-    setProperty("sonar.test.jira.servers", "jira1");
-    setProperty("sonar.test.jira.servers.jira1.url", "http://jira1");
-    setProperty("sonar.test.jira.servers.jira1.port", "12345");
+    SETTINGS.set(SetRequest.builder()
+      .setKey("sonar.test.jira.servers")
+      .setFieldValues(newArrayList("{\"url\":\"http://jira1\"}", "{\"port\":\"12345\"}"))
+      .build());
 
     resetSetting("sonar.test.jira.servers");
 
@@ -133,14 +134,6 @@ public class PropertySetsTest {
     List<Settings.Setting> settings = response.getSettingsList();
     assertThat(settings).hasSize(1);
     return settings.get(0);
-  }
-
-  /**
-   * @deprecated Replace with api/settings/set WS when setting property set will be possible in the WS
-   */
-  @Deprecated
-  static void setProperty(String key, String value) {
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery(key, value));
   }
 
   static void resetSetting(String... keys) {

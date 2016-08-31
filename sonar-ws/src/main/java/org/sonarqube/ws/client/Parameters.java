@@ -17,33 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonarqube.ws.client;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 
-/**
- * @since 5.3
- */
-public interface WsRequest {
-
-  Method getMethod();
-
-  String getPath();
-
-  String getMediaType();
-
+public interface Parameters {
   /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
+   * In the case of a multi value parameter, returns the first element
    */
-  @Deprecated
-  Map<String, String> getParams();
+  @CheckForNull
+  String getValue(String key);
 
-  Parameters getParameters();
+  List<String> getValues(String key);
 
-  enum Method {
-    GET, POST
-  }
+  Set<String> getKeys();
 }

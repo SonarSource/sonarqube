@@ -21,6 +21,7 @@ package org.sonar.api.server.ws;
 
 import com.google.common.annotations.Beta;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.CheckForNull;
 
 /**
@@ -86,6 +87,11 @@ public interface LocalConnector {
      */
     @CheckForNull
     String getParam(String key);
+
+    /**
+     * @see Request#multiParam(String)
+     */
+    List<String> getMultiParam(String key);
   }
 
   interface LocalResponse {

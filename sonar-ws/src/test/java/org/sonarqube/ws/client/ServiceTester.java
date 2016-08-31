@@ -325,7 +325,7 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
       isNotNull();
 
       MapEntry<String, String> entry = MapEntry.entry(key, values.toString());
-      Assertions.assertThat(actual.getParams()).contains(entry);
+      Assertions.assertThat(actual.getParameters().getValues(key)).containsExactly(values.toArray(new String[0]));
       this.assertedParams.add(entry);
 
       return this;
