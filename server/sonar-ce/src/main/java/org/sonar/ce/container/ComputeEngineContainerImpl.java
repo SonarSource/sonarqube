@@ -130,7 +130,7 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
-import org.sonar.server.settings.ProjectSettingsFactory;
+import org.sonar.server.setting.ProjectSettingsFactory;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.DefaultUserFinder;

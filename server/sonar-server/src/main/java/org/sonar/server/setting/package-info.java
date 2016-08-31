@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.setting;
 
-import org.sonar.server.ws.WsAction;
-
-public interface SettingsWsAction extends WsAction {
-  // marker interface
-}
+import javax.annotation.ParametersAreNonnullByDefault;

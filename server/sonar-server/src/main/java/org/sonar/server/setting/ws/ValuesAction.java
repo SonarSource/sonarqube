@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
+package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import static java.lang.String.format;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
+import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.settings.ws;
+package org.sonar.server.setting.ws;
 
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 
-import static org.sonar.server.settings.ws.PropertySetExtractor.extractPropertySetKeys;
+import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 
 public class SettingsUpdater {
 

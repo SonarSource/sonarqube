@@ -17,7 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.settings;
+package org.sonar.server.setting.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.server.ws.WebService;
+
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+
+public class SettingsWs implements WebService {
+
+  private final SettingsWsAction[] actions;
+
+  public SettingsWs(SettingsWsAction... actions) {
+    this.actions = actions;
+  }
+
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController(CONTROLLER_SETTINGS)
+      .setDescription("Manage settings.")
+      .setSince("6.1");
+    for (SettingsWsAction action : actions) {
+      action.define(controller);
+    }
+    controller.done();
+  }
+}

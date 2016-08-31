@@ -17,29 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.setting.ws;
 
-import org.sonar.api.server.ws.WebService;
-
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
-
-public class SettingsWsComponentParameters {
-
-  private SettingsWsComponentParameters() {
-    // Only static methods
-  }
-
-  static void addComponentParameters(WebService.NewAction action) {
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT_KEY)
-      .setDescription("Component key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

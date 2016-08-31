@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.settings.ws;
+package org.sonar.server.setting.ws;
 
 import java.util.Optional;
 import org.sonar.api.config.PropertyDefinition;
@@ -35,7 +35,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
-import static org.sonar.server.settings.ws.SettingsWsComponentParameters.addComponentParameters;
+import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;

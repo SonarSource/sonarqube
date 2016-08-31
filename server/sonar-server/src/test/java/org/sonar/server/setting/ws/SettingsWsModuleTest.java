@@ -17,28 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.settings.ws;
+package org.sonar.server.setting.ws;
 
-import org.sonar.api.server.ws.WebService;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class SettingsWs implements WebService {
-
-  private final SettingsWsAction[] actions;
-
-  public SettingsWs(SettingsWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER_SETTINGS)
-      .setDescription("Manage settings.")
-      .setSince("6.1");
-    for (SettingsWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+public class SettingsWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new SettingsWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(8 + 2);
   }
 }
