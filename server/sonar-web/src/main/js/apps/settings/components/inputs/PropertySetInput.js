@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import renderInput from './renderInput';
-import { translate } from '../../../../helpers/l10n';
 import { getEmptyValue } from '../../utils';
 
 export default class PropertySetInput extends React.Component {

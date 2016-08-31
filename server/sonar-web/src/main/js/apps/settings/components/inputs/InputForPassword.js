@@ -43,8 +43,8 @@ export default class InputForPassword extends React.Component {
   handleFormSubmit (e) {
     e.preventDefault();
     const { value } = this.refs.input;
-    this.props.onChange(undefined, value)
-        .then(() => this.setState({ changing: false }));
+    this.props.onChange(undefined, value);
+    this.setState({ changing: false });
   }
 
   renderInput () {

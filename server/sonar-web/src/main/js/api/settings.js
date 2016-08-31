@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import omitBy from 'lodash/omitBy';
 import { getJSON, post } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
@@ -44,7 +45,9 @@ export function setSettingValue (definition, value, componentKey) {
   if (definition.multiValues) {
     data.values = value;
   } else if (definition.type === TYPE_PROPERTY_SET) {
-    data.fieldValues = value.map(JSON.stringify);
+    data.fieldValues = value
+        .map(fields => omitBy(fields, value => value == null))
+        .map(JSON.stringify);
   } else {
     data.value = value;
   }

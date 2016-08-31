@@ -56,7 +56,7 @@ export function getSettingValue (setting) {
   if (setting.definition.multiValues) {
     return setting.values;
   } else if (setting.definition.type === TYPE_PROPERTY_SET) {
-    return setting.fieldsValues;
+    return setting.fieldValues;
   } else {
     return setting.value;
   }
