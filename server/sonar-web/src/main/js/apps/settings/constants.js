@@ -26,5 +26,3 @@ export const TYPE_INTEGER = 'INTEGER';
 export const TYPE_LONG = 'LONG';
 export const TYPE_SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST';
 export const TYPE_PROPERTY_SET = 'PROPERTY_SET';
-
-export const DEBOUNCE_WAIT = 250;

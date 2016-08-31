@@ -25,7 +25,7 @@ export const changeValue = (key, value) => ({
   value
 });
 
-export const CANCEL_CHANGE = 'settingsOage/CANCEL_CHANGE';
+export const CANCEL_CHANGE = 'settingsPage/CANCEL_CHANGE';
 
 export const cancelChange = key => ({
   type: CANCEL_CHANGE,

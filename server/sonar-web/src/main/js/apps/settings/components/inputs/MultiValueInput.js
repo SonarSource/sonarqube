@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import renderInput from './renderInput';
-import { getEmptyValue, isEmptyValue } from '../../utils';
+import { getEmptyValue } from '../../utils';
 
 export default class MultiValueInput extends React.Component {
   static propTypes = {

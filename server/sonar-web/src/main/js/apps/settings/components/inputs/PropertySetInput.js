@@ -19,8 +19,7 @@
  */
 import React from 'react';
 import renderInput from './renderInput';
-import { getEmptyValue } from '../../utils';
-import { getUniqueName } from '../../utils';
+import { getEmptyValue, getUniqueName } from '../../utils';
 
 export default class PropertySetInput extends React.Component {
   static propTypes = {

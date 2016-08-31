@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getSettingValue, isEmptyValue, getDefaultValue, isDefaultOrInherited } from '../utils';
+import { getSettingValue, isEmptyValue, getDefaultValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 export default class DefinitionDefaults extends React.Component {

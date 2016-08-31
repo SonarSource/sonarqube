@@ -33,7 +33,7 @@ import {
     TYPE_FLOAT,
     TYPE_SINGLE_SELECT_LIST
 } from '../../constants';
-import { getSettingValue, getUniqueName, isDefaultOrInherited } from '../../utils';
+import { getUniqueName, isDefaultOrInherited } from '../../utils';
 
 const typeMapping = {
   [TYPE_TEXT]: InputForText,

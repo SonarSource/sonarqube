@@ -94,16 +94,6 @@ export function isDefaultOrInherited (setting) {
   return !!setting.default || !!setting.inherited;
 }
 
-/**
- * Check if provided definition is a complex one
- * Complex definitions are property sets or multi values
- * @param definition
- * @returns {boolean}
- */
-export function isComplexDefinition (definition) {
-  return definition.type === TYPE_PROPERTY_SET || definition.multiValues === true;
-}
-
 function getParentValue (setting) {
   if (setting.definition.multiValues) {
     return setting.parentValues;
