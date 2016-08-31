@@ -14,6 +14,7 @@
   <properties>
     <category>*</category>
     <skipIts>false</skipIts>
+    <jetty.version>9.3.11.v20160721</jetty.version>
   </properties>
 
   <dependencies>
@@ -113,6 +114,29 @@
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp</artifactId>
       <version>3.1.6</version>
+    </dependency>
+    
+    <!-- SSL tests -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-proxy</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.scanner.cli</groupId>
+      <artifactId>sonar-scanner-cli</artifactId>
+      <version>2.7</version>
+      <type>zip</type>
     </dependency>
   </dependencies>
 

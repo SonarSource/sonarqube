@@ -30,6 +30,7 @@ import it.analysis.MultiLanguageTest;
 import it.analysis.ProjectBuilderTest;
 import it.analysis.ProjectProvisioningTest;
 import it.analysis.ReportDumpTest;
+import it.analysis.SSLTest;
 import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
@@ -55,6 +56,7 @@ import static util.ItUtils.xooPlugin;
   IssuesModeTest.class,
   SettingsEncryptionTest.class,
   ReportDumpTest.class,
+  SSLTest.class,
   // measures
   DecimalScaleMetricTest.class
 })

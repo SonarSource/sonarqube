@@ -19,12 +19,23 @@
  */
 package org.sonarqube.ws.client;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Proxy;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import okhttp3.Call;
 import okhttp3.ConnectionSpec;
 import okhttp3.Credentials;
@@ -52,6 +63,8 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
+  private static final String NONE = "NONE";
+  private static final String P11KEYSTORE = "PKCS11";
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
@@ -100,8 +113,105 @@ public class HttpConnector implements WsConnector {
       .supportsTlsExtensions(true)
       .build();
     okHttpClientBuilder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
+    X509TrustManager systemDefaultTrustManager = systemDefaultTrustManager();
+    okHttpClientBuilder.sslSocketFactory(systemDefaultSslSocketFactory(systemDefaultTrustManager), systemDefaultTrustManager);
 
     return okHttpClientBuilder.build();
+  }
+
+  private static X509TrustManager systemDefaultTrustManager() {
+    try {
+      TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory.init((KeyStore) null);
+      TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+      if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+        throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
+      }
+      return (X509TrustManager) trustManagers[0];
+    } catch (GeneralSecurityException e) {
+      // The system has no TLS. Just give up.
+      throw new AssertionError(e);
+    }
+  }
+
+  private static SSLSocketFactory systemDefaultSslSocketFactory(X509TrustManager trustManager) {
+    KeyManager[] defaultKeyManager;
+    try {
+      defaultKeyManager = getDefaultKeyManager();
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to get default key manager", e);
+    }
+    try {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(defaultKeyManager, new TrustManager[] {trustManager}, null);
+      return sslContext.getSocketFactory();
+    } catch (GeneralSecurityException e) {
+      // The system has no TLS. Just give up.
+      throw new AssertionError(e);
+    }
+  }
+
+  private static void logDebug(String msg) {
+    boolean debugEnabled = "all".equals(System.getProperty("javax.net.debug"));
+    if (debugEnabled) {
+      System.out.println(msg);
+    }
+  }
+
+  /**
+   * Inspired from sun.security.ssl.SSLContextImpl#getDefaultKeyManager()
+   */
+  private static synchronized KeyManager[] getDefaultKeyManager() throws Exception {
+
+    final String defaultKeyStore = System.getProperty("javax.net.ssl.keyStore", "");
+    String defaultKeyStoreType = System.getProperty("javax.net.ssl.keyStoreType", KeyStore.getDefaultType());
+    String defaultKeyStoreProvider = System.getProperty("javax.net.ssl.keyStoreProvider", "");
+
+    logDebug("keyStore is : " + defaultKeyStore);
+    logDebug("keyStore type is : " + defaultKeyStoreType);
+    logDebug("keyStore provider is : " + defaultKeyStoreProvider);
+
+    if (P11KEYSTORE.equals(defaultKeyStoreType) && !NONE.equals(defaultKeyStore)) {
+      throw new IllegalArgumentException("if keyStoreType is " + P11KEYSTORE + ", then keyStore must be " + NONE);
+    }
+
+    KeyStore ks = null;
+    String defaultKeyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword", "");
+    char[] passwd = defaultKeyStorePassword.isEmpty() ? null : defaultKeyStorePassword.toCharArray();
+
+    /**
+     * Try to initialize key store.
+     */
+    if (!defaultKeyStoreType.isEmpty()) {
+      logDebug("init keystore");
+      if (defaultKeyStoreProvider.isEmpty()) {
+        ks = KeyStore.getInstance(defaultKeyStoreType);
+      } else {
+        ks = KeyStore.getInstance(defaultKeyStoreType, defaultKeyStoreProvider);
+      }
+      if (!defaultKeyStore.isEmpty() && !NONE.equals(defaultKeyStore)) {
+        try (FileInputStream fs = new FileInputStream(defaultKeyStore)) {
+          ks.load(fs, passwd);
+        }
+      } else {
+        ks.load(null, passwd);
+      }
+    }
+
+    /*
+     * Try to initialize key manager.
+     */
+    logDebug("init keymanager of type " + KeyManagerFactory.getDefaultAlgorithm());
+    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+
+    if (P11KEYSTORE.equals(defaultKeyStoreType)) {
+      // do not pass key passwd if using token
+      kmf.init(ks, null);
+    } else {
+      kmf.init(ks, passwd);
+    }
+
+    return kmf.getKeyManagers();
   }
 
   @Override
