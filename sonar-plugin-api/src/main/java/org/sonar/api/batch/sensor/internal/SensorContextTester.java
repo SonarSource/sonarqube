@@ -62,6 +62,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
@@ -95,7 +96,7 @@ public class SensorContextTester implements SensorContext {
   private boolean cancelled;
 
   private SensorContextTester(Path moduleBaseDir) {
-    this.settings = new Settings();
+    this.settings = new MapSettings();
     this.fs = new DefaultFileSystem(moduleBaseDir);
     this.activeRules = new ActiveRulesBuilder().build();
     this.sensorStorage = new InMemorySensorStorage();

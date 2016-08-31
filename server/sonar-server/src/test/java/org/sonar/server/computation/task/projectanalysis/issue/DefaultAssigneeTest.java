@@ -24,9 +24,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -40,7 +41,7 @@ public class DefaultAssigneeTest {
 
   TreeRootHolderRule rootHolder = mock(TreeRootHolderRule.class, Mockito.RETURNS_DEEP_STUBS);
   UserIndex userIndex = mock(UserIndex.class);
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
   DefaultAssignee underTest = new DefaultAssignee(rootHolder, userIndex, settingsRepository);

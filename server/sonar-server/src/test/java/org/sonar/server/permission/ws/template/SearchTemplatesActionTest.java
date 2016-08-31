@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -33,8 +34,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -75,7 +76,7 @@ public class SearchTemplatesActionTest {
   public void setUp() {
     i18n.setProjectPermissions();
 
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), UUID_EXAMPLE_01);
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.VIEW), UUID_EXAMPLE_02);
     settings.setProperty(defaultRootQualifierTemplateProperty("DEV"), UUID_EXAMPLE_03);

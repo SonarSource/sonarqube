@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.ProcessProperties;
@@ -43,7 +44,7 @@ public class EsClientProviderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
   private EsClientProvider underTest = new EsClientProvider();
   private String localhost;
 

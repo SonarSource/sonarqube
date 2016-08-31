@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -72,9 +71,8 @@ public class QualityGates {
   private final PropertiesDao propertiesDao;
   private final ComponentDao componentDao;
   private final UserSession userSession;
-  private final Settings settings;
 
-  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession, Settings settings) {
+  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.dao = dbClient.qualityGateDao();
     this.conditionDao = dbClient.gateConditionDao();
@@ -82,7 +80,6 @@ public class QualityGates {
     this.propertiesDao = dbClient.propertiesDao();
     this.componentDao = dbClient.componentDao();
     this.userSession = userSession;
-    this.settings = settings;
   }
 
   public QualityGateDto create(String name) {
@@ -155,11 +152,9 @@ public class QualityGates {
     checkPermission();
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
-      settings.removeProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
       QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
       propertiesDao.insertProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
-      settings.setProperty(SONAR_QUALITYGATE_PROPERTY, idToUseAsDefault);
     }
   }
 

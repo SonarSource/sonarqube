@@ -97,7 +97,7 @@ public final class DoPrivileged {
     }
   
     private void stop() {
-      threadLocalUserSession.remove();
+      threadLocalUserSession.unload();
       if (oldUserSession != null) {
         threadLocalUserSession.set(oldUserSession);
       }

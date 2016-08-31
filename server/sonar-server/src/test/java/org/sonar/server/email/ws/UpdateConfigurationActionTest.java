@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -51,11 +53,11 @@ public class UpdateConfigurationActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+  private DbClient dbClient = db.getDbClient();
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private Settings settings = new MapSettings();
 
-  WsActionTester ws = new WsActionTester(new UpdateConfigurationAction(dbClient, userSession, settings));
+  private WsActionTester ws = new WsActionTester(new UpdateConfigurationAction(dbClient, userSession, settings));
 
   @Test
   public void update_email_settings() throws Exception {

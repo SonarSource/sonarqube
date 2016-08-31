@@ -25,7 +25,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.ce.settings.SettingsLoader;
-import org.sonar.ce.settings.ThreadLocalSettings;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
@@ -34,6 +33,7 @@ import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.projectanalysis.container.ContainerFactory;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.taskprocessor.TaskResultHolder;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 public class ReportTaskProcessor implements CeTaskProcessor {
 

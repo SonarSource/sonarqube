@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.setting;
 
-public interface ThreadLocalSettings {
-  /**
-   * Loads up-to-date Settings specific to the current thread.
-   *
-   * @throws IllegalStateException if the current thread already has specific Settings
-   */
-  void load();
+import com.google.common.collect.ImmutableMap;
+import org.junit.Test;
+import org.sonar.server.setting.NopSettingLoader;
 
-  /**
-   * Clears the Settings specific to the current thread (if any).
-   */
-  void unload();
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NopSettingLoaderTest {
+
+  private NopSettingLoader underTest = new NopSettingLoader();
+
+  @Test
+  public void do_nothing() {
+    assertThat(underTest.load("foo")).isNull();
+
+    ImmutableMap.Builder<String,String> map = ImmutableMap.builder();
+    underTest.loadAll(map);
+    assertThat(map.build()).isEmpty();
+  }
 }

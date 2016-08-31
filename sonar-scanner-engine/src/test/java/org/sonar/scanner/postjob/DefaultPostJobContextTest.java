@@ -27,11 +27,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.File;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.postjob.DefaultPostJobContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,7 +49,7 @@ public class DefaultPostJobContextTest {
   public void prepare() {
     issueCache = mock(IssueCache.class);
     resourceCache = new BatchComponentCache();
-    settings = new Settings();
+    settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings, issueCache, resourceCache, analysisMode);
   }

@@ -19,12 +19,10 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -40,9 +38,8 @@ public class StartupMetadataPersisterTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private PersistentSettings persistentSettings = new PersistentSettings(dbTester.getDbClient(), new ServerSettingsImpl(new PropertyDefinitions(), new Properties()));
   private StartupMetadata metadata = new StartupMetadata("an_id", 123_456_789L);
-  private StartupMetadataPersister underTest = new StartupMetadataPersister(metadata, persistentSettings);
+  private StartupMetadataPersister underTest = new StartupMetadataPersister(metadata, dbTester.getDbClient());
 
   @Test
   public void persist_metadata_at_startup() {

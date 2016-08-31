@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
-import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -39,7 +39,7 @@ public class DefaultCpdBlockIndexerTest {
 
   @Before
   public void init() {
-    settings = new Settings();
+    settings = new MapSettings();
     engine = new DefaultCpdBlockIndexer(null, null, settings, null);
   }
 

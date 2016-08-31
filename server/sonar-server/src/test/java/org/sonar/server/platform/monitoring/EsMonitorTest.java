@@ -23,7 +23,7 @@ import java.util.Map;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EsMonitorTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
   EsMonitor underTest = new EsMonitor(esTester.client());
 

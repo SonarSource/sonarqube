@@ -23,12 +23,9 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.rule.ModuleQProfiles;
-import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.rule.RulesProfileProvider;
-import org.sonar.scanner.rule.RulesProfileWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -38,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class RulesProfileProviderTest {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   RulesProfileProvider provider = new RulesProfileProvider();
 
   @Test

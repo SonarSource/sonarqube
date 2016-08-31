@@ -25,6 +25,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class SettingsMonitorTest {
   private static final String PASSWORD_PROPERTY = "sonar.password";
 
   PropertyDefinitions defs = new PropertyDefinitions(PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
-  Settings settings = new Settings(defs);
+  Settings settings = new MapSettings(defs);
   SettingsMonitor underTest = new SettingsMonitor(settings);
 
   @Test

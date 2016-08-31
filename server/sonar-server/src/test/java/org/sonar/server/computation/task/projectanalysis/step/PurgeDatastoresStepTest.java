@@ -30,17 +30,18 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.util.WrapInSingleElementArray;
 
@@ -132,7 +133,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   private void verify_call_purge_method_of_the_purge_task(Component project) {
     treeRootHolder.setRoot(project);
-    when(settingsRepository.getSettings(project)).thenReturn(new Settings());
+    when(settingsRepository.getSettings(project)).thenReturn(new MapSettings());
     dbIdsRepository.setComponentId(project, PROJECT_ID);
 
     underTest.execute();

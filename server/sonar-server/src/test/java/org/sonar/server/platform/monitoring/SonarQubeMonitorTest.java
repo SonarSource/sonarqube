@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -55,7 +56,7 @@ public class SonarQubeMonitorTest {
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   Server server = mock(Server.class);
   ServerIdLoader serverIdLoader = mock(ServerIdLoader.class, RETURNS_DEEP_STUBS);
   ServerLogging serverLogging = mock(ServerLogging.class);

@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.report;
 
+import java.util.Arrays;
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,14 +28,12 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.filesystem.InputPathCache;
-import org.sonar.scanner.scan.report.ConsoleReport;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,7 +51,7 @@ public class ConsoleReportTest {
 
   @Before
   public void prepare() {
-    settings = new Settings();
+    settings = new MapSettings();
     issueCache = mock(IssueCache.class);
     inputPathCache = mock(InputPathCache.class);
     report = new ConsoleReport(settings, issueCache, inputPathCache);

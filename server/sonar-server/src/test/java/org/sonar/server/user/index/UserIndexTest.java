@@ -26,7 +26,7 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
@@ -43,7 +43,7 @@ public class UserIndexTest {
   private static final long DATE_2 = 1_500_000_000_001L;
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   private UserIndex index;
 

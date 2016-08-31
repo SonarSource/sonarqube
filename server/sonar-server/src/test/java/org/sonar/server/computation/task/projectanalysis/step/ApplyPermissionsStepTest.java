@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -38,10 +39,10 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
@@ -62,7 +63,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private static final long SOME_DATE = 1000L;
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -77,7 +78,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   IssueAuthorizationIndexer issueAuthorizationIndexer;
 

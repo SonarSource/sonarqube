@@ -34,6 +34,7 @@ import org.sonar.api.config.Settings;
 
 import java.io.File;
 import java.io.IOException;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +55,7 @@ public class XooTokenizerTest {
     baseDir = temp.newFolder();
     fileSystem = new DefaultFileSystem(baseDir.toPath());
     when(context.fileSystem()).thenReturn(fileSystem);
-    settings = new Settings();
+    settings = new MapSettings();
     when(context.settings()).thenReturn(settings);
   }
 

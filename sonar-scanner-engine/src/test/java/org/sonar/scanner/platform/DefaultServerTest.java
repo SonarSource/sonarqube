@@ -22,6 +22,7 @@ package org.sonar.scanner.platform;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.scanner.bootstrap.BatchWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +33,7 @@ public class DefaultServerTest {
 
   @Test
   public void shouldLoadServerProperties() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_ID, "123");
     settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
@@ -57,7 +58,7 @@ public class DefaultServerTest {
 
   @Test
   public void publicRootUrl() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     BatchWsClient client = mock(BatchWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com/");
     DefaultServer metadata = new DefaultServer(settings, client);
@@ -71,7 +72,7 @@ public class DefaultServerTest {
 
   @Test(expected = RuntimeException.class)
   public void invalid_startup_date_throws_exception() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
     BatchWsClient client = mock(BatchWsClient.class);
     DefaultServer metadata = new DefaultServer(settings, client);

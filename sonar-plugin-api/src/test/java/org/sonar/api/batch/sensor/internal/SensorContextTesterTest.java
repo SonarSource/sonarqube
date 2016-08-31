@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
@@ -69,7 +70,7 @@ public class SensorContextTesterTest {
 
   @Test
   public void testSettings() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("foo", "bar");
     tester.setSettings(settings);
     assertThat(tester.settings().getString("foo")).isEqualTo("bar");

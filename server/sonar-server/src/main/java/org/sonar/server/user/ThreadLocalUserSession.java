@@ -31,26 +31,26 @@ import org.sonar.server.exceptions.UnauthorizedException;
  */
 public class ThreadLocalUserSession implements UserSession {
 
-  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<>();
+  private static final ThreadLocal<UserSession> DELEGATE = new ThreadLocal<>();
 
   public UserSession get() {
-    UserSession currentUserSession = THREAD_LOCAL.get();
-    if (currentUserSession != null) {
-      return currentUserSession;
+    UserSession session = DELEGATE.get();
+    if (session != null) {
+      return session;
     }
     throw new UnauthorizedException();
   }
 
   public void set(UserSession session) {
-    THREAD_LOCAL.set(session);
+    DELEGATE.set(session);
   }
 
-  public void remove() {
-    THREAD_LOCAL.remove();
+  public void unload() {
+    DELEGATE.remove();
   }
 
   public boolean hasSession() {
-    return THREAD_LOCAL.get() != null;
+    return DELEGATE.get() != null;
   }
 
   @Override

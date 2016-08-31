@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -69,7 +69,7 @@ public class RegisterRulesTest {
   public DbTester dbTester = DbTester.create(system);
 
   @org.junit.Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   RuleActivator ruleActivator = mock(RuleActivator.class);
 

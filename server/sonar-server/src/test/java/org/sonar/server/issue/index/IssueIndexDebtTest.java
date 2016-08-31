@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -56,7 +56,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFF
 public class IssueIndexDebtTest {
 
   @Rule
-  public EsTester tester = new EsTester(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  public EsTester tester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

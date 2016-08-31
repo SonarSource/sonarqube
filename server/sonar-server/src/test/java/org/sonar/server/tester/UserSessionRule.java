@@ -147,7 +147,7 @@ public class UserSessionRule implements TestRule, UserSession {
   protected void after() {
     this.currentUserSession = null;
     if (serverTester != null) {
-      serverTester.get(ThreadLocalUserSession.class).remove();
+      serverTester.get(ThreadLocalUserSession.class).unload();
     }
   }
 

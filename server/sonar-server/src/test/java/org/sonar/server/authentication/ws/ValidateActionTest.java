@@ -20,12 +20,6 @@
 
 package org.sonar.server.authentication.ws;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
@@ -35,11 +29,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.authentication.BasicAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
+
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class ValidateActionTest {
 
@@ -52,7 +53,7 @@ public class ValidateActionTest {
   BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   ValidateAction underTest  = new ValidateAction(settings, basicAuthenticator, jwtHttpHandler);
 

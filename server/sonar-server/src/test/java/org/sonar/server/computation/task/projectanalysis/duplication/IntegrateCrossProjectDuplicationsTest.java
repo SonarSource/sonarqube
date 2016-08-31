@@ -26,6 +26,7 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.duplications.block.Block;
@@ -58,7 +59,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
   static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
 
   IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings, duplicationRepository);
 

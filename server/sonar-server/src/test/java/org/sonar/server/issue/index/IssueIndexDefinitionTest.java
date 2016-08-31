@@ -20,7 +20,7 @@
 package org.sonar.server.issue.index;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -32,7 +32,7 @@ public class IssueIndexDefinitionTest {
 
   @Test
   public void define() {
-    IssueIndexDefinition def = new IssueIndexDefinition(new Settings());
+    IssueIndexDefinition def = new IssueIndexDefinition(new MapSettings());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

@@ -20,7 +20,7 @@
 package org.sonar.server.user.index;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -32,7 +32,7 @@ public class UserIndexDefinitionTest {
 
   @Test
   public void define() {
-    UserIndexDefinition def = new UserIndexDefinition(new Settings());
+    UserIndexDefinition def = new UserIndexDefinition(new MapSettings());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

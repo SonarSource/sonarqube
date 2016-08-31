@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,7 +37,7 @@ public class ServerIdLoaderTest {
   private static final String AN_IP = "1.2.3.4";
   public static final String AN_ORGANISATION = "corp";
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   ServerIdGenerator idGenerator = mock(ServerIdGenerator.class);
   ServerIdLoader underTest = new ServerIdLoader(settings, idGenerator);
 

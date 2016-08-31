@@ -27,10 +27,8 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.rule.ModuleQProfiles;
-import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.rule.QProfileVerifier;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,7 +44,7 @@ public class QProfileVerifierTest {
 
   private DefaultFileSystem fs;
   private ModuleQProfiles profiles;
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
 
   @Before
   public void before() throws Exception {

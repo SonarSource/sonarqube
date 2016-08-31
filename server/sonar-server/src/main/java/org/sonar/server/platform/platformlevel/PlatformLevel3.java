@@ -19,12 +19,15 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.UriReader;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.StartupMetadataPersister;
+import org.sonar.server.setting.DatabaseSettingLoader;
+import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.startup.LogServerId;
+import org.sonar.server.ui.JRubyI18n;
 
 public class PlatformLevel3 extends PlatformLevel {
   public PlatformLevel3(PlatformLevel parent) {
@@ -35,7 +38,10 @@ public class PlatformLevel3 extends PlatformLevel {
   protected void configureLevel() {
     addIfStartupLeader(StartupMetadataPersister.class);
     add(
-      PersistentSettings.class,
+      DatabaseSettingLoader.class,
+      DatabaseSettingsEnabler.class,
+      Durations.class,
+      JRubyI18n.class,
       UriReader.class,
       ServerIdLoader.class,
       ServerIdGenerator.class,

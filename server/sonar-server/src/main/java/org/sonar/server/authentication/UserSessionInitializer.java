@@ -118,7 +118,7 @@ public class UserSessionInitializer {
   }
 
   public void removeUserSession() {
-    threadLocalSession.remove();
+    threadLocalSession.unload();
   }
 
   // Try first to authenticate from JWT token, then try from basic http header

@@ -19,25 +19,24 @@
  */
 package org.sonar.scanner.sensor.coverage;
 
-import org.junit.rules.TemporaryFolder;
-
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.config.ExclusionProperties;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -58,7 +57,7 @@ public class CoverageExclusionsTest {
 
   @Before
   public void createFilter() {
-    settings = new Settings(new PropertyDefinitions(ExclusionProperties.all()));
+    settings = new MapSettings(new PropertyDefinitions(ExclusionProperties.all()));
     fs = new DefaultFileSystem(temp.getRoot());
     filter = new CoverageExclusions(settings, fs);
   }

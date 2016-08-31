@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
@@ -69,7 +70,7 @@ public class NotificationServiceTest {
     when(qualityGateChange.getType()).thenReturn("qgate-changes");
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(null);
 
-    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
+    Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager,
       dbClient,
@@ -207,7 +208,7 @@ public class NotificationServiceTest {
 
   @Test
   public void getDispatchers_empty() {
-    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
+    Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager, dbClient);
     assertThat(service.getDispatchers()).hasSize(0);

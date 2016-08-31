@@ -19,13 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
+import org.sonar.db.property.PropertyDto;
 
 /**
  * The server node marked as "startup leader" generates some information about startup. These
@@ -37,19 +37,25 @@ import org.sonar.db.DbClient;
 public class StartupMetadataPersister implements Startable {
 
   private final StartupMetadata metadata;
-  private final PersistentSettings persistentSettings;
+  // PersistentSettings can not be used as it has to be
+  // instantiated in level 4 of container, whereas
+  // StartupMetadataPersister is level 3.
+  private final DbClient dbClient;
 
-  public StartupMetadataPersister(StartupMetadata metadata, PersistentSettings persistentSettings) {
+  public StartupMetadataPersister(StartupMetadata metadata, DbClient dbClient) {
     this.metadata = metadata;
-    this.persistentSettings = persistentSettings;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void start() {
     String startedAt = DateUtils.formatDateTime(new Date(metadata.getStartedAt()));
-    persistentSettings.saveProperties(ImmutableMap.of(
-      CoreProperties.SERVER_ID, metadata.getStartupId(),
-      CoreProperties.SERVER_STARTTIME, startedAt));
+    save(CoreProperties.SERVER_ID, metadata.getStartupId());
+    save(CoreProperties.SERVER_STARTTIME, startedAt);
+  }
+
+  private void save(String key, String value) {
+    dbClient.propertiesDao().insertProperty(new PropertyDto().setKey(key).setValue(value));
   }
 
   @Override

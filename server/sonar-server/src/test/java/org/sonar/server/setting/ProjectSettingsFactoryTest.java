@@ -20,8 +20,11 @@
 package org.sonar.server.setting;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.db.property.PropertiesDao;
+import org.sonar.ce.settings.ProjectSettingsFactory;
+import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertyDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -33,10 +36,10 @@ public class ProjectSettingsFactoryTest {
 
   static final String PROJECT_KEY = "PROJECT_KEY";
 
-  Settings settings = new Settings();
-  PropertiesDao dao = mock(PropertiesDao.class);
+  Settings settings = new MapSettings();
+  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
 
-  ProjectSettingsFactory underTest = new ProjectSettingsFactory(settings, dao);
+  ProjectSettingsFactory underTest = new ProjectSettingsFactory(settings, dbClient);
 
   @Test
   public void return_global_settings() {
@@ -49,7 +52,7 @@ public class ProjectSettingsFactoryTest {
 
   @Test
   public void return_project_settings() {
-    when(dao.selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
+    when(dbClient.propertiesDao().selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
       new PropertyDto().setKey("1").setValue("val1"),
       new PropertyDto().setKey("2").setValue("val2"),
       new PropertyDto().setKey("3").setValue("val3"))
@@ -65,7 +68,7 @@ public class ProjectSettingsFactoryTest {
   @Test
   public void project_settings_override_global_settings() {
     settings.setProperty("key", "value");
-    when(dao.selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
+    when(dbClient.propertiesDao().selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
         new PropertyDto().setKey("key").setValue("value2"))
     );
 

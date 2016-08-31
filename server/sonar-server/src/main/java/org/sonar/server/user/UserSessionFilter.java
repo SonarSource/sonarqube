@@ -31,11 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 public class UserSessionFilter implements Filter {
 
   private final Platform platform;
-  private UserSessionInitializer userSessionInitializer;
 
   public UserSessionFilter() {
     this.platform = Platform.getInstance();
@@ -48,27 +48,22 @@ public class UserSessionFilter implements Filter {
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) servletRequest;
+    HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+    ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);
+    UserSessionInitializer userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
+
+    settings.load();
     try {
-      HttpServletRequest request = (HttpServletRequest) servletRequest;
-      HttpServletResponse response = (HttpServletResponse) servletResponse;
-      init();
-      if (!isInitialized() || userSessionInitializer.initUserSession(request, response)) {
+      if (userSessionInitializer == null || userSessionInitializer.initUserSession(request, response)) {
         chain.doFilter(servletRequest, servletResponse);
       }
     } finally {
-      if (isInitialized()) {
+      if (userSessionInitializer != null) {
         userSessionInitializer.removeUserSession();
       }
-    }
-  }
-
-  private boolean isInitialized() {
-    return userSessionInitializer != null;
-  }
-
-  private void init() {
-    if (userSessionInitializer == null) {
-      userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
+      settings.unload();
     }
   }
 

@@ -20,13 +20,12 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.List;
-import java.util.Properties;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -44,7 +43,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerSettingsImpl;
+import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -82,7 +81,7 @@ public class SetDefaultTemplateActionTest {
   @Before
   public void setUp() {
     DbClient dbClient = db.getDbClient();
-    persistentSettings = new PersistentSettings(dbClient, new ServerSettingsImpl(new PropertyDefinitions(), new Properties()));
+    persistentSettings = new PersistentSettings(new MapSettings(), dbClient, new SettingsChangeNotifier());
     persistentSettings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(PROJECT), "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(VIEW), "any-view-template-uuid");

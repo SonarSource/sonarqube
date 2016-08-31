@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.i18n.I18n;
 
 import java.util.Locale;
@@ -54,7 +55,7 @@ public class DurationsTest {
 
   @Before
   public void setUp() {
-    settings = new Settings();
+    settings = new MapSettings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
     durations = new Durations(settings, i18n);
   }

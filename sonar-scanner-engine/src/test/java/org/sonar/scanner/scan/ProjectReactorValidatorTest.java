@@ -19,11 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.mockito.Mockito.when;
-
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.scan.ProjectReactorValidator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,8 +27,12 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectReactorValidatorTest {
 
@@ -47,7 +46,7 @@ public class ProjectReactorValidatorTest {
   @Before
   public void prepare() {
     mode = mock(DefaultAnalysisMode.class);
-    settings = new Settings();
+    settings = new MapSettings();
     validator = new ProjectReactorValidator(settings, mode);
   }
 

@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.CoreProperties;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -33,12 +34,11 @@ public class ProjectSettings extends Settings {
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
   private final DefaultAnalysisMode mode;
+  private final Map<String, String> properties = new HashMap<>();
 
-  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
-    super(propertyDefinitions);
+  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+    super(globalSettings.getDefinitions(), globalSettings.getEncryption());
     this.mode = mode;
-    getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.globalSettings = globalSettings;
     this.projectRepositories = projectRepositories;
     init(reactor);
@@ -53,10 +53,26 @@ public class ProjectSettings extends Settings {
   }
 
   @Override
-  protected void doOnGetProperties(String key) {
+  protected Optional<String> get(String key) {
     if (mode.isIssues() && key.endsWith(".secured") && !key.contains(".license")) {
       throw MessageException.of("Access to the secured property '" + key
         + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     }
+    return Optional.ofNullable(properties.get(key));
+  }
+
+  @Override
+  protected void set(String key, String value) {
+    properties.put(key, value);
+  }
+
+  @Override
+  protected void remove(String key) {
+    properties.remove(key);
+  }
+
+  @Override
+  public Map<String, String> getProperties() {
+    return properties;
   }
 }

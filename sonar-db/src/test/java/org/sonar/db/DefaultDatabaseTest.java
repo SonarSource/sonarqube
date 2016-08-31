@@ -23,6 +23,7 @@ import java.util.Properties;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldLoadDefaultValues() {
-    DefaultDatabase db = new DefaultDatabase(new Settings());
+    DefaultDatabase db = new DefaultDatabase(new MapSettings());
     db.initSettings();
 
     Properties props = db.getProperties();
@@ -56,7 +57,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldCompleteProperties() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
 
     DefaultDatabase db = new DefaultDatabase(settings) {
       @Override
@@ -73,7 +74,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldStart() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar");
     settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
     settings.setProperty("sonar.jdbc.username", "sonar");
@@ -90,7 +91,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldGuessDialectFromUrl() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
     DefaultDatabase database = new DefaultDatabase(settings);
@@ -101,7 +102,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldGuessDefaultDriver() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
     DefaultDatabase database = new DefaultDatabase(settings);

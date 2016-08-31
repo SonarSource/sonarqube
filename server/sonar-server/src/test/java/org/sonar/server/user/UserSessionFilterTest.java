@@ -27,9 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.mockito.Mockito;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,45 +41,44 @@ import static org.mockito.Mockito.when;
 public class UserSessionFilterTest {
 
   private UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
-  private Platform platform = mock(Platform.class);
-  private ComponentContainer componentContainer = mock(ComponentContainer.class);
+  private Platform platform = mock(Platform.class, Mockito.RETURNS_DEEP_STUBS);
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
-
+  private ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
   private UserSessionFilter underTest = new UserSessionFilter(platform);
 
   @Before
   public void setUp() {
-    when(platform.getContainer()).thenReturn(componentContainer);
+    when(platform.getContainer().getComponentByType(ThreadLocalSettings.class)).thenReturn(settings);
   }
 
   @Test
   public void cleanup_user_session_after_request_handling() throws IOException, ServletException {
-    when(componentContainer.getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
+    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
     when(userSessionInitializer.initUserSession(request, response)).thenReturn(true);
 
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
     verify(userSessionInitializer).initUserSession(request, response);
-    verify(userSessionInitializer).removeUserSession();
   }
 
   @Test
   public void stop_when_user_session_return_false() throws Exception {
-    when(componentContainer.getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
+    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
     when(userSessionInitializer.initUserSession(request, response)).thenReturn(false);
 
     underTest.doFilter(request, response, chain);
 
     verify(chain, never()).doFilter(request, response);
     verify(userSessionInitializer).initUserSession(request, response);
-    verify(userSessionInitializer).removeUserSession();
   }
 
   @Test
   public void does_nothing_when_not_initialized() throws Exception {
+    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(null);
+
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);

@@ -20,10 +20,7 @@
 
 package org.sonar.server.authentication;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
-import static java.util.Objects.requireNonNull;
-
+import com.google.common.annotations.VisibleForTesting;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtBuilder;
@@ -44,6 +41,10 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class can be used to encode or decode a JWT token
@@ -67,13 +68,16 @@ public class JwtSerializer implements Startable {
     this.uuidFactory = uuidFactory;
   }
 
+  @VisibleForTesting
+  SecretKey getSecretKey() {
+    return secretKey;
+  }
+
   @Override
   public void start() {
     String encodedKey = settings.getString(SECRET_KEY_PROPERTY);
     if (encodedKey == null) {
-      SecretKey newSecretKey = generateSecretKey();
-      settings.setProperty(SECRET_KEY_PROPERTY, Base64.getEncoder().encodeToString(newSecretKey.getEncoded()));
-      this.secretKey = newSecretKey;
+      this.secretKey = generateSecretKey();
     } else {
       this.secretKey = decodeSecretKeyProperty(encodedKey);
     }

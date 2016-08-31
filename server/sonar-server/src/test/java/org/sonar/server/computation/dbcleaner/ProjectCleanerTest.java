@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.db.DbSession;
@@ -49,7 +50,7 @@ public class ProjectCleanerTest {
   private PurgeProfiler profiler = mock(PurgeProfiler.class);
   private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
   private PurgeListener purgeListener = mock(PurgeListener.class);
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
 
   @Before
   public void before() {

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
@@ -46,7 +47,7 @@ public class ServerLoggingTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   ServerLogging underTest = new ServerLogging(settings);
 
   @Rule

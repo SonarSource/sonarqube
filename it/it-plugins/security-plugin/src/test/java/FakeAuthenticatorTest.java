@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.UserDetails;
 
@@ -33,7 +35,7 @@ public class FakeAuthenticatorTest {
 
   @Before
   public void setUp() {
-    settings = new Settings();
+    settings = new MapSettings();
     authenticator = new FakeAuthenticator(settings);
     authenticator.init();
   }

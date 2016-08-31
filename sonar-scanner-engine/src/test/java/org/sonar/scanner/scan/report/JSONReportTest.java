@@ -39,6 +39,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
@@ -49,7 +50,6 @@ import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.scan.filesystem.InputPathCache;
-import org.sonar.scanner.scan.report.JSONReport;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +69,7 @@ public class JSONReportTest {
   DefaultFileSystem fs;
   Server server = mock(Server.class);
   Rules rules = mock(Rules.class);
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   IssueCache issueCache = mock(IssueCache.class);
   private UserRepositoryLoader userRepository;
 

@@ -22,7 +22,7 @@ package org.sonar.server.rule.index;
 import com.google.common.collect.Iterators;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RuleIndexerTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

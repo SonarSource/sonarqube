@@ -20,7 +20,7 @@
 package org.sonar.server.view.index;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -32,7 +32,7 @@ public class ViewIndexDefinitionTest {
 
   @Test
   public void define() {
-    ViewIndexDefinition def = new ViewIndexDefinition(new Settings());
+    ViewIndexDefinition def = new ViewIndexDefinition(new MapSettings());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

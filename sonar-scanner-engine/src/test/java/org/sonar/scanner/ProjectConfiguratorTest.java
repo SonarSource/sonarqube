@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-import org.sonar.scanner.ProjectConfigurator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,13 +48,13 @@ public class ProjectConfiguratorTest {
     when(system2.now()).thenReturn(now);
 
     Project project = new Project("key");
-    new ProjectConfigurator(new Settings(), system2).configure(project);
+    new ProjectConfigurator(new MapSettings(), system2).configure(project);
     assertThat(now - project.getAnalysisDate().getTime()).isLessThan(1000);
   }
 
   @Test
   public void analysis_date_could_be_explicitly_set() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30");
     Project project = new Project("key");
     new ProjectConfigurator(settings, system2).configure(project);
@@ -64,7 +64,7 @@ public class ProjectConfiguratorTest {
 
   @Test
   public void analysis_timestamp_could_be_explicitly_set() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30T08:45:10+0000");
     Project project = new Project("key");
     new ProjectConfigurator(settings, system2).configure(project);
@@ -76,7 +76,7 @@ public class ProjectConfiguratorTest {
 
   @Test(expected = RuntimeException.class)
   public void fail_if_analyis_date_is_not_valid() {
-    Settings configuration = new Settings();
+    Settings configuration = new MapSettings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005/30/01");
     Project project = new Project("key");
     new ProjectConfigurator(configuration, system2).configure(project);

@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -55,7 +55,7 @@ public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_KEY = "project-key";
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule

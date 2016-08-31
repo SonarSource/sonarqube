@@ -23,16 +23,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.setting.ProjectSettingsFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
@@ -49,16 +49,15 @@ public class SettingsRepositoryTest {
 
   DbSession session;
 
-  Settings globalSettings;
+  MapSettings globalSettings;
 
   SettingsRepository underTest;
 
   @Before
   public void createDao() {
-    globalSettings = new Settings();
-    PropertiesDao propertiesDao = new PropertiesDao(dbTester.myBatis());
+    globalSettings = new MapSettings();
     session = dbClient.openSession(false);
-    underTest = new SettingsRepositoryImpl(new ProjectSettingsFactory(globalSettings, propertiesDao));
+    underTest = new SettingsRepositoryImpl(new ProjectSettingsFactory(globalSettings, dbClient));
   }
 
   @After

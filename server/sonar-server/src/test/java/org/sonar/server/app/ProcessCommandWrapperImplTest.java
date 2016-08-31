@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.process.DefaultProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,7 @@ public class ProcessCommandWrapperImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new Settings();
+  private Settings settings = new MapSettings();
 
   @Test
   public void requestSQRestart_throws_IAE_if_process_index_property_not_set() throws Exception {

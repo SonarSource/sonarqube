@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -71,7 +70,7 @@ public class GetByProjectActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new GetByProjectAction(userSession, dbClient, new ComponentFinder(dbClient),
-      new QualityGates(dbClient, mock(MetricFinder.class), mock(UserSession.class), mock(Settings.class))));
+      new QualityGates(dbClient, mock(MetricFinder.class), mock(UserSession.class))));
 
   @Test
   public void json_example() {

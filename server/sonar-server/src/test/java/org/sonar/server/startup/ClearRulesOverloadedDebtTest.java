@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -54,7 +54,7 @@ public class ClearRulesOverloadedDebtTest {
   public DbTester tester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   @Rule
   public LogTester logTester = new LogTester();

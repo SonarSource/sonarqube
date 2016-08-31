@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -59,7 +59,7 @@ public class ViewIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

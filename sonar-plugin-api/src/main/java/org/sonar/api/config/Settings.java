@@ -22,13 +22,13 @@ package org.sonar.api.config;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
@@ -38,7 +38,11 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.trim;
+
 /**
+ *
  * Project settings on batch side, or global settings on server side. This component does not access to database, so
  * property changed via setter methods are not persisted.
  * <br>
@@ -55,7 +59,7 @@ import org.sonar.api.utils.DateUtils;
  *     defaultValue = "A default value",
  *     name = "My property"),
  * })
- * public class MyPlugin extends SonarPlugin {
+ * class MyPlugin extends SonarPlugin {
  * </code>
  * </pre>
  * then you can use:
@@ -67,8 +71,8 @@ import org.sonar.api.utils.DateUtils;
  * <li>If you are using the {@link PropertyDefinition#builder(String)} way like:
  * <pre>
  * <code>
- * public class MyPlugin extends SonarPlugin {
- *     public List getExtensions() {
+ * class MyPlugin extends SonarPlugin {
+ *     List getExtensions() {
  *       return Arrays.asList(
  *         PropertyDefinition.builder("sonar.myProp").name("My property").defaultValue("A default value").build()
  *       );
@@ -83,41 +87,78 @@ import org.sonar.api.utils.DateUtils;
  * </pre>
  * </li>
  * </ul>
- * 
+ *
+ * History - this class is abstract since 6.1.
  * @since 2.12
  */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
-public class Settings {
+public abstract class Settings {
 
-  protected Map<String, String> properties;
-  protected PropertyDefinitions definitions;
-  private Encryption encryption;
+  private final PropertyDefinitions definitions;
+  private final Encryption encryption;
 
-  public Settings() {
-    this(new PropertyDefinitions());
+  protected Settings(PropertyDefinitions definitions, Encryption encryption) {
+    this.definitions = requireNonNull(definitions);
+    this.encryption = requireNonNull(encryption);
   }
 
-  public Settings(PropertyDefinitions definitions) {
-    this.properties = Maps.newHashMap();
-    this.definitions = definitions;
-    this.encryption = new Encryption(null);
+  protected abstract Optional<String> get(String key);
+
+  protected abstract void set(String key, String value);
+
+  protected abstract void remove(String key);
+
+  /**
+   * Immutable map of the properties that have non-default values.
+   * The default values defined by {@link PropertyDefinitions} are ignored,
+   * so the returned values are not the effective values. Basically only
+   * the non-empty results of {@link #getRawString(String)} are returned.
+   * <p>
+   * Values are not decrypted if they are encrypted with a secret key.
+   * </p>
+   */
+  public abstract Map<String, String> getProperties();
+
+  // FIXME scope to be replaced by "protected" as soon as not used by JRubyFacade
+  public Encryption getEncryption() {
+    return encryption;
   }
 
   /**
-   * Clone settings. Actions are not propagated to cloned settings.
+   * The value that overrides the default value. It
+   * may be encrypted with a secret key. Use {@link #getString(String)} to get
+   * the effective and decrypted value.
    *
-   * @since 3.1
+   * @since 6.1
    */
-  public Settings(Settings other) {
-    this.properties = Maps.newHashMap(other.getProperties());
-    this.definitions = other.getDefinitions();
-    this.encryption = other.getEncryption();
+  public Optional<String> getRawString(String key) {
+    return get(definitions.validKey(requireNonNull(key)));
   }
 
-  public Encryption getEncryption() {
-    return encryption;
+  /**
+   * All the property definitions declared by core and plugins.
+   */
+  public PropertyDefinitions getDefinitions() {
+    return definitions;
+  }
+
+  /**
+   * The definition related to the specified property. It may
+   * be empty.
+   *
+   * @since 6.1
+   */
+  public Optional<PropertyDefinition> getDefinition(String key) {
+    return Optional.ofNullable(definitions.get(key));
+  }
+
+  /**
+   * @return {@code true} if the property has a non-default value, else {@code false}.
+   */
+  public boolean hasKey(String key) {
+    return getRawString(key).isPresent();
   }
 
   @CheckForNull
@@ -125,47 +166,51 @@ public class Settings {
     return definitions.getDefaultValue(key);
   }
 
-  public boolean hasKey(String key) {
-    return properties.containsKey(key);
-  }
-
   public boolean hasDefaultValue(String key) {
     return StringUtils.isNotEmpty(getDefaultValue(key));
   }
 
+  /**
+   * The effective value of the specified property. Can return
+   * {@code null} if the property is not set and has no
+   * defined default value.
+   * <p>
+   * If the property is encrypted with a secret key,
+   * then the returned value is decrypted.
+   * </p>
+   *
+   * @throws IllegalStateException if value is encrypted but fails to be decrypted.
+   */
   @CheckForNull
   public String getString(String key) {
-    String value = getClearString(key);
-    if (value != null && encryption.isEncrypted(value)) {
+    String effectiveKey = definitions.validKey(key);
+    Optional<String> value = getRawString(effectiveKey);
+    if (!value.isPresent()) {
+      // default values cannot be encrypted, so return value as-is.
+      return getDefaultValue(effectiveKey);
+    }
+    if (encryption.isEncrypted(value.get())) {
       try {
-        value = encryption.decrypt(value);
+        return encryption.decrypt(value.get());
       } catch (Exception e) {
-        throw new IllegalStateException("Fail to decrypt the property " + key + ". Please check your secret key.", e);
+        throw new IllegalStateException("Fail to decrypt the property " + effectiveKey + ". Please check your secret key.", e);
       }
     }
-    return value;
+    return value.get();
   }
 
   /**
-   * Does not decrypt value.
+   * Effective value as boolean. It is {@code false} if {@link #getString(String)}
+   * does not return {@code "true"}, even if it's not a boolean representation.
+   * @return {@code true} if the effective value is {@code "true"}, else {@code false}.
    */
-  @CheckForNull
-  protected String getClearString(String key) {
-    doOnGetProperties(key);
-    String validKey = definitions.validKey(key);
-    String value = properties.get(validKey);
-    if (value == null) {
-      value = getDefaultValue(validKey);
-    }
-    return value;
-  }
-
   public boolean getBoolean(String key) {
     String value = getString(key);
     return StringUtils.isNotEmpty(value) && Boolean.parseBoolean(value);
   }
 
   /**
+   * Effective value as int.
    * @return the value as int. If the property does not exist and has no default value, then 0 is returned.
    */
   public int getInt(String key) {
@@ -239,8 +284,8 @@ public class Settings {
    * </ul>
    */
   public String[] getStringArray(String key) {
-    PropertyDefinition property = getDefinitions().get(key);
-    if ((null != property) && (property.multiValues())) {
+    Optional<PropertyDefinition> def = getDefinition(key);
+    if ((def.isPresent()) && (def.get().multiValues())) {
       String value = getString(key);
       if (value == null) {
         return ArrayUtils.EMPTY_STRING_ARRAY;
@@ -271,7 +316,7 @@ public class Settings {
   }
 
   /**
-   * Value is splitted and trimmed.
+   * Value is split and trimmed.
    */
   public String[] getStringArrayBySeparator(String key, String separator) {
     String value = getString(key);
@@ -279,36 +324,27 @@ public class Settings {
       String[] strings = StringUtils.splitByWholeSeparator(value, separator);
       String[] result = new String[strings.length];
       for (int index = 0; index < strings.length; index++) {
-        result[index] = StringUtils.trim(strings[index]);
+        result[index] = trim(strings[index]);
       }
       return result;
     }
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }
 
-  public List<String> getKeysStartingWith(String prefix) {
-    List<String> result = new ArrayList<>();
-    for (String key : properties.keySet()) {
-      if (StringUtils.startsWith(key, prefix)) {
-        result.add(key);
-      }
-    }
-    return result;
-  }
-
-  public Settings appendProperty(String key, String value) {
-    String newValue = properties.get(definitions.validKey(key));
-    if (StringUtils.isEmpty(newValue)) {
-      newValue = StringUtils.trim(value);
+  public Settings appendProperty(String key, @Nullable String value) {
+    Optional<String> existingValue = getRawString(definitions.validKey(key));
+    String newValue;
+    if (!existingValue.isPresent()) {
+      newValue = trim(value);
     } else {
-      newValue += "," + StringUtils.trim(value);
+      newValue = existingValue.get() + "," + trim(value);
     }
     return setProperty(key, newValue);
   }
 
   public Settings setProperty(String key, @Nullable String[] values) {
-    PropertyDefinition property = getDefinitions().get(key);
-    if ((null == property) || (!property.multiValues())) {
+    Optional<PropertyDefinition> def = getDefinition(key);
+    if (!def.isPresent() || (!def.get().multiValues())) {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
     }
 
@@ -324,7 +360,7 @@ public class Settings {
       }
 
       String escapedValue = Joiner.on(',').join(escaped);
-      text = StringUtils.trim(escapedValue);
+      text = trim(escapedValue);
     }
     return setProperty(key, text);
   }
@@ -332,11 +368,10 @@ public class Settings {
   public Settings setProperty(String key, @Nullable String value) {
     String validKey = definitions.validKey(key);
     if (value == null) {
-      properties.remove(validKey);
-      doOnRemoveProperty(validKey);
+      removeProperty(validKey);
+
     } else {
-      properties.put(validKey, StringUtils.trim(value));
-      doOnSetProperty(validKey, value);
+      set(validKey, trim(value));
     }
     return this;
   }
@@ -379,11 +414,6 @@ public class Settings {
     return this;
   }
 
-  public Settings setProperties(Map<String, String> props) {
-    clear();
-    return addProperties(props);
-  }
-
   public Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
     if (date == null) {
       return removeProperty(key);
@@ -392,48 +422,14 @@ public class Settings {
   }
 
   public Settings removeProperty(String key) {
-    return setProperty(key, (String) null);
-  }
-
-  public Settings clear() {
-    properties.clear();
-    doOnClearProperties();
+    remove(key);
     return this;
   }
 
-  /**
-   *
-   * @return immutable copy of properties. Encrypted values are kept and not decrypted.
-   */
-  public Map<String, String> getProperties() {
-    return ImmutableMap.copyOf(properties);
+  public List<String> getKeysStartingWith(String prefix) {
+    return getProperties().keySet().stream()
+      .filter(key -> StringUtils.startsWith(key, prefix))
+      .collect(Collectors.toList());
   }
 
-  public PropertyDefinitions getDefinitions() {
-    return definitions;
-  }
-
-  /**
-   * Create empty settings. Definition of available properties is loaded from the given annotated class.
-   * This method is usually used by unit tests.
-   */
-  public static Settings createForComponent(Object component) {
-    return new Settings(new PropertyDefinitions(component));
-  }
-
-  protected void doOnSetProperty(String key, @Nullable String value) {
-    // can be overridden
-  }
-
-  protected void doOnRemoveProperty(String key) {
-    // can be overridden
-  }
-
-  protected void doOnClearProperties() {
-    // can be overridden
-  }
-
-  protected void doOnGetProperties(String key) {
-    // can be overridden
-  }
 }

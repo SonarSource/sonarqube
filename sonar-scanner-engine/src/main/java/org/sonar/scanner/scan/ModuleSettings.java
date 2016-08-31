@@ -20,8 +20,10 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.collect.Lists;
+import java.util.HashMap;
 import java.util.List;
-import org.sonar.api.CoreProperties;
+import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
@@ -37,13 +39,13 @@ public class ModuleSettings extends Settings {
 
   private final ProjectRepositories projectRepos;
   private final DefaultAnalysisMode analysisMode;
+  private final Map<String, String> properties = new HashMap<>();
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
-    super(batchSettings.getDefinitions());
+    super(batchSettings.getDefinitions(), batchSettings.getEncryption());
     this.projectRepos = projectSettingsRepo;
     this.analysisMode = analysisMode;
-    getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     init(moduleDefinition, batchSettings);
     contextReportPublisher.dumpModuleSettings(moduleDefinition);
@@ -87,10 +89,26 @@ public class ModuleSettings extends Settings {
   }
 
   @Override
-  protected void doOnGetProperties(String key) {
+  protected Optional<String> get(String key) {
     if (analysisMode.isIssues() && key.endsWith(".secured") && !key.contains(".license")) {
       throw MessageException.of("Access to the secured property '" + key
         + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     }
+    return Optional.ofNullable(properties.get(key));
+  }
+
+  @Override
+  protected void set(String key, String value) {
+    properties.put(key, value);
+  }
+
+  @Override
+  protected void remove(String key) {
+    properties.remove(key);
+  }
+
+  @Override
+  public Map<String, String> getProperties() {
+    return properties;
   }
 }

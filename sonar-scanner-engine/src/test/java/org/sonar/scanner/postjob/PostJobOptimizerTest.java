@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 import org.sonar.api.config.Settings;
-import org.sonar.scanner.postjob.PostJobOptimizer;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +39,7 @@ public class PostJobOptimizerTest {
 
   @Before
   public void prepare() {
-    settings = new Settings();
+    settings = new MapSettings();
     optimizer = new PostJobOptimizer(settings);
   }
 

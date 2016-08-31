@@ -22,8 +22,7 @@ package org.sonar.scanner.bootstrap;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.scanner.bootstrap.BatchPluginPredicate;
-import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.api.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 public class BatchPluginPredicateTest {
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   GlobalMode mode = mock(GlobalMode.class);
 
   @Test

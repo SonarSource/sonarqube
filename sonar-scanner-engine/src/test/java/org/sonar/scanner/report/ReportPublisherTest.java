@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -40,9 +41,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.BatchWsClient;
-import org.sonar.scanner.report.AnalysisContextReportPublisher;
-import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.report.ReportPublisherStep;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
@@ -62,7 +60,7 @@ public class ReportPublisherTest {
   public ExpectedException exception = ExpectedException.none();
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
-  Settings settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
+  Settings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
   BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   Server server = mock(Server.class);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);

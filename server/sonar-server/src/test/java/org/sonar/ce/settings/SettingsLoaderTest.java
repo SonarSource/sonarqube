@@ -20,6 +20,7 @@
 package org.sonar.ce.settings;
 
 import org.junit.Test;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
