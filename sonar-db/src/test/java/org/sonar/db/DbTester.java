@@ -20,7 +20,6 @@
 package org.sonar.db;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.InputStream;
@@ -144,8 +143,6 @@ public class DbTester extends ExternalResource {
   /**
    * Very simple helper method to insert some data into a table.
    * It's the responsibility of the caller to convert column values to string.
-   *
-   * @param valuesByColumn column name and value pairs, if any value is null, the associated column won't be inserted
    */
   public void executeInsert(String table, String firstColumn, Object... others) {
     executeInsert(table, mapOf(firstColumn, others));
@@ -194,7 +191,7 @@ public class DbTester extends ExternalResource {
     return countRowsOfTable(tableName, new DbSessionConnectionSupplier(dbSession));
   }
 
-  private int countRowsOfTable(String tableName, SqlExceptionSupplier<Connection> connectionSupplier) {
+  private int countRowsOfTable(String tableName, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
     return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH), connectionSupplier);
   }
@@ -211,12 +208,12 @@ public class DbTester extends ExternalResource {
     return countSql(sql, new DbSessionConnectionSupplier(dbSession));
   }
 
-  private int countSql(String sql, SqlExceptionSupplier<Connection> connectionSupplier) {
+  private int countSql(String sql, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.contains(sql, "count("),
       "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     try (
-      Connection connection = connectionSupplier.get();
-      PreparedStatement stmt = connection.prepareStatement(sql);
+      ConnectionSupplier supplier = connectionSupplier;
+      PreparedStatement stmt = supplier.get().prepareStatement(sql);
       ResultSet rs = stmt.executeQuery()) {
       if (rs.next()) {
         return rs.getInt(1);
@@ -232,10 +229,10 @@ public class DbTester extends ExternalResource {
     return select(selectSql, new NewConnectionSupplier());
   }
 
-  private List<Map<String, Object>> select(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
+  private List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
     try (
-      Connection connection = connectionSupplier.get();
-      PreparedStatement stmt = connection.prepareStatement(selectSql);
+      ConnectionSupplier supplier = connectionSupplier;
+      PreparedStatement stmt = supplier.get().prepareStatement(selectSql);
       ResultSet rs = stmt.executeQuery()) {
       return getHashMap(rs);
     } catch (Exception e) {
@@ -251,7 +248,7 @@ public class DbTester extends ExternalResource {
     return selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
   }
 
-  private Map<String, Object> selectFirst(String selectSql, SqlExceptionSupplier<Connection> connectionSupplier) {
+  private Map<String, Object> selectFirst(String selectSql, ConnectionSupplier connectionSupplier) {
     List<Map<String, Object>> rows = select(selectSql, connectionSupplier);
     if (rows.isEmpty()) {
       throw new IllegalStateException("No results for " + selectSql);
@@ -503,16 +500,16 @@ public class DbTester extends ExternalResource {
   }
 
   /**
-   * A {@link Supplier} that declares the checked exception {@link SQLException}.
+   * An {@link AutoCloseable} supplier of {@link Connection}.
    */
-  private interface SqlExceptionSupplier<T> extends AutoCloseable {
-    T get() throws SQLException;
+  private interface ConnectionSupplier extends AutoCloseable {
+    Connection get() throws SQLException;
 
     @Override
     void close();
   }
 
-  private static class DbSessionConnectionSupplier implements SqlExceptionSupplier<Connection> {
+  private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;
 
     public DbSessionConnectionSupplier(DbSession dbSession) {
@@ -530,7 +527,7 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  private class NewConnectionSupplier implements SqlExceptionSupplier<Connection> {
+  private class NewConnectionSupplier implements ConnectionSupplier {
     private Connection connection;
 
     @Override

@@ -115,6 +115,7 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
+import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileLookup;
@@ -385,6 +386,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ProjectAnalysisTaskModule.class,
       CeTaskProcessorModule.class,
 
+      InternalPropertiesImpl.class,
       ProjectSettingsFactory.class,
     };
   }
