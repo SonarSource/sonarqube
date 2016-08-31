@@ -585,9 +585,34 @@ public class SetActionTest {
       .build());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid JSON 'incorrectJson:incorrectJson' for setting 'my.key'");
+    expectedException.expectMessage("JSON 'incorrectJson:incorrectJson' does not respect expected format for setting 'my.key'. " +
+      "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
 
     callForGlobalPropertySet("my.key", newArrayList("incorrectJson:incorrectJson"));
+  }
+
+  @Test
+  public void fail_when_property_set_with_json_of_the_wrong_format() {
+    propertyDefinitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.PROPERTY_SET)
+      .defaultValue("default")
+      .fields(newArrayList(
+        PropertyFieldDefinition.build("field")
+          .name("Field")
+          .type(PropertyType.STRING)
+          .build()))
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("JSON '[{\"field\":\"v1\"}, {\"field\":\"v2\"}]' does not respect expected format for setting 'my.key'. " +
+      "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
+
+    callForGlobalPropertySet("my.key", newArrayList("[{\"field\":\"v1\"}, {\"field\":\"v2\"}]"));
   }
 
   @Test

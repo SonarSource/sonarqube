@@ -22,7 +22,8 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.gson.JsonParseException;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -319,10 +320,11 @@ public class SetAction implements SettingsWsAction {
   private static Map<String, String> readOneFieldValues(String json, String key) {
     Type type = new TypeToken<Map<String, String>>() {
     }.getType();
+    Gson gson = GsonHelper.create();
     try {
-      return (Map<String, String>) GsonHelper.create().fromJson(json, type);
-    } catch (JsonParseException e) {
-      throw new BadRequestException(String.format("Invalid JSON '%s' for setting '%s'", json, key));
+      return (Map<String, String>) gson.fromJson(json, type);
+    } catch (JsonSyntaxException e) {
+      throw new BadRequestException(String.format("JSON '%s' does not respect expected format for setting '%s'. Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}", json, key));
     }
   }
 
