@@ -68,6 +68,7 @@ public class ResetAction implements SettingsWsAction {
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("6.1")
+      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 

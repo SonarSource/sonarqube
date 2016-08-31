@@ -595,6 +595,7 @@ public class SetActionTest {
 
     assertThat(definition.key()).isEqualTo("set");
     assertThat(definition.isPost()).isTrue();
+    assertThat(definition.isInternal()).isTrue();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
       .containsOnly("key", "value", "values", "fieldValues", "componentId", "componentKey");

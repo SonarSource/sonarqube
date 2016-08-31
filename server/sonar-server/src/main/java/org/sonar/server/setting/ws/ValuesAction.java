@@ -89,6 +89,7 @@ public class ValuesAction implements SettingsWsAction {
         "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.1")
+      .setInternal(true)
       .setHandler(this);
     addComponentParameters(action);
     action.createParam(PARAM_KEYS)

@@ -104,6 +104,7 @@ public class SetAction implements SettingsWsAction {
         PARAM_VALUE, PARAM_VALUES,
         PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("6.1")
+      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 

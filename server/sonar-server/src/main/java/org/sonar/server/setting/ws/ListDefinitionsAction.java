@@ -73,6 +73,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
         "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY))
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
       .setSince("6.1")
+      .setInternal(true)
       .setHandler(this);
     addComponentParameters(action);
   }

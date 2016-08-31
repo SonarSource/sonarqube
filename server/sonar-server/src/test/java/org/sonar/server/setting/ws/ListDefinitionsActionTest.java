@@ -349,7 +349,7 @@ public class ListDefinitionsActionTest {
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(2);
