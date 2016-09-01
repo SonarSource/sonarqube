@@ -31,8 +31,8 @@ import it.authorisation.SystemAdminPermissionTest;
 import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
 import it.measure.MeasuresWsTest;
-import it.measure.ProjectMeasuresPageTest;
 import it.measure.ProjectDashboardTest;
+import it.measure.ProjectMeasuresPageTest;
 import it.measure.ProjectWidgetsTest;
 import it.measureFilter.MeasureFiltersTest;
 import it.measureHistory.DifferentialPeriodsTest;
@@ -47,6 +47,7 @@ import it.projectAdministration.ProjectLinksPageTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
+import it.settings.EmailsTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.sourceCode.EncodingTest;
@@ -69,6 +70,7 @@ import static util.ItUtils.xooPlugin;
   ProjectLinksPageTest.class,
   BackgroundTasksTest.class,
   // settings
+  EmailsTest.class,
   PropertySetsTest.class,
   SettingsTest.class,
   // i18n
