@@ -388,30 +388,12 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void deleteGlobalProperties() {
-    dbTester.prepareDbUnit(getClass(), "deleteGlobalProperties.xml");
-
-    underTest.deleteGlobalProperties();
-
-    dbTester.assertDbUnit(getClass(), "deleteGlobalProperties-result.xml", "properties");
-  }
-
-  @Test
   public void deleteGlobalProperty() {
     dbTester.prepareDbUnit(getClass(), "deleteGlobalProperty.xml");
 
     underTest.deleteGlobalProperty("to_be_deleted");
 
     dbTester.assertDbUnit(getClass(), "deleteGlobalProperty-result.xml", "properties");
-  }
-
-  @Test
-  public void deleteAllProperties() {
-    dbTester.prepareDbUnit(getClass(), "deleteAllProperties.xml");
-
-    underTest.deleteAllProperties("to_be_deleted");
-
-    dbTester.assertDbUnit(getClass(), "deleteAllProperties-result.xml", "properties");
   }
 
   @Test
@@ -460,15 +442,6 @@ public class PropertiesDaoTest {
   public void should_not_rename_an_empty_key() {
     thrown.expect(IllegalArgumentException.class);
     underTest.renamePropertyKey(null, "foo");
-  }
-
-  @Test
-  public void updatePropertiesFromKeyAndValueToNewValue() {
-    dbTester.prepareDbUnit(getClass(), "updatePropertiesFromKeyAndValueToNewValue.xml");
-
-    underTest.updateProperties("sonar.profile.java", "Sonar Way", "Default");
-
-    dbTester.assertDbUnitTable(getClass(), "updatePropertiesFromKeyAndValueToNewValue-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {

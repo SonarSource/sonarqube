@@ -206,13 +206,6 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void deleteGlobalProperties() {
-    try (DbSession session = mybatis.openSession(false)) {
-      getMapper(session).deleteGlobalProperties();
-      session.commit();
-    }
-  }
-
   public void deleteGlobalProperty(String key, DbSession session) {
     getMapper(session).deleteGlobalProperty(key);
   }
@@ -220,13 +213,6 @@ public class PropertiesDao implements Dao {
   public void deleteGlobalProperty(String key) {
     try (DbSession session = mybatis.openSession(false)) {
       deleteGlobalProperty(key, session);
-      session.commit();
-    }
-  }
-
-  public void deleteAllProperties(String key) {
-    try (DbSession session = mybatis.openSession(false)) {
-      getMapper(session).deleteAllProperties(key);
       session.commit();
     }
   }
@@ -258,20 +244,6 @@ public class PropertiesDao implements Dao {
         session.commit();
       }
     }
-  }
-
-  /**
-   * Update all properties (global and projects ones) with a given key and value to a new value
-   */
-  public void updateProperties(String key, String oldValue, String newValue) {
-    try (DbSession session = mybatis.openSession(false)) {
-      updateProperties(key, oldValue, newValue, session);
-      session.commit();
-    }
-  }
-
-  public void updateProperties(String key, String oldValue, String newValue, DbSession session) {
-    getMapper(session).updateProperties(key, oldValue, newValue);
   }
 
   private static PropertiesMapper getMapper(DbSession session) {

@@ -33,10 +33,6 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectProjectProperties(String resourceKey);
 
-  List<PropertyDto> selectProjectPropertiesByResourceId(Long resourceId);
-
-  List<PropertyDto> selectSetOfResourceProperties(@Param("rId") Long projectId, @Param("propKeys") List<String> propertyKeys);
-
   PropertyDto selectByKey(PropertyDto key);
 
   List<PropertyDto> selectByKeys(@Param("keys") List<String> keys, @Nullable @Param("componentId") Long componentId);
@@ -60,11 +56,6 @@ public interface PropertiesMapper {
 
   void deleteGlobalProperty(String key);
 
-  void deleteAllProperties(String key);
-
-  void deleteGlobalProperties();
-
   void renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 
-  void updateProperties(@Param("key") String key, @Param("oldValue") String oldValue, @Param("newValue") String newValue);
 }

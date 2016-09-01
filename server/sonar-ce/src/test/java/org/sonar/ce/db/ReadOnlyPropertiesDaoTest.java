@@ -81,14 +81,6 @@ public class ReadOnlyPropertiesDaoTest {
   }
 
   @Test
-  public void deleteGlobalProperties() {
-    underTest.deleteGlobalProperties();
-
-    assertNoInteraction();
-
-  }
-
-  @Test
   public void deleteGlobalProperty() {
     underTest.deleteGlobalProperty(null);
 
@@ -105,14 +97,6 @@ public class ReadOnlyPropertiesDaoTest {
   }
 
   @Test
-  public void deleteAllProperties() {
-    underTest.deleteAllProperties(null);
-
-    assertNoInteraction();
-
-  }
-
-  @Test
   public void insertGlobalProperties() {
     underTest.insertGlobalProperties(null);
 
@@ -123,22 +107,6 @@ public class ReadOnlyPropertiesDaoTest {
   @Test
   public void renamePropertyKey() {
     underTest.renamePropertyKey(null, null);
-
-    assertNoInteraction();
-
-  }
-
-  @Test
-  public void updateProperties() {
-    underTest.updateProperties(null, null, null);
-
-    assertNoInteraction();
-
-  }
-
-  @Test
-  public void updateProperties1() {
-    underTest.updateProperties(null, null, null, dbSession);
 
     assertNoInteraction();
 

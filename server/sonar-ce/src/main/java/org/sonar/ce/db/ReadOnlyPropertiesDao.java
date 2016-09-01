@@ -70,11 +70,6 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteGlobalProperties() {
-    // do nothing
-  }
-
-  @Override
   public void deleteGlobalProperty(String key, DbSession session) {
     // do nothing
   }
@@ -85,27 +80,12 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteAllProperties(String key) {
-    // do nothing
-  }
-
-  @Override
   public void insertGlobalProperties(Map<String, String> properties) {
     // do nothing
   }
 
   @Override
   public void renamePropertyKey(String oldKey, String newKey) {
-    // do nothing
-  }
-
-  @Override
-  public void updateProperties(String key, String oldValue, String newValue) {
-    // do nothing
-  }
-
-  @Override
-  public void updateProperties(String key, String oldValue, String newValue, DbSession session) {
     // do nothing
   }
 
