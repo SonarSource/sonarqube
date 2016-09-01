@@ -49,7 +49,6 @@ import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
-import it.settings.SubCategoriesTest;
 import it.sourceCode.EncodingTest;
 import it.sourceCode.HighlightingTest;
 import it.sourceCode.ProjectCodeTest;
@@ -71,7 +70,6 @@ import static util.ItUtils.xooPlugin;
   BackgroundTasksTest.class,
   // settings
   PropertySetsTest.class,
-  SubCategoriesTest.class,
   SettingsTest.class,
   // i18n
   I18nTest.class,

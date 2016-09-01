@@ -70,9 +70,6 @@ public class DashboardTest {
       // SONAR-2073
       "/componentDashboard/DashboardTest/global_dashboard/filter-widget-anonymous.html",
 
-      // SONAR-3460
-      "/componentDashboard/DashboardTest/global_dashboard/global-admin-dashboards.html",
-
       // SONAR-3461
       "/componentDashboard/DashboardTest/global_dashboard/default-dashboards.html",
 

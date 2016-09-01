@@ -1,0 +1,157 @@
+.settings-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom: 60px;
+}
+
+.settings-main {
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+  padding: 15px 20px;
+  border: 1px solid #e6e6e6;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.settings-side {
+  position: relative;
+  z-index: 3;
+  width: 160px;
+  flex-shrink: 0;
+  padding: 10px 0;
+  box-sizing: border-box;
+  transform: translateX(1px);
+}
+
+.settings-menu {
+}
+
+.settings-menu > li {
+  margin-bottom: 4px;
+}
+
+.settings-menu > li > a {
+  display: block;
+  padding: 10px 10px;
+  line-height: 1.5;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border: 1px solid #e6e6e6;
+  border-right: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.settings-menu > li > a:hover,
+.settings-menu > li > a:focus,
+.settings-menu > li > a.active {
+  background-color: #fff;
+}
+
+.settings-menu > li > a.active {
+  color: #444;
+  cursor: default;
+}
+
+.settings-definitions-list > li + li {
+  margin-top: 30px;
+}
+
+.settings-definition {
+  display: flex;
+  align-items: stretch;
+}
+
+.settings-definition-changed {
+  margin: -10px -20px;
+  padding: 9px 20px;
+  border-top: 1px solid #faebcc;
+  border-bottom: 1px solid #faebcc;
+  background-color: #fcf8e3;
+}
+
+.settings-definition-left {
+  width: 330px;
+  padding-right: 30px;
+  box-sizing: border-box;
+}
+
+.settings-definition-right {
+  position: relative;
+  width: calc(100% - 330px);
+  padding-top: 35px;
+  box-sizing: border-box;
+}
+
+.settings-definition-name {
+  text-overflow: ellipsis;
+}
+
+.settings-definition-key {
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-definition-key:hover {
+  overflow: visible;
+}
+
+.settings-definition-state {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  line-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-definition-state-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  text-align: center;
+}
+
+.settings-definition-state-icon > .icon-alert-error,
+.settings-definition-state-icon > .spinner {
+  position: relative;
+  top: -2px;
+}
+
+.settings-definition-changes {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dotted #e6e6e6;
+}
+
+.settings-sub-categories-list {
+}
+
+.settings-sub-categories-list > li {
+}
+
+.settings-sub-categories-list > li + li {
+  margin: 30px -20px 0;
+  padding: 30px 20px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.settings-sub-category-name {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.settings-sub-category-description {
+  margin-top: -15px;
+  margin-bottom: 20px;
+  color: #777;
+}

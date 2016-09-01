@@ -36,6 +36,11 @@ export function translateWithParameters (messageKey, ...parameters) {
   }
 }
 
+export function hasMessage (...keys) {
+  const messageKey = keys.join('.');
+  return messages[messageKey] != null;
+}
+
 function getCurrentLocale () {
   return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }

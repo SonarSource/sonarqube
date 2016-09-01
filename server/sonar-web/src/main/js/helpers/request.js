@@ -201,5 +201,5 @@ export function requestDelete (url, data) {
  * @returns {Promise}
  */
 export function delay (response) {
-  return new Promise(resolve => setTimeout(() => resolve(response), 3000));
+  return new Promise(resolve => setTimeout(() => resolve(response), 500));
 }

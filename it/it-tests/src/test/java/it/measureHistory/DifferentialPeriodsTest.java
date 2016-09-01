@@ -21,7 +21,6 @@ package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.util.Date;
 import java.util.List;
@@ -32,8 +31,8 @@ import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import pageobjects.Navigation;
 import util.ItUtils;
-import util.selenium.SeleneseTest;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -133,9 +132,8 @@ public class DifferentialPeriodsTest {
     assertThat(measures.get(0).getVariation1()).isEqualTo(17);
 
     // Check on ui that it's possible to define leak period on project
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("define-leak-period-on-project",
-      "/measureHistory/DifferentialPeriodsTest/define-leak-period-on-project.html"
-    ).build()).runOn(orchestrator);
+    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings("sample")
+      .assertSettingDisplayed("sonar.timemachine.period1");
   }
 
   /**
