@@ -65,11 +65,18 @@ class MeasureFilter < ActiveRecord::Base
   belongs_to :user
   has_many :measure_filter_favourites, :dependent => :delete_all
 
-  validates_presence_of :name, :message => Api::Utils.message('measure_filter.missing_name')
-  validates_length_of :name, :maximum => 100, :message => Api::Utils.message('measure_filter.name_too_long')
   validates_length_of :description, :allow_nil => true, :maximum => 4000
+  validate :validate_name
 
   attr_reader :pagination, :security_exclusions, :base_row, :rows, :display
+
+  def validate_name
+    if name.nil? || name.empty?
+      errors.add :name, Api::Utils.message('measure_filter.missing_name')
+    elsif name.size > 100
+      errors.add :name, Api::Utils.message('measure_filter.name_too_long')
+    end
+  end
 
   def sort_key
     criteria['sort']
