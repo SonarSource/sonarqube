@@ -72,7 +72,6 @@ public class SettingsPage {
   public SettingsPage setStringValue(String settingKey, String value) {
     SelenideElement setting = $(".settings-definition[data-key=\"" + settingKey + "\"]");
     setting.find("input").val(value);
-    setting.find(".js-save-changes").should(exist);
     setting.find(".js-save-changes").click();
     setting.find(".js-save-changes").shouldNot(exist);
     return this;

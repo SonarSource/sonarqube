@@ -180,11 +180,9 @@ public class ProjectAdministrationTest {
     page.openCategory("General")
       .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "30")
       .assertStringSettingValue("sonar.timemachine.period1", "previous_version")
-      .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true);
-
-    page.openCategory("General")
-      .setStringValue("sonar.timemachine.period1", "1.0")
-      .assertStringSettingValue("sonar.timemachine.period1", "1.0");
+      .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true)
+      .setStringValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1")
+      .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
   }
 
   @Test
