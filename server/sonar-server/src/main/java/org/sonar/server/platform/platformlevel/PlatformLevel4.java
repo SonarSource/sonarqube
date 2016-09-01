@@ -84,6 +84,7 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
+import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
@@ -572,6 +573,7 @@ public class PlatformLevel4 extends PlatformLevel {
       NotificationService.class,
       NotificationCenter.class,
       DefaultNotificationManager.class,
+      EmailsWsModule.class,
 
       // Tests
       TestsWs.class,
