@@ -48,8 +48,6 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
   const definition = getDefinition(state, key);
   const value = getChangedValue(state, key);
 
-  // TODO avoid call to #getValues()
-
   return setSettingValue(definition, value, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
@@ -58,20 +56,30 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
         dispatch(passValidation(key));
         dispatch(stopLoading(key));
       })
-      .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
+      .catch(e => {
+        dispatch(stopLoading(key));
+        parseError(e).then(message => dispatch(failValidation(key, message)));
+        return Promise.reject();
+      });
 };
 
 export const resetValue = (key, componentKey) => dispatch => {
   dispatch(startLoading(key));
 
-  // TODO avoid call to #getValues()
-
   return resetSettingValue(key, componentKey)
       .then(() => getValues(key, componentKey))
       .then(values => {
-        dispatch(receiveValues(values));
+        if (values.length > 0) {
+          dispatch(receiveValues(values));
+        } else {
+          dispatch(receiveValues([{ key }]));
+        }
         dispatch(passValidation(key));
         dispatch(stopLoading(key));
       })
-      .catch(e => parseError(e).then(message => dispatch(failValidation(key, message))));
+      .catch(e => {
+        dispatch(stopLoading(key));
+        parseError(e).then(message => dispatch(failValidation(key, message)));
+        return Promise.reject();
+      });
 };

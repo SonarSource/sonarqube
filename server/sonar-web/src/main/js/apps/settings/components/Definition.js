@@ -71,15 +71,7 @@ class Definition extends React.Component {
 
   handleChange (value) {
     clearTimeout(this.timeout);
-    const { definition } = this.props.setting;
-
-    if (isEmptyValue(definition, value)) {
-      this.props.failValidation(definition.key, translate('settings.state.value_cant_be_empty'));
-    } else {
-      this.props.passValidation(definition.key);
-    }
-
-    return this.props.changeValue(definition.key, value);
+    return this.props.changeValue(this.props.setting.definition.key, value);
   }
 
   handleReset () {
@@ -88,7 +80,7 @@ class Definition extends React.Component {
     return this.props.resetValue(definition.key, componentKey).then(() => {
       this.safeSetState({ success: true });
       this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-    });
+    }).catch(() => { /* do nothing */ });
   }
 
   handleCancel () {
@@ -97,11 +89,18 @@ class Definition extends React.Component {
   }
 
   handleSave () {
+    this.safeSetState({ success: false });
+    const { definition } = this.props.setting;
+    if (isEmptyValue(definition, this.props.changedValue)) {
+      this.props.failValidation(definition.key, translate('settings.state.value_cant_be_empty'));
+      return;
+    }
+
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.saveValue(this.props.setting.definition.key, componentKey).then(() => {
       this.safeSetState({ success: true });
       this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-    });
+    }).catch(() => { /* do nothing */ });
   }
 
   render () {

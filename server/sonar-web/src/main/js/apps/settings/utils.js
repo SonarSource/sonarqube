@@ -117,11 +117,15 @@ export function getDefaultValue (setting) {
   }
 
   if (setting.definition.multiValues) {
-    return parentValue.join(', ');
+    return parentValue.length > 0 ?
+        parentValue.join(', ') :
+        translate('settings.default.no_value');
   }
 
   if (setting.definition.type === TYPE_PROPERTY_SET) {
-    return translate('settings.default.complex_value');
+    return parentValue.length > 0 ?
+        translate('settings.default.complex_value') :
+        translate('settings.default.no_value');
   }
 
   if (setting.definition.type === TYPE_PASSWORD) {
