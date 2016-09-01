@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -77,8 +78,15 @@ public class BaseRequestTest {
   }
 
   @Test
+  public void skip_null_value_in_multi_param() {
+    underTest.setParam("key", newArrayList("v1", null, "v3"));
+
+  }
+
+  @Test
   public void null_param_value() {
-    underTest.setParam("key", null);
+    Boolean nullBool = null;
+    underTest.setParam("key", nullBool);
     assertThat(underTest.getParams()).isEmpty();
   }
 

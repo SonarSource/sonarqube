@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,24 +69,48 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return (SELF) this;
   }
 
-  /**
-   * To set a multi value parameters, provide a Collection with the values
-   */
-  public SELF setParam(String key, @Nullable Object value) {
+  public SELF setParam(String key, @Nullable String value) {
+    return setSingleValueParam(key, value);
+  }
+
+  public SELF setParam(String key, @Nullable Integer value) {
+    return setSingleValueParam(key, value);
+  }
+
+  public SELF setParam(String key, @Nullable Long value) {
+    return setSingleValueParam(key, value);
+  }
+
+  public SELF setParam(String key, @Nullable Float value) {
+    return setSingleValueParam(key, value);
+  }
+
+  public SELF setParam(String key, @Nullable Boolean value) {
+    return setSingleValueParam(key, value);
+  }
+
+  private SELF setSingleValueParam(String key, @Nullable Object value) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
     if (value == null) {
       return (SELF) this;
     }
+    parameters.setValue(key, value.toString());
 
-    if (value instanceof Collection) {
-      Collection<Object> values = (Collection<Object>) value;
-      if (values.isEmpty()) {
-        return (SELF) this;
-      }
-      parameters.setValues(key, values.stream().map(Object::toString).collect(Collectors.toList()));
-    } else {
-      parameters.setValue(key, value.toString());
+    return (SELF) this;
+  }
+
+  public SELF setParam(String key, @Nullable Collection<? extends Object> values) {
+    checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
+    if (values == null || values.isEmpty()) {
+      return (SELF) this;
     }
+
+    parameters.setValues(key, values.stream()
+      .filter(Objects::nonNull)
+      .map(Object::toString)
+      .filter(value -> !value.isEmpty())
+      .collect(Collectors.toList()));
+
     return (SELF) this;
   }
 
