@@ -24,11 +24,8 @@ class Profile < ActiveRecord::Base
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters']
   has_many :changes, :class_name => 'ActiveRuleChange', :dependent => :destroy
 
-  validates_uniqueness_of :name, :scope => :language, :case_sensitive => false, :message => Api::Utils.message('quality_profiles.already_exists')
-  validates_presence_of :name, :message => Api::Utils.message('quality_profiles.please_type_profile_name')
-
   MAX_NAME_LENGTH = 100
-  validates_length_of :name, :maximum => MAX_NAME_LENGTH, :message => Api::Utils.message('name_too_long_x', :params => [MAX_NAME_LENGTH])
+  after_initialize :readonly!
 
   # The warnings that are set on this record, equivalent to normal ActiveRecord errors but does not prevent
   # the record from saving.
@@ -133,27 +130,6 @@ class Profile < ActiveRecord::Base
         end
         array
       end
-  end
-
-  def before_destroy
-    raise 'This profile can not be deleted' unless deletable?
-    Property.clear_for_resources("sonar.profile.#{language}", name)
-  end
-
-  def rename(new_name)
-    old_name=self.name
-    Profile.transaction do
-      self.name=new_name
-      if save
-        Property.with_key("sonar.profile.#{language}").each do |prop|
-          if prop.text_value==old_name
-            prop.text_value=new_name
-            prop.save
-          end
-        end
-      end
-    end
-    self
   end
 
   def projects?
