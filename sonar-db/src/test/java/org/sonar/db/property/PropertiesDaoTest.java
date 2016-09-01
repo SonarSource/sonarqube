@@ -21,6 +21,7 @@ package org.sonar.db.property;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,10 +36,10 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.asList;
+import static java.lang.String.valueOf;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
@@ -47,161 +48,209 @@ public class PropertiesDaoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession session = dbTester.getSession();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
 
-  PropertiesDao dao = dbTester.getDbClient().propertiesDao();
+  private PropertiesDao underTest = dbTester.getDbClient().propertiesDao();
 
   @Test
   public void shouldFindUsersForNotification() {
-    dbTester.prepareDbUnit(getClass(), "shouldFindUsersForNotification.xml");
+    insertProject("uuid_45", 45);
+    insertProject("uuid_56", 56);
+    insertUser(1);
+    insertUser(2);
+    insertUser(3);
+    insertProperty(1, "notification.NewViolations.Email", "true", 45, 2);
+    insertProperty(2, "notification.NewViolations.Twitter", "true", null, 3);
+    insertProperty(3, "notification.NewViolations.Twitter", "true", 56, 1);
+    insertProperty(4, "notification.NewViolations.Twitter", "true", 56, 3);
 
-    List<String> users = dao.selectUsersForNotification("NewViolations", "Email", null);
+    List<String> users = underTest.selectUsersForNotification("NewViolations", "Email", null);
     assertThat(users).isEmpty();
 
-    users = dao.selectUsersForNotification("NewViolations", "Email", "uuid_78");
+    users = underTest.selectUsersForNotification("NewViolations", "Email", "uuid_78");
     assertThat(users).isEmpty();
 
-    users = dao.selectUsersForNotification("NewViolations", "Email", "uuid_45");
+    users = underTest.selectUsersForNotification("NewViolations", "Email", "uuid_45");
     assertThat(users).hasSize(1);
     assertThat(users).containsOnly("user2");
 
-    users = dao.selectUsersForNotification("NewViolations", "Twitter", null);
+    users = underTest.selectUsersForNotification("NewViolations", "Twitter", null);
     assertThat(users).hasSize(1);
     assertThat(users).containsOnly("user3");
 
-    users = dao.selectUsersForNotification("NewViolations", "Twitter", "uuid_78");
+    users = underTest.selectUsersForNotification("NewViolations", "Twitter", "uuid_78");
     assertThat(users).isEmpty();
 
-    users = dao.selectUsersForNotification("NewViolations", "Twitter", "uuid_56");
+    users = underTest.selectUsersForNotification("NewViolations", "Twitter", "uuid_56");
     assertThat(users).hasSize(2);
     assertThat(users).containsOnly("user1", "user3");
   }
 
   @Test
   public void findNotificationSubscribers() {
-    dbTester.prepareDbUnit(getClass(), "findNotificationSubscribers.xml");
+    insertUser(1);
+    insertUser(2);
+    insertProject("PROJECT_A", 42);
+    // global subscription
+    insertProperty(1, "notification.DispatcherWithGlobalSubscribers.Email", "true", null, 2);
+    // project subscription
+    insertProperty(2, "notification.DispatcherWithProjectSubscribers.Email", "true", 42, 1);
+    insertProperty(3, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", 56, 1);
+    insertProperty(4, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", 42, 1);
+    // global subscription
+    insertProperty(5, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, 2);
 
     // Nobody is subscribed
-    List<String> users = dao.selectNotificationSubscribers("NotSexyDispatcher", "Email", "org.apache:struts");
+    List<String> users = underTest.selectNotificationSubscribers("NotSexyDispatcher", "Email", "project42");
     assertThat(users).isEmpty();
 
     // Global subscribers
-    users = dao.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", "org.apache:struts");
-    assertThat(users).containsOnly("simon");
+    users = underTest.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", "project42");
+    assertThat(users).containsOnly("user2");
 
-    users = dao.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", null);
-    assertThat(users).containsOnly("simon");
+    users = underTest.selectNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", null);
+    assertThat(users).containsOnly("user2");
 
     // Project subscribers
-    users = dao.selectNotificationSubscribers("DispatcherWithProjectSubscribers", "Email", "org.apache:struts");
-    assertThat(users).containsOnly("eric");
+    users = underTest.selectNotificationSubscribers("DispatcherWithProjectSubscribers", "Email", "project42");
+    assertThat(users).containsOnly("user1");
 
     // Global + Project subscribers
-    users = dao.selectNotificationSubscribers("DispatcherWithGlobalAndProjectSubscribers", "Email", "org.apache:struts");
-    assertThat(users).containsOnly("eric", "simon");
+    users = underTest.selectNotificationSubscribers("DispatcherWithGlobalAndProjectSubscribers", "Email", "project42");
+    assertThat(users).containsOnly("user1", "user2");
   }
 
   @Test
   public void hasNotificationSubscribers() {
-    dbTester.prepareDbUnit(getClass(), "findNotificationSubscribers.xml");
+    insertUser(1);
+    insertUser(2);
+    insertProject("PROJECT_A", 42);
+    // global subscription
+    insertProperty(1, "notification.DispatcherWithGlobalSubscribers.Email", "true", null, 2);
+    // project subscription
+    insertProperty(2, "notification.DispatcherWithProjectSubscribers.Email", "true", 42, 1);
+    insertProperty(3, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", 56, 1);
+    insertProperty(4, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", 42, 1);
+    // global subscription
+    insertProperty(5, "notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, 2);
 
     // Nobody is subscribed
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("NotSexyDispatcher"))).isFalse();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", singletonList("NotSexyDispatcher"))).isFalse();
 
     // Global subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithGlobalSubscribers"))).isTrue();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", singletonList("DispatcherWithGlobalSubscribers"))).isTrue();
 
     // Project subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithProjectSubscribers"))).isTrue();
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", asList("DispatcherWithProjectSubscribers"))).isFalse();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", singletonList("DispatcherWithProjectSubscribers"))).isTrue();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", singletonList("DispatcherWithProjectSubscribers"))).isFalse();
 
     // Global + Project subscribers
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
-    assertThat(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", asList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_A", singletonList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", singletonList("DispatcherWithGlobalAndProjectSubscribers"))).isTrue();
   }
 
   @Test
   public void selectGlobalProperties() {
-    dbTester.prepareDbUnit(getClass(), "selectGlobalProperties.xml");
-    List<PropertyDto> properties = dao.selectGlobalProperties();
-    assertThat(properties.size(), is(2));
+    // global
+    insertProperty(1, "global.one", "one", null, null);
+    insertProperty(2, "global.two", "two", null, null);
+
+    List<PropertyDto> properties = underTest.selectGlobalProperties();
+    assertThat(properties.size()).isEqualTo(2);
 
     PropertyDto first = findById(properties, 1);
-    assertThat(first.getKey(), is("global.one"));
-    assertThat(first.getValue(), is("one"));
+    assertThat(first.getKey()).isEqualTo("global.one");
+    assertThat(first.getValue()).isEqualTo("one");
 
     PropertyDto second = findById(properties, 2);
-    assertThat(second.getKey(), is("global.two"));
-    assertThat(second.getValue(), is("two"));
+    assertThat(second.getKey()).isEqualTo("global.two");
+    assertThat(second.getValue()).isEqualTo("two");
   }
 
   @Test
   public void selectGlobalProperty() {
-    dbTester.prepareDbUnit(getClass(), "selectGlobalProperties.xml");
+    // global
+    insertProperty(1, "global.one", "one", null, null);
+    insertProperty(2, "global.two", "two", null, null);
+    // project
+    insertProperty(3, "project.one", "one", 10, null);
+    // user
+    insertProperty(4, "user.one", "one", null, 100);
 
-    PropertyDto prop = dao.selectGlobalProperty("global.one");
+    PropertyDto prop = underTest.selectGlobalProperty("global.one");
     assertThat(prop).isNotNull();
-    assertThat(prop.getValue(), is("one"));
+    assertThat(prop.getValue()).isEqualTo("one");
 
-    assertThat(dao.selectGlobalProperty("project.one")).isNull();
-    assertThat(dao.selectGlobalProperty("user.one")).isNull();
-    assertThat(dao.selectGlobalProperty("unexisting")).isNull();
+    assertThat(underTest.selectGlobalProperty("project.one")).isNull();
+    assertThat(underTest.selectGlobalProperty("user.one")).isNull();
+    assertThat(underTest.selectGlobalProperty("unexisting")).isNull();
   }
 
   @Test
   public void selectProjectProperties() {
-    dbTester.prepareDbUnit(getClass(), "selectProjectProperties.xml");
-    List<PropertyDto> properties = dao.selectProjectProperties("org.struts:struts");
-    assertThat(properties.size(), is(1));
+    insertProject("A", 10);
+    // global
+    insertProperty(1, "global.one", "one", null, null);
+    insertProperty(2, "global.two", "two", null, null);
+    // project
+    insertProperty(3, "project.one", "one", 10, null);
+    insertProperty(4, "project.two", "two", 10, null);
 
-    PropertyDto first = properties.get(0);
-    assertThat(first.getKey(), is("struts.one"));
-    assertThat(first.getValue(), is("one"));
+    List<PropertyDto> properties = underTest.selectProjectProperties("project10");
+    assertThat(properties)
+      .hasSize(2)
+      .extracting("key", "value")
+      .containsOnly(tuple("project.one", "one"), tuple("project.two", "two"));
+  }
+
+  @Test
+  public void selectProjectProperty() {
+    insertProject("A", 10);
+    // global
+    insertProperty(1, "global.one", "one", null, null);
+    insertProperty(2, "global.two", "two", null, null);
+    // project
+    insertProperty(3, "project.one", "one", 10, null);
+
+    PropertyDto property = underTest.selectProjectProperty(10L, "project.one");
+
+    assertThat(property.getKey()).isEqualTo("project.one");
+    assertThat(property.getValue()).isEqualTo("one");
   }
 
   @Test
   public void select_module_properties_tree() {
     dbTester.prepareDbUnit(getClass(), "select_module_properties_tree.xml");
 
-    List<PropertyDto> properties = dao.selectEnabledDescendantModuleProperties("ABCD", dbTester.getSession());
-    assertThat(properties.size(), is(4));
+    List<PropertyDto> properties = underTest.selectEnabledDescendantModuleProperties("ABCD", dbTester.getSession());
+    assertThat(properties.size()).isEqualTo(4);
     assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
     assertThat(properties).extracting("value").containsOnly("one", "two");
 
-    properties = dao.selectEnabledDescendantModuleProperties("EFGH", dbTester.getSession());
-    assertThat(properties.size(), is(3));
+    properties = underTest.selectEnabledDescendantModuleProperties("EFGH", dbTester.getSession());
+    assertThat(properties.size()).isEqualTo(3);
     assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
 
-    properties = dao.selectEnabledDescendantModuleProperties("FGHI", dbTester.getSession());
-    assertThat(properties.size(), is(1));
+    properties = underTest.selectEnabledDescendantModuleProperties("FGHI", dbTester.getSession());
+    assertThat(properties.size()).isEqualTo(1);
     assertThat(properties).extracting("key").containsOnly("data.one");
 
-    assertThat(dao.selectEnabledDescendantModuleProperties("unknown-result.xml", dbTester.getSession()).size(), is(0));
-  }
-
-  @Test
-  public void selectProjectProperty() {
-    dbTester.prepareDbUnit(getClass(), "selectProjectProperties.xml");
-    PropertyDto property = dao.selectProjectProperty(11L, "commonslang.one");
-
-    assertThat(property.getKey(), is("commonslang.one"));
-    assertThat(property.getValue(), is("two"));
+    assertThat(underTest.selectEnabledDescendantModuleProperties("unknown-result.xml", dbTester.getSession()).size()).isEqualTo(0);
   }
 
   @Test
   public void select_by_query() {
     dbTester.prepareDbUnit(getClass(), "select_by_query.xml");
 
-    List<PropertyDto> results = dao.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build(), dbTester.getSession());
+    List<PropertyDto> results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build(), dbTester.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("two");
 
-    results = dao.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), dbTester.getSession());
+    results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), dbTester.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("one");
   }
@@ -221,11 +270,11 @@ public class PropertiesDaoTest {
       newUserPropertyDto(user).setKey(key),
       newGlobalPropertyDto().setKey(anotherKey));
 
-    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key))).extracting("key").containsOnly(key);
-    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey))).extracting("key").containsOnly(key, anotherKey);
-    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown"))).extracting("key").containsOnly(key, anotherKey);
+    assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key))).extracting("key").containsOnly(key);
+    assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey))).extracting("key").containsOnly(key, anotherKey);
+    assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown"))).extracting("key").containsOnly(key, anotherKey);
 
-    assertThat(dao.selectGlobalPropertiesByKeys(session, newHashSet("unknown"))).isEmpty();
+    assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet("unknown"))).isEmpty();
   }
 
   @Test
@@ -243,12 +292,12 @@ public class PropertiesDaoTest {
       newUserPropertyDto(user).setKey(key),
       newComponentPropertyDto(project).setKey(anotherKey));
 
-    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
-    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
-    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
+    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key), project.getId())).extracting("key").containsOnly(key);
+    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey), project.getId())).extracting("key").containsOnly(key, anotherKey);
+    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key, anotherKey, "unknown"), project.getId())).extracting("key").containsOnly(key, anotherKey);
 
-    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet("unknown"), project.getId())).isEmpty();
-    assertThat(dao.selectPropertiesByKeysAndComponentId(session, newHashSet(key), 123456789L)).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet("unknown"), project.getId())).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentId(session, newHashSet(key), 123456789L)).isEmpty();
   }
 
   @Test
@@ -270,31 +319,31 @@ public class PropertiesDaoTest {
       newComponentPropertyDto(project2).setKey(anotherKey),
       newUserPropertyDto(user).setKey(key));
 
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId())))
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId())))
       .extracting("key", "resourceId").containsOnly(Tuple.tuple(key, project.getId()));
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId(), project2.getId())))
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
         Tuple.tuple(key, project.getId()),
         Tuple.tuple(key, project2.getId()));
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet(key, anotherKey), newHashSet(project.getId(), project2.getId())))
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key, anotherKey), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
         Tuple.tuple(key, project.getId()),
         Tuple.tuple(key, project2.getId()),
         Tuple.tuple(anotherKey, project2.getId()));
 
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
-    assertThat(dao.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
+    assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
   }
 
   @Test
   public void setProperty_update() {
     dbTester.prepareDbUnit(getClass(), "update.xml");
 
-    dao.insertProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
-    dao.insertProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
-    dao.insertProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
-    dao.insertProperty(new PropertyDto().setKey("null.value").setValue(null));
+    underTest.insertProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
+    underTest.insertProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
+    underTest.insertProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
+    underTest.insertProperty(new PropertyDto().setKey("null.value").setValue(null));
 
     dbTester.assertDbUnit(getClass(), "update-result.xml", "properties");
   }
@@ -303,9 +352,9 @@ public class PropertiesDaoTest {
   public void setProperty_insert() {
     dbTester.prepareDbUnit(getClass(), "insert.xml");
 
-    dao.insertProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
-    dao.insertProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
-    dao.insertProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
+    underTest.insertProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
+    underTest.insertProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
+    underTest.insertProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
 
     dbTester.assertDbUnit(getClass(), "insert-result.xml", "properties");
   }
@@ -314,7 +363,7 @@ public class PropertiesDaoTest {
   public void delete_property_by_id() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 
-    dao.deleteById(dbTester.getSession(), 1L);
+    underTest.deleteById(dbTester.getSession(), 1L);
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "delete-result.xml", "properties");
@@ -324,7 +373,7 @@ public class PropertiesDaoTest {
   public void delete_project_property() {
     dbTester.prepareDbUnit(getClass(), "delete_project_property.xml");
 
-    dao.deleteProjectProperty("struts.one", 10L);
+    underTest.deleteProjectProperty("struts.one", 10L);
 
     dbTester.assertDbUnit(getClass(), "delete_project_property-result.xml", "properties");
   }
@@ -333,7 +382,7 @@ public class PropertiesDaoTest {
   public void delete_project_properties() {
     dbTester.prepareDbUnit(getClass(), "delete_project_properties.xml");
 
-    dao.deleteProjectProperties("sonar.profile.java", "Sonar Way");
+    underTest.deleteProjectProperties("sonar.profile.java", "Sonar Way");
 
     dbTester.assertDbUnit(getClass(), "delete_project_properties-result.xml", "properties");
   }
@@ -342,7 +391,7 @@ public class PropertiesDaoTest {
   public void deleteGlobalProperties() {
     dbTester.prepareDbUnit(getClass(), "deleteGlobalProperties.xml");
 
-    dao.deleteGlobalProperties();
+    underTest.deleteGlobalProperties();
 
     dbTester.assertDbUnit(getClass(), "deleteGlobalProperties-result.xml", "properties");
   }
@@ -351,7 +400,7 @@ public class PropertiesDaoTest {
   public void deleteGlobalProperty() {
     dbTester.prepareDbUnit(getClass(), "deleteGlobalProperty.xml");
 
-    dao.deleteGlobalProperty("to_be_deleted");
+    underTest.deleteGlobalProperty("to_be_deleted");
 
     dbTester.assertDbUnit(getClass(), "deleteGlobalProperty-result.xml", "properties");
   }
@@ -360,7 +409,7 @@ public class PropertiesDaoTest {
   public void deleteAllProperties() {
     dbTester.prepareDbUnit(getClass(), "deleteAllProperties.xml");
 
-    dao.deleteAllProperties("to_be_deleted");
+    underTest.deleteAllProperties("to_be_deleted");
 
     dbTester.assertDbUnit(getClass(), "deleteAllProperties-result.xml", "properties");
   }
@@ -369,7 +418,7 @@ public class PropertiesDaoTest {
   public void insertGlobalProperties() {
     dbTester.prepareDbUnit(getClass(), "insertGlobalProperties.xml");
 
-    dao.insertGlobalProperties(ImmutableMap.of("to_be_inserted", "inserted"));
+    underTest.insertGlobalProperties(ImmutableMap.of("to_be_inserted", "inserted"));
 
     dbTester.assertDbUnitTable(getClass(), "insertGlobalProperties-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
@@ -378,7 +427,7 @@ public class PropertiesDaoTest {
   public void updateGlobalProperties() {
     dbTester.prepareDbUnit(getClass(), "updateGlobalProperties.xml");
 
-    dao.insertGlobalProperties(ImmutableMap.of("to_be_updated", "updated"));
+    underTest.insertGlobalProperties(ImmutableMap.of("to_be_updated", "updated"));
 
     dbTester.assertDbUnitTable(getClass(), "updateGlobalProperties-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
@@ -387,7 +436,7 @@ public class PropertiesDaoTest {
   public void renamePropertyKey() {
     dbTester.prepareDbUnit(getClass(), "renamePropertyKey.xml");
 
-    dao.renamePropertyKey("sonar.license.secured", "sonar.license");
+    underTest.renamePropertyKey("sonar.license.secured", "sonar.license");
 
     dbTester.assertDbUnitTable(getClass(), "renamePropertyKey-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
@@ -396,7 +445,7 @@ public class PropertiesDaoTest {
   public void should_not_rename_if_same_key() {
     dbTester.prepareDbUnit(getClass(), "should_not_rename_if_same_key.xml");
 
-    dao.renamePropertyKey("foo", "foo");
+    underTest.renamePropertyKey("foo", "foo");
 
     dbTester.assertDbUnitTable(getClass(), "should_not_rename_if_same_key-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
@@ -404,20 +453,20 @@ public class PropertiesDaoTest {
   @Test
   public void should_not_rename_with_empty_key() {
     thrown.expect(IllegalArgumentException.class);
-    dao.renamePropertyKey("foo", "");
+    underTest.renamePropertyKey("foo", "");
   }
 
   @Test
   public void should_not_rename_an_empty_key() {
     thrown.expect(IllegalArgumentException.class);
-    dao.renamePropertyKey(null, "foo");
+    underTest.renamePropertyKey(null, "foo");
   }
 
   @Test
   public void updatePropertiesFromKeyAndValueToNewValue() {
     dbTester.prepareDbUnit(getClass(), "updatePropertiesFromKeyAndValueToNewValue.xml");
 
-    dao.updateProperties("sonar.profile.java", "Sonar Way", "Default");
+    underTest.updateProperties("sonar.profile.java", "Sonar Way", "Default");
 
     dbTester.assertDbUnitTable(getClass(), "updatePropertiesFromKeyAndValueToNewValue-result.xml", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
@@ -433,8 +482,35 @@ public class PropertiesDaoTest {
 
   private void insertProperties(PropertyDto... properties) {
     for (PropertyDto propertyDto : properties) {
-      dao.insertProperty(session, propertyDto);
+      underTest.insertProperty(session, propertyDto);
     }
     session.commit();
+  }
+
+  private void insertProperty(int id, String key, String value, @Nullable Integer resourceId, @Nullable Integer userId) {
+    dbTester.executeInsert("PROPERTIES",
+      "ID", valueOf(id),
+      "prop_key", key,
+      "text_value", value,
+      "resource_id", resourceId == null ? null : valueOf(resourceId),
+      "user_id", userId == null ? null : valueOf(userId));
+    dbTester.commit();
+  }
+
+  private void insertProject(String uuid, int id) {
+    dbTester.executeInsert("PROJECTS",
+      "uuid", uuid,
+      "uuid_path", "NOT_USED",
+      "root_uuid", uuid,
+      "kee", "project" + id,
+      "id", valueOf(id));
+    dbTester.commit();
+  }
+
+  private void insertUser(int id) {
+    dbTester.executeInsert("USERS",
+      "id", valueOf(id),
+      "login", "user" + id);
+    dbTester.commit();
   }
 }
