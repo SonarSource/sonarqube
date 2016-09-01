@@ -56,12 +56,7 @@ public class BackgroundTaskItem {
 
   public BackgroundTaskItem openErrorStacktrace () {
     elt.$(".js-task-show-stacktrace").click();
-    $(".js-task-error-message").shouldBe(visible);
-    return this;
-  }
-
-  public BackgroundTaskItem assertErrorMessageContains(String text) {
-    $(".js-task-error-message").should(hasText(text));
+    $(".js-task-stacktrace").shouldBe(visible);
     return this;
   }
 

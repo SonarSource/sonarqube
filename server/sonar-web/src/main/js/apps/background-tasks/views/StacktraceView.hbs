@@ -6,12 +6,12 @@
     <div class="js-modal-messages"></div>
 
     {{#if loaded}}
-      <h4 class="spacer-bottom">{{t 'background_tasks.error_message'}}</h4>
-      <pre class="js-task-error-message">{{task.errorMessage}}</pre>
-
       {{#if stacktrace}}
-        <h4 class="huge-spacer-top spacer-bottom">{{t 'background_tasks.error_stacktrace'}}</h4>
+        <h4 class="spacer-bottom">{{t 'background_tasks.error_stacktrace'}}</h4>
         <pre class="js-task-stacktrace">{{stacktrace}}</pre>
+      {{else}}
+        <h4 class="spacer-bottom">{{t 'background_tasks.error_message'}}</h4>
+        <pre class="js-task-error-message">{{task.errorMessage}}</pre>
       {{/if}}
     {{else}}
       <i class="spinner"></i>

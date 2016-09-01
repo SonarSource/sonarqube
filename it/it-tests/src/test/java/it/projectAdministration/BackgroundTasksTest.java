@@ -71,7 +71,7 @@ public class BackgroundTasksTest {
   }
 
   @Test
-  public void display_error_message_and_stacktrace() {
+  public void display_error_stacktrace() {
     executeBuild("test-project", "Test Project", "2010-01-01");
 
     nav.logIn().submitCredentials("admin", "admin");
@@ -81,7 +81,6 @@ public class BackgroundTasksTest {
     BackgroundTaskItem task = page.getTasksAsItems().get(0);
     task.openActions()
       .openErrorStacktrace()
-      .assertErrorMessageContains("Date of analysis cannot be older than the date of the last known analysis")
       .assertErrorStacktraceContains("Date of analysis cannot be older than the date of the last known analysis");
   }
 
