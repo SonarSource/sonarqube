@@ -274,6 +274,14 @@ class ActiveRecord::Migration
     Java::OrgSlf4j::LoggerFactory::getLogger('DbMigration').info(text) if verbose
   end
 
+  def self.drop_index_quietly(table, index)
+    begin
+      remove_index table, :name => index
+    rescue
+      #ignore
+    end
+  end
+
 
   private
 

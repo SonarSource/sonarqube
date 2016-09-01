@@ -149,6 +149,7 @@ import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
 import org.sonar.db.version.v61.DeleteProjectDashboards;
 import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
 import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
+import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
 
@@ -320,6 +321,7 @@ public class MigrationStepModule extends Module {
       ShrinkModuleUuidPathOfProjects.class,
       AddBUuidPathToProjects.class,
       AddErrorColumnsToCeActivity.class,
+      PopulateTableProperties2.class,
       RemoveViewsDefinitionFromProperties.class);
   }
 }
