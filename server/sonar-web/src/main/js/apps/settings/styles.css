@@ -8,18 +8,18 @@
 .settings-main {
   position: relative;
   z-index: 2;
-  width: calc(100% - 160px);
+  flex-grow: 1;
   padding: 15px 20px;
   border: 1px solid #e6e6e6;
   box-sizing: border-box;
   background-color: #fff;
-  overflow: auto;
 }
 
 .settings-side {
   position: relative;
   z-index: 3;
   width: 160px;
+  flex-shrink: 0;
   padding: 10px 0;
   box-sizing: border-box;
   transform: translateX(1px);
