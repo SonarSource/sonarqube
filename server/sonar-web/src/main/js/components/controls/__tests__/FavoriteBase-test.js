@@ -20,13 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import FavoriteBase from '../FavoriteBase';
-
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+import { click } from '../../../../../../tests/utils';
 
 function renderFavoriteBase (props) {
   return shallow(

@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import RadioToggle from '../RadioToggle';
+import { change } from '../../../../../../tests/utils';
 
 function getSample (props) {
   const options = [
@@ -33,10 +34,6 @@ function getSample (props) {
           onCheck={() => true}
           {...props}/>
   );
-}
-
-function change (element, value) {
-  return element.simulate('change', { currentTarget: { value } });
 }
 
 describe('Components :: Controls :: RadioToggle', () => {

@@ -20,13 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import ListFooter from '../ListFooter';
-
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+import { click } from '../../../../../../tests/utils';
 
 describe('Components :: Controls :: ListFooter', () => {
   it('should render "3 of 5 shown"', () => {

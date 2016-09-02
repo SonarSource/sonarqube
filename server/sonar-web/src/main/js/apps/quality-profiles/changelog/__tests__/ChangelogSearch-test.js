@@ -21,13 +21,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 import ChangelogSearch from '../ChangelogSearch';
 import DateInput from '../../../../components/controls/DateInput';
-
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+import { click } from '../../../../../../../tests/utils';
 
 describe('Quality Profiles :: ChangelogSearch', () => {
   it('should render DateInput', () => {

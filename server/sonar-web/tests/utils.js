@@ -20,6 +20,7 @@
 export const click = element => {
   return element.simulate('click', {
     target: { blur () {} },
+    currentTarget: { blur () {} },
     preventDefault () {}
   });
 };

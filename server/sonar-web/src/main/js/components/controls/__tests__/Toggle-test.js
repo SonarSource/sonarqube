@@ -20,17 +20,11 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import Toggle from '../Toggle';
+import { click } from '../../../../../../tests/utils';
 
 function getSample (props) {
   return (
       <Toggle value={true} onChange={() => true} {...props}/>);
-}
-
-function click (element) {
-  return element.simulate('click', {
-    currentTarget: { blur () {} },
-    preventDefault () {}
-  });
 }
 
 describe('Components :: Controls :: Toggle', () => {
