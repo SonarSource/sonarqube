@@ -55,6 +55,7 @@ import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -225,9 +226,7 @@ public class ItUtils {
   }
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
-    for (String key : keys) {
-      setServerProperty(orchestrator, componentKey, key, null);
-    }
+    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponentKey(componentKey).build());
   }
 
   public static void resetPeriods(Orchestrator orchestrator) {

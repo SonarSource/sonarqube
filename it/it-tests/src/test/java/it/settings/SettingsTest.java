@@ -39,7 +39,7 @@ import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.setServerProperty;
+import static util.ItUtils.resetSettings;
 
 public class SettingsTest {
 
@@ -60,7 +60,7 @@ public class SettingsTest {
 
   @After
   public void reset_settings() throws Exception {
-    setServerProperty(orchestrator, PLUGIN_SETTING_KEY, null);
+    resetSettings(orchestrator, null, PLUGIN_SETTING_KEY);
   }
 
   // SONAR-4404
