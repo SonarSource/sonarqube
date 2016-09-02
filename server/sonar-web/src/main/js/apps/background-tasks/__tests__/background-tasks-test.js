@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import { shallow } from 'enzyme';
 import Stats from '../components/Stats';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
+import { change, click } from '../../../../../../tests/utils';
 
 const stub = jest.fn();
 
-describe('Background Tasks', function () {
+describe('Background Tasks', () => {
   describe('Constants', () => {
     it('should have STATUSES', () => {
       expect(Object.keys(STATUSES).length).toBe(7);
@@ -48,29 +48,20 @@ describe('Background Tasks', function () {
     };
 
     it('should render search form', () => {
-      const component = TestUtils.renderIntoDocument(
-          <Search {...defaultProps}/>
-      );
-      const searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
-      expect(searchBox.length).toBe(1);
+      const component = shallow(<Search {...defaultProps}/>);
+      expect(component.find('.js-search').length).toBe(1);
     });
 
     it('should not render search form', () => {
-      const component = TestUtils.renderIntoDocument(
-          <Search {...defaultProps} component={{ id: 'ABCD' }}/>
-      );
-      const searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
-      expect(searchBox.length).toBe(0);
+      const component = shallow(<Search {...defaultProps} component={{ id: 'ABCD' }}/>);
+      expect(component.find('.js-search').length).toBe(0);
     });
 
     it('should search', (done) => {
       const searchSpy = jest.fn();
-      const component = TestUtils.renderIntoDocument(
-          <Search {...defaultProps} onFilterUpdate={searchSpy}/>);
-      const searchInput = ReactDOM.findDOMNode(
-          TestUtils.findRenderedDOMComponentWithClass(component, 'js-search'));
-      searchInput.value = 'some search query';
-      TestUtils.Simulate.change(searchInput);
+      const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy}/>);
+      const searchInput = component.find('.js-search');
+      change(searchInput, 'some search query');
       setTimeout(() => {
         expect(searchSpy).toBeCalledWith({ query: 'some search query' });
         done();
@@ -79,12 +70,10 @@ describe('Background Tasks', function () {
 
     it('should reload', () => {
       const reloadSpy = jest.fn();
-      const component = TestUtils.renderIntoDocument(
-          <Search {...defaultProps} onReload={reloadSpy}/>
-      );
-      const reloadButton = component.refs.reloadButton;
+      const component = shallow(<Search {...defaultProps} onReload={reloadSpy}/>);
+      const reloadButton = component.find('.js-reload');
       expect(reloadSpy).not.toBeCalled();
-      TestUtils.Simulate.click(reloadButton);
+      click(reloadButton);
       expect(reloadSpy).toBeCalled();
     });
   });
@@ -92,78 +81,60 @@ describe('Background Tasks', function () {
   describe('Stats', () => {
     describe('Pending', () => {
       it('should show zero pending', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const pendingCounter = result.refs.pendingCount;
-        expect(pendingCounter.textContent).toContain('0');
+        const result = shallow(<Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-pending-count').text()).toContain('0');
       });
 
       it('should show 5 pending', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const pendingCounter = result.refs.pendingCount;
-        expect(pendingCounter.textContent).toContain('5');
+        const result = shallow(<Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-pending-count').text()).toContain('5');
       });
 
       it('should not show cancel pending button', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
-        expect(result.refs.cancelPending).not.toBeTruthy();
+        const result = shallow(<Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-cancel-pending').length).toBe(0);
       });
 
       it('should show cancel pending button', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
-        expect(result.refs.cancelPending).toBeTruthy();
+        const result = shallow(<Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-cancel-pending').length).toBe(1);
       });
 
       it('should trigger cancelling pending', () => {
         const spy = jest.fn();
-        const result = TestUtils.renderIntoDocument(
-            <Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub}/>);
-        const cancelPending = result.refs.cancelPending;
+        const result = shallow(<Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub}/>);
         expect(spy).not.toBeCalled();
-        TestUtils.Simulate.click(cancelPending);
+        click(result.find('.js-cancel-pending'));
         expect(spy).toBeCalled();
       });
     });
 
     describe('Failures', () => {
       it('should show zero failures', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const failureCounter = result.refs.failureCount;
-        expect(failureCounter.textContent).toContain('0');
+        const result = shallow(<Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-failures-count').text()).toContain('0');
       });
 
       it('should show 5 failures', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const failureCounter = result.refs.failureCount;
-        expect(failureCounter.textContent).toContain('5');
+        const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-failures-count').text()).toContain('5');
       });
 
       it('should not show link to failures', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const failureCounter = result.refs.failureCount;
-        expect(failureCounter.tagName.toLowerCase()).not.toBe('a');
+        const result = shallow(<Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-failures-count').is('a')).toBeFalsy();
       });
 
       it('should show link to failures', () => {
-        const result = TestUtils.renderIntoDocument(
-            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const failureCounter = result.refs.failureCount;
-        expect(failureCounter.tagName.toLowerCase()).toBe('a');
+        const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
+        expect(result.find('.js-failures-count').is('a')).toBeTruthy();
       });
 
       it('should trigger filtering failures', () => {
         const spy = jest.fn();
-        const result = TestUtils.renderIntoDocument(
-            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy}/>);
-        const failureCounter = result.refs.failureCount;
+        const result = shallow(<Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy}/>);
         expect(spy).not.toBeCalled();
-        TestUtils.Simulate.click(failureCounter);
+        click(result.find('.js-failures-count'));
         expect(spy).toBeCalled();
       });
     });

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import { shallow } from 'enzyme';
 import { BarChart } from '../bar-chart';
 
 describe('Bar Chart', function () {
@@ -29,13 +29,13 @@ describe('Bar Chart', function () {
       { x: 2, y: 30 },
       { x: 3, y: 20 }
     ];
-    const chart = TestUtils.renderIntoDocument(
+    const chart = shallow(
         <BarChart
             data={data}
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar').length).toBe(3);
+    expect(chart.find('.bar-chart-bar').length).toBe(3);
   });
 
   it('should display ticks', function () {
@@ -45,14 +45,14 @@ describe('Bar Chart', function () {
       { x: 3, y: 20 }
     ];
     const ticks = ['A', 'B', 'C'];
-    const chart = TestUtils.renderIntoDocument(
+    const chart = shallow(
         <BarChart
             data={data}
             xTicks={ticks}
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(3);
+    expect(chart.find('.bar-chart-tick').length).toBe(3);
   });
 
   it('should display values', function () {
@@ -62,14 +62,14 @@ describe('Bar Chart', function () {
       { x: 3, y: 20 }
     ];
     const values = ['A', 'B', 'C'];
-    const chart = TestUtils.renderIntoDocument(
+    const chart = shallow(
         <BarChart
             data={data}
             xValues={values}
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(3);
+    expect(chart.find('.bar-chart-tick').length).toBe(3);
   });
 
   it('should display bars, ticks and values', function () {
@@ -80,7 +80,7 @@ describe('Bar Chart', function () {
     ];
     const ticks = ['A', 'B', 'C'];
     const values = ['A', 'B', 'C'];
-    const chart = TestUtils.renderIntoDocument(
+    const chart = shallow(
         <BarChart
             data={data}
             xTicks={ticks}
@@ -88,8 +88,8 @@ describe('Bar Chart', function () {
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar').length).toBe(3);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(6);
+    expect(chart.find('.bar-chart-bar').length).toBe(3);
+    expect(chart.find('.bar-chart-tick').length).toBe(6);
   });
 
 });
