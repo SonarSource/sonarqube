@@ -27,11 +27,7 @@ it('should display line', function () {
     { x: 2, y: 30 },
     { x: 3, y: 20 }
   ];
-  const chart = shallow(
-      <LineChart
-          data={data}
-          width={100}
-          height={100}/>);
+  const chart = shallow(<LineChart data={data} width={100} height={100}/>);
   expect(chart.find('.line-chart-path').length).toBe(1);
 });
 

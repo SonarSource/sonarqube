@@ -39,9 +39,7 @@ function renderActionsCell (props) {
 }
 
 it('should set default', () => {
-  const setDefault = renderActionsCell()
-      .find('.js-set-default');
-
+  const setDefault = renderActionsCell().find('.js-set-default');
   expect(setDefault.length).toBe(2);
   expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');
   expect(setDefault.at(1).prop('data-qualifier')).toBe('VW');
@@ -49,8 +47,6 @@ it('should set default', () => {
 
 it('should not set default', () => {
   const permissionTemplate = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const setDefault = renderActionsCell({ permissionTemplate })
-      .find('.js-set-default');
-
+  const setDefault = renderActionsCell({ permissionTemplate }).find('.js-set-default');
   expect(setDefault.length).toBe(0);
 });

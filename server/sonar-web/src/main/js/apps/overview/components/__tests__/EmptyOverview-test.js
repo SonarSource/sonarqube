@@ -27,11 +27,6 @@ it('should render component key', () => {
     key: 'abcd',
     snapshotDate: '2016-01-01'
   };
-
-  const output = shallow(
-      <EmptyOverview component={component}/>
-  );
-
-  expect(output.find('code').text())
-      .toBe('abcd');
+  const output = shallow(<EmptyOverview component={component}/>);
+  expect(output.find('code').text()).toBe('abcd');
 });

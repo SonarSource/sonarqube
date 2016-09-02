@@ -24,40 +24,19 @@ import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
 
 it('should render OverviewApp', () => {
-  const component = {
-    id: 'id',
-    snapshotDate: '2016-01-01'
-  };
-
-  const output = shallow(
-      <App component={component}/>
-  );
-
-  expect(output.type())
-      .toBe(OverviewApp);
+  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const output = shallow(<App component={component}/>);
+  expect(output.type()).toBe(OverviewApp);
 });
 
 it('should render EmptyOverview', () => {
   const component = { id: 'id' };
-
-  const output = shallow(
-      <App component={component}/>
-  );
-
-  expect(output.type())
-      .toBe(EmptyOverview);
+  const output = shallow(<App component={component}/>);
+  expect(output.type()).toBe(EmptyOverview);
 });
 
 it('should pass leakPeriodIndex', () => {
-  const component = {
-    id: 'id',
-    snapshotDate: '2016-01-01'
-  };
-
-  const output = shallow(
-      <App component={component}/>
-  );
-
-  expect(output.prop('leakPeriodIndex'))
-      .toBe('1');
+  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const output = shallow(<App component={component}/>);
+  expect(output.prop('leakPeriodIndex')).toBe('1');
 });

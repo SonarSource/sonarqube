@@ -40,7 +40,5 @@ it('should render Select with right options', () => {
   ).find(Select);
   expect(output.length).toBe(1);
   expect(output.prop('value')).toBe('another');
-  expect(output.prop('options')).toEqual([
-    { value: 'another', label: 'another name' }
-  ]);
+  expect(output.prop('options')).toEqual([{ value: 'another', label: 'another name' }]);
 });
