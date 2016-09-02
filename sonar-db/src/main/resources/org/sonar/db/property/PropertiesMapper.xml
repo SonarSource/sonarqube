@@ -33,16 +33,19 @@
     select
       u.login
     from
-      properties p,
-      users u
-    where
+      properties p
+    inner join users u on
       p.user_id = u.id
-      and p.prop_key = #{propKey}
+      <if test="componentKey != null">
+        left outer join projects p1 on p.resource_id=p1.id and p1.kee=#{componentKey}
+      </if>
+    where
+      p.prop_key = #{propKey}
       and p.text_value like 'true'
       and (
         p.resource_id is null
         <if test="componentKey != null">
-          or p.resource_id in (select id from projects where kee=#{componentKey})
+          or p.resource_id=p1.id
         </if>
       )
   </select>
