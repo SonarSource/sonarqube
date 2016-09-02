@@ -29,7 +29,7 @@ describe('Measures', function () {
       ONE_HOUR = ONE_MINUTE * 60,
       ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
-  before(function () {
+  beforeEach(function () {
     resetBundle({
       'work_duration.x_days': '{0}d',
       'work_duration.x_hours': '{0}h',

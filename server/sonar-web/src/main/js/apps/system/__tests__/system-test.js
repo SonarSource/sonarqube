@@ -64,23 +64,6 @@ describe('System', function () {
   });
 
   describe('Log Level', function () {
-    let previousFetch;
-    let fetchUrl;
-    let fetchOptions;
-
-    before(function () {
-      previousFetch = window.fetch;
-      window.fetch = function (url, options) {
-        fetchUrl = url;
-        fetchOptions = options;
-        return Promise.resolve();
-      };
-    });
-
-    after(function () {
-      window.fetch = previousFetch;
-    });
-
     it('should render select box', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
       TestUtils.findRenderedDOMComponentWithTag(result, 'select');
@@ -101,17 +84,6 @@ describe('System', function () {
     it('should not render warning', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'alert')).to.be.empty;
-    });
-
-    // TODO replace with test with no WS call
-    it.skip('should change value', () => {
-      const result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
-      const select = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
-      select.value = 'TRACE';
-      TestUtils.Simulate.change(select);
-      expect(fetchUrl).to.equal('/api/system/change_log_level');
-      expect(fetchOptions.method).to.equal('POST');
-      expect(fetchOptions.body).to.equal('level=TRACE');
     });
   });
 

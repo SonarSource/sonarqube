@@ -31,6 +31,8 @@ import { formatDuration } from '../utils';
 
 chai.use(sinonChai);
 
+const stub = sinon.stub().throws();
+
 describe('Background Tasks', function () {
   describe('Constants', () => {
     it('should have STATUSES', () => {
@@ -98,32 +100,37 @@ describe('Background Tasks', function () {
   describe('Stats', () => {
     describe('Pending', () => {
       it('should show zero pending', () => {
-        const result = TestUtils.renderIntoDocument(<Stats pendingCount={0}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('0');
       });
 
       it('should show 5 pending', () => {
-        const result = TestUtils.renderIntoDocument(<Stats pendingCount={5}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('5');
       });
 
       it('should not show cancel pending button', () => {
-        const result = TestUtils.renderIntoDocument(<Stats pendingCount={0}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.not.be.ok;
       });
 
       it('should show cancel pending button', () => {
-        const result = TestUtils.renderIntoDocument(<Stats pendingCount={5}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.be.ok;
       });
 
       it('should trigger cancelling pending', () => {
         const spy = sinon.spy();
-        const result = TestUtils.renderIntoDocument(<Stats pendingCount={5} onCancelAllPending={spy}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub}/>);
         const cancelPending = result.refs.cancelPending;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(cancelPending);
@@ -133,32 +140,37 @@ describe('Background Tasks', function () {
 
     describe('Failures', () => {
       it('should show zero failures', () => {
-        const result = TestUtils.renderIntoDocument(<Stats failingCount={0}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('0');
       });
 
       it('should show 5 failures', () => {
-        const result = TestUtils.renderIntoDocument(<Stats failingCount={5}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('5');
       });
 
       it('should not show link to failures', () => {
-        const result = TestUtils.renderIntoDocument(<Stats failingCount={0}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.not.equal('a');
       });
 
       it('should show link to failures', () => {
-        const result = TestUtils.renderIntoDocument(<Stats failingCount={5}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.equal('a');
       });
 
       it('should trigger filtering failures', () => {
         const spy = sinon.spy();
-        const result = TestUtils.renderIntoDocument(<Stats failingCount={5} onShowFailing={spy}/>);
+        const result = TestUtils.renderIntoDocument(
+            <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy}/>);
         const failureCounter = result.refs.failureCount;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(failureCounter);

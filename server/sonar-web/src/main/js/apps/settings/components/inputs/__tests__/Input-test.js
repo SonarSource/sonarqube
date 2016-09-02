@@ -40,21 +40,23 @@ describe('Settings :: Inputs :: Input', () => {
 
   it('should render MultiValueInput', () => {
     const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
+    const value = ['foo', 'bar'];
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(MultiValueInput);
+    const input = shallow(<Input setting={setting} value={value} onChange={onChange}/>).find(MultiValueInput);
     expect(input).to.have.length(1);
     expect(input.prop('setting')).to.equal(setting);
-    expect(input.prop('value')).to.equal('foo');
+    expect(input.prop('value')).to.equal(value);
     expect(input.prop('onChange')).to.equal(onChange);
   });
 
   it('should render PropertySetInput', () => {
     const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
+    const value = [{ foo: 'bar' }];
     const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PropertySetInput);
+    const input = shallow(<Input setting={setting} value={value} onChange={onChange}/>).find(PropertySetInput);
     expect(input).to.have.length(1);
     expect(input.prop('setting')).to.equal(setting);
-    expect(input.prop('value')).to.equal('foo');
+    expect(input.prop('value')).to.equal(value);
     expect(input.prop('onChange')).to.equal(onChange);
   });
 });
