@@ -229,6 +229,10 @@ public class DbTester extends ExternalResource {
     return select(selectSql, new NewConnectionSupplier());
   }
 
+  public List<Map<String, Object>> select(DbSession dbSession, String selectSql) {
+    return select(selectSql, new DbSessionConnectionSupplier(dbSession));
+  }
+
   private List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
     try (
       ConnectionSupplier supplier = connectionSupplier;
