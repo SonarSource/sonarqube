@@ -25,8 +25,13 @@ export default class InputForPassword extends React.Component {
   static propTypes = defaultInputPropTypes;
 
   state = {
+    value: '',
     changing: false
   };
+
+  handleInputChange (e) {
+    this.setState({ value: e.target.value });
+  }
 
   handleChangeClick (e) {
     e.preventDefault();
@@ -37,13 +42,13 @@ export default class InputForPassword extends React.Component {
   handleCancelChangeClick (e) {
     e.preventDefault();
     e.target.blur();
-    this.setState({ changing: false });
+    this.setState({ changing: false, value: '' });
   }
 
   handleFormSubmit (e) {
     e.preventDefault();
-    this.props.onChange(this.refs.input.value);
-    this.setState({ changing: false });
+    this.props.onChange(this.state.value);
+    this.setState({ changing: false, value: '' });
   }
 
   renderInput () {
@@ -52,12 +57,13 @@ export default class InputForPassword extends React.Component {
           <form onSubmit={e => this.handleFormSubmit(e)}>
             <input className="hidden" type="password"/>
             <input
-                ref="input"
+                value={this.state.value}
                 name={this.props.name}
-                className="input-large text-top"
+                className="js-password-input input-large text-top"
                 type="password"
                 autoFocus={true}
-                autoComplete={false}/>
+                autoComplete={false}
+                onChange={e => this.handleInputChange(e)}/>
             <button className="spacer-left">{translate('set')}</button>
             <a className="spacer-left" href="#" onClick={e => this.handleCancelChangeClick(e)}>
               {translate('cancel')}

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { mount } from 'enzyme';
-import { WordCloud } from '../word-cloud';
+import { shallow } from 'enzyme';
+import { WordCloud, Word } from '../word-cloud';
 
 describe('Word Cloud', function () {
 
@@ -29,8 +29,8 @@ describe('Word Cloud', function () {
       { size: 30, link: '#', text: 'SonarQube :: Web' },
       { size: 20, link: '#', text: 'SonarQube :: Search' }
     ];
-    const chart = mount(<WordCloud items={items} width={100} height={100}/>);
-    expect(chart.find('a').length).toBe(3);
+    const chart = shallow(<WordCloud items={items} width={100} height={100}/>);
+    expect(chart.find(Word).length).toBe(3);
   });
 
 });

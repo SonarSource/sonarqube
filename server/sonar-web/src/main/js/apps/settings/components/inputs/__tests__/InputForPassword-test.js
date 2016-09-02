@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import InputForPassword from '../InputForPassword';
-import { click, submit } from '../../../../../../../../tests/utils';
+import { click, submit, change } from '../../../../../../../../tests/utils';
 
 describe('Settings :: Inputs :: InputForPassword', () => {
   it('should render lock icon, but no form', () => {
@@ -73,23 +73,16 @@ describe('Settings :: Inputs :: InputForPassword', () => {
 
   it('should set value', () => {
     const onChange = jest.fn(() => Promise.resolve());
-    const input = mount(
+    const input = shallow(
         <InputForPassword
             name="foo"
             value="bar"
             isDefault={false}
             onChange={onChange}/>
     );
-    const button = input.find('button');
-    expect(button.length).toBe(1);
-
-    click(button);
-    const form = input.find('form');
-    expect(form.length).toBe(1);
-
-    input.ref('input').value = 'secret';
-    submit(form);
-
-    expect(onChange).toBeCalled();
+    click(input.find('button'));
+    change(input.find('.js-password-input'), 'secret');
+    submit(input.find('form'));
+    expect(onChange).toBeCalledWith('secret');
   });
 });

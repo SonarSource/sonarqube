@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { mount, shallow } from 'enzyme';
-import { BubbleChart } from '../bubble-chart';
+import { shallow } from 'enzyme';
+import { BubbleChart, Bubble } from '../bubble-chart';
 
 describe('Bubble Chart', () => {
 
@@ -29,8 +29,8 @@ describe('Bubble Chart', () => {
       { x: 2, y: 30, size: 5 },
       { x: 3, y: 20, size: 2 }
     ];
-    const chart = mount(<BubbleChart items={items} width={100} height={100}/>);
-    expect(chart.find('.bubble-chart-bubble').length).toBe(3);
+    const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
+    expect(chart.find(Bubble).length).toBe(3);
   });
 
   it('should display grid', () => {
