@@ -98,12 +98,12 @@ public class SettingsServiceTest {
   @Test
   public void reset() {
     underTest.reset(ResetRequest.builder()
-      .setKey("sonar.debt")
+      .setKeys("sonar.debt")
       .setComponentKey("KEY")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
-      .hasParam(PARAM_KEY, "sonar.debt")
+      .hasParam(PARAM_KEYS, "sonar.debt")
       .hasParam(PARAM_COMPONENT_KEY, "KEY")
       .andNoOtherParam();
   }

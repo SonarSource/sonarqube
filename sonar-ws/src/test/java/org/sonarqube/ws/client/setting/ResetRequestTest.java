@@ -35,15 +35,15 @@ public class ResetRequestTest {
 
   @Test
   public void create_set_request() {
-    ResetRequest result = underTest.setKey("my.key").build();
+    ResetRequest result = underTest.setKeys("my.key").build();
 
-    assertThat(result.getKey()).isEqualTo("my.key");
+    assertThat(result.getKeys()).containsOnly("my.key");
   }
 
   @Test
-  public void fail_when_empty_key() {
+  public void fail_when_empty_keys() {
     expectedException.expect(IllegalArgumentException.class);
-    underTest.setKey("").build();
+    underTest.setKeys().build();
   }
 
 }

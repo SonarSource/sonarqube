@@ -23,6 +23,7 @@ package org.sonar.server.setting.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -48,6 +49,9 @@ import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 public class SettingsUpdaterTest {
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient = db.getDbClient();
@@ -67,26 +71,30 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void delete_global_setting() throws Exception {
+  public void delete_global_settings() throws Exception {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("bar").setValue("two"));
 
-    underTest.deleteGlobalSetting(dbSession, "foo");
+    underTest.deleteGlobalSettings(dbSession, "foo", "bar");
 
     assertGlobalPropertyDoesNotExist("foo");
+    assertGlobalPropertyDoesNotExist("bar");
     assertProjectPropertyExists("foo");
   }
 
   @Test
-  public void delete_component_setting() throws Exception {
+  public void delete_component_settings() throws Exception {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
-    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("value"));
+    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("one"));
+    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("bar").setValue("two"));
 
-    underTest.deleteComponentSetting(dbSession, "foo", project);
+    underTest.deleteComponentSettings(dbSession, project, "foo", "bar");
 
     assertProjectPropertyDoesNotExist("foo");
+    assertProjectPropertyDoesNotExist("bar");
     assertGlobalPropertyExists("foo");
   }
 
@@ -94,7 +102,7 @@ public class SettingsUpdaterTest {
   public void does_not_fail_when_deleting_unknown_setting() throws Exception {
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
-    underTest.deleteGlobalSetting(dbSession, "unknown");
+    underTest.deleteGlobalSettings(dbSession, "unknown");
 
     assertGlobalPropertyExists("foo");
   }
@@ -105,7 +113,7 @@ public class SettingsUpdaterTest {
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
-    underTest.deleteGlobalSetting(dbSession, "foo");
+    underTest.deleteGlobalSettings(dbSession, "foo");
 
     assertUserPropertyExists("foo", user);
   }
@@ -125,7 +133,7 @@ public class SettingsUpdaterTest {
       newGlobalPropertyDto().setKey("foo.1.size").setValue("size1"),
       newGlobalPropertyDto().setKey("foo.2.key").setValue("key2"));
 
-    underTest.deleteGlobalSetting(dbSession, "foo");
+    underTest.deleteGlobalSettings(dbSession, "foo");
 
     assertGlobalPropertyDoesNotExist("foo");
     assertGlobalPropertyDoesNotExist("foo.1.key");
@@ -148,7 +156,7 @@ public class SettingsUpdaterTest {
       newComponentPropertyDto(project).setKey("foo.1.size").setValue("size1"),
       newComponentPropertyDto(project).setKey("foo.2.key").setValue("key2"));
 
-    underTest.deleteComponentSetting(dbSession, "foo", project);
+    underTest.deleteComponentSettings(dbSession, project, "foo");
 
     assertProjectPropertyDoesNotExist("foo");
     assertProjectPropertyDoesNotExist("foo.1.key");
@@ -169,9 +177,25 @@ public class SettingsUpdaterTest {
       newComponentPropertyDto(project).setKey("other").setValue("1,2"),
       newComponentPropertyDto(project).setKey("other.1.key").setValue("key1"));
 
-    underTest.deleteComponentSetting(dbSession, "foo", project);
+    underTest.deleteComponentSettings(dbSession, project, "foo");
 
     assertProjectPropertyExists("other");
+  }
+
+  @Test
+  public void fail_to_delete_global_setting_when_no_setting_key() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At least one setting key is required");
+
+    underTest.deleteGlobalSettings(dbSession);
+  }
+
+  @Test
+  public void fail_to_delete_component_setting_when_no_setting_key() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At least one setting key is required");
+
+    underTest.deleteComponentSettings(dbSession, project);
   }
 
   private void assertGlobalPropertyDoesNotExist(String key) {

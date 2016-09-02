@@ -20,6 +20,7 @@
 
 package org.sonar.server.setting.ws;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.PropertyType;
@@ -30,6 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 
 public class SettingsUpdater {
@@ -42,49 +45,61 @@ public class SettingsUpdater {
     this.definitions = definitions;
   }
 
-  public void deleteGlobalSetting(DbSession dbSession, String propertyKey) {
-    delete(dbSession, propertyKey, Optional.empty());
+  public void deleteGlobalSettings(DbSession dbSession, String... settingKeys) {
+    deleteGlobalSettings(dbSession, asList(settingKeys));
   }
 
-  public void deleteComponentSetting(DbSession dbSession, String propertyKey, ComponentDto componentDto) {
-    delete(dbSession, propertyKey, Optional.of(componentDto));
+  public void deleteGlobalSettings(DbSession dbSession, List<String> settingKeys) {
+    checkArgument(!settingKeys.isEmpty(), "At least one setting key is required");
+    settingKeys.forEach(key -> delete(dbSession, key, Optional.empty()));
   }
 
-  private void delete(DbSession dbSession, String propertyKey, Optional<ComponentDto> componentDto) {
-    PropertyDefinition definition = definitions.get(propertyKey);
+  public void deleteComponentSettings(DbSession dbSession, ComponentDto componentDto, String... settingKeys) {
+    deleteComponentSettings(dbSession, componentDto, asList(settingKeys));
+  }
+
+  public void deleteComponentSettings(DbSession dbSession, ComponentDto componentDto, List<String> settingKeys) {
+    checkArgument(!settingKeys.isEmpty(), "At least one setting key is required");
+    for (String propertyKey : settingKeys) {
+      delete(dbSession, propertyKey, Optional.of(componentDto));
+    }
+  }
+
+  private void delete(DbSession dbSession, String settingKey, Optional<ComponentDto> componentDto) {
+    PropertyDefinition definition = definitions.get(settingKey);
     if (definition == null || !definition.type().equals(PropertyType.PROPERTY_SET)) {
-      deleteSetting(dbSession, propertyKey, componentDto);
+      deleteSetting(dbSession, settingKey, componentDto);
     } else {
-      deletePropertySet(dbSession, propertyKey, definition, componentDto);
+      deletePropertySet(dbSession, settingKey, definition, componentDto);
     }
   }
 
-  private void deleteSetting(DbSession dbSession, String propertyKey, Optional<ComponentDto> componentDto) {
+  private void deleteSetting(DbSession dbSession, String settingKey, Optional<ComponentDto> componentDto) {
     if (componentDto.isPresent()) {
-      dbClient.propertiesDao().deleteProjectProperty(propertyKey, componentDto.get().getId(), dbSession);
+      dbClient.propertiesDao().deleteProjectProperty(settingKey, componentDto.get().getId(), dbSession);
     } else {
-      dbClient.propertiesDao().deleteGlobalProperty(propertyKey, dbSession);
+      dbClient.propertiesDao().deleteGlobalProperty(settingKey, dbSession);
     }
   }
 
-  private void deletePropertySet(DbSession dbSession, String propertyKey, PropertyDefinition definition, Optional<ComponentDto> componentDto) {
-    Optional<PropertyDto> propertyDto = selectPropertyDto(dbSession, propertyKey, componentDto);
+  private void deletePropertySet(DbSession dbSession, String settingKey, PropertyDefinition definition, Optional<ComponentDto> componentDto) {
+    Optional<PropertyDto> propertyDto = selectPropertyDto(dbSession, settingKey, componentDto);
     if (!propertyDto.isPresent()) {
       // Setting doesn't exist, nothing to do
       return;
     }
-    Set<String> propertySetKeys = extractPropertySetKeys(propertyDto.get(), definition);
-    for (String key : propertySetKeys) {
+    Set<String> settingSetKeys = extractPropertySetKeys(propertyDto.get(), definition);
+    for (String key : settingSetKeys) {
       deleteSetting(dbSession, key, componentDto);
     }
-    deleteSetting(dbSession, propertyKey, componentDto);
+    deleteSetting(dbSession, settingKey, componentDto);
   }
 
-  private Optional<PropertyDto> selectPropertyDto(DbSession dbSession, String propertyKey, Optional<ComponentDto> componentDto) {
+  private Optional<PropertyDto> selectPropertyDto(DbSession dbSession, String settingKey, Optional<ComponentDto> componentDto) {
     if (componentDto.isPresent()) {
-      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(dbSession, componentDto.get().getId(), propertyKey));
+      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(dbSession, componentDto.get().getId(), settingKey));
     } else {
-      return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(dbSession, propertyKey));
+      return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(dbSession, settingKey));
     }
   }
 

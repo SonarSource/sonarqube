@@ -24,6 +24,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -87,7 +88,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void set_value() throws Exception {
+  public void set_setting() throws Exception {
     SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
 
     String value = getSetting(PLUGIN_SETTING_KEY).getValue();
@@ -95,16 +96,20 @@ public class SettingsTest {
   }
 
   @Test
-  public void remove_value() throws Exception {
+  public void remove_setting() throws Exception {
     SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
-    SETTINGS.reset(ResetRequest.builder().setKey(PLUGIN_SETTING_KEY).build());
+    SETTINGS.set(SetRequest.builder().setKey("sonar.links.ci").setValue("http://localhost").build());
+
+    SETTINGS.reset(ResetRequest.builder().setKeys(PLUGIN_SETTING_KEY, "sonar.links.ci").build());
     assertThat(getSetting(PLUGIN_SETTING_KEY).getValue()).isEqualTo("aDefaultValue");
+    assertThat(getSetting("sonar.links.ci")).isNull();
   }
 
+  @CheckForNull
   private Settings.Setting getSetting(String key) {
     Settings.ValuesWsResponse response = SETTINGS.values(ValuesRequest.builder().setKeys(key).build());
     List<Settings.Setting> settings = response.getSettingsList();
-    assertThat(settings).hasSize(1);
-    return settings.get(0);
+    return settings.isEmpty() ? null : settings.get(0);
   }
+
 }

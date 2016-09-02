@@ -71,7 +71,7 @@ public class SettingsService extends BaseService {
 
   public void reset(ResetRequest request) {
     call(new PostRequest(path(ACTION_RESET))
-      .setParam(PARAM_KEY, request.getKey())
+      .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
       .setParam(PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
   }

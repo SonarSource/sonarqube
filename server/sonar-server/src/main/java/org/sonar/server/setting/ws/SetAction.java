@@ -200,9 +200,9 @@ public class SetAction implements SettingsWsAction {
 
   private void deleteSettings(DbSession dbSession, Optional<ComponentDto> component, String key) {
     if (component.isPresent()) {
-      settingsUpdater.deleteComponentSetting(dbSession, key, component.get());
+      settingsUpdater.deleteComponentSettings(dbSession, component.get(), key);
     } else {
-      settingsUpdater.deleteGlobalSetting(dbSession, key);
+      settingsUpdater.deleteGlobalSettings(dbSession, key);
     }
   }
 

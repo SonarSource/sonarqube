@@ -128,8 +128,8 @@ public class PropertySetsTest {
     Settings.Setting setting = getSetting(baseSettingKey);
     assertThat(setting.getFieldValues().getFieldValuesList()).hasSize(fieldsValues.length);
     int index = 0;
-    for (Settings.FieldValues.Value fieldsValue : setting.getFieldValues().getFieldValuesList()) {
-      assertThat(fieldsValue.getValue()).containsOnly(fieldsValues[index].toArray(new Map.Entry[]{}));
+    for (Settings.FieldValues.Value fieldValue : setting.getFieldValues().getFieldValuesList()) {
+      assertThat(fieldValue.getValue()).containsOnly(fieldsValues[index].toArray(new Map.Entry[] {}));
       index++;
     }
   }
@@ -142,7 +142,7 @@ public class PropertySetsTest {
   }
 
   static void resetSetting(String... keys) {
-    stream(keys).forEach(key -> SETTINGS.reset(ResetRequest.builder().setKey(key).build()));
+    stream(keys).forEach(key -> SETTINGS.reset(ResetRequest.builder().setKeys(keys).build()));
   }
 
 }

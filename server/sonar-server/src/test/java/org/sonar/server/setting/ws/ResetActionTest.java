@@ -169,7 +169,7 @@ public class ResetActionTest {
   public void empty_204_response() {
     setUserAsSystemAdmin();
     TestResponse result = ws.newRequest()
-      .setParam("key", "my.key")
+      .setParam("keys", "my.key")
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -221,7 +221,7 @@ public class ResetActionTest {
   private void executeRequest(String key, @Nullable String componentId, @Nullable String componentKey) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("key", key);
+      .setParam("keys", key);
     if (componentId != null) {
       request.setParam("componentId", componentId);
     }

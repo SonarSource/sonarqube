@@ -20,24 +20,26 @@
 
 package org.sonarqube.ws.client.setting;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 
 public class ResetRequest {
-  private final String key;
+  private final List<String> keys;
   private final String componentId;
   private final String componentKey;
 
   public ResetRequest(Builder builder) {
-    this.key = builder.key;
+    this.keys = builder.keys;
     this.componentId = builder.componentId;
     this.componentKey = builder.componentKey;
   }
 
-  public String getKey() {
-    return key;
+  public List<String> getKeys() {
+    return keys;
   }
 
   @CheckForNull
@@ -55,7 +57,7 @@ public class ResetRequest {
   }
 
   public static class Builder {
-    private String key;
+    private List<String> keys;
     private String componentId;
     private String componentKey;
 
@@ -63,8 +65,13 @@ public class ResetRequest {
       // enforce factory method use
     }
 
-    public Builder setKey(String key) {
-      this.key = key;
+    public Builder setKeys(List<String> keys) {
+      this.keys = keys;
+      return this;
+    }
+
+    public Builder setKeys(String... keys) {
+      setKeys(asList(keys));
       return this;
     }
 
@@ -79,7 +86,7 @@ public class ResetRequest {
     }
 
     public ResetRequest build() {
-      checkArgument(key != null && !key.isEmpty(), "Setting key is mandatory and must not be empty.");
+      checkArgument(keys != null && !keys.isEmpty(), "Setting keys is mandatory and must not be empty.");
       return new ResetRequest(this);
     }
   }

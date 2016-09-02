@@ -20,6 +20,8 @@
 
 package org.sonar.server.setting.ws;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -28,6 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -39,7 +42,7 @@ import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addCompo
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ResetAction implements SettingsWsAction {
 
@@ -72,9 +75,9 @@ public class ResetAction implements SettingsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_KEY)
-      .setDescription("Setting key")
-      .setExampleValue("sonar.links.scm")
+    action.createParam(PARAM_KEYS)
+      .setDescription("Setting keys")
+      .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
     addComponentParameters(action);
   }
@@ -87,12 +90,11 @@ public class ResetAction implements SettingsWsAction {
       Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
       checkPermissions(component);
 
-      PropertyDefinition definition = definitions.get(resetRequest.getKey());
-      String key = definition != null ? definition.key() : resetRequest.getKey();
+      List<String> keys = getKeys(resetRequest);
       if (component.isPresent()) {
-        settingsUpdater.deleteComponentSetting(dbSession, key, component.get());
+        settingsUpdater.deleteComponentSettings(dbSession, component.get(), keys);
       } else {
-        settingsUpdater.deleteGlobalSetting(dbSession, key);
+        settingsUpdater.deleteGlobalSettings(dbSession, keys);
       }
       dbSession.commit();
       response.noContent();
@@ -101,9 +103,18 @@ public class ResetAction implements SettingsWsAction {
     }
   }
 
+  private List<String> getKeys(ResetRequest request) {
+    return new ArrayList<>(request.getKeys().stream()
+      .map(key -> {
+        PropertyDefinition definition = definitions.get(key);
+        return definition != null ? definition.key() : key;
+      })
+      .collect(Collectors.toSet()));
+  }
+
   private static ResetRequest toWsRequest(Request request) {
     return ResetRequest.builder()
-      .setKey(request.mandatoryParam(PARAM_KEY))
+      .setKeys(request.paramAsStrings(PARAM_KEYS))
       .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setComponentKey(request.param(PARAM_COMPONENT_KEY))
       .build();
