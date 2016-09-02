@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import ComparisonResults from '../ComparisonResults';
@@ -34,7 +33,7 @@ describe('Quality Profiles :: ComparisonResults', () => {
             inRight={[]}
             modified={[]}/>
     );
-    expect(output.is(ComparisonEmpty)).to.equal(true);
+    expect(output.is(ComparisonEmpty)).toBe(true);
   });
 
   it('should compare', () => {
@@ -70,29 +69,29 @@ describe('Quality Profiles :: ComparisonResults', () => {
     );
 
     const leftDiffs = output.find('.js-comparison-in-left');
-    expect(leftDiffs).to.have.length(1);
-    expect(leftDiffs.find('a')).to.have.length(1);
-    expect(leftDiffs.find('a').prop('href')).to.include('rule_key=rule1');
-    expect(leftDiffs.find('a').text()).to.include('rule1');
-    expect(leftDiffs.find(SeverityIcon)).to.have.length(1);
-    expect(leftDiffs.find(SeverityIcon).prop('severity')).to.equal('BLOCKER');
+    expect(leftDiffs.length).toBe(1);
+    expect(leftDiffs.find('a').length).toBe(1);
+    expect(leftDiffs.find('a').prop('href')).toContain('rule_key=rule1');
+    expect(leftDiffs.find('a').text()).toContain('rule1');
+    expect(leftDiffs.find(SeverityIcon).length).toBe(1);
+    expect(leftDiffs.find(SeverityIcon).prop('severity')).toBe('BLOCKER');
 
     const rightDiffs = output.find('.js-comparison-in-right');
-    expect(rightDiffs).to.have.length(2);
-    expect(rightDiffs.at(0).find('a')).to.have.length(1);
+    expect(rightDiffs.length).toBe(2);
+    expect(rightDiffs.at(0).find('a').length).toBe(1);
     expect(rightDiffs.at(0).find('a').prop('href'))
-        .to.include('rule_key=rule2');
-    expect(rightDiffs.at(0).find('a').text()).to.include('rule2');
-    expect(rightDiffs.at(0).find(SeverityIcon)).to.have.length(1);
+        .toContain('rule_key=rule2');
+    expect(rightDiffs.at(0).find('a').text()).toContain('rule2');
+    expect(rightDiffs.at(0).find(SeverityIcon).length).toBe(1);
     expect(rightDiffs.at(0).find(SeverityIcon).prop('severity'))
-        .to.equal('CRITICAL');
+        .toBe('CRITICAL');
 
     const modifiedDiffs = output.find('.js-comparison-modified');
-    expect(modifiedDiffs).to.have.length(1);
-    expect(modifiedDiffs.find('a').at(0).prop('href')).to.include('rule_key=rule4');
-    expect(modifiedDiffs.find('a').at(0).text()).to.include('rule4');
-    expect(modifiedDiffs.find(SeverityIcon)).to.have.length(2);
-    expect(modifiedDiffs.text()).to.include('bar');
-    expect(modifiedDiffs.text()).to.include('qwe');
+    expect(modifiedDiffs.length).toBe(1);
+    expect(modifiedDiffs.find('a').at(0).prop('href')).toContain('rule_key=rule4');
+    expect(modifiedDiffs.find('a').at(0).text()).toContain('rule4');
+    expect(modifiedDiffs.find(SeverityIcon).length).toBe(2);
+    expect(modifiedDiffs.text()).toContain('bar');
+    expect(modifiedDiffs.text()).toContain('qwe');
   });
 });

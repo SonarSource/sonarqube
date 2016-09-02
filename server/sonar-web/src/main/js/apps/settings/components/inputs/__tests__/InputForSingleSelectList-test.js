@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import Select from 'react-select';
 import InputForSingleSelectList from '../InputForSingleSelectList';
 
 describe('Settings :: Inputs :: InputForSingleSelectList', () => {
   it('should render Select', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const select = shallow(
         <InputForSingleSelectList
             name="foo"
@@ -35,19 +33,19 @@ describe('Settings :: Inputs :: InputForSingleSelectList', () => {
             isDefault={false}
             onChange={onChange}/>
     ).find(Select);
-    expect(select).to.have.length(1);
-    expect(select.prop('name')).to.equal('foo');
-    expect(select.prop('value')).to.equal('bar');
-    expect(select.prop('options')).to.deep.equal([
+    expect(select.length).toBe(1);
+    expect(select.prop('name')).toBe('foo');
+    expect(select.prop('value')).toBe('bar');
+    expect(select.prop('options')).toEqual([
       { value: 'foo', label: 'foo' },
       { value: 'bar', label: 'bar' },
       { value: 'baz', label: 'baz' }
     ]);
-    expect(select.prop('onChange')).to.be.a('function');
+    expect(select.prop('onChange')).toBeTruthy();
   });
 
   it('should call onChange', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const select = shallow(
         <InputForSingleSelectList
             name="foo"
@@ -56,11 +54,10 @@ describe('Settings :: Inputs :: InputForSingleSelectList', () => {
             isDefault={false}
             onChange={onChange}/>
     ).find(Select);
-    expect(select).to.have.length(1);
-    expect(select.prop('onChange')).to.be.a('function');
+    expect(select.length).toBe(1);
+    expect(select.prop('onChange')).toBeTruthy();
 
     select.prop('onChange')({ value: 'baz', label: 'baz' });
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal(['baz']);
+    expect(onChange).toBeCalledWith('baz');
   });
 });

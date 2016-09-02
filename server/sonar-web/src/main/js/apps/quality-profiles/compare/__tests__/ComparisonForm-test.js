@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Select from 'react-select';
@@ -40,9 +39,9 @@ describe('Quality Profiles :: ComparisonForm', () => {
             profiles={profiles}
             onCompare={() => true}/>
     ).find(Select);
-    expect(output).to.have.length(1);
-    expect(output.prop('value')).to.equal('another');
-    expect(output.prop('options')).to.deep.equal([
+    expect(output.length).toBe(1);
+    expect(output.prop('value')).toBe('another');
+    expect(output.prop('options')).toEqual([
       { value: 'another', label: 'another name' }
     ]);
   });

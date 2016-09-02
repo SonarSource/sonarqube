@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Rating from '../Rating';
@@ -27,13 +26,13 @@ describe('Components :: UI :: Rating', () => {
     const rating = shallow(
         <Rating value={2}/>
     );
-    expect(rating.is('.rating-B')).to.equal(true);
+    expect(rating.is('.rating-B')).toBe(true);
   });
 
   it('should render with string value', () => {
     const rating = shallow(
         <Rating value="2.0"/>
     );
-    expect(rating.is('.rating-B')).to.equal(true);
+    expect(rating.is('.rating-B')).toBe(true);
   });
 });

@@ -19,9 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-import sinon from 'sinon';
-
 import Projects from '../projects';
 
 describe('Projects', function () {
@@ -33,9 +30,9 @@ describe('Projects', function () {
       ];
 
       const result = TestUtils.renderIntoDocument(
-          <Projects projects={projects} selection={[]} refresh={sinon.spy()}/>);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr')).to.have.length(2);
-      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-checkbox-checked')).to.be.empty;
+          <Projects projects={projects} selection={[]} refresh={jest.fn()}/>);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr').length).toBe(2);
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-checkbox-checked').length).toBe(0);
     });
 
     it('should render list of projects with one selected', () => {
@@ -46,9 +43,9 @@ describe('Projects', function () {
       const selection = ['1'];
 
       const result = TestUtils.renderIntoDocument(
-          <Projects projects={projects} selection={selection} refresh={sinon.spy()}/>);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr')).to.have.length(2);
-      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-checkbox-checked')).to.have.length(1);
+          <Projects projects={projects} selection={selection} refresh={jest.fn()}/>);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr').length).toBe(2);
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-checkbox-checked').length).toBe(1);
     });
   });
 });

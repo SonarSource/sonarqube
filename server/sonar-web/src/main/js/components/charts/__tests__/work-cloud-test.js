@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import { WordCloud } from '../word-cloud';
 
 describe('Word Cloud', function () {
@@ -32,7 +30,7 @@ describe('Word Cloud', function () {
       { size: 20, link: '#', text: 'SonarQube :: Search' }
     ];
     const chart = TestUtils.renderIntoDocument(<WordCloud items={items} width={100} height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'a')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'a').length).toBe(3);
   });
 
 });

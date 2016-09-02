@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import React from 'react';
 import Helmet from 'react-helmet';
 import ProfileContainer from '../ProfileContainer';
@@ -34,7 +32,7 @@ describe('Quality Profiles :: ProfileContainer', () => {
       targetProfile,
       createFakeProfile({ key: 'profile2' })
     ];
-    const updateProfiles = sinon.spy();
+    const updateProfiles = jest.fn();
     const output = shallow(
         <ProfileContainer
             location={{ query: { key: 'profile1' } }}
@@ -45,10 +43,10 @@ describe('Quality Profiles :: ProfileContainer', () => {
         </ProfileContainer>
     );
     const header = output.find(ProfileHeader);
-    expect(header).to.have.length(1);
-    expect(header.prop('profile')).to.equal(targetProfile);
-    expect(header.prop('canAdmin')).to.equal(false);
-    expect(header.prop('updateProfiles')).to.equal(updateProfiles);
+    expect(header.length).toBe(1);
+    expect(header.prop('profile')).toBe(targetProfile);
+    expect(header.prop('canAdmin')).toBe(false);
+    expect(header.prop('updateProfiles')).toBe(updateProfiles);
   });
 
   it('should render ProfileNotFound', () => {
@@ -65,14 +63,14 @@ describe('Quality Profiles :: ProfileContainer', () => {
           <div/>
         </ProfileContainer>
     );
-    expect(output.is(ProfileNotFound)).to.equal(true);
+    expect(output.is(ProfileNotFound)).toBe(true);
   });
 
   it('should render Helmet', () => {
     const profiles = [
       createFakeProfile({ key: 'profile1', name: 'First Profile' })
     ];
-    const updateProfiles = sinon.spy();
+    const updateProfiles = jest.fn();
     const output = shallow(
         <ProfileContainer
             location={{ query: { key: 'profile1' } }}
@@ -83,7 +81,7 @@ describe('Quality Profiles :: ProfileContainer', () => {
         </ProfileContainer>
     );
     const helmet = output.find(Helmet);
-    expect(helmet).to.have.length(1);
-    expect(helmet.prop('title')).to.include('First Profile');
+    expect(helmet.length).toBe(1);
+    expect(helmet.prop('title')).toContain('First Profile');
   });
 });

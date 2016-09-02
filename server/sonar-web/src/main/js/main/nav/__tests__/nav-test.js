@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import ComponentNavBreadcrumbs from '../component/component-nav-breadcrumbs';
 
 describe('Nav', function () {
@@ -32,8 +30,8 @@ describe('Nav', function () {
       const result = TestUtils.renderIntoDocument(
           React.createElement(ComponentNavBreadcrumbs, { breadcrumbs })
       );
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'li')).to.have.length(1);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'a')).to.have.length(1);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'li').length).toBe(1);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'a').length).toBe(1);
     });
   });
 });

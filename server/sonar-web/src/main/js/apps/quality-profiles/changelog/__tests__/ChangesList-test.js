@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import ChangesList from '../ChangesList';
@@ -30,7 +29,7 @@ describe('Quality Profiles :: ChangesList', () => {
     const output = shallow(
         <ChangesList changes={changes}/>
     );
-    expect(output.find('li')).to.have.length(2);
+    expect(output.find('li').length).toBe(2);
   });
 
   it('should render severity change', () => {
@@ -38,8 +37,8 @@ describe('Quality Profiles :: ChangesList', () => {
     const output = shallow(
         <ChangesList changes={changes}/>
     ).find(SeverityChange);
-    expect(output).to.have.length(1);
-    expect(output.prop('severity')).to.equal('BLOCKER');
+    expect(output.length).toBe(1);
+    expect(output.prop('severity')).toBe('BLOCKER');
   });
 
   it('should render parameter change', () => {
@@ -47,8 +46,8 @@ describe('Quality Profiles :: ChangesList', () => {
     const output = shallow(
         <ChangesList changes={changes}/>
     ).find(ParameterChange);
-    expect(output).to.have.length(1);
-    expect(output.prop('name')).to.equal('foo');
-    expect(output.prop('value')).to.equal('bar');
+    expect(output.length).toBe(1);
+    expect(output.prop('name')).toBe('foo');
+    expect(output.prop('value')).toBe('bar');
   });
 });

@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import { LineChart } from '../line-chart';
 
 describe('Line Chart', function () {
@@ -36,7 +34,7 @@ describe('Line Chart', function () {
             data={data}
             width={100}
             height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-path')).to.have.length(1);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-path').length).toBe(1);
   });
 
   it('should display ticks', function () {
@@ -52,7 +50,7 @@ describe('Line Chart', function () {
             xTicks={ticks}
             width={100}
             height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-tick')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-tick').length).toBe(3);
   });
 
   it('should display values', function () {
@@ -68,7 +66,7 @@ describe('Line Chart', function () {
             xValues={values}
             width={100}
             height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-tick')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'line-chart-tick').length).toBe(3);
   });
 
 });

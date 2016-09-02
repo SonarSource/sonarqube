@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
 import App from '../App';
 import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
@@ -37,7 +35,7 @@ describe('Overview :: App', () => {
     );
 
     expect(output.type())
-        .to.equal(OverviewApp);
+        .toBe(OverviewApp);
   });
 
   it('should render EmptyOverview', () => {
@@ -48,7 +46,7 @@ describe('Overview :: App', () => {
     );
 
     expect(output.type())
-        .to.equal(EmptyOverview);
+        .toBe(EmptyOverview);
   });
 
   it('should pass leakPeriodIndex', () => {
@@ -62,6 +60,6 @@ describe('Overview :: App', () => {
     );
 
     expect(output.prop('leakPeriodIndex'))
-        .to.equal('1');
+        .toBe('1');
   });
 });

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
 import QualityGateCondition from '../QualityGateCondition';
@@ -55,7 +54,7 @@ describe('Overview :: QualityGateCondition', () => {
     );
 
     const link = output.find(DrilldownLink);
-    expect(link.prop('component')).to.equal('abcd-key');
-    expect(link.prop('metric')).to.equal('open_issues');
+    expect(link.prop('component')).toBe('abcd-key');
+    expect(link.prop('metric')).toBe('open_issues');
   });
 });

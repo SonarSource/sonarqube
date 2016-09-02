@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { expect } from 'chai';
 import ProjectCard from '../ProjectCard';
 import Level from '../../../../components/ui/Level';
 
@@ -31,8 +30,8 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-key').text()).to.equal('key');
-    expect(output.find('.account-project-name').text()).to.equal('name');
+    expect(output.find('.account-project-key').text()).toBe('key');
+    expect(output.find('.account-project-name').text()).toBe('name');
   });
 
   it('should render description', () => {
@@ -40,7 +39,7 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-description').text()).to.equal('bla');
+    expect(output.find('.account-project-description').text()).toBe('bla');
   });
 
   it('should not render optional fields', () => {
@@ -48,9 +47,9 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-description')).to.have.length(0);
-    expect(output.find('.account-project-quality-gate')).to.have.length(0);
-    expect(output.find('.account-project-links')).to.have.length(0);
+    expect(output.find('.account-project-description').length).toBe(0);
+    expect(output.find('.account-project-quality-gate').length).toBe(0);
+    expect(output.find('.account-project-links').length).toBe(0);
   });
 
   it('should render analysis date', () => {
@@ -58,8 +57,7 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-analysis').text())
-        .to.contain('my_account.projects.analyzed_x');
+    expect(output.find('.account-project-analysis').text()).toContain('my_account.projects.analyzed_x');
   });
 
   it('should not render analysis date', () => {
@@ -67,8 +65,7 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-analysis').text())
-        .to.contain('my_account.projects.never_analyzed');
+    expect(output.find('.account-project-analysis').text()).toContain('my_account.projects.never_analyzed');
   });
 
   it('should render quality gate status', () => {
@@ -76,9 +73,7 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(
-        output.find('.account-project-quality-gate').find(Level).prop('level')
-    ).to.equal('ERROR');
+    expect(output.find('.account-project-quality-gate').find(Level).prop('level')).toBe('ERROR');
   });
 
   it('should render links', () => {
@@ -89,6 +84,6 @@ describe('My Account :: ProjectCard', () => {
     const output = shallow(
         <ProjectCard project={project}/>
     );
-    expect(output.find('.account-project-links').find('li')).to.have.length(1);
+    expect(output.find('.account-project-links').find('li').length).toBe(1);
   });
 });

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
 import EmptyOverview from '../EmptyOverview';
@@ -36,6 +35,6 @@ describe('Overview :: EmptyOverview', () => {
     );
 
     expect(output.find('code').text())
-        .to.equal('abcd');
+        .toBe('abcd');
   });
 });

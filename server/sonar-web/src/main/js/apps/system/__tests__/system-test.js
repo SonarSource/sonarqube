@@ -20,7 +20,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
 
 import ItemValue from '../item-value';
 
@@ -30,7 +29,7 @@ describe('System', function () {
     it('should render string', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="/some/path/as/an/example"/>);
       const content = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'code'));
-      expect(content.textContent).to.equal('/some/path/as/an/example');
+      expect(content.textContent).toBe('/some/path/as/an/example');
     });
 
     it('should render `true`', () => {
@@ -46,7 +45,7 @@ describe('System', function () {
     it('should render object', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value={{ name: 'Java', version: '3.2' }}/>);
       TestUtils.findRenderedDOMComponentWithTag(result, 'table');
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr')).to.have.length(2);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr').length).toBe(2);
     });
 
     it('should render `true` inside object', () => {
@@ -58,8 +57,8 @@ describe('System', function () {
     it('should render object inside object', () => {
       const result = TestUtils.renderIntoDocument(
           <ItemValue value={{ users: { docs: 1, shards: 5 }, tests: { docs: 68, shards: 5 } }}/>);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'table')).to.have.length(3);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr')).to.have.length(6);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'table').length).toBe(3);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'tr').length).toBe(6);
     });
   });
 
@@ -67,13 +66,13 @@ describe('System', function () {
     it('should render select box', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
       TestUtils.findRenderedDOMComponentWithTag(result, 'select');
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'option')).to.have.length(3);
+      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'option').length).toBe(3);
     });
 
     it('should set initial value', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="DEBUG" name="Logs Level"/>);
       const select = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
-      expect(select.value).to.equal('DEBUG');
+      expect(select.value).toBe('DEBUG');
     });
 
     it('should render warning', () => {
@@ -83,7 +82,7 @@ describe('System', function () {
 
     it('should not render warning', () => {
       const result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
-      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'alert')).to.be.empty;
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'alert').length).toBe(0);
     });
   });
 

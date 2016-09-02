@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import InputForBoolean from '../InputForBoolean';
 import Toggle from '../../../../../components/controls/Toggle';
 
 describe('Settings :: Inputs :: InputForBoolean', () => {
   it('should render Toggle', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const toggle = shallow(
         <InputForBoolean
             name="foo"
@@ -34,14 +32,14 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
             isDefault={false}
             onChange={onChange}/>
     ).find(Toggle);
-    expect(toggle).to.have.length(1);
-    expect(toggle.prop('name')).to.equal('foo');
-    expect(toggle.prop('value')).to.equal(true);
-    expect(toggle.prop('onChange')).to.be.a('function');
+    expect(toggle.length).toBe(1);
+    expect(toggle.prop('name')).toBe('foo');
+    expect(toggle.prop('value')).toBe(true);
+    expect(toggle.prop('onChange')).toBeTruthy();
   });
 
   it('should render Toggle without value', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const input = shallow(
         <InputForBoolean
             name="foo"
@@ -49,15 +47,15 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
             onChange={onChange}/>
     );
     const toggle = input.find(Toggle);
-    expect(toggle).to.have.length(1);
-    expect(toggle.prop('name')).to.equal('foo');
-    expect(toggle.prop('value')).to.equal(false);
-    expect(toggle.prop('onChange')).to.be.a('function');
-    expect(input.find('.note')).to.have.length(1);
+    expect(toggle.length).toBe(1);
+    expect(toggle.prop('name')).toBe('foo');
+    expect(toggle.prop('value')).toBe(false);
+    expect(toggle.prop('onChange')).toBeTruthy();
+    expect(input.find('.note').length).toBe(1);
   });
 
   it('should call onChange', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const input = shallow(
         <InputForBoolean
             name="foo"
@@ -66,12 +64,11 @@ describe('Settings :: Inputs :: InputForBoolean', () => {
             onChange={onChange}/>
     );
     const toggle = input.find(Toggle);
-    expect(toggle).to.have.length(1);
-    expect(toggle.prop('onChange')).to.be.a('function');
+    expect(toggle.length).toBe(1);
+    expect(toggle.prop('onChange')).toBeTruthy();
 
     toggle.prop('onChange')(false);
 
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([false]);
+    expect(onChange).toBeCalledWith(false);
   });
 });

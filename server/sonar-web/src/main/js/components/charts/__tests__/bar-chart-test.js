@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import { BarChart } from '../bar-chart';
 
 describe('Bar Chart', function () {
@@ -37,7 +35,7 @@ describe('Bar Chart', function () {
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar').length).toBe(3);
   });
 
   it('should display ticks', function () {
@@ -54,7 +52,7 @@ describe('Bar Chart', function () {
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(3);
   });
 
   it('should display values', function () {
@@ -71,7 +69,7 @@ describe('Bar Chart', function () {
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(3);
   });
 
   it('should display bars, ticks and values', function () {
@@ -90,8 +88,8 @@ describe('Bar Chart', function () {
             width={100}
             height={100}
             barsWidth={20}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar')).to.have.length(3);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(6);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar').length).toBe(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick').length).toBe(6);
   });
 
 });

@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
-import { shallow, mount } from 'enzyme';
-import sinon from 'sinon';
+import { mount } from 'enzyme';
 import MultiValueInput from '../MultiValueInput';
 import InputForString from '../InputForString';
 import { click, change } from '../../../../../../../../tests/utils';
@@ -30,7 +28,7 @@ const definition = { multiValues: true };
 const assertValues = (inputs, values) => {
   values.forEach((value, index) => {
     const input = inputs.at(index);
-    expect(input.prop('value')).to.equal(value);
+    expect(input.prop('value')).toBe(value);
   });
 };
 
@@ -40,10 +38,10 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
         <MultiValueInput
             setting={{ definition }}
             value={['foo']}
-            onChange={sinon.stub()}/>
+            onChange={jest.fn()}/>
     );
     const stringInputs = multiValueInput.find(InputForString);
-    expect(stringInputs).to.have.length(1 + 1);
+    expect(stringInputs.length).toBe(1 + 1);
     assertValues(stringInputs, ['foo', '']);
   });
 
@@ -52,15 +50,15 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
         <MultiValueInput
             setting={{ definition }}
             value={['foo', 'bar', 'baz']}
-            onChange={sinon.stub()}/>
+            onChange={jest.fn()}/>
     );
     const stringInputs = multiValueInput.find(InputForString);
-    expect(stringInputs).to.have.length(3 + 1);
+    expect(stringInputs.length).toBe(3 + 1);
     assertValues(stringInputs, ['foo', 'bar', 'baz', '']);
   });
 
   it('should remove value', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
@@ -69,12 +67,11 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
     );
 
     click(multiValueInput.find('.js-remove-value').at(1));
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([['foo', 'baz']]);
+    expect(onChange).toBeCalledWith(['foo', 'baz']);
   });
 
   it('should change existing value', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
@@ -83,12 +80,11 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
     );
 
     change(multiValueInput.find(InputForString).at(1).find('input'), 'qux');
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([['foo', 'qux', 'baz']]);
+    expect(onChange).toBeCalledWith(['foo', 'qux', 'baz']);
   });
 
   it('should add new value', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const multiValueInput = mount(
         <MultiValueInput
             setting={{ definition }}
@@ -97,7 +93,6 @@ describe('Settings :: Inputs :: MultiValueInput', () => {
     );
 
     change(multiValueInput.find(InputForString).at(1).find('input'), 'bar');
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal([['foo', 'bar']]);
+    expect(onChange).toBeCalledWith(['foo', 'bar']);
   });
 });

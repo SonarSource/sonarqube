@@ -20,29 +20,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-
 import Stats from '../components/Stats';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
 
-chai.use(sinonChai);
-
-const stub = sinon.stub().throws();
+const stub = jest.fn();
 
 describe('Background Tasks', function () {
   describe('Constants', () => {
     it('should have STATUSES', () => {
-      expect(STATUSES).to.be.a('object');
-      expect(Object.keys(STATUSES).length).to.equal(7);
+      expect(Object.keys(STATUSES).length).toBe(7);
     });
 
     it('should have CURRENTS', () => {
-      expect(CURRENTS).to.be.a('object');
-      expect(Object.keys(CURRENTS).length).to.equal(2);
+      expect(Object.keys(CURRENTS).length).toBe(2);
     });
   });
 
@@ -60,7 +52,7 @@ describe('Background Tasks', function () {
           <Search {...defaultProps}/>
       );
       const searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
-      expect(searchBox).to.have.length(1);
+      expect(searchBox.length).toBe(1);
     });
 
     it('should not render search form', () => {
@@ -68,11 +60,11 @@ describe('Background Tasks', function () {
           <Search {...defaultProps} component={{ id: 'ABCD' }}/>
       );
       const searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
-      expect(searchBox).to.be.empty;
+      expect(searchBox.length).toBe(0);
     });
 
     it('should search', (done) => {
-      const searchSpy = sinon.spy();
+      const searchSpy = jest.fn();
       const component = TestUtils.renderIntoDocument(
           <Search {...defaultProps} onFilterUpdate={searchSpy}/>);
       const searchInput = ReactDOM.findDOMNode(
@@ -80,20 +72,20 @@ describe('Background Tasks', function () {
       searchInput.value = 'some search query';
       TestUtils.Simulate.change(searchInput);
       setTimeout(() => {
-        expect(searchSpy).to.have.been.calledWith({ query: 'some search query' });
+        expect(searchSpy).toBeCalledWith({ query: 'some search query' });
         done();
       }, DEBOUNCE_DELAY);
     });
 
     it('should reload', () => {
-      const reloadSpy = sinon.spy();
+      const reloadSpy = jest.fn();
       const component = TestUtils.renderIntoDocument(
           <Search {...defaultProps} onReload={reloadSpy}/>
       );
       const reloadButton = component.refs.reloadButton;
-      expect(reloadSpy).to.not.have.been.called;
+      expect(reloadSpy).not.toBeCalled();
       TestUtils.Simulate.click(reloadButton);
-      expect(reloadSpy).to.have.been.called;
+      expect(reloadSpy).toBeCalled();
     });
   });
 
@@ -103,38 +95,36 @@ describe('Background Tasks', function () {
         const result = TestUtils.renderIntoDocument(
             <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const pendingCounter = result.refs.pendingCount;
-        expect(pendingCounter.textContent).to.contain('0');
+        expect(pendingCounter.textContent).toContain('0');
       });
 
       it('should show 5 pending', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const pendingCounter = result.refs.pendingCount;
-        expect(pendingCounter.textContent).to.contain('5');
+        expect(pendingCounter.textContent).toContain('5');
       });
 
       it('should not show cancel pending button', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const cancelPending = result.refs.cancelPending;
-        expect(cancelPending).to.not.be.ok;
+        expect(result.refs.cancelPending).not.toBeTruthy();
       });
 
       it('should show cancel pending button', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
-        const cancelPending = result.refs.cancelPending;
-        expect(cancelPending).to.be.ok;
+        expect(result.refs.cancelPending).toBeTruthy();
       });
 
       it('should trigger cancelling pending', () => {
-        const spy = sinon.spy();
+        const spy = jest.fn();
         const result = TestUtils.renderIntoDocument(
             <Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub}/>);
         const cancelPending = result.refs.cancelPending;
-        expect(spy).to.not.have.been.called;
+        expect(spy).not.toBeCalled();
         TestUtils.Simulate.click(cancelPending);
-        expect(spy).to.have.been.called;
+        expect(spy).toBeCalled();
       });
     });
 
@@ -143,38 +133,38 @@ describe('Background Tasks', function () {
         const result = TestUtils.renderIntoDocument(
             <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
-        expect(failureCounter.textContent).to.contain('0');
+        expect(failureCounter.textContent).toContain('0');
       });
 
       it('should show 5 failures', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
-        expect(failureCounter.textContent).to.contain('5');
+        expect(failureCounter.textContent).toContain('5');
       });
 
       it('should not show link to failures', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
-        expect(failureCounter.tagName.toLowerCase()).to.not.equal('a');
+        expect(failureCounter.tagName.toLowerCase()).not.toBe('a');
       });
 
       it('should show link to failures', () => {
         const result = TestUtils.renderIntoDocument(
             <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub}/>);
         const failureCounter = result.refs.failureCount;
-        expect(failureCounter.tagName.toLowerCase()).to.equal('a');
+        expect(failureCounter.tagName.toLowerCase()).toBe('a');
       });
 
       it('should trigger filtering failures', () => {
-        const spy = sinon.spy();
+        const spy = jest.fn();
         const result = TestUtils.renderIntoDocument(
             <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy}/>);
         const failureCounter = result.refs.failureCount;
-        expect(spy).to.not.have.been.called;
+        expect(spy).not.toBeCalled();
         TestUtils.Simulate.click(failureCounter);
-        expect(spy).to.have.been.called;
+        expect(spy).toBeCalled();
       });
     });
   });
@@ -182,43 +172,43 @@ describe('Background Tasks', function () {
   describe('Helpers', () => {
     describe('#formatDuration()', () => {
       it('should format 173ms', () => {
-        expect(formatDuration(173)).to.equal('173ms');
+        expect(formatDuration(173)).toBe('173ms');
       });
 
       it('should format 999ms', () => {
-        expect(formatDuration(999)).to.equal('999ms');
+        expect(formatDuration(999)).toBe('999ms');
       });
 
       it('should format 1s', () => {
-        expect(formatDuration(1000)).to.equal('1s');
+        expect(formatDuration(1000)).toBe('1s');
       });
 
       it('should format 1s', () => {
-        expect(formatDuration(1001)).to.equal('1s');
+        expect(formatDuration(1001)).toBe('1s');
       });
 
       it('should format 2s', () => {
-        expect(formatDuration(1501)).to.equal('2s');
+        expect(formatDuration(1501)).toBe('2s');
       });
 
       it('should format 59s', () => {
-        expect(formatDuration(59000)).to.equal('59s');
+        expect(formatDuration(59000)).toBe('59s');
       });
 
       it('should format 1min', () => {
-        expect(formatDuration(60000)).to.equal('1min');
+        expect(formatDuration(60000)).toBe('1min');
       });
 
       it('should format 1min', () => {
-        expect(formatDuration(62757)).to.equal('1min');
+        expect(formatDuration(62757)).toBe('1min');
       });
 
       it('should format 4min', () => {
-        expect(formatDuration(224567)).to.equal('4min');
+        expect(formatDuration(224567)).toBe('4min');
       });
 
       it('should format 80min', () => {
-        expect(formatDuration(80 * 60 * 1000)).to.equal('80min');
+        expect(formatDuration(80 * 60 * 1000)).toBe('80min');
       });
     });
   });

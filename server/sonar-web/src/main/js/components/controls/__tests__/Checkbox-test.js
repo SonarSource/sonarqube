@@ -17,14 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import Checkbox from '../Checkbox';
-
-chai.use(sinonChai);
 
 function click (element) {
   return element.simulate('click', {
@@ -38,38 +33,38 @@ describe('Components :: Controls :: Checkbox', () => {
     const checkbox = shallow(
         <Checkbox checked={false} onCheck={() => true}/>
     );
-    expect(checkbox.is('.icon-checkbox-checked')).to.equal(false);
+    expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
   });
 
   it('should render checked', () => {
     const checkbox = shallow(
         <Checkbox checked={true} onCheck={() => true}/>
     );
-    expect(checkbox.is('.icon-checkbox-checked')).to.equal(true);
+    expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
   });
 
   it('should render unchecked third state', () => {
     const checkbox = shallow(
         <Checkbox checked={false} thirdState={true} onCheck={() => true}/>
     );
-    expect(checkbox.is('.icon-checkbox-single')).to.equal(true);
-    expect(checkbox.is('.icon-checkbox-checked')).to.equal(false);
+    expect(checkbox.is('.icon-checkbox-single')).toBe(true);
+    expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
   });
 
   it('should render checked  third state', () => {
     const checkbox = shallow(
         <Checkbox checked={true} thirdState={true} onCheck={() => true}/>
     );
-    expect(checkbox.is('.icon-checkbox-single')).to.equal(true);
-    expect(checkbox.is('.icon-checkbox-checked')).to.equal(true);
+    expect(checkbox.is('.icon-checkbox-single')).toBe(true);
+    expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
   });
 
   it('should call onCheck', () => {
-    const onCheck = sinon.spy();
+    const onCheck = jest.fn();
     const checkbox = shallow(
         <Checkbox checked={false} onCheck={onCheck}/>
     );
     click(checkbox);
-    expect(onCheck).to.have.been.calledWith(true);
+    expect(onCheck).toBeCalledWith(true);
   });
 });

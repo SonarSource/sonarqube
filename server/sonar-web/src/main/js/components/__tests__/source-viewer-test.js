@@ -17,21 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
-
 import helper from '../source-viewer/helpers/code-with-issue-locations-helper';
 
 describe('Source Viewer', function () {
   describe('Code With Issue Locations Helper', function () {
     it('should be a function', function () {
-      expect(helper).to.be.a('function');
+      expect(helper).toBeTruthy();
     });
 
     it('should mark one location', function () {
       const code = '<span class="k">if</span> (<span class="sym-2 sym">a</span> + <span class="c">1</span>) {';
       const locations = [{ from: 1, to: 5 }];
       const result = helper(code, locations, 'x');
-      expect(result).to.equal([
+      expect(result).toBe([
         '<span class="k">i</span>',
         '<span class="k x">f</span>',
         '<span class=" x"> (</span>',
@@ -49,7 +47,7 @@ describe('Source Viewer', function () {
         { from: 11, to: 16 }
       ];
       const result = helper(code, locations, 'x');
-      expect(result).to.equal([
+      expect(result).toBe([
         '<span class="">a</span>',
         '<span class=" x">bcdef</span>',
         '<span class="">ghijk</span>',
@@ -62,7 +60,7 @@ describe('Source Viewer', function () {
       const code = '<span class="cppd"> * Copyright (C) 2008-2014 SonarSource</span>';
       const locations = [{ from: 15, to: 20 }];
       const result = helper(code, locations, 'x');
-      expect(result).to.equal([
+      expect(result).toBe([
         '<span class="cppd"> * Copyright (C</span>',
         '<span class="cppd x">) 200</span>',
         '<span class="cppd">8-2014 SonarSource</span>'
@@ -76,7 +74,7 @@ describe('Source Viewer', function () {
         { from: 15, to: 20 }
       ];
       const result = helper(code, locations, 'x');
-      expect(result).to.equal([
+      expect(result).toBe([
         '<span class="cppd"> * Copyright (C</span>',
         '<span class="cppd x">) 200</span>',
         '<span class="cppd">8-20</span>',
@@ -88,21 +86,21 @@ describe('Source Viewer', function () {
     it('should parse line with < and >', function () {
       const code = '<span class="j">#include &lt;stdio.h&gt;</span>';
       const result = helper(code, []);
-      expect(result).to.equal('<span class="j">#include &lt;stdio.h&gt;</span>');
+      expect(result).toBe('<span class="j">#include &lt;stdio.h&gt;</span>');
     });
 
     it('should parse syntax and usage highlighting', function () {
       const code = '<span class="k"><span class="sym-3 sym">this</span></span>';
       const expected = '<span class="k sym-3 sym">this</span>';
       const result = helper(code, []);
-      expect(result).to.equal(expected);
+      expect(result).toBe(expected);
     });
 
     it('should parse nested tags', function () {
       const code = '<span class="k"><span class="sym-3 sym">this</span> is</span>';
       const expected = '<span class="k sym-3 sym">this</span><span class="k"> is</span>';
       const result = helper(code, []);
-      expect(result).to.equal(expected);
+      expect(result).toBe(expected);
     });
   });
 });

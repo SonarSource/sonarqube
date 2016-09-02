@@ -17,14 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import Toggle from '../Toggle';
-
-chai.use(sinonChai);
 
 function getSample (props) {
   return (
@@ -41,13 +36,13 @@ function click (element) {
 describe('Components :: Controls :: Toggle', () => {
   it('should render', () => {
     const Toggle = shallow(getSample());
-    expect(Toggle.is('button')).to.equal(true);
+    expect(Toggle.is('button')).toBe(true);
   });
 
   it('should call onChange', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const Toggle = shallow(getSample({ onChange }));
     click(Toggle);
-    expect(onChange).to.have.been.calledWith(false);
+    expect(onChange).toBeCalledWith(false);
   });
 });

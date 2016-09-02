@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow, mount } from 'enzyme';
-import sinon from 'sinon';
 import InputForPassword from '../InputForPassword';
 import { click, submit } from '../../../../../../../../tests/utils';
 
 describe('Settings :: Inputs :: InputForPassword', () => {
   it('should render lock icon, but no form', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const input = shallow(
         <InputForPassword
             name="foo"
@@ -34,12 +32,12 @@ describe('Settings :: Inputs :: InputForPassword', () => {
             isDefault={false}
             onChange={onChange}/>
     );
-    expect(input.find('.icon-lock')).to.have.length(1);
-    expect(input.find('form')).to.have.length(0);
+    expect(input.find('.icon-lock').length).toBe(1);
+    expect(input.find('form').length).toBe(0);
   });
 
   it('should open form', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const input = shallow(
         <InputForPassword
             name="foo"
@@ -48,14 +46,14 @@ describe('Settings :: Inputs :: InputForPassword', () => {
             onChange={onChange}/>
     );
     const button = input.find('button');
-    expect(button).to.have.length(1);
+    expect(button.length).toBe(1);
 
     click(button);
-    expect(input.find('form')).to.have.length(1);
+    expect(input.find('form').length).toBe(1);
   });
 
   it('should close form', () => {
-    const onChange = sinon.spy();
+    const onChange = jest.fn();
     const input = shallow(
         <InputForPassword
             name="foo"
@@ -64,17 +62,17 @@ describe('Settings :: Inputs :: InputForPassword', () => {
             onChange={onChange}/>
     );
     const button = input.find('button');
-    expect(button).to.have.length(1);
+    expect(button.length).toBe(1);
 
     click(button);
-    expect(input.find('form')).to.have.length(1);
+    expect(input.find('form').length).toBe(1);
 
     click(input.find('form').find('a'));
-    expect(input.find('form')).to.have.length(0);
+    expect(input.find('form').length).toBe(0);
   });
 
   it('should set value', () => {
-    const onChange = sinon.stub().returns(Promise.resolve());
+    const onChange = jest.fn(() => Promise.resolve());
     const input = mount(
         <InputForPassword
             name="foo"
@@ -83,15 +81,15 @@ describe('Settings :: Inputs :: InputForPassword', () => {
             onChange={onChange}/>
     );
     const button = input.find('button');
-    expect(button).to.have.length(1);
+    expect(button.length).toBe(1);
 
     click(button);
     const form = input.find('form');
-    expect(form).to.have.length(1);
+    expect(form.length).toBe(1);
 
     input.ref('input').value = 'secret';
     submit(form);
 
-    expect(onChange.called).to.equal(true);
+    expect(onChange).toBeCalled();
   });
 });

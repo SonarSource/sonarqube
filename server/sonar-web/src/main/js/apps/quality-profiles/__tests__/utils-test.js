@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { sortProfiles } from '../utils';
 
 function createProfile (key, parentKey) {
@@ -26,7 +25,7 @@ function createProfile (key, parentKey) {
 
 function checkOrder (list, order) {
   const listKeys = list.map(item => item.key);
-  expect(listKeys).to.deep.equal(order);
+  expect(listKeys).toEqual(order);
 }
 
 describe('Quality Profiles :: Utils', () => {

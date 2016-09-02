@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import { Treemap } from '../treemap';
 
 describe('Treemap', function () {
@@ -38,7 +36,7 @@ describe('Treemap', function () {
             height={100}
             breadcrumbs={[]}
             canBeClicked={() => true}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'treemap-cell')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'treemap-cell').length).toBe(3);
   });
 
 });

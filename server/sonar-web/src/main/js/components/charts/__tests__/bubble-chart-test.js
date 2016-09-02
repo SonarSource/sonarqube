@@ -19,8 +19,6 @@
  */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
 import { BubbleChart } from '../bubble-chart';
 
 describe('Bubble Chart', function () {
@@ -32,7 +30,7 @@ describe('Bubble Chart', function () {
       { x: 3, y: 20, size: 2 }
     ];
     const chart = TestUtils.renderIntoDocument(<BubbleChart items={items} width={100} height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bubble-chart-bubble')).to.have.length(3);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bubble-chart-bubble').length).toBe(3);
   });
 
   it('should display grid', function () {
@@ -42,7 +40,7 @@ describe('Bubble Chart', function () {
       { x: 3, y: 20, size: 2 }
     ];
     const chart = TestUtils.renderIntoDocument(<BubbleChart items={items} width={100} height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'line')).to.not.be.empty;
+    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'line').length).toBeGreaterThan(0);
   });
 
   it('should display ticks', function () {
@@ -52,7 +50,7 @@ describe('Bubble Chart', function () {
       { x: 3, y: 20, size: 2 }
     ];
     const chart = TestUtils.renderIntoDocument(<BubbleChart items={items} width={100} height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bubble-chart-tick')).to.not.be.empty;
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bubble-chart-tick').length).toBeGreaterThan(0);
   });
 
 });
