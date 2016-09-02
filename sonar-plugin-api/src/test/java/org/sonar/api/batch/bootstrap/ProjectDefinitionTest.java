@@ -62,7 +62,7 @@ public class ProjectDefinitionTest {
   public void shouldSupportDefaultName() {
     ProjectDefinition def = ProjectDefinition.create();
     def.setKey("myKey");
-    assertThat(def.getName()).isEqualTo("Unnamed - myKey");
+    assertThat(def.getName()).isEqualTo("myKey");
   }
 
   @Test

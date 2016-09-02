@@ -464,7 +464,7 @@ public class ProjectReactorBuilderTest {
   public void shouldAcceptNoProjectName() {
     ProjectDefinition rootProject = loadProjectDefinition("simple-project-with-missing-project-name");
     assertThat(rootProject.getOriginalName()).isNull();
-    assertThat(rootProject.getName()).isEqualTo("Unnamed - com.foo.project");
+    assertThat(rootProject.getName()).isEqualTo("com.foo.project");
   }
 
   @Test

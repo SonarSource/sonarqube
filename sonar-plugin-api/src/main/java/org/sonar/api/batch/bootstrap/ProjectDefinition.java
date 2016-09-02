@@ -208,7 +208,7 @@ public class ProjectDefinition {
   public String getName() {
     String name = properties.get(CoreProperties.PROJECT_NAME_PROPERTY);
     if (StringUtils.isBlank(name)) {
-      name = "Unnamed - " + getKey();
+      name = getKey();
     }
     return name;
   }
