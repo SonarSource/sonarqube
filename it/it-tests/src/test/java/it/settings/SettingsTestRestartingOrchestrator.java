@@ -72,12 +72,6 @@ public class SettingsTestRestartingOrchestrator {
       // test encryption
       "/settings/SettingsTest/generate-secret-key.html",
       "/settings/SettingsTest/encrypt-text.html"
-
-      // test licenses
-      // TODO enable when license page will be rewritten
-      // "/settings/SettingsTest/ignore-corrupted-license.html",
-      // "/settings/SettingsTest/display-license.html",
-      // "/settings/SettingsTest/display-untyped-license.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

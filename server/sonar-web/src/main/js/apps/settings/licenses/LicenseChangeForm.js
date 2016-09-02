@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
+import LicenseValueView from './LicenseValueView';
+import { translate } from '../../../helpers/l10n';
 
-export default {
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
+export default class LicenseChangeForm extends React.Component {
+  static propTypes = {
+    license: React.PropTypes.object.isRequired,
+    onChange: React.PropTypes.func.isRequired
+  };
 
-  renderLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
+  onClick (e) {
+    e.preventDefault();
+    e.target.blur();
+
+    const { license, onChange } = this.props;
+
+    new LicenseValueView({
+      productName: license.name || license.key,
+      value: license.value,
+      onChange
+    }).render();
+  }
+
+  render () {
     return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
-
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
-        </li>
+        <button className="js-change" onClick={e => this.onClick(e)}>{translate('change_verb')}</button>
     );
   }
-};
+}

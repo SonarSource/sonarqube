@@ -17,32 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-export default {
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
-
-  renderLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
+export default class LicensesAppHeader extends React.Component {
+  render () {
     return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
-
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
-        </li>
+        <header className="page-header">
+          <h1 className="page-title">{translate('property.category.licenses')}</h1>
+          <div className="page-description"
+               dangerouslySetInnerHTML={{ __html: translate('property.category.licenses.description') }}/>
+        </header>
     );
   }
-};
+}

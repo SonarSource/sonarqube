@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
+import { shallow, mount } from 'enzyme';
+import LicensesList from '../LicensesList';
+import LicenseRowContainer from '../LicenseRowContainer';
 
-export default {
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
+it('should render', () => {
+  const list = shallow(<LicensesList licenses={[]} fetchLicenses={jest.fn()}/>);
+  expect(list.is('table')).toBe(true);
+});
 
-  renderLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
+it('should fetch licenses', () => {
+  const fetchLicenses = jest.fn(() => Promise.resolve());
+  mount(<LicensesList licenses={[]} fetchLicenses={fetchLicenses}/>);
+  expect(fetchLicenses).toBeCalled();
+});
 
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
-        </li>
-    );
-  }
-};
+it('should render rows', () => {
+  const list = shallow(<LicensesList licenses={['foo', 'bar']} fetchLicenses={jest.fn()}/>);
+  expect(list.find(LicenseRowContainer).length).toBe(2);
+  expect(list.find(LicenseRowContainer).at(0).prop('licenseKey')).toBe('foo');
+  expect(list.find(LicenseRowContainer).at(1).prop('licenseKey')).toBe('bar');
+});

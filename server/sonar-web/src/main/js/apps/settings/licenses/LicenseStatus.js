@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
 
-export default {
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
+export default class LicenseStatus extends React.Component {
+  static propTypes = {
+    license: React.PropTypes.object.isRequired
+  };
 
-  renderLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
+  render () {
+    const { license } = this.props;
 
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
-        </li>
-    );
+    if (license.value == null) {
+      return null;
+    }
+
+    const isInvalid = !!license.invalidProduct || !!license.invalidExpiration || !!license.invalidServerId;
+    if (isInvalid) {
+      return <i className="icon-alert-error"/>;
+    }
+
+    return <i className="icon-check"/>;
   }
-};
+}

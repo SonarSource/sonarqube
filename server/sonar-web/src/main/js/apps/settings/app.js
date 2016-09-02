@@ -23,6 +23,7 @@ import { Provider } from 'react-redux';
 import { Router, Route, Redirect, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import App from './components/App';
+import LicensesApp from './licenses/LicensesApp';
 import rootReducer from './store/rootReducer';
 import configureStore from '../../components/store/configureStore';
 
@@ -44,6 +45,9 @@ window.sonarqube.appStarted.then(options => {
         <Router history={history}>
           <Redirect from="/index" to="/"/>
           <Route path="/" component={withComponent(App)}/>
+          {options.component == null && (
+              <Route path="/licenses" component={LicensesApp}/>
+          )}
         </Router>
       </Provider>
   ), el);

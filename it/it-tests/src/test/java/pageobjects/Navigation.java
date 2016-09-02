@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
+import pageobjects.licenses.LicensesPage;
 import pageobjects.settings.SettingsPage;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -93,6 +94,10 @@ public class Navigation extends ExternalResource {
       "/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8") :
       "/settings";
     return open(url, SettingsPage.class);
+  }
+
+  public LicensesPage openLicenses() {
+    return open("/settings/licenses", LicensesPage.class);
   }
 
   public void open(String relativeUrl) {
