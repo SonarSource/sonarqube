@@ -168,7 +168,7 @@ public class SetAction implements SettingsWsAction {
       validate(request);
       PropertyDto property = toProperty(request, component);
       value = property.getValue();
-      dbClient.propertiesDao().insertProperty(dbSession, property);
+      dbClient.propertiesDao().saveProperty(dbSession, property);
     }
 
     dbSession.commit();
@@ -187,13 +187,13 @@ public class SetAction implements SettingsWsAction {
     Long componentId = component.isPresent() ? component.get().getId() : null;
 
     deleteSettings(dbSession, component, key);
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setResourceId(componentId));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setResourceId(componentId));
 
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
       .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
-        .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
-      .forEach(keyValue -> dbClient.propertiesDao().insertProperty(dbSession, toFieldProperty(keyValue, componentId)));
+      .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
+      .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentId)));
 
     return inlinedFieldKeys;
   }

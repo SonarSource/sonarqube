@@ -185,18 +185,26 @@
   <properties id="1"
               prop_key="sonar.qualitygate"
               resource_id="[null]"
-              text_value="43"/>
+              is_empty="[false]"
+              text_value="43"
+              created_at="1555000"/>
   <properties id="2"
               prop_key="sonar.qualitygate"
               resource_id="1"
-              text_value="42"/>
+              is_empty="[false]"
+              text_value="42"
+              created_at="1555000"/>
   <properties id="3"
               prop_key="sonar.qualitygate"
               resource_id="2"
-              text_value="42"/>
+              is_empty="[false]"
+              text_value="42"
+              created_at="1555000"/>
   <properties id="4"
               prop_key="sonar.qualitygate"
               resource_id="3"
-              text_value="42"/>
+              is_empty="[false]"
+              text_value="42"
+              created_at="1555000"/>
 
 </dataset>

@@ -525,13 +525,13 @@ public class UserDaoTest {
 
   private PropertyDto insertProperty(UserDto user) {
     PropertyDto dto = new PropertyDto().setKey(randomAlphanumeric(100)).setUserId(user.getId());
-    dbClient.propertiesDao().insertProperty(session, dto);
+    dbClient.propertiesDao().saveProperty(session, dto);
     return dto;
   }
 
   private PropertyDto insertProperty(String key, String value, long componentId) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value).setResourceId(componentId);
-    dbClient.propertiesDao().insertProperty(session, dto);
+    dbClient.propertiesDao().saveProperty(session, dto);
     return dto;
   }
 

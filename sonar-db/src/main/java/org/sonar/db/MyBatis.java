@@ -95,7 +95,7 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
-import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.ScrapPropertyDto;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
@@ -176,7 +176,7 @@ public class MyBatis {
     confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
     confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
-    confBuilder.loadAlias("Property", PropertyDto.class);
+    confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);

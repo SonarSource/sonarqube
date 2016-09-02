@@ -95,7 +95,7 @@ public class SelectAction implements QualityGatesWsAction {
       checkQualityGate(dbClient, request.getGateId());
       ComponentDto project = getProject(dbSession, request.getProjectId(), request.getProjectKey());
 
-      dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto()
+      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
         .setKey(SONAR_QUALITYGATE_PROPERTY)
         .setResourceId(project.getId())
         .setValue(String.valueOf(request.getGateId())));

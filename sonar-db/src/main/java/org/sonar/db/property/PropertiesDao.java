@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -43,10 +43,14 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class PropertiesDao implements Dao {
 
   private static final String NOTIFICATION_PREFIX = "notification.";
-  private MyBatis mybatis;
+  private static final int VARCHAR_MAXSIZE = 4000;
 
-  public PropertiesDao(MyBatis mybatis) {
+  private final MyBatis mybatis;
+  private final System2 system2;
+
+  public PropertiesDao(MyBatis mybatis, System2 system2) {
     this.mybatis = mybatis;
+    this.system2 = system2;
   }
 
   /**
@@ -130,15 +134,15 @@ public class PropertiesDao implements Dao {
   }
 
   @CheckForNull
-  public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {
+  public PropertyDto selectProjectProperty(long componentId, String propertyKey) {
     try (DbSession session = mybatis.openSession(false)) {
-      return selectProjectProperty(session, resourceId, propertyKey);
+      return selectProjectProperty(session, componentId, propertyKey);
     }
   }
 
   @CheckForNull
-  public PropertyDto selectProjectProperty(DbSession dbSession, long resourceId, String propertyKey) {
-    return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
+  public PropertyDto selectProjectProperty(DbSession dbSession, long componentId, String propertyKey) {
+    return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(componentId));
   }
 
   public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
@@ -162,22 +166,55 @@ public class PropertiesDao implements Dao {
     return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys, componentId));
   }
 
-  public void insertProperty(DbSession session, PropertyDto property) {
-    PropertiesMapper mapper = getMapper(session);
-    PropertyDto persistedProperty = mapper.selectByKey(property);
-    if (persistedProperty != null && !StringUtils.equals(persistedProperty.getValue(), property.getValue())) {
-      persistedProperty.setValue(property.getValue());
-      mapper.update(persistedProperty);
-    } else if (persistedProperty == null) {
-      mapper.insert(property);
+  /**
+   * Saves the specified property and its value.
+   * <p>
+   * If {@link PropertyDto#getValue()} is {@code null} or empty, the properties is persisted as empty.
+   * </p>
+   *
+   * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
+   */
+  public void saveProperty(DbSession session, PropertyDto property) {
+    save(getMapper(session), property.getKey(), property.getUserId(), property.getResourceId(), property.getValue());
+  }
+
+  private void save(PropertiesMapper mapper,
+    String key, @Nullable Long userId, @Nullable Long componentId,
+    @Nullable String value) {
+    checkKey(key);
+
+    long now = system2.now();
+    mapper.delete(key, userId, componentId);
+    if (isEmpty(value)) {
+      mapper.insertAsEmpty(key, userId, componentId, now);
+    } else if (mustBeStoredInClob(value)) {
+      mapper.insertAsClob(key, userId, componentId, value, now);
+    } else {
+      mapper.insertAsText(key, userId, componentId, value, now);
     }
   }
 
-  public void insertProperty(PropertyDto property) {
+  private static boolean mustBeStoredInClob(String value) {
+    return value.length() > VARCHAR_MAXSIZE;
+  }
+
+  private static void checkKey(@Nullable String key) {
+    checkArgument(!isEmpty(key), "key can't be null nor empty");
+  }
+
+  private static boolean isEmpty(@Nullable String str) {
+    return str == null || str.isEmpty();
+  }
+
+  public void saveProperty(PropertyDto property) {
     try (DbSession session = mybatis.openSession(false)) {
-      insertProperty(session, property);
+      saveProperty(session, property);
       session.commit();
     }
+  }
+
+  public int delete(DbSession dbSession, PropertyDto dto) {
+    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getResourceId());
   }
 
   public void deleteById(DbSession dbSession, long id) {
@@ -217,21 +254,15 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void insertGlobalProperties(Map<String, String> properties) {
+  public void saveGlobalProperties(Map<String, String> properties) {
     try (DbSession session = mybatis.openSession(false)) {
       PropertiesMapper mapper = getMapper(session);
-      properties.entrySet().forEach(entry -> delete(mapper, entry));
-      properties.entrySet().forEach(entry -> insert(mapper, entry));
+      properties.entrySet().forEach(entry -> {
+        mapper.deleteGlobalProperty(entry.getKey());
+        save(mapper, entry.getKey(), null, null, entry.getValue());
+      });
       session.commit();
     }
-  }
-
-  private static void delete(PropertiesMapper mapper, Map.Entry<String, String> entry) {
-    mapper.deleteGlobalProperty(entry.getKey());
-  }
-
-  private static void insert(PropertiesMapper mapper, Map.Entry<String, String> entry) {
-    mapper.insert(new PropertyDto().setKey(entry.getKey()).setValue(entry.getValue()));
   }
 
   public void renamePropertyKey(String oldKey, String newKey) {

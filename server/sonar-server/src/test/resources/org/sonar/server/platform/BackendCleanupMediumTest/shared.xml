@@ -54,8 +54,9 @@
 
   <properties id="1"
               prop_key="sonar.profile.java"
-              text_value="Sonar Way"
               resource_id="1"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[true]"
+              text_value="Sonar Way"/>
 
 </dataset>

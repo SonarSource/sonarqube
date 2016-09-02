@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.setting.DatabaseSettingLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -76,7 +75,7 @@ public class DatabaseSettingLoaderTest {
  }
 
   private void insertPropertyIntoDb(String key, String value) {
-    dbTester.getDbClient().propertiesDao().insertProperty(new PropertyDto().setKey(key).setValue(value));
+    dbTester.getDbClient().propertiesDao().saveProperty(new PropertyDto().setKey(key).setValue(value));
   }
 
 }

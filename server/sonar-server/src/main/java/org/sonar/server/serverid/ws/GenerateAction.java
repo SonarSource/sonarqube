@@ -91,9 +91,9 @@ public class GenerateAction implements ServerIdWsAction {
 
   private GenerateWsResponse doHandle(DbSession dbSession, GenerateRequest request) {
     String serverId = generator.generate(request.getOrganization(), request.getIp());
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(PERMANENT_SERVER_ID).setValue(serverId));
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(ORGANISATION).setValue(request.getOrganization()));
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey(SERVER_ID_IP_ADDRESS).setValue(request.getIp()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(PERMANENT_SERVER_ID).setValue(serverId));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(ORGANISATION).setValue(request.getOrganization()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(SERVER_ID_IP_ADDRESS).setValue(request.getIp()));
     dbSession.commit();
     LOG.info("Generated new server ID={}", serverId);
 

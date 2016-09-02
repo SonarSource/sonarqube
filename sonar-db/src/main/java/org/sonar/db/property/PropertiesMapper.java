@@ -44,18 +44,24 @@ public interface PropertiesMapper {
   List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
     @Param(value = "excludeDisabled") boolean excludeDisabled);
 
-  void update(PropertyDto property);
+  void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+    @Param("now") long now);
 
-  void insert(PropertyDto property);
+  void insertAsText(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+    @Param("value") String value, @Param("now") long now);
 
-  void deleteById(long id);
+  void insertAsClob(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId,
+    @Param("value") String value, @Param("now") long now);
 
-  void deleteProjectProperty(@Param("key") String key, @Param("rId") Long resourceId);
+  int delete(@Param("key") String key, @Nullable @Param("userId") Long userId, @Nullable @Param("componentId") Long componentId);
 
-  void deleteProjectProperties(@Param("key") String key, @Param("value") String value);
+  int deleteById(long id);
 
-  void deleteGlobalProperty(String key);
+  int deleteProjectProperty(@Param("key") String key, @Param("rId") Long componentId);
 
-  void renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
+  int deleteProjectProperties(@Param("key") String key, @Param("value") String value);
 
+  int deleteGlobalProperty(@Param("key") String key);
+
+  int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 }

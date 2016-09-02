@@ -154,7 +154,7 @@ public class QualityGates {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
       QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
-      propertiesDao.insertProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
+      propertiesDao.saveProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
     }
   }
 
@@ -225,7 +225,7 @@ public class QualityGates {
     try {
       getNonNullQgate(qGateId);
       checkPermission(projectId, session);
-      propertiesDao.insertProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
+      propertiesDao.saveProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.properties;
+package org.sonar.db.property;
 
-import org.sonar.api.utils.System2;
-import org.sonar.db.MyBatis;
+import javax.annotation.Nullable;
 
-/**
- * Kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
- *
- * @deprecated since 5.2, should be replaced by {@link org.sonar.db.property.PropertiesDao}
- */
-@Deprecated
-public class PropertiesDao extends org.sonar.db.property.PropertiesDao {
-
-  public PropertiesDao(MyBatis mybatis, System2 system2) {
-    super(mybatis, system2);
+public class ScrapPropertyDto extends PropertyDto {
+  public void setEmpty(boolean flag) {
+    if (flag) {
+      setValue("");
+    }
   }
 
-  public void setProperty(PropertyDto property) {
-    super.saveProperty(property);
+  public void setTextValue(@Nullable String value) {
+    if (value != null) {
+      setValue(value);
+    }
   }
+
+  public void setClobValue(@Nullable String value) {
+    if (value != null) {
+      setValue(value);
+    }
+  }
+
 }

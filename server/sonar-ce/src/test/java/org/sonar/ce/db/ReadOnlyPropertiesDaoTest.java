@@ -20,6 +20,7 @@
 package org.sonar.ce.db;
 
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.property.PropertyDto;
@@ -32,18 +33,18 @@ public class ReadOnlyPropertiesDaoTest {
   private DbSession dbSession = mock(DbSession.class);
   private PropertyDto propertyDto = mock(PropertyDto.class);
   private org.sonar.core.properties.PropertyDto oldPropertyDto = mock(org.sonar.core.properties.PropertyDto.class);
-  private ReadOnlyPropertiesDao underTest = new ReadOnlyPropertiesDao(myBatis);
+  private ReadOnlyPropertiesDao underTest = new ReadOnlyPropertiesDao(myBatis, System2.INSTANCE);
 
   @Test
   public void insertProperty() {
-    underTest.insertProperty(dbSession, propertyDto);
+    underTest.saveProperty(dbSession, propertyDto);
 
     assertNoInteraction();
   }
 
   @Test
   public void insertProperty1() {
-    underTest.insertProperty(propertyDto);
+    underTest.saveProperty(propertyDto);
 
     assertNoInteraction();
   }
@@ -98,7 +99,7 @@ public class ReadOnlyPropertiesDaoTest {
 
   @Test
   public void insertGlobalProperties() {
-    underTest.insertGlobalProperties(null);
+    underTest.saveGlobalProperties(null);
 
     assertNoInteraction();
 
@@ -113,11 +114,17 @@ public class ReadOnlyPropertiesDaoTest {
   }
 
   @Test
+  public void saveProperty() {
+    underTest.saveProperty(oldPropertyDto);
+
+    assertNoInteraction();
+  }
+
+  @Test
   public void setProperty() {
     underTest.setProperty(oldPropertyDto);
 
     assertNoInteraction();
-
   }
 
   private void assertNoInteraction() {

@@ -148,7 +148,7 @@ public class ClearRulesOverloadedDebtTest {
   }
 
   private void insertSqaleProperty() {
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.sqale.licenseHash.secured").setValue("ABCD"));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.sqale.licenseHash.secured").setValue("ABCD"));
     dbSession.commit();
   }
 

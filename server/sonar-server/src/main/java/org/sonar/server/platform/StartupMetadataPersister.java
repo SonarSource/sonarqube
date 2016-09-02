@@ -55,7 +55,7 @@ public class StartupMetadataPersister implements Startable {
   }
 
   private void save(String key, String value) {
-    dbClient.propertiesDao().insertProperty(new PropertyDto().setKey(key).setValue(value));
+    dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(key).setValue(value));
   }
 
   @Override

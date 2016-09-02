@@ -244,7 +244,7 @@ public class DeselectActionTest {
   }
 
   private void associateProjectToQualityGate(long projectId, String gateId) {
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto()
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setResourceId(projectId)
       .setValue(gateId)
       .setKey(SONAR_QUALITYGATE_PROPERTY));

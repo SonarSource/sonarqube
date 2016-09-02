@@ -390,24 +390,28 @@
   <properties id="1"
               prop_key="favourite"
               resource_id="3"
+              user_id="50"
               text_value="[null]"
-              user_id="50"/>
+              is_empty="[true]"/>
   <properties id="2"
               prop_key="favourite"
               resource_id="10"
+              user_id="50"
               text_value="[null]"
-              user_id="50"/>
+              is_empty="[true]"/>
 
   <!-- another properties -->
   <properties id="3"
               prop_key="favourite"
               resource_id="1"
+              user_id="1234"
               text_value="[null]"
-              user_id="1234"/>
+              is_empty="[true]"/>
   <properties id="4"
               prop_key="sonar.profile"
               resource_id="1"
+              user_id="[null]"
               text_value="Sonar way"
-              user_id="[null]"/>
+              is_empty="[true]"/>
 
 </dataset>

@@ -109,7 +109,7 @@ public class ProjectQgateAssociationDaoTest {
   }
 
   private void associateProjectToQualityGate(long componentId, long qualityGateId) {
-    dbClient.propertiesDao().insertProperty(dbSession, new PropertyDto()
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey("sonar.qualitygate")
       .setResourceId(componentId)
       .setValue(String.valueOf(qualityGateId)));

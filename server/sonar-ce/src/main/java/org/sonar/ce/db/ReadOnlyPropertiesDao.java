@@ -20,6 +20,7 @@
 package org.sonar.ce.db;
 
 import java.util.Map;
+import org.sonar.api.utils.System2;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -35,17 +36,17 @@ import org.sonar.db.property.PropertyDto;
  * </p>
  */
 public class ReadOnlyPropertiesDao extends PropertiesDao {
-  public ReadOnlyPropertiesDao(MyBatis mybatis) {
-    super(mybatis);
+  public ReadOnlyPropertiesDao(MyBatis mybatis, System2 system2) {
+    super(mybatis, system2);
   }
 
   @Override
-  public void insertProperty(DbSession session, PropertyDto property) {
+  public void saveProperty(DbSession session, PropertyDto property) {
     // do nothing
   }
 
   @Override
-  public void insertProperty(PropertyDto property) {
+  public void saveProperty(PropertyDto property) {
     // do nothing
   }
 
@@ -80,7 +81,7 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void insertGlobalProperties(Map<String, String> properties) {
+  public void saveGlobalProperties(Map<String, String> properties) {
     // do nothing
   }
 

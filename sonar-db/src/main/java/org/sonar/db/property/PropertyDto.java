@@ -58,7 +58,7 @@ public class PropertyDto {
     return value;
   }
 
-  public PropertyDto setValue(String value) {
+  public PropertyDto setValue(@Nullable String value) {
     this.value = value;
     return this;
   }
@@ -91,12 +91,11 @@ public class PropertyDto {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PropertyDto other = (PropertyDto) obj;
-
+    PropertyDto other = (PropertyDto) obj;
     return Objects.equals(this.key, other.key)
-      && Objects.equals(this.value, other.value)
       && Objects.equals(this.userId, other.userId)
-      && Objects.equals(this.resourceId, other.resourceId);
+      && Objects.equals(this.resourceId, other.resourceId)
+      && Objects.equals(this.value, other.value);
   }
 
   @Override

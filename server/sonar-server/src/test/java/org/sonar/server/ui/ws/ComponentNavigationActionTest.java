@@ -128,7 +128,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.propertiesDao().insertProperty(dbTester.getSession(), new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId));
+    dbClient.propertiesDao().saveProperty(dbTester.getSession(), new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId));
     dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");

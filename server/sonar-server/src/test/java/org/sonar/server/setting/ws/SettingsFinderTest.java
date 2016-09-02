@@ -197,7 +197,7 @@ public class SettingsFinderTest {
 
   private void insertProperties(PropertyDto... properties) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().insertProperty(dbSession, propertyDto);
+      dbClient.propertiesDao().saveProperty(dbSession, propertyDto);
     }
     dbSession.commit();
   }

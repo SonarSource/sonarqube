@@ -237,7 +237,7 @@ public class QgateProjectFinderTest {
   }
 
   private void associateProjectToQualitGate(long projectId) {
-    dbClient.propertiesDao().insertProperty(
+    dbClient.propertiesDao().saveProperty(
       new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY)
         .setResourceId(projectId)
         .setValue(Long.toString(qGate.getId())));

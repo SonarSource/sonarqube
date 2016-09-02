@@ -46,7 +46,7 @@ public class PropertyDbTester {
   }
 
   public PropertyDto insertProperty(PropertyDto property) {
-    dbClient.propertiesDao().insertProperty(dbSession, property);
+    dbClient.propertiesDao().saveProperty(dbSession, property);
     db.commit();
 
     return property;
@@ -58,7 +58,7 @@ public class PropertyDbTester {
 
   public void insertProperties(List<PropertyDto> properties) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().insertProperty(dbSession, propertyDto);
+      dbClient.propertiesDao().saveProperty(dbSession, propertyDto);
     }
     dbSession.commit();
   }

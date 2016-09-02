@@ -4,156 +4,292 @@
 <mapper namespace="org.sonar.db.property.PropertiesMapper">
 
   <select id="findUsersForNotification" parameterType="map" resultType="String">
-    select u.login
-    from users u
-    inner join properties p on p.user_id=u.id
-    <if test="projectUuid == null">
-      where p.prop_key = #{notifKey} and p.text_value LIKE 'true' and p.resource_id is null
-    </if>
-    <if test="projectUuid != null">
-      inner join projects c on c.id=p.resource_id
-      where p.prop_key = #{notifKey} AND p.text_value LIKE 'true'
-      and c.uuid = #{projectUuid} and p.resource_id is not null
-    </if>
+    select
+      u.login
+    from
+      users u
+    inner join properties p on
+      p.user_id=u.id
+    <choose>
+      <when test="projectUuid == null">
+        where
+          p.prop_key = #{notifKey}
+          and p.text_value = 'true'
+          and p.resource_id is null
+      </when>
+      <otherwise>
+        inner join projects c on
+          c.id=p.resource_id
+        where
+          p.prop_key = #{notifKey}
+          and p.text_value = 'true'
+          and c.uuid = #{projectUuid}
+          and p.resource_id is not null
+      </otherwise>
+    </choose>
   </select>
 
   <select id="findNotificationSubscribers" parameterType="map" resultType="String">
-    SELECT U.login
-    FROM properties P, users U
-    WHERE P.user_id = U.id AND P.prop_key = #{propKey} AND P.text_value LIKE 'true'
-    AND (
-    P.resource_id is null
-    <if test="componentKey != null">
-      OR P.resource_id in (select id from projects where kee=#{componentKey})
-    </if>
-    )
+    select
+      u.login
+    from
+      properties p,
+      users u
+    where
+      p.user_id = u.id
+      and p.prop_key = #{propKey}
+      and p.text_value like 'true'
+      and (
+        p.resource_id is null
+        <if test="componentKey != null">
+          or p.resource_id in (select id from projects where kee=#{componentKey})
+        </if>
+      )
   </select>
 
-  <select id="selectGlobalProperties" resultType="Property">
-    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    from properties p
-    where p.resource_id is null and p.user_id is null
+  <sql id="columnsToScrapPropertyDto">
+    p.id as id,
+    p.prop_key as "key",
+    p.is_empty as empty,
+    p.text_value as textValue,
+    p.clob_value as clobValue,
+    p.resource_id as resourceId,
+    p.user_id as userId
+  </sql>
+
+  <select id="selectGlobalProperties" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      p.resource_id is null
+      and p.user_id is null
   </select>
 
-  <select id="selectProjectProperties" parameterType="String" resultType="Property">
-    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    from properties p, projects r
-    where p.resource_id=r.id and p.user_id is null and r.kee=#{resourceKey}
+  <select id="selectProjectProperties" parameterType="String" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p,
+      projects r
+    where
+      p.resource_id=r.id
+      and p.user_id is null
+      and r.kee=#{resourceKey}
   </select>
 
-  <select id="selectDescendantModuleProperties" parameterType="String" resultType="Property">
-    SELECT prop.id as id, prop.prop_key as "key", prop.text_value as value, prop.resource_id as resourceId, prop.user_id
-    as userId
-    FROM properties prop
-    INNER JOIN (SELECT p.id FROM projects p<include refid="org.sonar.db.component.ComponentMapper.modulesTreeQuery"/>)
-    modules on modules.id=prop.resource_id
-    WHERE prop.user_id IS NULL
+  <select id="selectDescendantModuleProperties" parameterType="String" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    inner join (select p.id from projects p<include refid="org.sonar.db.component.ComponentMapper.modulesTreeQuery"/>) modules
+      on modules.id=p.resource_id
+    where
+      p.user_id is null
   </select>
 
-  <select id="selectByKey" parameterType="map" resultType="Property">
-    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    from properties p
-    where p.prop_key=#{key}
-    <if test="resourceId == null">
-      AND p.resource_id is null
-    </if>
-    <if test="resourceId != null">
-      AND p.resource_id=#{resourceId}
-    </if>
-    <if test="userId == null">
-      AND p.user_id is null
-    </if>
-    <if test="userId != null">
-      AND p.user_id=#{userId}
-    </if>
+  <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from 
+      properties p
+    where 
+      p.prop_key=#{key}
+      <if test="resourceId == null">
+        and p.resource_id is null
+      </if>
+      <if test="resourceId != null">
+        and p.resource_id=#{resourceId}
+      </if>
+      <if test="userId == null">
+        and p.user_id is null
+      </if>
+      <if test="userId != null">
+        and p.user_id=#{userId}
+      </if>
   </select>
 
-  <select id="selectByKeys" parameterType="map" resultType="Property">
-    SELECT p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    FROM properties p
-    <where>
-      AND p.prop_key in
-      <foreach collection="keys" open="(" close=")" item="key" separator=",">
-        #{key}
-      </foreach>
+  <select id="selectByKeys" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      p.prop_key in
+        <foreach collection="keys" open="(" close=")" item="key" separator=",">
+          #{key}
+        </foreach>
       <if test="componentId == null">
-        AND p.resource_id is null
+        and p.resource_id is null
       </if>
       <if test="componentId != null">
-        AND p.resource_id=#{componentId}
+        and p.resource_id=#{componentId}
       </if>
-      AND p.user_id is null
-    </where>
+      and p.user_id is null
   </select>
 
-  <select id="selectByKeysAndComponentIds" parameterType="map" resultType="Property">
-    SELECT p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    FROM properties p
-    <where>
-      AND p.prop_key in
-      <foreach collection="keys" open="(" close=")" item="key" separator=",">
-        #{key}
-      </foreach>
-      AND p.resource_id in
-      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
-        #{componentId}
-      </foreach>
-      AND p.user_id is null
-    </where>
+  <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from 
+      properties p
+    where
+      p.prop_key in
+        <foreach collection="keys" open="(" close=")" item="key" separator=",">
+          #{key}
+        </foreach>
+      and p.resource_id in
+        <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+          #{componentId}
+        </foreach>
+      and p.user_id is null
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="Property">
-    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
-    from properties p
+  <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
     <where>
       <if test="query.key() != null">
-        AND p.prop_key=#{query.key}
+        and p.prop_key=#{query.key}
       </if>
       <if test="query.componentId() != null">
-        AND p.resource_id=#{query.componentId}
+        and p.resource_id=#{query.componentId}
       </if>
       <if test="query.userId() != null">
-        AND p.user_id=#{query.userId}
+        and p.user_id=#{query.userId}
       </if>
     </where>
   </select>
 
-  <update id="update" parameterType="Property">
-    update properties set text_value = #{value} where id = #{id}
-  </update>
-
-  <insert id="insert" parameterType="Property" useGeneratedKeys="false">
-    INSERT INTO properties (prop_key, resource_id, user_id, text_value)
-    VALUES (#{key}, #{resourceId}, #{userId}, #{value})
+  <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
+    insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_true},
+      #{now}
+    )
   </insert>
 
+  <insert id="insertAsText" parameterType="Map" useGeneratedKeys="false">
+    insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      text_value,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_false},
+      #{value},
+      #{now}
+    )
+  </insert>
+
+  <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
+   insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      clob_value,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_false},
+      #{value},
+      #{now}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="map">
+    delete from properties
+    where
+      prop_key=#{key}
+    <choose>
+      <when test="componentId != null &amp;&amp; userId != null">
+        and resource_id=#{componentId}
+        and user_id=#{userId}
+      </when>
+      <when test="componentId != null">
+        and resource_id=#{componentId}
+        and user_id is null
+      </when>
+      <when test="userId != null">
+        and resource_id is null
+        and user_id=#{userId}
+      </when>
+      <otherwise>
+        and resource_id is null
+        and user_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
   <delete id="deleteById" parameterType="long">
-    delete from properties where id=#{id}
+    delete from properties
+    where
+      id=#{id}
   </delete>
 
   <delete id="deleteProjectProperty" parameterType="map">
-    delete from properties where prop_key=#{key} and resource_id=#{rId} and user_id is null
+    delete from properties
+    where
+      prop_key=#{key}
+      and resource_id=#{rId}
+      and user_id is null
   </delete>
 
   <delete id="deleteProjectProperties" parameterType="map">
-    DELETE FROM properties
-    WHERE
-    prop_key=#{key}
-    AND text_value LIKE #{value}
-    AND resource_id IS NOT NULL
-    AND user_id IS NULL
+    delete from properties
+    where
+      prop_key=#{key}
+      and text_value = #{value}
+      and resource_id is not null
+      and user_id is null
   </delete>
 
   <delete id="deleteGlobalProperty" parameterType="string">
-    delete from properties where prop_key=#{id} and resource_id is null and user_id is null
+    delete from properties
+    where
+      prop_key=#{key}
+      and resource_id is null
+      and user_id is null
   </delete>
 
   <delete id="deleteGlobalProperties">
-    delete from properties where resource_id is null and user_id is null
+    delete from properties
+    where
+      resource_id is null
+      and user_id is null
   </delete>
 
   <update id="renamePropertyKey" parameterType="map">
-    update properties set prop_key=#{newKey} where prop_key=#{oldKey}
+    update properties set
+      prop_key=#{newKey}
+    where
+      prop_key=#{oldKey}
   </update>
 
 </mapper>

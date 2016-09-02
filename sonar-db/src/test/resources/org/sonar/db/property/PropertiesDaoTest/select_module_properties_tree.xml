@@ -3,52 +3,68 @@
   <!-- global -->
   <properties id="1"
               prop_key="global.one"
-              text_value="one"
               resource_id="[null]"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="one"
+              created_at="1555000"/>
   <properties id="2"
               prop_key="global.two"
-              text_value="two"
               resource_id="[null]"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="two"
+              created_at="1555000"/>
 
   <!-- org.struts:struts -->
   <properties id="3"
               prop_key="struts.one"
-              text_value="one"
               resource_id="1"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="one"
+              created_at="1555000"/>
 
   <!-- org.struts:struts-core -->
   <properties id="4"
               prop_key="core.one"
-              text_value="one"
               resource_id="2"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="one"
+              created_at="1555000"/>
   <properties id="7"
               prop_key="core.two"
-              text_value="two"
               resource_id="2"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="two"
+              created_at="1555000"/>
 
   <!-- org.struts:struts-data -->
   <properties id="8"
               prop_key="data.one"
-              text_value="one"
               resource_id="3"
-              user_id="[null]"/>
+              user_id="[null]"
+              is_empty="[false]"
+              text_value="one"
+              created_at="1555000"/>
 
   <!-- user -->
   <properties id="5"
               prop_key="user.one"
-              text_value="one"
               resource_id="[null]"
-              user_id="100"/>
+              user_id="100"
+              is_empty="[false]"
+              text_value="one"
+              created_at="1555000"/>
   <properties id="6"
               prop_key="user.two"
-              text_value="two"
               resource_id="1"
-              user_id="102"/>
+              user_id="102"
+              is_empty="[false]"
+              text_value="two"
+              created_at="1555000"/>
 
 
   <!-- root project -->

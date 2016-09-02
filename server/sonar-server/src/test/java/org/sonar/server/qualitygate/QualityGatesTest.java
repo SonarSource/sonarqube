@@ -233,7 +233,7 @@ public class QualityGatesTest {
 
     verify(dao).selectById(defaultId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).insertProperty(propertyCaptor.capture());
+    verify(propertiesDao).saveProperty(propertyCaptor.capture());
 
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
@@ -551,7 +551,7 @@ public class QualityGatesTest {
     underTest.associateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).insertProperty(propertyCaptor.capture());
+    verify(propertiesDao).saveProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
     assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
     assertThat(property.getResourceId()).isEqualTo(projectId);
@@ -568,7 +568,7 @@ public class QualityGatesTest {
     underTest.associateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).insertProperty(propertyCaptor.capture());
+    verify(propertiesDao).saveProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
     assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
     assertThat(property.getResourceId()).isEqualTo(projectId);
