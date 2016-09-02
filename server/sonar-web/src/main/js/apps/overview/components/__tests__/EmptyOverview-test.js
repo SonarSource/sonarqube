@@ -18,24 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
 import EmptyOverview from '../EmptyOverview';
 
-describe('Overview :: EmptyOverview', () => {
-  it('should render component key', () => {
-    const component = {
-      id: 'id',
-      key: 'abcd',
-      snapshotDate: '2016-01-01'
-    };
-
-    const output = shallow(
-        <EmptyOverview component={component}/>
-    );
-
-    expect(output.find('code').text())
-        .to.equal('abcd');
-  });
+it('should render component key', () => {
+  const component = {
+    id: 'id',
+    key: 'abcd',
+    snapshotDate: '2016-01-01'
+  };
+  const output = shallow(<EmptyOverview component={component}/>);
+  expect(output.find('code').text()).toBe('abcd');
 });

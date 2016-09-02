@@ -18,43 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import Input from '../Input';
 import PrimitiveInput from '../PrimitiveInput';
 import MultiValueInput from '../MultiValueInput';
 import PropertySetInput from '../PropertySetInput';
 import { TYPE_STRING, TYPE_PROPERTY_SET } from '../../../constants';
 
-describe('Settings :: Inputs :: Input', () => {
-  it('should render PrimitiveInput', () => {
-    const setting = { definition: { key: 'example', type: TYPE_STRING } };
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PrimitiveInput);
-    expect(input).to.have.length(1);
-    expect(input.prop('setting')).to.equal(setting);
-    expect(input.prop('value')).to.equal('foo');
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
+it('should render PrimitiveInput', () => {
+  const setting = { definition: { key: 'example', type: TYPE_STRING } };
+  const onChange = jest.fn();
+  const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PrimitiveInput);
+  expect(input.length).toBe(1);
+  expect(input.prop('setting')).toBe(setting);
+  expect(input.prop('value')).toBe('foo');
+  expect(input.prop('onChange')).toBe(onChange);
+});
 
-  it('should render MultiValueInput', () => {
-    const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(MultiValueInput);
-    expect(input).to.have.length(1);
-    expect(input.prop('setting')).to.equal(setting);
-    expect(input.prop('value')).to.equal('foo');
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
+it('should render MultiValueInput', () => {
+  const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
+  const value = ['foo', 'bar'];
+  const onChange = jest.fn();
+  const input = shallow(<Input setting={setting} value={value} onChange={onChange}/>).find(MultiValueInput);
+  expect(input.length).toBe(1);
+  expect(input.prop('setting')).toBe(setting);
+  expect(input.prop('value')).toBe(value);
+  expect(input.prop('onChange')).toBe(onChange);
+});
 
-  it('should render PropertySetInput', () => {
-    const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
-    const onChange = sinon.spy();
-    const input = shallow(<Input setting={setting} value="foo" onChange={onChange}/>).find(PropertySetInput);
-    expect(input).to.have.length(1);
-    expect(input.prop('setting')).to.equal(setting);
-    expect(input.prop('value')).to.equal('foo');
-    expect(input.prop('onChange')).to.equal(onChange);
-  });
+it('should render PropertySetInput', () => {
+  const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
+  const value = [{ foo: 'bar' }];
+  const onChange = jest.fn();
+  const input = shallow(<Input setting={setting} value={value} onChange={onChange}/>).find(PropertySetInput);
+  expect(input.length).toBe(1);
+  expect(input.prop('setting')).toBe(setting);
+  expect(input.prop('value')).toBe(value);
+  expect(input.prop('onChange')).toBe(onChange);
 });

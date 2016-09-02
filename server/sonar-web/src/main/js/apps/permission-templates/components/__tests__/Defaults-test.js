@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Defaults from '../Defaults';
@@ -28,16 +27,14 @@ const SAMPLE = {
   permissions: []
 };
 
-describe('Permission Templates :: Defaults', () => {
-  it('should render one qualifier', () => {
-    const sample = { ...SAMPLE, defaultFor: ['DEV'] };
-    const output = shallow(<Defaults permissionTemplate={sample}/>);
-    expect(output.text()).to.contain('DEV');
-  });
+it('should render one qualifier', () => {
+  const sample = { ...SAMPLE, defaultFor: ['DEV'] };
+  const output = shallow(<Defaults permissionTemplate={sample}/>);
+  expect(output.text()).toContain('DEV');
+});
 
-  it('should render several qualifiers', () => {
-    const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-    const output = shallow(<Defaults permissionTemplate={sample}/>);
-    expect(output.text()).to.contain('TRK');
-  });
+it('should render several qualifiers', () => {
+  const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
+  const output = shallow(<Defaults permissionTemplate={sample}/>);
+  expect(output.text()).toContain('TRK');
 });

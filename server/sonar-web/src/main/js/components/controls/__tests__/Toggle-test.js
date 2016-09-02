@@ -17,37 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import Toggle from '../Toggle';
-
-chai.use(sinonChai);
+import { click } from '../../../../../../tests/utils';
 
 function getSample (props) {
   return (
       <Toggle value={true} onChange={() => true} {...props}/>);
 }
 
-function click (element) {
-  return element.simulate('click', {
-    currentTarget: { blur () {} },
-    preventDefault () {}
-  });
-}
+it('should render', () => {
+  const Toggle = shallow(getSample());
+  expect(Toggle.is('button')).toBe(true);
+});
 
-describe('Components :: Controls :: Toggle', () => {
-  it('should render', () => {
-    const Toggle = shallow(getSample());
-    expect(Toggle.is('button')).to.equal(true);
-  });
-
-  it('should call onChange', () => {
-    const onChange = sinon.spy();
-    const Toggle = shallow(getSample({ onChange }));
-    click(Toggle);
-    expect(onChange).to.have.been.calledWith(false);
-  });
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const Toggle = shallow(getSample({ onChange }));
+  click(Toggle);
+  expect(onChange).toBeCalledWith(false);
 });

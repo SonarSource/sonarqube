@@ -8,6 +8,7 @@
     "autoprefixer": "6.2.2",
     "babel-core": "6.13.2",
     "babel-eslint": "^6.0.4",
+    "babel-jest": "15.0.0",
     "babel-loader": "6.2.4",
     "babel-plugin-react-transform": "2.0.2",
     "babel-plugin-transform-class-properties": "6.11.5",
@@ -21,7 +22,6 @@
     "backbone": "1.2.3",
     "backbone.marionette": "2.4.3",
     "blueimp-md5": "1.1.1",
-    "chai": "3.3.0",
     "chalk": "1.1.3",
     "classnames": "2.2.0",
     "clipboard": "1.5.5",
@@ -40,15 +40,13 @@
     "handlebars-loader": "1.1.4",
     "history": "2.0.0",
     "imports-loader": "0.6.5",
+    "jest-cli": "15.1.0",
     "jquery": "2.2.0",
-    "jsdom": "6.5.1",
     "less": "2.7.1",
     "less-loader": "2.2.3",
     "lodash": "4.6.1",
-    "mocha": "2.3.4",
     "moment": "2.10.6",
     "numeral": "1.5.3",
-    "nyc": "^8.1.0",
     "postcss-loader": "0.8.0",
     "react": "15.0.1",
     "react-addons-shallow-compare": "15.0.1",
@@ -66,8 +64,6 @@
     "redux-thunk": "1.0.2",
     "rimraf": "2.5.4",
     "script-loader": "0.6.1",
-    "sinon": "1.15.4",
-    "sinon-chai": "2.8.0",
     "style-loader": "0.13.0",
     "underscore": "1.8.3",
     "webpack": "1.13.0",
@@ -79,11 +75,28 @@
     "start": "node ./scripts/start.js",
     "build-fast": "node ./scripts/build.js --fast",
     "build": "node ./scripts/build.js",
-    "test": "cross-env NODE_ENV=test mocha --opts tests/mocha.opts src/main/js/**/__tests__/**/*",
-    "coverage": "cross-env NODE_ENV=test nyc mocha --opts tests/mocha.opts src/main/js/**/__tests__/**/* && nyc report --reporter lcov --report-dir target/coverage",
+    "test": "cross-env NODE_ENV=test jest",
+    "coverage": "npm test -- --coverage",
     "lint": "eslint src/main/js"
   },
   "engines": {
     "node": ">=4"
+  },
+  "jest": {
+    "coverageDirectory": "<rootDir>/target/coverage",
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/tests"
+    ],
+    "moduleNameMapper": {
+      "^[./a-zA-Z0-9$_-]+\\.(css|hbs)": "<rootDir>/tests/FileStub.js"
+    },
+    "setupFiles": [
+      "<rootDir>/tests/SetupTestEnvironment.js"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/src/main/webapp"
+    ]
   }
 }

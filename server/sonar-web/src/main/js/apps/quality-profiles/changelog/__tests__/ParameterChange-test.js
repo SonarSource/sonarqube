@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import ParameterChange from '../ParameterChange';
 
-describe('Quality Profiles :: ParameterChange', () => {
-  it('should render different messages', () => {
-    const first = shallow(<ParameterChange name="foo"/>);
-    const second = shallow(<ParameterChange name="foo" value="bar"/>);
-    expect(first.text()).to.not.be.equal(second.text());
-  });
+it('should render different messages', () => {
+  const first = shallow(<ParameterChange name="foo"/>);
+  const second = shallow(<ParameterChange name="foo" value="bar"/>);
+  expect(first.text()).not.toBe(second.text());
 });

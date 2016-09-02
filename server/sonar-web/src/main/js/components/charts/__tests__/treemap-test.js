@@ -18,27 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { Treemap, TreemapRect } from '../treemap';
 
-import { Treemap } from '../treemap';
-
-describe('Treemap', function () {
-
-  it('should display', function () {
-    const items = [
-      { size: 10, color: '#777', label: 'SonarQube :: Server' },
-      { size: 30, color: '#777', label: 'SonarQube :: Web' },
-      { size: 20, color: '#777', label: 'SonarQube :: Search' }
-    ];
-    const chart = TestUtils.renderIntoDocument(
-        <Treemap
-            items={items}
-            width={100}
-            height={100}
-            breadcrumbs={[]}
-            canBeClicked={() => true}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'treemap-cell')).to.have.length(3);
-  });
-
+it('should display', function () {
+  const items = [
+    { size: 10, color: '#777', label: 'SonarQube :: Server' },
+    { size: 30, color: '#777', label: 'SonarQube :: Web' },
+    { size: 20, color: '#777', label: 'SonarQube :: Search' }
+  ];
+  const chart = shallow(
+      <Treemap
+          items={items}
+          width={100}
+          height={100}
+          breadcrumbs={[]}
+          canBeClicked={() => true}/>);
+  expect(chart.find(TreemapRect).length).toBe(3);
 });

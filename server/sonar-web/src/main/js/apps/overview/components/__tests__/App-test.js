@@ -18,50 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
 import App from '../App';
 import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
 
-describe('Overview :: App', () => {
-  it('should render OverviewApp', () => {
-    const component = {
-      id: 'id',
-      snapshotDate: '2016-01-01'
-    };
+it('should render OverviewApp', () => {
+  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const output = shallow(<App component={component}/>);
+  expect(output.type()).toBe(OverviewApp);
+});
 
-    const output = shallow(
-        <App component={component}/>
-    );
+it('should render EmptyOverview', () => {
+  const component = { id: 'id' };
+  const output = shallow(<App component={component}/>);
+  expect(output.type()).toBe(EmptyOverview);
+});
 
-    expect(output.type())
-        .to.equal(OverviewApp);
-  });
-
-  it('should render EmptyOverview', () => {
-    const component = { id: 'id' };
-
-    const output = shallow(
-        <App component={component}/>
-    );
-
-    expect(output.type())
-        .to.equal(EmptyOverview);
-  });
-
-  it('should pass leakPeriodIndex', () => {
-    const component = {
-      id: 'id',
-      snapshotDate: '2016-01-01'
-    };
-
-    const output = shallow(
-        <App component={component}/>
-    );
-
-    expect(output.prop('leakPeriodIndex'))
-        .to.equal('1');
-  });
+it('should pass leakPeriodIndex', () => {
+  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const output = shallow(<App component={component}/>);
+  expect(output.prop('leakPeriodIndex')).toBe('1');
 });

@@ -53,13 +53,12 @@ export default class Stats extends React.Component {
     if (this.props.pendingCount > 0) {
       return (
           <span>
-            <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
+            <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
             &nbsp;
             {translate('background_tasks.pending')}
             <a
-                ref="cancelPending"
                 onClick={this.handleCancelAllPending.bind(this)}
-                className="icon-delete spacer-left"
+                className="js-cancel-pending icon-delete spacer-left"
                 title={translate('background_tasks.cancel_all_tasks')}
                 data-toggle="tooltip"
                 href="#"/>
@@ -68,7 +67,7 @@ export default class Stats extends React.Component {
     } else {
       return (
           <span>
-            <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
+            <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
             &nbsp;
             {translate('background_tasks.pending')}
           </span>
@@ -88,9 +87,8 @@ export default class Stats extends React.Component {
     if (this.props.failingCount > 0) {
       return (
           <span>
-            <a ref="failureCount"
-               onClick={this.handleShowFailing.bind(this)}
-               className="emphasised-measure"
+            <a onClick={this.handleShowFailing.bind(this)}
+               className="js-failures-count emphasised-measure"
                data-toggle="tooltip"
                title="Count of projects where processing of most recent analysis report failed"
                href="#">{this.props.failingCount}</a>
@@ -101,7 +99,7 @@ export default class Stats extends React.Component {
     } else {
       return (
           <span>
-            <span ref="failureCount" className="emphasised-measure" data-toggle="tooltip"
+            <span className="js-failures-count emphasised-measure" data-toggle="tooltip"
                   title="Count of projects where processing of most recent analysis report failed">
               {this.props.failingCount}
             </span>

@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Level from '../Level';
 
-describe('Components :: UI :: Level', () => {
-  it('should render', () => {
-    const rating = shallow(
-        <Level level="ERROR"/>
-    );
-    expect(rating.is('.level-ERROR')).to.equal(true);
-  });
+it('should render', () => {
+  const rating = shallow(<Level level="ERROR"/>);
+  expect(rating.is('.level-ERROR')).toBe(true);
 });

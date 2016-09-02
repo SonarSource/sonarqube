@@ -18,43 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import InputForText from '../InputForText';
 import { change } from '../../../../../../../../tests/utils';
 
-describe('Settings :: Inputs :: InputForText', () => {
-  it('should render textarea', () => {
-    const onChange = sinon.spy();
-    const textarea = shallow(
-        <InputForText
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('textarea');
-    expect(textarea).to.have.length(1);
-    expect(textarea.prop('name')).to.equal('foo');
-    expect(textarea.prop('value')).to.equal('bar');
-    expect(textarea.prop('onChange')).to.be.a('function');
-  });
+it('should render textarea', () => {
+  const onChange = jest.fn();
+  const textarea = shallow(
+      <InputForText
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('name')).toBe('foo');
+  expect(textarea.prop('value')).toBe('bar');
+  expect(textarea.prop('onChange')).toBeTruthy();
+});
 
-  it('should call onChange', () => {
-    const onChange = sinon.spy();
-    const textarea = shallow(
-        <InputForText
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('textarea');
-    expect(textarea).to.have.length(1);
-    expect(textarea.prop('onChange')).to.be.a('function');
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const textarea = shallow(
+      <InputForText
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('onChange')).toBeTruthy();
 
-    change(textarea, 'qux');
+  change(textarea, 'qux');
 
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal(['qux']);
-  });
+  expect(onChange).toBeCalledWith('qux');
 });

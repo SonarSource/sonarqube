@@ -17,45 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import ListFooter from '../ListFooter';
+import { click } from '../../../../../../tests/utils';
 
-chai.use(sinonChai);
+it('should render "3 of 5 shown"', () => {
+  const listFooter = shallow(<ListFooter count={3} total={5}/>);
+  expect(listFooter.text()).toContain('x_of_y_shown.3.5');
+});
 
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+it('should not render "show more"', () => {
+  const listFooter = shallow(<ListFooter count={3} total={5}/>);
+  expect(listFooter.find('a').length).toBe(0);
+});
 
-describe('Components :: Controls :: ListFooter', () => {
-  it('should render "3 of 5 shown"', () => {
-    const listFooter = shallow(
-        <ListFooter count={3} total={5}/>
-    );
-    expect(listFooter.text()).to.contain('x_of_y_shown.3.5');
-  });
-
-  it('should not render "show more"', () => {
-    const listFooter = shallow(
-        <ListFooter count={3} total={5}/>
-    );
-    expect(listFooter.find('a')).to.have.length(0);
-  });
-
-  it('should "show more"', () => {
-    const loadMore = sinon.spy();
-    const listFooter = shallow(
-        <ListFooter count={3} total={5} loadMore={loadMore}/>
-    );
-    const link = listFooter.find('a');
-    expect(link).to.have.length(1);
-    click(link);
-    expect(loadMore).to.have.been.called;
-  });
+it('should "show more"', () => {
+  const loadMore = jest.fn();
+  const listFooter = shallow(<ListFooter count={3} total={5} loadMore={loadMore}/>);
+  const link = listFooter.find('a');
+  expect(link.length).toBe(1);
+  click(link);
+  expect(loadMore).toBeCalled();
 });

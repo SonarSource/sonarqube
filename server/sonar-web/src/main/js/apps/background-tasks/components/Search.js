@@ -151,7 +151,7 @@ export default class Search extends React.Component {
 
             <li className="bt-search-form-right">
               <button
-                  ref="reloadButton"
+                  className="js-reload"
                   onClick={this.handleReload.bind(this)}
                   disabled={loading}>
                 {translate('reload')}

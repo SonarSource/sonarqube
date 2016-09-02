@@ -17,54 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import FavoriteBase from '../FavoriteBase';
-
-chai.use(sinonChai);
-
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+import { click } from '../../../../../../tests/utils';
 
 function renderFavoriteBase (props) {
   return shallow(
       <FavoriteBase
           favorite={true}
-          addFavorite={sinon.stub().throws()}
-          removeFavorite={sinon.stub().throws()}
+          addFavorite={jest.fn()}
+          removeFavorite={jest.fn()}
           {...props}/>
   );
 }
 
-describe('Components :: Controls :: FavoriteBase', () => {
-  it('should render favorite', () => {
-    const favorite = renderFavoriteBase({ favorite: true });
-    expect(favorite.is('.icon-star-favorite')).to.equal(true);
-  });
+it('should render favorite', () => {
+  const favorite = renderFavoriteBase({ favorite: true });
+  expect(favorite.is('.icon-star-favorite')).toBe(true);
+});
 
-  it('should render not favorite', () => {
-    const favorite = renderFavoriteBase({ favorite: false });
-    expect(favorite.is('.icon-star-favorite')).to.equal(false);
-  });
+it('should render not favorite', () => {
+  const favorite = renderFavoriteBase({ favorite: false });
+  expect(favorite.is('.icon-star-favorite')).toBe(false);
+});
 
-  it('should add favorite', () => {
-    const addFavorite = sinon.stub().returns(Promise.resolve());
-    const favorite = renderFavoriteBase({ favorite: false, addFavorite });
-    click(favorite.find('a'));
-    expect(addFavorite).to.have.been.called;
-  });
+it('should add favorite', () => {
+  const addFavorite = jest.fn(() => Promise.resolve());
+  const favorite = renderFavoriteBase({ favorite: false, addFavorite });
+  click(favorite.find('a'));
+  expect(addFavorite).toBeCalled();
+});
 
-  it('should remove favorite', () => {
-    const removeFavorite = sinon.stub().returns(Promise.resolve());
-    const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
-    click(favorite.find('a'));
-    expect(removeFavorite).to.have.been.called;
-  });
+it('should remove favorite', () => {
+  const removeFavorite = jest.fn(() => Promise.resolve());
+  const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
+  click(favorite.find('a'));
+  expect(removeFavorite).toBeCalled();
 });

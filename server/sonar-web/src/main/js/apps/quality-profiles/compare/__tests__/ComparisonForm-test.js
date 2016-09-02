@@ -17,33 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Select from 'react-select';
 import ComparisonForm from '../ComparisonForm';
 import { createFakeProfile } from '../../utils';
 
-describe('Quality Profiles :: ComparisonForm', () => {
-  it('should render Select with right options', () => {
-    const profile = createFakeProfile();
-    const profiles = [
-      profile,
-      createFakeProfile({ key: 'another', name: 'another name' }),
-      createFakeProfile({ key: 'java', name: 'java', language: 'java' })
-    ];
+it('should render Select with right options', () => {
+  const profile = createFakeProfile();
+  const profiles = [
+    profile,
+    createFakeProfile({ key: 'another', name: 'another name' }),
+    createFakeProfile({ key: 'java', name: 'java', language: 'java' })
+  ];
 
-    const output = shallow(
-        <ComparisonForm
-            withKey="another"
-            profile={profile}
-            profiles={profiles}
-            onCompare={() => true}/>
-    ).find(Select);
-    expect(output).to.have.length(1);
-    expect(output.prop('value')).to.equal('another');
-    expect(output.prop('options')).to.deep.equal([
-      { value: 'another', label: 'another name' }
-    ]);
-  });
+  const output = shallow(
+      <ComparisonForm
+          withKey="another"
+          profile={profile}
+          profiles={profiles}
+          onCompare={() => true}/>
+  ).find(Select);
+  expect(output.length).toBe(1);
+  expect(output.prop('value')).toBe('another');
+  expect(output.prop('options')).toEqual([{ value: 'another', label: 'another name' }]);
 });

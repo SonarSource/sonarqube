@@ -18,21 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
+import { shallow } from 'enzyme';
+import { WordCloud, Word } from '../word-cloud';
 
-import { WordCloud } from '../word-cloud';
-
-describe('Word Cloud', function () {
-
-  it('should display', function () {
-    const items = [
-      { size: 10, link: '#', text: 'SonarQube :: Server' },
-      { size: 30, link: '#', text: 'SonarQube :: Web' },
-      { size: 20, link: '#', text: 'SonarQube :: Search' }
-    ];
-    const chart = TestUtils.renderIntoDocument(<WordCloud items={items} width={100} height={100}/>);
-    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'a')).to.have.length(3);
-  });
-
+it('should display', function () {
+  const items = [
+    { size: 10, link: '#', text: 'SonarQube :: Server' },
+    { size: 30, link: '#', text: 'SonarQube :: Web' },
+    { size: 20, link: '#', text: 'SonarQube :: Search' }
+  ];
+  const chart = shallow(<WordCloud items={items} width={100} height={100}/>);
+  expect(chart.find(Word).length).toBe(3);
 });

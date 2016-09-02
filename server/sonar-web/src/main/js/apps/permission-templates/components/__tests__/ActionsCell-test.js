@@ -17,14 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import ActionsCell from '../ActionsCell';
-
-chai.use(sinonChai);
 
 const SAMPLE = {
   id: 'id',
@@ -43,21 +38,15 @@ function renderActionsCell (props) {
   );
 }
 
-describe('Permission Templates :: ActionsCell', () => {
-  it('should set default', () => {
-    const setDefault = renderActionsCell()
-        .find('.js-set-default');
+it('should set default', () => {
+  const setDefault = renderActionsCell().find('.js-set-default');
+  expect(setDefault.length).toBe(2);
+  expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');
+  expect(setDefault.at(1).prop('data-qualifier')).toBe('VW');
+});
 
-    expect(setDefault).to.have.length(2);
-    expect(setDefault.at(0).prop('data-qualifier')).to.equal('TRK');
-    expect(setDefault.at(1).prop('data-qualifier')).to.equal('VW');
-  });
-
-  it('should not set default', () => {
-    const permissionTemplate = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-    const setDefault = renderActionsCell({ permissionTemplate })
-        .find('.js-set-default');
-
-    expect(setDefault).to.have.length(0);
-  });
+it('should not set default', () => {
+  const permissionTemplate = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
+  const setDefault = renderActionsCell({ permissionTemplate }).find('.js-set-default');
+  expect(setDefault.length).toBe(0);
 });

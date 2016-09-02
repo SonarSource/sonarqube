@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import chai, { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
 import React from 'react';
 import RadioToggle from '../RadioToggle';
-
-chai.use(sinonChai);
+import { change } from '../../../../../../tests/utils';
 
 function getSample (props) {
   const options = [
@@ -40,21 +36,15 @@ function getSample (props) {
   );
 }
 
-function change (element, value) {
-  return element.simulate('change', { currentTarget: { value } });
-}
+it('should render', () => {
+  const radioToggle = shallow(getSample());
+  expect(radioToggle.find('input[type="radio"]').length).toBe(2);
+  expect(radioToggle.find('label').length).toBe(2);
+});
 
-describe('Components :: Controls :: RadioToggle', () => {
-  it('should render', () => {
-    const radioToggle = shallow(getSample());
-    expect(radioToggle.find('input[type="radio"]')).to.have.length(2);
-    expect(radioToggle.find('label')).to.have.length(2);
-  });
-
-  it('should call onCheck', () => {
-    const onCheck = sinon.spy();
-    const radioToggle = shallow(getSample({ onCheck }));
-    change(radioToggle.find('input[value="two"]'), 'two');
-    expect(onCheck).to.have.been.calledWith('two');
-  });
+it('should call onCheck', () => {
+  const onCheck = jest.fn();
+  const radioToggle = shallow(getSample({ onCheck }));
+  change(radioToggle.find('input[value="two"]'), 'two');
+  expect(onCheck).toBeCalledWith('two');
 });

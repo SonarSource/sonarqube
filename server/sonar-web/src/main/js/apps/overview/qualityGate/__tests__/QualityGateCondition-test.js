@@ -18,44 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
 import QualityGateCondition from '../QualityGateCondition';
 import { DrilldownLink } from '../../../../components/shared/drilldown-link';
 
-describe('Overview :: QualityGateCondition', () => {
-  it('should render DrilldownLink', () => {
-    const component = {
-      id: 'abcd',
-      key: 'abcd-key'
-    };
-    const periods = [];
-    const condition = {
-      actual: '10',
-      error: '0',
-      level: 'ERROR',
-      measure: {
-        metric: {
-          key: 'open_issues',
-          type: 'INT',
-          name: 'Open Issues'
-        },
-        value: '10'
+it('should render DrilldownLink', () => {
+  const component = {
+    id: 'abcd',
+    key: 'abcd-key'
+  };
+  const periods = [];
+  const condition = {
+    actual: '10',
+    error: '0',
+    level: 'ERROR',
+    measure: {
+      metric: {
+        key: 'open_issues',
+        type: 'INT',
+        name: 'Open Issues'
       },
-      metric: 'open_issues',
-      op: 'GT'
-    };
+      value: '10'
+    },
+    metric: 'open_issues',
+    op: 'GT'
+  };
 
-    const output = shallow(
-        <QualityGateCondition
-            component={component}
-            periods={periods}
-            condition={condition}/>
-    );
+  const output = shallow(
+      <QualityGateCondition
+          component={component}
+          periods={periods}
+          condition={condition}/>
+  );
 
-    const link = output.find(DrilldownLink);
-    expect(link.prop('component')).to.equal('abcd-key');
-    expect(link.prop('metric')).to.equal('open_issues');
-  });
+  const link = output.find(DrilldownLink);
+  expect(link.prop('component')).toBe('abcd-key');
+  expect(link.prop('metric')).toBe('open_issues');
 });

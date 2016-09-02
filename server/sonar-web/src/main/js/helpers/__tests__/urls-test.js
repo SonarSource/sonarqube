@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
-
 import { getComponentUrl, getComponentIssuesUrl, getComponentDrilldownUrl } from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
@@ -26,75 +24,73 @@ const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
 const COMPLEX_COMPONENT_KEY_ENCODED = encodeURIComponent(COMPLEX_COMPONENT_KEY);
 const METRIC = 'coverage';
 
-describe('URLs', function () {
-  let oldBaseUrl;
+let oldBaseUrl;
 
-  beforeEach(function () {
-    oldBaseUrl = window.baseUrl;
+beforeEach(function () {
+  oldBaseUrl = window.baseUrl;
+});
+
+afterEach(function () {
+  window.baseUrl = oldBaseUrl;
+});
+
+describe('#getComponentUrl', function () {
+  it('should return component url', function () {
+    expect(getComponentUrl(SIMPLE_COMPONENT_KEY)).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
   });
 
-  afterEach(function () {
-    window.baseUrl = oldBaseUrl;
+  it('should encode component key', function () {
+    expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 
-  describe('#getComponentUrl', function () {
-    it('should return component url', function () {
-      expect(getComponentUrl(SIMPLE_COMPONENT_KEY)).to.equal('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
-    });
+  it('should take baseUrl into account', function () {
+    window.baseUrl = '/context';
+    expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+  });
+});
 
-    it('should encode component key', function () {
-      expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).to.equal('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
-    });
-
-    it('should take baseUrl into account', function () {
-      window.baseUrl = '/context';
-      expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).to.equal('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
-    });
+describe('#getComponentIssuesUrl', function () {
+  it('should work without parameters', function () {
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).toBe(
+        '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
   });
 
-  describe('#getComponentIssuesUrl', function () {
-    it('should work without parameters', function () {
-      expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).to.equal(
-          '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
-    });
-
-    it('should encode component key', function () {
-      expect(getComponentIssuesUrl(COMPLEX_COMPONENT_KEY, {})).to.equal(
-          '/component_issues?id=' + COMPLEX_COMPONENT_KEY_ENCODED + '#');
-    });
-
-    it('should work with parameters', function () {
-      expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).to.equal(
-          '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#resolved=false');
-    });
-
-    it('should encode parameters', function () {
-      expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { componentUuids: COMPLEX_COMPONENT_KEY })).to.equal(
-          '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#componentUuids=' + COMPLEX_COMPONENT_KEY_ENCODED);
-    });
-
-    it('should take baseUrl into account', function () {
-      window.baseUrl = '/context';
-      expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).to.equal(
-          '/context/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
-    });
+  it('should encode component key', function () {
+    expect(getComponentIssuesUrl(COMPLEX_COMPONENT_KEY, {})).toBe(
+        '/component_issues?id=' + COMPLEX_COMPONENT_KEY_ENCODED + '#');
   });
 
-  describe('#getComponentDrilldownUrl', function () {
-    it('should return component drilldown url', function () {
-      expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).to.equal(
-          '/component_measures/metric/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
-    });
+  it('should work with parameters', function () {
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toBe(
+        '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#resolved=false');
+  });
 
-    it('should encode component key', function () {
-      expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).to.equal(
-          '/component_measures/metric/' + METRIC + '?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
-    });
+  it('should encode parameters', function () {
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { componentUuids: COMPLEX_COMPONENT_KEY })).toBe(
+        '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#componentUuids=' + COMPLEX_COMPONENT_KEY_ENCODED);
+  });
 
-    it('should take baseUrl into account', function () {
-      window.baseUrl = '/context';
-      expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).to.equal(
-          '/context/component_measures/metric/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
-    });
+  it('should take baseUrl into account', function () {
+    window.baseUrl = '/context';
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).toBe(
+        '/context/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
+  });
+});
+
+describe('#getComponentDrilldownUrl', function () {
+  it('should return component drilldown url', function () {
+    expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).toBe(
+        '/component_measures/metric/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
+  });
+
+  it('should encode component key', function () {
+    expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).toBe(
+        '/component_measures/metric/' + METRIC + '?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+  });
+
+  it('should take baseUrl into account', function () {
+    window.baseUrl = '/context';
+    expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).toBe(
+        '/context/component_measures/metric/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
   });
 });

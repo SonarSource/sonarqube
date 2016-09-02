@@ -18,26 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import InputForNumber from '../InputForNumber';
 import SimpleInput from '../SimpleInput';
 
-describe('Settings :: Inputs :: InputForNumber', () => {
-  it('should render SimpleInput', () => {
-    const onChange = sinon.spy();
-    const simpleInput = shallow(
-        <InputForNumber
-            name="foo"
-            value={17}
-            isDefault={false}
-            onChange={onChange}/>
-    ).find(SimpleInput);
-    expect(simpleInput).to.have.length(1);
-    expect(simpleInput.prop('name')).to.equal('foo');
-    expect(simpleInput.prop('value')).to.equal(17);
-    expect(simpleInput.prop('type')).to.equal('text');
-    expect(simpleInput.prop('onChange')).to.be.a('function');
-  });
+it('should render SimpleInput', () => {
+  const onChange = jest.fn();
+  const simpleInput = shallow(
+      <InputForNumber
+          name="foo"
+          value={17}
+          isDefault={false}
+          onChange={onChange}/>
+  ).find(SimpleInput);
+  expect(simpleInput.length).toBe(1);
+  expect(simpleInput.prop('name')).toBe('foo');
+  expect(simpleInput.prop('value')).toBe(17);
+  expect(simpleInput.prop('type')).toBe('text');
+  expect(simpleInput.prop('onChange')).toBeTruthy();
 });

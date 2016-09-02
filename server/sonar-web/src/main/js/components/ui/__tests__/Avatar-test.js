@@ -17,42 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import Avatar from '../Avatar';
 
-describe('Components :: UI :: Avatar', () => {
-  beforeEach(() => {
-    window.SS = {
-      lf: {
-        enableGravatar: true,
-        gravatarServerUrl: 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}'
-      }
-    };
-  });
+beforeEach(() => {
+  window.SS = {
+    lf: {
+      enableGravatar: true,
+      gravatarServerUrl: 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}'
+    }
+  };
+});
 
-  afterEach(() => {
-    window.SS = undefined;
-  });
+afterEach(() => {
+  window.SS = undefined;
+});
 
-  it('should render', () => {
-    const avatar = shallow(
-        <Avatar email="mail@example.com" size={20}/>
-    );
-    expect(avatar.is('img')).to.equal(true);
-    expect(avatar.prop('width')).to.equal(20);
-    expect(avatar.prop('height')).to.equal(20);
-    expect(avatar.prop('alt')).to.equal('mail@example.com');
-    expect(avatar.prop('src')).to.equal(
-        'http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=40');
-  });
+it('should render', () => {
+  const avatar = shallow(<Avatar email="mail@example.com" size={20}/>);
+  expect(avatar.is('img')).toBe(true);
+  expect(avatar.prop('width')).toBe(20);
+  expect(avatar.prop('height')).toBe(20);
+  expect(avatar.prop('alt')).toBe('mail@example.com');
+  expect(avatar.prop('src')).toBe('http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=40');
+});
 
-  it('should not render', () => {
-    window.SS.lf.enableGravatar = false;
-    const avatar = shallow(
-        <Avatar email="mail@example.com" size={20}/>
-    );
-    expect(avatar.is('img')).to.equal(false);
-  });
+it('should not render', () => {
+  window.SS.lf.enableGravatar = false;
+  const avatar = shallow(<Avatar email="mail@example.com" size={20}/>);
+  expect(avatar.is('img')).toBe(false);
 });

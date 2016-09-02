@@ -18,49 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import SimpleInput from '../SimpleInput';
 import { change } from '../../../../../../../../tests/utils';
 
-describe('Settings :: Inputs :: SimpleInput', () => {
-  it('should render input', () => {
-    const onChange = sinon.spy();
-    const input = shallow(
-        <SimpleInput
-            type="text"
-            className="input-large"
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('input');
-    expect(input).to.have.length(1);
-    expect(input.prop('type')).to.equal('text');
-    expect(input.prop('className')).to.include('input-large');
-    expect(input.prop('name')).to.equal('foo');
-    expect(input.prop('value')).to.equal('bar');
-    expect(input.prop('onChange')).to.be.a('function');
-  });
+it('should render input', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <SimpleInput
+          type="text"
+          className="input-large"
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('input');
+  expect(input.length).toBe(1);
+  expect(input.prop('type')).toBe('text');
+  expect(input.prop('className')).toContain('input-large');
+  expect(input.prop('name')).toBe('foo');
+  expect(input.prop('value')).toBe('bar');
+  expect(input.prop('onChange')).toBeTruthy();
+});
 
-  it('should call onChange', () => {
-    const onChange = sinon.spy();
-    const input = shallow(
-        <SimpleInput
-            type="text"
-            className="input-large"
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('input');
-    expect(input).to.have.length(1);
-    expect(input.prop('onChange')).to.be.a('function');
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <SimpleInput
+          type="text"
+          className="input-large"
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('input');
+  expect(input.length).toBe(1);
+  expect(input.prop('onChange')).toBeTruthy();
 
-    change(input, 'qux');
+  change(input, 'qux');
 
-    expect(onChange.called).to.equal(true);
-    expect(onChange.lastCall.args).to.deep.equal(['qux']);
-  });
+  expect(onChange).toBeCalledWith('qux');
 });

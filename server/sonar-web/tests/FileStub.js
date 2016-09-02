@@ -17,23 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const click = element => {
-  return element.simulate('click', {
-    target: { blur () {} },
-    currentTarget: { blur () {} },
-    preventDefault () {}
-  });
-};
-
-export const submit = element => {
-  return element.simulate('submit', {
-    preventDefault () {}
-  });
-};
-
-export const change = (element, value) => {
-  return element.simulate('change', {
-    target: { value },
-    currentTarget: { value }
-  });
-};
+module.exports = 'test-file-stub';

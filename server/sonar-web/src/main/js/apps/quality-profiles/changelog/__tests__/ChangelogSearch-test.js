@@ -17,52 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import React from 'react';
 import ChangelogSearch from '../ChangelogSearch';
 import DateInput from '../../../../components/controls/DateInput';
+import { click } from '../../../../../../../tests/utils';
 
-function click (element) {
-  return element.simulate('click', {
-    target: { blur () {} },
-    preventDefault () {}
-  });
-}
+it('should render DateInput', () => {
+  const onFromDateChange = jest.fn();
+  const onToDateChange = jest.fn();
+  const output = shallow(
+      <ChangelogSearch
+          fromDate="2016-01-01"
+          toDate="2016-05-05"
+          onFromDateChange={onFromDateChange}
+          onToDateChange={onToDateChange}
+          onReset={jest.fn()}/>
+  );
+  const dateInputs = output.find(DateInput);
+  expect(dateInputs.length).toBe(2);
+  expect(dateInputs.at(0).prop('value')).toBe('2016-01-01');
+  expect(dateInputs.at(0).prop('onChange')).toBe(onFromDateChange);
+  expect(dateInputs.at(1).prop('value')).toBe('2016-05-05');
+  expect(dateInputs.at(1).prop('onChange')).toBe(onToDateChange);
+});
 
-describe('Quality Profiles :: ChangelogSearch', () => {
-  it('should render DateInput', () => {
-    const onFromDateChange = sinon.spy();
-    const onToDateChange = sinon.spy();
-    const output = shallow(
-        <ChangelogSearch
-            fromDate="2016-01-01"
-            toDate="2016-05-05"
-            onFromDateChange={onFromDateChange}
-            onToDateChange={onToDateChange}
-            onReset={sinon.spy()}/>
-    );
-    const dateInputs = output.find(DateInput);
-    expect(dateInputs).to.have.length(2);
-    expect(dateInputs.at(0).prop('value')).to.equal('2016-01-01');
-    expect(dateInputs.at(0).prop('onChange')).to.equal(onFromDateChange);
-    expect(dateInputs.at(1).prop('value')).to.equal('2016-05-05');
-    expect(dateInputs.at(1).prop('onChange')).to.equal(onToDateChange);
-  });
-
-  it('should reset', () => {
-    const onReset = sinon.spy();
-    const output = shallow(
-        <ChangelogSearch
-            fromDate="2016-01-01"
-            toDate="2016-05-05"
-            onFromDateChange={sinon.spy()}
-            onToDateChange={sinon.spy()}
-            onReset={onReset}/>
-    );
-    expect(onReset.called).to.equal(false);
-    click(output.find('button'));
-    expect(onReset.called).to.equal(true);
-  });
+it('should reset', () => {
+  const onReset = jest.fn();
+  const output = shallow(
+      <ChangelogSearch
+          fromDate="2016-01-01"
+          toDate="2016-05-05"
+          onFromDateChange={jest.fn()}
+          onToDateChange={jest.fn()}
+          onReset={onReset}/>
+  );
+  expect(onReset).not.toBeCalled();
+  click(output.find('button'));
+  expect(onReset).toBeCalled();
 });

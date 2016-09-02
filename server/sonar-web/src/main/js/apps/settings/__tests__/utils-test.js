@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { expect } from 'chai';
 import { getEmptyValue } from '../utils';
 import { TYPE_PROPERTY_SET, TYPE_STRING, TYPE_SINGLE_SELECT_LIST, TYPE_BOOLEAN } from '../constants';
 
@@ -26,21 +25,19 @@ const fields = [
   { key: 'bar', type: TYPE_SINGLE_SELECT_LIST }
 ];
 
-describe('Settings :: Utils', () => {
-  describe('#getEmptyValue()', () => {
-    it('should work for property sets', () => {
-      const setting = { type: TYPE_PROPERTY_SET, fields };
-      expect(getEmptyValue(setting)).to.deep.equal([{ foo: '', bar: null }]);
-    });
+describe('#getEmptyValue()', () => {
+  it('should work for property sets', () => {
+    const setting = { type: TYPE_PROPERTY_SET, fields };
+    expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
+  });
 
-    it('should work for multi values string', () => {
-      const setting = { type: TYPE_STRING, multiValues: true };
-      expect(getEmptyValue(setting)).to.deep.equal(['']);
-    });
+  it('should work for multi values string', () => {
+    const setting = { type: TYPE_STRING, multiValues: true };
+    expect(getEmptyValue(setting)).toEqual(['']);
+  });
 
-    it('should work for multi values boolean', () => {
-      const setting = { type: TYPE_BOOLEAN, multiValues: true };
-      expect(getEmptyValue(setting)).to.deep.equal([null]);
-    });
+  it('should work for multi values boolean', () => {
+    const setting = { type: TYPE_BOOLEAN, multiValues: true };
+    expect(getEmptyValue(setting)).toEqual([null]);
   });
 });

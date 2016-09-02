@@ -18,22 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-
+import { shallow } from 'enzyme';
 import ComponentNavBreadcrumbs from '../component/component-nav-breadcrumbs';
 
-describe('Nav', function () {
-  describe('ComponentNavBreadcrumbs', () => {
-    it('should not render breadcrumbs with one element', function () {
-      const breadcrumbs = [
-        { key: 'my-project', name: 'My Project', qualifier: 'TRK' }
-      ];
-      const result = TestUtils.renderIntoDocument(
-          React.createElement(ComponentNavBreadcrumbs, { breadcrumbs })
-      );
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'li')).to.have.length(1);
-      expect(TestUtils.scryRenderedDOMComponentsWithTag(result, 'a')).to.have.length(1);
-    });
+describe('ComponentNavBreadcrumbs', () => {
+  it('should not render breadcrumbs with one element', function () {
+    const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
+    const result = shallow(<ComponentNavBreadcrumbs breadcrumbs={breadcrumbs}/>);
+    expect(result.find('li').length).toBe(1);
+    expect(result.find('a').length).toBe(1);
   });
 });
