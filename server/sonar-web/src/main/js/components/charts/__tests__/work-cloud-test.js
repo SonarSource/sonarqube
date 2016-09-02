@@ -21,16 +21,12 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { WordCloud, Word } from '../word-cloud';
 
-describe('Word Cloud', function () {
-
-  it('should display', function () {
-    const items = [
-      { size: 10, link: '#', text: 'SonarQube :: Server' },
-      { size: 30, link: '#', text: 'SonarQube :: Web' },
-      { size: 20, link: '#', text: 'SonarQube :: Search' }
-    ];
-    const chart = shallow(<WordCloud items={items} width={100} height={100}/>);
-    expect(chart.find(Word).length).toBe(3);
-  });
-
+it('should display', function () {
+  const items = [
+    { size: 10, link: '#', text: 'SonarQube :: Server' },
+    { size: 30, link: '#', text: 'SonarQube :: Web' },
+    { size: 20, link: '#', text: 'SonarQube :: Search' }
+  ];
+  const chart = shallow(<WordCloud items={items} width={100} height={100}/>);
+  expect(chart.find(Word).length).toBe(3);
 });

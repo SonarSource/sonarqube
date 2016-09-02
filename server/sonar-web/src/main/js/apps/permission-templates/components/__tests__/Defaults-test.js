@@ -27,16 +27,14 @@ const SAMPLE = {
   permissions: []
 };
 
-describe('Permission Templates :: Defaults', () => {
-  it('should render one qualifier', () => {
-    const sample = { ...SAMPLE, defaultFor: ['DEV'] };
-    const output = shallow(<Defaults permissionTemplate={sample}/>);
-    expect(output.text()).toContain('DEV');
-  });
+it('should render one qualifier', () => {
+  const sample = { ...SAMPLE, defaultFor: ['DEV'] };
+  const output = shallow(<Defaults permissionTemplate={sample}/>);
+  expect(output.text()).toContain('DEV');
+});
 
-  it('should render several qualifiers', () => {
-    const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-    const output = shallow(<Defaults permissionTemplate={sample}/>);
-    expect(output.text()).toContain('TRK');
-  });
+it('should render several qualifiers', () => {
+  const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
+  const output = shallow(<Defaults permissionTemplate={sample}/>);
+  expect(output.text()).toContain('TRK');
 });

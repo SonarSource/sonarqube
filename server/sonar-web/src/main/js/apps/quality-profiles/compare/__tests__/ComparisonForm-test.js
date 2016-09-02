@@ -23,26 +23,24 @@ import Select from 'react-select';
 import ComparisonForm from '../ComparisonForm';
 import { createFakeProfile } from '../../utils';
 
-describe('Quality Profiles :: ComparisonForm', () => {
-  it('should render Select with right options', () => {
-    const profile = createFakeProfile();
-    const profiles = [
-      profile,
-      createFakeProfile({ key: 'another', name: 'another name' }),
-      createFakeProfile({ key: 'java', name: 'java', language: 'java' })
-    ];
+it('should render Select with right options', () => {
+  const profile = createFakeProfile();
+  const profiles = [
+    profile,
+    createFakeProfile({ key: 'another', name: 'another name' }),
+    createFakeProfile({ key: 'java', name: 'java', language: 'java' })
+  ];
 
-    const output = shallow(
-        <ComparisonForm
-            withKey="another"
-            profile={profile}
-            profiles={profiles}
-            onCompare={() => true}/>
-    ).find(Select);
-    expect(output.length).toBe(1);
-    expect(output.prop('value')).toBe('another');
-    expect(output.prop('options')).toEqual([
-      { value: 'another', label: 'another name' }
-    ]);
-  });
+  const output = shallow(
+      <ComparisonForm
+          withKey="another"
+          profile={profile}
+          profiles={profiles}
+          onCompare={() => true}/>
+  ).find(Select);
+  expect(output.length).toBe(1);
+  expect(output.prop('value')).toBe('another');
+  expect(output.prop('options')).toEqual([
+    { value: 'another', label: 'another name' }
+  ]);
 });

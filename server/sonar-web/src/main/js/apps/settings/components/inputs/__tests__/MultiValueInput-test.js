@@ -32,42 +32,40 @@ const assertValues = (inputs, values) => {
   });
 };
 
-describe('Settings :: Inputs :: MultiValueInput', () => {
-  it('should render one value', () => {
-    const multiValueInput = shallow(<MultiValueInput setting={{ definition }} value={['foo']} onChange={jest.fn()}/>);
-    const stringInputs = multiValueInput.find(PrimitiveInput);
-    expect(stringInputs.length).toBe(1 + 1);
-    assertValues(stringInputs, ['foo', '']);
-  });
+it('should render one value', () => {
+  const multiValueInput = shallow(<MultiValueInput setting={{ definition }} value={['foo']} onChange={jest.fn()}/>);
+  const stringInputs = multiValueInput.find(PrimitiveInput);
+  expect(stringInputs.length).toBe(1 + 1);
+  assertValues(stringInputs, ['foo', '']);
+});
 
-  it('should render several values', () => {
-    const multiValueInput = shallow(
-        <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={jest.fn()}/>);
-    const stringInputs = multiValueInput.find(PrimitiveInput);
-    expect(stringInputs.length).toBe(3 + 1);
-    assertValues(stringInputs, ['foo', 'bar', 'baz', '']);
-  });
+it('should render several values', () => {
+  const multiValueInput = shallow(
+      <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={jest.fn()}/>);
+  const stringInputs = multiValueInput.find(PrimitiveInput);
+  expect(stringInputs.length).toBe(3 + 1);
+  assertValues(stringInputs, ['foo', 'bar', 'baz', '']);
+});
 
-  it('should remove value', () => {
-    const onChange = jest.fn();
-    const multiValueInput = shallow(
-        <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange}/>);
-    click(multiValueInput.find('.js-remove-value').at(1));
-    expect(onChange).toBeCalledWith(['foo', 'baz']);
-  });
+it('should remove value', () => {
+  const onChange = jest.fn();
+  const multiValueInput = shallow(
+      <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange}/>);
+  click(multiValueInput.find('.js-remove-value').at(1));
+  expect(onChange).toBeCalledWith(['foo', 'baz']);
+});
 
-  it('should change existing value', () => {
-    const onChange = jest.fn();
-    const multiValueInput = shallow(
-        <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange}/>);
-    multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('qux');
-    expect(onChange).toBeCalledWith(['foo', 'qux', 'baz']);
-  });
+it('should change existing value', () => {
+  const onChange = jest.fn();
+  const multiValueInput = shallow(
+      <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange}/>);
+  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('qux');
+  expect(onChange).toBeCalledWith(['foo', 'qux', 'baz']);
+});
 
-  it('should add new value', () => {
-    const onChange = jest.fn();
-    const multiValueInput = shallow(<MultiValueInput setting={{ definition }} value={['foo']} onChange={onChange}/>);
-    multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('bar');
-    expect(onChange).toBeCalledWith(['foo', 'bar']);
-  });
+it('should add new value', () => {
+  const onChange = jest.fn();
+  const multiValueInput = shallow(<MultiValueInput setting={{ definition }} value={['foo']} onChange={onChange}/>);
+  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('bar');
+  expect(onChange).toBeCalledWith(['foo', 'bar']);
 });

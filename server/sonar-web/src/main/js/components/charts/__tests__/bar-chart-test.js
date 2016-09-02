@@ -21,75 +21,71 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { BarChart } from '../bar-chart';
 
-describe('Bar Chart', function () {
+it('should display bars', function () {
+  const data = [
+    { x: 1, y: 10 },
+    { x: 2, y: 30 },
+    { x: 3, y: 20 }
+  ];
+  const chart = shallow(
+      <BarChart
+          data={data}
+          width={100}
+          height={100}
+          barsWidth={20}/>);
+  expect(chart.find('.bar-chart-bar').length).toBe(3);
+});
 
-  it('should display bars', function () {
-    const data = [
-      { x: 1, y: 10 },
-      { x: 2, y: 30 },
-      { x: 3, y: 20 }
-    ];
-    const chart = shallow(
-        <BarChart
-            data={data}
-            width={100}
-            height={100}
-            barsWidth={20}/>);
-    expect(chart.find('.bar-chart-bar').length).toBe(3);
-  });
+it('should display ticks', function () {
+  const data = [
+    { x: 1, y: 10 },
+    { x: 2, y: 30 },
+    { x: 3, y: 20 }
+  ];
+  const ticks = ['A', 'B', 'C'];
+  const chart = shallow(
+      <BarChart
+          data={data}
+          xTicks={ticks}
+          width={100}
+          height={100}
+          barsWidth={20}/>);
+  expect(chart.find('.bar-chart-tick').length).toBe(3);
+});
 
-  it('should display ticks', function () {
-    const data = [
-      { x: 1, y: 10 },
-      { x: 2, y: 30 },
-      { x: 3, y: 20 }
-    ];
-    const ticks = ['A', 'B', 'C'];
-    const chart = shallow(
-        <BarChart
-            data={data}
-            xTicks={ticks}
-            width={100}
-            height={100}
-            barsWidth={20}/>);
-    expect(chart.find('.bar-chart-tick').length).toBe(3);
-  });
+it('should display values', function () {
+  const data = [
+    { x: 1, y: 10 },
+    { x: 2, y: 30 },
+    { x: 3, y: 20 }
+  ];
+  const values = ['A', 'B', 'C'];
+  const chart = shallow(
+      <BarChart
+          data={data}
+          xValues={values}
+          width={100}
+          height={100}
+          barsWidth={20}/>);
+  expect(chart.find('.bar-chart-tick').length).toBe(3);
+});
 
-  it('should display values', function () {
-    const data = [
-      { x: 1, y: 10 },
-      { x: 2, y: 30 },
-      { x: 3, y: 20 }
-    ];
-    const values = ['A', 'B', 'C'];
-    const chart = shallow(
-        <BarChart
-            data={data}
-            xValues={values}
-            width={100}
-            height={100}
-            barsWidth={20}/>);
-    expect(chart.find('.bar-chart-tick').length).toBe(3);
-  });
-
-  it('should display bars, ticks and values', function () {
-    const data = [
-      { x: 1, y: 10 },
-      { x: 2, y: 30 },
-      { x: 3, y: 20 }
-    ];
-    const ticks = ['A', 'B', 'C'];
-    const values = ['A', 'B', 'C'];
-    const chart = shallow(
-        <BarChart
-            data={data}
-            xTicks={ticks}
-            xValues={values}
-            width={100}
-            height={100}
-            barsWidth={20}/>);
-    expect(chart.find('.bar-chart-bar').length).toBe(3);
-    expect(chart.find('.bar-chart-tick').length).toBe(6);
-  });
-
+it('should display bars, ticks and values', function () {
+  const data = [
+    { x: 1, y: 10 },
+    { x: 2, y: 30 },
+    { x: 3, y: 20 }
+  ];
+  const ticks = ['A', 'B', 'C'];
+  const values = ['A', 'B', 'C'];
+  const chart = shallow(
+      <BarChart
+          data={data}
+          xTicks={ticks}
+          xValues={values}
+          width={100}
+          height={100}
+          barsWidth={20}/>);
+  expect(chart.find('.bar-chart-bar').length).toBe(3);
+  expect(chart.find('.bar-chart-tick').length).toBe(6);
 });

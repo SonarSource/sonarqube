@@ -22,12 +22,10 @@ import React from 'react';
 import SeverityChange from '../SeverityChange';
 import SeverityHelper from '../../../../components/shared/severity-helper';
 
-describe('Quality Profiles :: SeverityChange', () => {
-  it('should render SeverityHelper', () => {
-    const output = shallow(
-        <SeverityChange severity="BLOCKER"/>
-    ).find(SeverityHelper);
-    expect(output.length).toBe(1);
-    expect(output.prop('severity')).toBe('BLOCKER');
-  });
+it('should render SeverityHelper', () => {
+  const output = shallow(
+      <SeverityChange severity="BLOCKER"/>
+  ).find(SeverityHelper);
+  expect(output.length).toBe(1);
+  expect(output.prop('severity')).toBe('BLOCKER');
 });

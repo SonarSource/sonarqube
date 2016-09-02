@@ -22,42 +22,40 @@ import { shallow } from 'enzyme';
 import Select from 'react-select';
 import InputForSingleSelectList from '../InputForSingleSelectList';
 
-describe('Settings :: Inputs :: InputForSingleSelectList', () => {
-  it('should render Select', () => {
-    const onChange = jest.fn();
-    const select = shallow(
-        <InputForSingleSelectList
-            name="foo"
-            value="bar"
-            options={['foo', 'bar', 'baz']}
-            isDefault={false}
-            onChange={onChange}/>
-    ).find(Select);
-    expect(select.length).toBe(1);
-    expect(select.prop('name')).toBe('foo');
-    expect(select.prop('value')).toBe('bar');
-    expect(select.prop('options')).toEqual([
-      { value: 'foo', label: 'foo' },
-      { value: 'bar', label: 'bar' },
-      { value: 'baz', label: 'baz' }
-    ]);
-    expect(select.prop('onChange')).toBeTruthy();
-  });
+it('should render Select', () => {
+  const onChange = jest.fn();
+  const select = shallow(
+      <InputForSingleSelectList
+          name="foo"
+          value="bar"
+          options={['foo', 'bar', 'baz']}
+          isDefault={false}
+          onChange={onChange}/>
+  ).find(Select);
+  expect(select.length).toBe(1);
+  expect(select.prop('name')).toBe('foo');
+  expect(select.prop('value')).toBe('bar');
+  expect(select.prop('options')).toEqual([
+    { value: 'foo', label: 'foo' },
+    { value: 'bar', label: 'bar' },
+    { value: 'baz', label: 'baz' }
+  ]);
+  expect(select.prop('onChange')).toBeTruthy();
+});
 
-  it('should call onChange', () => {
-    const onChange = jest.fn();
-    const select = shallow(
-        <InputForSingleSelectList
-            name="foo"
-            value="bar"
-            options={['foo', 'bar', 'baz']}
-            isDefault={false}
-            onChange={onChange}/>
-    ).find(Select);
-    expect(select.length).toBe(1);
-    expect(select.prop('onChange')).toBeTruthy();
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const select = shallow(
+      <InputForSingleSelectList
+          name="foo"
+          value="bar"
+          options={['foo', 'bar', 'baz']}
+          isDefault={false}
+          onChange={onChange}/>
+  ).find(Select);
+  expect(select.length).toBe(1);
+  expect(select.prop('onChange')).toBeTruthy();
 
-    select.prop('onChange')({ value: 'baz', label: 'baz' });
-    expect(onChange).toBeCalledWith('baz');
-  });
+  select.prop('onChange')({ value: 'baz', label: 'baz' });
+  expect(onChange).toBeCalledWith('baz');
 });

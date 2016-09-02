@@ -22,20 +22,18 @@ import { shallow } from 'enzyme';
 import InputForString from '../InputForString';
 import SimpleInput from '../SimpleInput';
 
-describe('Settings :: Inputs :: InputForString', () => {
-  it('should render SimpleInput', () => {
-    const onChange = jest.fn();
-    const simpleInput = shallow(
-        <InputForString
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find(SimpleInput);
-    expect(simpleInput.length).toBe(1);
-    expect(simpleInput.prop('name')).toBe('foo');
-    expect(simpleInput.prop('value')).toBe('bar');
-    expect(simpleInput.prop('type')).toBe('text');
-    expect(simpleInput.prop('onChange')).toBeTruthy();
-  });
+it('should render SimpleInput', () => {
+  const onChange = jest.fn();
+  const simpleInput = shallow(
+      <InputForString
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find(SimpleInput);
+  expect(simpleInput.length).toBe(1);
+  expect(simpleInput.prop('name')).toBe('foo');
+  expect(simpleInput.prop('value')).toBe('bar');
+  expect(simpleInput.prop('type')).toBe('text');
+  expect(simpleInput.prop('onChange')).toBeTruthy();
 });

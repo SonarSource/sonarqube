@@ -32,28 +32,26 @@ function renderFavoriteBase (props) {
   );
 }
 
-describe('Components :: Controls :: FavoriteBase', () => {
-  it('should render favorite', () => {
-    const favorite = renderFavoriteBase({ favorite: true });
-    expect(favorite.is('.icon-star-favorite')).toBe(true);
-  });
+it('should render favorite', () => {
+  const favorite = renderFavoriteBase({ favorite: true });
+  expect(favorite.is('.icon-star-favorite')).toBe(true);
+});
 
-  it('should render not favorite', () => {
-    const favorite = renderFavoriteBase({ favorite: false });
-    expect(favorite.is('.icon-star-favorite')).toBe(false);
-  });
+it('should render not favorite', () => {
+  const favorite = renderFavoriteBase({ favorite: false });
+  expect(favorite.is('.icon-star-favorite')).toBe(false);
+});
 
-  it('should add favorite', () => {
-    const addFavorite = jest.fn(() => Promise.resolve());
-    const favorite = renderFavoriteBase({ favorite: false, addFavorite });
-    click(favorite.find('a'));
-    expect(addFavorite).toBeCalled();
-  });
+it('should add favorite', () => {
+  const addFavorite = jest.fn(() => Promise.resolve());
+  const favorite = renderFavoriteBase({ favorite: false, addFavorite });
+  click(favorite.find('a'));
+  expect(addFavorite).toBeCalled();
+});
 
-  it('should remove favorite', () => {
-    const removeFavorite = jest.fn(() => Promise.resolve());
-    const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
-    click(favorite.find('a'));
-    expect(removeFavorite).toBeCalled();
-  });
+it('should remove favorite', () => {
+  const removeFavorite = jest.fn(() => Promise.resolve());
+  const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
+  click(favorite.find('a'));
+  expect(removeFavorite).toBeCalled();
 });

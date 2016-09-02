@@ -22,36 +22,34 @@ import { shallow } from 'enzyme';
 import InputForText from '../InputForText';
 import { change } from '../../../../../../../../tests/utils';
 
-describe('Settings :: Inputs :: InputForText', () => {
-  it('should render textarea', () => {
-    const onChange = jest.fn();
-    const textarea = shallow(
-        <InputForText
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('textarea');
-    expect(textarea.length).toBe(1);
-    expect(textarea.prop('name')).toBe('foo');
-    expect(textarea.prop('value')).toBe('bar');
-    expect(textarea.prop('onChange')).toBeTruthy();
-  });
+it('should render textarea', () => {
+  const onChange = jest.fn();
+  const textarea = shallow(
+      <InputForText
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('name')).toBe('foo');
+  expect(textarea.prop('value')).toBe('bar');
+  expect(textarea.prop('onChange')).toBeTruthy();
+});
 
-  it('should call onChange', () => {
-    const onChange = jest.fn();
-    const textarea = shallow(
-        <InputForText
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('textarea');
-    expect(textarea.length).toBe(1);
-    expect(textarea.prop('onChange')).toBeTruthy();
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const textarea = shallow(
+      <InputForText
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('onChange')).toBeTruthy();
 
-    change(textarea, 'qux');
+  change(textarea, 'qux');
 
-    expect(onChange).toBeCalledWith('qux');
-  });
+  expect(onChange).toBeCalledWith('qux');
 });

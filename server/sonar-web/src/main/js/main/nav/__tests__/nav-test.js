@@ -21,13 +21,11 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBreadcrumbs from '../component/component-nav-breadcrumbs';
 
-describe('Nav', function () {
-  describe('ComponentNavBreadcrumbs', () => {
-    it('should not render breadcrumbs with one element', function () {
-      const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
-      const result = shallow(<ComponentNavBreadcrumbs breadcrumbs={breadcrumbs}/>);
-      expect(result.find('li').length).toBe(1);
-      expect(result.find('a').length).toBe(1);
-    });
+describe('ComponentNavBreadcrumbs', () => {
+  it('should not render breadcrumbs with one element', function () {
+    const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
+    const result = shallow(<ComponentNavBreadcrumbs breadcrumbs={breadcrumbs}/>);
+    expect(result.find('li').length).toBe(1);
+    expect(result.find('a').length).toBe(1);
   });
 });

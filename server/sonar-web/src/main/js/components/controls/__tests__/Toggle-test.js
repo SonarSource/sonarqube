@@ -27,16 +27,14 @@ function getSample (props) {
       <Toggle value={true} onChange={() => true} {...props}/>);
 }
 
-describe('Components :: Controls :: Toggle', () => {
-  it('should render', () => {
-    const Toggle = shallow(getSample());
-    expect(Toggle.is('button')).toBe(true);
-  });
+it('should render', () => {
+  const Toggle = shallow(getSample());
+  expect(Toggle.is('button')).toBe(true);
+});
 
-  it('should call onChange', () => {
-    const onChange = jest.fn();
-    const Toggle = shallow(getSample({ onChange }));
-    click(Toggle);
-    expect(onChange).toBeCalledWith(false);
-  });
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const Toggle = shallow(getSample({ onChange }));
+  click(Toggle);
+  expect(onChange).toBeCalledWith(false);
 });

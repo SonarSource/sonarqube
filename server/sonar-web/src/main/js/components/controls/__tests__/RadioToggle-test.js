@@ -36,17 +36,15 @@ function getSample (props) {
   );
 }
 
-describe('Components :: Controls :: RadioToggle', () => {
-  it('should render', () => {
-    const radioToggle = shallow(getSample());
-    expect(radioToggle.find('input[type="radio"]').length).toBe(2);
-    expect(radioToggle.find('label').length).toBe(2);
-  });
+it('should render', () => {
+  const radioToggle = shallow(getSample());
+  expect(radioToggle.find('input[type="radio"]').length).toBe(2);
+  expect(radioToggle.find('label').length).toBe(2);
+});
 
-  it('should call onCheck', () => {
-    const onCheck = jest.fn();
-    const radioToggle = shallow(getSample({ onCheck }));
-    change(radioToggle.find('input[value="two"]'), 'two');
-    expect(onCheck).toBeCalledWith('two');
-  });
+it('should call onCheck', () => {
+  const onCheck = jest.fn();
+  const radioToggle = shallow(getSample({ onCheck }));
+  change(radioToggle.find('input[value="two"]'), 'two');
+  expect(onCheck).toBeCalledWith('two');
 });

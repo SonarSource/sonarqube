@@ -21,36 +21,32 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { BubbleChart, Bubble } from '../bubble-chart';
 
-describe('Bubble Chart', () => {
+it('should display bubbles', () => {
+  const items = [
+    { x: 1, y: 10, size: 7 },
+    { x: 2, y: 30, size: 5 },
+    { x: 3, y: 20, size: 2 }
+  ];
+  const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
+  expect(chart.find(Bubble).length).toBe(3);
+});
 
-  it('should display bubbles', () => {
-    const items = [
-      { x: 1, y: 10, size: 7 },
-      { x: 2, y: 30, size: 5 },
-      { x: 3, y: 20, size: 2 }
-    ];
-    const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
-    expect(chart.find(Bubble).length).toBe(3);
-  });
+it('should display grid', () => {
+  const items = [
+    { x: 1, y: 10, size: 7 },
+    { x: 2, y: 30, size: 5 },
+    { x: 3, y: 20, size: 2 }
+  ];
+  const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
+  expect(chart.find('line').length).toBeGreaterThan(0);
+});
 
-  it('should display grid', () => {
-    const items = [
-      { x: 1, y: 10, size: 7 },
-      { x: 2, y: 30, size: 5 },
-      { x: 3, y: 20, size: 2 }
-    ];
-    const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
-    expect(chart.find('line').length).toBeGreaterThan(0);
-  });
-
-  it('should display ticks', () => {
-    const items = [
-      { x: 1, y: 10, size: 7 },
-      { x: 2, y: 30, size: 5 },
-      { x: 3, y: 20, size: 2 }
-    ];
-    const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
-    expect(chart.find('.bubble-chart-tick').length).toBeGreaterThan(0);
-  });
-
+it('should display ticks', () => {
+  const items = [
+    { x: 1, y: 10, size: 7 },
+    { x: 2, y: 30, size: 5 },
+    { x: 3, y: 20, size: 2 }
+  ];
+  const chart = shallow(<BubbleChart items={items} width={100} height={100}/>);
+  expect(chart.find('.bubble-chart-tick').length).toBeGreaterThan(0);
 });

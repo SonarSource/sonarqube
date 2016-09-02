@@ -21,22 +21,18 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { Treemap, TreemapRect } from '../treemap';
 
-describe('Treemap', function () {
-
-  it('should display', function () {
-    const items = [
-      { size: 10, color: '#777', label: 'SonarQube :: Server' },
-      { size: 30, color: '#777', label: 'SonarQube :: Web' },
-      { size: 20, color: '#777', label: 'SonarQube :: Search' }
-    ];
-    const chart = shallow(
-        <Treemap
-            items={items}
-            width={100}
-            height={100}
-            breadcrumbs={[]}
-            canBeClicked={() => true}/>);
-    expect(chart.find(TreemapRect).length).toBe(3);
-  });
-
+it('should display', function () {
+  const items = [
+    { size: 10, color: '#777', label: 'SonarQube :: Server' },
+    { size: 30, color: '#777', label: 'SonarQube :: Web' },
+    { size: 20, color: '#777', label: 'SonarQube :: Search' }
+  ];
+  const chart = shallow(
+      <Treemap
+          items={items}
+          width={100}
+          height={100}
+          breadcrumbs={[]}
+          canBeClicked={() => true}/>);
+  expect(chart.find(TreemapRect).length).toBe(3);
 });

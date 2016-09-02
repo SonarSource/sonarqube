@@ -25,21 +25,19 @@ const fields = [
   { key: 'bar', type: TYPE_SINGLE_SELECT_LIST }
 ];
 
-describe('Settings :: Utils', () => {
-  describe('#getEmptyValue()', () => {
-    it('should work for property sets', () => {
-      const setting = { type: TYPE_PROPERTY_SET, fields };
-      expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
-    });
+describe('#getEmptyValue()', () => {
+  it('should work for property sets', () => {
+    const setting = { type: TYPE_PROPERTY_SET, fields };
+    expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
+  });
 
-    it('should work for multi values string', () => {
-      const setting = { type: TYPE_STRING, multiValues: true };
-      expect(getEmptyValue(setting)).toEqual(['']);
-    });
+  it('should work for multi values string', () => {
+    const setting = { type: TYPE_STRING, multiValues: true };
+    expect(getEmptyValue(setting)).toEqual(['']);
+  });
 
-    it('should work for multi values boolean', () => {
-      const setting = { type: TYPE_BOOLEAN, multiValues: true };
-      expect(getEmptyValue(setting)).toEqual([null]);
-    });
+  it('should work for multi values boolean', () => {
+    const setting = { type: TYPE_BOOLEAN, multiValues: true };
+    expect(getEmptyValue(setting)).toEqual([null]);
   });
 });

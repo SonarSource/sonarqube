@@ -28,46 +28,44 @@ function checkOrder (list, order) {
   expect(listKeys).toEqual(order);
 }
 
-describe('Quality Profiles :: Utils', () => {
-  describe('#sortProfiles', () => {
-    it('should sort when no parents', () => {
-      const profile1 = createProfile('profile1');
-      const profile2 = createProfile('profile2');
-      const profile3 = createProfile('profile3');
-      checkOrder(
-          sortProfiles([profile1, profile2, profile3]),
-          ['profile1', 'profile2', 'profile3']
-      );
-    });
+describe('#sortProfiles', () => {
+  it('should sort when no parents', () => {
+    const profile1 = createProfile('profile1');
+    const profile2 = createProfile('profile2');
+    const profile3 = createProfile('profile3');
+    checkOrder(
+        sortProfiles([profile1, profile2, profile3]),
+        ['profile1', 'profile2', 'profile3']
+    );
+  });
 
-    it('should sort by name', () => {
-      const profile1 = createProfile('profile1');
-      const profile2 = createProfile('profile2');
-      const profile3 = createProfile('profile3');
-      checkOrder(
-          sortProfiles([profile3, profile1, profile2]),
-          ['profile1', 'profile2', 'profile3']
-      );
-    });
+  it('should sort by name', () => {
+    const profile1 = createProfile('profile1');
+    const profile2 = createProfile('profile2');
+    const profile3 = createProfile('profile3');
+    checkOrder(
+        sortProfiles([profile3, profile1, profile2]),
+        ['profile1', 'profile2', 'profile3']
+    );
+  });
 
-    it('should sort with children', () => {
-      const child1 = createProfile('child1', 'parent');
-      const child2 = createProfile('child2', 'parent');
-      const parent = createProfile('parent');
-      checkOrder(
-          sortProfiles([child1, child2, parent]),
-          ['parent', 'child1', 'child2']
-      );
-    });
+  it('should sort with children', () => {
+    const child1 = createProfile('child1', 'parent');
+    const child2 = createProfile('child2', 'parent');
+    const parent = createProfile('parent');
+    checkOrder(
+        sortProfiles([child1, child2, parent]),
+        ['parent', 'child1', 'child2']
+    );
+  });
 
-    it('should sort single branch', () => {
-      const profile1 = createProfile('profile1');
-      const profile2 = createProfile('profile2', 'profile3');
-      const profile3 = createProfile('profile3', 'profile1');
-      checkOrder(
-          sortProfiles([profile3, profile2, profile1]),
-          ['profile1', 'profile3', 'profile2']
-      );
-    });
+  it('should sort single branch', () => {
+    const profile1 = createProfile('profile1');
+    const profile2 = createProfile('profile2', 'profile3');
+    const profile3 = createProfile('profile3', 'profile1');
+    checkOrder(
+        sortProfiles([profile3, profile2, profile1]),
+        ['profile1', 'profile3', 'profile2']
+    );
   });
 });

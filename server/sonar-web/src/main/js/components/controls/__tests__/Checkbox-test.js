@@ -22,43 +22,41 @@ import React from 'react';
 import Checkbox from '../Checkbox';
 import { click } from '../../../../../../tests/utils';
 
-describe('Components :: Controls :: Checkbox', () => {
-  it('should render unchecked', () => {
-    const checkbox = shallow(
-        <Checkbox checked={false} onCheck={() => true}/>
-    );
-    expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
-  });
+it('should render unchecked', () => {
+  const checkbox = shallow(
+      <Checkbox checked={false} onCheck={() => true}/>
+  );
+  expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
+});
 
-  it('should render checked', () => {
-    const checkbox = shallow(
-        <Checkbox checked={true} onCheck={() => true}/>
-    );
-    expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
-  });
+it('should render checked', () => {
+  const checkbox = shallow(
+      <Checkbox checked={true} onCheck={() => true}/>
+  );
+  expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
+});
 
-  it('should render unchecked third state', () => {
-    const checkbox = shallow(
-        <Checkbox checked={false} thirdState={true} onCheck={() => true}/>
-    );
-    expect(checkbox.is('.icon-checkbox-single')).toBe(true);
-    expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
-  });
+it('should render unchecked third state', () => {
+  const checkbox = shallow(
+      <Checkbox checked={false} thirdState={true} onCheck={() => true}/>
+  );
+  expect(checkbox.is('.icon-checkbox-single')).toBe(true);
+  expect(checkbox.is('.icon-checkbox-checked')).toBe(false);
+});
 
-  it('should render checked  third state', () => {
-    const checkbox = shallow(
-        <Checkbox checked={true} thirdState={true} onCheck={() => true}/>
-    );
-    expect(checkbox.is('.icon-checkbox-single')).toBe(true);
-    expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
-  });
+it('should render checked  third state', () => {
+  const checkbox = shallow(
+      <Checkbox checked={true} thirdState={true} onCheck={() => true}/>
+  );
+  expect(checkbox.is('.icon-checkbox-single')).toBe(true);
+  expect(checkbox.is('.icon-checkbox-checked')).toBe(true);
+});
 
-  it('should call onCheck', () => {
-    const onCheck = jest.fn();
-    const checkbox = shallow(
-        <Checkbox checked={false} onCheck={onCheck}/>
-    );
-    click(checkbox);
-    expect(onCheck).toBeCalledWith(true);
-  });
+it('should call onCheck', () => {
+  const onCheck = jest.fn();
+  const checkbox = shallow(
+      <Checkbox checked={false} onCheck={onCheck}/>
+  );
+  click(checkbox);
+  expect(onCheck).toBeCalledWith(true);
 });

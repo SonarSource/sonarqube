@@ -19,22 +19,19 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-
 import EmptyOverview from '../EmptyOverview';
 
-describe('Overview :: EmptyOverview', () => {
-  it('should render component key', () => {
-    const component = {
-      id: 'id',
-      key: 'abcd',
-      snapshotDate: '2016-01-01'
-    };
+it('should render component key', () => {
+  const component = {
+    id: 'id',
+    key: 'abcd',
+    snapshotDate: '2016-01-01'
+  };
 
-    const output = shallow(
-        <EmptyOverview component={component}/>
-    );
+  const output = shallow(
+      <EmptyOverview component={component}/>
+  );
 
-    expect(output.find('code').text())
-        .toBe('abcd');
-  });
+  expect(output.find('code').text())
+      .toBe('abcd');
 });

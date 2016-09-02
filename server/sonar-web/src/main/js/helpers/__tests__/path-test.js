@@ -19,50 +19,48 @@
  */
 import { collapsedDirFromPath, fileFromPath } from '../path';
 
-describe('Path', function () {
-  describe('#collapsedDirFromPath()', function () {
-    it('should return null when pass null', function () {
-      expect(collapsedDirFromPath(null)).toBeNull();
-    });
-
-    it('should return "/" when pass "/"', function () {
-      expect(collapsedDirFromPath('/')).toBe('/');
-    });
-
-    it('should not cut short path', function () {
-      expect(collapsedDirFromPath('src/main/js/components/state.js')).toBe('src/main/js/components/');
-    });
-
-    it('should cut long path', function () {
-      expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js'))
-          .toBe('src/.../js/components/navigator/app/models/');
-    });
-
-    it('should cut very long path', function () {
-      expect(collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'))
-          .toBe('src/.../js/components/navigator/app/models/');
-    });
+describe('#collapsedDirFromPath()', function () {
+  it('should return null when pass null', function () {
+    expect(collapsedDirFromPath(null)).toBeNull();
   });
 
-  describe('#fileFromPath()', function () {
-    it('should return null when pass null', function () {
-      expect(fileFromPath(null)).toBeNull();
-    });
+  it('should return "/" when pass "/"', function () {
+    expect(collapsedDirFromPath('/')).toBe('/');
+  });
 
-    it('should return empty string when pass "/"', function () {
-      expect(fileFromPath('/')).toBe('');
-    });
+  it('should not cut short path', function () {
+    expect(collapsedDirFromPath('src/main/js/components/state.js')).toBe('src/main/js/components/');
+  });
 
-    it('should return file name when pass only file name', function () {
-      expect(fileFromPath('file.js')).toBe('file.js');
-    });
+  it('should cut long path', function () {
+    expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js'))
+        .toBe('src/.../js/components/navigator/app/models/');
+  });
 
-    it('should return file name when pass file path', function () {
-      expect(fileFromPath('src/main/js/file.js')).toBe('file.js');
-    });
+  it('should cut very long path', function () {
+    expect(collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'))
+        .toBe('src/.../js/components/navigator/app/models/');
+  });
+});
 
-    it('should return file name when pass file name without extension', function () {
-      expect(fileFromPath('src/main/file')).toBe('file');
-    });
+describe('#fileFromPath()', function () {
+  it('should return null when pass null', function () {
+    expect(fileFromPath(null)).toBeNull();
+  });
+
+  it('should return empty string when pass "/"', function () {
+    expect(fileFromPath('/')).toBe('');
+  });
+
+  it('should return file name when pass only file name', function () {
+    expect(fileFromPath('file.js')).toBe('file.js');
+  });
+
+  it('should return file name when pass file path', function () {
+    expect(fileFromPath('src/main/js/file.js')).toBe('file.js');
+  });
+
+  it('should return file name when pass file name without extension', function () {
+    expect(fileFromPath('src/main/file')).toBe('file');
   });
 });

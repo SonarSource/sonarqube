@@ -22,42 +22,40 @@ import { shallow } from 'enzyme';
 import SimpleInput from '../SimpleInput';
 import { change } from '../../../../../../../../tests/utils';
 
-describe('Settings :: Inputs :: SimpleInput', () => {
-  it('should render input', () => {
-    const onChange = jest.fn();
-    const input = shallow(
-        <SimpleInput
-            type="text"
-            className="input-large"
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('input');
-    expect(input.length).toBe(1);
-    expect(input.prop('type')).toBe('text');
-    expect(input.prop('className')).toContain('input-large');
-    expect(input.prop('name')).toBe('foo');
-    expect(input.prop('value')).toBe('bar');
-    expect(input.prop('onChange')).toBeTruthy();
-  });
+it('should render input', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <SimpleInput
+          type="text"
+          className="input-large"
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('input');
+  expect(input.length).toBe(1);
+  expect(input.prop('type')).toBe('text');
+  expect(input.prop('className')).toContain('input-large');
+  expect(input.prop('name')).toBe('foo');
+  expect(input.prop('value')).toBe('bar');
+  expect(input.prop('onChange')).toBeTruthy();
+});
 
-  it('should call onChange', () => {
-    const onChange = jest.fn();
-    const input = shallow(
-        <SimpleInput
-            type="text"
-            className="input-large"
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    ).find('input');
-    expect(input.length).toBe(1);
-    expect(input.prop('onChange')).toBeTruthy();
+it('should call onChange', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <SimpleInput
+          type="text"
+          className="input-large"
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  ).find('input');
+  expect(input.length).toBe(1);
+  expect(input.prop('onChange')).toBeTruthy();
 
-    change(input, 'qux');
+  change(input, 'qux');
 
-    expect(onChange).toBeCalledWith('qux');
-  });
+  expect(onChange).toBeCalledWith('qux');
 });

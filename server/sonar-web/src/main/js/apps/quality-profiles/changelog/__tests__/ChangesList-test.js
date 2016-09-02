@@ -23,31 +23,29 @@ import ChangesList from '../ChangesList';
 import SeverityChange from '../SeverityChange';
 import ParameterChange from '../ParameterChange';
 
-describe('Quality Profiles :: ChangesList', () => {
-  it('should render changes', () => {
-    const changes = { severity: 'BLOCKER', foo: 'bar' };
-    const output = shallow(
-        <ChangesList changes={changes}/>
-    );
-    expect(output.find('li').length).toBe(2);
-  });
+it('should render changes', () => {
+  const changes = { severity: 'BLOCKER', foo: 'bar' };
+  const output = shallow(
+      <ChangesList changes={changes}/>
+  );
+  expect(output.find('li').length).toBe(2);
+});
 
-  it('should render severity change', () => {
-    const changes = { severity: 'BLOCKER' };
-    const output = shallow(
-        <ChangesList changes={changes}/>
-    ).find(SeverityChange);
-    expect(output.length).toBe(1);
-    expect(output.prop('severity')).toBe('BLOCKER');
-  });
+it('should render severity change', () => {
+  const changes = { severity: 'BLOCKER' };
+  const output = shallow(
+      <ChangesList changes={changes}/>
+  ).find(SeverityChange);
+  expect(output.length).toBe(1);
+  expect(output.prop('severity')).toBe('BLOCKER');
+});
 
-  it('should render parameter change', () => {
-    const changes = { foo: 'bar' };
-    const output = shallow(
-        <ChangesList changes={changes}/>
-    ).find(ParameterChange);
-    expect(output.length).toBe(1);
-    expect(output.prop('name')).toBe('foo');
-    expect(output.prop('value')).toBe('bar');
-  });
+it('should render parameter change', () => {
+  const changes = { foo: 'bar' };
+  const output = shallow(
+      <ChangesList changes={changes}/>
+  ).find(ParameterChange);
+  expect(output.length).toBe(1);
+  expect(output.prop('name')).toBe('foo');
+  expect(output.prop('value')).toBe('bar');
 });

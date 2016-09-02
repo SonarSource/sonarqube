@@ -22,67 +22,65 @@ import { shallow } from 'enzyme';
 import InputForPassword from '../InputForPassword';
 import { click, submit, change } from '../../../../../../../../tests/utils';
 
-describe('Settings :: Inputs :: InputForPassword', () => {
-  it('should render lock icon, but no form', () => {
-    const onChange = jest.fn();
-    const input = shallow(
-        <InputForPassword
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    );
-    expect(input.find('.icon-lock').length).toBe(1);
-    expect(input.find('form').length).toBe(0);
-  });
+it('should render lock icon, but no form', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <InputForPassword
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  );
+  expect(input.find('.icon-lock').length).toBe(1);
+  expect(input.find('form').length).toBe(0);
+});
 
-  it('should open form', () => {
-    const onChange = jest.fn();
-    const input = shallow(
-        <InputForPassword
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    );
-    const button = input.find('button');
-    expect(button.length).toBe(1);
+it('should open form', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <InputForPassword
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  );
+  const button = input.find('button');
+  expect(button.length).toBe(1);
 
-    click(button);
-    expect(input.find('form').length).toBe(1);
-  });
+  click(button);
+  expect(input.find('form').length).toBe(1);
+});
 
-  it('should close form', () => {
-    const onChange = jest.fn();
-    const input = shallow(
-        <InputForPassword
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    );
-    const button = input.find('button');
-    expect(button.length).toBe(1);
+it('should close form', () => {
+  const onChange = jest.fn();
+  const input = shallow(
+      <InputForPassword
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  );
+  const button = input.find('button');
+  expect(button.length).toBe(1);
 
-    click(button);
-    expect(input.find('form').length).toBe(1);
+  click(button);
+  expect(input.find('form').length).toBe(1);
 
-    click(input.find('form').find('a'));
-    expect(input.find('form').length).toBe(0);
-  });
+  click(input.find('form').find('a'));
+  expect(input.find('form').length).toBe(0);
+});
 
-  it('should set value', () => {
-    const onChange = jest.fn(() => Promise.resolve());
-    const input = shallow(
-        <InputForPassword
-            name="foo"
-            value="bar"
-            isDefault={false}
-            onChange={onChange}/>
-    );
-    click(input.find('button'));
-    change(input.find('.js-password-input'), 'secret');
-    submit(input.find('form'));
-    expect(onChange).toBeCalledWith('secret');
-  });
+it('should set value', () => {
+  const onChange = jest.fn(() => Promise.resolve());
+  const input = shallow(
+      <InputForPassword
+          name="foo"
+          value="bar"
+          isDefault={false}
+          onChange={onChange}/>
+  );
+  click(input.find('button'));
+  change(input.find('.js-password-input'), 'secret');
+  submit(input.find('form'));
+  expect(onChange).toBeCalledWith('secret');
 });

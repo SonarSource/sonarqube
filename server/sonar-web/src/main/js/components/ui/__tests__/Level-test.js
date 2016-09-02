@@ -21,11 +21,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 import Level from '../Level';
 
-describe('Components :: UI :: Level', () => {
-  it('should render', () => {
-    const rating = shallow(
-        <Level level="ERROR"/>
-    );
-    expect(rating.is('.level-ERROR')).toBe(true);
-  });
+it('should render', () => {
+  const rating = shallow(<Level level="ERROR"/>);
+  expect(rating.is('.level-ERROR')).toBe(true);
 });

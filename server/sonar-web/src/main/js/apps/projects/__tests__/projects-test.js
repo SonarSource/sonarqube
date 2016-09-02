@@ -22,29 +22,25 @@ import { shallow } from 'enzyme';
 import Projects from '../projects';
 import Checkbox from '../../../components/controls/Checkbox';
 
-describe('Projects', function () {
-  describe('Projects', () => {
-    it('should render list of projects with no selection', () => {
-      const projects = [
-        { id: '1', key: 'a', name: 'A', qualifier: 'TRK' },
-        { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
-      ];
+it('should render list of projects with no selection', () => {
+  const projects = [
+    { id: '1', key: 'a', name: 'A', qualifier: 'TRK' },
+    { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
+  ];
 
-      const result = shallow(<Projects projects={projects} selection={[]} refresh={jest.fn()}/>);
-      expect(result.find('tr').length).toBe(2);
-      expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(0);
-    });
+  const result = shallow(<Projects projects={projects} selection={[]} refresh={jest.fn()}/>);
+  expect(result.find('tr').length).toBe(2);
+  expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(0);
+});
 
-    it('should render list of projects with one selected', () => {
-      const projects = [
-        { id: '1', key: 'a', name: 'A', qualifier: 'TRK' },
-        { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
-      ];
-      const selection = ['1'];
+it('should render list of projects with one selected', () => {
+  const projects = [
+    { id: '1', key: 'a', name: 'A', qualifier: 'TRK' },
+    { id: '2', key: 'b', name: 'B', qualifier: 'TRK' }
+  ];
+  const selection = ['1'];
 
-      const result = shallow(<Projects projects={projects} selection={selection} refresh={jest.fn()}/>);
-      expect(result.find('tr').length).toBe(2);
-      expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(1);
-    });
-  });
+  const result = shallow(<Projects projects={projects} selection={selection} refresh={jest.fn()}/>);
+  expect(result.find('tr').length).toBe(2);
+  expect(result.find(Checkbox).filterWhere(n => n.prop('checked')).length).toBe(1);
 });

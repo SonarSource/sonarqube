@@ -22,29 +22,27 @@ import React from 'react';
 import ListFooter from '../ListFooter';
 import { click } from '../../../../../../tests/utils';
 
-describe('Components :: Controls :: ListFooter', () => {
-  it('should render "3 of 5 shown"', () => {
-    const listFooter = shallow(
-        <ListFooter count={3} total={5}/>
-    );
-    expect(listFooter.text()).toContain('x_of_y_shown.3.5');
-  });
+it('should render "3 of 5 shown"', () => {
+  const listFooter = shallow(
+      <ListFooter count={3} total={5}/>
+  );
+  expect(listFooter.text()).toContain('x_of_y_shown.3.5');
+});
 
-  it('should not render "show more"', () => {
-    const listFooter = shallow(
-        <ListFooter count={3} total={5}/>
-    );
-    expect(listFooter.find('a').length).toBe(0);
-  });
+it('should not render "show more"', () => {
+  const listFooter = shallow(
+      <ListFooter count={3} total={5}/>
+  );
+  expect(listFooter.find('a').length).toBe(0);
+});
 
-  it('should "show more"', () => {
-    const loadMore = jest.fn();
-    const listFooter = shallow(
-        <ListFooter count={3} total={5} loadMore={loadMore}/>
-    );
-    const link = listFooter.find('a');
-    expect(link.length).toBe(1);
-    click(link);
-    expect(loadMore).toBeCalled();
-  });
+it('should "show more"', () => {
+  const loadMore = jest.fn();
+  const listFooter = shallow(
+      <ListFooter count={3} total={5} loadMore={loadMore}/>
+  );
+  const link = listFooter.find('a');
+  expect(link.length).toBe(1);
+  click(link);
+  expect(loadMore).toBeCalled();
 });
