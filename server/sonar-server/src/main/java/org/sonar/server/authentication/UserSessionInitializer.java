@@ -59,7 +59,7 @@ public class UserSessionInitializer {
     "/setup/*",
     "/sessions/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
-    "/api/server/*",
+    "/api/server/index", "/api/server/setup", "/api/server/version",
     AUTH_LOGIN_URL, AUTH_VALIDATE_URL);
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()

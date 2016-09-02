@@ -1,0 +1,9 @@
+{
+  "serverId": "server_id",
+  "organization": "home",
+  "ip": "127.0.1",
+  "validIpAdresses": [
+    "192.168.1.1",
+    "127.0.1"
+  ]
+}

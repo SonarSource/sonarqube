@@ -20,18 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +36,18 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserSessionInitializerTest {
 
@@ -84,6 +84,7 @@ public class UserSessionInitializerTest {
   public void check_urls() throws Exception {
     assertPathIsNotIgnored("/");
     assertPathIsNotIgnored("/foo");
+    assertPathIsNotIgnored("/api/server_id/show");
 
     assertPathIsIgnored("/api/authentication/login");
     assertPathIsIgnored("/api/authentication/validate");
@@ -97,6 +98,8 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/system/status");
     assertPathIsIgnored("/api/system/migrate_db");
     assertPathIsIgnored("/api/server/index");
+    assertPathIsIgnored("/api/server/setup");
+    assertPathIsIgnored("/api/server/version");
 
     // exclude static resources
     assertPathIsIgnored("/css/style.css");

@@ -236,6 +236,7 @@ import org.sonar.server.rule.ws.RuleMapper;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
+import org.sonar.server.serverid.ws.ServerIdWsModule;
 import org.sonar.server.setting.ProjectSettingsFactory;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -614,6 +615,9 @@ public class PlatformLevel4 extends PlatformLevel {
       LogsAction.class,
       ChangeLogLevelAction.class,
       DbMigrationStatusAction.class,
+
+      // Server id
+      ServerIdWsModule.class,
 
       // Plugins WS
       PluginWSCommons.class,

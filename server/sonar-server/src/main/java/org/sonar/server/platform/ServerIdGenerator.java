@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
@@ -55,6 +56,7 @@ public class ServerIdGenerator {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
+  @CheckForNull
   public String generate(String organisationName, String ipAddress) {
     String id = null;
     String organisation = organisationName.trim();
