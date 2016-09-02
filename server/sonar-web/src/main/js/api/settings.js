@@ -61,7 +61,7 @@ export function setSettingValue (definition, value, componentKey) {
 
 export function resetSettingValue (key, componentKey) {
   const url = '/api/settings/reset';
-  const data = { key };
+  const data = { keys: key };
   if (componentKey) {
     data.componentKey = componentKey;
   }
