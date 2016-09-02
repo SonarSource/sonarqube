@@ -29,6 +29,11 @@ message ListDefinitionsWsResponse {
   repeated Definition definitions = 1;
 }
 
+// Response of GET api/settings/encrypt
+message EncryptWsResponse {
+  optional string encryptedValue = 1;
+}
+
 message Definition {
   optional string key = 1;
   optional string name = 2;

@@ -32,6 +32,7 @@ public class SettingsWsModule extends Module {
       ValuesAction.class,
       SettingsFinder.class,
       ResetAction.class,
+      EncryptAction.class,
       SettingsUpdater.class);
   }
 }
