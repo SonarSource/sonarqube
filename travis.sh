@@ -28,7 +28,7 @@ case "$TARGET" in
 
 CI)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
-  MAVEN_OPTIONS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V"
+  MAVEN_OPTIONS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -T 2"
 
   INITIAL_VERSION=`maven_expression "project.version"`
   if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
