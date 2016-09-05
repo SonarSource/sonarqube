@@ -62,7 +62,7 @@ export default ModalForm.extend({
     const isNew = !this.model;
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
       metrics,
-      canCreateMetric: !isNew || (isNew && metrics.length > 0)
+      canCreateMetric: !isNew || metrics.length > 0
     });
   }
 });

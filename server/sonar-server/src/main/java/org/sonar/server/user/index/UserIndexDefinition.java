@@ -21,11 +21,10 @@ package org.sonar.server.user.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
+import java.util.SortedMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
-
-import java.util.SortedMap;
 
 /**
  * Definition of ES index "users", including settings and fields.
@@ -56,7 +55,7 @@ public class UserIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    index.setShards(settings);
+    index.configureShards(settings);
 
     index.getSettings()
       // NGram filter (not edge) for logins and names

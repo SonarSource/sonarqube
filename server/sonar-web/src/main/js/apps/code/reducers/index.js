@@ -19,8 +19,18 @@
  */
 import _ from 'underscore';
 
-import { INIT, BROWSE, SEARCH, UPDATE_QUERY, SELECT_NEXT, SELECT_PREV, START_FETCHING, STOP_FETCHING,
-    RAISE_ERROR } from '../actions';
+import {
+    INIT,
+    BROWSE,
+    LOAD_MORE,
+    SEARCH,
+    UPDATE_QUERY,
+    SELECT_NEXT,
+    SELECT_PREV,
+    START_FETCHING,
+    STOP_FETCHING,
+    RAISE_ERROR
+} from '../actions';
 
 function hasSourceCode (component) {
   return component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -102,7 +112,7 @@ export const initialState = {
   errorMessage: null
 };
 
-export function current (state = initialState, action) {
+export function current (state = initialState, action = {}) {
   /* eslint no-case-declarations: 0 */
   /* FIXME fix it ^^^ */
   switch (action.type) {
@@ -125,10 +135,18 @@ export function current (state = initialState, action) {
         components,
         breadcrumbs,
         sourceViewer,
+        total: action.total,
+        page: 1,
         searchResults: null,
         searchQuery: '',
         searchSelectedItem: null,
         errorMessage: null
+      };
+    case LOAD_MORE:
+      return {
+        ...state,
+        components: sortChildren([...state.components, ...action.children]),
+        page: action.page
       };
     case SEARCH:
       return {
@@ -165,13 +183,14 @@ export function current (state = initialState, action) {
   }
 }
 
-export function bucket (state = [], action) {
+export function bucket (state = [], action = {}) {
   switch (action.type) {
     case INIT:
       return merge(state, action.component);
     case BROWSE:
       const candidate = Object.assign({}, action.component, {
         children: action.children,
+        total: action.total,
         breadcrumbs: action.breadcrumbs
       });
       const nextState = merge(state, candidate);

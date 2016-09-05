@@ -99,7 +99,6 @@ public class RuleResultSetIteratorTest {
     RuleDoc rule = rulesByKey.get(templateRule.getRuleKey());
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo(RuleKey.of("xoo", "S001"));
-    assertThat(rule.keyAsList()).containsOnly("xoo", "S001");
     assertThat(rule.ruleKey()).isEqualTo("S001");
     assertThat(rule.repository()).isEqualTo("xoo");
     assertThat(rule.internalKey()).isEqualTo("S1");
@@ -144,7 +143,6 @@ public class RuleResultSetIteratorTest {
 
     RuleDoc rule = rulesByKey.get(templateRule.getRuleKey());
     assertThat(rule.key()).isEqualTo(RuleKey.of("xoo", "S001"));
-    assertThat(rule.keyAsList()).containsOnly("xoo", "S001");
     assertThat(rule.ruleKey()).isEqualTo("S001");
     assertThat(rule.repository()).isEqualTo("xoo");
     assertThat(rule.internalKey()).isEqualTo("S1");
@@ -160,7 +158,6 @@ public class RuleResultSetIteratorTest {
 
     rule = rulesByKey.get(customRule.getRuleKey());
     assertThat(rule.key()).isEqualTo(RuleKey.of("xoo", "S002"));
-    assertThat(rule.keyAsList()).containsOnly("xoo", "S002");
     assertThat(rule.ruleKey()).isEqualTo("S002");
     assertThat(rule.repository()).isEqualTo("xoo");
     assertThat(rule.internalKey()).isEqualTo("S2");

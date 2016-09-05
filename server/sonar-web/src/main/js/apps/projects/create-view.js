@@ -47,11 +47,13 @@ export default ModalForm.extend({
     };
     this.disableForm();
     return createProject(data)
-        .then(() => {
+        .then(project => {
           if (this.options.refresh) {
             this.options.refresh();
           }
-          this.destroy();
+          this.enableForm();
+          this.createdProject = project;
+          this.render();
         })
         .catch(error => {
           this.enableForm();
@@ -59,5 +61,12 @@ export default ModalForm.extend({
             error.response.json().then(obj => this.showErrors([{ msg: obj.err_msg }]));
           }
         });
+  },
+
+  serializeData () {
+    return {
+      ...ModalForm.prototype.serializeData.apply(this, arguments),
+      createdProject: this.createdProject
+    };
   }
 });

@@ -28,13 +28,16 @@ const init = function () {
 
   const viewer = new SourceViewer();
   this.mainRegion.show(viewer);
-  viewer.open(options.file.uuid);
+
   if (typeof options.file.line === 'number') {
+    viewer.open(options.file.uuid, { aroundLine: options.file.line });
     viewer.on('loaded', function () {
       viewer
           .highlightLine(options.file.line)
           .scrollToLine(options.file.line);
     });
+  } else {
+    viewer.open(options.file.uuid);
   }
 };
 

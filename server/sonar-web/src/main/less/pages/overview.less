@@ -24,15 +24,12 @@
 
 .overview {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: 100%;
   min-height: ~"calc(100vh - @{navbarGlobalHeight} - @{navbarContextHeight} - @{pageFooterHeight})";
   animation: fadeIn 0.5s forwards;
 }
 
 .overview-main {
-  flex: 4;
+  flex-grow: 1;
   box-sizing: border-box;
   background-color: @barBackgroundColor;
   transition: transform 0.5s ease, opacity 0.5s ease;
@@ -43,14 +40,9 @@
  */
 
 .overview-gate {
-  margin-right: 20px;
-  padding: 15px 0;
+  padding-bottom: 15px;
   border-bottom: 1px solid @barBorderColor;
   background-color: @barBackgroundColor;
-
-  .overview-title {
-    margin: 0 20px;
-  }
 }
 
 .overview-gate-conditions-list {
@@ -59,7 +51,7 @@
 }
 
 .overview-gate-condition {
-  padding: 10px 20px;
+  padding: 10px 40px 10px 0;
 }
 
 .overview-gate-condition-value {
@@ -105,14 +97,15 @@
  */
 
 .overview-meta {
-  flex: 1;
-  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 260px;
+  padding-left: 40px;
   background-color: @barBackgroundColor;
 }
 
 .overview-meta-card {
   min-width: 200px;
-  padding: 20px;
+  padding-bottom: 20px;
   box-sizing: border-box;
 }
 
@@ -149,7 +142,7 @@
 }
 
 .overview-card {
-  margin: 15px 20px;
+  margin: 15px 0;
 }
 
 .overview-card-special {
@@ -584,25 +577,6 @@
   padding: 0 !important;
   border: none !important;
   background-color: transparent !important;
-}
-
-/*
- * Responsive Stuff
- */
-
-@media (max-width: 1200px) {
-  .overview {
-    display: block;
-  }
-
-  .overview-meta {
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .overview-meta .overview-meta-card {
-    width: calc(100% / 3);
-  }
 }
 
 /*

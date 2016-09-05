@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import _ from 'underscore';
 
-import Gate from '../gate/gate';
-import GeneralMain from './../main/main';
-import Meta from './Meta';
+module.exports = function (context, options) {
+  let ret = '';
 
-export default function OverviewMain (props) {
-  return (
-      <div className="page page-limited">
-        <div className="overview">
-          <div className="overview-main">
-            <Gate component={props.component} gate={props.gate}/>
-            <GeneralMain {...props}/>
-          </div>
-          <Meta component={props.component}/>
-        </div>
-      </div>
-  );
-}
+  if (Array.isArray(context)) {
+    context.forEach(function (element, index, list) {
+      const previous = index > 0 ? list[index - 1] : null;
+      const c = _.extend({ '_previous': previous }, element);
+      ret += options.fn(c);
+    });
+  }
+
+  return ret;
+};

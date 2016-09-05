@@ -224,8 +224,8 @@ public class QualityGateTest {
       Measure alertStatus = fetchGateStatus();
       assertThat(alertStatus.getData()).isEqualTo("WARN");
       assertThat(alertStatus.getAlertText())
-        .contains("Lines of code > 10")
-        .contains("Duplicated lines (%) > 20");
+        .contains("Lines of Code > 10")
+        .contains("Duplicated Lines (%) > 20");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(allTypes.id());

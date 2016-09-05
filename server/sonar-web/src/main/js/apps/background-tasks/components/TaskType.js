@@ -19,20 +19,16 @@
  */
 import React from 'react';
 
-import Gate from '../gate/gate';
-import GeneralMain from './../main/main';
-import Meta from './Meta';
+import { translate } from '../../../helpers/l10n';
 
-export default function OverviewMain (props) {
+const TaskType = ({ task }) => {
   return (
-      <div className="page page-limited">
-        <div className="overview">
-          <div className="overview-main">
-            <Gate component={props.component} gate={props.gate}/>
-            <GeneralMain {...props}/>
-          </div>
-          <Meta component={props.component}/>
-        </div>
-      </div>
+      <span className="note spacer-left">
+        {'['}
+        {translate('background_task.type', task.type)}
+        {']'}
+      </span>
   );
-}
+};
+
+export default TaskType;

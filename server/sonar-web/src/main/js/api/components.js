@@ -55,7 +55,7 @@ export function getComponentTree (strategy, componentKey, metrics = [], addition
 }
 
 export function getChildren (componentKey, metrics, additional) {
-  return getComponentTree('children', componentKey, metrics, additional).then(r => r.components);
+  return getComponentTree('children', componentKey, metrics, additional);
 }
 
 export function getComponentLeaves (componentKey, metrics, additional) {

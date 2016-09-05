@@ -28,7 +28,7 @@ CI)
         -Pdeploy-sonarsource \
         -B -e -V
 
-  elif [[ "${TRAVIS_BRANCH}" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  elif [[ "${TRAVIS_BRANCH}" == "feature/jl/fix_SqlExecutorTest" ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     strongEcho 'Build and deploy'
 
     # Do not deploy a SNAPSHOT version but the release version related to this build

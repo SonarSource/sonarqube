@@ -46,7 +46,7 @@ public class ViewIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    index.setShards(settings);
+    index.configureShards(settings);
 
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(TYPE_VIEW);

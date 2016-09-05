@@ -81,7 +81,7 @@ export default React.createClass({
                   value={this.props.status}
                   onChange={this.props.onStatusChange}/>
             </li>
-            {this.props.types.length > 1 && !this.props.component && (
+            {this.props.types.length > 1 && (
                 <li>
                   <h6 className="bt-search-form-label">
                     Type

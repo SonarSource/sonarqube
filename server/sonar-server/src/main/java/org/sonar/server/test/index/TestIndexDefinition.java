@@ -51,7 +51,7 @@ public class TestIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     index.refreshHandledByIndexer();
-    index.setShards(settings);
+    index.configureShards(settings);
 
     NewIndex.NewIndexType nestedMapping = index.createType(TYPE);
     nestedMapping.stringFieldBuilder(FIELD_COVERED_FILE_UUID).build();

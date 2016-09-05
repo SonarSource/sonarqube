@@ -43,9 +43,12 @@ export default Marionette.LayoutView.extend({
   issueLocationTemplate: IssueLocationTemplate,
 
   ISSUES_LIMIT: 3000,
-  LINES_LIMIT: 1000,
-  TOTAL_LINES_LIMIT: 3000,
+
   LINES_AROUND: 500,
+
+  // keep it twice bigger than LINES_AROUND
+  LINES_LIMIT: 1000,
+  TOTAL_LINES_LIMIT: 1000,
 
   regions: {
     headerRegion: '.source-viewer-header'
@@ -68,7 +71,9 @@ export default Marionette.LayoutView.extend({
       'click .source-line-with-issues': 'onLineIssuesClick',
       'click .source-line-number[data-line-number]': 'onLineNumberClick',
       'mouseenter .source-line-filtered .source-line-filtered-container': 'showFilteredTooltip',
-      'mouseleave .source-line-filtered .source-line-filtered-container': 'hideFilteredTooltip'
+      'mouseleave .source-line-filtered .source-line-filtered-container': 'hideFilteredTooltip',
+      'click @ui.sourceBeforeSpinner': 'loadSourceBefore',
+      'click @ui.sourceAfterSpinner': 'loadSourceAfter'
     };
   },
 
@@ -80,8 +85,6 @@ export default Marionette.LayoutView.extend({
     this.listenTo(this.issues, 'change:severity', this.onIssuesSeverityChange);
     this.listenTo(this.issues, 'locations', this.toggleIssueLocations);
     this.issueViews = [];
-    this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
-    this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
     this.highlightedLine = null;
     this.listenTo(this, 'loaded', this.onLoaded);
   },
@@ -136,7 +139,7 @@ export default Marionette.LayoutView.extend({
         .set(_.result(this.model, 'defaults'))
         .set({ uuid: id });
     this.requestComponent().done(function () {
-      that.requestSource()
+      that.requestSource(opts.aroundLine)
           .done(finalize)
           .fail(function () {
             that.model.set({
@@ -171,11 +174,14 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  linesLimit () {
-    return {
-      from: 1,
-      to: this.LINES_LIMIT
-    };
+  linesLimit (aroundLine) {
+    if (aroundLine) {
+      return {
+        from: Math.max(1, aroundLine - this.LINES_AROUND),
+        to: aroundLine + this.LINES_AROUND
+      };
+    }
+    return { from: 1, to: this.LINES_AROUND };
   },
 
   getUTCoverageStatus (row) {
@@ -206,10 +212,10 @@ export default Marionette.LayoutView.extend({
     return status;
   },
 
-  requestSource () {
+  requestSource (aroundLine) {
     const that = this;
     const url = window.baseUrl + '/api/sources/lines';
-    const options = _.extend({ uuid: this.model.id }, this.linesLimit());
+    const options = _.extend({ uuid: this.model.id }, this.linesLimit(aroundLine));
     return $.get(url, options).done(function (data) {
       let source = (data.sources || []).slice(0);
       if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
@@ -395,10 +401,12 @@ export default Marionette.LayoutView.extend({
 
   highlightUsages (e) {
     const highlighted = $(e.currentTarget).is('.highlighted');
-    const key = e.currentTarget.className.split(/\s+/)[0];
-    this.$('.sym.highlighted').removeClass('highlighted');
-    if (!highlighted) {
-      this.$('.sym.' + key).addClass('highlighted');
+    const key = e.currentTarget.className.match(/sym-\d+/);
+    if (key) {
+      this.$('.sym.highlighted').removeClass('highlighted');
+      if (!highlighted) {
+        this.$('.sym.' + key[0]).addClass('highlighted');
+      }
     }
   },
 
@@ -469,7 +477,7 @@ export default Marionette.LayoutView.extend({
       const outOfBounds = b.from > line || b.from + b.size < line;
       const currentFile = b._ref === '1';
       const shouldDisplayForCurrentFile = outOfBounds || foundOne;
-      const shouldDisplay = !currentFile || (currentFile && shouldDisplayForCurrentFile);
+      const shouldDisplay = !currentFile || shouldDisplayForCurrentFile;
       const isOk = (b._ref != null) && shouldDisplay;
       if (b._ref === '1' && !outOfBounds) {
         foundOne = true;
@@ -539,37 +547,15 @@ export default Marionette.LayoutView.extend({
   },
 
   bindScrollEvents () {
-    const that = this;
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    p.on('scroll.source-viewer', function () {
-      that.onScroll();
-    });
+    // no op
   },
 
   unbindScrollEvents () {
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    p.off('scroll.source-viewer');
+    // no op
   },
 
   onScroll () {
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    const pTopOffset = p.offset() != null ? p.offset().top : 0;
-    const pPosition = p.scrollTop() + pTopOffset;
-    if (this.model.get('hasSourceBefore') && (pPosition <= this.ui.sourceBeforeSpinner.offset().top)) {
-      this.loadSourceBeforeThrottled();
-    }
-    if (this.model.get('hasSourceAfter') && (pPosition + p.height() >= this.ui.sourceAfterSpinner.offset().top)) {
-      return this.loadSourceAfterThrottled();
-    }
+    // no op
   },
 
   scrollToLine (line) {
@@ -616,15 +602,18 @@ export default Marionette.LayoutView.extend({
     return this;
   },
 
-  loadSourceBefore () {
+  loadSourceBefore (e) {
+    e.preventDefault();
     this.unbindScrollEvents();
+    this.$('.js-component-viewer-loading-before').removeClass('hidden');
+    this.$('.js-component-viewer-source-before').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
     const firstLine = _.first(source).line;
     const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
-      from: firstLine - this.LINES_AROUND,
+      from: Math.max(1, firstLine - this.LINES_AROUND),
       to: firstLine - 1
     };
     return $.get(url, options).done(function (data) {
@@ -662,8 +651,11 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  loadSourceAfter () {
+  loadSourceAfter (e) {
+    e.preventDefault();
     this.unbindScrollEvents();
+    this.$('.js-component-viewer-loading-after').removeClass('hidden');
+    this.$('.js-component-viewer-source-after').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
     const lastLine = _.last(source).line;

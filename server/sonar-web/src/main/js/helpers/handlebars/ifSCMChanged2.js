@@ -17,11 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
-module.exports = function (source, line, options) {
-  const currentLine = _.findWhere(source, { line });
-  const prevLine = _.findWhere(source, { line: line - 1 });
+module.exports = function (currentLine, prevLine, options) {
   let changed = true;
   if (currentLine && prevLine && currentLine.scmAuthor && prevLine.scmAuthor) {
     changed = (currentLine.scmAuthor !== prevLine.scmAuthor) || (currentLine.scmDate !== prevLine.scmDate);

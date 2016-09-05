@@ -49,7 +49,7 @@ export default Popup.extend({
       return {
         file: {
           id: test.fileId,
-          longName: test.fileLongName
+          longName: test.fileName
         },
         tests: testSet
       };

@@ -6,6 +6,7 @@ node_modules/
 
 # npm logs
 npm-debug.log.*
+npm.tar.gz
 
 # build
 build/

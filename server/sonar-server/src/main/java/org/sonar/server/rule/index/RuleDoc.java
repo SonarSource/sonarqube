@@ -19,9 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -46,16 +44,6 @@ public class RuleDoc extends BaseDoc {
 
   public RuleDoc setKey(@Nullable String s) {
     setField(RuleIndexDefinition.FIELD_RULE_KEY, s);
-    return this;
-  }
-
-  @VisibleForTesting
-  List<String> keyAsList() {
-    return (List<String>) getField(RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST);
-  }
-
-  public RuleDoc setKeyAsList(@Nullable List<String> s) {
-    setField(RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST, s);
     return this;
   }
 

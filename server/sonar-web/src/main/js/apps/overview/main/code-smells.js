@@ -71,7 +71,7 @@ export const CodeSmells = React.createClass({
         <Measure label={getMetricName('new_effort')}>
           <IssuesLink
               component={this.props.component.key}
-              params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt', sinceLeakPeriod: 'true' }}>
+              params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'effort', sinceLeakPeriod: 'true' }}>
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
@@ -131,7 +131,7 @@ export const CodeSmells = React.createClass({
             <Measure label={getMetricName('effort')}>
               <IssuesLink
                   component={this.props.component.key}
-                  params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt' }}>
+                  params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'effort' }}>
                 <span
                     title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                     data-toggle="tooltip">

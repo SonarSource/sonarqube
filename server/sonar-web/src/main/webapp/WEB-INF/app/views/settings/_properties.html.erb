@@ -178,14 +178,14 @@
         </tbody>
        </table>
        </div>
-      <% else 
+      <% else
          help = category_help(@category)
          unless help.blank?
       -%>
         <div class="help marginbottom10" style="margin-left: -1px">
           <%= help -%>
         </div>
-      <% end 
+      <% end
       end
       -%>
 
@@ -196,7 +196,7 @@
 
 
 <script>
-  $j(document)
+  $j('#properties > form')
     .on('click', '.delete', function () {
       $j(this).parents('.multi_value').remove();
       return false;

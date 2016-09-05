@@ -5,16 +5,24 @@
   {{#if exist}}
 
     {{#if hasSourceBefore}}
-      <i class="spinner js-component-viewer-source-before"></i>
+      <div class="source-viewer-more-code">
+        <button class="js-component-viewer-source-before">
+          {{t 'source_viewer.load_more_code'}}
+        </button>
+        <div class="js-component-viewer-loading-before hidden">
+          <i class="spinner"></i>
+          <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        </div>
+      </div>
     {{/if}}
 
     <table class="source-table">
-      {{#each source}}
+      {{#eachWithPrevious source}}
         <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
           <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
 
           <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
-            {{#ifSCMChanged2 ../source line}}
+            {{#ifSCMChanged2 this _previous}}
               <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
             {{/ifSCMChanged2}}
           </td>
@@ -82,11 +90,19 @@
             {{/notEmpty}}
           </td>
         </tr>
-      {{/each}}
+      {{/eachWithPrevious}}
     </table>
 
     {{#if hasSourceAfter}}
-      <i class="spinner js-component-viewer-source-after"></i>
+      <div class="source-viewer-more-code">
+        <button class="js-component-viewer-source-after">
+          {{t 'source_viewer.load_more_code'}}
+        </button>
+        <div class="js-component-viewer-loading-after hidden">
+          <i class="spinner"></i>
+          <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        </div>
+      </div>
     {{/if}}
 
   {{else}}

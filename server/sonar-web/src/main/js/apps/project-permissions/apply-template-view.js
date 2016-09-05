@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
-import { applyTemplateToProject } from '../../api/permissions';
+import { applyTemplateToProject, bulkApplyTemplateToProject } from '../../api/permissions';
 import Template from './templates/project-permissions-apply-template.hbs';
 
 export default ModalForm.extend({
@@ -37,27 +36,36 @@ export default ModalForm.extend({
   onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const that = this;
+    const permissionTemplate = this.$('#project-permissions-template').val();
     this.disableForm();
 
-    const projects = this.options.project ? [this.options.project] : this.options.projects;
-    const permissionTemplate = this.$('#project-permissions-template').val();
-    let looper = $.Deferred().resolve();
-
-    projects.forEach(function (project) {
-      looper = looper.then(function () {
-        return applyTemplateToProject({
-          data: { projectId: project.id, templateId: permissionTemplate }
-        });
+    if (this.options.project) {
+      applyTemplateToProject({
+        data: { projectId: this.options.project.id, templateId: permissionTemplate }
+      }).done(function () {
+        that.options.refresh();
+        that.destroy();
+      }).fail(function (jqXHR) {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
-    });
+    } else {
+      const data = { templateId: permissionTemplate };
+      if (this.options.query) {
+        data.q = this.options.query;
+      }
+      if (this.options.filter && this.options.filter !== '__ALL__') {
+        data.qualifier = this.options.filter;
+      }
 
-    looper.done(function () {
-      that.options.refresh();
-      that.destroy();
-    }).fail(function (jqXHR) {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+      bulkApplyTemplateToProject({ data }).done(function () {
+        that.options.refresh();
+        that.destroy();
+      }).fail(function (jqXHR) {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
+    }
   },
 
   serializeData () {

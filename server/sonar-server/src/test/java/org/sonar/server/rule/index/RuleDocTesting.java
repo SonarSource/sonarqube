@@ -46,7 +46,7 @@ public class RuleDocTesting {
       .setIsTemplate(false)
       .setAllTags(Arrays.asList("spring", "performance"))
       .setType(RuleType.CODE_SMELL)
-      .setCreatedAt(150000000L)
-      .setUpdatedAt(160000000L);
+      .setCreatedAt(1_500_000_000L)
+      .setUpdatedAt(1_600_000_000L);
   }
 }

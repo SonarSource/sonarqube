@@ -15,17 +15,17 @@
     -%>
         <div class="widget-span widget-span-3">
           <div class="widget-measure-container">
-            <p class="widget-measure widget-measure-main">
-              <span class="widget-label"><%= measure.metric.short_name -%></span>
-              <span class="nowrap">
+            <div class="widget-measure widget-measure-main">
+              <div class="widget-label"><%= measure.metric.short_name -%></div>
+              <div class="text-ellipsis">
                 <% if measure.value.nil? && measure.text_value.nil? -%>
                   <%= format_measure(measure, :url => url_for_drilldown(measure, :period => period), :period => period) -%>
                 <% else %>
                   <%= format_measure(measure, :url => url_for_drilldown(measure)) -%>
                   <%= format_variation(measure) if dashboard_configuration.selected_period? -%>
                 <% end -%>
-              </span>
-            </p>
+              </div>
+            </div>
           </div>
         </div>
       <%

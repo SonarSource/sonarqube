@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { collapsePath } from '../path';
 
-import Gate from '../gate/gate';
-import GeneralMain from './../main/main';
-import Meta from './Meta';
-
-export default function OverviewMain (props) {
-  return (
-      <div className="page page-limited">
-        <div className="overview">
-          <div className="overview-main">
-            <Gate component={props.component} gate={props.gate}/>
-            <GeneralMain {...props}/>
-          </div>
-          <Meta component={props.component}/>
-        </div>
-      </div>
-  );
-}
+module.exports = function (path) {
+  return collapsePath(path);
+};
