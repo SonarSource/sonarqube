@@ -30,8 +30,9 @@ import { getDefinition, getChangedValue } from './rootReducer';
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey)
       .then(definitions => {
-        dispatch(receiveDefinitions(definitions));
-        const keys = definitions.map(definition => definition.key).join();
+        const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
+        dispatch(receiveDefinitions(withoutLicenses));
+        const keys = withoutLicenses.map(definition => definition.key).join();
         return getValues(keys, componentKey);
       })
       .then(settings => {
