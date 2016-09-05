@@ -38,6 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.setting.ws.SettingsFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -58,6 +59,7 @@ import static org.sonarqube.ws.MediaTypes.JSON;
 public class ListActionTest {
 
   private static final String LICENSE_KEY_SAMPLE = "sonar.governance.license.secured";
+  private static final String LICENSE_NAME_SAMPLE = "Governance";
   private static final String ORGANISATION_SAMPLE = "SonarSource";
   private static final String SERVER_ID_SAMPLE = "12345";
   private static final String PRODUCT_SAMPLE = "governance";
@@ -75,21 +77,23 @@ public class ListActionTest {
   DbClient dbClient = db.getDbClient();
   PropertyDbTester propertyDb = new PropertyDbTester(db);
   PropertyDefinitions definitions = new PropertyDefinitions();
+  SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
 
-  WsActionTester ws = new WsActionTester(new ListAction(userSession, definitions, dbClient));
+  WsActionTester ws = new WsActionTester(new ListAction(userSession, definitions, dbClient, settingsFinder));
 
   @Test
   public void return_licenses() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings("12345");
     String data = createBase64License("SonarSource", "governance", "12345", "2099-01-01", "PRODUCTION", ImmutableMap.of("other", "value"));
-    addLicenseSetting("sonar.governance.license.secured", data);
+    addLicenseSetting("sonar.governance.license.secured", "Governance", data);
 
     ListWsResponse result = executeRequest();
 
     assertThat(result.getLicensesList()).hasSize(1);
     Licenses.License license = result.getLicenses(0);
     assertThat(license.getKey()).isEqualTo("sonar.governance.license.secured");
+    assertThat(license.getName()).isEqualTo("Governance");
     assertThat(license.getValue()).isEqualTo(data);
     assertThat(license.getProduct()).isEqualTo("governance");
     assertThat(license.getOrganization()).isEqualTo("SonarSource");
@@ -128,16 +132,17 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_license_with_minimal_info() throws Exception {
+  public void return_information_when_no_licence_set() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
-    addLicenseSetting(LICENSE_KEY_SAMPLE, toBase64(""));
+    addLicenseSetting(LICENSE_KEY_SAMPLE, null, toBase64(""));
 
     ListWsResponse result = executeRequest();
 
     assertThat(result.getLicensesList()).hasSize(1);
     Licenses.License license = result.getLicenses(0);
     assertThat(license.getKey()).isEqualTo(LICENSE_KEY_SAMPLE);
+    assertThat(license.hasName()).isFalse();
     assertThat(license.getValue()).isEmpty();
     assertThat(license.hasProduct()).isFalse();
     assertThat(license.hasOrganization()).isFalse();
@@ -155,7 +160,8 @@ public class ListActionTest {
   public void return_license_with_bad_product() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
-    addLicenseSetting(LICENSE_KEY_SAMPLE, createBase64License(ORGANISATION_SAMPLE, "Other", SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
+      createBase64License(ORGANISATION_SAMPLE, "Other", SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -171,7 +177,8 @@ public class ListActionTest {
   public void return_license_with_bad_server_id() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
-    addLicenseSetting(LICENSE_KEY_SAMPLE, createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "Other", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
+      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "Other", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -186,7 +193,8 @@ public class ListActionTest {
   @Test
   public void does_not_return_invalid_server_id_when_all_servers_accepted_and_no_server_id_setting() throws Exception {
     setUserAsSystemAdmin();
-    addLicenseSetting(LICENSE_KEY_SAMPLE, createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
+      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -200,7 +208,8 @@ public class ListActionTest {
   public void return_license_when_all_servers_are_accepted() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
-    addLicenseSetting(LICENSE_KEY_SAMPLE, createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
+      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -214,7 +223,7 @@ public class ListActionTest {
   public void return_license_when_expired() throws Exception {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
-    addLicenseSetting(LICENSE_KEY_SAMPLE,
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, "2010-01-01", TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
@@ -252,8 +261,9 @@ public class ListActionTest {
   public void test_example_json_response() {
     setUserAsSystemAdmin();
     addServerIdSettings("12345");
-    addLicenseSetting("sonar.governance.license.secured", createBase64License("SonarSource", "governance", "12345", "2099-01-01", "PRODUCTION", ImmutableMap.of("other", "value")));
-    addLicenseSetting("sonar.devcockpit.license.secured", createBase64License("Unknown", "other", "54321", "2010-01-01", "EVALUATION", Collections.emptyMap()));
+    addLicenseSetting("sonar.governance.license.secured", "Governance",
+      createBase64License("SonarSource", "governance", "12345", "2099-01-01", "PRODUCTION", ImmutableMap.of("other", "value")));
+    addLicenseSetting("sonar.devcockpit.license.secured", "Dev Cockpit", createBase64License("Unknown", "other", "54321", "2010-01-01", "EVALUATION", Collections.emptyMap()));
 
     String result = ws.newRequest()
       .setMediaType(JSON)
@@ -287,8 +297,8 @@ public class ListActionTest {
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
-  private void addLicenseSetting(String key, String value) {
-    definitions.addComponent(PropertyDefinition.builder(key).type(LICENSE).build());
+  private void addLicenseSetting(String key, @Nullable String name, String value) {
+    definitions.addComponent(PropertyDefinition.builder(key).name(name).type(LICENSE).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey(key).setValue(value));
   }
 

@@ -2,6 +2,7 @@
   "licenses": [
     {
       "key": "sonar.devcockpit.license.secured",
+      "name": "Dev Cockpit",
       "value": "T3JnYW5pc2F0aW9uOiBVbmtub3duIApTZXJ2ZXI6IDU0MzIxIApQcm9kdWN0OiBvdGhlciAKRXhwaXJhdGlvbjogMjAxMC0wMS0wMSAKVHlwZTogRVZBTFVBVElPTiAK",
       "product": "other",
       "organization": "Unknown",
@@ -14,6 +15,7 @@
     },
     {
       "key": "sonar.governance.license.secured",
+      "name": "Governance",
       "value": "T3JnYW5pc2F0aW9uOiBTb25hclNvdXJjZSAKU2VydmVyOiAxMjM0NSAKUHJvZHVjdDogZ292ZXJuYW5jZSAKRXhwaXJhdGlvbjogMjA5OS0wMS0wMSAKVHlwZTogUFJPRFVDVElPTiAKb3RoZXI6IHZhbHVlIAo\u003d",
       "product": "governance",
       "organization": "SonarSource",

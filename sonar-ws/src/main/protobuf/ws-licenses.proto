@@ -31,16 +31,17 @@ message ListWsResponse {
 
 message License {
   optional string key = 1;
-  optional string value = 2;
-  optional string product = 3;
-  optional string organization = 4;
-  optional string expiration = 5;
-  optional string serverId = 6;
-  optional string type = 7;
-  optional AdditionalProperties additionalProperties = 8;
-  optional bool invalidProduct = 9;
-  optional bool invalidExpiration = 10;
-  optional bool invalidServerId = 11;
+  optional string name = 2;
+  optional string value = 3;
+  optional string product = 4;
+  optional string organization = 5;
+  optional string expiration = 6;
+  optional string serverId = 7;
+  optional string type = 8;
+  optional AdditionalProperties additionalProperties = 9;
+  optional bool invalidProduct = 10;
+  optional bool invalidExpiration = 11;
+  optional bool invalidServerId = 12;
 }
 
 message AdditionalProperties {

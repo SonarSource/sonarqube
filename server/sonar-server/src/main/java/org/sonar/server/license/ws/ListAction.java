@@ -20,6 +20,8 @@
 
 package org.sonar.server.license.ws;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,19 +35,20 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyDto;
+import org.sonar.server.setting.ws.Setting;
+import org.sonar.server.setting.ws.SettingsFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsAction;
 import org.sonarqube.ws.Licenses;
 import org.sonarqube.ws.Licenses.ListWsResponse;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.core.util.stream.Collectors.toSet;
 import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.license.LicensesWsParameters.ACTION_LIST;
@@ -57,11 +60,13 @@ public class ListAction implements WsAction {
   private final UserSession userSession;
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;
+  private final SettingsFinder settingsFinder;
 
-  public ListAction(UserSession userSession, PropertyDefinitions definitions, DbClient dbClient) {
+  public ListAction(UserSession userSession, PropertyDefinitions definitions, DbClient dbClient, SettingsFinder settingsFinder) {
     this.userSession = userSession;
     this.definitions = definitions;
     this.dbClient = dbClient;
+    this.settingsFinder = settingsFinder;
   }
 
   @Override
@@ -88,35 +93,39 @@ public class ListAction implements WsAction {
   }
 
   private ListWsResponse doHandle(DbSession dbSession) {
-    Set<String> licenseSettingsKeys = definitions.getAll().stream()
+    Map<String, PropertyDefinition> licenseDefinitionsByKeys = definitions.getAll().stream()
       .filter(definition -> LICENSE.equals(definition.type()))
-      .map(PropertyDefinition::key)
-      .collect(toSet());
-    Set<String> settingsKeys = newHashSet(licenseSettingsKeys);
+      .collect(Collectors.uniqueIndex(PropertyDefinition::key, Function.identity()));
+    Set<String> settingsKeys = new HashSet<>(licenseDefinitionsByKeys.keySet());
     settingsKeys.add(PERMANENT_SERVER_ID);
-    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, settingsKeys);
-    return new ListResponseBuilder(licenseSettingsKeys, properties).build();
+    List<Setting> settings = settingsFinder.loadGlobalSettings(dbSession, settingsKeys);
+    return new ListResponseBuilder(licenseDefinitionsByKeys, settings).build();
   }
 
   private static class ListResponseBuilder {
     private final Optional<String> serverId;
-    private final Map<String, PropertyDto> licenseSettingsByKey;
-    private final Set<String> licenseSettingsKeys;
+    private final Map<String, Setting> licenseSettingsByKey;
+    private final Collection<PropertyDefinition> licenseDefinitions;
 
-    ListResponseBuilder(Set<String> licenseSettingsKeys, List<PropertyDto> properties) {
-      this.serverId = getServerId(properties);
-      this.licenseSettingsKeys = licenseSettingsKeys;
-      this.licenseSettingsByKey = properties.stream().collect(uniqueIndex(PropertyDto::getKey, Function.identity()));
+    ListResponseBuilder(Map<String, PropertyDefinition> licenseDefinitionsByKeys, List<Setting> settings) {
+      this.serverId = getServerId(settings);
+      this.licenseDefinitions = licenseDefinitionsByKeys.values();
+      this.licenseSettingsByKey = settings.stream().collect(uniqueIndex(Setting::getKey, Function.identity()));
     }
 
     ListWsResponse build() {
       ListWsResponse.Builder wsResponse = ListWsResponse.newBuilder();
-      licenseSettingsKeys.forEach(key -> wsResponse.addLicenses(buildLicense(key, licenseSettingsByKey.get(key))));
+      licenseDefinitions.forEach(def -> wsResponse.addLicenses(buildLicense(def, licenseSettingsByKey.get(def.key()))));
       return wsResponse.build();
     }
 
-    private Licenses.License buildLicense(String key, @Nullable PropertyDto setting) {
-      Licenses.License.Builder licenseBuilder = Licenses.License.newBuilder().setKey(key);
+    private Licenses.License buildLicense(PropertyDefinition definition, @Nullable Setting setting) {
+      Licenses.License.Builder licenseBuilder = Licenses.License.newBuilder()
+        .setKey(definition.key());
+      String name = definition.name();
+      if (!isNullOrEmpty(name)) {
+        licenseBuilder.setName(name);
+      }
       if (setting != null) {
         License license = License.readBase64(setting.getValue());
         licenseBuilder.setValue(setting.getValue());
@@ -130,7 +139,7 @@ public class ListAction implements WsAction {
       return licenseBuilder.build();
     }
 
-    private static void setProduct(Licenses.License.Builder licenseBuilder, License license, PropertyDto setting) {
+    private static void setProduct(Licenses.License.Builder licenseBuilder, License license, Setting setting) {
       String product = license.getProduct();
       if (product != null) {
         licenseBuilder.setProduct(product);
@@ -181,9 +190,9 @@ public class ListAction implements WsAction {
       }
     }
 
-    private static Optional<String> getServerId(List<PropertyDto> propertyDtos) {
-      Optional<PropertyDto> propertyDto = propertyDtos.stream().filter(setting -> setting.getKey().equals(PERMANENT_SERVER_ID)).findFirst();
-      return propertyDto.isPresent() ? Optional.of(propertyDto.get().getValue()) : Optional.empty();
+    private static Optional<String> getServerId(List<Setting> settings) {
+      Optional<Setting> setting = settings.stream().filter(s -> s.getKey().equals(PERMANENT_SERVER_ID)).findFirst();
+      return setting.isPresent() ? Optional.of(setting.get().getValue()) : Optional.empty();
     }
   }
 }
