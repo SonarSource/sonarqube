@@ -1,5 +1,5 @@
 <div class="modal-head">
-  <h2><%= @project ? "Edit Permission #{message("projects_role.#{h @role}")} For: " + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{h @role}")}" -%></h2>
+  <h2><%= @project ? "Edit Permission #{message(h "projects_role.#{h @role}")} For: " + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{h @role}")}" -%></h2>
 </div>
 
 <div class="modal-body">

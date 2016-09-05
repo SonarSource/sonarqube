@@ -1,5 +1,5 @@
 <div class="modal-head">
-  <h2><%= "Edit Permission #{message("projects_role.#{@permission}")} For: " + @permission_template.name -%></h2>
+  <h2><%= "Edit Permission #{message("projects_role.#{h @permission}")} For: " + h(@permission_template.name) -%></h2>
 </div>
 
 <div class="modal-body">
@@ -21,12 +21,12 @@
       }
       return label;
     },
-    searchUrl: baseUrl + '/permission_templates/search_groups?permission=<%= @permission -%>&template=<%= @permission_template.key -%>',
+    searchUrl: baseUrl + '/permission_templates/search_groups?permission=<%= u @permission -%>&template=<%= u @permission_template.key -%>',
     selectUrl: baseUrl + '/permission_templates/add_group_permission',
     deselectUrl: baseUrl + '/permission_templates/remove_group_permission',
     extra: {
-      permission: '<%= @permission -%>',
-      template: '<%= @permission_template.key -%>'
+      permission: '<%= escape_javascript @permission -%>',
+      template: '<%= escape_javascript @permission_template.key -%>'
     },
     selectParameter: 'group',
     selectParameterValue: 'name',
