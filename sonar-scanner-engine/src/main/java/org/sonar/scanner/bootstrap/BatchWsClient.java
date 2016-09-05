@@ -97,6 +97,7 @@ public class BatchWsClient {
     }
     if (code == HTTP_FORBIDDEN || code == HTTP_BAD_REQUEST) {
       // SONAR-4397 Details are in response content
+      response.close();
       throw MessageException.of(tryParseAsJsonError(response.content()));
     }
     response.failIfNotSuccessful();
