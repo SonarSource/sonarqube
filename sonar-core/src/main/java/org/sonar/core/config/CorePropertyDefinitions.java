@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
@@ -57,6 +58,7 @@ public class CorePropertyDefinitions {
     defs.addAll(SecurityProperties.all());
     defs.addAll(DebtProperties.all());
     defs.addAll(PurgeProperties.all());
+    defs.addAll(EmailSettings.definitions());
 
     defs.addAll(ImmutableList.of(
       PropertyDefinition.builder(PROP_PASSWORD)

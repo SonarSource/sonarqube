@@ -39,4 +39,9 @@ public class EmailSettingsTest {
     assertThat(underTest.getPrefix()).isEqualTo("[SONARQUBE]");
     assertThat(underTest.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
+
+  @Test
+  public void return_definitions() {
+    assertThat(EmailSettings.definitions()).hasSize(7);
+  }
 }

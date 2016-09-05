@@ -20,10 +20,18 @@
 package org.sonar.api.config;
 
 import com.google.common.base.MoreObjects;
-import org.sonar.api.CoreProperties;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+
+import static org.sonar.api.CoreProperties.CATEGORY_GENERAL;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
+import static org.sonar.api.CoreProperties.SUBCATEGORY_EMAIL;
+import static org.sonar.api.PropertyType.INTEGER;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 
 /**
  * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)
@@ -84,10 +92,69 @@ public class EmailSettings {
   }
 
   public String getServerBaseURL() {
-    return get(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+    return get(SERVER_BASE_URL, SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
   private String get(String key, String defaultValue) {
     return MoreObjects.firstNonNull(settings.getString(key), defaultValue);
+  }
+
+  /**
+   * @since 6.1
+   */
+  public static List<PropertyDefinition> definitions() {
+    return ImmutableList.of(
+      PropertyDefinition.builder(SMTP_HOST)
+        .name("SMTP host")
+        .description("For example \"smtp.gmail.com\". Leave blank to disable email sending.")
+        .defaultValue(SMTP_HOST_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build(),
+      PropertyDefinition.builder(SMTP_PORT)
+        .name("SMTP port")
+        .description("Port number to connect with SMTP server.")
+        .defaultValue(SMTP_PORT_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .type(INTEGER)
+        .build(),
+      PropertyDefinition.builder(SMTP_SECURE_CONNECTION)
+        .name("Use secure connection")
+        .description("Whether to use secure connection and its type.")
+        .defaultValue(SMTP_SECURE_CONNECTION_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .type(SINGLE_SELECT_LIST)
+        .options("ssl", "starttls")
+        .build(),
+      PropertyDefinition.builder(SMTP_USERNAME)
+        .name("SMTP username")
+        .description("Username to use with authenticated SMTP.")
+        .defaultValue(SMTP_USERNAME_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build(),
+      PropertyDefinition.builder(SMTP_PASSWORD)
+        .name("SMTP password")
+        .description("Password to use with authenticated SMTP.")
+        .defaultValue(SMTP_PASSWORD_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build(),
+      PropertyDefinition.builder(FROM)
+        .name("From address")
+        .description("Emails will come from this address. For example - \"noreply@sonarsource.com\". Note that server may ignore this setting.")
+        .defaultValue(FROM_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build(),
+      PropertyDefinition.builder(PREFIX)
+        .name("Email prefix")
+        .description("Prefix will be prepended to all outgoing email subjects.")
+        .defaultValue(PREFIX_DEFAULT)
+        .category(CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_EMAIL)
+        .build());
   }
 }

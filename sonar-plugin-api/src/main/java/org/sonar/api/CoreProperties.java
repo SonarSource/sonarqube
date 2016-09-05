@@ -107,6 +107,11 @@ public interface CoreProperties {
   String SUBCATEGORY_COVERAGE_EXCLUSIONS = "coverage";
 
   /**
+   * @since 6.1
+   */
+  String SUBCATEGORY_EMAIL = "email";
+
+  /**
    * @since 3.7
    */
   String CATEGORY_LICENSES = "licenses";
