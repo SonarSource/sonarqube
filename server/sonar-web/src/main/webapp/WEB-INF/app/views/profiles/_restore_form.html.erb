@@ -1,4 +1,5 @@
 <form id="restore-profile-form" action="profiles/restore" enctype="multipart/form-data" method="POST">
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
   <fieldset>
 
     <div class="modal-head">

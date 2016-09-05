@@ -1,5 +1,5 @@
 <% resource_qualifier = message('qualifier.' + @project.qualifier) %>
-<form id="delete-project-form" method="post" action="<%= ApplicationController.root_context -%>/project/delete">
+<% form_tag(ApplicationController.root_context + "/project/delete", :id=>"delete-project-form")%>
   <fieldset>
     <div class="modal-head">
       <h2><%= message('project_deletion.page', :params => resource_qualifier) -%></h2>

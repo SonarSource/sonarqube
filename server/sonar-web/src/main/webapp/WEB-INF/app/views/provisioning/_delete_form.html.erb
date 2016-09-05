@@ -1,4 +1,5 @@
 <form id="delete-project-form" method="DELETE" action="<%= ApplicationController.root_context -%>/provisioning/delete">
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
   <input type="hidden" name="id" value="<%= @id -%>">
   <input type="hidden" name="_method" value="delete">
   <fieldset>

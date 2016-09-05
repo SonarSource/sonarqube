@@ -30,7 +30,7 @@
     <%= message('no_results') -%>
   <% else %>
 
-      <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
+      <% form_tag(ApplicationController.root_context + "/bulk_deletion/delete_resources") %>
         <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
         <input type="hidden" name="names" value="<%= params[:names] -%>"/>
         <input type="hidden" name="select_all" value="false" id="select_all"/>

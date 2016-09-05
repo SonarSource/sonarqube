@@ -16,7 +16,7 @@
     <tr class="<%= cycle 'even', 'odd' -%>">
       <td class="thin" nowrap><%= h language.getName() -%></td>
       <td>
-        <form id="form-<%= language.getKey().parameterize -%>" method="POST" action="<%= ApplicationController.root_context -%>/project/set_profile">
+        <%form_tag(ApplicationController.root_context + "/project/set_profile", :id=>"form-" + language.getKey().parameterize) %>
           <input type="hidden" name="id" value="<%= @project_id -%>"/>
           <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
 

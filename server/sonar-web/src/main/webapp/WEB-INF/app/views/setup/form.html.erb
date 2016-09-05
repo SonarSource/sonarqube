@@ -1,4 +1,4 @@
-<form action="<%= ApplicationController.root_context -%>/setup/setup_database" method="POST">
+<% form_tag(ApplicationController.root_context + ' /setup/setup_database') do -%>
 <div class="admin migration">
   <h1 class="marginbottom10">Upgrade database</h1>
   <br/>
@@ -11,4 +11,4 @@
   <br/>
     <input 	type="submit" value="Upgrade">
 </div>
-</form>
+<% end %>

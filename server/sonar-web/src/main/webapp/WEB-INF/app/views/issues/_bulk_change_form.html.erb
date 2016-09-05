@@ -27,7 +27,7 @@
      all_issues_are_assigned_to_current_user &&= issue.assignee() == current_user.login
    end
 %>
-<form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
+<% form_tag(ApplicationController.root_context + "/issues/bulk_change", :id=>"bulk-change-form")%>
   <input type="hidden" name="issues" value="<%= issues.map { |issue| issue.key() }.join(',') -%>">
   <input type="hidden" name="actions[]" id="bulk-change-transition-action">
   <fieldset>

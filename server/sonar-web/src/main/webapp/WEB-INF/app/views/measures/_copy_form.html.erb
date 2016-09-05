@@ -1,4 +1,4 @@
-<form id="copy-filter-form" method="post" action="<%= ApplicationController.root_context -%>/measures/copy">
+<% form_tag(ApplicationController.root_context + "/measures/copy", :id=>"copy-filter-form") %>
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <fieldset>
     <div class="modal-head">

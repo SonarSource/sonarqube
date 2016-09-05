@@ -23,6 +23,9 @@ class SessionsController < ApplicationController
   
   layout 'nonav'
   skip_before_filter :check_authentication
+ 
+  # should we run this or not? may cause login issues
+  skip_before_filter :verify_authenticity_token 
   
   def login
     return unless request.post?

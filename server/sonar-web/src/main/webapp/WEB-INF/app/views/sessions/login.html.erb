@@ -2,7 +2,7 @@
 		<tr>
 			<td align="center">
 				<div id="login_form">
-					<form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
+					<% form_tag(url_for :controller => 'sessions', :action => 'login') do -%>
             <input type="hidden" name="return_to_anchor" value="">
 						<h3><%= label_tag message('login') %></h3>
 						<p>
@@ -21,7 +21,7 @@
 						<p>
 							<%= submit_tag message('sessions.log_in') %> or <a href="<%= home_path -%>" class="action"><%= message('cancel') -%></a>
 						</p>
-					</form>
+					<% end %>
 					<% if flash[:loginerror] %>
 						<div class="error" style=""> <%= flash[:loginerror]  %></div>
 					<% end %>

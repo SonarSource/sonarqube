@@ -3,6 +3,7 @@
    importers = Internal.component(Java::OrgSonarServerQualityprofile::QProfileExporters.java_class).findProfileImportersForLanguage(language_key)
 %>
 <form id="create-profile-form" action="profiles/create" enctype="multipart/form-data" method="POST">
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
   <fieldset>
     <input type="hidden" name="language" value="<%= language_key -%>"/>
 

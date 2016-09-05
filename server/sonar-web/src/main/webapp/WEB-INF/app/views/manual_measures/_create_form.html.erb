@@ -7,7 +7,7 @@
         $j('#showPercent_' + idToShow).show();
       }
   </script>
-    <form action="<%= url_for :action => 'create' -%>" method="POST" id="measure_create_form">
+    <% form_tag(url_for :action => 'create', :id=>"measure_create_form")%>
       <fieldset>
         <div class="modal-head">
           <h2><%= message('manual_measures.create_measure') -%></h2>

@@ -1,4 +1,4 @@
-<form id="create-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/create">
+<% form_tag(ApplicationController.root_context + "/dashboards/create", :id=>"create-dashboard-form") %> 
   <% if @global %>
     <input type="hidden" name="global" value="true" />
   <% else %>

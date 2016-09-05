@@ -11,6 +11,7 @@
            return false;"
          method="post"
          action="<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>">
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>

@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
   include NeedAuthorization::Helper
 
   before_filter :check_database_version, :set_user_session, :check_authentication
+  protect_from_forgery
 
   # Required for JRuby 1.7
   rescue_from 'Java::JavaLang::Exception', :with => :render_java_exception
@@ -280,6 +281,16 @@ class ApplicationController < ActionController::Base
     @hide_sidebar = true
   end
 
+  #
+  # CSRF
+  #
+  def handle_unverified_request
+    require 'logger'
+    log = Logger.new('/tmp/ruby.txt', 'daily')
+    log.debug 'CSRF ' + request.request_uri
+    raise ActionController::InvalidAuthenticityToken
+  end
+  
   #
   # SETTINGS
   #

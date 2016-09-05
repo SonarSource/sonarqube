@@ -1,4 +1,4 @@
-<form id="edit-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/update">
+<% form_tag(ApplicationController.root_context + "/dashboards/update", :id=>"edit-dashboard-form") %>
   <input type="hidden" name="id" value="<%= @dashboard.id -%>">
   <% if @dashboard.global %>
     <input type="hidden" name="global" value="true" />

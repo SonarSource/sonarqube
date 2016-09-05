@@ -19,6 +19,9 @@
 #
 class ConfirmController < ApplicationController
 
+  #nothing happens here, no need to check CSRF
+  skip_before_filter :verify_authenticity_token 
+  
   # GET /confirm?url=<return_to_url>[&tk=<title_key][&mk=<message_key][&mp=<message_parameters]
   def index
     render :partial => 'confirm/confirm'

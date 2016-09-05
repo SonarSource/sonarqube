@@ -32,6 +32,11 @@
   <script>
     var baseUrl = '<%= ApplicationController.root_context -%>';
     var $j = jQuery.noConflict();
+    $j.ajaxSetup({
+  	headers: {
+    		'X-CSRF-Token': '<%= json_escape(form_authenticity_token) -%>'
+  	}
+    });
     $j(document).ready(function () {$j('.open-modal').modal()});
   </script>
   <%= yield :script -%>
