@@ -140,7 +140,6 @@ public class SetAction implements SettingsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       doHandle(dbSession, toWsRequest(request));
-      dbSession.commit();
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -167,8 +166,10 @@ public class SetAction implements SettingsWsAction {
       dbClient.propertiesDao().insertProperty(dbSession, property);
     }
 
+    dbSession.commit();
+
     if (!component.isPresent()) {
-      settingsChangeNotifier.onGlobalPropertyChange(request.getKey(), value);
+      settingsChangeNotifier.onGlobalPropertyChange(persistedKey(request), value);
     }
   }
 

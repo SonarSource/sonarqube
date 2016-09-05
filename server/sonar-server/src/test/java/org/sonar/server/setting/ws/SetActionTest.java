@@ -61,9 +61,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
@@ -87,7 +84,7 @@ public class SetActionTest {
 
   I18nRule i18n = new I18nRule();
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
-  SettingsChangeNotifier settingsChangeNotifier = mock(SettingsChangeNotifier.class);
+  FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, propertyDefinitions);
 
   SetAction underTest = new SetAction(propertyDefinitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier);
@@ -110,7 +107,7 @@ public class SetActionTest {
     callForGlobalSetting("my.key", "my,value");
 
     assertGlobalSetting("my.key", "my,value");
-    verify(settingsChangeNotifier).onGlobalPropertyChange("my.key", "my,value");
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
   }
 
   @Test
@@ -121,7 +118,7 @@ public class SetActionTest {
     callForGlobalSetting("my.key", "my new value");
 
     assertGlobalSetting("my.key", "my new value");
-    verify(settingsChangeNotifier).onGlobalPropertyChange("my.key", "my new value");
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
   }
 
   @Test
@@ -133,7 +130,7 @@ public class SetActionTest {
 
     assertGlobalSetting("my.key", "my global value");
     assertComponentSetting("my.key", "my project value", project.getId());
-    verifyZeroInteractions(settingsChangeNotifier);
+    assertThat(settingsChangeNotifier.wasCalled).isFalse();
   }
 
   @Test
@@ -164,7 +161,7 @@ public class SetActionTest {
 
     String expectedValue = "first%2CValue,second%2CValue,third%2CValue";
     assertGlobalSetting("my.key", expectedValue);
-    verify(settingsChangeNotifier).onGlobalPropertyChange("my.key", expectedValue);
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
   }
 
   @Test
@@ -208,7 +205,7 @@ public class SetActionTest {
     assertGlobalSetting("my.key.2.secondField", "anotherSecondValue");
     assertGlobalSetting("my.key.3.firstField", "yetFirstValue");
     assertGlobalSetting("my.key.3.secondField", "yetSecondValue");
-    verify(settingsChangeNotifier).onGlobalPropertyChange("my.key", "1,2,3");
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
   }
 
   @Test
@@ -255,7 +252,7 @@ public class SetActionTest {
     assertGlobalSetting("my.key.2.secondField", "anotherSecondValue");
     assertGlobalSetting("my.key.3.firstField", "yetFirstValue");
     assertGlobalSetting("my.key.3.secondField", "yetSecondValue");
-    verify(settingsChangeNotifier).onGlobalPropertyChange("my.key", "1,2,3");
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
   }
 
   @Test
@@ -304,7 +301,7 @@ public class SetActionTest {
     assertComponentSetting("my.key.1.secondField", "secondValue", projectId);
     assertComponentSetting("my.key.2.firstField", "anotherFirstValue", projectId);
     assertComponentSetting("my.key.2.secondField", "anotherSecondValue", projectId);
-    verifyZeroInteractions(settingsChangeNotifier);
+    assertThat(settingsChangeNotifier.wasCalled).isFalse();
   }
 
   @Test
@@ -726,5 +723,23 @@ public class SetActionTest {
     }
 
     request.execute();
+  }
+
+  private static class FakeSettingsNotifier extends SettingsChangeNotifier {
+    private final DbClient dbClient;
+
+    private boolean wasCalled = false;
+
+    private FakeSettingsNotifier(DbClient dbClient) {
+      this.dbClient = dbClient;
+    }
+
+    @Override
+    public void onGlobalPropertyChange(String key, @Nullable String value) {
+      wasCalled = true;
+      PropertyDto property = dbClient.propertiesDao().selectGlobalProperty(key);
+
+      assertThat(property.getValue()).isEqualTo(value);
+    }
   }
 }
