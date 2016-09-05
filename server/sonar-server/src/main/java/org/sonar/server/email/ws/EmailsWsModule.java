@@ -26,7 +26,6 @@ public class EmailsWsModule extends Module {
   protected void configureModule() {
     add(
       EmailsWs.class,
-      UpdateConfigurationAction.class,
       SendAction.class);
   }
 }

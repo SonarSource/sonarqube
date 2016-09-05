@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetEmailSettings;
+import static util.ItUtils.setServerProperty;
 
 public class EmailsTest {
 
@@ -55,7 +56,6 @@ public class EmailsTest {
   public static void before() throws Exception {
     ADMIN_WS_CLIENT = newAdminWsClient(orchestrator);
     SETTINGS = ADMIN_WS_CLIENT.settingsService();
-    resetEmailSettings(orchestrator);
 
     SMTP_SERVER = new Wiser(0);
     SMTP_SERVER.start();
@@ -74,6 +74,7 @@ public class EmailsTest {
   public void prepare() {
     orchestrator.resetData();
     SMTP_SERVER.getMessages().clear();
+    resetEmailSettings(orchestrator);
   }
 
   @Test
@@ -118,16 +119,13 @@ public class EmailsTest {
 
   private static void updateEmailSettings(@Nullable String host, @Nullable String port, @Nullable String from, @Nullable String prefix, @Nullable String secure,
     @Nullable String username, @Nullable String password) {
-    ADMIN_WS_CLIENT.wsConnector().call(
-      new PostRequest("/api/emails/update_configuration")
-        .setParam("host", host)
-        .setParam("port", port)
-        .setParam("from", from)
-        .setParam("prefix", prefix)
-        .setParam("secure", secure)
-        .setParam("username", username)
-        .setParam("password", password))
-      .failIfNotSuccessful();
+    setServerProperty(orchestrator, "email.smtp_host.secured", host);
+    setServerProperty(orchestrator, "email.smtp_port.secured", port);
+    setServerProperty(orchestrator, "email.smtp_secure_connection.secured", secure);
+    setServerProperty(orchestrator, "email.smtp_username.secured", username);
+    setServerProperty(orchestrator, "email.smtp_password.secured", password);
+    setServerProperty(orchestrator, "email.from", from);
+    setServerProperty(orchestrator, "email.prefix", prefix);
   }
 
   private static void sendEmail(String to, String subject, String message) {

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,8 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -227,19 +226,17 @@ public class ItUtils {
   }
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
-    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponentKey(componentKey).build());
+    Arrays.stream(keys).forEach(key -> setServerProperty(orchestrator, componentKey, key, null));
   }
 
   public static void resetEmailSettings(Orchestrator orchestrator) {
-    newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("/api/emails/update_configuration")).failIfNotSuccessful();
+    resetSettings(orchestrator, null, "email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured",
+      "email.smtp_password.secured", "email.from", "email.prefix");
   }
 
   public static void resetPeriods(Orchestrator orchestrator) {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", null);
-    setServerProperty(orchestrator, "sonar.timemachine.period2", null);
-    setServerProperty(orchestrator, "sonar.timemachine.period3", null);
-    setServerProperty(orchestrator, "sonar.timemachine.period4", null);
-    setServerProperty(orchestrator, "sonar.timemachine.period5", null);
+    resetSettings(orchestrator, null, "sonar.timemachine.period1", "sonar.timemachine.period2", "sonar.timemachine.period3", "sonar.timemachine.period4",
+      "sonar.timemachine.period5");
   }
 
   /**
