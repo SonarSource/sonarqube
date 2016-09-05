@@ -216,7 +216,7 @@ public class ValuesAction implements SettingsWsAction {
       valueBuilder.setInherited(isDefault || !isSet);
     }
 
-    private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
+    private static void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
       PropertyDefinition definition = setting.getDefinition();
       String value = setting.getValue();
       if (definition == null) {

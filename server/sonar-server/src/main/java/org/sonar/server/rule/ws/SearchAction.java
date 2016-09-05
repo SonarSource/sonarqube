@@ -46,7 +46,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -63,6 +62,14 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SORT;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
@@ -114,11 +121,11 @@ public class SearchAction implements RulesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .addPagingParams(100, org.sonar.server.es.SearchOptions.MAX_LIMIT)
+      .addPagingParams(100, MAX_LIMIT)
       .setHandler(this);
 
     Collection<String> possibleFacets = possibleFacets();
-    WebService.NewParam paramFacets = action.createParam(Param.FACETS)
+    WebService.NewParam paramFacets = action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(possibleFacets);
     if (possibleFacets != null && possibleFacets.size() > 1) {
@@ -126,7 +133,7 @@ public class SearchAction implements RulesWsAction {
       paramFacets.setExampleValue(String.format("%s,%s", it.next(), it.next()));
     }
 
-    WebService.NewParam paramFields = action.createParam(Param.FIELDS)
+    WebService.NewParam paramFields = action.createParam(FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives." +
         "Since 5.5, following fields have been deprecated :" +
         "<ul>" +
@@ -210,7 +217,7 @@ public class SearchAction implements RulesWsAction {
    */
   public static void defineRuleSearchParameters(WebService.NewAction action) {
     action
-      .createParam(Param.TEXT_QUERY)
+      .createParam(TEXT_QUERY)
       .setDescription("UTF-8 search query")
       .setExampleValue("xpath");
 
@@ -297,13 +304,13 @@ public class SearchAction implements RulesWsAction {
       .setExampleValue("java:S001");
 
     action
-      .createParam(Param.SORT)
+      .createParam(SORT)
       .setDescription("Sort field")
       .setPossibleValues(RuleIndexDefinition.SORT_FIELDS)
       .setExampleValue(RuleIndexDefinition.SORT_FIELDS.iterator().next());
 
     action
-      .createParam(Param.ASCENDING)
+      .createParam(ASCENDING)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
       .setDefaultValue(true);
@@ -335,7 +342,7 @@ public class SearchAction implements RulesWsAction {
       context.addFacets(request.getFacets());
     }
     if (pageSize < 1) {
-      context.setPage(request.getPage(), 0).setLimit(SearchOptions.MAX_LIMIT);
+      context.setPage(request.getPage(), 0).setLimit(MAX_LIMIT);
     } else {
       context.setPage(request.getPage(), pageSize);
     }
@@ -445,20 +452,20 @@ public class SearchAction implements RulesWsAction {
     return new SearchWsRequest()
       .setActivation(request.paramAsBoolean(PARAM_ACTIVATION))
       .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
-      .setAsc(request.mandatoryParamAsBoolean(Param.ASCENDING))
+      .setAsc(request.mandatoryParamAsBoolean(ASCENDING))
       .setAvailableSince(request.param(PARAM_AVAILABLE_SINCE))
-      .setFields(request.paramAsStrings(Param.FIELDS))
-      .setFacets(request.paramAsStrings(Param.FACETS))
+      .setFields(request.paramAsStrings(FIELDS))
+      .setFacets(request.paramAsStrings(FACETS))
       .setInheritance(request.paramAsStrings(PARAM_INHERITANCE))
       .setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setQuery(request.param(Param.TEXT_QUERY))
+      .setPage(request.mandatoryParamAsInt(PAGE))
+      .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
+      .setQuery(request.param(TEXT_QUERY))
       .setQProfile(request.param(PARAM_QPROFILE))
       .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
       .setRuleKey(request.param(PARAM_RULE_KEY))
-      .setSort(request.param(Param.SORT))
+      .setSort(request.param(SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))

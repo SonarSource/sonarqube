@@ -74,7 +74,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       .setResponseExample(getClass().getResource("template_groups-example.json"))
       .setHandler(this);
 
-    action.createParam(WebService.Param.TEXT_QUERY)
+    action.createParam(TEXT_QUERY)
       .setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
         "When this parameter is not set, only group having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
       .setExampleValue("eri");
