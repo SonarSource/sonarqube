@@ -135,6 +135,7 @@ import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationCenter;
+import org.sonar.server.notification.NotificationDaemon;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -578,6 +579,7 @@ public class PlatformLevel4 extends PlatformLevel {
       NotificationCenter.class,
       DefaultNotificationManager.class,
       EmailsWsModule.class,
+      NotificationDaemon.class,
 
       // Tests
       TestsWs.class,
