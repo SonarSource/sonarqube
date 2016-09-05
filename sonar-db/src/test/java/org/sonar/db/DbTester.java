@@ -135,6 +135,13 @@ public class DbTester extends ExternalResource {
   public void executeUpdateSql(String sql, Object... params) {
     try (Connection connection = getConnection()) {
       new QueryRunner().update(connection, sql, params);
+    } catch (SQLException e) {
+      SQLException nextException = e.getNextException();
+      if (nextException != null) {
+        throw new IllegalStateException("Fail to execute sql: " + sql,
+          new SQLException(e.getMessage(), nextException.getSQLState(), nextException.getErrorCode(), nextException));
+      }
+      throw new IllegalStateException("Fail to execute sql: " + sql, e);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
     }
