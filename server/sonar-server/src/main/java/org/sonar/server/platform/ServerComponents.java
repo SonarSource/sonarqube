@@ -528,6 +528,7 @@ class ServerComponents {
     pico.addSingleton(QGatesWs.class);
 
     // web services
+    pico.addSingleton(SecureServletFilter.class);
     pico.addSingleton(WebServiceEngine.class);
     pico.addSingleton(ListingWs.class);
 
