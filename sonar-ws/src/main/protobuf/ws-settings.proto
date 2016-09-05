@@ -34,6 +34,11 @@ message EncryptWsResponse {
   optional string encryptedValue = 1;
 }
 
+// Response of GET api/settings/generate_secret_key
+message GenerateSecretKeyWsResponse {
+  optional string secretKey = 1;
+}
+
 message Definition {
   optional string key = 1;
   optional string name = 2;

@@ -276,7 +276,7 @@ public final class JRubyFacade {
   }
 
   public String generateRandomSecretKey() {
-    return get(Settings.class).getEncryption().generateRandomSecretKey();
+    return  get(Settings.class).getEncryption().generateRandomSecretKey();
   }
 
   public License parseLicense(String base64) {

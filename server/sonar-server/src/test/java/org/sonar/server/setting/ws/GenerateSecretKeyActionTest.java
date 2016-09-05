@@ -1,0 +1,105 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.setting.ws;
+
+import com.google.common.base.Throwables;
+import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Encryption;
+import org.sonar.api.config.Settings;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+
+public class GenerateSecretKeyActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(SYSTEM_ADMIN);
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  Settings settings = new Settings();
+  Encryption encryption = settings.getEncryption();
+
+  GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
+
+  WsActionTester ws = new WsActionTester(underTest);
+
+  @Test
+  public void generate_valid_secret_key() throws IOException {
+    GenerateSecretKeyWsResponse result = call();
+
+    String secretKey = result.getSecretKey();
+    File file = temporaryFolder.newFile();
+    FileUtils.writeStringToFile(file, secretKey);
+    encryption.setPathToSecretKey(file.getAbsolutePath());
+    String encryptedValue = encryption.encrypt("my value");
+    String decryptedValue = encryption.decrypt(encryptedValue);
+    assertThat(decryptedValue).isEqualTo("my value");
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("generate_secret_key");
+    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.params()).hasSize(0);
+  }
+
+  @Test
+  public void fail_if_insufficient_permissions() {
+    expectedException.expect(ForbiddenException.class);
+
+    userSession.anonymous().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+
+    call();
+  }
+
+  private GenerateSecretKeyWsResponse call() {
+    TestRequest request = ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setMethod("GET");
+
+    try {
+      return GenerateSecretKeyWsResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+}
