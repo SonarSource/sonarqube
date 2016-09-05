@@ -67,3 +67,9 @@ export function resetSettingValue (key, componentKey) {
   }
   return post(url, data);
 }
+
+export function sendTestEmail (to, subject, message) {
+  const url = '/api/emails/send';
+  const data = { to, subject, message };
+  return post(url, data);
+}

@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.sonar.api.PropertyType;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -120,8 +121,8 @@ public class EmailSettings {
         .type(INTEGER)
         .build(),
       PropertyDefinition.builder(SMTP_SECURE_CONNECTION)
-        .name("Use secure connection")
-        .description("Whether to use secure connection and its type.")
+        .name("Secure connection")
+        .description("Type of secure connection. Leave empty to not use secure connection.")
         .defaultValue(SMTP_SECURE_CONNECTION_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
@@ -139,6 +140,7 @@ public class EmailSettings {
         .name("SMTP password")
         .description("Password to use with authenticated SMTP.")
         .defaultValue(SMTP_PASSWORD_DEFAULT)
+        .type(PropertyType.PASSWORD)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
         .build(),

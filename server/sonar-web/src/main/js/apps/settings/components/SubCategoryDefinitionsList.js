@@ -22,6 +22,7 @@ import shallowCompare from 'react-addons-shallow-compare';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import DefinitionsList from './DefinitionsList';
+import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 
 export default class SubCategoryDefinitionsList extends React.Component {
@@ -32,6 +33,14 @@ export default class SubCategoryDefinitionsList extends React.Component {
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
+  }
+
+  renderEmailForm (subCategoryKey) {
+    const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
+    if (!isEmailSettings) {
+      return null;
+    }
+    return <EmailForm/>;
   }
 
   render () {
@@ -54,6 +63,7 @@ export default class SubCategoryDefinitionsList extends React.Component {
                     </div>
                 )}
                 <DefinitionsList settings={bySubCategory[subCategory.key]} component={this.props.component}/>
+                {this.renderEmailForm(subCategory.key)}
               </li>
           ))}
         </ul>
