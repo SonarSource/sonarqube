@@ -57,6 +57,9 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.template()).isTrue();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("INTEGRATION_TESTABILITY");
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("2d2h2min");
+    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("1d1h1min");
     assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
     assertThat(rule.tags()).containsOnly("style", "security");
 

@@ -58,6 +58,9 @@ import java.util.List;
  *     &lt;severity&gt;BLOCKER&lt;/severity&gt;
  *     &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
+ *     &lt;debtSubCharacteristic&gt;INTEGRATION_TESTABILITY&lt;/debtSubCharacteristic&gt;
+ *     &lt;debtRemediationFunctionCoefficient&gt;2d 2h 2min&lt;/debtRemediationFunctionCoefficient&gt;
+ *     &lt;debtRemediationFunctionOffset&gt;1d 1h 1min&lt;/debtRemediationFunctionOffset&gt;
  *     &lt;tag&gt;style&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;param&gt;
@@ -122,7 +125,7 @@ public class RulesDefinitionXmlLoader implements ServerComponent {
   }
 
   private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null;
+    String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null, debtSubCharacteristic = null, debtRemediationFunctionCoefficient = null, debtRemediationFunctionOffset = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<ParamStruct>();
     List<String> tags = new ArrayList<String>();
@@ -175,6 +178,15 @@ public class RulesDefinitionXmlLoader implements ServerComponent {
 
       } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
         tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
+
+      } else if (StringUtils.equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
+        debtSubCharacteristic = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
+        debtRemediationFunctionCoefficient = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
+        debtRemediationFunctionOffset = StringUtils.trim(cursor.collectDescendantText(false));
       }
     }
     RulesDefinition.NewRule rule = repo.createRule(key)
@@ -192,6 +204,16 @@ public class RulesDefinitionXmlLoader implements ServerComponent {
         .setDefaultValue(param.defaultValue)
         .setType(param.type)
         .setDescription(param.description);
+    }
+    rule.setDebtSubCharacteristic(debtSubCharacteristic);
+    if (debtRemediationFunctionCoefficient != null && debtRemediationFunctionOffset != null) {
+      rule.setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset(debtRemediationFunctionCoefficient, debtRemediationFunctionOffset));
+
+    } else if (debtRemediationFunctionCoefficient != null) {
+      rule.setDebtRemediationFunction(rule.debtRemediationFunctions().linear(debtRemediationFunctionCoefficient));
+
+    } else if (debtRemediationFunctionOffset != null) {
+      rule.setDebtRemediationFunction(rule.debtRemediationFunctions().constantPerIssue(debtRemediationFunctionOffset));
     }
   }
 
