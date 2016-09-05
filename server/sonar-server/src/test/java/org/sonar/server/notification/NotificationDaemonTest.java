@@ -43,21 +43,21 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class NotificationServiceTest {
+public class NotificationDaemonTest {
   private static String CREATOR_SIMON = "simon";
   private static String CREATOR_EVGENY = "evgeny";
   private static String ASSIGNEE_SIMON = "simon";
 
-  DefaultNotificationManager manager = mock(DefaultNotificationManager.class);
-  Notification notification = mock(Notification.class);
-  NotificationChannel emailChannel = mock(NotificationChannel.class);
-  NotificationChannel gtalkChannel = mock(NotificationChannel.class);
-  NotificationDispatcher commentOnIssueAssignedToMe = mock(NotificationDispatcher.class);
-  NotificationDispatcher commentOnIssueCreatedByMe = mock(NotificationDispatcher.class);
-  NotificationDispatcher qualityGateChange = mock(NotificationDispatcher.class);
-  DbClient dbClient = mock(DbClient.class);
-
-  private NotificationService service;
+  private DefaultNotificationManager manager = mock(DefaultNotificationManager.class);
+  private Notification notification = mock(Notification.class);
+  private NotificationChannel emailChannel = mock(NotificationChannel.class);
+  private NotificationChannel gtalkChannel = mock(NotificationChannel.class);
+  private NotificationDispatcher commentOnIssueAssignedToMe = mock(NotificationDispatcher.class);
+  private NotificationDispatcher commentOnIssueCreatedByMe = mock(NotificationDispatcher.class);
+  private NotificationDispatcher qualityGateChange = mock(NotificationDispatcher.class);
+  private DbClient dbClient = mock(DbClient.class);
+  private NotificationService service = new NotificationService(dbClient, new NotificationDispatcher[]{commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
+  private NotificationDaemon underTest = null;
 
   private void setUpMocks() {
     when(emailChannel.getKey()).thenReturn("email");
@@ -72,9 +72,7 @@ public class NotificationServiceTest {
 
     Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager,
-      dbClient,
-      new NotificationDispatcher[]{commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
+    underTest = new NotificationDaemon(settings, manager, service);
   }
 
   /**
@@ -93,9 +91,9 @@ public class NotificationServiceTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    service.start();
+    underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    service.stop();
+    underTest.stop();
 
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
@@ -117,10 +115,10 @@ public class NotificationServiceTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    service.start();
+    underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
     verify(gtalkChannel, timeout(2000)).deliver(notification, CREATOR_EVGENY);
-    service.stop();
+    underTest.stop();
 
     verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
@@ -142,10 +140,10 @@ public class NotificationServiceTest {
     doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[]{emailChannel, gtalkChannel}))
       .when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    service.start();
+    underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
     verify(gtalkChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    service.stop();
+    underTest.stop();
 
     verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
     verify(gtalkChannel, never()).deliver(notification, CREATOR_EVGENY);
@@ -165,8 +163,8 @@ public class NotificationServiceTest {
   public void scenario4() {
     setUpMocks();
 
-    service.start();
-    service.stop();
+    underTest.start();
+    underTest.stop();
 
     verify(emailChannel, never()).deliver(any(Notification.class), anyString());
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
@@ -180,9 +178,9 @@ public class NotificationServiceTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    service.start();
+    underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    service.stop();
+    underTest.stop();
 
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
@@ -192,8 +190,8 @@ public class NotificationServiceTest {
     setUpMocks();
     doAnswer(addUser(null, gtalkChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    service.start();
-    service.stop();
+    underTest.start();
+    underTest.stop();
 
     verify(emailChannel, never()).deliver(any(Notification.class), anyString());
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
@@ -210,7 +208,7 @@ public class NotificationServiceTest {
   public void getDispatchers_empty() {
     Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager, dbClient);
+    service = new NotificationService(dbClient);
     assertThat(service.getDispatchers()).hasSize(0);
   }
 
@@ -220,13 +218,13 @@ public class NotificationServiceTest {
     // Emulate 2 notifications in DB
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(notification).thenReturn(null);
     when(manager.count()).thenReturn(1L).thenReturn(0L);
-    service = spy(service);
+    underTest = spy(underTest);
     // Emulate processing of each notification take 10 min to have a log each time
-    when(service.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
-    service.start();
-    verify(service, timeout(200)).log(1, 1, 10);
-    verify(service, timeout(200)).log(2, 0, 20);
-    service.stop();
+    when(underTest.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
+    underTest.start();
+    verify(underTest, timeout(200)).log(1, 1, 10);
+    verify(underTest, timeout(200)).log(2, 0, 20);
+    underTest.stop();
   }
 
   @Test

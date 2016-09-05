@@ -24,68 +24,30 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.picocontainer.Startable;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.config.Settings;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 
-@Properties({
-  @Property(
-    key = NotificationService.PROPERTY_DELAY,
-    defaultValue = "60",
-    name = "Delay of notifications, in seconds",
-    project = false,
-    global = false),
-  @Property(
-    key = NotificationService.PROPERTY_DELAY_BEFORE_REPORTING_STATUS,
-    defaultValue = "600",
-    name = "Delay before reporting notification status, in seconds",
-    project = false,
-    global = false)
-})
 @ServerSide
 @ComputeEngineSide
-public class NotificationService implements Startable {
-  private static final String THREAD_NAME_PREFIX = "sq-notification-service-";
+public class NotificationService {
 
   private static final Logger LOG = Loggers.get(NotificationService.class);
 
-  public static final String PROPERTY_DELAY = "sonar.notifications.delay";
-  public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";
-
-  private final long delayInSeconds;
-  private final long delayBeforeReportingStatusInSeconds;
-  private final DefaultNotificationManager manager;
   private final List<NotificationDispatcher> dispatchers;
   private final DbClient dbClient;
 
-  private ScheduledExecutorService executorService;
-  private boolean stopping = false;
-  private final boolean disabled;
-
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
-    NotificationDispatcher[] dispatchers) {
-    this.disabled = "ComputeEngineSettings".equals(settings.getClass().getSimpleName());
-    this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
-    this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
-    this.manager = manager;
+  public NotificationService(DbClient dbClient, NotificationDispatcher[] dispatchers) {
     this.dbClient = dbClient;
     this.dispatchers = ImmutableList.copyOf(dispatchers);
   }
@@ -93,75 +55,8 @@ public class NotificationService implements Startable {
   /**
    * Default constructor when no dispatchers.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient) {
-    this(settings, manager, dbClient, new NotificationDispatcher[0]);
-  }
-
-  @Override
-  public void start() {
-    if (!disabled) {
-      executorService =
-          Executors.newSingleThreadScheduledExecutor(
-              new ThreadFactoryBuilder()
-                  .setNameFormat(THREAD_NAME_PREFIX + "%d")
-                  .setPriority(Thread.MIN_PRIORITY)
-                  .build());
-      executorService.scheduleWithFixedDelay(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            processQueue();
-          } catch (Exception e) {
-            LOG.error("Error in NotificationService", e);
-          }
-        }
-      }, 0, delayInSeconds, TimeUnit.SECONDS);
-      LOG.info("Notification service started (delay {} sec.)", delayInSeconds);
-    }
-  }
-
-  @Override
-  public void stop() {
-    if (!disabled) {
-      try {
-        stopping = true;
-        executorService.shutdown();
-        executorService.awaitTermination(5, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        LOG.error("Error during stop of notification service", e);
-      }
-      LOG.info("Notification service stopped");
-    }
-  }
-
-  @VisibleForTesting
-  synchronized void processQueue() {
-    long start = now();
-    long lastLog = start;
-    long notifSentCount = 0;
-
-    Notification notifToSend = manager.getFromQueue();
-    while (notifToSend != null) {
-      deliver(notifToSend);
-      notifSentCount++;
-      if (stopping) {
-        break;
-      }
-      long now = now();
-      if (now - lastLog > delayBeforeReportingStatusInSeconds * 1000) {
-        long remainingNotifCount = manager.count();
-        lastLog = now;
-        long spentTimeInMinutes = (now - start) / (60 * 1000);
-        log(notifSentCount, remainingNotifCount, spentTimeInMinutes);
-      }
-      notifToSend = manager.getFromQueue();
-    }
-  }
-
-  @VisibleForTesting
-  void log(long notifSentCount, long remainingNotifCount, long spentTimeInMinutes) {
-    LOG.info("{} notifications sent during the past {} minutes and {} still waiting to be sent",
-      new Object[] {notifSentCount, spentTimeInMinutes, remainingNotifCount});
+  public NotificationService(DbClient dbClient) {
+    this(dbClient, new NotificationDispatcher[0]);
   }
 
   @VisibleForTesting
