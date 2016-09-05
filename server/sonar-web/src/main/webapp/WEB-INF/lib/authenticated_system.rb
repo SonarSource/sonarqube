@@ -200,7 +200,7 @@ module AuthenticatedSystem
     cookies[:auth_token] = {
       :value   => @current_user.remember_token,
       :expires => @current_user.remember_token_expires_at,
-      :http_only => true }
+      :httponly => true }
   end
 
 end
