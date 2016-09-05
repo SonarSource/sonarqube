@@ -18,23 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
-import { RECEIVE_VALUES } from './actions';
-import type { SettingValue } from '../../types';
-
-type State = { [key: string]: {} };
-
-type Action = { type: string, settings: SettingValue[] };
-
-const reducer = (state: State = {}, action: Action) => {
-  if (action.type === RECEIVE_VALUES) {
-    const settingsByKey = keyBy(action.settings, 'key');
-    return { ...state, ...settingsByKey };
-  }
-
-  return state;
+export type Definition = {
+  key: string,
+  category: string
 };
 
-export default reducer;
-
-export const getValue = (state: State, key: string) => state[key];
+export type SettingValue = {
+  value?: string
+};

@@ -59,7 +59,7 @@ function makeRequest (params) {
           case 200:
             return response.json();
           case 304:
-            return JSON.parse(localStorage.getItem('l10n.bundle'));
+            return JSON.parse(localStorage.getItem('l10n.bundle') || '{}');
           case 401:
             window.location = window.baseUrl + '/sessions/new?return_to=' +
                 encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
