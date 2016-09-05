@@ -48,6 +48,8 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.db.Database;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
@@ -189,8 +191,22 @@ public final class JRubyFacade {
     return getContainer().getComponentsByType(Footer.class);
   }
 
-  public void setGlobalProperty(String key, @Nullable String value) {
-    get(PersistentSettings.class).saveProperty(key, value);
+  public void saveProperty(String key, @Nullable Long componentId, @Nullable Long userId, @Nullable String value) {
+    if (componentId == null && userId == null) {
+      get(PersistentSettings.class).saveProperty(key, value);
+    } else {
+      DbClient dbClient = get(DbClient.class);
+      PropertiesDao propertiesDao = dbClient.propertiesDao();
+
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        if (value == null) {
+          propertiesDao.delete(dbSession, new PropertyDto().setKey(key).setResourceId(componentId).setUserId(userId));
+        } else {
+          propertiesDao.saveProperty(dbSession, new PropertyDto().setKey(key).setResourceId(componentId).setUserId(userId).setValue(value));
+        }
+        dbSession.commit();
+      }
+    }
   }
 
   public Settings getSettings() {

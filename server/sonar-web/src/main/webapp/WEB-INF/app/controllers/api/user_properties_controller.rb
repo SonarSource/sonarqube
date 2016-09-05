@@ -65,8 +65,7 @@ class Api::UserPropertiesController < Api::ApiController
     value = params[:value]
     if key
       begin
-        Property.clear(key, nil, current_user.id)
-        property=Property.create(:prop_key => key, :text_value => value, :user_id => current_user.id)
+        property=Property.set(key, value, nil, current_user.id)
         respond_to do |format|
           format.json { render :json => jsonp(properties_to_json([property])) }
           format.xml  { render :xml => properties_to_xml([property]) }
@@ -88,7 +87,7 @@ class Api::UserPropertiesController < Api::ApiController
   def destroy
     begin
       if params[:id]
-        Property.clear(params[:id], nil, current_user.id)
+        Api::Utils.java_facade.saveProperty(params[:id], nil, current_user.id, nil)
       end
       render_success("Property deleted")
     rescue Exception => e

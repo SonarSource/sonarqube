@@ -161,8 +161,7 @@ class User < ActiveRecord::Base
   def add_favourite(resource_key)
     favourite=Project.by_key(resource_key)
     if favourite
-      delete_favourite(favourite.id)
-      properties().create(:prop_key => FAVOURITE_PROPERTY_KEY, :user_id => id, :resource_id => favourite.id)
+      Api::Utils.java_facade.saveProperty(FAVOURITE_PROPERTY_KEY, favourite.id, id, '')
     end
     favourite
   end
@@ -174,11 +173,8 @@ class User < ActiveRecord::Base
       rid = resource.id if resource
     end
     if rid
-      props=properties().select { |p| p.key==FAVOURITE_PROPERTY_KEY && p.resource_id==rid }
-      if props.size>0
-        properties().delete(props)
-        return true
-      end
+      Api::Utils.java_facade.saveProperty(FAVOURITE_PROPERTY_KEY, rid, id, nil)
+      true
     end
     false
   end

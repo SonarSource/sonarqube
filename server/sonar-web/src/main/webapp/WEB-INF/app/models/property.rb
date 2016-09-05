@@ -23,7 +23,8 @@ class Property < ActiveRecord::Base
   named_scope :with_keys, lambda { |values| {:conditions => ['prop_key in (?)', values]} }
   named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
   named_scope :with_key_prefix, lambda { |value| {:conditions => ['prop_key like ?', value + '%']} }
-  named_scope :with_value, lambda { |value| {:conditions => ['text_value like ?', value]} }
+  named_scope :with_text_value, lambda { |value| {:conditions => ['text_value = ?', value]} }
+  named_scope :with_clob_value, lambda { |value| {:conditions => ['clob_value like ?', value]} }
   named_scope :with_resource, lambda { |value| {:conditions => {:resource_id => value}} }
   named_scope :with_user, lambda { |value| {:conditions => {:user_id => value}} }
   named_scope :with_resources, :conditions => 'resource_id is not null'
@@ -36,7 +37,13 @@ class Property < ActiveRecord::Base
   end
 
   def value
-    text_value
+    if is_empty?
+      ''
+    elsif text_value.nil?
+      clob_value
+    else
+      text_value
+    end
   end
 
   def self.hash(resource_id=nil, user_id=nil)
@@ -48,8 +55,7 @@ class Property < ActiveRecord::Base
   def self.clear(key, resource_id=nil, user_id=nil)
     prop = by_key(key, resource_id, user_id)
     if prop
-      all(key, resource_id, user_id).delete_all
-      setGlobalProperty(key, nil, resource_id, user_id)
+      Api::Utils.java_facade.saveProperty(key, resource_id, user_id, nil)
     end
     prop
   end
@@ -57,7 +63,11 @@ class Property < ActiveRecord::Base
   def self.clear_for_resources(key, value=nil)
     scope = Property.with_resources().with_key(key)
     if value
-      scope = scope.with_value(value)
+      if value.length > 4000
+        scope = scope.with_clob_value(value)
+      else
+        scope = scope.with_text_value(value)
+      end
     end
     scope.delete_all
   end
@@ -78,7 +88,7 @@ class Property < ActiveRecord::Base
     property = by_key(key, resource_id, user_id)
     return default_value unless property
 
-    property.text_value || default_value
+    property.value || default_value
   end
 
   def self.values(key, resource_id=nil, user_id=nil)
@@ -93,33 +103,35 @@ class Property < ActiveRecord::Base
       value = Property.new({:prop_key => key}).multi_values? ? array_value_to_string(value) : value.first
     end
 
-    text_value = value.to_s if defined? value
-    text_value = nil if text_value.blank?
+    raw_value = value.to_s if defined? value
+    raw_value = nil if raw_value.blank?
 
     # Load Java property definition
     property_def = field_property_def(key) || property_def(key)
 
-    if text_value.blank?
-      return Property.clear(key, resource_id)
+    prop = by_key(key, resource_id, user_id)
+    if !prop
+      prop = Property.new(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
     end
 
-    prop = by_key(key, resource_id, user_id)
-    if prop && prop.text_value == text_value
+    if prop.value == raw_value
       return prop
     end
 
-    if !prop
-      prop = Property.new(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
-      # Do not update password that wasn't updated
-    elsif property_def.type().to_s == PropertyType::TYPE_PASSWORD && text_value == EXISTING_PASSWORD
-      text_value = prop.text_value
+    # Do not update password that wasn't updated
+    if property_def.type().to_s == PropertyType::TYPE_PASSWORD && raw_value == EXISTING_PASSWORD
+      raw_value = prop.value
     end
 
-    prop.text_value = text_value
-    if prop.save
-      setGlobalProperty(key, text_value, resource_id, user_id)
-    end
+    # create/update property in DB
+    Api::Utils.java_facade.saveProperty(key, resource_id, user_id, raw_value)
 
+    # update returned property
+    if raw_value.nil?
+      prop.text_value=''
+    else
+      prop.text_value=raw_value
+    end
     prop
   end
 
@@ -170,10 +182,6 @@ class Property < ActiveRecord::Base
     array.map { |v| v.gsub(',', '%2C') }.join(',')
   end
 
-  def self.setGlobalProperty(key, value, resource_id, user_id)
-    Api::Utils.java_facade.setGlobalProperty(key, value) unless (resource_id || user_id)
-  end
-
   private
 
   def self.all(key, resource_id=nil, user_id=nil)
@@ -191,14 +199,14 @@ class Property < ActiveRecord::Base
 
   def validate_property
     if java_definition
-      validation_result = java_definition.validate(text_value)
+      validation_result = java_definition.validate(value)
       errors.add_to_base(validation_result.errorKey) unless validation_result.isValid()
     end
   end
 
   def validate_field
     if java_field_definition
-      validation_result = java_field_definition.validate(text_value)
+      validation_result = java_field_definition.validate(value)
       errors.add_to_base(validation_result.errorKey) unless validation_result.isValid()
     end
   end

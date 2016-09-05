@@ -45,7 +45,7 @@ class AccountController < ApplicationController
     # Global notifs
     global_notifs = params[:global_notifs]
     Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NULL', 'notification.%', current_user.id])
-    global_notifs.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } if global_notifs
+    global_notifs.each_key { |key| Api::Utils.java_facade.saveProperty('notification.' + key, nil, current_user.id, 'true') } if global_notifs
 
     # Per project notifs
     project_notifs = params[:project_notifs]
@@ -54,7 +54,7 @@ class AccountController < ApplicationController
       project_notifs.each do |r_id, per_project_notif|
         per_project_notif.each do |dispatch, channels|
           channels.each do |channel, value|
-            current_user.add_property(:prop_key => 'notification.' + dispatch + '.' + channel, :text_value => 'true', :resource_id => r_id)
+            Api::Utils.java_facade.saveProperty('notification.' + dispatch + '.' + channel, r_id, current_user.id, 'true')
           end
         end
       end
