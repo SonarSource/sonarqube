@@ -39,6 +39,11 @@ message GenerateSecretKeyWsResponse {
   optional string secretKey = 1;
 }
 
+// Response of GET api/settings/check_secret_key
+message CheckSecretKeyWsResponse {
+  optional bool secretKeyAvailable = 1;
+}
+
 message Definition {
   optional string key = 1;
   optional string name = 2;
