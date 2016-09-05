@@ -20,6 +20,7 @@
 
 package org.sonar.server.setting.ws;
 
+import org.sonar.api.config.Encryption;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -64,7 +65,10 @@ public class EncryptAction implements SettingsWsAction {
     String value = request.mandatoryParam(PARAM_VALUE);
     checkRequest(!value.isEmpty(), "Parameter '%s' must not be empty", PARAM_VALUE);
 
-    String encryptedValue = settings.getEncryption().encrypt(value);
+    Encryption encryption = settings.getEncryption();
+    checkRequest(encryption.hasSecretKey(), "No secret key available");
+
+    String encryptedValue = encryption.encrypt(value);
 
     writeProtobuf(toEncryptWsResponse(encryptedValue), request, response);
   }

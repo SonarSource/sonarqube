@@ -42,8 +42,6 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -57,8 +55,8 @@ public class EncryptActionTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  Settings settings = mock(Settings.class);
-  Encryption encryption;
+  Settings settings = new Settings();
+  Encryption encryption = settings.getEncryption();
 
   EncryptAction underTest = new EncryptAction(userSession, settings);
 
@@ -70,9 +68,7 @@ public class EncryptActionTest {
       File secretKeyFile = folder.newFile();
       FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==");
 
-      encryption = new Encryption(secretKeyFile.getAbsolutePath());
-
-      when(settings.getEncryption()).thenReturn(encryption);
+      encryption.setPathToSecretKey(secretKeyFile.getAbsolutePath());
     } catch (IOException e) {
       Throwables.propagate(e);
     }
@@ -101,7 +97,6 @@ public class EncryptActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).hasSize(1);
-
   }
 
   @Test
@@ -126,6 +121,16 @@ public class EncryptActionTest {
     expectedException.expectMessage("Parameter 'value' must not be empty");
 
     call("  ");
+  }
+
+  @Test
+  public void fail_if_no_secret_key_available() {
+    encryption.setPathToSecretKey("unknown/path/to/secret/key");
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("No secret key available");
+
+    call("my value");
   }
 
   private EncryptWsResponse call(@Nullable String value) {
