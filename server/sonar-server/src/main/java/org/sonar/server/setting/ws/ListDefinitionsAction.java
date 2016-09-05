@@ -21,7 +21,6 @@ package org.sonar.server.setting.ws;
 
 import java.util.List;
 import java.util.Optional;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
@@ -90,7 +89,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
-      .filter(definition -> !definition.type().equals(PropertyType.LICENSE))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
   }
@@ -166,9 +164,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     }
     List<PropertyFieldDefinition> fields = definition.fields();
     if (!fields.isEmpty()) {
-      fields.stream()
-        .filter(fieldDefinition -> !fieldDefinition.type().equals(PropertyType.LICENSE))
-        .forEach(fieldDefinition -> addField(fieldDefinition, builder));
+      fields.forEach(fieldDefinition -> addField(fieldDefinition, builder));
     }
   }
 

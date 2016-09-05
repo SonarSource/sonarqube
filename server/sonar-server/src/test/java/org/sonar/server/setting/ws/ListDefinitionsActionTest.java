@@ -22,6 +22,7 @@ package org.sonar.server.setting.ws;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,6 +58,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Type.BOOLEAN;
+import static org.sonarqube.ws.Settings.Type.LICENSE;
 import static org.sonarqube.ws.Settings.Type.PROPERTY_SET;
 import static org.sonarqube.ws.Settings.Type.SINGLE_SELECT_LIST;
 import static org.sonarqube.ws.Settings.Type.STRING;
@@ -218,7 +220,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void does_not_return_license_type_property_set() throws Exception {
+  public void return_license_type_property_set() throws Exception {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -229,7 +231,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    assertThat(result.getDefinitions(0).getFieldsList()).isEmpty();
+    assertThat(result.getDefinitions(0).getFieldsList()).extracting(Settings.Field::getKey, Settings.Field::getType).containsOnly(Tuple.tuple("license", LICENSE));
   }
 
   @Test
@@ -307,13 +309,13 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void does_not_return_license_type() throws Exception {
+  public void return_license_type() throws Exception {
     setUserAsSystemAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("license").type(PropertyType.LICENSE).build());
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).isEmpty();
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey, Settings.Definition::getType).containsOnly(Tuple.tuple("license", LICENSE));
   }
 
   @Test

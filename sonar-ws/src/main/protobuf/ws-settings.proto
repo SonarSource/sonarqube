@@ -70,6 +70,7 @@ enum Type {
   METRIC_LEVEL = 10;
   SINGLE_SELECT_LIST = 11;
   PROPERTY_SET = 12;
+  LICENSE = 13;
 }
 
 // Response of GET api/settings/values
