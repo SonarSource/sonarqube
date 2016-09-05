@@ -208,7 +208,7 @@ class ActiveRecord::Migration
           FOR EACH ROW
         BEGIN
            IF :new.id IS null THEN
-             SELECT #{table}_seq.nextval INTO :new.id FROM dual;
+             :new.id := #{table}_seq.nextval;
            END IF;
         END;})
   end
