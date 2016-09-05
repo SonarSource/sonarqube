@@ -40,7 +40,7 @@ import org.subethamail.wiser.WiserMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.resetSettings;
+import static util.ItUtils.resetEmailSettings;
 
 public class EmailsTest {
 
@@ -55,6 +55,7 @@ public class EmailsTest {
   public static void before() throws Exception {
     ADMIN_WS_CLIENT = newAdminWsClient(orchestrator);
     SETTINGS = ADMIN_WS_CLIENT.settingsService();
+    resetEmailSettings(orchestrator);
 
     SMTP_SERVER = new Wiser(0);
     SMTP_SERVER.start();
@@ -66,8 +67,7 @@ public class EmailsTest {
     if (SMTP_SERVER != null) {
       SMTP_SERVER.stop();
     }
-    resetSettings(orchestrator, null, "email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured",
-      "email.smtp_password.secured", "email.from", "email.prefix");
+    resetEmailSettings(orchestrator);
   }
 
   @Before

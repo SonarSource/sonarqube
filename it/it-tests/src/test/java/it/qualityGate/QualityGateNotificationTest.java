@@ -45,6 +45,7 @@ import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.resetEmailSettings;
 import static util.ItUtils.setServerProperty;
 
 public class QualityGateNotificationTest {
@@ -62,12 +63,14 @@ public class QualityGateNotificationTest {
     setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
     setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
+    resetEmailSettings(orchestrator);
   }
 
   @AfterClass
   public static void resetData() throws Exception {
     ItUtils.resetPeriods(orchestrator);
     qgClient().setDefault(DEFAULT_QUALITY_GATE);
+    resetEmailSettings(orchestrator);
   }
 
   @Before

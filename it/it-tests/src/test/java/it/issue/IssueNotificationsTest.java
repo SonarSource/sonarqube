@@ -39,6 +39,7 @@ import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.resetEmailSettings;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
@@ -61,6 +62,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     System.out.println("SMTP Server port: " + smtpServer.getServer().getPort());
 
     // Configure Sonar
+    resetEmailSettings(ORCHESTRATOR);
     setServerProperty(ORCHESTRATOR, "email.smtp_host.secured", "localhost");
     setServerProperty(ORCHESTRATOR, "email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()));
 
@@ -94,6 +96,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     }
     userRule.deactivateUsers(USER_LOGIN);
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", null);
+    resetEmailSettings(ORCHESTRATOR);
   }
 
   @Before
