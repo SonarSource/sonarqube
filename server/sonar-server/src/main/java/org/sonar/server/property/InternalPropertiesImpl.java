@@ -55,6 +55,7 @@ public class InternalPropertiesImpl implements InternalProperties {
       } else {
         dbClient.internalPropertiesDao().save(dbSession, propertyKey, value);
       }
+      dbSession.commit();
     }
   }
 

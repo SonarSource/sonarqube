@@ -94,6 +94,7 @@ public class InternalPropertiesImplTest {
     underTest.write(SOME_KEY, null);
 
     verify(internalPropertiesDao).saveAsEmpty(dbSession, SOME_KEY);
+    verify(dbSession).commit();
   }
 
   @Test
@@ -101,6 +102,7 @@ public class InternalPropertiesImplTest {
     underTest.write(SOME_KEY, EMPTY_STRING);
 
     verify(internalPropertiesDao).saveAsEmpty(dbSession, SOME_KEY);
+    verify(dbSession).commit();
   }
 
   @Test
@@ -108,6 +110,7 @@ public class InternalPropertiesImplTest {
     underTest.write(SOME_KEY, SOME_VALUE);
 
     verify(internalPropertiesDao).save(dbSession, SOME_KEY, SOME_VALUE);
+    verify(dbSession).commit();
   }
 
   private void expectKeyNullOrEmptyIAE() {
