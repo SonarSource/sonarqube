@@ -24,4 +24,8 @@ class SettingsController < ApplicationController
   def index
 
   end
+
+  def licenses
+    render :action => 'index'
+  end
 end

@@ -76,7 +76,8 @@ export default React.createClass({
                 <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/settings', translate('settings.page'))}
+                {this.renderLink('/settings', translate('settings.page'), url => window.location.pathname === url)}
+                {this.renderLink('/settings/licenses', translate('property.category.licenses'))}
                 {this.renderLink('/metrics', 'Custom Metrics')}
                 {this.renderLink('/admin_dashboards',
                     translate('default_dashboards.page'))}
@@ -120,8 +121,7 @@ export default React.createClass({
                 <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/updatecenter',
-                    translate('update_center.page'))}
+                {this.renderLink('/updatecenter', translate('update_center.page'))}
                 {this.renderLink('/system', translate('system_info.page'))}
               </ul>
             </li>

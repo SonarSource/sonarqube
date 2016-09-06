@@ -17,32 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
+import { shallow } from 'enzyme';
+import LicensesApp from '../LicensesApp';
+import GlobalMessagesContainer from '../../components/GlobalMessagesContainer';
+import LicensesAppHeader from '../LicensesAppHeader';
+import LicensesListContainer from '../LicensesListContainer';
 
-export default {
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
-
-  renderLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
-
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
-        </li>
-    );
-  }
-};
+it('should render', () => {
+  const app = shallow(<LicensesApp/>);
+  expect(app.find(GlobalMessagesContainer).length).toBe(1);
+  expect(app.find(LicensesAppHeader).length).toBe(1);
+  expect(app.find(LicensesListContainer).length).toBe(1);
+});
