@@ -38,13 +38,11 @@ import org.sonar.api.utils.log.Loggers;
     key = NotificationDaemon.PROPERTY_DELAY,
     defaultValue = "60",
     name = "Delay of notifications, in seconds",
-    project = false,
     global = false),
   @Property(
     key = NotificationDaemon.PROPERTY_DELAY_BEFORE_REPORTING_STATUS,
     defaultValue = "600",
     name = "Delay before reporting notification status, in seconds",
-    project = false,
     global = false)
 })
 @ServerSide
