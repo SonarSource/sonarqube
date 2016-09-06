@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Encryption;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
@@ -55,7 +56,7 @@ public class EncryptActionTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   Encryption encryption = settings.getEncryption();
 
   EncryptAction underTest = new EncryptAction(userSession, settings);

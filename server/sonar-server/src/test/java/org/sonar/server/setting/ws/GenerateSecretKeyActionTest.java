@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Encryption;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -50,7 +51,7 @@ public class GenerateSecretKeyActionTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  Settings settings = new Settings();
+  Settings settings = new MapSettings();
   Encryption encryption = settings.getEncryption();
 
   GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
