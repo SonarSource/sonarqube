@@ -104,6 +104,10 @@ public class Navigation extends ExternalResource {
     return open("/settings/encryption", EncryptionPage.class);
   }
 
+  public ServerIdPage openServerId() {
+    return open("/settings/server_id", ServerIdPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }

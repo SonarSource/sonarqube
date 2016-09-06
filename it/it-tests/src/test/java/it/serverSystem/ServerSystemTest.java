@@ -41,8 +41,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.ServerId.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import pageobjects.Navigation;
+import pageobjects.ServerIdPage;
 import util.ItUtils;
 import util.selenium.SeleneseTest;
 
@@ -63,7 +68,7 @@ public class ServerSystemTest {
   @Test
   public void get_sonarqube_version() {
     String version = orchestrator.getServer().getWsClient().find(new ServerQuery()).getVersion();
-    if (!StringUtils.startsWithAny(version, new String[] {"5.", "6."})) {
+    if (!StringUtils.startsWithAny(version, new String[]{"5.", "6."})) {
       fail("Bad version: " + version);
     }
   }
@@ -74,13 +79,29 @@ public class ServerSystemTest {
   }
 
   @Test
-  public void generate_server_id() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server_id",
-      "/serverSystem/ServerSystemTest/missing_ip.html",
-      // SONAR-4102
-      "/serverSystem/ServerSystemTest/organisation_must_not_accept_special_chars.html",
-      "/serverSystem/ServerSystemTest/valid_id.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+  public void generate_server_id() throws IOException {
+    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().asAdmin();
+    String validIpAddress = getValidIpAddress();
+
+    nav.openServerId()
+      .setOrganization("Name with invalid chars like $")
+      .setIpAddress(validIpAddress)
+      .submitForm()
+      .assertError();
+
+    nav.openServerId()
+      .setOrganization("DEMO")
+      .setIpAddress("invalid_address")
+      .submitForm()
+      .assertError();
+
+    ServerIdPage page = nav.openServerId()
+      .setOrganization("DEMO")
+      .setIpAddress(validIpAddress)
+      .submitForm();
+
+    String serverId = page.serverIdInput().val();
+    assertThat(serverId).isNotEmpty();
   }
 
   @Test
@@ -227,5 +248,13 @@ public class ServerSystemTest {
     } finally {
       httpclient.getConnectionManager().shutdown();
     }
+  }
+
+  private String getValidIpAddress() throws IOException {
+    WsClient adminWsClient = newAdminWsClient(orchestrator);
+    ShowWsResponse response = ShowWsResponse.parseFrom(adminWsClient.wsConnector().call(
+        new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
+    assertThat(response.getValidIpAdressesCount()).isGreaterThan(0);
+    return response.getValidIpAdresses(0);
   }
 }

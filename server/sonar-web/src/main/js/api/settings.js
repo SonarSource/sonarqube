@@ -85,3 +85,11 @@ export function generateSecretKey () {
 export function encryptValue (value) {
   return postJSON('/api/settings/encrypt', { value });
 }
+
+export function getServerId () {
+  return getJSON('/api/server_id/show');
+}
+
+export function generateServerId (organization, ip) {
+  return postJSON('/api/server_id/generate', { organization, ip });
+}
