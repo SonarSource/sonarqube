@@ -185,9 +185,7 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean docValues = false;
     private boolean disableSearch = false;
-    private boolean hasAnalyzedField = false;
     private boolean disableNorms = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
@@ -197,26 +195,11 @@ public class NewIndex {
     }
 
     /**
-     * It is recommended to enable doc_values when the non-analyzed field is involved
-     * into aggregations/sorting and only a small fraction of the values is used (high
-     * number of different values)
-     * <ul>
-     *   <li>https://www.elastic.co/blog/found-sizing-elasticsearch</li>
-     *   <li>https://www.elastic.co/guide/en/elasticsearch/guide/current/doc-values.html</li>
-     * </ul>
-     */
-    public StringFieldBuilder docValues() {
-      this.docValues = true;
-      return this;
-    }
-
-    /**
      * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
      * @see IndexDefinitionHash
      */
     public StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
-      hasAnalyzedField |= "analyzed".equals(fieldDefinition.get("index"));
       return this;
     }
 
@@ -277,35 +260,23 @@ public class NewIndex {
     }
 
     public void build() {
-      validate();
       Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
           "type", "string",
           "index", disableSearch ? "no" : "not_analyzed",
-          "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms)),
-          "doc_values", docValues));
+          "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms))));
       } else {
         hash.put("type", "multi_field");
         Map<String, Object> multiFields = new TreeMap<>(subFields);
         multiFields.put(fieldName, ImmutableMap.of(
           "type", "string",
           "index", "not_analyzed",
-          "norms", ImmutableMap.of("enabled", "false"),
-          "doc_values", docValues));
+          "norms", ImmutableMap.of("enabled", "false")));
         hash.put("fields", multiFields);
       }
 
       indexType.setProperty(fieldName, hash);
-    }
-
-    private void validate() {
-      if (docValues && hasAnalyzedField) {
-        throw new IllegalStateException("Doc values are not supported on analyzed strings of field: " + fieldName);
-      }
-      if (disableSearch && hasAnalyzedField) {
-        throw new IllegalStateException("Can't mix searchable and non-searchable arguments on field: " + fieldName);
-      }
     }
   }
 
