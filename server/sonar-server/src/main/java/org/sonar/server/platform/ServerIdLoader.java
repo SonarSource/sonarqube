@@ -47,13 +47,10 @@ public class ServerIdLoader {
 
     String organisation = settings.getString(CoreProperties.ORGANISATION);
     String ipAddress = settings.getString(CoreProperties.SERVER_ID_IP_ADDRESS);
-    boolean validated;
-    if (organisation == null || ipAddress == null) {
-      validated = false;
-    } else {
-      String generatedId = idGenerator.generate(organisation, ipAddress);
-      validated = generatedId != null && generatedId.equals(rawId.get());
-    }
+    boolean validated = organisation != null
+      && ipAddress != null
+      && idGenerator.validate(organisation, ipAddress, rawId.get());
+
     return Optional.of(new ServerId(rawId.get(), validated));
   }
 }

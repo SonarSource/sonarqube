@@ -55,12 +55,12 @@ import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -274,7 +274,7 @@ public final class JRubyFacade {
   }
 
   public String generateRandomSecretKey() {
-    return  get(Settings.class).getEncryption().generateRandomSecretKey();
+    return get(Settings.class).getEncryption().generateRandomSecretKey();
   }
 
   public License parseLicense(String base64) {
@@ -361,7 +361,7 @@ public final class JRubyFacade {
     }
   }
 
-  public List<IdentityProvider> getIdentityProviders(){
+  public List<IdentityProvider> getIdentityProviders() {
     return get(IdentityProviderRepository.class).getAllEnabledAndSorted();
   }
 

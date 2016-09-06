@@ -70,13 +70,13 @@ public class ShowActionTest {
   @Test
   public void return_server_id_info() throws Exception {
     setUserAsSystemAdmin();
-    when(generator.generate("home", "127.0.1")).thenReturn("server_id");
+    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.1");
-    insertConfiguration("server_id", "home", "127.0.1");
+    insertConfiguration("1818a1eefb26f9g", "home", "127.0.1");
 
     ShowWsResponse response = executeRequest();
 
-    assertThat(response.getServerId()).isEqualTo("server_id");
+    assertThat(response.getServerId()).isEqualTo("1818a1eefb26f9g");
     assertThat(response.getOrganization()).isEqualTo("home");
     assertThat(response.getIp()).isEqualTo("127.0.1");
     assertThat(response.getValidIpAdressesList()).containsOnly("192.168.1.1", "127.0.1");
@@ -86,7 +86,7 @@ public class ShowActionTest {
   @Test
   public void return_invalid_server_id() throws Exception {
     setUserAsSystemAdmin();
-    when(generator.generate("home", "127.0.1")).thenReturn("server_id");
+    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
     insertConfiguration("invalid", null, null);
 
     ShowWsResponse response = executeRequest();
@@ -161,9 +161,9 @@ public class ShowActionTest {
   @Test
   public void test_example_json_response() {
     setUserAsSystemAdmin();
-    when(generator.generate("home", "127.0.1")).thenReturn("server_id");
+    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.1");
-    insertConfiguration("server_id", "home", "127.0.1");
+    insertConfiguration("1818a1eefb26f9g", "home", "127.0.1");
 
     String result = ws.newRequest()
       .setMediaType(JSON)

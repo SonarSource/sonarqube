@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSet;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -115,11 +114,9 @@ public class ShowAction implements ServerIdWsAction {
     return propertyDto != null ? Optional.of(propertyDto.getValue()) : Optional.empty();
   }
 
-  private boolean isValidServerId(String serverId, Optional<String> organisation, Optional<String> ip) {
-    if (organisation.isPresent() && ip.isPresent()) {
-      String generatedServerId = serverIdGenerator.generate(organisation.get(), ip.get());
-      return Objects.equals(generatedServerId, serverId);
-    }
-    return false;
+  private boolean isValidServerId(String serverId, Optional<String> organization, Optional<String> ip) {
+    return organization.isPresent()
+      && ip.isPresent()
+      && serverIdGenerator.validate(organization.get(), ip.get(), serverId);
   }
 }

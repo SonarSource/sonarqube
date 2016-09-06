@@ -56,11 +56,11 @@ public class ServerIdLoaderTest {
     settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
     settings.setProperty(CoreProperties.ORGANISATION, AN_ORGANISATION);
     settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
-    when(idGenerator.generate(AN_ORGANISATION, AN_IP)).thenReturn(AN_ID);
+    when(idGenerator.validate(AN_ORGANISATION, AN_IP, AN_ID)).thenReturn(true);
 
     Optional<ServerId> serverIdOpt = underTest.get();
     verifyServerId(serverIdOpt.get(), AN_ID, true);
-    verify(idGenerator).generate(AN_ORGANISATION, AN_IP);
+    verify(idGenerator).validate(AN_ORGANISATION, AN_IP, AN_ID);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class ServerIdLoaderTest {
     Optional<ServerId> serverIdOpt = underTest.get();
 
     verifyServerId(serverIdOpt.get(), AN_ID, false);
-    verify(idGenerator).generate(AN_ORGANISATION, AN_IP);
+    verify(idGenerator).validate(AN_ORGANISATION, AN_IP, AN_ID);
   }
 
   @Test

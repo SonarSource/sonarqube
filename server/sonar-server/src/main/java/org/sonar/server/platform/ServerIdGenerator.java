@@ -28,11 +28,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class ServerIdGenerator {
 
@@ -56,21 +60,33 @@ public class ServerIdGenerator {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
-  @CheckForNull
-  public String generate(String organisationName, String ipAddress) {
-    String id = null;
-    String organisation = organisationName.trim();
+  public boolean validate(String organisationName, String ipAddress, String expectedServerId) {
+    String organization = organisationName.trim();
     String ip = ipAddress.trim();
-    if (StringUtils.isNotBlank(organisation) && StringUtils.isNotBlank(ip) && isValidOrganizationName(organisation)) {
-      InetAddress inetAddress = toValidAddress(ip);
-      if (inetAddress != null) {
-        id = toId(organisation, inetAddress);
-      }
+    if (isBlank(ip) || isBlank(organization) || !isValidOrganizationName(organization)) {
+      return false;
     }
-    return id;
+
+    InetAddress inetAddress = toValidAddress(ip);
+
+    return inetAddress != null
+      && Objects.equals(expectedServerId, toId(organization, inetAddress));
   }
 
-  boolean isValidOrganizationName(String organisation) {
+  public String generate(String organizationName, String ipAddress) {
+    String organization = organizationName.trim();
+    String ip = ipAddress.trim();
+    checkArgument(isNotBlank(organization), "Organization name must not be null or empty");
+    checkArgument(isValidOrganizationName(organization), "Organization name is invalid. Alpha numeric characters and space only are allowed. '%s' was provided.", organization);
+    checkArgument(isNotBlank(ip), "IP must not be null or empty");
+
+    InetAddress inetAddress = toValidAddress(ip);
+    checkArgument(inetAddress != null, "Invalid IP '%s'", ip);
+
+    return toId(organization, inetAddress);
+  }
+
+  static boolean isValidOrganizationName(String organisation) {
     return ORGANIZATION_PATTERN.matcher(organisation).matches();
   }
 
@@ -81,13 +97,14 @@ public class ServerIdGenerator {
     return acceptPrivateAddress || (!address.isLoopbackAddress() && !address.isLinkLocalAddress());
   }
 
-  String toId(String organisation, InetAddress address) {
+  static String toId(String organisation, InetAddress address) {
     String id = new StringBuilder().append(organisation).append("-").append(address.getHostAddress()).toString();
     return VERSION + DigestUtils.sha1Hex(id.getBytes(StandardCharsets.UTF_8)).substring(0, CHECKSUM_SIZE);
   }
 
+  @CheckForNull
   private InetAddress toValidAddress(String ipAddress) {
-    if (StringUtils.isNotBlank(ipAddress)) {
+    if (isNotBlank(ipAddress)) {
       List<InetAddress> validAddresses = getAvailableAddresses();
       try {
         InetAddress address = InetAddress.getByName(ipAddress);

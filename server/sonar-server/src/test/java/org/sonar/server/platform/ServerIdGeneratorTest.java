@@ -23,14 +23,20 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerIdGeneratorTest {
+  static InetAddress localhost;
 
-  private static InetAddress localhost;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  ServerIdGenerator underTest = new ServerIdGenerator(true);
 
   @BeforeClass
   public static void init() throws UnknownHostException {
@@ -40,15 +46,50 @@ public class ServerIdGeneratorTest {
   @Test
   public void shouldNotGenerateIdIfBlankParams() {
     ServerIdGenerator generator = new ServerIdGenerator(true);
-    assertThat(generator.generate("  ", "127.0.0.1")).isNull();
-    assertThat(generator.generate("SonarSource", "   ")).isNull();
+    assertThat(generator.validate("  ", "127.0.0.1", "191e806623bb0c2")).isFalse();
+    assertThat(generator.validate("SonarSource", "   ", "191e806623bb0c2")).isFalse();
   }
 
   @Test
   public void organizationShouldRespectPattern() {
     ServerIdGenerator generator = new ServerIdGenerator(true);
-    assertThat(generator.generate("SonarSource", "127.0.0.1")).isNotNull();
-    assertThat(generator.generate("SonarSource$", "127.0.0.1")).isNull();
+    assertThat(generator.generate("SonarSource", "127.0.0.1")).isEqualTo("191e806623bb0c2");
+    assertThat(generator.validate("SonarSource", "127.0.0.1", "191e806623bb0c2")).isTrue();
+    assertThat(generator.validate("SonarSource$", "127.0.0.1", "191e806623bb0c2")).isFalse();
+  }
+
+  @Test
+  public void fail_if_organization_does_not_respect_pattern() {
+    assertThat(underTest.generate("SonarSource", "127.0.0.1")).isNotEmpty();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Organization name is invalid. Alpha numeric characters and space only are allowed. 'SonarSource$' was provided.");
+
+    underTest.generate("SonarSource$", "127.0.0.1");
+  }
+
+  @Test
+  public void fail_if_organization_is_blank() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Organization name must not be null or empty");
+
+    underTest.generate("   ", "127.0.0.1");
+  }
+
+  @Test
+  public void fail_if_ip_blank() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("IP must not be null or empty");
+
+    underTest.generate("SonarSource", "     ");
+  }
+
+  @Test
+  public void fail_if_ip_is_unknown() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Invalid IP '50.154.42.42'");
+
+    underTest.generate("SonarSource", "50.154.42.42");
   }
 
   @Test

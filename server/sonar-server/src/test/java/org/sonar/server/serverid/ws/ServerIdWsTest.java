@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.serverid.ws;
 
+import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsTester;
 
-public class ServerIdWs implements WebService {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  private final ServerIdWsAction[] actions;
+public class ServerIdWsTest {
 
-  public ServerIdWs(ServerIdWsAction... actions) {
-    this.actions = actions;
+  WsTester ws = new WsTester(new ServerIdWs(new ShowAction(mock(UserSession.class), mock(ServerIdGenerator.class), mock(DbClient.class))));
+  WebService.Controller underTest = ws.controller("api/server_id");
+
+  @Test
+  public void definition() {
+    assertThat(underTest.path()).isEqualTo("api/server_id");
+    assertThat(underTest.since()).isEqualTo("6.1");
+    assertThat(underTest.description()).isNotEmpty();
   }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/server_id")
-      .setDescription("Get server id information and generate server id.")
-      .setSince("6.1");
-    for (ServerIdWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
-  }
-
 }

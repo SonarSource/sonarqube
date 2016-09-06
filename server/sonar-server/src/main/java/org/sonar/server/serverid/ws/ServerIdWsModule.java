@@ -26,6 +26,7 @@ public class ServerIdWsModule extends Module {
   protected void configureModule() {
     add(
       ServerIdWs.class,
-      ShowAction.class);
+      ShowAction.class,
+      GenerateAction.class);
   }
 }

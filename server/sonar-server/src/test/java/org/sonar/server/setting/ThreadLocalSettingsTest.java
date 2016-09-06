@@ -117,7 +117,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void encryption_secret_key_is_undefined_by_default() {
-    underTest = create(ImmutableMap.of("foo", "bar"));
+    underTest = create(ImmutableMap.of("foo", "bar", "sonar.secretKeyPath", "unknown/path/to/sonar-secret.txt"));
 
     assertThat(underTest.getEncryption().hasSecretKey()).isFalse();
   }

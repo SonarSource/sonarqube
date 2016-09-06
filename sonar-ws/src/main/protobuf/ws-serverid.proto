@@ -33,6 +33,7 @@ message ShowWsResponse {
   optional bool invalidServerId = 5;
 }
 
-
-
-
+// Response of POST api/server_id/generate
+message GenerateWsResponse {
+  optional string serverId = 1;
+}

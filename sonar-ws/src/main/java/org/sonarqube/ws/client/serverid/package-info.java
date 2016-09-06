@@ -17,27 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.serverid.ws;
 
-import org.sonar.api.server.ws.WebService;
 
-public class ServerIdWs implements WebService {
 
-  private final ServerIdWsAction[] actions;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.serverid;
 
-  public ServerIdWs(ServerIdWsAction... actions) {
-    this.actions = actions;
-  }
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/server_id")
-      .setDescription("Get server id information and generate server id.")
-      .setSince("6.1");
-    for (ServerIdWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
-  }
-
-}
