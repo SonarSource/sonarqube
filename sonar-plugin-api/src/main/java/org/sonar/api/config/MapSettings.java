@@ -64,6 +64,9 @@ public class MapSettings extends Settings {
     return ImmutableMap.copyOf(props);
   }
 
+  /**
+   * Delete all properties
+   */
   public MapSettings clear() {
     props.clear();
     return this;

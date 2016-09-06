@@ -42,53 +42,59 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
 
 /**
- *
- * Project settings on batch side, or global settings on server side. This component does not access to database, so
- * property changed via setter methods are not persisted.
- * <br>
- * <p>
- * For testing, you can create a new empty {@link Settings} component using {@link #Settings()} and then
- * populate it using all variant of {@code setProperty}. <br>
- * If you want to test with default values of your properties taken into account there are two ways dependening on how you declare your properties.
+ * Component to get effective settings. Values of properties depend on the runtime environment:
  * <ul>
- * <li>If you are using annotations like:
- * <pre>
- * <code>{@literal @}Properties({
- *   {@literal @}Property(
- *     key = "sonar.myProp",
- *     defaultValue = "A default value",
- *     name = "My property"),
- * })
- * class MyPlugin extends SonarPlugin {
- * </code>
- * </pre>
- * then you can use:
- * <pre>
- * <code>new Settings(new PropertyDefinitions(MyPlugin.class))
- * </code>
- * </pre>
- * </li>
- * <li>If you are using the {@link PropertyDefinition#builder(String)} way like:
- * <pre>
- * <code>
- * class MyPlugin extends SonarPlugin {
- *     List getExtensions() {
- *       return Arrays.asList(
- *         PropertyDefinition.builder("sonar.myProp").name("My property").defaultValue("A default value").build()
- *       );
- *     }
- *   }
- * </code>
- * </pre>
- * then you can use:
- * <pre>
- * <code>new Settings(new PropertyDefinitions(new MyPlugin().getExtensions()))
- * </code>
- * </pre>
- * </li>
+ *   <li>project settings in scanner.</li>
+ *   <li>global settings in web server. It does not allow to get the settings overridden on projects.</li>
+ *   <li>project settings in Compute Engine.</li>
  * </ul>
  *
+ * <h3>Usage</h3>
+ * <pre>
+ * public class MyExtension {
+ *
+ *   private final Settings settings;
+ *
+ *   public MyExtension(Settings settings) {
+ *     this.settings = settings;
+ *   }
+ *   public void doSomething() {
+ *     String fooValue = settings.getString("sonar.foo");
+ *     // ..
+ *   }
+ * }
+ * </pre>
+ *
+ * <h3>Scanner example</h3>
+ * Scanner sensor can get the reference on Settings directly through SensorContext,
+ * without injecting the component into constructor.
+ *
+ * <pre>
+ * public class MySensor implements Sensor {
+ *   {@literal @}Override
+ *   public void execute(SensorContext context) {
+ *     String fooValue = context.settings().getString("sonar.foo");
+ *     // ..
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * For testing, and only for testing, the in-memory implementation {@link MapSettings} can be used.
+ * <pre>
+ * {@literal @}Test
+ * public void my_test() {
+ *   Settings settings = new MapSettings();
+ *   settings.setProperty("foo", "bar");
+ *   MyExtension underTest = new MyExtension(settings);
+ *   // ...
+ * }
+ * </pre>
+ *
  * History - this class is abstract since 6.1.
+ *
+ * @see MapSettings
+ * @see PropertyDefinition
  * @since 2.12
  */
 @ScannerSide
@@ -210,8 +216,9 @@ public abstract class Settings {
   }
 
   /**
-   * Effective value as int.
-   * @return the value as int. If the property does not exist and has no default value, then 0 is returned.
+   * Effective value as {@code int}.
+   * @return the value as {@code int}. If the property does not have value nor default value, then {@code 0} is returned.
+   * @throws NumberFormatException if value is not empty and is not a parsable integer
    */
   public int getInt(String key) {
     String value = getString(key);
@@ -221,6 +228,11 @@ public abstract class Settings {
     return 0;
   }
 
+  /**
+   * Effective value as {@code long}.
+   * @return the value as {@code long}. If the property does not have value nor default value, then {@code 0L} is returned.
+   * @throws NumberFormatException if value is not empty and is not a parsable {@code long}
+   */
   public long getLong(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -229,6 +241,12 @@ public abstract class Settings {
     return 0L;
   }
 
+  /**
+   * Effective value as {@link Date}, without time fields. Format is {@link DateUtils#DATE_FORMAT}.
+   *
+   * @return the value as a {@link Date}. If the property does not have value nor default value, then {@code null} is returned.
+   * @throws RuntimeException if value is not empty and is not in accordance with {@link DateUtils#DATE_FORMAT}.
+   */
   @CheckForNull
   public Date getDate(String key) {
     String value = getString(key);
@@ -238,6 +256,12 @@ public abstract class Settings {
     return null;
   }
 
+  /**
+   * Effective value as {@link Date}, with time fields. Format is {@link DateUtils#DATETIME_FORMAT}.
+   *
+   * @return the value as a {@link Date}. If the property does not have value nor default value, then {@code null} is returned.
+   * @throws RuntimeException if value is not empty and is not in accordance with {@link DateUtils#DATETIME_FORMAT}.
+   */
   @CheckForNull
   public Date getDateTime(String key) {
     String value = getString(key);
@@ -247,6 +271,11 @@ public abstract class Settings {
     return null;
   }
 
+  /**
+   * Effective value as {@code Float}.
+   * @return the value as {@code Float}. If the property does not have value nor default value, then {@code null} is returned.
+   * @throws NumberFormatException if value is not empty and is not a parsable number
+   */
   @CheckForNull
   public Float getFloat(String key) {
     String value = getString(key);
@@ -260,6 +289,11 @@ public abstract class Settings {
     return null;
   }
 
+  /**
+   * Effective value as {@code Double}.
+   * @return the value as {@code Double}. If the property does not have value nor default value, then {@code null} is returned.
+   * @throws NumberFormatException if value is not empty and is not a parsable number
+   */
   @CheckForNull
   public Double getDouble(String key) {
     String value = getString(key);
@@ -365,6 +399,17 @@ public abstract class Settings {
     return setProperty(key, text);
   }
 
+  /**
+   * Change a property value in a restricted scope only, depending on execution context. New value
+   * is <b>never</b> persisted. New value is ephemeral and kept in memory only:
+   * <ul>
+   *   <li>during current analysis in the case of scanner stack</li>
+   *   <li>during processing of current HTTP request in the case of web server stack</li>
+   *   <li>during execution of current task in the case of Compute Engine stack</li>
+   * </ul>
+   *
+   * Property is temporarily removed if the parameter {@code value} is {@code null}
+   */
   public Settings setProperty(String key, @Nullable String value) {
     String validKey = definitions.validKey(key);
     if (value == null) {
@@ -376,26 +421,44 @@ public abstract class Settings {
     return this;
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Boolean value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Integer value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Long value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Double value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Float value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Date date) {
     return setProperty(key, date, false);
   }
@@ -414,6 +477,9 @@ public abstract class Settings {
     return this;
   }
 
+  /**
+   * @see #setProperty(String, String)
+   */
   public Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
     if (date == null) {
       return removeProperty(key);
