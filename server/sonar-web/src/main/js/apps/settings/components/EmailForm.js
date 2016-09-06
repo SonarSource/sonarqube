@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../code/utils';
 
@@ -53,7 +53,7 @@ export default class EmailForm extends React.Component {
           <form className="display-inline-block" onSubmit={e => this.handleFormSubmit(e)}>
             {this.state.success && (
                 <div className="alert alert-success">
-                  {translate('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
+                  {translateWithParameters('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
                 </div>
             )}
 
