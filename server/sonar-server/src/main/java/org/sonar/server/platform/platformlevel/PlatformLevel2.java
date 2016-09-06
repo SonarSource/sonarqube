@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.api.utils.Durations;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
@@ -38,6 +39,7 @@ import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
 import org.sonar.server.ruby.PlatformRubyBridge;
+import org.sonar.server.ui.JRubyI18n;
 
 public class PlatformLevel2 extends PlatformLevel {
   public PlatformLevel2(PlatformLevel parent) {
@@ -50,6 +52,8 @@ public class PlatformLevel2 extends PlatformLevel {
       new StartupMetadataProvider(),
       ServerImpl.class,
       DefaultServerUpgradeStatus.class,
+      Durations.class,
+      JRubyI18n.class,
 
       // depends on Ruby
       PlatformRubyBridge.class,
