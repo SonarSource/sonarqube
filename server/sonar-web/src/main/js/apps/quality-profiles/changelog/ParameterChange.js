@@ -31,7 +31,7 @@ export default class ParameterChange extends React.Component {
 
     if (value == null) {
       return (
-          <div style={{ whiteSpace: 'normal '}}>
+          <div style={{ whiteSpace: 'normal' }}>
             {translateWithParameters(
                 'quality_profiles.changelog.parameter_reset_to_default_value',
                 name
@@ -41,7 +41,7 @@ export default class ParameterChange extends React.Component {
     }
 
     return (
-        <div style={{ whiteSpace: 'normal '}}>
+        <div style={{ whiteSpace: 'normal' }}>
           {translateWithParameters(
               'quality_profiles.parameter_set_to',
               name,

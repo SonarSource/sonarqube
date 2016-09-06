@@ -45,7 +45,7 @@ export default class Header extends React.Component {
             this.context.router.push({
               pathname: '/',
               query: { id: r.permissionTemplate.id }
-            })
+            });
           });
         })
         .render();

@@ -19,8 +19,7 @@
  */
 import keyBy from 'lodash/keyBy';
 import omit from 'lodash/omit';
-import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK } from './actions';
-import { ADD_PROJECT_LINK } from './actions';
+import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK, ADD_PROJECT_LINK } from './actions';
 
 const links = (state = {}, action = {}) => {
   if (action.type === RECEIVE_PROJECT_LINKS) {

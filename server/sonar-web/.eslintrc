@@ -1,6 +1,7 @@
 {
   "extends": [
     "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:import/errors",
     "plugin:import/warnings"
   ],
@@ -53,23 +54,9 @@
     "semi": [2, "always"],
     "keyword-spacing": 2,
 
-    "react/jsx-closing-bracket-location": [2, "after-props"],
-    "react/jsx-handler-names": 0,
-    "react/jsx-max-props-per-line": [2, { "maximum": 3 }],
-    "react/jsx-no-duplicate-props": 2,
-    "react/jsx-no-undef": 2,
-    "react/jsx-pascal-case": 2,
-    "react/jsx-uses-react": 2,
-    "react/jsx-uses-vars": 2,
-    "react/no-did-mount-set-state": [2, "allow-in-func"],
-    "react/no-did-update-set-state": [2, "allow-in-func"],
-    "react/no-direct-mutation-state": 2,
-    "react/no-multi-comp": 0,
-    "react/no-unknown-property": 2,
-    "react/prop-types": 0,
-    "react/react-in-jsx-scope": 2,
-    "react/self-closing-comp": 2,
-    "react/sort-comp": 2
+    "react/display-name": 0,
+    "react/no-find-dom-node": 0,
+    "react/prop-types": 0
   },
 
   "settings": {

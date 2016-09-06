@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-    getQualityProfiles,
-    associateProject,
-    dissociateProject
-} from '../../../api/quality-profiles';
+import { getQualityProfiles, associateProject, dissociateProject } from '../../../api/quality-profiles';
 import { getProfileByKey } from './rootReducer';
 import {
-    fetchQualityGates,
-    getGateForProject,
-    associateGateWithProject,
-    dissociateGateWithProject
+  fetchQualityGates,
+  getGateForProject,
+  associateGateWithProject,
+  dissociateGateWithProject
 } from '../../../api/quality-gates';
 import { getProjectLinks, createLink } from '../../../api/projectLinks';
-import { getTree } from '../../../api/components';
-import { changeKey as changeKeyApi } from '../../../api/components';
+import { getTree, changeKey as changeKeyApi } from '../../../api/components';
 import { addGlobalSuccessMessage } from '../../../components/store/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 

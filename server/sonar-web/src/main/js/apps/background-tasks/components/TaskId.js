@@ -19,8 +19,6 @@
  */
 import React from 'react';
 
-import { translate } from '../../../helpers/l10n';
-
 const TaskId = ({ task }) => {
   return (
       <td className="thin nowrap">

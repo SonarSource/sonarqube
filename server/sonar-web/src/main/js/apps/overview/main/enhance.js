@@ -25,16 +25,16 @@ import { DonutChart } from '../../../components/charts/donut-chart';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import {
-    formatMeasure,
-    formatMeasureVariation,
-    isDiffMetric,
-    getPeriodValue,
-    getShortType
+  formatMeasure,
+  formatMeasureVariation,
+  isDiffMetric,
+  getPeriodValue,
+  getShortType,
+  getRatingTooltip
 } from '../../../helpers/measures';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { getRatingTooltip } from '../../../helpers/measures';
 
 export default function enhance (ComposedComponent) {
   return class extends React.Component {

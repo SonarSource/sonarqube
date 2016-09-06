@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import qs from 'querystring';
-import _ from 'underscore';
 import classNames from 'classnames';
 import React from 'react';
 import LinksMixin from '../links-mixin';

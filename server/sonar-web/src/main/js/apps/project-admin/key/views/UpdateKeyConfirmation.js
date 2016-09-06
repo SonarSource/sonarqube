@@ -19,7 +19,6 @@
  */
 import ModalForm from '../../../../components/common/modal-form';
 import Template from './UpdateKeyConfirmation.hbs';
-import { parseError } from '../../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
