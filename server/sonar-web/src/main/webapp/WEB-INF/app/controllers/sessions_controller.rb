@@ -38,13 +38,13 @@ class SessionsController < ApplicationController
   end
 
   def new
+    default = home_url
     if params[:return_to]
       # user clicked on the link "login" : redirect to the original uri after authentication
-      session[:return_to] = Api::Utils.absolute_to_relative_url(params[:return_to])
-      return_to = Api::Utils.absolute_to_relative_url(params[:return_to])
+      default = Api::Utils.absolute_to_relative_url(params[:return_to])
     # else the original uri can be set by ApplicationController#access_denied
     end
-    @return_to = get_redirect_back_or_default(home_url)
+    @return_to = get_redirect_back_or_default(default)
   end
 
   private
@@ -52,7 +52,7 @@ class SessionsController < ApplicationController
   # Get redirection to the URI stored by the most recent store_location call or to the passed default.
   def get_redirect_back_or_default(default)
     # Prevent CSRF attack -> do not accept absolute urls
-    url = session[:return_to] || default
+    url = get_cookie_flash('return_to') || default
     begin
       url = URI(url).request_uri
     rescue

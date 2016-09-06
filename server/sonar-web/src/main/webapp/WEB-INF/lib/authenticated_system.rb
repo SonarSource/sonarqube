@@ -95,7 +95,7 @@ module AuthenticatedSystem
   #
   # We can return to this location by calling #redirect_back_or_default.
   def store_location
-    session[:return_to] = request.request_uri
+    flash[:return_to] = request.request_uri
   end
 
   # Redirect to the URI stored by the most recent store_location call or
@@ -104,7 +104,7 @@ module AuthenticatedSystem
   # for any controller you want to be bounce-backable.
   def redirect_back_or_default(default)
     # Prevent CSRF attack -> do not accept absolute urls
-    url = session[:return_to] || default
+    url = get_cookie_flash('return_to') || default
     begin
       url = URI(url).request_uri
     rescue
@@ -113,7 +113,6 @@ module AuthenticatedSystem
     anchor=params[:return_to_anchor]
     url += anchor if anchor && anchor.start_with?('#')
     redirect_to(url)
-    session[:return_to] = nil
   end
 
   # Inclusion hook to make #current_user and #logged_in?

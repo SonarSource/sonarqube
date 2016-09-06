@@ -24,6 +24,11 @@ module CookieFlash
     end
   end
 
+  def get_cookie_flash(key)
+    cflash = (JSON.parse(cookies['flash']) if cookies['flash']) || {} rescue {}
+    cflash[key]
+  end
+
   # @parameters
   #   cookies -
   #     There might be crusty flash from a previous request, or set elsewhere, already in the cookie.
