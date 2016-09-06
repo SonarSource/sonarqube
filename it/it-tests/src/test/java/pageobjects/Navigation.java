@@ -100,6 +100,10 @@ public class Navigation extends ExternalResource {
     return open("/settings/licenses", LicensesPage.class);
   }
 
+  public EncryptionPage openEncryption() {
+    return open("/settings/encryption", EncryptionPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }

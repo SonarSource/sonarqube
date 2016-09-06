@@ -23,12 +23,14 @@ import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 import licenses, * as fromLicenses from './licenses/reducer';
 import globalMessages, * as fromGlobalMessages from '../../../components/store/globalMessages';
+import encryptionPage from './encryptionPage/reducer';
 
 const rootReducer = combineReducers({
   definitions,
   values,
   settingsPage,
   licenses,
+  encryptionPage,
   globalMessages
 });
 
@@ -57,5 +59,7 @@ export const getLicenseByKey = (state, key) => fromLicenses.getLicenseByKey(stat
 export const getAllLicenseKeys = state => fromLicenses.getAllLicenseKeys(state.licenses);
 
 export const getValidationMessage = (state, key) => fromSettingsPage.getValidationMessage(state.settingsPage, key);
+
+export const getEncryptionState = state => state.encryptionPage;
 
 export const getGlobalMessages = state => fromGlobalMessages.getGlobalMessages(state.globalMessages);

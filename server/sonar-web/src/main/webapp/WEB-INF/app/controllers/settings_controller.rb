@@ -28,4 +28,8 @@ class SettingsController < ApplicationController
   def licenses
     render :action => 'index'
   end
+
+  def encryption
+    render :action => 'index'
+  end
 end
