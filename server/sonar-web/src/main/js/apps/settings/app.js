@@ -45,9 +45,7 @@ window.sonarqube.appStarted.then(options => {
         <Router history={history}>
           <Redirect from="/index" to="/"/>
           <Route path="/" component={withComponent(App)}/>
-          {options.component == null && (
-              <Route path="/licenses" component={LicensesApp}/>
-          )}
+          <Route path="/licenses" component={LicensesApp}/>
         </Router>
       </Provider>
   ), el);
