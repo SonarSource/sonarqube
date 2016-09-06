@@ -112,6 +112,7 @@ public class TomcatContexts {
       context.setDelegate(true);
       context.setJarScanner(new NullJarScanner());
       context.setAllowCasualMultipartParsing(true);
+      context.setCookies(false);
       return context;
     } catch (ServletException e) {
       throw new IllegalStateException("Fail to configure webapp from " + dir, e);

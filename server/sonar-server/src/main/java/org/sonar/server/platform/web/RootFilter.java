@@ -19,11 +19,10 @@
  */
 package org.sonar.server.platform.web;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-
+import java.io.IOException;
+import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -31,9 +30,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.util.Set;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 /**
  * <p>Profile HTTP requests using platform profiling utility.</p>
@@ -44,7 +45,7 @@ import java.util.Set;
  *
  * @since 4.1
  */
-public class ProfilingFilter implements Filter {
+public class RootFilter implements Filter {
 
   private static final String CONFIG_SEPARATOR = ",";
   private static final String URL_SEPARATOR = "/";
@@ -71,17 +72,17 @@ public class ProfilingFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     if (request instanceof HttpServletRequest) {
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      HttpServletRequest httpRequest = new ServletRequestWrapper((HttpServletRequest) request);
       String requestUri = httpRequest.getRequestURI();
       String rootDir = getRootDir(requestUri);
 
       if (staticResourceDirs.contains(rootDir)) {
         // Static resource, not profiled
-        chain.doFilter(request, response);
+        chain.doFilter(httpRequest, response);
       } else {
         Profiler profiler = Profiler.createIfDebug(Logger).start();
         try {
-          chain.doFilter(request, response);
+          chain.doFilter(httpRequest, response);
         } finally {
           if (profiler.isDebugEnabled()) {
             String queryString = httpRequest.getQueryString();
@@ -111,5 +112,27 @@ public class ProfilingFilter implements Filter {
   @Override
   public void destroy() {
     // Nothing
+  }
+
+  @VisibleForTesting
+  static class ServletRequestWrapper extends HttpServletRequestWrapper {
+
+    ServletRequestWrapper(HttpServletRequest request) {
+      super(request);
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+      throw notSupported();
+    }
+
+    @Override
+    public HttpSession getSession() {
+      throw notSupported();
+    }
+
+    private static UnsupportedOperationException notSupported() {
+      return new UnsupportedOperationException("Sessions are disabled so that web server is stateless");
+    }
   }
 }

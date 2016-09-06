@@ -82,7 +82,7 @@ public class MasterServletFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
     HttpServletRequest hsr = (HttpServletRequest) request;
     if (filters.length == 0) {
-      chain.doFilter(request, response);
+      chain.doFilter(hsr, response);
     } else {
       String path = hsr.getRequestURI().replaceFirst(hsr.getContextPath(), "");
       GodFilterChain godChain = new GodFilterChain(chain);
@@ -92,7 +92,7 @@ public class MasterServletFilter implements Filter {
           godChain.addFilter(filter);
         }
       }
-      godChain.doFilter(request, response);
+      godChain.doFilter(hsr, response);
     }
   }
 
@@ -134,4 +134,5 @@ public class MasterServletFilter implements Filter {
       filters.add(filter);
     }
   }
+
 }

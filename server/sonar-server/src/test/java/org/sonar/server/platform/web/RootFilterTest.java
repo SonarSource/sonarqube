@@ -19,10 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -30,15 +26,25 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import org.sonar.server.platform.web.ProfilingFilter;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProfilingFilterTest {
+public class RootFilterTest {
 
-  private ProfilingFilter filter;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private RootFilter filter;
   private FilterChain chain;
 
   @Before
@@ -50,7 +56,7 @@ public class ProfilingFilterTest {
     when(filterConfig.getServletContext()).thenReturn(context);
     chain = mock(FilterChain.class);
 
-    filter = new ProfilingFilter();
+    filter = new RootFilter();
     filter.init(filterConfig);
   }
 
@@ -94,6 +100,46 @@ public class ProfilingFilterTest {
 
     filter.init(filterConfig);
     filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+  }
+
+  @Test
+  public void request_used_in_chain_do_filter_is_a_servlet_wrapper_when_static_resource() throws Exception {
+    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
+
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+
+    assertThat(requestArgumentCaptor.getValue()).isInstanceOf(RootFilter.ServletRequestWrapper.class);
+  }
+
+  @Test
+  public void request_used_in_chain_do_filter_is_a_servlet_wrapper_when_service_call() throws Exception {
+    filter.doFilter(request("POST", "/context/service/call", "param=value"), null, chain);
+    ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
+
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+
+    assertThat(requestArgumentCaptor.getValue()).isInstanceOf(RootFilter.ServletRequestWrapper.class);
+  }
+
+  @Test
+  public void fail_to_get_session_from_request() throws Exception {
+    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+
+    expectedException.expect(UnsupportedOperationException.class);
+    ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession();
+  }
+
+  @Test
+  public void fail_to_get_session_with_create_from_request() throws Exception {
+    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+
+    expectedException.expect(UnsupportedOperationException.class);
+    ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession(true);
   }
 
   private HttpServletRequest request(String method, String path, String query) {

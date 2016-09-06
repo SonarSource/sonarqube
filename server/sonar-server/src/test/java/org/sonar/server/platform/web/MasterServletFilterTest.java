@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 public class MasterServletFilterTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Before
   public void resetSingleton() {
@@ -71,15 +71,15 @@ public class MasterServletFilterTest {
   public void servlet_container_should_instantiate_only_a_single_master_instance() {
     new MasterServletFilter();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Servlet filter org.sonar.server.platform.web.MasterServletFilter is already instantiated");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Servlet filter org.sonar.server.platform.web.MasterServletFilter is already instantiated");
     new MasterServletFilter();
   }
 
   @Test
   public void should_propagate_initialization_failure() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("foo");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("foo");
 
     ServletFilter filter = mock(ServletFilter.class);
     doThrow(new IllegalStateException("foo")).when(filter).init(any(FilterConfig.class));
@@ -126,17 +126,20 @@ public class MasterServletFilterTest {
     private static int globalCount = 0;
     private int count = 0;
 
+    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 
+    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
       globalCount++;
       count = globalCount;
       filterChain.doFilter(servletRequest, servletResponse);
     }
 
+    @Override
     public void destroy() {
     }
-
   }
+
 }
