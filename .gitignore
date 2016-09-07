@@ -46,5 +46,5 @@ Desktop.ini
 .sonar/
 
 # scripts patches, they are local to each developer
-scripts/patches/*.sh
+scripts/patches/*.*
 scripts/patches/*license*.txt
