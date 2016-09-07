@@ -19,13 +19,11 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nullable;
+import java.util.NoSuchElementException;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
 
@@ -1440,7 +1438,7 @@ public final class CoreMetrics {
    * </duplications>
    * }
    * </pre>
-   * 
+   *
    * @deprecated since 4.5. Internal storage of duplication is not an API.
    */
   @Deprecated
@@ -2511,11 +2509,6 @@ public final class CoreMetrics {
   }
 
   public static Metric getMetric(final String key) {
-    return Iterables.find(METRICS, new Predicate<Metric>() {
-      @Override
-      public boolean apply(@Nullable Metric input) {
-        return input != null && input.getKey().equals(key);
-      }
-    });
+    return METRICS.stream().filter(metric -> metric != null && metric.getKey().equals(key)).findFirst().orElseThrow(NoSuchElementException::new);
   }
 }

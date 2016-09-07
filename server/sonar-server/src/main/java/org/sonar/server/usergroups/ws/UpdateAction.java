@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Objects;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -117,7 +118,7 @@ public class UpdateAction implements UserGroupsWsAction {
 
   private void updateDefaultGroupIfNeeded(DbSession dbSession, String oldName, String newName) {
     String defaultGroupName = persistentSettings.getString(CORE_DEFAULT_GROUP);
-    if (defaultGroupName.equals(oldName)) {
+    if (Objects.equals(defaultGroupName, oldName)) {
       persistentSettings.saveProperty(dbSession, CORE_DEFAULT_GROUP, newName);
     }
   }

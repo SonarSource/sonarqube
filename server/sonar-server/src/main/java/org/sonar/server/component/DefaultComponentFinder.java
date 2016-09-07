@@ -62,11 +62,11 @@ public class DefaultComponentFinder {
     return newArrayList(Iterables.filter(allComponents, new MatchQuery(query)));
   }
 
-  abstract static class Filter {
+  interface Filter {
 
-    abstract String field(Component component);
+    String field(Component component);
 
-    final boolean accept(Component component, Collection<String> collections) {
+    default boolean accept(Component component, Collection<String> collections) {
       if (!collections.isEmpty()) {
         for (String item : collections) {
           if (field(component).toLowerCase().contains(item.toLowerCase())) {
@@ -79,16 +79,16 @@ public class DefaultComponentFinder {
     }
   }
 
-  static class NameFilter extends Filter {
+  static class NameFilter implements Filter {
     @Override
-    String field(Component component) {
+    public String field(Component component) {
       return component.name();
     }
   }
 
-  static class KeyFilter extends Filter {
+  static class KeyFilter implements Filter {
     @Override
-    String field(Component component) {
+    public String field(Component component) {
       return component.key();
     }
   }

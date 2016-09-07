@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -57,18 +55,15 @@ public class ListAction implements RulesWsAction {
     final ListResponse.Builder listResponseBuilder = ListResponse.newBuilder();
     final ListResponse.Rule.Builder ruleBuilder = ListResponse.Rule.newBuilder();
     try {
-      dbClient.ruleDao().selectEnabled(dbSession, new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext resultContext) {
-          RuleDto dto = (RuleDto) resultContext.getResultObject();
-          ruleBuilder
-            .clear()
-            .setRepository(dto.getRepositoryKey())
-            .setKey(dto.getRuleKey())
-            .setName(nullToEmpty(dto.getName()))
-            .setInternalKey(nullToEmpty(dto.getConfigKey()));
-          listResponseBuilder.addRules(ruleBuilder.build());
-        }
+      dbClient.ruleDao().selectEnabled(dbSession, resultContext -> {
+        RuleDto dto = (RuleDto) resultContext.getResultObject();
+        ruleBuilder
+          .clear()
+          .setRepository(dto.getRepositoryKey())
+          .setKey(dto.getRuleKey())
+          .setName(nullToEmpty(dto.getName()))
+          .setInternalKey(nullToEmpty(dto.getConfigKey()));
+        listResponseBuilder.addRules(ruleBuilder.build());
       });
     } finally {
       dbClient.closeSession(dbSession);

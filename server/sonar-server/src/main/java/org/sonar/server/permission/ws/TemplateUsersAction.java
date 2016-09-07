@@ -121,7 +121,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
     return query.build();
   }
 
-  private WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
+  private static WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
     Multimap<Long, String> permissionsByUserId = TreeMultimap.create();
     permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
@@ -145,7 +145,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
     return responseBuilder.build();
   }
 
-  public List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
+  private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
     List<String> orderedLogins = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
     return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }

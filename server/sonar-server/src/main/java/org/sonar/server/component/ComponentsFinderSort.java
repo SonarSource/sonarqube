@@ -54,20 +54,20 @@ class ComponentsFinderSort {
     throw new IllegalArgumentException("Cannot sort on field : " + sort);
   }
 
-  abstract static class ComponentProcessor {
-    abstract Function sortFieldFunction();
+  interface ComponentProcessor {
+    Function sortFieldFunction();
 
-    abstract Ordering sortFieldOrdering(boolean ascending);
+    Ordering sortFieldOrdering(boolean ascending);
 
-    final List<? extends Component> sort(Collection<? extends Component> components, boolean ascending) {
+    default List<? extends Component> sort(Collection<? extends Component> components, boolean ascending) {
       Ordering<Component> ordering = sortFieldOrdering(ascending).onResultOf(sortFieldFunction());
       return ordering.immutableSortedCopy(components);
     }
   }
 
-  abstract static class TextSort extends ComponentProcessor {
+  abstract static class TextSort implements ComponentProcessor {
     @Override
-    Function sortFieldFunction() {
+    public Function sortFieldFunction() {
       return new Function<Component, String>() {
         @Override
         public String apply(Component component) {
@@ -79,7 +79,7 @@ class ComponentsFinderSort {
     abstract String sortField(Component component);
 
     @Override
-    Ordering sortFieldOrdering(boolean ascending) {
+    public Ordering sortFieldOrdering(boolean ascending) {
       Ordering<String> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER).nullsLast();
       if (!ascending) {
         ordering = ordering.reverse();

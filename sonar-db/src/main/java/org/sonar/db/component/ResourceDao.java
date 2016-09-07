@@ -114,7 +114,7 @@ public class ResourceDao extends AbstractDao {
    * The implementation should rather use a new column already containing the root project, see https://jira.sonarsource.com/browse/SONAR-5188.
    */
   @CheckForNull
-  private ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
+  private static ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
     ResourceDto component = selectResource(ResourceQuery.create().setKey(componentKey), session);
     if (component != null) {
       String rootUuid = component.getRootUuid();

@@ -19,14 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -120,22 +118,19 @@ public class PersistProjectLinksStep implements ComputationStep {
           throw new IllegalArgumentException(String.format("Link of type '%s' has already been declared on component '%s'", type, componentUuid));
         }
 
-        ComponentLinkDto previousLink = Iterables.find(previousLinks, new Predicate<ComponentLinkDto>() {
-          @Override
-          public boolean apply(@Nullable ComponentLinkDto input) {
-            return input != null && input.getType().equals(convertType(link.getType()));
-          }
-        }, null);
-        if (previousLink == null) {
+        Optional<ComponentLinkDto> previousLink = previousLinks.stream()
+          .filter(input -> input != null && input.getType().equals(convertType(link.getType())))
+          .findFirst();
+        if (previousLink.isPresent()) {
+          previousLink.get().setHref(link.getHref());
+          dbClient.componentLinkDao().update(session, previousLink.get());
+        } else {
           dbClient.componentLinkDao().insert(session,
             new ComponentLinkDto()
               .setComponentUuid(componentUuid)
               .setType(type)
               .setName(i18n.message(Locale.ENGLISH, "project_links." + type, null))
               .setHref(link.getHref()));
-        } else {
-          previousLink.setHref(link.getHref());
-          dbClient.componentLinkDao().update(session, previousLink);
         }
       }
 

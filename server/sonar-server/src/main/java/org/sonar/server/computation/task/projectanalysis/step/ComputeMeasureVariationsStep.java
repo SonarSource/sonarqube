@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,8 +51,9 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -69,15 +72,6 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
-  private final Function<PastMeasureDto, MeasureKey> pastMeasureToMeasureKey = new Function<PastMeasureDto, MeasureKey>() {
-    @Nullable
-    @Override
-    public MeasureKey apply(@Nonnull PastMeasureDto input) {
-      Metric metric = metricRepository.getById((long)input.getMetricId());
-      return new MeasureKey(metric.getKey(), null);
-    }
-  };
-
   public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
     MeasureRepository measureRepository) {
     this.dbClient = dbClient;
@@ -91,7 +85,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<Metric> metrics = from(metricRepository.getAll()).filter(NumericMetric.INSTANCE).toList();
+      List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(NumericMetric.INSTANCE::apply).collect(Collectors.toList());
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
     } finally {
@@ -109,7 +103,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       // measures on files are currently purged, so past measures are not available on files
       super(CrawlerDepthLimit.reportMaxDepth(DIRECTORY).withViewsMaxDepth(SUBVIEW), PRE_ORDER);
       this.session = session;
-      this.metricIds = from(metrics).transform(MetricDtoToMetricId.INSTANCE).toSet();
+      this.metricIds = metrics.stream().map(MetricDtoToMetricId.INSTANCE::apply).collect(Collectors.toSet());
       this.metrics = metrics;
     }
 
@@ -130,7 +124,9 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     }
 
     private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
-      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
+      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = pastMeasures
+        .stream()
+        .collect(uniqueIndex(m -> new MeasureKey(metricRepository.getById((long) m.getMetricId()).getKey(), null), identity()));
       for (Metric metric : metrics) {
         Optional<Measure> measure = measureRepository.getRawMeasure(component, metric);
         if (measure.isPresent() && !measure.get().hasVariations()) {

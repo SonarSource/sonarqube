@@ -72,20 +72,20 @@ class IssuesFinderSort {
     throw new IllegalArgumentException("Cannot sort on field : " + sort);
   }
 
-  abstract static class IssueProcessor {
-    abstract Function sortFieldFunction();
+  interface IssueProcessor {
+    Function sortFieldFunction();
 
-    abstract Ordering sortFieldOrdering(boolean ascending);
+    Ordering sortFieldOrdering(boolean ascending);
 
-    final List<IssueDto> sort(Collection<IssueDto> issueDtos, boolean ascending) {
+    default List<IssueDto> sort(Collection<IssueDto> issueDtos, boolean ascending) {
       Ordering<IssueDto> ordering = sortFieldOrdering(ascending).onResultOf(sortFieldFunction());
       return ordering.immutableSortedCopy(issueDtos);
     }
   }
 
-  abstract static class TextSortIssueProcessor extends IssueProcessor {
+  abstract static class TextSortIssueProcessor implements IssueProcessor {
     @Override
-    Function sortFieldFunction() {
+    public Function sortFieldFunction() {
       return new Function<IssueDto, String>() {
         @Override
         public String apply(IssueDto issueDto) {
@@ -97,7 +97,7 @@ class IssuesFinderSort {
     abstract String sortField(IssueDto issueDto);
 
     @Override
-    Ordering sortFieldOrdering(boolean ascending) {
+    public Ordering sortFieldOrdering(boolean ascending) {
       Ordering<String> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER).nullsLast();
       if (!ascending) {
         ordering = ordering.reverse();
@@ -120,14 +120,14 @@ class IssuesFinderSort {
     }
   }
 
-  static class SeveritySortIssueProcessor extends IssueProcessor {
+  static class SeveritySortIssueProcessor implements IssueProcessor {
     @Override
-    Function sortFieldFunction() {
+    public Function sortFieldFunction() {
       return IssueDtoToSeverity.INSTANCE;
     }
 
     @Override
-    Ordering sortFieldOrdering(boolean ascending) {
+    public Ordering sortFieldOrdering(boolean ascending) {
       Ordering<Integer> ordering = Ordering.<Integer>natural().nullsLast();
       if (!ascending) {
         ordering = ordering.reverse();
@@ -136,9 +136,9 @@ class IssuesFinderSort {
     }
   }
 
-  abstract static class DateSortRowProcessor extends IssueProcessor {
+  abstract static class DateSortRowProcessor implements IssueProcessor {
     @Override
-    Function sortFieldFunction() {
+    public Function sortFieldFunction() {
       return new Function<IssueDto, Date>() {
         @Override
         public Date apply(IssueDto issueDto) {
@@ -150,7 +150,7 @@ class IssuesFinderSort {
     abstract Date sortField(IssueDto issueDto);
 
     @Override
-    Ordering sortFieldOrdering(boolean ascending) {
+    public Ordering sortFieldOrdering(boolean ascending) {
       Ordering<Date> ordering = Ordering.<Date>natural().nullsLast();
       if (!ascending) {
         ordering = ordering.reverse();

@@ -31,8 +31,6 @@ import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
 
 /**
  * Used in the Active Record Migration 710
@@ -62,19 +60,16 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
       massUpdate.select("SELECT f.id, f.data FROM issue_filters f WHERE f.data like '%componentRoots=%'");
       massUpdate.update("UPDATE issue_filters SET data=?, updated_at=? WHERE id=?");
       final PreparedStatement finalPstmt = pstmt;
-      massUpdate.execute(new MassUpdate.Handler() {
-        @Override
-        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-          Long id = row.getNullableLong(1);
-          String data = row.getNullableString(2);
-          if (data == null) {
-            return false;
-          }
-          update.setString(1, convertData(finalPstmt, data));
-          update.setDate(2, now);
-          update.setLong(3, id);
-          return true;
+      massUpdate.execute((row, update) -> {
+        Long id = row.getNullableLong(1);
+        String data = row.getNullableString(2);
+        if (data == null) {
+          return false;
         }
+        update.setString(1, convertData(finalPstmt, data));
+        update.setDate(2, now);
+        update.setLong(3, id);
+        return true;
       });
     } finally {
       DbUtils.closeQuietly(connection);

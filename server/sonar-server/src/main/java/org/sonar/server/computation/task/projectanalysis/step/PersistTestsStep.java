@@ -32,8 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -107,12 +105,9 @@ public class PersistTestsStep implements ComputationStep {
       this.projectKey = treeRootHolder.getRoot().getKey();
       session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject",
         ImmutableMap.of("projectUuid", treeRootHolder.getRoot().getUuid(), "dataType", Type.TEST),
-        new ResultHandler() {
-          @Override
-          public void handleResult(ResultContext context) {
-            FileSourceDto dto = (FileSourceDto) context.getResultObject();
-            existingFileSourcesByUuid.put(dto.getFileUuid(), dto);
-          }
+        context -> {
+          FileSourceDto dto = (FileSourceDto) context.getResultObject();
+          existingFileSourcesByUuid.put(dto.getFileUuid(), dto);
         });
     }
 

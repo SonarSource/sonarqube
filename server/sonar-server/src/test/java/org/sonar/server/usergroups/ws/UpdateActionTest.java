@@ -44,6 +44,7 @@ import org.sonar.server.ws.WsTester;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -141,6 +142,21 @@ public class UpdateActionTest {
       .execute();
 
     verify(settings).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
+  }
+
+  @Test
+  public void update_default_group_name_does_not_update_default_group_setting_when_null() throws Exception {
+    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(null);
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName(DEFAULT_GROUP_NAME_VALUE).setDescription("Default group name"));
+    dbSession.commit();
+
+    loginAsAdmin();
+    newRequest()
+      .setParam("id", existingGroup.getId().toString())
+      .setParam("name", "new-name")
+      .execute();
+
+    verify(settings, never()).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
   }
 
   @Test

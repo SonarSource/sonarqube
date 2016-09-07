@@ -22,9 +22,6 @@ package org.sonar.server.batch;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
 public class BatchWs implements WebService {
@@ -59,15 +56,12 @@ public class BatchWs implements WebService {
       .setInternal(true)
       .setSince("4.4")
       .setDescription("List the JAR files to be downloaded by source analyzer")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          try {
-            response.stream().setMediaType("text/plain");
-            IOUtils.write(batchIndex.getIndex(), response.stream().output());
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
+      .setHandler((request, response) -> {
+        try {
+          response.stream().setMediaType("text/plain");
+          IOUtils.write(batchIndex.getIndex(), response.stream().output());
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
         }
       })
       .setResponseExample(getClass().getResource("batch-index-example.txt"));
@@ -79,16 +73,13 @@ public class BatchWs implements WebService {
       .setSince("4.4")
       .setDescription("Download a JAR file required by source analyzer")
       .setResponseExample(getClass().getResource("batch-file-example.txt"))
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          String filename = request.mandatoryParam("name");
-          try {
-            response.stream().setMediaType("application/java-archive");
-            FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
+      .setHandler((request, response) -> {
+        String filename = request.mandatoryParam("name");
+        try {
+          response.stream().setMediaType("application/java-archive");
+          FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
         }
       });
     action

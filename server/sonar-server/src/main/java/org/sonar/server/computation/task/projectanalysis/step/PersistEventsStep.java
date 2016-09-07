@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -27,7 +29,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -35,8 +36,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisi
 import org.sonar.server.computation.task.projectanalysis.event.Event;
 import org.sonar.server.computation.task.projectanalysis.event.EventRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
-
-import static com.google.common.collect.Iterables.transform;
 
 public class PersistEventsStep implements ComputationStep {
 
@@ -68,55 +67,6 @@ public class PersistEventsStep implements ComputationStep {
     }
   }
 
-  private void processEvents(DbSession session, Component component, Long analysisDate) {
-    Function<Event, EventDto> eventToEventDto = event -> newBaseEvent(component, analysisDate)
-      .setName(event.getName())
-      .setCategory(convertCategory(event.getCategory()))
-      .setDescription(event.getDescription())
-      .setData(event.getData());
-    // FIXME bulk insert
-    for (EventDto batchEventDto : transform(eventRepository.getEvents(component), eventToEventDto)) {
-      dbClient.eventDao().insert(session, batchEventDto);
-    }
-  }
-
-  private void saveVersionEvent(DbSession session, Component component, Long analysisDate) {
-    String version = component.getReportAttributes().getVersion();
-    if (version != null) {
-      deletePreviousEventsHavingSameVersion(session, version, component);
-      dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
-        .setName(version)
-        .setCategory(EventDto.CATEGORY_VERSION));
-    }
-  }
-
-  private void deletePreviousEventsHavingSameVersion(DbSession session, String version, Component component) {
-    for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
-      if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(version)) {
-        dbClient.eventDao().delete(session, dto.getId());
-      }
-    }
-  }
-
-  private EventDto newBaseEvent(Component component, Long analysisDate) {
-    return new EventDto()
-      .setAnalysisUuid(analysisMetadataHolder.getUuid())
-      .setComponentUuid(component.getUuid())
-      .setCreatedAt(system2.now())
-      .setDate(analysisDate);
-  }
-
-  private static String convertCategory(Event.Category category) {
-    switch (category) {
-      case ALERT:
-        return EventDto.CATEGORY_ALERT;
-      case PROFILE:
-        return EventDto.CATEGORY_PROFILE;
-      default:
-        throw new IllegalArgumentException(String.format("Unsupported category %s", category.name()));
-    }
-  }
-
   @Override
   public String getDescription() {
     return "Persist events";
@@ -126,8 +76,8 @@ public class PersistEventsStep implements ComputationStep {
     private final DbSession session;
     private final long analysisDate;
 
-    public PersistEventComponentVisitor(DbSession session, long analysisDate) {
-      super(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER);
+    PersistEventComponentVisitor(DbSession session, long analysisDate) {
+      super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
       this.session = session;
       this.analysisDate = analysisDate;
     }
@@ -136,6 +86,55 @@ public class PersistEventsStep implements ComputationStep {
     public void visitProject(Component project) {
       processEvents(session, project, analysisDate);
       saveVersionEvent(session, project, analysisDate);
+    }
+
+    private void processEvents(DbSession session, Component component, Long analysisDate) {
+      Function<Event, EventDto> eventToEventDto = event -> newBaseEvent(component, analysisDate)
+        .setName(event.getName())
+        .setCategory(convertCategory(event.getCategory()))
+        .setDescription(event.getDescription())
+        .setData(event.getData());
+      // FIXME bulk insert
+      for (EventDto batchEventDto : StreamSupport.stream(eventRepository.getEvents(component).spliterator(), false).map(eventToEventDto).collect(Collectors.toList())) {
+        dbClient.eventDao().insert(session, batchEventDto);
+      }
+    }
+
+    private void saveVersionEvent(DbSession session, Component component, Long analysisDate) {
+      String version = component.getReportAttributes().getVersion();
+      if (version != null) {
+        deletePreviousEventsHavingSameVersion(session, version, component);
+        dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
+          .setName(version)
+          .setCategory(EventDto.CATEGORY_VERSION));
+      }
+    }
+
+    private void deletePreviousEventsHavingSameVersion(DbSession session, String version, Component component) {
+      for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
+        if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(version)) {
+          dbClient.eventDao().delete(session, dto.getId());
+        }
+      }
+    }
+
+    private EventDto newBaseEvent(Component component, Long analysisDate) {
+      return new EventDto()
+        .setAnalysisUuid(analysisMetadataHolder.getUuid())
+        .setComponentUuid(component.getUuid())
+        .setCreatedAt(system2.now())
+        .setDate(analysisDate);
+    }
+
+    private String convertCategory(Event.Category category) {
+      switch (category) {
+        case ALERT:
+          return EventDto.CATEGORY_ALERT;
+        case PROFILE:
+          return EventDto.CATEGORY_PROFILE;
+        default:
+          throw new IllegalArgumentException(String.format("Unsupported category %s", category.name()));
+      }
     }
 
   }

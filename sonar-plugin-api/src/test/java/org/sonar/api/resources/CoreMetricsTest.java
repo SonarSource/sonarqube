@@ -20,18 +20,39 @@
 package org.sonar.api.resources;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.api.measures.CoreMetrics.getMetric;
+import static org.sonar.api.measures.CoreMetrics.getMetrics;
 
 public class CoreMetricsTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Test
   public void read_metrics_from_class_reflection() {
-    List<Metric> metrics = CoreMetrics.getMetrics();
+    List<Metric> metrics = getMetrics();
     assertThat(metrics.size()).isGreaterThan(100);
-    assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
+    assertThat(metrics).contains(NCLOC, DIRECTORIES);
+  }
+
+  @Test
+  public void get_metric_by_key() throws Exception {
+    Metric metric = getMetric("ncloc");
+    assertThat(metric.getKey()).isEqualTo("ncloc");
+  }
+
+  @Test
+  public void fail_get_unknown_metric_by_key() throws Exception {
+    expectedException.expect(NoSuchElementException.class);
+    getMetric("unknown");
   }
 }

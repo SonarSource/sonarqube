@@ -19,9 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +27,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -64,14 +61,11 @@ public class TransitionAction extends Action {
 
   private boolean canExecuteTransition(Issue issue, final String transition) {
     final DefaultIssue defaultIssue = (DefaultIssue) issue;
-    return Iterables.find(workflow.outTransitions(issue), new Predicate<Transition>() {
-      @Override
-      public boolean apply(Transition input) {
-        return input.key().equals(transition) &&
-          (StringUtils.isBlank(input.requiredProjectPermission()) ||
-          userSession.hasComponentPermission(input.requiredProjectPermission(), defaultIssue.projectKey()));
-      }
-    }, null) != null;
+    return workflow.outTransitions(issue).stream()
+      .filter(input -> input.key().equals(transition) &&
+        (StringUtils.isBlank(input.requiredProjectPermission()) ||
+          userSession.hasComponentPermission(input.requiredProjectPermission(), defaultIssue.projectKey())))
+      .findFirst().orElseGet(() -> null) != null;
   }
 
   private static String transition(Map<String, Object> properties) {
