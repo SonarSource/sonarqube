@@ -21,6 +21,7 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -55,11 +56,13 @@ import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.setting.ws.SettingValidator.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.server.setting.ws.SettingValidator.validateScope;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
@@ -79,9 +82,10 @@ public class SetAction implements SettingsWsAction {
   private final UserSession userSession;
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
+  private final SettingValidator settingValidator;
 
   public SetAction(PropertyDefinitions propertyDefinitions, I18n i18n, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier) {
+    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidator settingValidator) {
     this.propertyDefinitions = propertyDefinitions;
     this.i18n = i18n;
     this.dbClient = dbClient;
@@ -89,6 +93,7 @@ public class SetAction implements SettingsWsAction {
     this.userSession = userSession;
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;
+    this.settingValidator = settingValidator;
   }
 
   @Override
@@ -173,12 +178,6 @@ public class SetAction implements SettingsWsAction {
     }
   }
 
-  private void commonChecks(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    checkValueIsSet(request);
-    checkGlobalOrProject(request, definition, component);
-    checkComponentQualifier(request, definition, component);
-  }
-
   private String doHandlePropertySet(DbSession dbSession, SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
     validatePropertySet(request, definition);
 
@@ -205,6 +204,13 @@ public class SetAction implements SettingsWsAction {
     } else {
       settingsUpdater.deleteGlobalSettings(dbSession, key);
     }
+  }
+
+  private void commonChecks(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+    checkValueIsSet(request);
+    SettingData settingData = new SettingData(request.getKey(), definition, component.orElse(null));
+    ImmutableList.of(validateScope(), settingValidator.validateQualifier()).stream()
+      .forEach(validation -> validation.validate(settingData));
   }
 
   private void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
@@ -250,18 +256,6 @@ public class SetAction implements SettingsWsAction {
   private static void checkSingleOrMultiValue(SetRequest request, PropertyDefinition definition) {
     checkRequest(definition.multiValues() ^ request.getValue() != null,
       "Parameter '%s' must be used for single value setting. Parameter '%s' must be used for multi value setting.", PARAM_VALUE, PARAM_VALUES);
-  }
-
-  private static void checkGlobalOrProject(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    checkRequest(component.isPresent() || definition == null || definition.global(), "Setting '%s' cannot be global", request.getKey());
-  }
-
-  private void checkComponentQualifier(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    String qualifier = component.isPresent() ? component.get().qualifier() : "";
-    checkRequest(!component.isPresent()
-      || definition == null
-      || definition.qualifiers().contains(component.get().qualifier()),
-      "Setting '%s' cannot be set on a %s", request.getKey(), i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
   }
 
   private void checkType(SetRequest request, PropertyDefinition definition) {

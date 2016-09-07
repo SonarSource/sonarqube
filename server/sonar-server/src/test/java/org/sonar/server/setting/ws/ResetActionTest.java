@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -39,7 +40,9 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -68,6 +71,8 @@ public class ResetActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  I18nRule i18n = new I18nRule();
+
   PropertyDbTester propertyDb = new PropertyDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
@@ -75,10 +80,11 @@ public class ResetActionTest {
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
   PropertyDefinitions definitions = new PropertyDefinitions();
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
+  SettingValidator settingValidator = new SettingValidator(i18n);
 
   ComponentDto project;
 
-  ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions);
+  ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidator);
   WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -202,6 +208,33 @@ public class ResetActionTest {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
+
+    executeRequestOnComponentSetting("foo", project);
+  }
+
+  @Test
+  public void fail_when_not_global_and_no_component() {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo")
+      .onlyOnQualifiers(Qualifiers.VIEW)
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'foo' cannot be global");
+
+    executeRequestOnGlobalSetting("foo");
+  }
+
+  @Test
+  public void fail_when_qualifier_not_included() {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo")
+      .onQualifiers(Qualifiers.VIEW)
+      .build());
+    i18n.put("qualifier." + Qualifiers.PROJECT, "project");
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'foo' cannot be set on a project");
 
     executeRequestOnComponentSetting("foo", project);
   }

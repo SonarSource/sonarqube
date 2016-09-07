@@ -86,8 +86,9 @@ public class SetActionTest {
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
   FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, propertyDefinitions);
+  SettingValidator settingValidator = new SettingValidator(i18n);
 
-  SetAction underTest = new SetAction(propertyDefinitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier);
+  SetAction underTest = new SetAction(propertyDefinitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, settingValidator);
 
   WsActionTester ws = new WsActionTester(underTest);
 

@@ -20,6 +20,7 @@
 
 package org.sonar.server.setting.ws;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +36,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.setting.ws.SettingValidator.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
+import static org.sonar.server.setting.ws.SettingValidator.validateScope;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
@@ -51,13 +54,16 @@ public class ResetAction implements SettingsWsAction {
   private final SettingsUpdater settingsUpdater;
   private final UserSession userSession;
   private final PropertyDefinitions definitions;
+  private final SettingValidator settingValidator;
 
-  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions) {
+  public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions,
+    SettingValidator settingValidator) {
     this.dbClient = dbClient;
     this.settingsUpdater = settingsUpdater;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.definitions = definitions;
+    this.settingValidator = settingValidator;
   }
 
   @Override
@@ -89,6 +95,11 @@ public class ResetAction implements SettingsWsAction {
       ResetRequest resetRequest = toWsRequest(request);
       Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
       checkPermissions(component);
+      resetRequest.getKeys().forEach(key -> {
+        SettingData data = new SettingData(key, definitions.get(key), component.orElse(null));
+        ImmutableList.of(validateScope(), settingValidator.validateQualifier())
+          .forEach(validation -> validation.validate(data));
+      });
 
       List<String> keys = getKeys(resetRequest);
       if (component.isPresent()) {
