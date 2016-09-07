@@ -191,6 +191,19 @@ public class ListActionTest {
   }
 
   @Test
+  public void return_bad_server_id_when_server_has_no_server_id() throws Exception {
+    setUserAsSystemAdmin();
+    addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
+      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+
+    ListWsResponse result = executeRequest();
+
+    assertThat(result.getLicensesList()).hasSize(1);
+    Licenses.License license = result.getLicenses(0);
+    assertThat(license.getInvalidServerId()).isTrue();
+  }
+
+  @Test
   public void does_not_return_invalid_server_id_when_all_servers_accepted_and_no_server_id_setting() throws Exception {
     setUserAsSystemAdmin();
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,

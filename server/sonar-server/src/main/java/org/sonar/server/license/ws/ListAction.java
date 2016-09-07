@@ -161,7 +161,9 @@ public class ListAction implements WsAction {
       if (licenseServerId != null) {
         licenseBuilder.setServerId(licenseServerId);
       }
-      if (!Objects.equals(ALL_SERVERS_VALUE, licenseServerId) && serverId.isPresent() && !serverId.get().equals(licenseServerId)) {
+      boolean isValidServerId = Objects.equals(licenseServerId, ALL_SERVERS_VALUE)
+        || (serverId.isPresent() && Objects.equals(licenseServerId, serverId.get()));
+      if (!isValidServerId) {
         licenseBuilder.setInvalidServerId(true);
       }
     }
