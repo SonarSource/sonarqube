@@ -94,6 +94,7 @@ public class NotificationDaemon implements Startable {
       executorService.awaitTermination(5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       LOG.error("Error during stop of notification service", e);
+      Thread.currentThread().interrupt();
     }
     LOG.info("Notification service stopped");
   }

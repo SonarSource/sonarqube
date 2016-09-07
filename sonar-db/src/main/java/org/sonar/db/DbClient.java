@@ -183,12 +183,6 @@ public class DbClient {
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
-    doOnLoad(map);
-  }
-
-  // should be removed, but till used by sonar-server
-  protected void doOnLoad(Map<Class, Dao> daoByClass) {
-
   }
 
   public DbSession openSession(boolean batch) {

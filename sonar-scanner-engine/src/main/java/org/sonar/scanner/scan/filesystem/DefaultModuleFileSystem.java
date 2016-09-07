@@ -109,10 +109,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
     return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
-  private static UnsupportedOperationException modificationNotPermitted() {
-    return new UnsupportedOperationException("Modifications of the file system are not permitted");
-  }
-
   @Override
   protected void doPreloadFiles() {
     if (!initialized) {
