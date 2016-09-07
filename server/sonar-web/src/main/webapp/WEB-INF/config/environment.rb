@@ -242,6 +242,12 @@ class ActiveRecord::Migration
     drop_id_trigger(table_name) if dialect()=='oracle'
   end
 
+  def self.rename_table(old_table_name, new_table_name, options = {})
+    drop_id_trigger(old_table_name) if dialect()=='oracle' && options[:id] != false
+    super(old_table_name, new_table_name)
+    create_id_trigger(new_table_name) if dialect()=='oracle' && options[:id] != false
+  end
+
   def self.create_id_trigger(table)
       execute_ddl("create trigger for table #{table}",
 
