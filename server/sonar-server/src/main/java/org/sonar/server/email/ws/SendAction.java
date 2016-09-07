@@ -20,10 +20,17 @@
 
 package org.sonar.server.email.ws;
 
+import com.google.common.base.Throwables;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.mail.EmailException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 
@@ -68,8 +75,21 @@ public class SendAction implements EmailsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-    emailNotificationChannel.sendTestEmail(request.mandatoryParam(PARAM_TO), request.param(PARAM_SUBJECT), request.mandatoryParam(PARAM_MESSAGE));
+    try {
+      emailNotificationChannel.sendTestEmail(request.mandatoryParam(PARAM_TO), request.param(PARAM_SUBJECT), request.mandatoryParam(PARAM_MESSAGE));
+    } catch (EmailException emailException) {
+      throw createBadRequestException(emailException);
+    }
     response.noContent();
+  }
+
+  private static BadRequestException createBadRequestException(EmailException emailException) {
+    List<Message> messages = Throwables.getCausalChain(emailException)
+      .stream()
+      .map(e -> Message.of(e.getMessage()))
+      .collect(Collectors.toList());
+    Collections.reverse(messages);
+    return new BadRequestException(messages);
   }
 
 }
