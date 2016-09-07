@@ -71,7 +71,6 @@
     <jackson.version>2.6.6</jackson.version>
 
     <protobuf.version>3.0.0-beta-2</protobuf.version>
-    <protobuf.compiler>${settings.localRepository}/com/google/protobuf/protoc/${protobuf.version}/protoc-${protobuf.version}-${os.detected.classifier}.exe</protobuf.compiler>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.2</maven.min.version>
@@ -265,6 +264,11 @@
             <checkRuntimeClasspath>true</checkRuntimeClasspath>
             <checkTestClasspath>false</checkTestClasspath>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.xolstice.maven.plugins</groupId>
+          <artifactId>protobuf-maven-plugin</artifactId>
+          <version>0.5.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1111,7 +1115,7 @@
       </properties>
     </profile>
     <profile>
-      <id>release</id>      
+      <id>release</id>
       <build>
         <plugins>
           <plugin>
@@ -1182,29 +1186,18 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
+            <groupId>org.xolstice.maven.plugins</groupId>
+            <artifactId>protobuf-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>compile-protobuf-sources</id>
-                <phase>generate-sources</phase>
+                <id>generate-protobuf-java-sources</id>
                 <goals>
-                  <goal>run</goal>
+                  <goal>compile</goal>
                 </goals>
                 <configuration>
-                  <target>
-                    <fileset id="fileset" dir="${project.basedir}/src/main/protobuf">
-                      <include name="*.proto" />
-                    </fileset>
-                    <pathconvert refid="fileset" property="protos" pathsep=" " />
-                    <mkdir dir="${project.build.directory}/generated-sources/protobuf" />
-                    <chmod file="${protobuf.compiler}" perm="u+x" />
-                    <exec failonerror="true" executable="${protobuf.compiler}">
-                      <arg value="--proto_path=${project.basedir}/src/main/protobuf" />
-                      <arg value="--java_out=${project.build.directory}/generated-sources/protobuf" />
-                      <arg line="${protos}" />
-                    </exec>
-                  </target>
+                  <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                  <protoSourceRoot>${project.basedir}/src/main/protobuf</protoSourceRoot>
+                  <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -1213,8 +1206,8 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protoc</artifactId>
                 <version>${protobuf.version}</version>
-                <classifier>${os.detected.classifier}</classifier>
                 <type>exe</type>
+                <classifier>${os.detected.classifier}</classifier>
               </dependency>
             </dependencies>
           </plugin>
@@ -1249,29 +1242,18 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
+            <groupId>org.xolstice.maven.plugins</groupId>
+            <artifactId>protobuf-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>compile-protobuf-tests</id>
-                <phase>generate-sources</phase>
+                <id>generate-protobuf-java-tests</id>
                 <goals>
-                  <goal>run</goal>
+                  <goal>test-compile</goal>
                 </goals>
                 <configuration>
-                  <target>
-                    <fileset id="fileset" dir="${project.basedir}/src/test/protobuf">
-                      <include name="*.proto" />
-                    </fileset>
-                    <pathconvert refid="fileset" property="protos" pathsep=" " />
-                    <mkdir dir="${project.build.directory}/generated-test-sources/protobuf" />
-                    <chmod file="${protobuf.compiler}" perm="u+x" />
-                    <exec failonerror="true" executable="${protobuf.compiler}">
-                      <arg value="--proto_path=${project.basedir}/src/test/protobuf" />
-                      <arg value="--java_out=${project.build.directory}/generated-test-sources/protobuf" />
-                      <arg line="${protos}" />
-                    </exec>
-                  </target>
+                  <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                  <protoTestSourceRoot>${project.basedir}/src/test/protobuf</protoTestSourceRoot>
+                  <outputDirectory>${project.build.directory}/generated-test-sources/protobuf</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -1494,7 +1476,7 @@
         <module>it</module>
         <module>tests</module>
       </modules>
-    </profile>    
+    </profile>
   </profiles>
 
 </project>
