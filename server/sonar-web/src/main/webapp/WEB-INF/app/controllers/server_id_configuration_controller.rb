@@ -25,7 +25,6 @@ class ServerIdConfigurationController < ApplicationController
   PROPERTY_ORGANISATION = 'sonar.organisation'
 
   before_filter :admin_required
-  verify :method => :post, :only => [:generate], :redirect_to => {:action => :index}
 
   def index
     @server_id = Property.value(PROPERTY_SERVER_ID)
@@ -42,6 +41,7 @@ class ServerIdConfigurationController < ApplicationController
   end
 
   def generate
+    verify_post_request
     organisation = params[:organisation].strip
     Property.set(PROPERTY_ORGANISATION, organisation)
     ip_address=params[:address].strip

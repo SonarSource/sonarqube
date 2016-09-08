@@ -23,8 +23,6 @@ class EncryptionConfigurationController < ApplicationController
   before_filter :admin_required
   before_filter :remove_layout
 
-  verify :method => :post, :only => [:generate_secret, :encrypt], :redirect_to => {:action => :index}
-
   def index
     if java_facade.hasSecretKey()
       render :action => 'index'
@@ -38,11 +36,13 @@ class EncryptionConfigurationController < ApplicationController
   end
 
   def generate_secret
+    verify_post_request
     @secret = java_facade.generateRandomSecretKey()
     render :partial => 'encryption_configuration/generate_secret_key'
   end
 
   def encrypt
+    verify_post_request
     bad_request('No secret key') unless java_facade.hasSecretKey()
     @encrypted = java_facade.encrypt(params[:text])
     render :partial => 'encryption_configuration/encrypt'
