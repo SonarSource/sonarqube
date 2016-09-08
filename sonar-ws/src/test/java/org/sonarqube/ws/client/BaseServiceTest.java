@@ -74,7 +74,7 @@ public class BaseServiceTest {
 
       public void test() {
         GetRequest get = new GetRequest(path("issue")).setParam("key", "ABC");
-        when(wsConnector.call(get)).thenReturn(new MockWsResponse().setCode(403).setRequestUrl("https://local/foo"));
+        when(wsConnector.call(get)).thenReturn(new MockWsResponse().setCode(403).setRequestUrl("https://local/foo").setContent("error"));
 
         try {
           call(get, Testing.Fake.parser());

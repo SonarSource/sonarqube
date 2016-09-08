@@ -31,9 +31,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.BatchWsClient;
-import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
@@ -76,7 +73,7 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   @Test(expected = IllegalStateException.class)
   public void failFastHttpError() {
-    HttpException http = new HttpException("url", 403);
+    HttpException http = new HttpException("url", 403, null);
     IllegalStateException e = new IllegalStateException("http error", http);
     WsTestUtil.mockException(wsClient, e);
     loader.load(PROJECT_KEY, false);
@@ -87,7 +84,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("http error");
 
-    HttpException http = new HttpException("uri", 403);
+    HttpException http = new HttpException("uri", 403, null);
     MessageException e = MessageException.of("http error", http);
     WsTestUtil.mockException(wsClient, e);
     loader.load(PROJECT_KEY, false);

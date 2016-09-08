@@ -31,8 +31,9 @@ abstract class BaseResponse implements WsResponse {
   @Override
   public WsResponse failIfNotSuccessful() {
     if (!isSuccessful()) {
+      String content = content();
       close();
-      throw new HttpException(requestUrl(), code());
+      throw new HttpException(requestUrl(), code(), content);
     }
     return this;
   }
