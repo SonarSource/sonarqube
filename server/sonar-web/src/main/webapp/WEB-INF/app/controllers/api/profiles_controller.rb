@@ -106,21 +106,6 @@ class Api::ProfilesController < Api::ApiController
 
   private
 
-  def validation_messages_to_json(messages)
-    hash={}
-    hash[:errors]=messages.getErrors().to_a.map { |message| message }
-    hash[:warnings]=messages.getWarnings().to_a.map { |message| message }
-    hash[:infos]=messages.getInfos().to_a.map { |message| message }
-    hash
-  end
-
-  def validation_result_to_json(result)
-    hash={}
-    hash[:warnings]=result.warnings().to_a.map { |message| message }
-    hash[:infos]=result.infos().to_a.map { |message| message }
-    hash
-  end
-
   def filter_rules
     conditions=['active_rules.profile_id=?']
     condition_values=[@profile.id]

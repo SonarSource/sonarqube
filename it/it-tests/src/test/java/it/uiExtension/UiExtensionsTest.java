@@ -85,7 +85,6 @@ public class UiExtensionsTest {
   @Test
   public void test_ruby_extensions() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("ui-ruby-extensions",
-      "/uiExtension/UiExtensionsTest/ruby-api-tester.html",
       "/uiExtension/UiExtensionsTest/ruby-rails-app.html",
       "/uiExtension/UiExtensionsTest/ruby-rails-app-advanced.html"
       ).build();

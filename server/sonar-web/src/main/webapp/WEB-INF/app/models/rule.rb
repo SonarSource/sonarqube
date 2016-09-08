@@ -166,17 +166,6 @@ class Rule < ActiveRecord::Base
     Rule.first(:conditions => ['status=? and plugin_name=? and id=?', STATUS_READY, MANUAL_REPOSITORY_KEY, id])
   end
 
-  def self.create_manual_rule(options)
-    key = options[:name].strip.downcase.gsub(/\s/, '_')
-    creation_options = {:name => options[:name],
-                        :description => options[:description],
-                        :plugin_rule_key => key,
-                        :status => STATUS_READY,
-                        :is_template => false,
-                        :plugin_name => MANUAL_REPOSITORY_KEY}
-    Rule.create!(creation_options)
-  end
-
   def self.to_hash(java_rule)
     l10n_name = java_rule.getName()
     l10n_desc = java_rule.getDescription()
@@ -187,66 +176,6 @@ class Rule < ActiveRecord::Base
     hash
   end
 
-  def to_hash_json(profile, active_rule = nil)
-    json = {'title' => name, 'key' => key, 'plugin' => plugin_name, 'config_key' => config_key}
-    json['description'] = description if description
-    if profile
-      active_rule = active_rule || profile.active_by_rule_id(id)
-      if active_rule
-        json['priority'] = active_rule.priority_text
-        json['status'] = 'ACTIVE'
-      else
-        json['priority'] = priority_text
-        json['status'] = 'INACTIVE'
-      end
-    else
-      json['priority'] = priority_text
-    end
-    json['params'] = parameters.collect { |parameter| parameter.to_hash_json(active_rule) } unless parameters.empty?
-    json
-  end
-
-  def to_xml(profile, xml)
-    xml.rule do
-      xml.title(name)
-      xml.key(key)
-      xml.config_key(config_key)
-      xml.plugin(plugin_name)
-      xml.description { xml.cdata!(description) } if description
-      active_rule = nil
-      if profile
-        active_rule = profile.active_by_rule_id(id)
-        if active_rule
-          xml.priority(active_rule.priority_text)
-          xml.status('ACTIVE')
-        else
-          xml.priority(priority_text)
-          xml.status("INACTIVE")
-        end
-      else
-        xml.priority(priority_text)
-      end
-      parameters.each do |parameter|
-        parameter.to_xml(active_rule, xml)
-      end
-    end
-  end
-
-  def to_csv(profile)
-    csv = [name.strip, plugin_rule_key, plugin_name]
-    if profile
-      active_rule = profile.active_by_rule_id(id)
-      if active_rule
-        csv << active_rule.priority_text
-        csv << 'ACTIVE'
-      else
-        csv << priority_text
-        csv << 'INACTIVE'
-      end
-    end
-    csv
-  end
-
   def self.remove_blank(array)
     if array
       array = array - ['']
@@ -254,47 +183,6 @@ class Rule < ActiveRecord::Base
     else
       nil
     end
-  end
-
-  def self.filter(rules, options)
-    priorities = remove_blank(options[:priorities])
-    profile = options[:profile]
-    inheritance = options[:inheritance]
-
-    if profile
-      inactive = (options[:activation]=='INACTIVE')
-      active = (options[:activation]=='ACTIVE')
-
-      rules = rules.reject do |rule|
-        active_rule = profile.active_by_rule_id(rule.id)
-        ((inactive && active_rule) || (active && active_rule.nil?))
-      end
-
-      if priorities
-        rules = rules.select do |rule|
-          active_rule = profile.active_by_rule_id(rule.id)
-          (active_rule && priorities.include?(active_rule.priority_text)) || (active_rule.nil? && priorities.include?(rule.priority_text))
-        end
-      end
-
-      if inheritance=='NOT'
-        rules = rules.select do |rule|
-          active_rule = profile.active_by_rule_id(rule.id)
-          (active_rule.nil? || active_rule.inheritance.blank?)
-        end
-      elsif inheritance.present? && inheritance != 'any'
-        rules = rules.select do |rule|
-          active_rule = profile.active_by_rule_id(rule.id)
-          (active_rule && active_rule.inheritance==inheritance)
-        end
-      end
-
-    elsif priorities
-      rules = rules.select do |rule|
-        priorities.include?(rule.priority_text)
-      end
-    end
-    rules
   end
 
   def self.sort_by(rules, sort_by)

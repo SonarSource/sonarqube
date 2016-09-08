@@ -30,19 +30,6 @@ class Group < ActiveRecord::Base
   validates_uniqueness_of   :name
   validate       :name_cant_be_anyone
 
-  # all the users that are NOT members of this group
-  def available_users
-    User.find(:all, :conditions => ["active=?", true], :order => 'name') - users
-  end
-
-  def set_users(new_users=[])
-    self.users.clear
-    
-    new_users=(new_users||[]).compact.uniq
-    self.users = User.find(new_users)
-    save
-  end
-
   def <=>(other)
     return -1 if name.nil?
     return 1 if other.nil? || other.name.nil?
