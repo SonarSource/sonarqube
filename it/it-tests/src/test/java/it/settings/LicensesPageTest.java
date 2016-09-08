@@ -65,8 +65,8 @@ public class LicensesPageTest {
     LicensesPage page = nav.logIn().asAdmin().openLicenses();
 
     page.getLicenses().shouldHaveSize(2);
-    page.getLicensesAsItems().get(0).getName().shouldHave(text("typed.license.secured"));
-    page.getLicensesAsItems().get(1).getName().shouldHave(text("untyped.license.secured"));
+    page.getLicensesAsItems().get(0).getName().shouldHave(text("Typed property"));
+    page.getLicensesAsItems().get(1).getName().shouldHave(text("Property without license type"));
   }
 
   @Test

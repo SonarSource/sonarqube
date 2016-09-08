@@ -22,6 +22,7 @@ package it;
 import it.serverSystem.ClusterTest;
 import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
+import it.settings.LicensesPageTest;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.updateCenter.UpdateCenterTest;
 import it.user.RealmAuthenticationTest;
@@ -39,6 +40,7 @@ import org.junit.runners.Suite;
   ServerSystemRestartingOrchestrator.class,
   RestartTest.class,
   SettingsTestRestartingOrchestrator.class,
+  LicensesPageTest.class,
   // update center
   UpdateCenterTest.class,
   RealmAuthenticationTest.class
