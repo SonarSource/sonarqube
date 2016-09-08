@@ -112,40 +112,14 @@ public class NewIndexTest {
   }
 
   @Test
-  public void string_doc_values() {
+  public void use_default_doc_values() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
-    mapping.stringFieldBuilder("the_doc_value").docValues().build();
+    mapping.stringFieldBuilder("the_doc_value").build();
 
     Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
     assertThat(props.get("type")).isEqualTo("string");
-    assertThat(props.get("index")).isEqualTo("not_analyzed");
-    assertThat(props.get("doc_values")).isEqualTo(Boolean.TRUE);
-    assertThat(props.get("fields")).isNull();
-  }
-
-  @Test
-  public void analyzed_strings_must_not_be_doc_values() {
-    NewIndex index = new NewIndex("issues");
-    NewIndex.NewIndexType mapping = index.createType("issue");
-    try {
-      mapping.stringFieldBuilder("the_doc_value").enableGramSearch().docValues().build();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Doc values are not supported on analyzed strings of field: the_doc_value");
-    }
-  }
-
-  @Test
-  public void do_not_disable_search_on_searchable_fields() {
-    NewIndex index = new NewIndex("issues");
-    NewIndex.NewIndexType mapping = index.createType("issue");
-    try {
-      mapping.stringFieldBuilder("my_field").enableGramSearch().disableSearch().build();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Can't mix searchable and non-searchable arguments on field: my_field");
-    }
+    assertThat(props.get("doc_values")).isNull();
   }
 
   @Test
