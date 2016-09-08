@@ -38,23 +38,8 @@ import org.sonar.duplications.index.ClonePart;
  */
 public final class OriginalCloneDetectionAlgorithm {
 
-  /**
-   * Performs detection and returns list of clone groups between file (which represented as a collection of blocks) and index.
-   * Note that this method ignores blocks for this file, that will be retrieved from index.
-   */
-  public static List<CloneGroup> detect(CloneIndex cloneIndex, Collection<Block> fileBlocks) {
-    if (fileBlocks.isEmpty()) {
-      return Collections.EMPTY_LIST;
-    }
-    OriginalCloneDetectionAlgorithm reporter = new OriginalCloneDetectionAlgorithm(cloneIndex);
-    reporter.findClones(fileBlocks);
-    return reporter.filter.getResult();
-  }
-
   private final CloneIndex cloneIndex;
-
   private final Filter filter = new Filter();
-
   private String originResourceId;
 
   private OriginalCloneDetectionAlgorithm(CloneIndex cloneIndex) {
@@ -213,9 +198,7 @@ public final class OriginalCloneDetectionAlgorithm {
         lastBlock.getEndLine());
 
       if (originResourceId.equals(part.getResourceId())) {
-        if (origin == null) {
-          origin = part;
-        } else if (part.getUnitStart() < origin.getUnitStart()) {
+        if (origin == null || part.getUnitStart() < origin.getUnitStart()) {
           origin = part;
         }
       }
@@ -226,4 +209,16 @@ public final class OriginalCloneDetectionAlgorithm {
     filter.add(CloneGroup.builder().setLength(cloneLength).setOrigin(origin).setParts(parts).build());
   }
 
+  /**
+   * Performs detection and returns list of clone groups between file (which represented as a collection of blocks) and index.
+   * Note that this method ignores blocks for this file, that will be retrieved from index.
+   */
+  public static List<CloneGroup> detect(CloneIndex cloneIndex, Collection<Block> fileBlocks) {
+    if (fileBlocks.isEmpty()) {
+      return Collections.emptyList();
+    }
+    OriginalCloneDetectionAlgorithm reporter = new OriginalCloneDetectionAlgorithm(cloneIndex);
+    reporter.findClones(fileBlocks);
+    return reporter.filter.getResult();
+  }
 }

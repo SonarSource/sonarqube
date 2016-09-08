@@ -22,6 +22,7 @@ package org.sonar.duplications.detector.original;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.utils.FastStringComparator;
 
@@ -72,6 +73,7 @@ final class BlocksGroup {
   /**
    * First block from this group with specified resource id.
    */
+  @CheckForNull
   public Block first(String resourceId) {
     for (Block block : blocks) {
       if (resourceId.equals(block.getResourceId())) {
