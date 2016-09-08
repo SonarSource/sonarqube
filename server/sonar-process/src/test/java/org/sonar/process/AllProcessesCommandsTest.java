@@ -60,129 +60,152 @@ public class AllProcessesCommandsTest {
 
   @Test
   public void write_and_read_up() throws IOException {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 0;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 0;
 
-    assertThat(commands.isUp(PROCESS_NUMBER)).isFalse();
-    assertThat(readByte(commands, offset)).isEqualTo(EMPTY);
+      assertThat(commands.isUp(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isEqualTo(EMPTY);
 
-    commands.setUp(PROCESS_NUMBER);
-    assertThat(commands.isUp(PROCESS_NUMBER)).isTrue();
-    assertThat(readByte(commands, offset)).isEqualTo(UP);
+      commands.setUp(PROCESS_NUMBER);
+      assertThat(commands.isUp(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(UP);
+    }
   }
 
   @Test
   public void write_and_read_operational() throws IOException {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 3;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 3;
 
-    assertThat(commands.isOperational(PROCESS_NUMBER)).isFalse();
-    assertThat(readByte(commands, offset)).isEqualTo(EMPTY);
+      assertThat(commands.isOperational(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isEqualTo(EMPTY);
 
-    commands.setOperational(PROCESS_NUMBER);
-    assertThat(commands.isOperational(PROCESS_NUMBER)).isTrue();
-    assertThat(readByte(commands, offset)).isEqualTo(OPERATIONAL);
+      commands.setOperational(PROCESS_NUMBER);
+      assertThat(commands.isOperational(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(OPERATIONAL);
+    }
   }
 
   @Test
   public void write_and_read_ping() throws IOException {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
 
-    int offset = 4;
-    assertThat(readLong(commands, offset)).isEqualTo(0L);
+      int offset = 4;
+      assertThat(readLong(commands, offset)).isEqualTo(0L);
 
-    long currentTime = System.currentTimeMillis();
-    commands.ping(PROCESS_NUMBER);
-    assertThat(readLong(commands, offset)).isGreaterThanOrEqualTo(currentTime);
+      long currentTime = System.currentTimeMillis();
+      commands.ping(PROCESS_NUMBER);
+      assertThat(readLong(commands, offset)).isGreaterThanOrEqualTo(currentTime);
+    }
   }
 
   @Test
   public void write_and_read_jmx_url() throws IOException {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
 
-    int offset = 12;
-    for (int i = 0; i < 500; i++) {
-      assertThat(readByte(commands, offset + i)).isEqualTo(EMPTY);
+      int offset = 12;
+      for (int i = 0; i < 500; i++) {
+        assertThat(readByte(commands, offset + i)).isEqualTo(EMPTY);
+      }
+
+      commands.setSystemInfoUrl(PROCESS_NUMBER, "jmx:foo");
+      assertThat(readByte(commands, offset)).isNotEqualTo(EMPTY);
+      assertThat(commands.getSystemInfoUrl(PROCESS_NUMBER)).isEqualTo("jmx:foo");
     }
-
-    commands.setSystemInfoUrl(PROCESS_NUMBER, "jmx:foo");
-    assertThat(readByte(commands, offset)).isNotEqualTo(EMPTY);
-    assertThat(commands.getSystemInfoUrl(PROCESS_NUMBER)).isEqualTo("jmx:foo");
   }
 
   @Test
   public void ask_for_stop() throws Exception {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 1;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 1;
 
-    assertThat(readByte(commands, offset)).isNotEqualTo(STOP);
-    assertThat(commands.askedForStop(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isNotEqualTo(STOP);
+      assertThat(commands.askedForStop(PROCESS_NUMBER)).isFalse();
 
-    commands.askForStop(PROCESS_NUMBER);
-    assertThat(commands.askedForStop(PROCESS_NUMBER)).isTrue();
-    assertThat(readByte(commands, offset)).isEqualTo(STOP);
+      commands.askForStop(PROCESS_NUMBER);
+      assertThat(commands.askedForStop(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(STOP);
+    }
   }
 
   @Test
   public void ask_for_restart() throws Exception {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 2;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 2;
 
-    assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
 
-    commands.askForRestart(PROCESS_NUMBER);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isTrue();
-    assertThat(readByte(commands, offset)).isEqualTo(RESTART);
+      commands.askForRestart(PROCESS_NUMBER);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(RESTART);
+    }
   }
 
   @Test
   public void acknowledgeAskForRestart_has_no_effect_when_no_restart_asked() throws Exception {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 2;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 2;
 
-    assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
 
-    commands.acknowledgeAskForRestart(PROCESS_NUMBER);
-    assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+      commands.acknowledgeAskForRestart(PROCESS_NUMBER);
+      assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+    }
   }
 
   @Test
   public void acknowledgeAskForRestart_resets_askForRestart_has_no_effect_when_no_restart_asked() throws Exception {
-    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
-    int offset = 2;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 2;
 
-    commands.askForRestart(PROCESS_NUMBER);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isTrue();
-    assertThat(readByte(commands, offset)).isEqualTo(RESTART);
+      commands.askForRestart(PROCESS_NUMBER);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(RESTART);
 
-    commands.acknowledgeAskForRestart(PROCESS_NUMBER);
-    assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
-    assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+      commands.acknowledgeAskForRestart(PROCESS_NUMBER);
+      assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
+      assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
+    }
   }
 
   @Test
   public void getProcessCommands_fails_if_processNumber_is_less_than_0() throws Exception {
-    AllProcessesCommands allProcessesCommands = new AllProcessesCommands(temp.newFolder());
-    int processNumber = -2;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int processNumber = -2;
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+      expectedException.expect(IllegalArgumentException.class);
+      expectedException.expectMessage("Process number " + processNumber + " is not valid");
 
-    allProcessesCommands.createAfterClean(processNumber);
+      commands.createAfterClean(processNumber);
+    }
   }
 
   @Test
   public void getProcessCommands_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
-    AllProcessesCommands allProcessesCommands = new AllProcessesCommands(temp.newFolder());
-    int processNumber = MAX_PROCESSES + 1;
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int processNumber = MAX_PROCESSES + 1;
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+      expectedException.expect(IllegalArgumentException.class);
+      expectedException.expectMessage("Process number " + processNumber + " is not valid");
 
-    allProcessesCommands.createAfterClean(processNumber);
+      commands.createAfterClean(processNumber);
+    }
+  }
+
+  @Test
+  public void clean_cleans_sharedMemory_of_any_process_less_than_MAX_PROCESSES() throws IOException {
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        commands.create(i).setUp();
+      }
+      commands.clean();
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        assertThat(commands.create(i).isUp()).isFalse();
+      }
+    }
   }
 
   private byte readByte(AllProcessesCommands commands, int offset) {

@@ -33,9 +33,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
 
 public class AppFileSystemTest {
 
@@ -178,7 +180,27 @@ public class AppFileSystemTest {
     assertThat(fileInTempDir).doesNotExist();
     assertThat(getFileKey(tempDir)).isEqualTo(tempDirKey);
     assertThat(getFileKey(sharedmemory)).isEqualTo(fileKey);
-    assertThat(FileUtils.readFileToString(sharedmemory)).isEqualTo("toto");
+    // content of sharedMemory file is reset
+    assertThat(FileUtils.readFileToString(sharedmemory)).isNotEqualTo("toto");
+  }
+
+  @Test
+  public void reset_cleans_the_sharedmemory_file() throws IOException {
+    File tempDir = new File(homeDir, DEFAULT_TEMP_DIR_NAME);
+    assertThat(tempDir.mkdir()).isTrue();
+    try (AllProcessesCommands commands = new AllProcessesCommands(tempDir)) {
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        commands.create(i).setUp();
+      }
+
+      AppFileSystem underTest = new AppFileSystem(new Props(properties));
+      underTest.verifyProps();
+      underTest.reset();
+
+      for (int i = 0; i < MAX_PROCESSES; i++) {
+        assertThat(commands.create(i).isUp()).isFalse();
+      }
+    }
   }
 
   @CheckForNull

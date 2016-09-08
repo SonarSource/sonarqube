@@ -31,6 +31,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
@@ -80,7 +81,10 @@ public class AppFileSystem implements FileSystem {
     createDirectory(props, PATH_DATA);
     createDirectory(props, PATH_WEB);
     createDirectory(props, PATH_LOGS);
-    createOrCleanTempDirectory(props, PATH_TEMP);
+    File tempDir = createOrCleanTempDirectory(props, PATH_TEMP);
+    try (AllProcessesCommands allProcessesCommands = new AllProcessesCommands(tempDir)) {
+      allProcessesCommands.clean();
+    }
   }
 
   @Override
@@ -119,12 +123,13 @@ public class AppFileSystem implements FileSystem {
     }
   }
 
-  private static void createOrCleanTempDirectory(Props props, String propKey) throws IOException {
+  private static File createOrCleanTempDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
     LOG.info("Cleaning or creating temp directory {}", dir.getAbsolutePath());
     if (!createDirectory(props, propKey)) {
       Files.walkFileTree(dir.toPath(), FOLLOW_LINKS, CleanTempDirFileVisitor.VISIT_MAX_DEPTH, new CleanTempDirFileVisitor(dir.toPath()));
     }
+    return dir;
   }
 
   private static class CleanTempDirFileVisitor extends SimpleFileVisitor<Path> {

@@ -101,6 +101,12 @@ public class AllProcessesCommands implements AutoCloseable {
     }
   }
 
+  public void clean() {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+      cleanData(i);
+    }
+  }
+
   public ProcessCommands create(int processNumber) {
     return createForProcess(processNumber, false);
   }
