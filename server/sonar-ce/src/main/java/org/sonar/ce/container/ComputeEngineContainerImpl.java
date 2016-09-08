@@ -44,7 +44,6 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
-import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.ce.user.CeUserSession;
@@ -398,7 +397,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] startupComponents() {
     return new Object[] {
-      EsIndexerEnabler.class,
       LogServerId.class,
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class,

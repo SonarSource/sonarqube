@@ -37,17 +37,6 @@ public abstract class BaseIndexer implements Startable {
   protected final EsClient esClient;
   private volatile long lastUpdatedAt = -1L;
 
-  /**
-   * Indexers are disabled during server startup, to avoid too many consecutive refreshes of the same index
-   * An example is RegisterQualityProfiles. If {@link org.sonar.server.activity.index.ActivityIndexer} is enabled by
-   * default during startup, then each new activated rule generates a bulk request with a single document and then
-   * asks for index refresh -> big performance hit.
-   *
-   * Indices are populated and refreshed when all startup components have been executed. See
-   * {@link IndexerStartupTask}
-   */
-  private boolean enabled = false;
-
   protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
     String dateFieldName) {
     this.indexName = indexName;
@@ -59,23 +48,21 @@ public abstract class BaseIndexer implements Startable {
   }
 
   public void index(final IndexerTask task) {
-    if (enabled) {
-      final long requestedAt = System.currentTimeMillis();
-      Future submit = executor.submit(() -> {
-        if (lastUpdatedAt == -1L) {
-          lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
-        }
-        if (requestedAt > lastUpdatedAt) {
-          long l = task.index(lastUpdatedAt);
-          // l can be 0 if no documents were indexed
-          lastUpdatedAt = Math.max(l, lastUpdatedAt);
-        }
-      });
-      try {
-        Uninterruptibles.getUninterruptibly(submit);
-      } catch (ExecutionException e) {
-        Throwables.propagate(e);
+    final long requestedAt = System.currentTimeMillis();
+    Future submit = executor.submit(() -> {
+      if (lastUpdatedAt == -1L) {
+        lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
       }
+      if (requestedAt > lastUpdatedAt) {
+        long l = task.index(lastUpdatedAt);
+        // l can be 0 if no documents were indexed
+        lastUpdatedAt = Math.max(l, lastUpdatedAt);
+      }
+    });
+    try {
+      Uninterruptibles.getUninterruptibly(submit);
+    } catch (ExecutionException e) {
+      Throwables.propagate(e);
     }
   }
 
@@ -84,11 +71,6 @@ public abstract class BaseIndexer implements Startable {
   }
 
   protected abstract long doIndex(long lastUpdatedAt);
-
-  public BaseIndexer setEnabled(boolean b) {
-    this.enabled = b;
-    return this;
-  }
 
   @Override
   public void start() {

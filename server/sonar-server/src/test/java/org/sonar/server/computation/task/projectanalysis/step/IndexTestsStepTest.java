@@ -55,7 +55,6 @@ public class IndexTestsStepTest extends BaseStepTest {
   @Override
   protected ComputationStep step() {
     TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
-    testIndexer.setEnabled(true);
     return new IndexTestsStep(testIndexer, treeRootHolder);
   }
 

@@ -89,7 +89,6 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbSession = dbClient.openSession(false);
 
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
-    issueAuthorizationIndexer.setEnabled(true);
 
     step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
   }

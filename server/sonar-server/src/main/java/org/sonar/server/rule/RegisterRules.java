@@ -106,8 +106,7 @@ public class RegisterRules implements Startable {
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
-      ruleIndexer.setEnabled(true).index();
-      activeRuleIndexer.setEnabled(true);
+      ruleIndexer.index();
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
     } finally {

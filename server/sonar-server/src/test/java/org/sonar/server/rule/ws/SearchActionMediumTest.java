@@ -88,9 +88,7 @@ public class SearchActionMediumTest {
     ws = tester.get(RulesWs.class);
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
   }
 
   @After

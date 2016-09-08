@@ -53,17 +53,8 @@ public class IssueIndexerTest {
   @Test
   public void index_nothing() {
     IssueIndexer indexer = createIndexer();
-    indexer.index(Iterators.<IssueDoc>emptyIterator());
+    indexer.index(Iterators.emptyIterator());
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
-  }
-
-  @Test
-  public void index_nothing_if_disabled() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
-
-    createIndexer().setEnabled(false).index();
-
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
   }
 
   @Test
@@ -165,9 +156,7 @@ public class IssueIndexerTest {
   }
 
   private IssueIndexer createIndexer() {
-    IssueIndexer indexer = new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
-    indexer.setEnabled(true);
-    return indexer;
+    return new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
   }
 
   private void addIssue(String projectUuid, String issueKey) throws Exception {

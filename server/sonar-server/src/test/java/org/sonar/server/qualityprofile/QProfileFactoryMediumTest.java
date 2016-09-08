@@ -78,9 +78,7 @@ public class QProfileFactoryMediumTest {
     factory = tester.get(QProfileFactory.class);
     activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
   }
 
   @After

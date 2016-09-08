@@ -134,20 +134,19 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_overridden_debt() throws Exception {
-    RuleDto ruleDto =
-      RuleTesting.newDto(RuleKey.of("java", "S001"))
-        .setName("Rule S001")
-        .setDescription("Rule S001 <b>description</b>")
-        .setSeverity(MINOR)
-        .setStatus(RuleStatus.BETA)
-        .setConfigKey("InternalKeyS001")
-        .setLanguage("xoo")
-        .setDefaultRemediationFunction(null)
-        .setDefaultRemediationGapMultiplier(null)
-        .setDefaultRemediationBaseEffort(null)
-        .setRemediationFunction("LINEAR_OFFSET")
-        .setRemediationGapMultiplier("5d")
-        .setRemediationBaseEffort("10h");
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefaultRemediationFunction(null)
+      .setDefaultRemediationGapMultiplier(null)
+      .setDefaultRemediationBaseEffort(null)
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
@@ -278,13 +277,12 @@ public class ShowActionMediumTest {
     tester.get(ActiveRuleDao.class).insertParam(session, activeRuleDto, new ActiveRuleParamDto()
       .setRulesParameterId(regexParam.getId())
       .setKey(regexParam.getName())
-      .setValue(".*?")
-      );
+      .setValue(".*?"));
     session.commit();
     session.clearCache();
 
-    tester.get(RuleIndexer.class).setEnabled(true).index();
-    tester.get(ActiveRuleIndexer.class).setEnabled(true).index();
+    tester.get(RuleIndexer.class).index();
+    tester.get(ActiveRuleIndexer.class).index();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString())

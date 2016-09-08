@@ -66,8 +66,6 @@ public class RuleDeleterMediumTest {
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    ruleIndexer.setEnabled(true);
-    activeRuleIndexer.setEnabled(true);
   }
 
   @After

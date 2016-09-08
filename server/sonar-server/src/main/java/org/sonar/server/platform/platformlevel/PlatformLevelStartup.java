@@ -20,7 +20,6 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
-import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -80,7 +79,6 @@ public class PlatformLevelStartup extends PlatformLevel {
         getOptional(IndexerStartupTask.class).ifPresent(IndexerStartupTask::execute);
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
-        getAll(BaseIndexer.class).forEach(i -> i.setEnabled(true));
       }
     });
 

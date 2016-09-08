@@ -82,7 +82,6 @@ public class IssueServiceMediumTest {
     session = db.openSession(false);
     service = tester.get(IssueService.class);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
   }
 
   @After

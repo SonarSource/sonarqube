@@ -73,9 +73,7 @@ public class QProfileCopierMediumTest {
     index = tester.get(ActiveRuleIndex.class);
     copier = tester.get(QProfileCopier.class);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");

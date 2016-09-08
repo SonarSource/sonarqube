@@ -58,7 +58,6 @@ public class ActivityServiceTest {
     DbClient dbClient = db.getDbClient();
     ActivityIndexer indexer = new ActivityIndexer(dbClient, es.client());
     // indexers are disabled by default
-    indexer.setEnabled(true);
     service = new ActivityService(dbClient, indexer, userSession);
   }
 

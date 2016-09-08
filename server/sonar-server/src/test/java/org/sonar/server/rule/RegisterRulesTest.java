@@ -84,10 +84,8 @@ public class RegisterRulesTest {
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(dbClient, esTester.client());
-    ruleIndexer.setEnabled(true);
     ruleIndex = new RuleIndex(esTester.client());
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
-    activeRuleIndexer.setEnabled(true);
   }
 
   @Test
