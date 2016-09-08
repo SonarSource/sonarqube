@@ -35,11 +35,13 @@ import org.sonar.api.SonarPlugin;
   @Property(key = "float", name = "Float", type = PropertyType.FLOAT, global = true, project = false),
   @Property(key = "int", name = "Integer", type = PropertyType.INTEGER, global = true, project = false),
   @Property(key = "string", name = "String", type = PropertyType.STRING, global = true, project = false),
-  @Property(key = "license", name = "License", type = PropertyType.LICENSE, global = true, project = false),
+  @Property(key = "setting.license", name = "License", type = PropertyType.LICENSE, global = true, project = false),
   @Property(key = "long", name = "Long", type = PropertyType.LONG, global = true, project = false),
   @Property(key = "password", name = "Password", type = PropertyType.PASSWORD, global = true, project = false),
   @Property(key = "text", name = "Text", type = PropertyType.TEXT, global = true, project = false),
-  @Property(key = "multi", name = "Multi", type = PropertyType.STRING, multiValues = true, global = true, project = false)
+  @Property(key = "multi", name = "Multi", type = PropertyType.STRING, multiValues = true, global = true, project = false),
+  @Property(key = "hidden", name = "Hidden", type = PropertyType.STRING, global = false, project = false),
+  @Property(key = "setting.secured", name = "Secured", type = PropertyType.STRING, global = true, project = false)
 })
 public class ServerPlugin extends SonarPlugin {
   public List getExtensions() {

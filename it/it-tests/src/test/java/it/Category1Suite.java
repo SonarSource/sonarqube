@@ -47,6 +47,7 @@ import it.projectAdministration.ProjectLinksPageTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
+import it.settings.DeprecatedPropertiesWsTest;
 import it.settings.EmailsTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
@@ -70,6 +71,7 @@ import static util.ItUtils.xooPlugin;
   ProjectLinksPageTest.class,
   BackgroundTasksTest.class,
   // settings
+  DeprecatedPropertiesWsTest.class,
   EmailsTest.class,
   PropertySetsTest.class,
   SettingsTest.class,

@@ -80,17 +80,18 @@ public class ItUtils {
   }
 
   public static WsClient newAdminWsClient(Orchestrator orchestrator) {
-    Server server = orchestrator.getServer();
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(server.getUrl())
-      .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
-      .build());
+    return newUserWsClient(orchestrator, ADMIN_LOGIN, ADMIN_PASSWORD);
   }
 
   public static WsClient newWsClient(Orchestrator orchestrator) {
+    return newUserWsClient(orchestrator, null, null);
+  }
+
+  public static WsClient newUserWsClient(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
     Server server = orchestrator.getServer();
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(server.getUrl())
+      .credentials(login, password)
       .build());
   }
 

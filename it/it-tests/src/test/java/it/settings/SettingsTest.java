@@ -105,6 +105,12 @@ public class SettingsTest {
     assertThat(getSetting("sonar.links.ci")).isNull();
   }
 
+  @Test
+  public void hidden_setting() throws Exception {
+    SETTINGS.set(SetRequest.builder().setKey("hidden").setValue("test").build());
+    assertThat(getSetting("hidden").getValue()).isEqualTo("test");
+  }
+
   @CheckForNull
   private Settings.Setting getSetting(String key) {
     Settings.ValuesWsResponse response = SETTINGS.values(ValuesRequest.builder().setKeys(key).build());
