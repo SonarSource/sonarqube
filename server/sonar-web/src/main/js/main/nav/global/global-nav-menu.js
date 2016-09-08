@@ -123,15 +123,6 @@ export default React.createClass({
     );
   },
 
-  renderComparisonLink () {
-    const url = window.baseUrl + '/comparison';
-    return (
-        <li className={this.activeLink('/comparison')}>
-          <a href={url}>{translate('comparison_global.page')}</a>
-        </li>
-    );
-  },
-
   renderGlobalPageLink (globalPage, index) {
     const url = window.baseUrl + globalPage.url;
     return (
@@ -142,6 +133,9 @@ export default React.createClass({
   },
 
   renderMore () {
+    if (this.props.globalPages.length == 0) {
+      return null;
+    }
     const globalPages = this.props.globalPages.map(this.renderGlobalPageLink);
     return (
         <li className="dropdown">
@@ -150,7 +144,6 @@ export default React.createClass({
             <span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
-            {this.renderComparisonLink()}
             {globalPages}
           </ul>
         </li>

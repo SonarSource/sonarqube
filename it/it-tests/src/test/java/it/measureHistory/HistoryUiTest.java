@@ -72,13 +72,4 @@ public class HistoryUiTest {
       ).build());
   }
 
-  /**
-   * SONAR-2911
-   */
-  @Test
-  public void test_comparison_page_between_project_versions() {
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("comparison-page",
-      "/measureHistory/HistoryUiTest/comparison/should-compare-project-versions.html"
-      ).build()).runOn(orchestrator);
-  }
 }

@@ -1,8 +1,0 @@
-<% if @versions %>
-
-  <option value=""></option>
-  <% @versions.each do |version| %>
-    <option value="<%= version.analysis_uuid -%>"><%= h version.name -%></option>
-  <% end %>
-  
-<% end %>

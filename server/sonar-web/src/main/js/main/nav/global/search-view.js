@@ -230,8 +230,7 @@ export default Marionette.LayoutView.extend({
       { name: translate('layout.measures'), url: window.baseUrl + '/measures/search?qualifiers[]=TRK' },
       { name: translate('coding_rules.page'), url: window.baseUrl + '/coding_rules' },
       { name: translate('quality_profiles.page'), url: window.baseUrl + '/profiles' },
-      { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' },
-      { name: translate('comparison_global.page'), url: window.baseUrl + '/comparison' }
+      { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' }
     ];
     const customItems = [];
     if (window.SS.isUserAdmin) {
