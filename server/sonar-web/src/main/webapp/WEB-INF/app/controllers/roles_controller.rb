@@ -23,8 +23,6 @@ class RolesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   before_filter :admin_required
-  verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
-
 
   # GET /roles/global
   def global
