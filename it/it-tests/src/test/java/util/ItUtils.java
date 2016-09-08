@@ -50,12 +50,11 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.PropertyDeleteQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.setting.ResetRequest;
+import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -213,9 +212,9 @@ public class ItUtils {
 
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key).setResourceKeyOrId(componentKey));
+      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(key).setComponentKey(componentKey).build());
     } else {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery().setKey(key).setResourceKeyOrId(componentKey).setValue(value));
+      newAdminWsClient(orchestrator).settingsService().set(SetRequest.builder().setKey(key).setValue(value).setComponentKey(componentKey).build());
     }
   }
 
