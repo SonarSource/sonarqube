@@ -55,7 +55,7 @@ public class PopulateComponentUuidColumnsOfSnapshots extends BaseDataChange {
     return componentUuidById;
   }
 
-  private void populateUuidColumns(Context context, Map<Long, String> componentUuidById) throws SQLException {
+  private static void populateUuidColumns(Context context, Map<Long, String> componentUuidById) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT sn.id, sn.project_id, sn.root_project_id from snapshots sn where sn.component_uuid is null or sn.root_component_uuid is null");
     massUpdate.update("UPDATE snapshots SET component_uuid=?, root_component_uuid=? WHERE id=?");

@@ -24,18 +24,14 @@ import java.util.List;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-// TODO evaluate https://commons.apache.org/sandbox/commons-text/jacoco/org.apache.commons.text.similarity/CosineSimilarity.java.html
-// TODO another possible algorithm : just take the intersection of line hashes. That would allow to support block moving.
 public class SourceSimilarityImpl implements SourceSimilarity {
 
-  // TODO verify algorithm http://stackoverflow.com/questions/6087281/similarity-score-levenshtein
   @Override
   public <T extends Object> int score(List<T> left, List<T> right) {
     int distance = levenshteinDistance(left, right);
     return (int) (100 * (1.0 - ((double) distance) / (max(left.size(), right.size()))));
   }
 
-  // TODO verify https://commons.apache.org/sandbox/commons-text/jacoco/org.apache.commons.text.similarity/LevenshteinDistance.java.html
   <T extends Object> int levenshteinDistance(List<T> left, List<T> right) {
     int len0 = left.size() + 1;
     int len1 = right.size() + 1;

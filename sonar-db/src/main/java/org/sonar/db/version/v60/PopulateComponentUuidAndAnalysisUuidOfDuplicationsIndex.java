@@ -38,7 +38,7 @@ public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex extends Bas
     populateAnalysisUuid(context);
   }
 
-  private void populateComponentUuid(Context context) throws SQLException {
+  private static void populateComponentUuid(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select distinct di.snapshot_id, s.component_uuid from duplications_index di" +
       " inner join snapshots s on s.id=di.snapshot_id" +
@@ -58,7 +58,7 @@ public class PopulateComponentUuidAndAnalysisUuidOfDuplicationsIndex extends Bas
     return true;
   }
   
-  public static void populateAnalysisUuid(Context context) throws SQLException {
+  private static void populateAnalysisUuid(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select distinct di.project_snapshot_id, s.uuid from duplications_index di" +
         " inner join snapshots s on s.id=di.project_snapshot_id" +

@@ -28,7 +28,7 @@ final class Match {
   private final String dbKey;
   private final String reportKey;
 
-  public Match(String dbKey, String reportKey) {
+  Match(String dbKey, String reportKey) {
     this.dbKey = dbKey;
     this.reportKey = reportKey;
   }
