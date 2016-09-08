@@ -29,20 +29,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class PropertyDto {
   private static final int MAX_KEY_LENGTH = 512;
 
-  private Long id;
   private String key;
   private String value;
   private Long resourceId;
   private Long userId;
-
-  public Long getId() {
-    return id;
-  }
-
-  public PropertyDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   public String getKey() {
     return key;

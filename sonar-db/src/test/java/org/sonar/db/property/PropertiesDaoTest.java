@@ -190,13 +190,13 @@ public class PropertiesDaoTest {
     assertThat(properties.size())
       .isEqualTo(2);
 
-    assertThatDto(findById(properties, id1))
+    assertThatDto(findByKey(properties, "global.one"))
       .hasKey("global.one")
       .hasNoUserId()
       .hasNoResourceId()
       .hasValue("one");
 
-    assertThatDto(findById(properties, id2))
+    assertThatDto(findByKey(properties, "global.two"))
       .hasKey("global.two")
       .hasNoResourceId()
       .hasNoUserId()
@@ -257,17 +257,17 @@ public class PropertiesDaoTest {
     insertProperty("global.one", "one", null, null);
     insertProperty("global.two", "two", null, null);
     // project
-    long id3 = insertProperty("project.one", "Pone", projectId, null);
-    long id4 = insertProperty("project.two", "Ptwo", projectId, null);
+    insertProperty("project.one", "Pone", projectId, null);
+    insertProperty("project.two", "Ptwo", projectId, null);
 
     List<PropertyDto> dtos = underTest.selectProjectProperties(projectDto.key());
     assertThat(dtos)
       .hasSize(2);
-    assertThatDto(findById(dtos, id3))
+    assertThatDto(findByKey(dtos, "project.one"))
       .hasKey("project.one")
       .hasResourceId(projectId)
       .hasValue("Pone");
-    assertThatDto(findById(dtos, id4))
+    assertThatDto(findByKey(dtos, "project.two"))
       .hasKey("project.two")
       .hasResourceId(projectId)
       .hasValue("Ptwo");
@@ -994,9 +994,9 @@ public class PropertiesDaoTest {
     underTest.renamePropertyKey(null, "foo");
   }
 
-  private PropertyDto findById(List<PropertyDto> properties, long id) {
+  private PropertyDto findByKey(List<PropertyDto> properties, String key) {
     for (PropertyDto property : properties) {
-      if (property.getId() == id) {
+      if (key.equals(property.getKey())) {
         return property;
       }
     }

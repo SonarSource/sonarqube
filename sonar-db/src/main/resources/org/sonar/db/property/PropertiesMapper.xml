@@ -51,7 +51,6 @@
   </select>
 
   <sql id="columnsToScrapPropertyDto">
-    p.id as id,
     p.prop_key as "key",
     p.is_empty as empty,
     p.text_value as textValue,
