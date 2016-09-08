@@ -49,10 +49,7 @@ public class PersistentSettings {
    * are executed.
    */
   public PersistentSettings saveProperty(DbSession dbSession, String key, @Nullable String value) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(value));
-    // refresh the cache of settings
-    delegate.setProperty(key, value);
-
+    savePropertyImpl(dbSession, key, value);
     changeNotifier.onGlobalPropertyChange(key, value);
     return this;
   }
@@ -63,10 +60,21 @@ public class PersistentSettings {
    */
   public PersistentSettings saveProperty(String key, @Nullable String value) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      saveProperty(dbSession, key, value);
+      savePropertyImpl(dbSession, key, value);
       dbSession.commit();
+      changeNotifier.onGlobalPropertyChange(key, value);
       return this;
     }
+  }
+
+  private void savePropertyImpl(DbSession dbSession, String key, @Nullable String value) {
+    if (value == null) {
+      dbClient.propertiesDao().deleteGlobalProperty(key, dbSession);
+    } else {
+      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(value));
+    }
+    // refresh the cache of settings
+    delegate.setProperty(key, value);
   }
 
   public Settings getSettings() {

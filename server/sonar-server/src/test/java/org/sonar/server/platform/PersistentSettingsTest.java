@@ -25,7 +25,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,8 +54,7 @@ public class PersistentSettingsTest {
     underTest.saveProperty("foo", null);
 
     assertThat(underTest.getString("foo")).isNull();
-    PropertyDto dto = dbTester.getDbClient().propertiesDao().selectGlobalProperty("foo");
-    assertThat(dto.getValue()).isEmpty();
+    assertThat(dbTester.getDbClient().propertiesDao().selectGlobalProperty("foo")).isNull();
     verify(changeNotifier).onGlobalPropertyChange("foo", null);
   }
 
