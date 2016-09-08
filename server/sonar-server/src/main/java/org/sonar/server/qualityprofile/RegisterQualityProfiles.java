@@ -89,7 +89,6 @@ public class RegisterQualityProfiles {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
     DbSession session = dbClient.openSession(false);
     try {
-      activeRuleIndexer.setEnabled(true);
       List<ActiveRuleChange> changes = new ArrayList<>();
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {

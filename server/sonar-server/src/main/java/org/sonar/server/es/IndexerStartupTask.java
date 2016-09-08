@@ -61,20 +61,20 @@ public class IndexerStartupTask {
   public void execute() {
     if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
       LOG.info("Index activities");
-      activityIndexer.setEnabled(true).index();
+      activityIndexer.index();
 
       LOG.info("Index issues");
-      issueAuthorizationIndexer.setEnabled(true).index();
-      issueIndexer.setEnabled(true).index();
+      issueAuthorizationIndexer.index();
+      issueIndexer.index();
 
       LOG.info("Index tests");
-      testIndexer.setEnabled(true).index();
+      testIndexer.index();
 
       LOG.info("Index users");
-      userIndexer.setEnabled(true).index();
+      userIndexer.index();
 
       LOG.info("Index views");
-      viewIndexer.setEnabled(true).index();
+      viewIndexer.index();
     }
   }
 

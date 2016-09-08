@@ -79,7 +79,7 @@ public class DeactivateActionTest {
     dbSession = db.getSession();
     dbSession.commit();
 
-    userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
+    userIndexer = new UserIndexer(dbClient, esTester.client());
     index = new UserIndex(esTester.client());
     ws = new WsTester(new UsersWs(new DeactivateAction(
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule,

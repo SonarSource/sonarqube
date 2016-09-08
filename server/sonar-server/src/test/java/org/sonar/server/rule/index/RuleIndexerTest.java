@@ -69,18 +69,8 @@ public class RuleIndexerTest {
   @Test
   public void index_nothing() {
     RuleIndexer indexer = createIndexer();
-    indexer.index(Iterators.<RuleDoc>emptyIterator());
+    indexer.index(Iterators.emptyIterator());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(0L);
-  }
-
-  @Test
-  public void index_nothing_if_disabled() {
-    dbClient.ruleDao().insert(dbSession, rule);
-    dbSession.commit();
-
-    createIndexer().setEnabled(false).index();
-
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isZero();
   }
 
   @Test
@@ -113,9 +103,7 @@ public class RuleIndexerTest {
   }
 
   private RuleIndexer createIndexer() {
-    RuleIndexer indexer = new RuleIndexer(dbTester.getDbClient(), esTester.client());
-    indexer.setEnabled(true);
-    return indexer;
+    return new RuleIndexer(dbTester.getDbClient(), esTester.client());
   }
 
 }

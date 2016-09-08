@@ -90,7 +90,7 @@ public class UserUpdaterTest {
 
   @Before
   public void setUp() {
-    userIndexer = (UserIndexer) new UserIndexer(dbClient, es.client()).setEnabled(true);
+    userIndexer = new UserIndexer(dbClient, es.client());
     userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
       userIndexer, system2);
 

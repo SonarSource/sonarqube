@@ -75,9 +75,7 @@ public class ChangeParentActionMediumTest {
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
     ruleIndex = tester.get(RuleIndex.class);
     userSessionRule.login("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }

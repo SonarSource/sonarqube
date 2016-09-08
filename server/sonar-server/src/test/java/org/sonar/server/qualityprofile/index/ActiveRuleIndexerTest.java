@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Iterators;
 import java.util.Arrays;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -47,7 +46,6 @@ import static org.sonar.server.qualityprofile.index.ActiveRuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
-
 public class ActiveRuleIndexerTest {
 
   static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
@@ -63,28 +61,11 @@ public class ActiveRuleIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ActiveRuleIndexer indexer;
-
-  @Before
-  public void setUp() {
-    indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
-    indexer.setEnabled(true);
-  }
+  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_nothing() {
-    indexer.index(Iterators.<ActiveRuleDoc>emptyIterator());
-    assertThat(esTester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isZero();
-  }
-
-  @Test
-  public void index_nothing_if_disabled() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
-
-    ActiveRuleIndexer indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
-    indexer.setEnabled(false);
-    indexer.index();
-
+    indexer.index(Iterators.emptyIterator());
     assertThat(esTester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isZero();
   }
 
@@ -111,8 +92,7 @@ public class ActiveRuleIndexerTest {
 
     assertThat(esTester.getIds(INDEX, TYPE_ACTIVE_RULE)).containsOnly(
       ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2).toString(),
-      ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3).toString()
-      );
+      ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3).toString());
   }
 
   @Test
@@ -133,13 +113,11 @@ public class ActiveRuleIndexerTest {
     indexer.index(Arrays.asList(
       ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1),
       ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2),
-      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)
-      ));
+      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)));
 
     assertThat(esTester.getIds(INDEX, TYPE_ACTIVE_RULE)).containsOnly(
       activeRuleKey1.toString(),
-      activeRuleKey4.toString()
-      );
+      activeRuleKey4.toString());
   }
 
   @Test
@@ -173,8 +151,7 @@ public class ActiveRuleIndexerTest {
 
     assertThat(esTester.getIds(INDEX, TYPE_ACTIVE_RULE)).containsOnly(
       activeRule.getKey().toString(),
-      activeRule2.getKey().toString()
-    );
+      activeRule2.getKey().toString());
   }
 
   private void indexActiveRules(ActiveRuleDoc... docs) {

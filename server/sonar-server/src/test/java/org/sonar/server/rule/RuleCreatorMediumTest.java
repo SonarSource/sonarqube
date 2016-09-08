@@ -71,7 +71,6 @@ public class RuleCreatorMediumTest {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
   }
 
   @After

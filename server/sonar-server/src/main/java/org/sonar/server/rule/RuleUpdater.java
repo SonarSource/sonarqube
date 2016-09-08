@@ -96,7 +96,7 @@ public class RuleUpdater {
     update(dbSession, context.rule);
     updateParameters(dbSession, update, context);
     dbSession.commit();
-    ruleIndexer.setEnabled(true).index();
+    ruleIndexer.index();
     return true;
   }
 

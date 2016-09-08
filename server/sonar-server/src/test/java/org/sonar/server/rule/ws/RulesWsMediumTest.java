@@ -72,9 +72,7 @@ public class RulesWsMediumTest {
     ws = tester.get(RulesWs.class);
     session = tester.get(DbClient.class).openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
   }
 
   @After

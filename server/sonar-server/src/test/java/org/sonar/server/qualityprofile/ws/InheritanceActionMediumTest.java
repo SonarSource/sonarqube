@@ -67,9 +67,7 @@ public class InheritanceActionMediumTest {
     db = tester.get(DbClient.class);
     session = db.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
 
     wsTester = new WsTester(tester.get(QProfilesWs.class));
   }

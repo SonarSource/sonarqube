@@ -89,7 +89,7 @@ public class RuleCreator {
     }
 
     dbSession.commit();
-    ruleIndexer.setEnabled(true).index();
+    ruleIndexer.index();
     return customRuleKey;
   }
 

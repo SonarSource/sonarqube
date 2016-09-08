@@ -30,7 +30,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -65,11 +64,6 @@ public class TestIndexerTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private TestIndexer underTest = new TestIndexer(db.getDbClient(), es.client());
-
-  @Before
-  public void setUp() {
-    underTest.setEnabled(true);
-  }
 
   @Test
   public void index_tests() throws Exception {

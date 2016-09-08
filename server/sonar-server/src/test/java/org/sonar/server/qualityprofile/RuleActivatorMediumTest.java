@@ -108,9 +108,7 @@ public class RuleActivatorMediumTest {
     ruleActivator = tester.get(RuleActivator.class);
     activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
 
     // create pre-defined rules
     RuleDto javaRule = newDto(RuleKey.of("squid", "j1"))

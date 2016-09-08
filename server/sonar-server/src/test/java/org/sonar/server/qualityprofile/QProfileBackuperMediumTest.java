@@ -89,9 +89,7 @@ public class QProfileBackuperMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
-    ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
 
     // create pre-defined rules
     RuleDto xooRule1 = newXooX1().setSeverity("MINOR").setLanguage("xoo");

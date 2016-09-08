@@ -86,9 +86,7 @@ public class QProfilesWsMediumTest {
     session = db.openSession(false);
 
     ruIndexer = tester.get(RuleIndexer.class);
-    ruIndexer.setEnabled(true);
     activeRuIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuIndexer.setEnabled(true);
   }
 
   @After

@@ -95,7 +95,7 @@ public class ChangePasswordActionTest {
     groupDao.insert(session, new GroupDto().setName("sonar-users"));
     session.commit();
 
-    userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
+    userIndexer = new UserIndexer(dbClient, esTester.client());
     index = new UserIndex(esTester.client());
     userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2);
     tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));

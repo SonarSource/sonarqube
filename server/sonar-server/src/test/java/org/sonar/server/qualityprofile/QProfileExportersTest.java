@@ -79,7 +79,6 @@ public class QProfileExportersTest {
     exporters = tester.get(QProfileExporters.class);
     loader = tester.get(QProfileLoader.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-    activeRuleIndexer.setEnabled(true);
   }
 
   @After
