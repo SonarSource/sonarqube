@@ -23,8 +23,6 @@ class RulesConfigurationController < ApplicationController
 
   SECTION=Navigation::SECTION_QUALITY_PROFILES
 
-  RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
-
   # deprecated since 2.3
   def export
     redirect_to request.query_parameters.merge({:controller => 'profiles', :action => 'export'})

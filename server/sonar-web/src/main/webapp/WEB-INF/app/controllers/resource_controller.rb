@@ -23,7 +23,6 @@ class ResourceController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   helper :dashboard
-  helper UsersHelper
 
   # DO NOT REMOVE - used by eclipse plugin
   def index

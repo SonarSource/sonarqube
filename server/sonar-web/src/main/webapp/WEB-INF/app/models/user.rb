@@ -129,32 +129,6 @@ class User < ActiveRecord::Base
   #---------------------------------------------------------------------
   # USER PROPERTIES
   #---------------------------------------------------------------------
-  def property(key)
-    properties().each do |p|
-      return p if (p.key==key)
-    end
-    nil
-  end
-
-  def property_value(key)
-    prop=property(key)
-    prop && prop.value
-  end
-
-  def set_property(options)
-    key=options[:prop_key]
-    prop=property(key)
-    if prop
-      prop.attributes=options
-      prop.user_id=id
-      prop.save!
-    else
-      prop=Property.new(options)
-      prop.user_id=id
-      properties<<prop
-    end
-  end
-  
   #
   # This method is different from "set_property(options)" which can also add a new property:
   # it "really" adds a property and does not try to update a existing one with the same key.
@@ -166,21 +140,6 @@ class User < ActiveRecord::Base
     prop=Property.new(options)
     prop.user_id=id
     properties<<prop
-  end
-
-  def delete_property(key)
-    prop=property(key)
-    if prop
-      properties.delete(prop)
-    end
-  end
-
-  def self.logins_to_ids(logins=[])
-    if logins.size>0
-      User.find(:all, :select => 'id', :conditions => ['login in (?)', logins]).map { |user| user.id }
-    else
-      []
-    end
   end
 
   #---------------------------------------------------------------------

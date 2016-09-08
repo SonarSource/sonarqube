@@ -26,8 +26,6 @@ public class UiExtensionsPlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
       FakePageDecorations.class,
-      RubyApiGlobalPage.class,
-      RubyApiProjectPage.class,
       ResourceConfigurationPage.class
     );
   }

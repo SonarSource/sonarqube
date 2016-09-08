@@ -18,7 +18,6 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class ActiveRule < ActiveRecord::Base
-  belongs_to :rules_profile, :class_name => 'Profile', :foreign_key => 'profile_id'
   belongs_to :rule
   has_many :active_rule_parameters, :dependent => :destroy
 
@@ -92,11 +91,4 @@ class ActiveRule < ActiveRecord::Base
     nil
   end
 
-  def inherited?
-    inheritance=='INHERITED'
-  end
-
-  def overrides?
-    inheritance=='OVERRIDES'
-  end
 end
