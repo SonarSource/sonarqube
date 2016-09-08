@@ -40,6 +40,7 @@ import util.user.Users;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 /**
@@ -81,11 +82,8 @@ public class BaseIdentityProviderTest {
   public void cleanUpUsersAndGroupsAndProperties() throws Exception {
     userRule.deactivateUsers(USER_LOGIN);
     userRule.removeGroups(GROUP1, GROUP2, GROUP3);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", null);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", null);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabledGroupsSync", null);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", null);
+    resetSettings(ORCHESTRATOR, null, "sonar.auth.fake-base-id-provider.enabled", "sonar.auth.fake-base-id-provider.user",
+      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups");
   }
 
   @Test
@@ -107,8 +105,7 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("authenticate_through_ui",
-      "/user/BaseIdentityProviderTest/authenticate_user.html"
-      ).build()).runOn(ORCHESTRATOR);
+      "/user/BaseIdentityProviderTest/authenticate_user.html").build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
@@ -120,8 +117,7 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("display_unauthorized_page_when_authentication_failed",
-      "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html"
-      ).build()).runOn(ORCHESTRATOR);
+      "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html").build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -133,8 +129,7 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.allowsUsersToSignUp", "false");
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
-      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
-      ).build()).runOn(ORCHESTRATOR);
+      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html").build()).runOn(ORCHESTRATOR);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -196,8 +191,7 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
-      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
-    ).build()).runOn(ORCHESTRATOR);
+      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html").build()).runOn(ORCHESTRATOR);
 
     File logFile = ORCHESTRATOR.getServer().getLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
@@ -263,7 +257,9 @@ public class BaseIdentityProviderTest {
 
   private static void setGroupsReturnedByAuthPlugin(String... groups) {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabledGroupsSync", "true");
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", Joiner.on(",").join(groups));
+    if (groups.length > 0) {
+      setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", Joiner.on(",").join(groups));
+    }
   }
 
   private static void authenticateWithFakeAuthProvider() {

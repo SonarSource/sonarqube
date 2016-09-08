@@ -25,6 +25,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -392,7 +393,11 @@ public class RealmAuthenticationTest {
     return new Sonar(new HttpClient4Connector(new Host(orchestrator.getServer().getUrl(), username, password)));
   }
 
+  @CheckForNull
   private static String format(Map<String, String> map) {
+    if (map.isEmpty()) {
+      return null;
+    }
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, String> entry : map.entrySet()) {
       sb.append(entry.getKey()).append('=').append(entry.getValue()).append('\n');

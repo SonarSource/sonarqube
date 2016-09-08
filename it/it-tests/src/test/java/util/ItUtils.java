@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +55,7 @@ import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -226,7 +226,7 @@ public class ItUtils {
   }
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
-    Arrays.stream(keys).forEach(key -> setServerProperty(orchestrator, componentKey, key, null));
+    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponentKey(componentKey).build());
   }
 
   public static void resetEmailSettings(Orchestrator orchestrator) {
@@ -235,8 +235,7 @@ public class ItUtils {
   }
 
   public static void resetPeriods(Orchestrator orchestrator) {
-    resetSettings(orchestrator, null, "sonar.timemachine.period1", "sonar.timemachine.period2", "sonar.timemachine.period3", "sonar.timemachine.period4",
-      "sonar.timemachine.period5");
+    resetSettings(orchestrator, null, "sonar.timemachine.period1", "sonar.timemachine.period2", "sonar.timemachine.period3");
   }
 
   /**

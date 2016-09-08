@@ -76,7 +76,7 @@ public class SettingsTest {
    */
   @Test
   public void global_property_change_extension_point() throws IOException {
-    orchestrator.getServer().adminWsClient().post("api/properties/create?id=globalPropertyChange.received&value=NEWVALUE");
+    SETTINGS.set(SetRequest.builder().setKey("globalPropertyChange.received").setValue("NEWVALUE").build());
     assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs())).contains("Received change: [key=globalPropertyChange.received, newValue=NEWVALUE]");
   }
 
