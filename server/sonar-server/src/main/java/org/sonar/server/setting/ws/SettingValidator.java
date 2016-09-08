@@ -37,7 +37,8 @@ public class SettingValidator {
   }
 
   public static SettingValidation validateScope() {
-    return data -> checkRequest(data.component != null || data.definition == null || data.definition.global(), "Setting '%s' cannot be global", data.key);
+    return data -> checkRequest(data.component != null || data.definition == null || data.definition.global() || isGlobal(data.definition),
+      "Setting '%s' cannot be global", data.key);
   }
 
   public SettingValidation validateQualifier() {
@@ -46,6 +47,10 @@ public class SettingValidator {
       checkRequest(data.component == null || data.definition == null || data.definition.qualifiers().contains(data.component.qualifier()),
         "Setting '%s' cannot be set on a %s", data.key, i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
     };
+  }
+
+  private static boolean isGlobal(PropertyDefinition definition) {
+    return !definition.global() && definition.qualifiers().isEmpty();
   }
 
   @FunctionalInterface

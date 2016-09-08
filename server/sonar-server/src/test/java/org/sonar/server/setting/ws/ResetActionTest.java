@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -51,6 +50,8 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
@@ -95,6 +96,16 @@ public class ResetActionTest {
   @Test
   public void remove_global_setting() throws Exception {
     setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    executeRequestOnGlobalSetting("foo");
+    assertGlobalPropertyDoesNotExist("foo");
+  }
+
+  @Test
+  public void remove_global_setting_even_if_not_defined() throws Exception {
+    setUserAsSystemAdmin();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("foo");
@@ -104,10 +115,30 @@ public class ResetActionTest {
   @Test
   public void remove_component_setting() throws Exception {
     setUserAsProjectAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnProjectSetting("foo");
     assertProjectPropertyDoesNotExist("foo");
+  }
+
+  @Test
+  public void remove_component_setting_even_if_not_defined() throws Exception {
+    setUserAsProjectAdmin();
+    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
+
+    executeRequestOnProjectSetting("foo");
+    assertProjectPropertyDoesNotExist("foo");
+  }
+
+  @Test
+  public void remove_hidden_setting() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    executeRequestOnGlobalSetting("foo");
+    assertGlobalPropertyDoesNotExist("foo");
   }
 
   @Test
@@ -216,7 +247,7 @@ public class ResetActionTest {
   public void fail_when_not_global_and_no_component() {
     setUserAsSystemAdmin();
     definitions.addComponent(PropertyDefinition.builder("foo")
-      .onlyOnQualifiers(Qualifiers.VIEW)
+      .onlyOnQualifiers(VIEW)
       .build());
 
     expectedException.expect(BadRequestException.class);
@@ -229,9 +260,21 @@ public class ResetActionTest {
   public void fail_when_qualifier_not_included() {
     setUserAsSystemAdmin();
     definitions.addComponent(PropertyDefinition.builder("foo")
-      .onQualifiers(Qualifiers.VIEW)
+      .onQualifiers(VIEW)
       .build());
-    i18n.put("qualifier." + Qualifiers.PROJECT, "project");
+    i18n.put("qualifier." + PROJECT, "project");
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'foo' cannot be set on a project");
+
+    executeRequestOnComponentSetting("foo", project);
+  }
+
+  @Test
+  public void fail_to_reset_setting_component_when_setting_is_global() {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+    i18n.put("qualifier." + PROJECT, "project");
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'foo' cannot be set on a project");
