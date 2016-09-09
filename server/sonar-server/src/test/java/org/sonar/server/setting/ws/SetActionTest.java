@@ -46,6 +46,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -65,6 +66,7 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class SetActionTest {
 
@@ -78,6 +80,7 @@ public class SetActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   PropertyDbTester propertyDb = new PropertyDbTester(db);
+  UserDbTester userDb = new UserDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
@@ -328,6 +331,26 @@ public class SetActionTest {
   }
 
   @Test
+  public void persist_multi_value_with_type_login() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.USER_LOGIN)
+      .defaultValue("default")
+      .multiValues(true)
+      .build());
+    userDb.insertUser(newUserDto().setLogin("login.1"));
+    userDb.insertUser(newUserDto().setLogin("login.2"));
+
+    callForMultiValueGlobalSetting("my.key", newArrayList("login.1", "login.2"));
+
+    assertGlobalSetting("my.key", "login.1,login.2");
+  }
+
+  @Test
   public void user_setting_is_not_updated() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserId(42L));
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
@@ -426,12 +449,34 @@ public class SetActionTest {
       .multiValues(true)
       .build());
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.disabled.key").setEnabled(false));
     dbSession.commit();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating metric setting with key 'my.key' and values [metric.key, My Value]. A value is not a valid metric key.");
+    expectedException.expectMessage("Error when validating metric setting with key 'my.key' and values [metric.key, metric.disabled.key]. A value is not a valid metric key.");
 
-    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key", "My Value"));
+    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key", "metric.disabled.key"));
+  }
+
+  @Test
+  public void fail_when_data_and_login_type_with_invalid_login() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.USER_LOGIN)
+      .defaultValue("default")
+      .multiValues(true)
+      .build());
+    userDb.insertUser(newUserDto().setLogin("login.1"));
+    userDb.insertUser(newUserDto().setLogin("login.2").setActive(false));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Error when validating login setting with key 'my.key' and values [login.1, login.2]. A value is not a valid login.");
+
+    callForMultiValueGlobalSetting("my.key", newArrayList("login.1", "login.2"));
   }
 
   @Test
