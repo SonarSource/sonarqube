@@ -21,10 +21,14 @@ package org.sonar.api.config;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -39,7 +43,13 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.FLOAT;
+import static org.sonar.api.PropertyType.INTEGER;
+import static org.sonar.api.PropertyType.LONG;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.api.PropertyType.REGULAR_EXPRESSION;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
@@ -155,44 +165,60 @@ public final class PropertyDefinition {
       return Result.SUCCESS;
     }
 
-    switch (type) {
-      case BOOLEAN:
-        return validateBoolean(value);
-      case INTEGER:
-      case LONG:
-        return validateInteger(value);
-      case FLOAT:
-        return validateFloat(value);
-      case SINGLE_SELECT_LIST:
-        if (!options.contains(value)) {
-          return Result.newError("notInOptions");
-        }
-      default:
-        return Result.SUCCESS;
-    }
+    EnumMap<PropertyType, Validation> validations = createValidations(options);
+    return validations.getOrDefault(type, aValue -> Result.SUCCESS).validate(value);
   }
 
-  private static Result validateBoolean(String value) {
-    if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
-      return Result.newError("notBoolean");
-    }
-    return Result.SUCCESS;
+  private static EnumMap<PropertyType, Validation> createValidations(List<String> options) {
+    return new EnumMap<>(ImmutableMap.<PropertyType, Validation>builder()
+      .put(BOOLEAN, validateBoolean())
+      .put(INTEGER, validateInteger())
+      .put(LONG, validateInteger())
+      .put(FLOAT, validateFloat())
+      .put(REGULAR_EXPRESSION, validateRegexp())
+      .put(SINGLE_SELECT_LIST,
+        aValue -> options.contains(aValue) ? Result.SUCCESS : Result.newError("notInOptions"))
+      .build());
   }
 
-  private static Result validateInteger(String value) {
-    if (!NumberUtils.isDigits(value)) {
-      return Result.newError("notInteger");
-    }
-    return Result.SUCCESS;
-  }
-
-  private static Result validateFloat(String value) {
-    try {
-      Double.parseDouble(value);
+  private static Validation validateBoolean() {
+    return value -> {
+      if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
+        return Result.newError("notBoolean");
+      }
       return Result.SUCCESS;
-    } catch (NumberFormatException e) {
-      return Result.newError("notFloat");
-    }
+    };
+  }
+
+  private static Validation validateInteger() {
+    return value -> {
+      if (!NumberUtils.isDigits(value)) {
+        return Result.newError("notInteger");
+      }
+      return Result.SUCCESS;
+    };
+  }
+
+  private static Validation validateFloat() {
+    return value -> {
+      try {
+        Double.parseDouble(value);
+        return Result.SUCCESS;
+      } catch (NumberFormatException e) {
+        return Result.newError("notFloat");
+      }
+    };
+  }
+
+  private static Validation validateRegexp() {
+    return value -> {
+      try {
+        Pattern.compile(value);
+        return Result.SUCCESS;
+      } catch (PatternSyntaxException e) {
+        return Result.newError("notRegexp");
+      }
+    };
   }
 
   public Result validate(@Nullable String value) {
@@ -540,5 +566,10 @@ public final class PropertyDefinition {
         }
       }
     }
+  }
+
+  @FunctionalInterface
+  private interface Validation {
+    Result validate(String value);
   }
 }

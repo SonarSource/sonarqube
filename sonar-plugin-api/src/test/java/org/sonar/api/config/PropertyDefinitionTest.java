@@ -227,7 +227,7 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void should_validate_long() {
+  public void validate_long() {
     PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.LONG).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
@@ -251,6 +251,19 @@ public class PropertyDefinitionTest {
 
     assertThat(def.validate("foo").isValid()).isFalse();
     assertThat(def.validate("foo").getErrorKey()).isEqualTo("notFloat");
+  }
+
+  @Test
+  public void validate_regular_expression() {
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.REGULAR_EXPRESSION).build();
+
+    assertThat(def.validate(null).isValid()).isTrue();
+    assertThat(def.validate("").isValid()).isTrue();
+    assertThat(def.validate("   ").isValid()).isTrue();
+    assertThat(def.validate("[a-zA-Z]").isValid()).isTrue();
+
+    assertThat(def.validate("[a-zA-Z").isValid()).isFalse();
+    assertThat(def.validate("[a-zA-Z").getErrorKey()).isEqualTo("notRegexp");
   }
 
   @Test
