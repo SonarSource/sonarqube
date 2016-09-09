@@ -38,6 +38,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 
 /**
@@ -150,18 +151,25 @@ public final class PropertyDefinition {
   }
 
   public static Result validate(PropertyType type, @Nullable String value, List<String> options) {
-    if (StringUtils.isNotBlank(value)) {
-      if (type == PropertyType.BOOLEAN) {
-        return validateBoolean(value);
-      } else if (type == PropertyType.INTEGER) {
-        return validateInteger(value);
-      } else if (type == PropertyType.FLOAT) {
-        return validateFloat(value);
-      } else if (type == PropertyType.SINGLE_SELECT_LIST && !options.contains(value)) {
-        return Result.newError("notInOptions");
-      }
+    if (isBlank(value)) {
+      return Result.SUCCESS;
     }
-    return Result.SUCCESS;
+
+    switch (type) {
+      case BOOLEAN:
+        return validateBoolean(value);
+      case INTEGER:
+      case LONG:
+        return validateInteger(value);
+      case FLOAT:
+        return validateFloat(value);
+      case SINGLE_SELECT_LIST:
+        if (!options.contains(value)) {
+          return Result.newError("notInOptions");
+        }
+      default:
+        return Result.SUCCESS;
+    }
   }
 
   private static Result validateBoolean(String value) {

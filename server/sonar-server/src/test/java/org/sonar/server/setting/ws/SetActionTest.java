@@ -403,9 +403,9 @@ public class SetActionTest {
       .defaultValue("default")
       .build());
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating setting with key 'my.key' and value 'My Value'");
+    expectedException.expectMessage("Error when validating setting with key 'my.key' and value [My Value, My Other Value]");
 
-    callForGlobalSetting("my.key", "My Value");
+    callForMultiValueGlobalSetting("my.key", newArrayList("My Value", "My Other Value"));
   }
 
   @Test

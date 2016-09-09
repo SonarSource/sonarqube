@@ -227,6 +227,19 @@ public class PropertyDefinitionTest {
   }
 
   @Test
+  public void should_validate_long() {
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.LONG).build();
+
+    assertThat(def.validate(null).isValid()).isTrue();
+    assertThat(def.validate("").isValid()).isTrue();
+    assertThat(def.validate("   ").isValid()).isTrue();
+    assertThat(def.validate("123456").isValid()).isTrue();
+
+    assertThat(def.validate("foo").isValid()).isFalse();
+    assertThat(def.validate("foo").getErrorKey()).isEqualTo("notInteger");
+  }
+
+  @Test
   public void should_validate_float() {
     PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.FLOAT).build();
 

@@ -40,6 +40,7 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
@@ -95,7 +96,7 @@ public class ResetAction implements SettingsWsAction {
       Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
       checkPermissions(component);
       resetRequest.getKeys().forEach(key -> {
-        SettingData data = new SettingData(key, component.orElse(null));
+        SettingData data = new SettingData(key, emptyList(), component.orElse(null));
         ImmutableList.of(validations.scope(), validations.qualifier())
           .forEach(validation -> validation.validate(data));
       });

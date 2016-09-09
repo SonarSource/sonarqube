@@ -29,7 +29,6 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -159,7 +158,7 @@ public class SetAction implements SettingsWsAction {
 
     String value;
 
-    commonChecks(request, definition, component);
+    commonChecks(request, component);
 
     if (!request.getFieldValues().isEmpty()) {
       value = doHandlePropertySet(dbSession, request, definition, component);
@@ -191,7 +190,7 @@ public class SetAction implements SettingsWsAction {
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
       .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
-      .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
+        .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
       .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentId)));
 
     return inlinedFieldKeys;
@@ -205,10 +204,10 @@ public class SetAction implements SettingsWsAction {
     }
   }
 
-  private void commonChecks(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+  private void commonChecks(SetRequest request, Optional<ComponentDto> component) {
     checkValueIsSet(request);
-    SettingData settingData = new SettingData(request.getKey(), component.orElse(null));
-    ImmutableList.of(validations.scope(), validations.qualifier()).stream()
+    SettingData settingData = new SettingData(request.getKey(), valuesFromRequest(request), component.orElse(null));
+    ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
       .forEach(validation -> validation.validate(settingData));
   }
 
@@ -237,7 +236,6 @@ public class SetAction implements SettingsWsAction {
       return;
     }
 
-    checkType(request, definition);
     checkSingleOrMultiValue(request, definition);
   }
 
@@ -255,18 +253,6 @@ public class SetAction implements SettingsWsAction {
   private static void checkSingleOrMultiValue(SetRequest request, PropertyDefinition definition) {
     checkRequest(definition.multiValues() ^ request.getValue() != null,
       "Parameter '%s' must be used for single value setting. Parameter '%s' must be used for multi value setting.", PARAM_VALUE, PARAM_VALUES);
-  }
-
-  private void checkType(SetRequest request, PropertyDefinition definition) {
-    List<String> values = valuesFromRequest(request);
-    Optional<PropertyDefinition.Result> failingResult = values.stream()
-      .map(definition::validate)
-      .filter(result -> !result.isValid())
-      .findAny();
-    String errorKey = failingResult.isPresent() ? failingResult.get().getErrorKey() : null;
-    checkRequest(errorKey == null,
-      i18n.message(Locale.ENGLISH, "property.error." + errorKey, "Error when validating setting with key '%s' and value '%s'"),
-      request.getKey(), request.getValue());
   }
 
   private static void checkValueIsSet(SetRequest request) {

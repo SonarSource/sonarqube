@@ -20,14 +20,20 @@
 
 package org.sonar.server.setting.ws;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.i18n.I18n;
 import org.sonar.db.component.ComponentDto;
+import org.sonarqube.ws.client.setting.SetRequest;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SettingValidations {
@@ -56,6 +62,27 @@ public class SettingValidations {
     };
   }
 
+  public SettingValidation valueType() {
+    return data -> {
+      PropertyDefinition definition = definitions.get(data.key);
+      if (definition == null) {
+        return;
+      }
+      Optional<PropertyDefinition.Result> failingResult = data.values.stream()
+        .map(definition::validate)
+        .filter(result -> !result.isValid())
+        .findAny();
+      String errorKey = failingResult.isPresent() ? failingResult.get().getErrorKey() : null;
+      checkRequest(errorKey == null,
+        i18n.message(Locale.ENGLISH, "property.error." + errorKey, "Error when validating setting with key '%s' and value [%s]"),
+        data.key, data.values.stream().collect(Collectors.joining(", ")));
+    };
+  }
+
+  private static List<String> valuesFromRequest(SetRequest request) {
+    return request.getValue() == null ? request.getValues() : Collections.singletonList(request.getValue());
+  }
+
   private static boolean isGlobal(PropertyDefinition definition) {
     return !definition.global() && definition.qualifiers().isEmpty();
   }
@@ -67,11 +94,13 @@ public class SettingValidations {
 
   public static class SettingData {
     private final String key;
+    private final List<String> values;
     @CheckForNull
     private final ComponentDto component;
 
-    public SettingData(String key, @Nullable ComponentDto component) {
-      this.key = key;
+    public SettingData(String key, List<String> values, @Nullable ComponentDto component) {
+      this.key = requireNonNull(key);
+      this.values = requireNonNull(values);
       this.component = component;
     }
 
