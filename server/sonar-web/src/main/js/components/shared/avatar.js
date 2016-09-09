@@ -31,7 +31,7 @@ export default React.createClass({
     if (!shouldShowAvatar) {
       return null;
     }
-    const emailHash = md5.md5(this.props.email || '').trim();
+    const emailHash = md5.md5((this.props.email || '').toLowerCase()).trim();
     const url = ('' + window.SS.lf.gravatarServerUrl)
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', this.props.size * 2);
