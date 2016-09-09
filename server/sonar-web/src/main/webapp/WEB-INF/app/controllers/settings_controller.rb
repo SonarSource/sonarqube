@@ -32,4 +32,8 @@ class SettingsController < ApplicationController
   def encryption
     render :action => 'index'
   end
+
+  def server_id
+    render :action => 'index'
+  end
 end

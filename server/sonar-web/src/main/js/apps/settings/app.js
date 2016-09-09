@@ -25,6 +25,7 @@ import { createHistory } from 'history';
 import App from './components/App';
 import LicensesApp from './licenses/LicensesApp';
 import EncryptionAppContainer from './encryption/EncryptionAppContainer';
+import ServerIdAppContainer from './serverId/ServerIdAppContainer';
 import rootReducer from './store/rootReducer';
 import configureStore from '../../components/store/configureStore';
 
@@ -48,6 +49,7 @@ window.sonarqube.appStarted.then(options => {
           <Route path="/" component={withComponent(App)}/>
           <Route path="/licenses" component={LicensesApp}/>
           <Route path="/encryption" component={EncryptionAppContainer}/>
+          <Route path="/server_id" component={ServerIdAppContainer}/>
         </Router>
       </Provider>
   ), el);
