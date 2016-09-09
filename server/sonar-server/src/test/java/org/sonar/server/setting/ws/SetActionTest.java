@@ -62,6 +62,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
@@ -86,7 +87,7 @@ public class SetActionTest {
   PropertyDefinitions definitions = new PropertyDefinitions();
   FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  SettingValidations validations = new SettingValidations(definitions, i18n);
+  SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
 
   SetAction underTest = new SetAction(definitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
@@ -306,6 +307,27 @@ public class SetActionTest {
   }
 
   @Test
+  public void persist_multi_value_with_type_metric() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.METRIC)
+      .defaultValue("default")
+      .multiValues(true)
+      .build());
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key.1"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key.2"));
+    dbSession.commit();
+
+    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key.1", "metric.key.2"));
+
+    assertGlobalSetting("my.key", "metric.key.1,metric.key.2");
+  }
+
+  @Test
   public void user_setting_is_not_updated() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserId(42L));
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
@@ -389,6 +411,27 @@ public class SetActionTest {
     expectedException.expectMessage("Not an integer error message");
 
     callForGlobalSetting("my.key", "My Value");
+  }
+
+  @Test
+  public void fail_when_data_and_metric_type_with_invalid_key() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.METRIC)
+      .defaultValue("default")
+      .multiValues(true)
+      .build());
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key"));
+    dbSession.commit();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Error when validating metric setting with key 'my.key' and values [metric.key, My Value]. A value is not a valid metric key.");
+
+    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key", "My Value"));
   }
 
   @Test

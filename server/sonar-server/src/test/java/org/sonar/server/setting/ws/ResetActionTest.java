@@ -81,7 +81,7 @@ public class ResetActionTest {
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
   PropertyDefinitions definitions = new PropertyDefinitions();
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  SettingValidations settingValidations = new SettingValidations(definitions, i18n);
+  SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
 
   ComponentDto project;
 
