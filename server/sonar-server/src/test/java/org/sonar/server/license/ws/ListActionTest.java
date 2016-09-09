@@ -42,7 +42,6 @@ import org.sonar.server.setting.ws.SettingsFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Licenses;
 import org.sonarqube.ws.Licenses.ListWsResponse;
 import org.sonarqube.ws.MediaTypes;
@@ -54,7 +53,6 @@ import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
-import static org.sonarqube.ws.MediaTypes.JSON;
 
 public class ListActionTest {
 
@@ -268,22 +266,6 @@ public class ListActionTest {
     expectedException.expect(ForbiddenException.class);
 
     executeRequest();
-  }
-
-  @Test
-  public void test_example_json_response() {
-    setUserAsSystemAdmin();
-    addServerIdSettings("12345");
-    addLicenseSetting("sonar.governance.license.secured", "Governance",
-      createBase64License("SonarSource", "governance", "12345", "2099-01-01", "PRODUCTION", ImmutableMap.of("other", "value")));
-    addLicenseSetting("sonar.devcockpit.license.secured", "Dev Cockpit", createBase64License("Unknown", "other", "54321", "2010-01-01", "EVALUATION", Collections.emptyMap()));
-
-    String result = ws.newRequest()
-      .setMediaType(JSON)
-      .execute()
-      .getInput();
-
-    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
   @Test

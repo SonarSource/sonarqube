@@ -3,7 +3,7 @@
     {
       "key": "sonar.devcockpit.license.secured",
       "name": "Dev Cockpit",
-      "value": "T3JnYW5pc2F0aW9uOiBVbmtub3duIApTZXJ2ZXI6IDU0MzIxIApQcm9kdWN0OiBvdGhlciAKRXhwaXJhdGlvbjogMjAxMC0wMS0wMSAKVHlwZTogRVZBTFVBVElPTiAK",
+      "value": "ABCD",
       "product": "other",
       "organization": "Unknown",
       "expiration": "2010-01-01",
@@ -16,7 +16,7 @@
     {
       "key": "sonar.governance.license.secured",
       "name": "Governance",
-      "value": "T3JnYW5pc2F0aW9uOiBTb25hclNvdXJjZSAKU2VydmVyOiAxMjM0NSAKUHJvZHVjdDogZ292ZXJuYW5jZSAKRXhwaXJhdGlvbjogMjA5OS0wMS0wMSAKVHlwZTogUFJPRFVDVElPTiAKb3RoZXI6IHZhbHVlIAo\u003d",
+      "value": "EFHG",
       "product": "governance",
       "organization": "SonarSource",
       "expiration": "2099-01-01",
