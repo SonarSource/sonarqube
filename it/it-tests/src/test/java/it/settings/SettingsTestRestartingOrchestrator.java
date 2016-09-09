@@ -21,16 +21,17 @@ package it.settings;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import pageobjects.EncryptionPage;
 import pageobjects.Navigation;
-import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.Condition.visible;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.xooPlugin;
@@ -62,18 +63,20 @@ public class SettingsTestRestartingOrchestrator {
       .build();
     orchestrator.start();
 
-    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings(null)
+    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().asAdmin();
+
+    nav.openSettings(null)
       .assertMenuContains("General")
       .assertSettingDisplayed("sonar.dbcleaner.cleanDirectory")
       .assertSettingNotDisplayed("settings.extension.hidden")
       .assertSettingNotDisplayed("settings.extension.global");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_settings",
-      // test encryption
-      "/settings/SettingsTest/generate-secret-key.html",
-      "/settings/SettingsTest/encrypt-text.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    EncryptionPage encryptionPage = nav.openEncryption();
+    assertThat(encryptionPage.encryptValue("clear")).isEqualTo("{aes}4aQbfYe1lrEjiRzv/ETbyg==");
+    encryptionPage.generateNewKey();
+    encryptionPage.generationForm().shouldBe(visible).submit();
+    encryptionPage.generationForm().shouldNotBe(visible);
+    encryptionPage.newSecretKey().shouldBe(visible);
   }
 
   @Test

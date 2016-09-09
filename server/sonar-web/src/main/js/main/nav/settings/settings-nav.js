@@ -78,9 +78,9 @@ export default React.createClass({
               <ul className="dropdown-menu">
                 {this.renderLink('/settings', translate('settings.page'), url => window.location.pathname === url)}
                 {this.renderLink('/settings/licenses', translate('property.category.licenses'))}
+                {this.renderLink('/settings/encryption', translate('property.category.security.encryption'))}
                 {this.renderLink('/metrics', 'Custom Metrics')}
-                {this.renderLink('/admin_dashboards',
-                    translate('default_dashboards.page'))}
+                {this.renderLink('/admin_dashboards', translate('default_dashboards.page'))}
                 {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
               </ul>
             </li>

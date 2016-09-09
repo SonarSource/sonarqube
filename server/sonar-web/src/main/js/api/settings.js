@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import omitBy from 'lodash/omitBy';
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
 export function getDefinitions (componentKey) {
@@ -72,4 +72,16 @@ export function sendTestEmail (to, subject, message) {
   const url = '/api/emails/send';
   const data = { to, subject, message };
   return post(url, data);
+}
+
+export function checkSecretKey () {
+  return getJSON('/api/settings/check_secret_key');
+}
+
+export function generateSecretKey () {
+  return postJSON('/api/settings/generate_secret_key');
+}
+
+export function encryptValue (value) {
+  return postJSON('/api/settings/encrypt', { value });
 }
