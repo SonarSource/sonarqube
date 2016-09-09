@@ -254,7 +254,7 @@ public class ServerSystemTest {
     WsClient adminWsClient = newAdminWsClient(orchestrator);
     ShowWsResponse response = ShowWsResponse.parseFrom(adminWsClient.wsConnector().call(
         new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
-    assertThat(response.getValidIpAdressesCount()).isGreaterThan(0);
-    return response.getValidIpAdresses(0);
+    assertThat(response.getValidIpAddressesCount()).isGreaterThan(0);
+    return response.getValidIpAddresses(0);
   }
 }

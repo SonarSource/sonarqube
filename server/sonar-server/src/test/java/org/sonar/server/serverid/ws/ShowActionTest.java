@@ -70,23 +70,23 @@ public class ShowActionTest {
   @Test
   public void return_server_id_info() throws Exception {
     setUserAsSystemAdmin();
-    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
-    setAvailableIpAdresses("192.168.1.1", "127.0.1");
-    insertConfiguration("1818a1eefb26f9g", "home", "127.0.1");
+    when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
+    setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
+    insertConfiguration("1818a1eefb26f9g", "home", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
 
     assertThat(response.getServerId()).isEqualTo("1818a1eefb26f9g");
     assertThat(response.getOrganization()).isEqualTo("home");
-    assertThat(response.getIp()).isEqualTo("127.0.1");
-    assertThat(response.getValidIpAdressesList()).containsOnly("192.168.1.1", "127.0.1");
+    assertThat(response.getIp()).isEqualTo("127.0.0.1");
+    assertThat(response.getValidIpAddressesList()).containsOnly("192.168.1.1", "127.0.0.1");
     assertThat(response.hasInvalidServerId()).isFalse();
   }
 
   @Test
   public void return_invalid_server_id() throws Exception {
     setUserAsSystemAdmin();
-    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
+    when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     insertConfiguration("invalid", null, null);
 
     ShowWsResponse response = executeRequest();
@@ -95,7 +95,7 @@ public class ShowActionTest {
     assertThat(response.getServerId()).isEqualTo("invalid");
     assertThat(response.hasOrganization()).isFalse();
     assertThat(response.hasIp()).isFalse();
-    assertThat(response.getValidIpAdressesList()).isEmpty();
+    assertThat(response.getValidIpAddressesList()).isEmpty();
   }
 
   @Test
@@ -107,35 +107,35 @@ public class ShowActionTest {
     assertThat(response.hasServerId()).isFalse();
     assertThat(response.hasOrganization()).isFalse();
     assertThat(response.hasIp()).isFalse();
-    assertThat(response.getValidIpAdressesList()).isEmpty();
+    assertThat(response.getValidIpAddressesList()).isEmpty();
     assertThat(response.hasInvalidServerId()).isFalse();
   }
 
   @Test
   public void return_no_server_id_info_when_no_server_id_but_other_settings() throws Exception {
     setUserAsSystemAdmin();
-    insertConfiguration(null, "home", "127.0.1");
+    insertConfiguration(null, "home", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
 
     assertThat(response.hasServerId()).isFalse();
     assertThat(response.hasOrganization()).isFalse();
     assertThat(response.hasIp()).isFalse();
-    assertThat(response.getValidIpAdressesList()).isEmpty();
+    assertThat(response.getValidIpAddressesList()).isEmpty();
     assertThat(response.hasInvalidServerId()).isFalse();
   }
 
   @Test
   public void return_available_ips_even_if_no_settings() throws Exception {
     setUserAsSystemAdmin();
-    setAvailableIpAdresses("192.168.1.1", "127.0.1");
+    setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
 
     assertThat(response.hasServerId()).isFalse();
     assertThat(response.hasOrganization()).isFalse();
     assertThat(response.hasIp()).isFalse();
-    assertThat(response.getValidIpAdressesList()).containsOnly("192.168.1.1", "127.0.1");
+    assertThat(response.getValidIpAddressesList()).containsOnly("192.168.1.1", "127.0.0.1");
     assertThat(response.hasInvalidServerId()).isFalse();
   }
 
@@ -161,9 +161,9 @@ public class ShowActionTest {
   @Test
   public void test_example_json_response() {
     setUserAsSystemAdmin();
-    when(generator.validate("home", "127.0.1", "1818a1eefb26f9g")).thenReturn(true);
-    setAvailableIpAdresses("192.168.1.1", "127.0.1");
-    insertConfiguration("1818a1eefb26f9g", "home", "127.0.1");
+    when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
+    setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
+    insertConfiguration("1818a1eefb26f9g", "home", "127.0.0.1");
 
     String result = ws.newRequest()
       .setMediaType(JSON)
