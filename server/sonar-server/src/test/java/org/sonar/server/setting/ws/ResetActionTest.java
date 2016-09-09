@@ -81,11 +81,11 @@ public class ResetActionTest {
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
   PropertyDefinitions definitions = new PropertyDefinitions();
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  SettingValidator settingValidator = new SettingValidator(i18n);
+  SettingValidations settingValidations = new SettingValidations(definitions, i18n);
 
   ComponentDto project;
 
-  ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidator);
+  ResetAction underTest = new ResetAction(dbClient, componentFinder, settingsUpdater, userSession, definitions, settingValidations);
   WsActionTester ws = new WsActionTester(underTest);
 
   @Before

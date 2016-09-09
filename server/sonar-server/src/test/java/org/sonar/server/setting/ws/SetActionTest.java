@@ -83,12 +83,12 @@ public class SetActionTest {
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
   I18nRule i18n = new I18nRule();
-  PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  PropertyDefinitions definitions = new PropertyDefinitions();
   FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
-  SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, propertyDefinitions);
-  SettingValidator settingValidator = new SettingValidator(i18n);
+  SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
+  SettingValidations validations = new SettingValidations(definitions, i18n);
 
-  SetAction underTest = new SetAction(propertyDefinitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, settingValidator);
+  SetAction underTest = new SetAction(definitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
   WsActionTester ws = new WsActionTester(underTest);
 
@@ -174,7 +174,7 @@ public class SetActionTest {
 
   @Test
   public void persist_property_set_setting() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -211,7 +211,7 @@ public class SetActionTest {
 
   @Test
   public void update_property_set_setting() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -258,7 +258,7 @@ public class SetActionTest {
 
   @Test
   public void update_property_set_on_component_setting() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -318,7 +318,7 @@ public class SetActionTest {
 
   @Test
   public void persist_global_property_with_deprecated_key() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .deprecatedKey("my.old.key")
       .name("foo")
@@ -375,7 +375,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_data_and_type_do_not_match() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -393,7 +393,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_data_and_type_do_not_match_with_unknown_error_key() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -410,7 +410,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_global_with_property_only_on_projects() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -428,7 +428,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_view_property_when_on_projects_only() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -456,7 +456,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_multi_definition_and_single_value_provided() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -473,7 +473,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_single_definition_and_multi_value_provided() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -498,7 +498,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_with_unknown_field() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -521,7 +521,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_has_field_with_incorrect_type() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -544,7 +544,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_has_a_null_field_value() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -567,7 +567,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_with_invalid_json() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -591,7 +591,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_with_json_of_the_wrong_format() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")
@@ -615,7 +615,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_on_component_of_global_setting() {
-    propertyDefinitions.addComponent(PropertyDefinition
+    definitions.addComponent(PropertyDefinition
       .builder("my.key")
       .name("foo")
       .description("desc")

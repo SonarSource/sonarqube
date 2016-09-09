@@ -36,6 +36,6 @@ public class SettingsWsModule extends Module {
       GenerateSecretKeyAction.class,
       CheckSecretKeyAction.class,
       SettingsUpdater.class,
-      SettingValidator.class);
+      SettingValidations.class);
   }
 }

@@ -56,13 +56,12 @@ import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.setting.ws.SettingValidator.SettingData;
+import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.sonar.server.setting.ws.SettingValidator.validateScope;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
@@ -82,10 +81,10 @@ public class SetAction implements SettingsWsAction {
   private final UserSession userSession;
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
-  private final SettingValidator settingValidator;
+  private final SettingValidations validations;
 
   public SetAction(PropertyDefinitions propertyDefinitions, I18n i18n, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidator settingValidator) {
+    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
     this.propertyDefinitions = propertyDefinitions;
     this.i18n = i18n;
     this.dbClient = dbClient;
@@ -93,7 +92,7 @@ public class SetAction implements SettingsWsAction {
     this.userSession = userSession;
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;
-    this.settingValidator = settingValidator;
+    this.validations = validations;
   }
 
   @Override
@@ -208,8 +207,8 @@ public class SetAction implements SettingsWsAction {
 
   private void commonChecks(SetRequest request, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
     checkValueIsSet(request);
-    SettingData settingData = new SettingData(request.getKey(), definition, component.orElse(null));
-    ImmutableList.of(validateScope(), settingValidator.validateQualifier()).stream()
+    SettingData settingData = new SettingData(request.getKey(), component.orElse(null));
+    ImmutableList.of(validations.scope(), validations.qualifier()).stream()
       .forEach(validation -> validation.validate(settingData));
   }
 

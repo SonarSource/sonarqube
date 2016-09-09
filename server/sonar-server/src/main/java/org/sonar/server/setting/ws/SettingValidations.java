@@ -24,27 +24,34 @@ import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.i18n.I18n;
 import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
-public class SettingValidator {
+public class SettingValidations {
+  private final PropertyDefinitions definitions;
   private final I18n i18n;
 
-  public SettingValidator(I18n i18n) {
+  public SettingValidations(PropertyDefinitions definitions, I18n i18n) {
+    this.definitions = definitions;
     this.i18n = i18n;
   }
 
-  public static SettingValidation validateScope() {
-    return data -> checkRequest(data.component != null || data.definition == null || data.definition.global() || isGlobal(data.definition),
-      "Setting '%s' cannot be global", data.key);
+  public SettingValidation scope() {
+    return data -> {
+      PropertyDefinition definition = definitions.get(data.key);
+      checkRequest(data.component != null || definition == null || definition.global() || isGlobal(definition),
+        "Setting '%s' cannot be global", data.key);
+    };
   }
 
-  public SettingValidation validateQualifier() {
+  public SettingValidation qualifier() {
     return data -> {
       String qualifier = data.component == null ? "" : data.component.qualifier();
-      checkRequest(data.component == null || data.definition == null || data.definition.qualifiers().contains(data.component.qualifier()),
+      PropertyDefinition definition = definitions.get(data.key);
+      checkRequest(data.component == null || definition == null || definition.qualifiers().contains(data.component.qualifier()),
         "Setting '%s' cannot be set on a %s", data.key, i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
     };
   }
@@ -61,13 +68,10 @@ public class SettingValidator {
   public static class SettingData {
     private final String key;
     @CheckForNull
-    private final PropertyDefinition definition;
-    @CheckForNull
     private final ComponentDto component;
 
-    public SettingData(String key, @Nullable PropertyDefinition definition, @Nullable ComponentDto component) {
+    public SettingData(String key, @Nullable ComponentDto component) {
       this.key = key;
-      this.definition = definition;
       this.component = component;
     }
 
