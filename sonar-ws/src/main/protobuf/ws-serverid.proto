@@ -29,7 +29,7 @@ message ShowWsResponse {
   optional string serverId = 1;
   optional string organization = 2;
   optional string ip = 3;
-  repeated string validIpAdresses = 4;
+  repeated string validIpAddresses = 4;
   optional bool invalidServerId = 5;
 }
 

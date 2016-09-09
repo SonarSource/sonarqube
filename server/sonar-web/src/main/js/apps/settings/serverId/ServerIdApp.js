@@ -33,7 +33,7 @@ export default class ServerIdApp extends React.Component {
     loading: true,
     organization: '',
     ip: '',
-    validIpAdresses: []
+    validIpAddresses: []
   };
 
   componentDidMount () {
@@ -132,7 +132,7 @@ export default class ServerIdApp extends React.Component {
                 <div className="modal-field-description">
                   {translate('server_id_configuration.ip.desc')}
                   <ul className="list-styled">
-                    {this.state.validIpAdresses.map(ip => (
+                    {this.state.validIpAddresses.map(ip => (
                         <li key={ip} className="little-spacer-top">{ip}</li>
                     ))}
                   </ul>

@@ -86,9 +86,9 @@ public class ShowAction implements ServerIdWsAction {
 
   private ShowWsResponse doHandle(Map<String, PropertyDto> properties) {
     ShowWsResponse.Builder responseBuilder = ShowWsResponse.newBuilder();
-    List<String> validIpAdresses = serverIdGenerator.getAvailableAddresses().stream().map(InetAddress::getHostAddress).collect(toList());
-    if (!validIpAdresses.isEmpty()) {
-      responseBuilder.addAllValidIpAdresses(validIpAdresses);
+    List<String> validIpAddresses = serverIdGenerator.getAvailableAddresses().stream().map(InetAddress::getHostAddress).collect(toList());
+    if (!validIpAddresses.isEmpty()) {
+      responseBuilder.addAllValidIpAddresses(validIpAddresses);
     }
 
     Optional<String> serverId = getSettingValue(properties.get(PERMANENT_SERVER_ID));
