@@ -48,7 +48,7 @@ public class ServerImpl extends Server {
 
   @Override
   public String getId() {
-    return state.getStartupId();
+    return settings.getString(CoreProperties.SERVER_ID);
   }
 
   @Override

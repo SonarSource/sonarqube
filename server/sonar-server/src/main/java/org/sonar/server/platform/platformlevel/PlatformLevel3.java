@@ -22,6 +22,8 @@ package org.sonar.server.platform.platformlevel;
 import org.sonar.api.utils.UriReader;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
+import org.sonar.server.platform.ServerIdManager;
+import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataPersister;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
@@ -36,6 +38,8 @@ public class PlatformLevel3 extends PlatformLevel {
   protected void configureLevel() {
     addIfStartupLeader(StartupMetadataPersister.class);
     add(
+      ServerIdManager.class,
+      ServerImpl.class,
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UriReader.class,

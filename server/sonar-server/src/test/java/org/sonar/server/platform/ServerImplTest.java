@@ -75,9 +75,14 @@ public class ServerImplTest {
   public void test_startup_information() throws IOException {
     long time = 123_456_789L;
     when(state.getStartedAt()).thenReturn(time);
-    when(state.getStartupId()).thenReturn("an_id");
 
     assertThat(underTest.getStartedAt().getTime()).isEqualTo(time);
+  }
+
+  @Test
+  public void test_id() throws IOException {
+    settings.setProperty(CoreProperties.SERVER_ID, "an_id");
+
     assertThat(underTest.getId()).isEqualTo("an_id");
   }
 

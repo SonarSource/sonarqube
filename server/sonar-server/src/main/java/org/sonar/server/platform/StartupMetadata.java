@@ -23,23 +23,15 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
-import static java.util.Objects.requireNonNull;
-
 @ComputeEngineSide
 @ServerSide
 @Immutable
 public class StartupMetadata {
 
-  private final String startupId;
   private final long startedAt;
 
-  public StartupMetadata(String startupId, long startedAt) {
-    this.startupId = requireNonNull(startupId);
+  public StartupMetadata(long startedAt) {
     this.startedAt = startedAt;
-  }
-
-  public String getStartupId() {
-    return startupId;
   }
 
   public long getStartedAt() {
