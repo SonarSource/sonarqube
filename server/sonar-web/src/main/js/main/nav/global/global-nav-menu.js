@@ -133,7 +133,7 @@ export default React.createClass({
   },
 
   renderMore () {
-    if (this.props.globalPages.length == 0) {
+    if (this.props.globalPages.length === 0) {
       return null;
     }
     const globalPages = this.props.globalPages.map(this.renderGlobalPageLink);
