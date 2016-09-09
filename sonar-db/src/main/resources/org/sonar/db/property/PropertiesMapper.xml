@@ -249,12 +249,6 @@
     </choose>
   </delete>
 
-  <delete id="deleteById" parameterType="long">
-    delete from properties
-    where
-      id=#{id}
-  </delete>
-
   <delete id="deleteProjectProperty" parameterType="map">
     delete from properties
     where
@@ -285,6 +279,21 @@
     where
       resource_id is null
       and user_id is null
+  </delete>
+
+  <delete id="deleteByQuery">
+    delete from properties
+    <where>
+      <if test="query.key() != null">
+        and prop_key=#{query.key}
+      </if>
+      <if test="query.componentId() != null">
+        and resource_id=#{query.componentId}
+      </if>
+      <if test="query.userId() != null">
+        and user_id=#{query.userId}
+      </if>
+    </where>
   </delete>
 
   <update id="renamePropertyKey" parameterType="map">

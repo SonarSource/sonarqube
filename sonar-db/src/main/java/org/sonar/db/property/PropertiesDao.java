@@ -213,12 +213,19 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public int delete(DbSession dbSession, PropertyDto dto) {
-    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getResourceId());
+  /**
+   * Delete either global, user, component or component per user properties.
+   * <p>Behaves in exactly the same way as {@link #selectByQuery(PropertyQuery, DbSession)} but deletes rather than
+   * selects</p>
+   *
+   * Used by Governance.
+   */
+  public int deleteByQuery(DbSession dbSession, PropertyQuery query) {
+    return getMapper(dbSession).deleteByQuery(query);
   }
 
-  public void deleteById(DbSession dbSession, long id) {
-    getMapper(dbSession).deleteById(id);
+  public int delete(DbSession dbSession, PropertyDto dto) {
+    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getResourceId());
   }
 
   public void deleteProjectProperty(String key, Long projectId) {

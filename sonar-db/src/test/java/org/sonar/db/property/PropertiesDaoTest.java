@@ -680,55 +680,6 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  @UseDataProvider("possibleValuesProvider")
-  public void deleteById(String value) throws SQLException {
-    long id1 = insertProperty("global.key", value, null, null);
-    long id2 = insertProperty("component.key", value, 10L, null);
-    long id3 = insertProperty("user.key", value, null, 100L);
-
-    underTest.deleteById(dbTester.getSession(), id1);
-    dbTester.getSession().commit();
-
-    assertThatPropertiesRow(id1)
-      .doesNotExist();
-    assertThatPropertiesRow(id2)
-      .hasKey("component.key");
-    assertThatPropertiesRow(id3)
-      .hasKey("user.key");
-
-    underTest.deleteById(dbTester.getSession(), id2);
-    dbTester.getSession().commit();
-
-    assertThatPropertiesRow(id2)
-      .doesNotExist();
-    assertThatPropertiesRow(id3)
-      .hasKey("user.key");
-
-    underTest.deleteById(dbTester.getSession(), id3);
-    dbTester.getSession().commit();
-
-    assertThatPropertiesRow(id3)
-      .doesNotExist();
-  }
-
-  @DataProvider
-  public static Object[][] possibleValuesProvider() {
-    return new Object[][] {
-      {null},
-      {""},
-      {"some value"},
-      {VALUE_SIZE_4000},
-      {VALUE_SIZE_4001}
-    };
-  }
-
-  @Test
-  public void deleteById_does_not_fail_if_row_with_specified_id_does_not_exist() {
-    underTest.deleteById(dbTester.getSession(), 12L);
-    dbTester.getSession().commit();
-  }
-
-  @Test
   public void delete_project_property() throws SQLException {
     long projectId1 = insertProject("A").getId();
     long projectId2 = insertProject("B").getId();

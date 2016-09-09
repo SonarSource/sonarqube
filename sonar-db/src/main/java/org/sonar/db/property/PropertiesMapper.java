@@ -63,5 +63,7 @@ public interface PropertiesMapper {
 
   int deleteGlobalProperty(@Param("key") String key);
 
+  int deleteByQuery(@Param("query") PropertyQuery query);
+
   int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 }
