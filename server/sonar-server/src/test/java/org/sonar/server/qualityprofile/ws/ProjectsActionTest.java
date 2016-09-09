@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,15 +27,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.user.AuthorizationDao;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,7 +42,6 @@ import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.mockito.Mockito.mock;
 
-
 public class ProjectsActionTest {
 
   @Rule
@@ -55,11 +49,9 @@ public class ProjectsActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private WsTester wsTester;
+  private DbClient dbClient = dbTester.getDbClient();
 
-  private DbClient dbClient;
-
-  private DbSession session;
+  private DbSession session = dbTester.getSession();
 
   private QualityProfileDto xooP1;
   private QualityProfileDto xooP2;
@@ -71,28 +63,18 @@ public class ProjectsActionTest {
 
   private Long userId = 42L;
 
-  private RoleDao roleDao;
+  private RoleDao roleDao = dbClient.roleDao();
 
-  System2 system2 = mock(System2.class);
+  private WsTester wsTester = new WsTester(new QProfilesWs(
+    mock(RuleActivationActions.class),
+    mock(BulkRuleActivationActions.class),
+    mock(ProjectAssociationActions.class),
+    new ProjectsAction(dbClient, userSessionRule)));
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-      new QualityProfileDao(dbTester.myBatis(), system2),
-      new ComponentDao(),
-      new AuthorizationDao(dbTester.myBatis()));
-    roleDao = new RoleDao();
-    session = dbClient.openSession(false);
-
-    wsTester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
-      new ProjectsAction(dbClient, userSessionRule)));
-
     userSessionRule.login("obiwan").setUserId(userId.intValue());
-    new UserDao(dbTester.myBatis(), mock(System2.class))
+    dbClient.userDao()
       .insert(session, new UserDto()
         .setActive(true)
         .setId(userId)
@@ -101,11 +83,6 @@ public class ProjectsActionTest {
     createProfiles();
 
     session.commit();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
