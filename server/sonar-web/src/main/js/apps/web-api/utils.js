@@ -20,3 +20,20 @@
 export function getActionKey (domain, action) {
   return domain + '/' + action;
 }
+
+export const isDomainPathActive = (path, splat) => {
+  const pathTokens = path.split('/');
+  const splatTokens = splat.split('/');
+
+  if (pathTokens.length > splatTokens.length) {
+    return false;
+  }
+
+  for (let i = 0; i < pathTokens.length; i++) {
+    if (pathTokens[i] !== splatTokens[i]) {
+      return false;
+    }
+  }
+
+  return true;
+};

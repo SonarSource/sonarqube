@@ -25,6 +25,7 @@ import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
 import { getActionKey } from '../utils';
+import { isDomainPathActive } from '../utils';
 
 export default class WebApiApp extends React.Component {
   state = {
@@ -104,7 +105,7 @@ export default class WebApiApp extends React.Component {
     const { splat } = this.props.params;
     const { router } = this.context;
     const { domains } = this.state;
-    const domain = domains.find(domain => splat.indexOf(domain.path) === 0);
+    const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
     const showInternal = !this.state.showInternal;
 
     if (domain && domain.internal && !showInternal) {
@@ -122,7 +123,7 @@ export default class WebApiApp extends React.Component {
     const { splat } = this.props.params;
     const { domains, showInternal, showOnlyDeprecated, searchQuery } = this.state;
 
-    const domain = domains.find(domain => splat.indexOf(domain.path) === 0);
+    const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
 
     return (
         <div className="search-navigator sticky">

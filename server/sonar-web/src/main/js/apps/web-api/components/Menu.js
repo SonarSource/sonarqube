@@ -20,10 +20,9 @@
 import React from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
-
 import InternalBadge from './InternalBadge';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import { getActionKey } from '../utils';
+import { getActionKey, isDomainPathActive } from '../utils';
 
 export default function Menu ({ domains, showInternal, showOnlyDeprecated, searchQuery, splat }) {
   const filteredDomains = (domains || [])
@@ -50,7 +49,7 @@ export default function Menu ({ domains, showInternal, showOnlyDeprecated, searc
             {filteredDomains.map(domain => (
                 <Link
                     key={domain.path}
-                    className={classNames('list-group-item', { 'active': splat.indexOf(domain.path) === 0 })}
+                    className={classNames('list-group-item', { 'active': isDomainPathActive(domain.path, splat) })}
                     to={domain.path}>
                   <h3 className="list-group-item-heading">
                     {domain.path}
