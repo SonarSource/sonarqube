@@ -29,7 +29,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.platform.cluster.ClusterMock;
@@ -42,7 +41,6 @@ import static org.mockito.Mockito.when;
 public class StartupMetadataProviderTest {
 
   private static final long A_DATE = 1_500_000_000_000L;
-  private static final String AN_ID = "generated_id";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -50,27 +48,23 @@ public class StartupMetadataProviderTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
   private StartupMetadataProvider underTest = new StartupMetadataProvider();
   private System2 system = mock(System2.class);
   private ClusterMock cluster = new ClusterMock();
 
   @Test
-  public void generate_and_do_not_persist_metadata_if_server_is_startup_leader() {
-    when(uuidFactory.create()).thenReturn(AN_ID);
+  public void generate_SERVER_STARTIME_but_do_not_persist_it_if_server_is_startup_leader() {
     when(system.now()).thenReturn(A_DATE);
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
     cluster.setStartupLeader(true);
 
-    StartupMetadata metadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
-    assertThat(metadata.getStartupId()).isEqualTo(AN_ID);
 
-    assertNotPersistedProperty(CoreProperties.SERVER_ID);
     assertNotPersistedProperty(CoreProperties.SERVER_STARTTIME);
 
     // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata secondMetadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
     assertThat(secondMetadata).isSameAs(metadata);
   }
 
@@ -102,27 +96,25 @@ public class StartupMetadataProviderTest {
     cluster.setStartupLeader(false);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.core.id is missing in database");
-    underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
+    expectedException.expectMessage("Property sonar.core.startTime is missing in database");
+    underTest.provide(system, runtime, cluster, dbTester.getDbClient());
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
-    new StartupMetadataPersister(new StartupMetadata(AN_ID, A_DATE), dbTester.getDbClient()).start();
+    new StartupMetadataPersister(new StartupMetadata(A_DATE), dbTester.getDbClient()).start();
     cluster.setStartupLeader(isStartupLeader);
 
-    StartupMetadata metadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
-    assertThat(metadata.getStartupId()).isEqualTo(AN_ID);
 
     // still in database
-    assertPersistedProperty(CoreProperties.SERVER_ID, AN_ID);
     assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(A_DATE));
 
     // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(uuidFactory, system, runtime, cluster, dbTester.getDbClient());
+    StartupMetadata secondMetadata = underTest.provide(system, runtime, cluster, dbTester.getDbClient());
     assertThat(secondMetadata).isSameAs(metadata);
 
-    verifyZeroInteractions(uuidFactory, system);
+    verifyZeroInteractions(system);
   }
 
   private void assertPersistedProperty(String propertyKey, String expectedValue) {

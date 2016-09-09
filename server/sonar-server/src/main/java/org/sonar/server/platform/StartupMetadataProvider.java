@@ -27,7 +27,6 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -35,6 +34,7 @@ import org.sonar.server.platform.cluster.Cluster;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 
 @ComputeEngineSide
 @ServerSide
@@ -42,10 +42,10 @@ public class StartupMetadataProvider extends ProviderAdapter {
 
   private StartupMetadata cache = null;
 
-  public StartupMetadata provide(UuidFactory uuidFactory, System2 system, SonarRuntime runtime, Cluster cluster, DbClient dbClient) {
+  public StartupMetadata provide(System2 system, SonarRuntime runtime, Cluster cluster, DbClient dbClient) {
     if (cache == null) {
       if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && cluster.isStartupLeader()) {
-        cache = generate(uuidFactory, system);
+        cache = generate(system);
       } else {
         cache = load(dbClient);
       }
@@ -54,13 +54,14 @@ public class StartupMetadataProvider extends ProviderAdapter {
   }
 
   /**
-   * Generate a UUID. It is not persisted yet as db structure may not be up-to-date if migrations
-   * have to be executed. This is done later by {@link StartupMetadataPersister}
+   * Generate {@link CoreProperties#SERVER_ID} if it doesn't exist yet, otherwise just load it from DB, and always
+   * generate a {@link CoreProperties#SERVER_STARTTIME}.
+   * <p>
+   * Persistence is performed by {@link StartupMetadataPersister}.
+   * </p>
    */
-  private static StartupMetadata generate(UuidFactory uuidFactory, System2 system) {
-    String startupId = uuidFactory.create();
-    long startedAt = system.now();
-    return new StartupMetadata(startupId, startedAt);
+  private static StartupMetadata generate(System2 system) {
+    return new StartupMetadata(system.now());
   }
 
   /**
@@ -68,9 +69,8 @@ public class StartupMetadataProvider extends ProviderAdapter {
    */
   private static StartupMetadata load(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String startupId = selectProperty(dbClient, dbSession, CoreProperties.SERVER_ID);
-      String startedAt = selectProperty(dbClient, dbSession, CoreProperties.SERVER_STARTTIME);
-      return new StartupMetadata(startupId, DateUtils.parseDateTime(startedAt).getTime());
+      String startedAt = selectProperty(dbClient, dbSession, SERVER_STARTTIME);
+      return new StartupMetadata(DateUtils.parseDateTime(startedAt).getTime());
     }
   }
 

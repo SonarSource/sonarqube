@@ -50,7 +50,6 @@ public class StartupMetadataPersister implements Startable {
   @Override
   public void start() {
     String startedAt = DateUtils.formatDateTime(new Date(metadata.getStartedAt()));
-    save(CoreProperties.SERVER_ID, metadata.getStartupId());
     save(CoreProperties.SERVER_STARTTIME, startedAt);
   }
 

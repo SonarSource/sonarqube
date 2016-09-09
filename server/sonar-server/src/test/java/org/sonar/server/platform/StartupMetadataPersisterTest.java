@@ -34,18 +34,16 @@ public class StartupMetadataPersisterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private StartupMetadata metadata = new StartupMetadata("an_id", 123_456_789L);
+  private StartupMetadata metadata = new StartupMetadata(123_456_789L);
   private StartupMetadataPersister underTest = new StartupMetadataPersister(metadata, dbTester.getDbClient());
 
   @Test
   public void persist_metadata_at_startup() {
     underTest.start();
 
-    assertPersistedProperty(CoreProperties.SERVER_ID, metadata.getStartupId());
     assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(metadata.getStartedAt()));
 
     underTest.stop();

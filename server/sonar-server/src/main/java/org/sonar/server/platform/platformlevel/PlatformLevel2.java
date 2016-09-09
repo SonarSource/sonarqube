@@ -27,7 +27,6 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
-import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
@@ -50,7 +49,6 @@ public class PlatformLevel2 extends PlatformLevel {
   protected void configureLevel() {
     add(
       new StartupMetadataProvider(),
-      ServerImpl.class,
       DefaultServerUpgradeStatus.class,
       Durations.class,
       JRubyI18n.class,
@@ -71,7 +69,6 @@ public class PlatformLevel2 extends PlatformLevel {
       DefaultI18n.class,
       RuleI18nManager.class,
 
-      
       // DB migration
       PlatformDatabaseMigrationExecutorServiceImpl.class,
       PlatformDatabaseMigration.class,
