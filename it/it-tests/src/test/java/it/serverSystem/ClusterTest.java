@@ -39,7 +39,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
+import org.sonarqube.ws.client.setting.ValuesRequest;
 import util.ItUtils;
 
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
@@ -109,11 +111,20 @@ public class ClusterTest {
         .build();
       web.start();
 
+      String coreId = getPropertyValue(web, "sonar.core.id");
+      String startTime = getPropertyValue(web, "sonar.core.startTime");
+
       assertThat(FileUtils.readFileToString(elasticsearch.getServer().getLogs())).doesNotContain("Process[es]");
       // call a web service that requires Elasticsearch
       Issues.SearchWsResponse wsResponse = ItUtils.newWsClient(web).issues().search(new org.sonarqube.ws.client.issue.SearchWsRequest());
       assertThat(wsResponse.getIssuesCount()).isEqualTo(0);
 
+      web.restartServer();
+
+      // sonar core id must not change after restart
+      assertThat(getPropertyValue(web, "sonar.core.id")).isEqualTo(coreId);
+      // startTime must change at each startup
+      assertThat(getPropertyValue(web, "sonar.core.startTime")).isNotEqualTo(startTime);
     } finally {
       if (web != null) {
         web.stop();
@@ -122,6 +133,16 @@ public class ClusterTest {
         elasticsearch.stop();
       }
     }
+  }
+
+  private static String getPropertyValue(Orchestrator web, String property) {
+    Settings.ValuesWsResponse response = ItUtils.newAdminWsClient(web).settingsService().values(ValuesRequest.builder().setKeys(property).build());
+    List<Settings.Setting> settingsList = response.getSettingsList();
+    if (settingsList.isEmpty()) {
+      return null;
+    }
+    assertThat(settingsList).hasSize(1);
+    return settingsList.iterator().next().getValue();
   }
 
   private static class ElasticsearchStartupWatcher implements StartupLogWatcher {
