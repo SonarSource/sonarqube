@@ -64,7 +64,7 @@ public class RemoveViewsDefinitionFromProperties extends BaseDataChange {
         " (?,?,?,?)")) {
         long now = system2.now();
         insert
-          .setString(1, "xmlDefinition")
+          .setString(1, "views.def")
           .setBoolean(2, false)
           .setString(3, property)
           .setLong(4, now)

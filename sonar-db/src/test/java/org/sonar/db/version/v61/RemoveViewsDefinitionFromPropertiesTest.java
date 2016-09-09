@@ -77,7 +77,7 @@ public class RemoveViewsDefinitionFromPropertiesTest {
     Map<String, Object> internalProp = db.selectFirst("select" +
       " kee as \"key\", is_empty as \"isEmpty\", text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\"" +
       " from internal_properties");
-    assertThat(internalProp.get("key")).isEqualTo("xmlDefinition");
+    assertThat(internalProp.get("key")).isEqualTo("views.def");
     assertThat(internalProp.get("isEmpty")).isEqualTo(false);
     if (isClob) {
       assertThat(internalProp.get("clobValue")).isEqualTo(xml);
