@@ -21,6 +21,7 @@ import * as licenses from '../../../../api/licenses';
 import { parseError } from '../../../code/utils';
 import { addGlobalSuccessMessage, addGlobalErrorMessage } from '../../../../components/store/globalMessages';
 import { translate } from '../../../../helpers/l10n';
+import { isLicenseFromListInvalid, isLicenseInvalid } from '../../licenses/licenseUtils';
 
 export const RECEIVE_LICENSES = 'RECEIVE_LICENSES';
 
@@ -29,26 +30,37 @@ const receiveLicenses = licenses => ({
   licenses
 });
 
-export const fetchLicenses = () => dispatch =>
-    licenses.getLicenses()
-        .then(licenses => {
-          dispatch(receiveLicenses(licenses));
-        })
-        .catch(e => {
-          parseError(e).then(message => dispatch(addGlobalErrorMessage(key, message)));
-          return Promise.reject();
-        });
+const handleError = dispatch => error => {
+  parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+  return Promise.reject();
+};
+
+export const fetchLicenses = () => dispatch => {
+  return licenses.getLicenses()
+      .then(licenses => {
+        dispatch(receiveLicenses(licenses));
+        /* eslint import/namespace: 0 */
+        const invalidLicenses = licenses.some(isLicenseInvalid);
+        if (invalidLicenses) {
+          dispatch(addGlobalErrorMessage(translate('licenses.there_are_invalid')));
+        }
+      })
+      .catch(handleError(dispatch));
+};
 
 export const setLicense = (key, value) => dispatch => {
   const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
 
   return request
       .then(() => {
-        dispatch(fetchLicenses());
-        dispatch(addGlobalSuccessMessage(translate('licenses.success_message')));
+        licenses.getLicenses().then(licenses => {
+          dispatch(receiveLicenses(licenses));
+          if (isLicenseFromListInvalid(licenses, key)) {
+            dispatch(addGlobalErrorMessage(translate('licenses.error_message')));
+          } else {
+            dispatch(addGlobalSuccessMessage(translate('licenses.success_message')));
+          }
+        });
       })
-      .catch(e => {
-        parseError(e).then(message => dispatch(addGlobalErrorMessage(message)));
-        return Promise.reject();
-      });
+      .catch(handleError(dispatch));
 };

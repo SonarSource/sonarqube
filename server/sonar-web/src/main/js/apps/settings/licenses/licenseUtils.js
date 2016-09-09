@@ -17,26 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { isLicenseInvalid } from './licenseUtils';
+export const isLicenseInvalid = license => (
+    !!license.invalidProduct || !!license.invalidExpiration || !!license.invalidServerId
+);
 
-export default class LicenseStatus extends React.Component {
-  static propTypes = {
-    license: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { license } = this.props;
-
-    if (license.value == null) {
-      return null;
-    }
-
-    const isInvalid = isLicenseInvalid(license);
-    if (isInvalid) {
-      return <i className="icon-alert-error"/>;
-    }
-
-    return <i className="icon-check"/>;
-  }
-}
+export const isLicenseFromListInvalid = (licenses, key) => {
+  const license = licenses.find(license => license.key === key);
+  return license ? isLicenseInvalid(license) : false;
+};

@@ -42,7 +42,7 @@ export default class LicenseChangeForm extends React.Component {
 
   render () {
     return (
-        <button className="js-change" onClick={e => this.onClick(e)}>{translate('change_verb')}</button>
+        <button className="js-change" onClick={e => this.onClick(e)}>{translate('update_verb')}</button>
     );
   }
 }
