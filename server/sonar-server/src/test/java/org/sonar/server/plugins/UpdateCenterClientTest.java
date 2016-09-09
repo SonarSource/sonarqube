@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 public class UpdateCenterClientTest {
 
-  private static final String BASE_URL = "http://update.sonarsource.org";
+  private static final String BASE_URL = "https://update.sonarsource.org";
   private UriReader reader = mock(UriReader.class);
   private Settings settings = new MapSettings();
   private UpdateCenterClient underTest;
