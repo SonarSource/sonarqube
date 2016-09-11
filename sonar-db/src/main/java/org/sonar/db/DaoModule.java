@@ -22,7 +22,6 @@ package org.sonar.db;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.core.platform.Module;
-import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -76,7 +75,6 @@ import org.sonar.db.user.UserTokenDao;
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
     ActiveDashboardDao.class,
-    ActivityDao.class,
     AuthorDao.class,
     AuthorizationDao.class,
     CeActivityDao.class,

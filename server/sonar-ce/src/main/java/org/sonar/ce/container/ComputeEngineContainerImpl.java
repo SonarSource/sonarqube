@@ -65,9 +65,6 @@ import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.Props;
-import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -283,11 +280,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ResourceTypes.class,
       DefaultResourceTypes.get(),
       Periods.class, // used by JRuby and EvaluationResultTextConverterImpl
-
-      // Activity
-      ActivityIndexer.class,
-      ActivityIndex.class,
-      ActivityService.class,
 
       // quality profile
       ActiveRuleIndexer.class,
