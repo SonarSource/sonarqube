@@ -19,172 +19,81 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.Maps;
-import java.util.Date;
-import java.util.Map;
-import org.joda.time.DateTime;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
+import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.activity.Activity;
-import org.sonar.server.activity.index.ActivityDoc;
-import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.activity.index.ActivityIndexDefinition;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.ActiveRuleChange.Type;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 
 public class ChangelogActionTest {
 
+  private static final long A_DATE = 1_500_000_000_000L;
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Rule
-  public EsTester esTester = new EsTester(new ActivityIndexDefinition(new MapSettings()));
-
-  private DbClient db = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
   private WsTester wsTester;
-  private String login;
+  private ChangelogLoader changelogLoader = mock(ChangelogLoader.class);
+  private QProfileFinder profileFinder = mock(QProfileFinder.class);
 
   @Before
   public void before() {
-    // create pre-defined rules
-    RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.ruleDao().insert(dbSession, xooRule1);
-
-    // create pre-defined profiles P1 and P2
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
-
-    login = "david";
-    UserDto user = new UserDto().setLogin(login).setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
-    db.userDao().insert(dbSession, user);
-
-    dbSession.commit();
-    dbSession.clearCache();
-
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
-      new ChangelogAction(db, new ActivityIndex(esTester.client()), new QProfileFactory(db), LanguageTesting.newLanguages("xoo"))));
+      new ChangelogAction(changelogLoader, profileFinder)));
   }
 
   @Test
   public void changelog_empty() throws Exception {
+    when(profileFinder.find(any(Request.class))).thenReturn(QProfileTesting.newXooP1());
+    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
+
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_empty.json");
   }
 
   @Test
   public void changelog_nominal() throws Exception {
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date(), "max", "10");
+    when(profileFinder.find(any(Request.class))).thenReturn(QProfileTesting.newXooP1());
+    ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, null, null, null, null, null, null);
+    ChangelogLoader.Change change2 = new ChangelogLoader.Change("C2", "ACTIVATED", A_DATE + 10, null, null, null, null, null, null);
+    List<ChangelogLoader.Change> changes = asList(change1, change2);
+    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_nominal.json");
   }
 
   @Test
-  public void changelog_no_param() throws Exception {
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date());
+  public void changelog_with_all_fields() throws Exception {
+    when(profileFinder.find(any(Request.class))).thenReturn(QProfileTesting.newXooP1());
+    ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, "MAJOR", "marcel", "Marcel", "INHERITED", RuleTesting.XOO_X1, "X One");
+    change1.getParams().put("foo", "foo_value");
+    change1.getParams().put("bar", "bar_value");
+    List<ChangelogLoader.Change> changes = asList(change1);
+    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
-      .execute().assertJson(getClass(), "changelog_no_param.json");
-  }
-
-  @Test
-  public void changelog_system_user() throws Exception {
-    createActivity(null, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date());
-
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
-      .execute().assertJson(getClass(), "changelog_no_login.json");
-  }
-
-  @Test
-  public void changelog_with_dates() throws Exception {
-    Date yesterday = DateTime.now().minusDays(1).toDate();
-    Date tomorrow = DateTime.now().plusDays(1).toDate();
-
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date(), "max", "10");
-
-    // Tests with "since"
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("since",
-      DateUtils.formatDateTime(yesterday))
-      .execute().assertJson(getClass(), "changelog_nominal.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("since",
-      DateUtils.formatDateTime(tomorrow))
-      .execute().assertJson(getClass(), "changelog_empty.json");
-
-    // Tests with "to"
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("to",
-      DateUtils.formatDateTime(yesterday))
-      .execute().assertJson(getClass(), "changelog_empty.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("to",
-      DateUtils.formatDateTime(tomorrow))
-      .execute().assertJson(getClass(), "changelog_nominal.json");
-
-    // Test with both bounds set
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
-      .setParam("since", DateUtils.formatDateTime(yesterday))
-      .setParam("to", DateUtils.formatDateTime(tomorrow))
-      .execute().assertJson(getClass(), "changelog_nominal.json");
-  }
-
-  @Test
-  public void changelog_with_pagination() throws Exception {
-    Date farthest = new Date(1_500_000_000_000L);
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, farthest, "max", "10");
-    Date nearest = new Date(1_500_000_100_000L);
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, nearest, "max", "20");
-
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1")
-      .execute().assertJson(getClass(), "changelog_page1.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1").setParam(Param.PAGE, "2")
-      .execute().assertJson(getClass(), "changelog_page2.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1").setParam(Param.PAGE, "3")
-      .execute().assertJson(getClass(), "changelog_page3.json");
+      .execute().assertJson(getClass(), "changelog_full.json");
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_profile() throws Exception {
+    when(profileFinder.find(any(Request.class))).thenThrow(new NotFoundException("Profile not found"));
+
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", "unknown-profile").execute();
-  }
-
-  private void createActivity(String login, Type type, ActiveRuleKey activeRuleKey, String severity, Date createdAt, String... params) throws Exception {
-    Map<String, String> details = Maps.newHashMap();
-    details.put("key", activeRuleKey.toString());
-    details.put("ruleKey", activeRuleKey.ruleKey().toString());
-    details.put("profileKey", activeRuleKey.qProfile());
-    details.put("severity", severity);
-    for (int i = 0; i < params.length; i += 2) {
-      details.put("param_" + params[i], params[i + 1]);
-    }
-    ActivityDoc doc = new ActivityDoc(Maps.<String, Object>newHashMap());
-    doc.setAction(type.toString());
-    doc.setCreatedAt(createdAt);
-    doc.setDetails(details);
-    doc.setKey(Uuids.create());
-    doc.setLogin(login);
-    doc.setType(Activity.Type.QPROFILE.toString());
-
-    esTester.putDocuments(ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, doc);
   }
 }
