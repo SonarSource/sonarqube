@@ -34,10 +34,6 @@ import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.activity.index.ActivityIndexDefinition;
-import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
@@ -202,6 +198,7 @@ import org.sonar.server.qualityprofile.ws.BackupAction;
 import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
 import org.sonar.server.qualityprofile.ws.ChangeParentAction;
 import org.sonar.server.qualityprofile.ws.ChangelogAction;
+import org.sonar.server.qualityprofile.ws.ChangelogLoader;
 import org.sonar.server.qualityprofile.ws.CompareAction;
 import org.sonar.server.qualityprofile.ws.CopyAction;
 import org.sonar.server.qualityprofile.ws.CreateAction;
@@ -213,6 +210,7 @@ import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
 import org.sonar.server.qualityprofile.ws.ProjectsAction;
+import org.sonar.server.qualityprofile.ws.QProfileFinder;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.qualityprofile.ws.RenameAction;
 import org.sonar.server.qualityprofile.ws.RestoreAction;
@@ -311,12 +309,6 @@ public class PlatformLevel4 extends PlatformLevel {
       BackendCleanup.class,
       IndexDefinitions.class,
 
-      // Activity
-      ActivityService.class,
-      ActivityIndexDefinition.class,
-      ActivityIndexer.class,
-      ActivityIndex.class,
-
       // batch
       BatchWsModule.class,
 
@@ -380,6 +372,8 @@ public class PlatformLevel4 extends PlatformLevel {
       InheritanceAction.class,
       ChangeParentAction.class,
       ChangelogAction.class,
+      QProfileFinder.class,
+      ChangelogLoader.class,
       CompareAction.class,
       ExportAction.class,
       ExportersAction.class,

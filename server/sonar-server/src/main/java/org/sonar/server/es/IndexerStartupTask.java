@@ -22,7 +22,6 @@ package org.sonar.server.es;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
@@ -38,7 +37,6 @@ public class IndexerStartupTask {
   private final IssueIndexer issueIndexer;
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
-  private final ActivityIndexer activityIndexer;
   private final Settings settings;
 
   /**
@@ -47,21 +45,18 @@ public class IndexerStartupTask {
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
   public IndexerStartupTask(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer,
+    UserIndexer userIndexer, ViewIndexer viewIndexer,
     Settings settings) {
     this.testIndexer = testIndexer;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.userIndexer = userIndexer;
     this.viewIndexer = viewIndexer;
-    this.activityIndexer = activityIndexer;
     this.settings = settings;
   }
 
   public void execute() {
     if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
-      LOG.info("Index activities");
-      activityIndexer.index();
 
       LOG.info("Index issues");
       issueAuthorizationIndexer.index();
