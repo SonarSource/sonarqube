@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.core.util;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DaoModuleTest {
+
+public class SequenceUuidFactoryTest {
+
+  private SequenceUuidFactory underTest = new SequenceUuidFactory();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  public void generate_sequence_of_integer_ids() {
+    for (int i = 1; i < 10; i++) {
+      assertThat(underTest.create()).isEqualTo(String.valueOf(i));
+    }
   }
 }

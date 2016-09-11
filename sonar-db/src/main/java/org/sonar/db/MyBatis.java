@@ -108,6 +108,7 @@ import org.sonar.db.qualitygate.QualityGateMapper;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QProfileChangeMapper;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
@@ -236,7 +237,7 @@ public class MyBatis {
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,
       FileSourceMapper.class,
       NotificationQueueMapper.class,
-      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
+      GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class, QProfileChangeMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
       CeQueueMapper.class, CeActivityMapper.class, CeTaskInputMapper.class, CeScannerContextMapper.class,

@@ -322,13 +322,9 @@ public class MigrationStepModule extends Module {
       ShrinkModuleUuidPathOfProjects.class,
       AddBUuidPathToProjects.class,
       AddErrorColumnsToCeActivity.class,
-<<<<<<< HEAD
       PopulateTableProperties2.class,
-      RemoveViewsDefinitionFromProperties.class);
-=======
       RemoveViewsDefinitionFromProperties.class,
       CopyActivitiesToQprofileChanges.class
       );
->>>>>>> SONAR-7851 copy activities to qprofile_changes
   }
 }

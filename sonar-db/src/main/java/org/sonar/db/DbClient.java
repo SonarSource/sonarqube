@@ -60,6 +60,7 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.source.FileSourceDao;
@@ -125,6 +126,7 @@ public class DbClient {
   private final GroupDao groupDao;
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
+  private final QProfileChangeDao qProfileChangeDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -183,6 +185,7 @@ public class DbClient {
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
+    qProfileChangeDao = getDao(map, QProfileChangeDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -391,6 +394,10 @@ public class DbClient {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
+  }
+
+  public QProfileChangeDao qProfileChangeDao() {
+    return qProfileChangeDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

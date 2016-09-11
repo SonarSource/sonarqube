@@ -22,11 +22,15 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Date;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
+import static java.util.Arrays.stream;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class QualityProfileTesting {
+
   public static QualityProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
     QualityProfileDto dto = QualityProfileDto.createFor(uuid)
@@ -36,5 +40,23 @@ public class QualityProfileTesting {
     dto.setCreatedAt(new Date())
       .setUpdatedAt(new Date());
     return dto;
+  }
+
+  public static QProfileChangeDto newQProfileChangeDto() {
+    return new QProfileChangeDto()
+      .setKey(randomAlphanumeric(40))
+      .setProfileKey(randomAlphanumeric(40))
+      .setCreatedAt(nextLong())
+      .setChangeType("ACTIVATED")
+      .setLogin(randomAlphanumeric(10));
+  }
+
+  public static void insert(DbTester dbTester, QProfileChangeDto... dtos) {
+    // do not use QProfileChangeDao so that generated fields key and creation date
+    // can be defined by tests
+    DbSession dbSession = dbTester.getSession();
+    QProfileChangeMapper mapper = dbSession.getMapper(QProfileChangeMapper.class);
+    stream(dtos).forEach(dto -> mapper.insert(dto));
+    dbSession.commit();
   }
 }
