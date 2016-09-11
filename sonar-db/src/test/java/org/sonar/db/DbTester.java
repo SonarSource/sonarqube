@@ -57,6 +57,7 @@ import org.junit.rules.ExternalResource;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.SequenceUuidFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -123,6 +124,7 @@ public class DbTester extends ExternalResource {
       TransientPicoContainer ioc = new TransientPicoContainer();
       ioc.addComponent(db.getMyBatis());
       ioc.addComponent(system2);
+      ioc.addComponent(new SequenceUuidFactory());
       for (Class daoClass : DaoModule.classes()) {
         ioc.addComponent(daoClass);
       }

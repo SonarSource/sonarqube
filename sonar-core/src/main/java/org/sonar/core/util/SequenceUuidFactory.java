@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.core.util;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Only for tests. This implementation of {@link UuidFactory} generates
+ * ids as a sequence of integers ("1", "2", ...). It starts with "1".
+ */
+public class SequenceUuidFactory implements UuidFactory {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  private final AtomicInteger id = new AtomicInteger(1);
+
+  @Override
+  public String create() {
+    return String.valueOf(id.getAndIncrement());
   }
 }

@@ -25,6 +25,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
+import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -59,9 +60,9 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -110,6 +111,7 @@ public class DaoModule extends Module {
     QualityGateDao.class,
     QualityGateConditionDao.class,
     QualityProfileDao.class,
+    QProfileChangeDao.class,
     CeScannerContextDao.class,
     RuleDao.class,
     ActiveRuleDao.class,
@@ -122,7 +124,8 @@ public class DaoModule extends Module {
     UserGroupDao.class,
     UserTokenDao.class,
     WidgetDao.class,
-    WidgetPropertyDao.class).build();
+    WidgetPropertyDao.class
+  ).build();
 
   @Override
   protected void configureModule() {

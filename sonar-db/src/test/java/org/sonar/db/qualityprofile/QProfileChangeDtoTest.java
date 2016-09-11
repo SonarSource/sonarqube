@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 
-public class DaoModuleTest {
+public class QProfileChangeDtoTest {
+
+  private QProfileChangeDto underTest = new QProfileChangeDto();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  public void convert_data_to_map() {
+    underTest.setData((Map) null);
+    assertThat(underTest.getDataAsMap()).isEmpty();
+
+    underTest.setData(Collections.emptyMap());
+    assertThat(underTest.getDataAsMap()).isEmpty();
+
+    underTest.setData(ImmutableMap.of("k1", "v1", "k2", "v2"));
+    assertThat(underTest.getDataAsMap()).containsOnly(entry("k1", "v1"), entry("k2", "v2"));
   }
 }
