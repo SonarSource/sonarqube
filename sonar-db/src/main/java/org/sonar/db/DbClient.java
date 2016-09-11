@@ -22,7 +22,6 @@ package org.sonar.db;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -88,7 +87,6 @@ public class DbClient {
   private final MeasureDao measureDao;
   private final MeasureFilterDao measureFilterDao;
   private final MeasureFilterFavouriteDao measureFilterFavouriteDao;
-  private final ActivityDao activityDao;
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
@@ -147,7 +145,6 @@ public class DbClient {
     measureDao = getDao(map, MeasureDao.class);
     measureFilterDao = getDao(map, MeasureFilterDao.class);
     measureFilterFavouriteDao = getDao(map, MeasureFilterFavouriteDao.class);
-    activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
@@ -258,10 +255,6 @@ public class DbClient {
 
   public MeasureFilterFavouriteDao measureFilterFavouriteDao() {
     return measureFilterFavouriteDao;
-  }
-
-  public ActivityDao activityDao() {
-    return activityDao;
   }
 
   public AuthorizationDao authorizationDao() {
