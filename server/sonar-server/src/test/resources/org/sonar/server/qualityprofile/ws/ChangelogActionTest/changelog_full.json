@@ -1,0 +1,19 @@
+{
+  "total": 10,
+  "p": 1,
+  "ps": 50,
+  "events": [
+    {
+      "authorLogin": "marcel",
+      "authorName": "Marcel",
+      "action": "ACTIVATED",
+      "ruleKey": "xoo:x1",
+      "ruleName": "X One",
+      "params": {
+        "severity": "MAJOR",
+        "foo": "foo_value",
+        "bar": "bar_value"
+      }
+    }
+  ]
+}

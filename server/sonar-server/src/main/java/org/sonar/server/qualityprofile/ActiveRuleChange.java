@@ -21,12 +21,13 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.server.activity.Activity;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 
 public class ActiveRuleChange {
 
@@ -88,25 +89,26 @@ public class ActiveRuleChange {
     return this;
   }
 
-  public Activity toActivity() {
-    Activity activity = new Activity();
-    activity.setType(Activity.Type.QPROFILE);
-    activity.setAction(type.name());
-    activity.setProfileKey(getKey().qProfile());
-    activity.setData("key", getKey().toString());
-    activity.setData("ruleKey", getKey().ruleKey().toString());
+  public QProfileChangeDto toDto() {
+    QProfileChangeDto dto = new QProfileChangeDto();
+    dto.setChangeType(type.name());
+    dto.setProfileKey(getKey().qProfile());
+    Map<String, String> data = new HashMap<>();
+    data.put("key", getKey().toString());
+    data.put("ruleKey", getKey().ruleKey().toString());
 
     parameters.entrySet().stream()
       .filter(param -> !param.getKey().isEmpty())
-      .forEach(param -> activity.setData("param_" + param.getKey(), param.getValue()));
+      .forEach(param -> data.put("param_" + param.getKey(), param.getValue()));
 
     if (StringUtils.isNotEmpty(severity)) {
-      activity.setData("severity", severity);
+      data.put("severity", severity);
     }
     if (inheritance != null) {
-      activity.setData("inheritance", inheritance.name());
+      data.put("inheritance", inheritance.name());
     }
-    return activity;
+    dto.setData(data);
+    return dto;
   }
 
   public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {

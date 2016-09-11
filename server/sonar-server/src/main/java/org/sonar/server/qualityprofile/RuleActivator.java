@@ -41,7 +41,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.activity.ActivityService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -63,19 +62,17 @@ public class RuleActivator {
   private final RuleActivatorContextFactory contextFactory;
   private final RuleIndex ruleIndex;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final ActivityService activityService;
   private final UserSession userSession;
 
   public RuleActivator(System2 system2, DbClient db, RuleIndex ruleIndex,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActiveRuleIndexer activeRuleIndexer, ActivityService activityService, UserSession userSession) {
+    ActiveRuleIndexer activeRuleIndexer, UserSession userSession) {
     this.system2 = system2;
     this.db = db;
     this.ruleIndex = ruleIndex;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.activityService = activityService;
     this.userSession = userSession;
   }
 
@@ -248,7 +245,7 @@ public class RuleActivator {
       activeRule = doUpdate(change, context, dbSession);
     }
 
-    activityService.save(change.toActivity());
+    db.qProfileChangeDao().insert(dbSession, change.toDto());
     return activeRule;
   }
 
