@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -169,12 +169,12 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     userUpdater.create(NewUser.create()
-      .setLogin("user")
+      .setLogin("us")
       .setName("User"));
 
-    UserDto dto = userDao.selectByLogin(session, "user");
+    UserDto dto = userDao.selectByLogin(session, "us");
     assertThat(dto.getId()).isNotNull();
-    assertThat(dto.getLogin()).isEqualTo("user");
+    assertThat(dto.getLogin()).isEqualTo("us");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isNull();
     assertThat(dto.getScmAccounts()).isNull();
@@ -269,13 +269,13 @@ public class UserUpdaterTest {
   public void fail_to_create_user_with_too_short_login() {
     try {
       userUpdater.create(NewUser.create()
-        .setLogin("ma")
+        .setLogin("m")
         .setName("Marius")
         .setEmail("marius@mail.com")
         .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_SHORT_MESSAGE, "Login", 3));
+      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_SHORT_MESSAGE, "Login", 2));
     }
   }
 

@@ -61,7 +61,7 @@ public class UserUpdater {
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
 
-  private static final int LOGIN_MIN_LENGTH = 3;
+  private static final int LOGIN_MIN_LENGTH = 2;
   private static final int LOGIN_MAX_LENGTH = 255;
   private static final int EMAIL_MAX_LENGTH = 100;
   private static final int NAME_MAX_LENGTH = 200;
