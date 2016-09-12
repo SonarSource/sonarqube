@@ -19,12 +19,11 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.Writer;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.server.ws.WsTester;
-
-import java.io.Writer;
 
 import static org.mockito.Mockito.mock;
 
@@ -33,7 +32,7 @@ public class ExportersActionTest {
   @Test
   public void importers_nominal() throws Exception {
     WsTester wsTester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
+      mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class),
       new ExportersAction(createExporters())));
 
     wsTester.newGetRequest("api/qualityprofiles", "exporters").execute().assertJson(getClass(), "exporters.json");

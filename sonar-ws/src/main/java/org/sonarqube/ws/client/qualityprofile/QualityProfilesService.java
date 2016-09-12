@@ -22,22 +22,52 @@ package org.sonarqube.ws.client.qualityprofile;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
 
 public class QualityProfilesService extends BaseService {
 
   public QualityProfilesService(WsConnector wsConnector) {
-    super(wsConnector, "api/qualityprofiles");
+    super(wsConnector, CONTROLLER_QUALITY_PROFILES);
   }
 
   public SearchWsResponse search(SearchWsRequest request) {
     return call(
-      new GetRequest(path("search"))
-        .setParam("defaults", request.getDefaults())
-        .setParam("language", request.getLanguage())
-        .setParam("profileName", request.getProfileName())
-        .setParam("projectKey", request.getProjectKey()),
+      new GetRequest(path(ACTION_SEARCH))
+        .setParam(PARAM_DEFAULTS, request.getDefaults())
+        .setParam(PARAM_LANGUAGE, request.getLanguage())
+        .setParam(PARAM_PROFILE_NAME, request.getProfileName())
+        .setParam(PARAM_PROJECT_KEY, request.getProjectKey()),
       SearchWsResponse.parser());
+  }
+
+  public void addProject(AddProjectRequest request) {
+    call(new PostRequest(path(ACTION_ADD_PROJECT))
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, request.getProfileName())
+      .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+      .setParam(PARAM_PROJECT_UUID, request.getProjectUuid()));
+  }
+
+  public void removeProject(RemoveProjectRequest request) {
+    call(new PostRequest(path(ACTION_REMOVE_PROJECT))
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, request.getProfileName())
+      .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+      .setParam(PARAM_PROJECT_UUID, request.getProjectUuid()));
   }
 
 }

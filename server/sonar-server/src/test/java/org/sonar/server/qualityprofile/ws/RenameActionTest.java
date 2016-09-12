@@ -58,7 +58,6 @@ public class RenameActionTest {
 
   private DbSession session;
 
-
   @Before
   public void setUp() {
     dbTester.truncateTables();
@@ -71,7 +70,6 @@ public class RenameActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new RenameAction(new QProfileFactory(dbClient), userSessionRule)));
   }
 
@@ -144,8 +142,7 @@ public class RenameActionTest {
     qualityProfileDao.insert(session,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"),
-      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456").setDefault(true)
-      );
+      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456").setDefault(true));
     session.commit();
   }
 }

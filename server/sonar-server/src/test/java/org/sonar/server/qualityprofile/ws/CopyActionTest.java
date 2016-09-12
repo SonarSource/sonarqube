@@ -54,7 +54,6 @@ public class CopyActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), userSessionRule)));
   }
 

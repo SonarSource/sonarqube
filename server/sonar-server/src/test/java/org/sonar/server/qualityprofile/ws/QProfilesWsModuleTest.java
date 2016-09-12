@@ -19,39 +19,16 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.i18n.I18n;
-import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.core.platform.ComponentContainer;
 
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RestoreBuiltInActionTest {
-
-  @Mock
-  QProfileService profileService;
-
-  @Mock
-  I18n i18n;
-
-  WsTester tester;
-
-  @Before
-  public void setUp() {
-    tester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      new RestoreBuiltInAction(profileService)));
-  }
-
+public class QProfilesWsModuleTest {
   @Test
-  public void return_empty_result_when_no_infos_or_warnings() throws Exception {
-    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_built_in").setParam("language", "java");
-    request.execute().assertNoContent();
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new QProfilesWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(24 + 2);
   }
 }

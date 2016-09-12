@@ -38,13 +38,13 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static com.google.common.collect.Maps.uniqueIndex;
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchAction implements QProfileWsAction {
-
-  static final String PARAM_LANGUAGE = "language";
-  static final String PARAM_PROJECT_KEY = "projectKey";
-  static final String PARAM_DEFAULTS = "defaults";
-  static final String PARAM_PROFILE_NAME = "profileName";
 
   private final SearchDataLoader dataLoader;
   private final Languages languages;
@@ -56,7 +56,7 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("search")
+    NewAction action = controller.createAction(ACTION_SEARCH)
       .setSince("5.2")
       .setDescription("List quality profiles.")
       .setHandler(this)
@@ -95,10 +95,10 @@ public class SearchAction implements QProfileWsAction {
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
-        .setProjectKey(request.param(PARAM_PROJECT_KEY))
-        .setProfileName(request.param(PARAM_PROFILE_NAME))
-        .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
-        .setLanguage(request.param(PARAM_LANGUAGE));
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setProfileName(request.param(PARAM_PROFILE_NAME))
+      .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
+      .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
   private SearchWsResponse buildResponse(SearchWsRequest request) {

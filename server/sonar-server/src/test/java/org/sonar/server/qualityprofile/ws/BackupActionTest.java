@@ -63,7 +63,6 @@ public class BackupActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new BackupAction(backuper, dbClient, new QProfileFactory(dbClient), LanguageTesting.newLanguages("xoo"))));
   }
 

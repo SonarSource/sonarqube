@@ -54,13 +54,15 @@ public class QProfilesWsTest {
     I18n i18n = mock(I18n.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
+    ProjectAssociationParameters projectAssociationParameters = new ProjectAssociationParameters(languages);
 
     ProfileImporter[] importers = createImporters(languages);
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, null, i18n, userSessionRule),
-      new ProjectAssociationActions(null, null, null, languages, userSessionRule),
+      new AddProjectAction(projectAssociationParameters, null, null, null),
+      new RemoveProjectAction(projectAssociationParameters, null, null, null),
       new CreateAction(null, null, null, languages, importers, userSessionRule),
       new ImportersAction(importers),
       new RestoreBuiltInAction(null),

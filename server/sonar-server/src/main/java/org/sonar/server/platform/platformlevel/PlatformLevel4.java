@@ -214,28 +214,10 @@ import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.BackupAction;
-import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
-import org.sonar.server.qualityprofile.ws.ChangeParentAction;
-import org.sonar.server.qualityprofile.ws.ChangelogAction;
-import org.sonar.server.qualityprofile.ws.CompareAction;
-import org.sonar.server.qualityprofile.ws.CopyAction;
-import org.sonar.server.qualityprofile.ws.CreateAction;
-import org.sonar.server.qualityprofile.ws.ExportAction;
-import org.sonar.server.qualityprofile.ws.ExportersAction;
-import org.sonar.server.qualityprofile.ws.ImportersAction;
-import org.sonar.server.qualityprofile.ws.InheritanceAction;
 import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
-import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
-import org.sonar.server.qualityprofile.ws.ProjectsAction;
-import org.sonar.server.qualityprofile.ws.QProfilesWs;
-import org.sonar.server.qualityprofile.ws.RenameAction;
-import org.sonar.server.qualityprofile.ws.RestoreAction;
-import org.sonar.server.qualityprofile.ws.RestoreBuiltInAction;
-import org.sonar.server.qualityprofile.ws.RuleActivationActions;
+import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.qualityprofile.ws.SearchDataLoader;
-import org.sonar.server.qualityprofile.ws.SetDefaultAction;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
@@ -381,30 +363,9 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileProjectLookup.class,
       QProfileComparison.class,
       BuiltInProfiles.class,
-      RestoreBuiltInAction.class,
-      org.sonar.server.qualityprofile.ws.SearchAction.class,
       SearchDataLoader.class,
-      SetDefaultAction.class,
-      ProjectsAction.class,
-      org.sonar.server.qualityprofile.ws.DeleteAction.class,
-      RenameAction.class,
-      CopyAction.class,
-      BackupAction.class,
-      RestoreAction.class,
-      CreateAction.class,
-      ImportersAction.class,
-      InheritanceAction.class,
-      ChangeParentAction.class,
-      ChangelogAction.class,
-      CompareAction.class,
-      ExportAction.class,
-      ExportersAction.class,
-      QProfilesWs.class,
       ProfilesWs.class,
       OldRestoreAction.class,
-      RuleActivationActions.class,
-      BulkRuleActivationActions.class,
-      ProjectAssociationActions.class,
       RuleActivator.class,
       QProfileLoader.class,
       QProfileExporters.class,
@@ -415,6 +376,7 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileBackuper.class,
       QProfileReset.class,
       RubyQProfileActivityService.class,
+      QProfilesWsModule.class,
 
       // rule
       RuleIndexDefinition.class,

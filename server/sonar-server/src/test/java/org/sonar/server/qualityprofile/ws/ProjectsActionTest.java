@@ -68,7 +68,6 @@ public class ProjectsActionTest {
   private WsTester wsTester = new WsTester(new QProfilesWs(
     mock(RuleActivationActions.class),
     mock(BulkRuleActivationActions.class),
-    mock(ProjectAssociationActions.class),
     new ProjectsAction(dbClient, userSessionRule)));
 
   @Before

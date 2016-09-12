@@ -76,7 +76,6 @@ public class DeleteActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new DeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient), dbClient, userSessionRule)));
   }
 

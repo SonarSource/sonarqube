@@ -21,22 +21,21 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
+
 public class QProfilesWs implements WebService {
 
-  public static final String API_ENDPOINT = "api/qualityprofiles";
+  public static final String API_ENDPOINT = CONTROLLER_QUALITY_PROFILES;
 
   private final RuleActivationActions ruleActivationActions;
   private final BulkRuleActivationActions bulkRuleActivationActions;
-  private final ProjectAssociationActions projectAssociationActions;
   private final QProfileWsAction[] actions;
 
   public QProfilesWs(RuleActivationActions ruleActivationActions,
-                     BulkRuleActivationActions bulkRuleActivationActions,
-                     ProjectAssociationActions projectAssociationActions,
-                     QProfileWsAction... actions) {
+    BulkRuleActivationActions bulkRuleActivationActions,
+    QProfileWsAction... actions) {
     this.ruleActivationActions = ruleActivationActions;
     this.bulkRuleActivationActions = bulkRuleActivationActions;
-    this.projectAssociationActions = projectAssociationActions;
     this.actions = actions;
   }
 
@@ -48,8 +47,7 @@ public class QProfilesWs implements WebService {
 
     ruleActivationActions.define(controller);
     bulkRuleActivationActions.define(controller);
-    projectAssociationActions.define(controller);
-    for(QProfileWsAction action: actions) {
+    for (QProfileWsAction action : actions) {
       action.define(controller);
     }
 

@@ -90,7 +90,7 @@ public class ChangelogActionTest {
     dbSession.commit();
     dbSession.clearCache();
 
-    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
+    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class),
       new ChangelogAction(db, new ActivityIndex(esTester.client()), new QProfileFactory(db), LanguageTesting.newLanguages("xoo"))));
   }
 

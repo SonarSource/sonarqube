@@ -82,7 +82,6 @@ public class ExportActionTest {
       null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new ExportAction(dbClient, new QProfileFactory(dbClient), backuper, exporters, LanguageTesting.newLanguages("xoo"))));
   }
 
@@ -169,7 +168,6 @@ public class ExportActionTest {
     QProfileExporters myExporters = new QProfileExporters(dbClient, null, null, null, new ProfileExporter[0], null);
     WsTester myWsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
       new ExportAction(dbClient, new QProfileFactory(dbClient), backuper, myExporters, LanguageTesting.newLanguages("xoo"))));
 
     Action export = myWsTester.controller("api/qualityprofiles").action("export");
