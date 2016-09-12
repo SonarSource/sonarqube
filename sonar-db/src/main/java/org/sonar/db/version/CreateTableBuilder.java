@@ -25,7 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.Oracle;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -71,7 +73,8 @@ public class CreateTableBuilder {
     addPkColumns(res);
     addColumns(res, dialect, columnDefs);
     addPkConstraint(res);
-    res.append(")");
+    res.append(')');
+    addLOBStorageClause(res, dialect, columnDefs);
     return res.toString();
   }
 
@@ -133,6 +136,22 @@ public class CreateTableBuilder {
       if (columnDefIterator.hasNext()) {
         res.append(',');
       }
+    }
+  }
+
+  private void addLOBStorageClause(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
+    if (!Oracle.ID.equals(dialect.getId())) {
+      return;
+    }
+
+    List<ColumnDef> clobColumnDefs = columnDefs.stream()
+      .filter(columnDef -> columnDef instanceof ClobColumnDef || columnDef instanceof BlobColumnDef)
+      .collect(Collectors.toList());
+    if (!clobColumnDefs.isEmpty()) {
+      res.append(" LOB (");
+      appendColumnNames(res, clobColumnDefs);
+      res.append(')');
+      res.append(" STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
     }
   }
 

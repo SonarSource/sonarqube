@@ -25,6 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.db.version.BlobColumnDef.newBlobColumnDefBuilder;
 import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
 import static org.sonar.db.version.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
@@ -49,6 +50,8 @@ public class CreateTableBuilderDbTesterTest {
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("tiny_col_2").setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_1").setLimit(40).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_2").setLimit(40).setIsNullable(false).build())
+      .addColumn(newBlobColumnDefBuilder().setColumnName("blob_col_1").build())
+      .addColumn(newBlobColumnDefBuilder().setColumnName("blob_col_2").setIsNullable(false).build())
       .build()
       .iterator().next();
 
