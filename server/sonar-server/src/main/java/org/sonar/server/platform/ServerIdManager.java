@@ -84,7 +84,7 @@ public class ServerIdManager implements Startable {
     }
   }
 
-  private void ensureServerIdIsSet(@Nullable PropertyDto dto) {
+  private static void ensureServerIdIsSet(@Nullable PropertyDto dto) {
     checkState(dto != null, "Property %s is missing in database", SERVER_ID);
     checkState(!isBlank(dto.getValue()), "Property %s is set but empty in database", SERVER_ID);
   }
