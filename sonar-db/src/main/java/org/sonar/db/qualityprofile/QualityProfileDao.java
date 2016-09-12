@@ -351,8 +351,8 @@ public class QualityProfileDao implements Dao {
     mapper(session).deleteProjectProfileAssociation(projectUuid, profileKey);
   }
 
-  public void updateProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    mapper(session).updateProjectProfileAssociation(projectUuid, profileKey);
+  public void updateProjectProfileAssociation(String projectUuid, String newProfileKey, String oldProfileKey, DbSession session) {
+    mapper(session).updateProjectProfileAssociation(projectUuid, newProfileKey, oldProfileKey);
   }
 
   public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {

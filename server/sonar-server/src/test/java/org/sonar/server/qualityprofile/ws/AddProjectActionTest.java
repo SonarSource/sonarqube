@@ -103,6 +103,22 @@ public class AddProjectActionTest {
     assertProjectIsAssociatedToProfile(project.key(), LANGUAGE_1, profile2.getKey());
   }
 
+  @Test
+  public void change_project_association_when_project_is_linked_on_many_profiles() throws Exception {
+    setUserAsQualityProfileAdmin();
+    QualityProfileDto profile1Language1 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile1"), "Profile 1");
+    QualityProfileDto profile2Language2 = newQProfileDto(QProfileName.createFor(LANGUAGE_2, "profile2"), "Profile 2");
+    QualityProfileDto profile3Language1 = newQProfileDto(QProfileName.createFor(LANGUAGE_1, "profile3"), "Profile 3");
+    qualityProfileDbTester.insertQualityProfiles(profile1Language1, profile2Language2, profile3Language1);
+    qualityProfileDbTester.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
+    session.commit();
+
+    executeRequest(project, profile3Language1);
+
+    assertProjectIsAssociatedToProfile(project.key(), LANGUAGE_1, profile3Language1.getKey());
+    assertProjectIsAssociatedToProfile(project.key(), LANGUAGE_2, profile2Language2.getKey());
+  }
+
   private void assertProjectIsAssociatedToProfile(String projectKey, String language, String expectedProfileKey) {
     assertThat(dbClient.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language).getKey()).isEqualTo(expectedProfileKey);
   }
