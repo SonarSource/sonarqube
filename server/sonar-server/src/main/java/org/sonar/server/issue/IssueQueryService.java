@@ -122,7 +122,7 @@ public class IssueQueryService {
         .hideRules(RubyUtils.toBoolean(params.get(IssueFilterParameters.HIDE_RULES)))
         .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
         .createdAfter(buildCreatedAfterFromDates(RubyUtils.toDate(params.get(CREATED_AFTER)), (String) params.get(CREATED_IN_LAST)))
-        .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
+        .createdBefore(RubyUtils.toDate(buildCreatedBefore((String) params.get(IssueFilterParameters.CREATED_BEFORE))));
 
       Set<String> allComponentUuids = Sets.newHashSet();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
@@ -165,6 +165,7 @@ public class IssueQueryService {
     }
   }
 
+  @CheckForNull
   private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
     checkArgument(createdAfter == null || createdInLast == null, format("%s and %s cannot be set simultaneously", CREATED_AFTER, CREATED_IN_LAST));
 
@@ -192,7 +193,7 @@ public class IssueQueryService {
         .types(request.getTypes())
         .assigned(request.getAssigned())
         .createdAt(parseAsDateTime(request.getCreatedAt()))
-        .createdBefore(parseAsDateTime(request.getCreatedBefore()))
+        .createdBefore(buildCreatedBefore(request.getCreatedBefore()))
         .facetMode(request.getFacetMode());
 
       Set<String> allComponentUuids = Sets.newHashSet();
@@ -244,6 +245,18 @@ public class IssueQueryService {
     // TODO use ComponentFinder instead
     Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, uuid);
     return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
+  }
+
+  @CheckForNull
+  private static Date buildCreatedBefore(String stringDate) {
+    Date date = DateUtils.parseDateTimeQuietly(stringDate);
+    if (date != null) {
+      return date;
+    }
+
+    date = DateUtils.parseDateQuietly(stringDate);
+
+    return date == null ? null : DateUtils.addDays(date, 1);
   }
 
   @CheckForNull

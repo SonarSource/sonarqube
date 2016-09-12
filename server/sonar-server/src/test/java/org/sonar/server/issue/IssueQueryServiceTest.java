@@ -161,6 +161,18 @@ public class IssueQueryServiceTest {
   }
 
   @Test
+  public void dates_are_inclusive() {
+    SearchWsRequest request = new SearchWsRequest()
+      .setCreatedAfter("2013-04-16")
+      .setCreatedBefore("2013-04-17");
+
+    IssueQuery query = underTest.createFromRequest(request);
+
+    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDate("2013-04-18"));
+  }
+
+  @Test
   public void add_unknown_when_no_component_found() {
     Map<String, Object> map = newHashMap();
     ArrayList<String> componentKeys = newArrayList("unknown");
