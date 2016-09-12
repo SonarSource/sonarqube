@@ -31,7 +31,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -39,6 +38,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -100,7 +100,7 @@ public class ChangeParentActionMediumTest {
 
     // Set parent
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent1.getKey())
       .execute();
     session.clearCache();
@@ -133,7 +133,7 @@ public class ChangeParentActionMediumTest {
 
     // Set parent 2 through WS
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent2.getKey())
       .execute();
     session.clearCache();
@@ -163,7 +163,7 @@ public class ChangeParentActionMediumTest {
 
     // Remove parent through WS
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
       .execute();
     session.clearCache();
 
@@ -192,8 +192,8 @@ public class ChangeParentActionMediumTest {
 
     // 1. Set parent 1
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
+      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", parent1.getName())
       .execute();
     session.clearCache();
@@ -206,8 +206,8 @@ public class ChangeParentActionMediumTest {
 
     // 2. Set parent 2
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
+      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", parent2.getName())
       .execute();
     session.clearCache();
@@ -219,8 +219,8 @@ public class ChangeParentActionMediumTest {
 
     // 3. Remove parent
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_LANGUAGE, "xoo")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam(QProfileRef.PARAM_LANGUAGE, "xoo")
+      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
       .setParam("parentName", "")
       .execute();
     session.clearCache();
@@ -250,7 +250,7 @@ public class ChangeParentActionMediumTest {
 
     // Remove parent
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", "")
       .execute();
     session.clearCache();
@@ -270,13 +270,13 @@ public class ChangeParentActionMediumTest {
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKee())
       .setParam("parentName", "polop")
       .setParam("parentKey", "palap")
       .execute();
   }
 
-  @Test(expected = RowNotFoundException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void fail_if_profile_key_and_name_both_set() throws Exception {
     QualityProfileDto child = createProfile("xoo", "Child");
     session.commit();
@@ -285,8 +285,8 @@ public class ChangeParentActionMediumTest {
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, child.getKee())
+      .setParam(QProfileRef.PARAM_PROFILE_NAME, child.getName())
       .setParam("parentKey", "palap")
       .execute();
   }
@@ -295,7 +295,7 @@ public class ChangeParentActionMediumTest {
   public void fail_if_missing_permission() throws Exception {
     userSessionRule.login("anakin");
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, "polop")
+      .setParam(QProfileRef.PARAM_PROFILE_KEY, "polop")
       .setParam("parentKey", "pulup")
       .execute();
   }

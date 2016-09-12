@@ -21,32 +21,26 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonarqube.ws.MediaTypes;
 
 public class BackupAction implements QProfileWsAction {
 
   private final QProfileBackuper backuper;
-
-  private final DbClient dbClient;
-
-  private QProfileFactory profileFactory;
-
+  private final QProfileFactory profileFactory;
   private final Languages languages;
 
-  public BackupAction(QProfileBackuper backuper, DbClient dbClient, QProfileFactory profileFactory, Languages languages) {
+  public BackupAction(QProfileBackuper backuper, QProfileFactory profileFactory, Languages languages) {
     this.backuper = backuper;
-    this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.languages = languages;
   }
@@ -59,23 +53,17 @@ public class BackupAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("backup-example.xml"))
       .setHandler(this);
 
-    QProfileIdentificationParamUtils.defineProfileParams(backup, languages);
+    QProfileRef.defineParams(backup, languages);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
     stream.setMediaType(MediaTypes.XML);
-    DbSession dbSession = dbClient.openSession(false);
-    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
-    try {
-      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, dbSession);
-      response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profileKey));
-      backuper.backup(profileKey, writer);
-    } finally {
-      dbSession.close();
-      IOUtils.closeQuietly(writer);
+    try (OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8)) {
+      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
+      response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profile.getKee()));
+      backuper.backup(profile.getKee(), writer);
     }
   }
-
 }

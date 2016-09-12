@@ -32,11 +32,11 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.FacetValue;
 
@@ -45,13 +45,9 @@ import static org.sonar.server.qualityprofile.index.ActiveRuleIndex.COUNT_ACTIVE
 public class InheritanceAction implements QProfileWsAction {
 
   private final DbClient dbClient;
-
   private final QProfileLookup profileLookup;
-
   private final QProfileLoader profileLoader;
-
   private final QProfileFactory profileFactory;
-
   private final Languages languages;
 
   public InheritanceAction(DbClient dbClient, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, Languages languages) {
@@ -70,26 +66,21 @@ public class InheritanceAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-inheritance.json"));
 
-    QProfileIdentificationParamUtils.defineProfileParams(inheritance, languages);
+    QProfileRef.defineParams(inheritance, languages);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
-      QualityProfileDto profile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
-      if (profile == null) {
-        throw new NotFoundException(String.format("Could not find a quality profile with key %s", profileKey));
-      }
-
-      List<QProfile> ancestors = profileLookup.ancestors(profile, session);
-      List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(session, profileKey);
+      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request), dbSession);
+      List<QProfile> ancestors = profileLookup.ancestors(profile, dbSession);
+      List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
       Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();
 
       writeResponse(response.newJsonWriter(), profile, ancestors, children, profileStats);
     } finally {
-      session.close();
+      dbSession.close();
     }
   }
 

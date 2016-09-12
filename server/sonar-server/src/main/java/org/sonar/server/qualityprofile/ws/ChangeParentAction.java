@@ -19,16 +19,15 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
@@ -37,20 +36,14 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 public class ChangeParentAction implements QProfileWsAction {
 
   private static final String PARAM_PARENT_KEY = "parentKey";
-
   private static final String PARAM_PARENT_NAME = "parentName";
 
-  private final DbClient dbClient;
-
   private final RuleActivator ruleActivator;
-
   private final QProfileFactory profileFactory;
-
   private final Languages languages;
   private final UserSession userSession;
 
-  public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory, Languages languages, UserSession userSession) {
-    this.dbClient = dbClient;
+  public ChangeParentAction(RuleActivator ruleActivator, QProfileFactory profileFactory, Languages languages, UserSession userSession) {
     this.ruleActivator = ruleActivator;
     this.profileFactory = profileFactory;
     this.languages = languages;
@@ -65,7 +58,7 @@ public class ChangeParentAction implements QProfileWsAction {
       .setDescription("Change a quality profile's parent.")
       .setHandler(this);
 
-    QProfileIdentificationParamUtils.defineProfileParams(inheritance, languages);
+    QProfileRef.defineParams(inheritance, languages);
 
     inheritance.createParam(PARAM_PARENT_KEY)
       .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. " +
@@ -82,36 +75,15 @@ public class ChangeParentAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
-      String parentKey = getParentKeyFromParameters(request, profileFactory, session);
-
-      ruleActivator.setParent(profileKey, parentKey);
-
-      response.noContent();
-    } finally {
-      session.close();
-    }
-  }
-
-  private static String getParentKeyFromParameters(Request request, QProfileFactory profileFactory, DbSession session) {
-    String language = request.param(QProfileIdentificationParamUtils.PARAM_LANGUAGE);
-    String parentName = request.param(PARAM_PARENT_NAME);
+    QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
     String parentKey = request.param(PARAM_PARENT_KEY);
-
-    Preconditions.checkArgument(
-      isEmpty(parentName) || isEmpty(parentKey), "parentKey and parentName cannot be used simultaneously");
-
-    if (isEmpty(parentKey)) {
-      if (!isEmpty(parentName)) {
-        parentKey = QProfileIdentificationParamUtils.getProfileKeyFromLanguageAndName(language, parentName, profileFactory, session);
-      } else {
-        // Empty parent key is treated as "no more parent"
-        parentKey = null;
-      }
+    String parentName = request.param(PARAM_PARENT_NAME);
+    if (isEmpty(parentKey) && isEmpty(parentName)) {
+      ruleActivator.setParent(profile.getKey(), null);
+    } else {
+      QualityProfileDto parent = profileFactory.find(QProfileRef.from(parentKey, request.param(QProfileRef.PARAM_LANGUAGE), parentName));
+      ruleActivator.setParent(profile.getKey(), parent.getKey());
     }
-
-    return parentKey;
+    response.noContent();
   }
 }

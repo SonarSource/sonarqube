@@ -210,7 +210,6 @@ import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
 import org.sonar.server.qualityprofile.ws.ProjectsAction;
-import org.sonar.server.qualityprofile.ws.QProfileFinder;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.qualityprofile.ws.RenameAction;
 import org.sonar.server.qualityprofile.ws.RestoreAction;
@@ -372,7 +371,6 @@ public class PlatformLevel4 extends PlatformLevel {
       InheritanceAction.class,
       ChangeParentAction.class,
       ChangelogAction.class,
-      QProfileFinder.class,
       ChangelogLoader.class,
       CompareAction.class,
       ExportAction.class,
