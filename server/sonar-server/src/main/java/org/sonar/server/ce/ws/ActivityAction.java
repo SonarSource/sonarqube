@@ -211,8 +211,8 @@ public class ActivityAction implements CeWsAction {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(request.getOnlyCurrents());
-    query.setMinSubmittedAt(parseDateTimeAsLong(request.getMinSubmittedAt()));
-    query.setMaxExecutedAt(parseDateTimeAsLong(request.getMaxExecutedAt()));
+    query.setMinSubmittedAt(parseFromDate(request.getMinSubmittedAt()));
+    query.setMaxExecutedAt(parseToDate(request.getMaxExecutedAt()));
 
     List<String> statuses = request.getStatus();
     if (statuses != null && !statuses.isEmpty()) {
@@ -265,7 +265,7 @@ public class ActivityAction implements CeWsAction {
   }
 
   @CheckForNull
-  private static Long parseDateTimeAsLong(@Nullable String dateAsString) {
+  private static Long parseToDate(@Nullable String dateAsString) {
     if (dateAsString == null) {
       return null;
     }
@@ -275,6 +275,21 @@ public class ActivityAction implements CeWsAction {
       date = parseDateQuietly(dateAsString);
       checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
       date = DateUtils.addDays(date, 1);
+    }
+
+    return date.getTime();
+  }
+
+  @CheckForNull
+  private static Long parseFromDate(@Nullable String dateAsString) {
+    if (dateAsString == null) {
+      return null;
+    }
+
+    Date date = parseDateTimeQuietly(dateAsString);
+    if (date == null) {
+      date = parseDateQuietly(dateAsString);
+      checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
     }
 
     return date.getTime();

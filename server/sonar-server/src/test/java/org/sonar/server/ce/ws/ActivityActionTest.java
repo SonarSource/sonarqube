@@ -48,7 +48,6 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
-import org.sonarqube.ws.client.ce.CeWsParameters;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +59,8 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
@@ -87,7 +88,7 @@ public class ActivityActionTest {
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
     ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
+      .setParam(PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     // chronological order, from newest to oldest
@@ -127,19 +128,20 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "2016-02-15"));
+      .setParam(PARAM_MAX_EXECUTED_AT, "2016-02-15"));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(0);
   }
 
   @Test
-  public void filter_by_max_executed_at_include_day_filled() {
+  public void filter_by_min_submitted_and_max_executed_at_include_day() {
     globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
     ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, today));
+      .setParam(PARAM_MIN_SUBMITTED_AT, today)
+      .setParam(PARAM_MAX_EXECUTED_AT, today));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
   }
@@ -314,7 +316,7 @@ public class ActivityActionTest {
     expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
 
     ws.newRequest()
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "ill-formatted-date")
+      .setParam(PARAM_MAX_EXECUTED_AT, "ill-formatted-date")
       .execute();
   }
 
@@ -348,6 +350,7 @@ public class ActivityActionTest {
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(componentUuid);
     queueDto.setUuid(taskUuid);
+    queueDto.setCreatedAt(EXECUTED_AT);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
