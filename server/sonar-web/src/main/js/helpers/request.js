@@ -98,7 +98,11 @@ export function request (url) {
  * @returns {*}
  */
 export function checkStatus (response) {
-  if (response.status >= 200 && response.status < 300) {
+  if (response.status === 401) {
+    window.location = window.baseUrl + '/sessions/new?return_to=' +
+        encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    return {};
+  } else if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
     const error = new Error(response.status);

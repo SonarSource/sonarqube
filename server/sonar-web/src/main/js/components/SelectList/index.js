@@ -131,7 +131,6 @@ const SelectListItemView = Backbone.View.extend({
       statusCode: {
         // do not show global error
         400: null,
-        401: null,
         403: null,
         500: null
       }
