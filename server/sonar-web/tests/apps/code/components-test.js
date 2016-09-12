@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { shallow } from 'enzyme';
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 
 import Breadcrumb from '../../../src/main/js/apps/code/components/Breadcrumb';
 import Breadcrumbs from '../../../src/main/js/apps/code/components/Breadcrumbs';
@@ -104,10 +103,12 @@ describe('Code :: Components', () => {
           <ComponentMeasure
               component={exampleComponent}
               metricKey="ncloc"
-              metricType="SHORT_INT"/>);
+              metricType="SHORT_INT"/>
+      ).find('Measure');
 
-      expect(output.text())
-          .to.equal('9.8k');
+      expect(output.length).to.equal(1);
+      expect(output.prop('measure')).to.deep.equal({ metric: 'ncloc', value: 9757 });
+      expect(output.prop('metric')).to.deep.equal({ key: 'ncloc', type: 'SHORT_INT' });
     });
 
     it('should not render measure', () => {

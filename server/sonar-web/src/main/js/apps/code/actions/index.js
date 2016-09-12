@@ -24,6 +24,15 @@ import { getChildren, getComponent, getTree, getBreadcrumbs } from '../../../api
 import { translate } from '../../../helpers/l10n';
 import { getComponentUrl } from '../../../helpers/urls';
 
+const VIEW_METRICS = [
+  'releasability_rating',
+  'alert_status',
+  'reliability_rating',
+  'security_rating',
+  'sqale_rating',
+  'ncloc'
+];
+
 const METRICS = [
   'ncloc',
   'code_smells',
@@ -120,16 +129,18 @@ function getPath (componentKey) {
   return '/' + encodeURIComponent(componentKey);
 }
 
-function expandRootDir ({ children, total, ...other }) {
-  const rootDir = children.find(component => component.qualifier === 'DIR' && component.name === '/');
-  if (rootDir) {
-    return getChildren(rootDir.key, METRICS_WITH_COVERAGE).then(r => {
-      const nextChildren = _.without([...children, ...r.components], rootDir);
-      const nextTotal = total + r.components.length - /* root dir */ 1;
-      return { children: nextChildren, total: nextTotal, ...other };
-    });
-  } else {
-    return { children, total, ...other };
+function expandRootDir (metrics) {
+  return function ({ children, total, ...other }) {
+    const rootDir = children.find(component => component.qualifier === 'DIR' && component.name === '/');
+    if (rootDir) {
+      return getChildren(rootDir.key, metrics).then(r => {
+        const nextChildren = _.without([...children, ...r.components], rootDir);
+        const nextTotal = total + r.components.length - /* root dir */ 1;
+        return { children: nextChildren, total: nextTotal, ...other };
+      });
+    } else {
+      return { children, total, ...other };
+    }
   }
 }
 
@@ -143,16 +154,16 @@ function skipRootDir (breadcrumbs) {
   });
 }
 
-function retrieveComponentBase (componentKey, candidate) {
+function retrieveComponentBase (componentKey, candidate, metrics) {
   return candidate ?
       Promise.resolve(candidate) :
-      getComponent(componentKey, METRICS_WITH_COVERAGE);
+      getComponent(componentKey, metrics);
 }
 
-function retrieveComponentChildren (componentKey, candidate) {
+function retrieveComponentChildren (componentKey, candidate, metrics) {
   return candidate && candidate.children ?
       Promise.resolve({ children: candidate.children, total: candidate.total }) :
-      getChildren(componentKey, METRICS_WITH_COVERAGE, { ps: PAGE_SIZE }).then(prepareChildren).then(expandRootDir);
+      getChildren(componentKey, metrics, { ps: PAGE_SIZE }).then(prepareChildren).then(expandRootDir(metrics));
 }
 
 function retrieveComponentBreadcrumbs (componentKey, candidate) {
@@ -161,11 +172,12 @@ function retrieveComponentBreadcrumbs (componentKey, candidate) {
       getBreadcrumbs({ key: componentKey }).then(skipRootDir);
 }
 
-function retrieveComponent (componentKey, bucket) {
+function retrieveComponent (componentKey, bucket, isView) {
   const candidate = _.findWhere(bucket, { key: componentKey });
+  const metrics = isView ? VIEW_METRICS : METRICS_WITH_COVERAGE;
   return Promise.all([
-    retrieveComponentBase(componentKey, candidate),
-    retrieveComponentChildren(componentKey, candidate),
+    retrieveComponentBase(componentKey, candidate, metrics),
+    retrieveComponentChildren(componentKey, candidate, metrics),
     retrieveComponentBreadcrumbs(componentKey, candidate)
   ]);
 }
@@ -193,10 +205,13 @@ async function getErrorMessage (response) {
   }
 }
 
-export function initComponent (componentKey, breadcrumbs) {
+export function initComponent (component, breadcrumbs) {
   return dispatch => {
+    const componentKey = component.key;
+    const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
+    const metrics = isView ? VIEW_METRICS : METRICS_WITH_COVERAGE;
     dispatch(startFetching());
-    return getComponent(componentKey, METRICS_WITH_COVERAGE)
+    return getComponent(componentKey, metrics)
         .then(component => dispatch(initComponentAction(component, breadcrumbs)))
         .then(() => dispatch(replacePath(getPath(componentKey))))
         .then(() => dispatch(stopFetching()));
@@ -205,9 +220,9 @@ export function initComponent (componentKey, breadcrumbs) {
 
 export function browse (componentKey) {
   return (dispatch, getState) => {
-    const { bucket } = getState();
+    const { bucket, current } = getState();
     dispatch(startFetching());
-    return retrieveComponent(componentKey, bucket)
+    return retrieveComponent(componentKey, bucket, current.isView)
         .then(([component, children, breadcrumbs]) => {
           if (component.refKey) {
             window.location = getComponentUrl(component.refKey);
