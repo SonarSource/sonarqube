@@ -25,9 +25,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.component.ws.LanguageParamUtils;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.util.LanguageParamUtils;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 

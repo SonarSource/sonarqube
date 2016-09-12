@@ -19,17 +19,23 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.QProfileService;
 
+import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
+import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
+
 public class RestoreBuiltInAction implements QProfileWsAction {
 
   private final QProfileService service;
+  private final Languages languages;
 
-  public RestoreBuiltInAction(QProfileService service) {
+  public RestoreBuiltInAction(QProfileService service, Languages languages) {
     this.service = service;
+    this.languages = languages;
   }
 
   @Override
@@ -42,7 +48,8 @@ public class RestoreBuiltInAction implements QProfileWsAction {
       .setHandler(this);
     restoreDefault.createParam("language")
       .setDescription("Restore the built-in profiles defined for this language")
-      .setExampleValue("java")
+      .setExampleValue(getExampleValue(languages))
+      .setPossibleValues(getLanguageKeys(languages))
       .setRequired(true);
   }
 

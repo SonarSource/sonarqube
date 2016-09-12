@@ -20,20 +20,20 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.ws.LanguageParamUtils;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.LanguageParamUtils;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;

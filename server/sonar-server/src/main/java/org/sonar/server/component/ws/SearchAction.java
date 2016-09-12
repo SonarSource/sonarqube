@@ -19,13 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
-
 import com.google.common.base.Function;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -43,9 +36,17 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
+
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
   private final DbClient dbClient;

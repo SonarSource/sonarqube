@@ -33,13 +33,12 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.component.ws.LanguageParamUtils;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.MediaTypes;
+import org.sonar.server.util.LanguageParamUtils;
 
 public class CreateAction implements QProfileWsAction {
 

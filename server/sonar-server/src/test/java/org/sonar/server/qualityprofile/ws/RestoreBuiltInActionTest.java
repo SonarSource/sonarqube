@@ -19,40 +19,40 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.i18n.I18n;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Languages;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class RestoreBuiltInActionTest {
 
-  @Mock
-  QProfileService profileService;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  I18n i18n;
+  QProfileService profileService = mock(QProfileService.class);
+  Languages languages = LanguageTesting.newLanguages("xoo");
 
-  WsTester tester;
+  WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(profileService, languages));
 
-  @Before
-  public void setUp() {
-    tester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
-      new RestoreBuiltInAction(profileService)));
+  @Test
+  public void return_empty_result_when_no_info_or_warning() {
+    TestResponse response = tester.newRequest().setParam("language", "xoo").execute();
+
+    verify(profileService).restoreBuiltInProfilesForLanguage("xoo");
+    assertThat(response.getStatus()).isEqualTo(204);
   }
 
   @Test
-  public void return_empty_result_when_no_infos_or_warnings() throws Exception {
-    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_built_in").setParam("language", "java");
-    request.execute().assertNoContent();
+  public void fail_on_unknown_language() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    tester.newRequest().setParam("language", "unknown").execute();
   }
 }
