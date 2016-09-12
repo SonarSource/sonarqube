@@ -129,13 +129,28 @@ function getPath (componentKey) {
   return '/' + encodeURIComponent(componentKey);
 }
 
+function requestChildren (componentKey, metrics, page) {
+  return getChildren(componentKey, metrics, { p: page, ps: PAGE_SIZE }).then(r => {
+    if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
+      return requestChildren(componentKey, metrics, page + 1).then(moreComponents => {
+        return [...r.components, ...moreComponents];
+      })
+    }
+    return r.components;
+  });
+}
+
+function requestAllChildren (componentKey, metrics) {
+  return requestChildren(componentKey, metrics, 1);
+}
+
 function expandRootDir (metrics) {
   return function ({ children, total, ...other }) {
     const rootDir = children.find(component => component.qualifier === 'DIR' && component.name === '/');
     if (rootDir) {
-      return getChildren(rootDir.key, metrics).then(r => {
-        const nextChildren = _.without([...children, ...r.components], rootDir);
-        const nextTotal = total + r.components.length - /* root dir */ 1;
+      return requestAllChildren(rootDir.key, metrics).then(components => {
+        const nextChildren = _.without([...children, ...components], rootDir);
+        const nextTotal = total + components.length - /* root dir */ 1;
         return { children: nextChildren, total: nextTotal, ...other };
       });
     } else {
