@@ -71,7 +71,11 @@ export function requestMessages () {
   }
 
   const bundleTimestamp = localStorage.getItem('l10n.timestamp');
-  const params = { locale: currentLocale };
+  if (currentLocale)
+    const params = { locale: currentLocale };
+  else
+    const params = {}
+
   if (bundleTimestamp !== null) {
     params.ts = bundleTimestamp;
   }
