@@ -21,6 +21,7 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Protobuf;
@@ -28,6 +29,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -35,8 +39,12 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentActionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -44,12 +52,14 @@ public class ComponentActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter);
+  ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, new ComponentFinder(dbTester.getDbClient()));
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void empty_queue_and_empty_activity() {
+    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
     TestResponse wsResponse = tester.newRequest()
@@ -64,6 +74,7 @@ public class ComponentActionTest {
 
   @Test
   public void project_tasks() {
+    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -87,6 +98,7 @@ public class ComponentActionTest {
 
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
+    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -104,6 +116,17 @@ public class ComponentActionTest {
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T3");
+  }
+
+  @Test
+  public void fail_with_404_when_component_does_not_exist() throws Exception {
+    userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
+
+    expectedException.expect(NotFoundException.class);
+    tester.newRequest()
+      .setParam("componentId", "UNKNOWN")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {

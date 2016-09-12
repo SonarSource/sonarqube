@@ -30,6 +30,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskQuery;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
@@ -42,11 +44,13 @@ public class ComponentAction implements CeWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final TaskFormatter formatter;
+  private final ComponentFinder componentFinder;
 
-  public ComponentAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public ComponentAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -66,14 +70,13 @@ public class ComponentAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String componentUuid = wsRequest.mandatoryParam(PARAM_COMPONENT_UUID);
-    userSession.checkComponentUuidPermission(UserRole.USER, componentUuid);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
+      ComponentDto component = componentFinder.getByUuid(dbSession, wsRequest.mandatoryParam(PARAM_COMPONENT_UUID));
+      userSession.checkComponentUuidPermission(UserRole.USER, component.uuid());
+      List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
-        .setComponentUuid(componentUuid)
+        .setComponentUuid(component.uuid())
         .setOnlyCurrents(true);
       List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, 0, 1);
 
