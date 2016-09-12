@@ -27,12 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -44,7 +41,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -328,38 +324,6 @@ public class QProfileFactoryMediumTest {
     thrown.expectMessage("Quality profile not found: " + XOO_P1_KEY);
 
     factory.setDefault(XOO_P1_KEY);
-  }
-
-  @Test
-  public void get_profile_by_project_and_language() {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD")
-      .setId(1L)
-      .setKey("org.codehaus.sonar:sonar");
-    db.componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = QProfileTesting.newXooP1();
-    db.qualityProfileDao().insert(dbSession, profileDto);
-    dbSession.commit();
-    dbSession.clearCache();
-    assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo")).isNull();
-
-    tester.get(QProfileProjectOperations.class).addProject(profileDto.getKey(), project.uuid(),
-      new MockUserSession("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN), dbSession);
-    dbSession.commit();
-    dbSession.clearCache();
-    assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo").getKey()).isEqualTo(XOO_P1_KEY);
-  }
-
-  @Test
-  public void get_profile_by_name_and_language() {
-    QualityProfileDto profileDto = QProfileTesting.newQProfileDto(new QProfileName("xoo", "SonarQube way"), "abcd");
-    db.qualityProfileDao().insert(dbSession, profileDto);
-    dbSession.commit();
-    dbSession.clearCache();
-
-    assertThat(factory.getByNameAndLanguage("SonarQube way", "xoo").getKey()).isEqualTo("abcd");
-    assertThat(factory.getByNameAndLanguage("SonarQube way", "java")).isNull();
-    assertThat(factory.getByNameAndLanguage("Unfound", "xoo")).isNull();
   }
 
   private void initRules() {

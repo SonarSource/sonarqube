@@ -99,7 +99,8 @@ public class ChangelogLoader {
     }
 
     @VisibleForTesting
-    Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin, @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
+    Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin,
+           @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
       this.key = key;
       this.type = type;
       this.at = at;

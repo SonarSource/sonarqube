@@ -98,13 +98,13 @@ public class QProfileRef {
       return false;
     }
     QProfileRef that = (QProfileRef) o;
-    if (key != null ? !key.equals(that.key) : that.key != null) {
+    if (key != null ? !key.equals(that.key) : (that.key != null)) {
       return false;
     }
-    if (language != null ? !language.equals(that.language) : that.language != null) {
+    if (language != null ? !language.equals(that.language) : (that.language != null)) {
       return false;
     }
-    return name != null ? name.equals(that.name) : that.name == null;
+    return name != null ? name.equals(that.name) : (that.name == null);
 
   }
 

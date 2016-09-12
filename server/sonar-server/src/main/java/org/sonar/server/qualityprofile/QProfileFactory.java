@@ -215,15 +215,6 @@ public class QProfileFactory {
     return db.qualityProfileDao().selectByProjectAndLanguages(session, projectKey, languageKeys);
   }
 
-  QualityProfileDto getByNameAndLanguage(String name, String language) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      return getByNameAndLanguage(dbSession, name, language);
-    } finally {
-      dbSession.close();
-    }
-  }
-
   @CheckForNull
   public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
     return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
