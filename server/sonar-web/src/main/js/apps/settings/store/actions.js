@@ -26,6 +26,8 @@ import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../componen
 import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
 import { cancelChange } from './settingsPage/changedValues/actions';
 import { getDefinition, getChangedValue } from './rootReducer';
+import { isEmptyValue } from '../utils';
+import { translate } from '../../../helpers/l10n';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey)
@@ -48,6 +50,12 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
   const state = getState();
   const definition = getDefinition(state, key);
   const value = getChangedValue(state, key);
+
+  if (isEmptyValue(definition, value)) {
+    dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
+    dispatch(stopLoading(key));
+    return Promise.reject();
+  }
 
   return setSettingValue(definition, value, componentKey)
       .then(() => getValues(key, componentKey))

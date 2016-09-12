@@ -64,7 +64,9 @@ export default class InputForPassword extends React.Component {
                 autoFocus={true}
                 autoComplete={false}
                 onChange={e => this.handleInputChange(e)}/>
-            <button className="spacer-left">{translate('set')}</button>
+
+            <button className="spacer-left button-success">{translate('save')}</button>
+
             <a className="spacer-left" href="#" onClick={e => this.handleCancelChangeClick(e)}>
               {translate('cancel')}
             </a>

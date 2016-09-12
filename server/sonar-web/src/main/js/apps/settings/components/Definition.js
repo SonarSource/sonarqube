@@ -30,6 +30,7 @@ import { resetValue, saveValue } from '../store/actions';
 import { isLoading, getValidationMessage, getChangedValue } from '../store/rootReducer';
 import { failValidation, passValidation } from '../store/settingsPage/validationMessages/actions';
 import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
+import { TYPE_PASSWORD } from '../constants';
 
 class Definition extends React.Component {
   static propTypes = {
@@ -71,7 +72,10 @@ class Definition extends React.Component {
 
   handleChange (value) {
     clearTimeout(this.timeout);
-    return this.props.changeValue(this.props.setting.definition.key, value);
+    this.props.changeValue(this.props.setting.definition.key, value);
+    if (this.props.setting.definition.type === TYPE_PASSWORD) {
+      this.handleSave();
+    }
   }
 
   handleReset () {
@@ -90,12 +94,6 @@ class Definition extends React.Component {
 
   handleSave () {
     this.safeSetState({ success: false });
-    const { definition } = this.props.setting;
-    if (isEmptyValue(definition, this.props.changedValue)) {
-      this.props.failValidation(definition.key, translate('settings.state.value_cant_be_empty'));
-      return;
-    }
-
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.saveValue(this.props.setting.definition.key, componentKey).then(() => {
       this.safeSetState({ success: true });
