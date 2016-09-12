@@ -40,7 +40,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -74,7 +73,6 @@ public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
 
   private final PropertyDefinitions propertyDefinitions;
-  private final I18n i18n;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
@@ -82,10 +80,9 @@ public class SetAction implements SettingsWsAction {
   private final SettingsChangeNotifier settingsChangeNotifier;
   private final SettingValidations validations;
 
-  public SetAction(PropertyDefinitions propertyDefinitions, I18n i18n, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
+  public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
     SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
     this.propertyDefinitions = propertyDefinitions;
-    this.i18n = i18n;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;

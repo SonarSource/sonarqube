@@ -92,7 +92,7 @@ public class SetActionTest {
   SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
 
-  SetAction underTest = new SetAction(definitions, i18n, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
+  SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
   WsActionTester ws = new WsActionTester(underTest);
 
