@@ -37,10 +37,12 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
@@ -189,7 +191,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
     BaseHttpDownloader(SystemFacade system, Settings settings, @Nullable String userAgent) {
       initProxy(system, settings);
-      initUserAgent(userAgent);
+      initUserAgent(userAgent, settings);
     }
 
     private void initProxy(SystemFacade system, Settings settings) {
@@ -216,8 +218,9 @@ public class DefaultHttpDownloader extends HttpDownloader {
       }
     }
 
-    private void initUserAgent(@Nullable String sonarVersion) {
-      userAgent = sonarVersion == null ? "SonarQube" : String.format("SonarQube %s", sonarVersion);
+    private void initUserAgent(@Nullable String sonarVersion, Settings settings) {
+      String serverId = settings.getString(CoreProperties.SERVER_ID);
+      userAgent = sonarVersion == null ? "SonarQube" : String.format("SonarQube %s # %s", sonarVersion, Optional.ofNullable(serverId).orElse(""));
       System.setProperty("http.agent", userAgent);
     }
 

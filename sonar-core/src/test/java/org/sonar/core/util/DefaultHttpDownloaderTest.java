@@ -51,6 +51,7 @@ import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.Server;
@@ -214,7 +215,22 @@ public class DefaultHttpDownloaderTest {
   }
 
   @Test
-  public void userAgentIsSonarVersion() throws URISyntaxException, IOException {
+  public void userAgent_includes_version_and_SERVER_ID_when_server_is_provided() throws URISyntaxException, IOException {
+    Server server = mock(Server.class);
+    when(server.getVersion()).thenReturn("2.2");
+    MapSettings settings = new MapSettings();
+    settings.setProperty(CoreProperties.SERVER_ID, "blablabla");
+
+    InputStream stream = new DefaultHttpDownloader(server, settings).openStream(new URI(baseUrl));
+    Properties props = new Properties();
+    props.load(stream);
+    stream.close();
+
+    assertThat(props.getProperty("agent")).isEqualTo("SonarQube 2.2 # blablabla");
+  }
+
+  @Test
+  public void userAgent_includes_only_version_when_there_is_no_SERVER_ID_and_server_is_provided() throws URISyntaxException, IOException {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
@@ -223,7 +239,17 @@ public class DefaultHttpDownloaderTest {
     props.load(stream);
     stream.close();
 
-    assertThat(props.getProperty("agent")).isEqualTo("SonarQube 2.2");
+    assertThat(props.getProperty("agent")).isEqualTo("SonarQube 2.2 #");
+  }
+
+  @Test
+  public void userAgent_is_static_value_when_server_is_not_provided() throws URISyntaxException, IOException {
+    InputStream stream = new DefaultHttpDownloader(new MapSettings()).openStream(new URI(baseUrl));
+    Properties props = new Properties();
+    props.load(stream);
+    stream.close();
+
+    assertThat(props.getProperty("agent")).isEqualTo("SonarQube");
   }
 
   @Test
