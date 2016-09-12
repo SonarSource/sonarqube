@@ -127,7 +127,6 @@ public abstract class Settings {
    */
   public abstract Map<String, String> getProperties();
 
-  // FIXME scope to be replaced by "protected" as soon as not used by JRubyFacade
   public Encryption getEncryption() {
     return encryption;
   }
