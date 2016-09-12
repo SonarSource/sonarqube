@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.Date;
@@ -28,7 +27,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
-import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
@@ -59,7 +57,6 @@ import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.rule.RuleRepositories;
@@ -124,8 +121,6 @@ public final class JRubyFacade {
   public Collection<String> getResourceChildrenQualifiers(String qualifier) {
     return get(ResourceTypes.class).getChildrenQualifiers(qualifier);
   }
-
-  // UPDATE CENTER ------------------------------------------------------------
 
   // PLUGINS ------------------------------------------------------------------
   public PropertyDefinitions getPropertyDefinitions() {
@@ -217,14 +212,6 @@ public final class JRubyFacade {
     return get(Settings.class).getString(key);
   }
 
-  public List<InetAddress> getValidInetAddressesForServerId() {
-    return get(ServerIdGenerator.class).getAvailableAddresses();
-  }
-
-  public String generateServerId(String organisation, String ipAddress) {
-    return get(ServerIdGenerator.class).generate(organisation, ipAddress);
-  }
-
   public Connection getConnection() {
     try {
       return get(Database.class).getDataSource().getConnection();
@@ -279,22 +266,6 @@ public final class JRubyFacade {
 
   public void logError(String message) {
     Loggers.get(getClass()).error(message);
-  }
-
-  public boolean hasSecretKey() {
-    return get(Settings.class).getEncryption().hasSecretKey();
-  }
-
-  public String encrypt(String clearText) {
-    return get(Settings.class).getEncryption().encrypt(clearText);
-  }
-
-  public String generateRandomSecretKey() {
-    return get(Settings.class).getEncryption().generateRandomSecretKey();
-  }
-
-  public License parseLicense(String base64) {
-    return License.readBase64(base64);
   }
 
   public String getServerHome() {
