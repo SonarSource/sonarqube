@@ -21,7 +21,7 @@
    new_security_remediation_effort = @snapshot.measure('new_security_remediation_effort')
 
    if @dashboard_configuration.selected_period?
-     period_date = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
+     period_date = (@snapshot.period_datetime(@dashboard_configuration.period_index) + 1).strftime('%FT%T%z')
    end
 
    tooltip = message('widget.as_calculated_on_x', :params => l(@snapshot.created_at))
