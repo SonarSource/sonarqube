@@ -38,6 +38,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.Verifications;
 
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 /**
  * Create, delete, rename and set as default profile.
@@ -169,6 +170,31 @@ public class QProfileFactory {
       db.qualityProfileDao().update(session, previousDefault.setDefault(false));
     }
     db.qualityProfileDao().update(session, profile.setDefault(true));
+  }
+
+  public QualityProfileDto find(QProfileRef ref) {
+    try (DbSession dbSession = db.openSession(false)) {
+      return find(ref, dbSession);
+    }
+  }
+
+  public QualityProfileDto find(QProfileRef ref, DbSession dbSession) {
+    if (ref.hasKey()) {
+      return findByKey(dbSession, ref.getKey());
+    }
+    return findByName(dbSession, ref.getLanguage(), ref.getName());
+  }
+
+  private QualityProfileDto findByKey(DbSession dbSession, String profileKey) {
+    QualityProfileDto profile;
+    profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    return checkFound(profile, "Unable to find a profile for with key '%s'", profileKey);
+  }
+
+  private QualityProfileDto findByName(DbSession dbSession, String language, String profileName) {
+    QualityProfileDto profile;
+    profile = db.qualityProfileDao().selectByNameAndLanguage(profileName, language, dbSession);
+    return checkFound(profile, "Unable to find a profile for language '%s' with name '%s'", language, profileName);
   }
 
   QualityProfileDto getByProjectAndLanguage(String projectKey, String language) {

@@ -21,20 +21,16 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.PrintWriter;
 import java.io.Writer;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbTester;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -43,33 +39,24 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BackupActionTest {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  private static final String SOME_PROFILE_KEY = "polop-palap-xoo-12345";
 
-  // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
-  @Mock
-  private QProfileBackuper backuper;
-
-  private WsTester tester;
-
-  @Before
-  public void setUp() {
-    DbClient dbClient = new DbClient(db.database(), db.myBatis());
-
-    tester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
-      new BackupAction(backuper, dbClient, new QProfileFactory(dbClient), LanguageTesting.newLanguages("xoo"))));
-  }
+  private QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private QProfileFactory profileFactory = mock(QProfileFactory.class);
+  private WsTester tester = new WsTester(new QProfilesWs(
+    mock(RuleActivationActions.class),
+    mock(BulkRuleActivationActions.class),
+    mock(ProjectAssociationActions.class),
+    new BackupAction(backuper, profileFactory, LanguageTesting.newLanguages("xoo"))));
 
   @Test
   public void backup_profile() throws Exception {
-    String profileKey = "polop-palap-xoo-12345";
+    when(profileFactory.find(QProfileRef.fromKey(SOME_PROFILE_KEY))).thenReturn(QualityProfileTesting.newQualityProfileDto().setKey(SOME_PROFILE_KEY));
 
     final String response = "<polop><palap/></polop>";
     doAnswer(new Answer<Void>() {
@@ -80,11 +67,11 @@ public class BackupActionTest {
         w.close();
         return null;
       }
-    }).when(backuper).backup(eq(profileKey), any(Writer.class));
+    }).when(backuper).backup(eq(SOME_PROFILE_KEY), any(Writer.class));
 
-    Result result = tester.newGetRequest("api/qualityprofiles", "backup").setParam("profileKey", profileKey).execute();
+    Result result = tester.newGetRequest("api/qualityprofiles", "backup").setParam(QProfileRef.PARAM_PROFILE_KEY, SOME_PROFILE_KEY).execute();
     assertThat(result.outputAsString()).isEqualTo(response);
-    result.assertHeader("Content-Disposition", "attachment; filename=polop-palap-xoo-12345.xml");
+    result.assertHeader("Content-Disposition", "attachment; filename=" + SOME_PROFILE_KEY + ".xml");
   }
 
   @Test(expected = IllegalArgumentException.class)

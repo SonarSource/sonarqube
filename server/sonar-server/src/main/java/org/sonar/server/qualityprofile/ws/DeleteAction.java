@@ -27,7 +27,9 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.user.UserSession;
 
 public class DeleteAction implements QProfileWsAction {
@@ -53,7 +55,7 @@ public class DeleteAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    QProfileIdentificationParamUtils.defineProfileParams(action, languages);
+    QProfileRef.defineParams(action, languages);
   }
 
   @Override
@@ -61,14 +63,10 @@ public class DeleteAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
-      profileFactory.delete(session, profileKey, false);
-
-      session.commit();
-    } finally {
-      session.close();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request), dbSession);
+      profileFactory.delete(dbSession, profile.getKey(), false);
+      dbSession.commit();
     }
 
     response.noContent();

@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.Date;
 import java.util.Map;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -30,6 +31,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileRef;
 
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
@@ -39,11 +42,13 @@ public class ChangelogAction implements QProfileWsAction {
   private static final String PARAM_TO = "to";
 
   private final ChangelogLoader changelogLoader;
-  private final QProfileFinder profileFinder;
+  private final QProfileFactory profileFactory;
+  private final Languages languages;
 
-  public ChangelogAction(ChangelogLoader changelogLoader, QProfileFinder profileFinder) {
+  public ChangelogAction(ChangelogLoader changelogLoader, QProfileFactory profileFactory, Languages languages) {
     this.changelogLoader = changelogLoader;
-    this.profileFinder = profileFinder;
+    this.profileFactory = profileFactory;
+    this.languages = languages;
   }
 
   @Override
@@ -55,7 +60,7 @@ public class ChangelogAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-changelog.json"));
 
-    profileFinder.defineProfileParams(wsAction);
+    QProfileRef.defineParams(wsAction, languages);
 
     wsAction.addPagingParams(50, MAX_LIMIT);
 
@@ -70,7 +75,7 @@ public class ChangelogAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    QualityProfileDto profile = profileFinder.find(request);
+    QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
 
     QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
     Date since = request.paramAsDateTime(PARAM_SINCE);

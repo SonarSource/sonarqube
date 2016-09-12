@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileExporters;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -67,10 +68,10 @@ public class QProfilesWsTest {
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, userSessionRule),
       new ProjectsAction(null, userSessionRule),
-      new BackupAction(null, null, null, languages),
+      new BackupAction(null, null, languages),
       new RestoreAction(null, languages, userSessionRule),
-      new ChangelogAction(null, mock(QProfileFinder.class)),
-      new ChangeParentAction(null, null, null, languages, userSessionRule),
+      new ChangelogAction(null, mock(QProfileFactory.class), languages),
+      new ChangeParentAction(null, null, languages, userSessionRule),
       new CompareAction(null, null, null, languages),
       new CopyAction(null, languages, userSessionRule),
       new DeleteAction(languages, null, null, userSessionRule),
