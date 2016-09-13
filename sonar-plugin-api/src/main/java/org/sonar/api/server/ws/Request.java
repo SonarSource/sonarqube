@@ -32,6 +32,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.DateUtils.parseDateQuietly;
+import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
 
 /**
  * @since 4.2
@@ -224,19 +226,20 @@ public abstract class Request {
 
   @CheckForNull
   public Date paramAsDateTime(String key) {
-    String s = param(key);
-    if (s != null) {
-      try {
-        return DateUtils.parseDateTime(s);
-      } catch (SonarException notDateTime) {
-        try {
-          return DateUtils.parseDate(s);
-        } catch (SonarException notDateEither) {
-          throw new IllegalArgumentException(String.format("'%s' cannot be parsed as either a date or date+time", s));
-        }
-      }
+    String stringDate = param(key);
+    if (stringDate == null) {
+      return null;
     }
-    return null;
+
+    Date date = parseDateTimeQuietly(stringDate);
+    if (date != null) {
+      return date;
+    }
+
+    date = parseDateQuietly(stringDate);
+    checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
+
+    return date;
   }
 
   @CheckForNull

@@ -21,7 +21,11 @@ package org.sonar.api.server.ws;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -39,7 +44,10 @@ import org.sonar.api.utils.DateUtils;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 
+@RunWith(DataProviderRunner.class)
 public class RequestTest {
 
   @Rule
@@ -214,18 +222,27 @@ public class RequestTest {
     assertThat(underTest.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
   }
 
+  @DataProvider
+  public static Object[][] date_times() {
+    return new Object[][] {
+      {"2014-05-27", parseDate("2014-05-27")},
+      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
+      {null, null}
+    };
+  }
+
+  @Test
+  @UseDataProvider("date_times")
+  public void param_as__date_time(String stringDate, Date expectedDate) {
+    assertThat(underTest.setParam("a_date", stringDate).paramAsDateTime("a_date")).isEqualTo(expectedDate);
+  }
+
   @Test
   public void fail_when_param_as_date_not_a_date() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
 
     underTest.setParam("a_date", "polop").paramAsDate("a_date");
-  }
-
-  @Test
-  public void param_as_datetime() {
-    assertThat(underTest.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
-    assertThat(underTest.setParam("a_datetime", "2014-05-27").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDate("2014-05-27"));
   }
 
   @Test

@@ -32,6 +32,8 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * Parses and formats <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> dates.
  * This class is thread-safe.
@@ -140,6 +142,61 @@ public final class DateUtils {
 
     }
     return datetime;
+  }
+
+  /**
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @return the datetime, {@code null} if stringDate is null
+   * @since 6.1
+   */
+  @CheckForNull
+  public static Date parseDateOrDateTime(@Nullable String stringDate) {
+    if (stringDate == null) {
+      return null;
+    }
+
+    Date date = parseDateTimeQuietly(stringDate);
+    if (date != null) {
+      return date;
+    }
+
+    date = parseDateQuietly(stringDate);
+    checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
+
+    return date;
+  }
+
+  /**
+   * @see #parseDateOrDateTime(String) 
+   */
+  @CheckForNull
+  public static Date parseStartingDateOrDateTime(@Nullable String stringDate) {
+    return parseDateOrDateTime(stringDate);
+  }
+
+  /**
+   * Return the datetime if @param stringDate is a datetime, date + 1 day if stringDate is a date.
+   * So '2016-09-01' would return a date equivalent to '2016-09-02T00:00:00+0000' in GMT
+   * @see #parseDateOrDateTime(String)
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @return the datetime, {@code null} if stringDate is null
+   * @since 6.1
+   */
+  @CheckForNull
+  public static Date parseEndingDateOrDateTime(@Nullable String stringDate) {
+    if (stringDate == null) {
+      return null;
+    }
+
+    Date date = parseDateTimeQuietly(stringDate);
+    if (date != null) {
+      return date;
+    }
+
+    date = parseDateQuietly(stringDate);
+    checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
+
+    return addDays(date, 1);
   }
 
   /**
