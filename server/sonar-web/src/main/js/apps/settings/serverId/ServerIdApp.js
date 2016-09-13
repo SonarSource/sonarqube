@@ -86,7 +86,7 @@ export default class ServerIdApp extends React.Component {
                 Server ID:
                 <input
                     id="server-id-result"
-                    className="spacer-left input-large"
+                    className="spacer-left input-large input-clear input-code"
                     type="text"
                     readOnly={true}
                     value={this.state.serverId}/>

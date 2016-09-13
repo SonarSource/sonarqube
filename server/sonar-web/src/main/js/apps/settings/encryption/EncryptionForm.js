@@ -62,7 +62,7 @@ export default class EncryptionForm extends React.Component {
                 Encrypted Value:{' '}
                 <input
                     id="encrypted-value"
-                    className="input-super-large"
+                    className="input-clear input-code input-super-large"
                     type="text"
                     readOnly={true}
                     value={this.props.encryptedValue}/>
