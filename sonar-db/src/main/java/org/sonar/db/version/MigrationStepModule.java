@@ -148,6 +148,7 @@ import org.sonar.db.version.v61.AddBUuidPathToProjects;
 import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
 import org.sonar.db.version.v61.CopyActivitiesToQprofileChanges;
 import org.sonar.db.version.v61.CreateTableCeTaskInput;
+import org.sonar.db.version.v61.CreateTableInternalProperties;
 import org.sonar.db.version.v61.CreateTableScannerContext;
 import org.sonar.db.version.v61.DeleteProjectDashboards;
 import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
@@ -326,6 +327,7 @@ public class MigrationStepModule extends Module {
       AddBUuidPathToProjects.class,
       AddErrorColumnsToCeActivity.class,
       CreateTableScannerContext.class,
+      CreateTableInternalProperties.class,
       PopulateTableProperties2.class,
       RemoveViewsDefinitionFromProperties.class,
       CopyActivitiesToQprofileChanges.class);

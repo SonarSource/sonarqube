@@ -24,14 +24,7 @@
 class CreateInternalPropertiesTable < ActiveRecord::Migration
 
   def self.up
-    create_table 'internal_properties', :id => false do |t|
-      t.column 'kee', :string, :limit => 20, :null => false
-      t.column 'is_empty', :boolean, :null => false
-      t.column 'text_value', :string, :limit => 4000, :null => true
-      t.column 'clob_value', :text, :null => true
-      t.column 'created_at', :big_integer, :null => false
-    end
-    add_primary_key 'internal_properties', 'kee'
+    execute_java_migration('org.sonar.db.version.v61.CreateTableInternalProperties')
   end
 
 end
