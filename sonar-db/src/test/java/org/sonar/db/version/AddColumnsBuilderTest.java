@@ -77,7 +77,7 @@ public class AddColumnsBuilderTest {
 
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
     return new AddColumnsBuilder(dialect, TABLE_NAME)
-      .addColumn(new BigDecimalColumnDef.Builder().setColumnName("date_in_ms").setIsNullable(true).build())
+      .addColumn(new BigIntegerColumnDef.Builder().setColumnName("date_in_ms").setIsNullable(true).build())
       .addColumn(new VarcharColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build());
   }
 }

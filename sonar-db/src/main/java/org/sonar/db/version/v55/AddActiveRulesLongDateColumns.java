@@ -24,7 +24,7 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 
 /**
  * Add the following columns to the active_rules table :
@@ -44,8 +44,8 @@ public class AddActiveRulesLongDateColumns extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(getDialect(), "active_rules")
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
       .build();
   }
 

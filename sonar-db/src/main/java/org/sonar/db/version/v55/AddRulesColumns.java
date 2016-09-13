@@ -25,7 +25,7 @@ import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 import org.sonar.db.version.TinyIntColumnDef;
 
-import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 
 /**
  * Add the following columns to the rules table :
@@ -46,8 +46,8 @@ public class AddRulesColumns extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(getDialect(), "rules")
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("rule_type").setIsNullable(true).build())
       .build();
   }

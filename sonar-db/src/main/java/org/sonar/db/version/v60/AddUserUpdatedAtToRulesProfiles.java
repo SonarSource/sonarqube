@@ -25,7 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 
 public class AddUserUpdatedAtToRulesProfiles extends DdlChange {
 
@@ -38,7 +38,7 @@ public class AddUserUpdatedAtToRulesProfiles extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_QUALITY_PROFILES)
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("user_updated_at").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("user_updated_at").setIsNullable(true).build())
       .build());
   }
 

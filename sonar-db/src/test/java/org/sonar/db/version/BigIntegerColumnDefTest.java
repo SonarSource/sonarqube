@@ -30,14 +30,14 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BigDecimalColumnDefTest {
+public class BigIntegerColumnDefTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void build_string_column_def() throws Exception {
-    BigDecimalColumnDef def = new BigDecimalColumnDef.Builder()
+    BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .setIsNullable(true)
       .build();
@@ -48,7 +48,7 @@ public class BigDecimalColumnDefTest {
 
   @Test
   public void build_string_column_def_with_default_values() throws Exception {
-    BigDecimalColumnDef def = new BigDecimalColumnDef.Builder()
+    BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .build();
 
@@ -58,7 +58,7 @@ public class BigDecimalColumnDefTest {
 
   @Test
   public void generate_sql_type() throws Exception {
-    BigDecimalColumnDef def = new BigDecimalColumnDef.Builder()
+    BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .setIsNullable(true)
       .build();
@@ -75,7 +75,7 @@ public class BigDecimalColumnDefTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
-    new BigDecimalColumnDef.Builder()
+    new BigIntegerColumnDef.Builder()
       .setColumnName(null);
   }
 
@@ -84,7 +84,7 @@ public class BigDecimalColumnDefTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
-    new BigDecimalColumnDef.Builder()
+    new BigIntegerColumnDef.Builder()
       .build();
   }
 

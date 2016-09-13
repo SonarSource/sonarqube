@@ -25,7 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 
 public class AddLastUsedColumnToRulesProfiles extends DdlChange {
 
@@ -38,7 +38,7 @@ public class AddLastUsedColumnToRulesProfiles extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_QUALITY_PROFILES)
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("last_used").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("last_used").setIsNullable(true).build())
       .build());
   }
 

@@ -25,13 +25,13 @@ import org.sonar.db.dialect.Oracle;
 
 import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
 
-public class BigDecimalColumnDef extends AbstractColumnDef {
+public class BigIntegerColumnDef extends AbstractColumnDef {
 
-  private BigDecimalColumnDef(Builder builder) {
+  private BigIntegerColumnDef(Builder builder) {
     super(builder.columnName, builder.isNullable);
   }
 
-  public static Builder newBigDecimalColumnDefBuilder() {
+  public static Builder newBigIntegerColumnDefBuilder() {
     return new Builder();
   }
 
@@ -56,9 +56,9 @@ public class BigDecimalColumnDef extends AbstractColumnDef {
       return this;
     }
 
-    public BigDecimalColumnDef build() {
+    public BigIntegerColumnDef build() {
       validateColumnName(columnName);
-      return new BigDecimalColumnDef(this);
+      return new BigIntegerColumnDef(this);
     }
   }
 

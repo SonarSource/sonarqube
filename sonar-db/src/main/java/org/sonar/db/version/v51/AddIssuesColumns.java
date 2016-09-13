@@ -24,7 +24,7 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 /**
@@ -49,9 +49,9 @@ public class AddIssuesColumns extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(getDialect(), "issues")
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_creation_date_ms").setIsNullable(true).build())
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_update_date_ms").setIsNullable(true).build())
-      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_close_date_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("issue_creation_date_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("issue_update_date_ms").setIsNullable(true).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("issue_close_date_ms").setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("tags").setLimit(4000).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("project_uuid").setLimit(50).setIsNullable(true).build())
