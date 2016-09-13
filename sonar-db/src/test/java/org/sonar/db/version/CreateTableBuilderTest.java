@@ -32,17 +32,24 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.db.version.BlobColumnDef.newBlobColumnDefBuilder;
 import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
 import static org.sonar.db.version.ClobColumnDef.newClobColumnDefBuilder;
+import static org.sonar.db.version.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
+import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
+import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableBuilderTest {
-  private static final H2 H2_DIALECT = new H2();
+  private static final H2 H2 = new H2();
   private static final Oracle ORACLE = new Oracle();
-  private static final Dialect[] ALL_DIALECTS = {H2_DIALECT, new MySql(), new MsSql(), new PostgreSql(), ORACLE};
+  private static final PostgreSql POSTGRESQL = new PostgreSql();
+  private static final MsSql MS_SQL = new MsSql();
+  private static final MySql MY_SQL = new MySql();
+  private static final Dialect[] ALL_DIALECTS = {H2, MY_SQL, MS_SQL, POSTGRESQL, ORACLE};
   private static final String TABLE_NAME = "table_42";
 
   @Rule
@@ -91,6 +98,138 @@ public class CreateTableBuilderTest {
   }
 
   @Test
+  public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_with_column_name_other_than_id() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Auto increment column name must be id");
+
+    underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("toto").build(), AUTO_INCREMENT);
+  }
+
+  @Test
+  public void addPkColumn_throws_ISE_when_adding_multiple_autoincrement_columns() {
+    underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("There can't be more than one auto increment column");
+
+    underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT);
+  }
+
+  @Test
+  public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_with_def_other_than_Integer_and_BigInteger() {
+    ColumnDef[] columnDefs = {
+      newBooleanColumnDefBuilder().setColumnName("id").build(),
+      newClobColumnDefBuilder().setColumnName("id").build(),
+      newDecimalColumnDefBuilder().setColumnName("id").build(),
+      new TinyIntColumnDef.Builder().setColumnName("id").build(),
+      newVarcharColumnDefBuilder().setColumnName("id").setLimit(40).build(),
+      newBlobColumnDefBuilder().setColumnName("id").build()
+    };
+    Arrays.stream(columnDefs)
+      .forEach(columnDef -> {
+        try {
+          underTest.addPkColumn(columnDef, AUTO_INCREMENT);
+          fail("A IllegalArgumentException should have been raised");
+        } catch (IllegalArgumentException e) {
+          assertThat(e).hasMessage("Auto increment column must either be BigInteger or Integer");
+        }
+      });
+  }
+
+  @Test
+  public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_and_column_is_nullable() {
+    ColumnDef[] columnDefs = {
+      newIntegerColumnDefBuilder().setColumnName("id").build(),
+      newBigIntegerColumnDefBuilder().setColumnName("id").build()
+    };
+    Arrays.stream(columnDefs)
+      .forEach(columnDef -> {
+        try {
+          underTest.addPkColumn(columnDef, AUTO_INCREMENT);
+          fail("A IllegalArgumentException should have been raised");
+        } catch (IllegalArgumentException e) {
+          assertThat(e).hasMessage("Auto increment column can't be nullable");
+        }
+      });
+  }
+
+  @Test
+  public void build_sets_type_SERIAL_for_autoincrement_integer_pk_column_on_Postgresql() {
+    List<String> stmts = new CreateTableBuilder(POSTGRESQL, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id SERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void build_sets_type_BIGSERIAL_for_autoincrement_biginteger_pk_column_on_Postgresql() {
+    List<String> stmts = new CreateTableBuilder(POSTGRESQL, TABLE_NAME)
+      .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id BIGSERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void build_generates_a_create_trigger_statement_when_an_autoincrement_pk_column_is_specified_and_on_Oracle() {
+    List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(3);
+    assertThat(stmts.get(0))
+      .isEqualTo("CREATE TABLE table_42 (id INTEGER NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+    assertThat(stmts.get(1))
+      .isEqualTo("CREATE SEQUENCE table_42_seq START WITH 1 INCREMENT BY 1");
+    assertThat(stmts.get(2))
+      .isEqualTo("CREATE OR REPLACE TRIGGER table_42_idt" +
+        " BEFORE INSERT ON table_42" +
+        " FOR EACH ROW" +
+        " BEGIN" +
+        " IF :new.id IS null THEN" +
+        " SELECT table_42_seq.nextval INTO :new.id FROM dual;" +
+        " END IF;" +
+        " END;");
+  }
+
+  @Test
+  public void build_adds_IDENTITY_clause_on_MsSql() {
+    List<String> stmts = new CreateTableBuilder(MS_SQL, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id INT NOT NULL IDENTITY (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void build_adds_AUTO_INCREMENT_clause_on_H2() {
+    List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void build_adds_AUTO_INCREMENT_clause_on_MySql() {
+    List<String> stmts = new CreateTableBuilder(MY_SQL, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
   public void withPkConstraintName_throws_NPE_if_ColumnDef_is_null() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("primary key constraint name can't be null");
@@ -100,7 +239,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_lowers_case_of_table_name() {
-    List<String> stmts = new CreateTableBuilder(H2_DIALECT, "SOmE_TABLe_NamE")
+    List<String> stmts = new CreateTableBuilder(H2, "SOmE_TABLe_NamE")
       .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col").build())
       .build();
     assertThat(stmts).hasSize(1);
@@ -146,7 +285,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_of_single_column_table() {
-    List<String> stmts = new CreateTableBuilder(H2_DIALECT, TABLE_NAME)
+    List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
       .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col_1").build())
       .build();
     assertThat(stmts).hasSize(1);
@@ -156,7 +295,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_table_with_pk() {
-    List<String> stmts = new CreateTableBuilder(H2_DIALECT, TABLE_NAME)
+    List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
       .addPkColumn(newBooleanColumnDefBuilder().setColumnName("bool_col").build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col").setLimit(40).build())
       .build();
