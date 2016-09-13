@@ -213,8 +213,8 @@ public class QProfilesWsTest {
     assertThat(create).isNotNull();
     assertThat(create.isPost()).isTrue();
     assertThat(create.params()).hasSize(4);
-    assertThat(create.param("name")).isNotNull();
-    assertThat(create.param("name").isRequired()).isTrue();
+    assertThat(create.param("profileName")).isNotNull();
+    assertThat(create.param("profileName").isRequired()).isTrue();
     assertThat(create.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
     assertThat(create.param("language").isRequired()).isTrue();
     assertThat(create.param("backup_" + xoo1Key)).isNotNull();

@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.qualityprofile;
 
+import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -26,6 +27,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
@@ -68,6 +70,13 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam(PARAM_PROJECT_UUID, request.getProjectUuid()));
+  }
+
+  public CreateWsResponse create(CreateRequest request) {
+    PostRequest postRequest = new PostRequest(path(ACTION_CREATE))
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_PROFILE_NAME, request.getProfileName());
+    return call(postRequest, CreateWsResponse.parser());
   }
 
 }

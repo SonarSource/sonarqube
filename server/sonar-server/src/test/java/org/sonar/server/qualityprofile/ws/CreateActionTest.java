@@ -20,11 +20,13 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -38,6 +40,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -59,12 +62,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
+import static org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
+import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.parseFrom;
 
 public class CreateActionTest {
 
   static final String XOO_LANGUAGE = "xoo";
 
   static final RuleDto RULE = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage(XOO_LANGUAGE);
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -98,16 +107,58 @@ public class CreateActionTest {
   public void create_profile() {
     setUserAsQualityProfileAdmin();
 
-    executeRequest("New Profile", XOO_LANGUAGE);
+    CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
 
-    QualityProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
-    assertThat(profile.getKey()).isNotNull();
-    assertThat(profile.getLanguage()).isEqualTo(XOO_LANGUAGE);
+    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
+    assertThat(dto.getKey()).isNotNull();
+    assertThat(dto.getLanguage()).isEqualTo(XOO_LANGUAGE);
+    assertThat(dto.getName()).isEqualTo("New Profile");
+
+    QualityProfile profile = response.getProfile();
+    assertThat(profile.getKey()).isEqualTo(dto.getKey());
     assertThat(profile.getName()).isEqualTo("New Profile");
+    assertThat(profile.getLanguage()).isEqualTo(XOO_LANGUAGE);
+    assertThat(profile.getIsInherited()).isFalse();
+    assertThat(profile.getIsDefault()).isFalse();
+    assertThat(profile.hasInfos()).isFalse();
+    assertThat(profile.hasWarnings()).isFalse();
   }
 
   @Test
-  public void return_created_profile_in_json() throws Exception {
+  public void create_profile_from_backup_xml() {
+    setUserAsQualityProfileAdmin();
+    insertRule(RULE);
+
+    executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
+
+    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
+    assertThat(dto.getKey()).isNotNull();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKey())).hasSize(1);
+    // FIXME
+    // assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(profile.getKey()).setActivation(true))).hasSize(1);
+  }
+
+  @Test
+  public void create_profile_with_messages() {
+    setUserAsQualityProfileAdmin();
+
+    CreateWsResponse response = executeRequest("Profile with messages", XOO_LANGUAGE, ImmutableMap.of("with_messages", "<xml/>"));
+
+    QualityProfile profile = response.getProfile();
+    assertThat(profile.getInfos().getInfosList()).containsOnly("an info");
+    assertThat(profile.getWarnings().getWarningsList()).containsOnly("a warning");
+  }
+
+  @Test
+  public void fail_if_import_generate_error() {
+    setUserAsQualityProfileAdmin();
+
+    expectedException.expect(BadRequestException.class);
+    executeRequest("Profile with errors", XOO_LANGUAGE, ImmutableMap.of("with_errors", "<xml/>"));
+  }
+
+  @Test
+  public void test_json() throws Exception {
     setUserAsQualityProfileAdmin();
 
     TestResponse response = wsTester.newRequest()
@@ -117,22 +168,8 @@ public class CreateActionTest {
       .setParam("name", "Yeehaw!")
       .execute();
 
-    JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionTest/create-no-importer.json"));
+    JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionTest/test_json.json"));
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.JSON);
-  }
-
-  @Test
-  public void create_profile_from_xml() {
-    setUserAsQualityProfileAdmin();
-    insertRule(RULE);
-
-    executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
-
-    QualityProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage("New Profile", XOO_LANGUAGE, dbSession);
-    assertThat(profile.getKey()).isNotNull();
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())).hasSize(1);
-    // FIXME
-    // assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(profile.getKey()).setActivation(true))).hasSize(1);
   }
 
   private void insertRule(RuleDto ruleDto) {
@@ -141,11 +178,11 @@ public class CreateActionTest {
     ruleIndexer.index();
   }
 
-  private void executeRequest(String name, String language) {
-    executeRequest(name, language, Collections.emptyMap());
+  private CreateWsResponse executeRequest(String name, String language) {
+    return executeRequest(name, language, Collections.emptyMap());
   }
 
-  private void executeRequest(String name, String language, Map<String, String> xmls) {
+  private CreateWsResponse executeRequest(String name, String language, Map<String, String> xmls) {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("name", name)
@@ -153,7 +190,11 @@ public class CreateActionTest {
     for (Map.Entry<String, String> entry : xmls.entrySet()) {
       request.setParam("backup_" + entry.getKey(), entry.getValue());
     }
-    request.execute();
+    try {
+      return parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private void setUserAsQualityProfileAdmin() {
@@ -162,9 +203,9 @@ public class CreateActionTest {
 
   private ProfileImporter[] createImporters() {
     class DefaultProfileImporter extends ProfileImporter {
-      private DefaultProfileImporter(String key, String name, String... languages) {
-        super(key, name);
-        setSupportedLanguages(languages);
+      private DefaultProfileImporter() {
+        super("xoo_lint", "Xoo Lint");
+        setSupportedLanguages(XOO_LANGUAGE);
       }
 
       @Override
@@ -173,10 +214,39 @@ public class CreateActionTest {
         rulesProfile.activateRule(org.sonar.api.rules.Rule.create(RULE.getRepositoryKey(), RULE.getRuleKey()), RulePriority.BLOCKER);
         return rulesProfile;
       }
-
     }
+
+    class ProfileImporterGeneratingMessages extends ProfileImporter {
+      private ProfileImporterGeneratingMessages() {
+        super("with_messages", "With messages");
+        setSupportedLanguages(XOO_LANGUAGE);
+      }
+
+      @Override
+      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+        RulesProfile rulesProfile = RulesProfile.create();
+        messages.addWarningText("a warning");
+        messages.addInfoText("an info");
+        return rulesProfile;
+      }
+    }
+
+    class ProfileImporterGeneratingErrors extends ProfileImporter {
+      private ProfileImporterGeneratingErrors() {
+        super("with_errors", "With errors");
+        setSupportedLanguages(XOO_LANGUAGE);
+      }
+
+      @Override
+      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+        RulesProfile rulesProfile = RulesProfile.create();
+        messages.addErrorText("error!");
+        return rulesProfile;
+      }
+    }
+
     return new ProfileImporter[] {
-      new DefaultProfileImporter("xoo_lint", "Xoo Lint", XOO_LANGUAGE)
+      new DefaultProfileImporter(), new ProfileImporterGeneratingMessages(), new ProfileImporterGeneratingErrors()
     };
   }
 }

@@ -26,6 +26,7 @@ public class QualityProfileWsParameters {
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
+  public static final String ACTION_CREATE = "create";
 
   public static final String PARAM_DEFAULTS = "defaults";
   public static final String PARAM_LANGUAGE = "language";

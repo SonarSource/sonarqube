@@ -45,3 +45,27 @@ message SearchWsResponse {
     optional string userUpdatedAt = 14;
   }
 }
+
+// WS api/qualityprofiles/create
+message CreateWsResponse {
+  optional QualityProfile profile = 1;
+
+  message QualityProfile {
+    optional string key = 1;
+    optional string name = 2;
+    optional string language = 3;
+    optional string languageName = 4;
+    optional bool isInherited = 5;
+    optional bool isDefault = 6;
+    optional Infos infos = 7;
+    optional Warnings warnings = 8;
+
+    message Infos {
+      repeated string infos = 1;
+    }
+
+    message Warnings {
+      repeated string warnings = 1;
+    }
+  }
+}

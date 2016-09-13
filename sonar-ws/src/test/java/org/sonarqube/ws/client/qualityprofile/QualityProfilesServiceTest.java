@@ -87,4 +87,17 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_PROJECT_KEY, "sample")
       .andNoOtherParam();
   }
+
+  @Test
+  public void create_project() throws Exception {
+    underTest.create(CreateRequest.builder()
+      .setLanguage("xoo")
+      .setProfileName("Sonar Way")
+      .build());
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasParam(PARAM_LANGUAGE, "xoo")
+      .hasParam(PARAM_PROFILE_NAME, "Sonar Way")
+      .andNoOtherParam();
+  }
 }

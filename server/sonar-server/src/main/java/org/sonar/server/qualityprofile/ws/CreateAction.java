@@ -20,15 +20,12 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,13 +34,20 @@ import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
+import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.client.qualityprofile.CreateRequest;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 public class CreateAction implements QProfileWsAction {
 
-  private static final String PARAM_PROFILE_NAME = "name";
-  private static final String PARAM_LANGUAGE = "language";
+  private static final String DEPRECATED_PARAM_PROFILE_NAME = "name";
   private static final String PARAM_BACKUP_FORMAT = "backup_%s";
 
   private final DbClient dbClient;
@@ -58,7 +62,7 @@ public class CreateAction implements QProfileWsAction {
   private final UserSession userSession;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters,
-    Languages languages, ProfileImporter[] importers, UserSession userSession) {
+                      Languages languages, ProfileImporter[] importers, UserSession userSession) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
@@ -73,16 +77,18 @@ public class CreateAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction create = controller.createAction("create")
+    NewAction create = controller.createAction(ACTION_CREATE)
       .setSince("5.2")
-      .setDescription("Create a quality profile. Require Administer Quality Profiles permission.")
+      .setDescription("Create a quality profile.<br/>" +
+        "Require Administer Quality Profiles permission.")
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);
 
     create.createParam(PARAM_PROFILE_NAME)
-      .setDescription("The name for the new quality profile.")
+      .setDescription("The name for the new quality profile. Since 6.1, this parameter has been renamed from '%s' to '%s'", DEPRECATED_PARAM_PROFILE_NAME, PARAM_PROFILE_NAME)
       .setExampleValue("My Sonar way")
+      .setDeprecatedKey(DEPRECATED_PARAM_PROFILE_NAME)
       .setRequired(true);
 
     create.createParam(PARAM_LANGUAGE)
@@ -100,60 +106,53 @@ public class CreateAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    String name = request.mandatoryParam(PARAM_PROFILE_NAME);
-    String language = request.mandatoryParam(PARAM_LANGUAGE);
-
+    CreateRequest createRequest = toRequest(request);
     DbSession dbSession = dbClient.openSession(false);
-
     try {
-      QProfileResult result = new QProfileResult();
-      QualityProfileDto profile = profileFactory.create(dbSession, QProfileName.createFor(language, name));
-      result.setProfile(profile);
-      for (ProfileImporter importer : importers) {
-        InputStream contentToImport = request.paramAsInputStream(getBackupParamName(importer.getKey()));
-        if (contentToImport != null) {
-          result.add(exporters.importXml(profile, importer.getKey(), contentToImport, dbSession));
-        }
-      }
-      dbSession.commit();
-
-      response.stream().setMediaType(request.getMediaType());
-      JsonWriter jsonWriter = JsonWriter.of(new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8));
-      writeResult(jsonWriter, result);
+      writeProtobuf(doHandle(dbSession, createRequest, request), request, response);
     } finally {
       dbSession.close();
     }
   }
 
-  private void writeResult(JsonWriter json, QProfileResult result) {
+  private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request) {
+    QProfileResult result = new QProfileResult();
+    QualityProfileDto profile = profileFactory.create(dbSession, QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
+    result.setProfile(profile);
+    for (ProfileImporter importer : importers) {
+      String importerKey = importer.getKey();
+      InputStream contentToImport = request.paramAsInputStream(getBackupParamName(importerKey));
+      if (contentToImport != null) {
+        result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
+      }
+    }
+    dbSession.commit();
+    return buildResponse(result);
+  }
+
+  private static CreateRequest toRequest(Request request) {
+    CreateRequest.Builder builder = CreateRequest.builder()
+      .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
+      .setProfileName(request.mandatoryParam(PARAM_PROFILE_NAME));
+    return builder.build();
+  }
+
+  private CreateWsResponse buildResponse(QProfileResult result) {
     String language = result.profile().getLanguage();
-    json.beginObject().name("profile").beginObject()
-      .prop("key", result.profile().getKey())
-      .prop("name", result.profile().getName())
-      .prop("language", language)
-      .prop("languageName", languages.get(result.profile().getLanguage()).getName())
-      .prop("isDefault", false)
-      .prop("isInherited", false)
-      .endObject();
-
+    CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
+      .setKey(result.profile().getKey())
+      .setName(result.profile().getName())
+      .setLanguage(language)
+      .setLanguageName(languages.get(result.profile().getLanguage()).getName())
+      .setIsDefault(false)
+      .setIsInherited(false);
     if (!result.infos().isEmpty()) {
-      json.name("infos").beginArray();
-      for (String info : result.infos()) {
-        json.value(info);
-      }
-      json.endArray();
+      builder.getInfosBuilder().addAllInfos(result.infos());
     }
-
     if (!result.warnings().isEmpty()) {
-      json.name("warnings").beginArray();
-      for (String warning : result.warnings()) {
-        json.value(warning);
-      }
-      json.endArray();
+      builder.getWarningsBuilder().addAllWarnings(result.warnings());
     }
-
-    json.endObject().close();
+    return CreateWsResponse.newBuilder().setProfile(builder.build()).build();
   }
 
   private static String getBackupParamName(String importerKey) {
