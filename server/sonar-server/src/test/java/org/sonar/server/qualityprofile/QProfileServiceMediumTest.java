@@ -212,18 +212,6 @@ public class QProfileServiceMediumTest {
     assertThat(loader.countDeprecatedActiveRulesByProfile(XOO_P1_KEY)).isEqualTo(1);
   }
 
-  @Test
-  public void set_default() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    assertThat(service.getDefault("xoo")).isNull();
-
-    service.setDefault(XOO_P1_KEY);
-    dbSession.clearCache();
-
-    assertThat(service.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
-  }
-
   public static class XooExporter extends ProfileExporter {
     public XooExporter() {
       super("xootool", "Xoo Tool");
