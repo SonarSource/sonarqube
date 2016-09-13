@@ -52,8 +52,10 @@ export default class EmailForm extends React.Component {
 
           <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
             {this.state.success && (
-                <div className="alert alert-success">
-                  {translateWithParameters('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
+                <div className="modal-field">
+                  <div className="alert alert-success">
+                    {translateWithParameters('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
+                  </div>
                 </div>
             )}
 
