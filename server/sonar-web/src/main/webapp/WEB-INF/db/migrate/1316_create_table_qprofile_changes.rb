@@ -26,7 +26,7 @@ class CreateTableQprofileChanges < ActiveRecord::Migration
   def self.up
     create_table 'qprofile_changes', :id => false do |t|
       t.column 'kee', :string, :limit => 40, :null => false
-      t.column 'qprofile_key', :string, :limit => 40, :null => false
+      t.column 'qprofile_key', :string, :limit => 255, :null => false
       t.column 'change_type', :string, :limit => 20, :null => false
       t.column 'created_at', :big_integer, :null => false
       t.column 'user_login', :string, :limit => 255, :null => true
