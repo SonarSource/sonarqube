@@ -107,36 +107,22 @@
   overflow: hidden;
 }
 
-.settings-definition-description:before,
 .settings-definition-description:after {
   position: absolute;
-  background-position: left bottom;
-  background-repeat: repeat-x;
-  background-size: 14px 14px;
-  content: "";
-  display: block;
+  z-index: 3;
+  top: 110px;
   left: 0;
   right: 0;
-  height: 14px;
-}
-
-.settings-definition-description:before {
-  z-index: 2;
-  background-image: linear-gradient(-45deg, #cdcdcd 7px, transparent 0), linear-gradient(45deg, #cdcdcd 7px, transparent 0);
-  top: 125px;
-}
-
-.settings-definition-description:after {
-  z-index: 3;
-  background-image: linear-gradient(-45deg, #fff 7px, transparent 0), linear-gradient(45deg, #fff 7px, transparent 0);
-  top: 126px;
+  height: 30px;
+  display: block;
+  background: linear-gradient(to bottom, transparent, #fff);
+  content: "";
 }
 
 .settings-definition-description:hover {
   max-height: 100%;
 }
 
-.settings-definition-description:hover:before,
 .settings-definition-description:hover:after {
   display: none;
 }
