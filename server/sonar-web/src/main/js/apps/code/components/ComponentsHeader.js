@@ -18,34 +18,45 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
+import { connect } from 'react-redux';
 import { translate } from '../../../helpers/l10n';
 
-const ComponentsHeader = ({ baseComponent }) => (
-    <thead>
-      <tr>
-        <th className="thin nowrap">&nbsp;</th>
-        <th>&nbsp;</th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.ncloc.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.bugs.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.vulnerabilities.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.code_smells.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.coverage.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.duplicated_lines_density.short_name')}
-        </th>
-      </tr>
-    </thead>
-);
+const ComponentsHeader = ({ baseComponent, isView }) => {
+  const columns = isView ? [
+    translate('metric_domain.Releasability'),
+    translate('metric_domain.Reliability'),
+    translate('metric_domain.Security'),
+    translate('metric_domain.Maintainability'),
+    translate('metric', 'ncloc', 'name')
+  ] : [
+    translate('metric', 'ncloc', 'name'),
+    translate('metric', 'bugs', 'name'),
+    translate('metric', 'vulnerabilities', 'name'),
+    translate('metric', 'code_smells', 'name'),
+    translate('metric', 'coverage', 'name'),
+    translate('metric', 'duplicated_lines_density', 'short_name')
+  ];
 
-export default ComponentsHeader;
+  return (
+      <thead>
+        <tr>
+          <th className="thin nowrap">&nbsp;</th>
+          <th>&nbsp;</th>
+          {columns.map(column => (
+              <th key={column} className="thin nowrap text-right code-components-cell">
+                {baseComponent && column}
+              </th>
+          ))}
+        </tr>
+      </thead>
+  );
+};
+
+function mapStateToProps (state) {
+  return {
+    isView: state.current.isView
+  };
+}
+
+export default connect(mapStateToProps)(ComponentsHeader);
+

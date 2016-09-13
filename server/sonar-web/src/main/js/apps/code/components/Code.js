@@ -32,7 +32,7 @@ class Code extends Component {
   componentDidMount () {
     const { dispatch, component, routing } = this.props;
     const selectedKey = (routing.path && decodeURIComponent(routing.path.substr(1))) || component.key;
-    dispatch(initComponent(component.key, component.breadcrumbs))
+    dispatch(initComponent(component, component.breadcrumbs))
         .then(() => dispatch(browse(selectedKey)));
   }
 

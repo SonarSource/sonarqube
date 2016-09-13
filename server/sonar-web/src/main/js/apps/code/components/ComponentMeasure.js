@@ -19,15 +19,23 @@
  */
 import _ from 'underscore';
 import React from 'react';
-
-import { formatMeasure } from '../../../helpers/measures';
+import Measure from '../../component-measures/components/Measure';
 
 const ComponentMeasure = ({ component, metricKey, metricType }) => {
-  const measure = _.findWhere(component.measures, { metric: metricKey });
+  const isProject = component.qualifier === 'TRK';
+  const isReleasability = metricKey === 'releasability_rating';
+
+  const finalMetricKey = (isProject && isReleasability) ? 'alert_status' : metricKey;
+  const finalMetricType = (isProject && isReleasability) ? 'LEVEL' : metricType;
+
+  const measure = _.findWhere(component.measures, { metric: finalMetricKey });
+
+  if (!measure) {
+    return <span/>;
+  }
+
   return (
-      <span>
-        {measure ? formatMeasure(measure.value, metricType) : ''}
-      </span>
+      <Measure measure={measure} metric={{ key: finalMetricKey, type: finalMetricType }}/>
   );
 };
 

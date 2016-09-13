@@ -76,7 +76,21 @@ class Component extends React.Component {
       }
     }
 
-    /* eslint object-shorthand: 0 */
+    const columns = isView ? [
+      { metric: 'releasability_rating', type: 'RATING' },
+      { metric: 'reliability_rating', type: 'RATING' },
+      { metric: 'security_rating', type: 'RATING' },
+      { metric: 'sqale_rating', type: 'RATING' },
+      { metric: 'ncloc', type: 'SHORT_INT' },
+    ] : [
+      { metric: 'ncloc', type: 'SHORT_INT' },
+      { metric: 'bugs', type: 'SHORT_INT' },
+      { metric: 'vulnerabilities', type: 'SHORT_INT' },
+      { metric: 'code_smells', type: 'SHORT_INT' },
+      { metric: coverageMetric, type: 'PERCENT' },
+      { metric: 'duplicated_lines_density', type: 'PERCENT' }
+    ];
+
     return (
         <tr className={classNames({ selected })}>
           <td className="thin nowrap">
@@ -85,63 +99,22 @@ class Component extends React.Component {
             </span>
           </td>
           <td className="code-name-cell">
-            {isView && (
-                <ComponentQualityGate
-                    component={component}/>
-            )}
             <ComponentName
                 component={component}
                 previous={previous}
                 onBrowse={onBrowse}/>
           </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey="ncloc"
-                  metricType="SHORT_INT"/>
-            </div>
-          </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey="bugs"
-                  metricType="SHORT_INT"/>
-            </div>
-          </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey="vulnerabilities"
-                  metricType="SHORT_INT"/>
-            </div>
-          </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey="code_smells"
-                  metricType="SHORT_INT"/>
-            </div>
-          </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey={coverageMetric}
-                  metricType="PERCENT"/>
-            </div>
-          </td>
-          <td className="thin nowrap text-right">
-            <div className="code-components-cell">
-              <ComponentMeasure
-                  component={component}
-                  metricKey="duplicated_lines_density"
-                  metricType="PERCENT"/>
-            </div>
-          </td>
+
+          {columns.map(column => (
+              <td key={column.metric} className="thin nowrap text-right">
+                <div className="code-components-cell">
+                  <ComponentMeasure
+                      component={component}
+                      metricKey={column.metric}
+                      metricType={column.type}/>
+                </div>
+              </td>
+          ))}
         </tr>
     );
   }
