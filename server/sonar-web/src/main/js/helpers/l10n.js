@@ -62,6 +62,21 @@ function makeRequest (params) {
       });
 }
 
+function checkCachedBundle () {
+  const cached = localStorage.getItem('l10n.bundle');
+
+  if (!cached) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(cached);
+    return parsed != null && typeof parsed === 'object';
+  } catch (e) {
+    return false;
+  }
+}
+
 export function requestMessages () {
   const currentLocale = getCurrentLocale();
   const cachedLocale = localStorage.getItem('l10n.locale');
@@ -72,15 +87,20 @@ export function requestMessages () {
 
   const bundleTimestamp = localStorage.getItem('l10n.timestamp');
   const params = { locale: currentLocale };
-  if (bundleTimestamp !== null) {
+  if (bundleTimestamp !== null && checkCachedBundle()) {
     params.ts = bundleTimestamp;
   }
 
   return makeRequest(params).then(bundle => {
-    const currentTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
-    localStorage.setItem('l10n.timestamp', currentTimestamp);
-    localStorage.setItem('l10n.locale', currentLocale);
-    localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
+    try {
+      const currentTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+      localStorage.setItem('l10n.timestamp', currentTimestamp);
+      localStorage.setItem('l10n.locale', currentLocale);
+      localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
+    } catch (e) {
+      // do nothing
+    }
+
     messages = bundle;
   });
 }
