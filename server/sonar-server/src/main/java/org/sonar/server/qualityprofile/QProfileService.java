@@ -19,8 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
@@ -39,17 +44,21 @@ public class QProfileService {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final RuleActivator ruleActivator;
   private final QProfileFactory factory;
+  private final QProfileBackuper backuper;
+  private final QProfileCopier copier;
   private final QProfileReset reset;
   private final QProfileExporters exporters;
   private final UserSession userSession;
 
   public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileReset reset, QProfileExporters exporters,
+    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters,
     UserSession userSession) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
     this.factory = factory;
+    this.backuper = backuper;
+    this.copier = copier;
     this.reset = reset;
     this.exporters = exporters;
     this.userSession = userSession;
@@ -111,9 +120,70 @@ public class QProfileService {
     return ruleActivator.bulkDeactivate(ruleQuery, profile);
   }
 
+  public void backup(String profileKey, Writer writer) {
+    // Allowed to non-admin users (see http://jira.sonarsource.com/browse/SONAR-2039)
+    backuper.backup(profileKey, writer);
+  }
+
+  /**
+   * @deprecated used only by Ruby on Rails. Use {@link #backup(String, java.io.Writer)}
+   */
+  @Deprecated
+  public String backup(String profileKey) {
+    StringWriter output = new StringWriter();
+    backup(profileKey, output);
+    return output.toString();
+  }
+
+  public void restore(Reader backup) {
+    verifyAdminPermission();
+    backuper.restore(backup, null);
+  }
+
+  /**
+   * @deprecated used only by Ruby on Rails. Use {@link #restore(java.io.Reader)}
+   */
+  @Deprecated
+  public void restore(String backup) {
+    restore(new StringReader(backup));
+  }
+
   public void restoreBuiltInProfilesForLanguage(String lang) {
     verifyAdminPermission();
     reset.resetLanguage(lang);
+  }
+
+  public void delete(String key) {
+    verifyAdminPermission();
+    DbSession session = db.openSession(false);
+    try {
+      List<ActiveRuleChange> changes = factory.delete(session, key, false);
+      session.commit();
+      activeRuleIndexer.index(changes);
+    } finally {
+      db.closeSession(session);
+    }
+  }
+
+  public void rename(String key, String newName) {
+    verifyAdminPermission();
+    factory.rename(key, newName);
+  }
+
+  /**
+   * Set the given quality profile as default for the related language
+   */
+  public void setDefault(String key) {
+    verifyAdminPermission();
+    factory.setDefault(key);
+  }
+
+  /**
+   * Used in /api/profiles and in /profiles/export
+   */
+  @CheckForNull
+  public QualityProfileDto getDefault(String language) {
+    return factory.getDefault(language);
   }
 
   private void verifyAdminPermission() {
