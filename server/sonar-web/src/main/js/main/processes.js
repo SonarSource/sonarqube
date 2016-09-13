@@ -178,7 +178,10 @@ $.ajaxSetup({
     400: handleAjaxError,
     401: handleAjaxError,
     403: handleAjaxError,
-    500: handleAjaxError
+    500: handleAjaxError,
+    502: handleAjaxError,
+    503: handleAjaxError,
+    504: handleAjaxError
   }
 });
 
