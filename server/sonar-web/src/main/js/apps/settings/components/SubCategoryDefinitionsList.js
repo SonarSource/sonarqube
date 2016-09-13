@@ -58,9 +58,8 @@ export default class SubCategoryDefinitionsList extends React.Component {
               <li key={subCategory.key}>
                 <h2 className="settings-sub-category-name">{subCategory.name}</h2>
                 {subCategory.description != null && (
-                    <div className="settings-sub-category-description markdown">
-                      {subCategory.description}
-                    </div>
+                    <div className="settings-sub-category-description markdown"
+                         dangerouslySetInnerHTML={{ __html: subCategory.description }}/>
                 )}
                 <DefinitionsList settings={bySubCategory[subCategory.key]} component={this.props.component}/>
                 {this.renderEmailForm(subCategory.key)}
