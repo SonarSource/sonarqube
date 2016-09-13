@@ -147,6 +147,7 @@ import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
 import org.sonar.db.version.v61.AddBUuidPathToProjects;
 import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
 import org.sonar.db.version.v61.CopyActivitiesToQprofileChanges;
+import org.sonar.db.version.v61.CreateTableCeTaskInput;
 import org.sonar.db.version.v61.DeleteProjectDashboards;
 import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
 import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
@@ -318,13 +319,13 @@ public class MigrationStepModule extends Module {
       // 6.1
       DeleteProjectDashboards.class,
       DropIsGlobalFromDashboards.class,
+      CreateTableCeTaskInput.class,
       DeleteReportsFromCeQueue.class,
       ShrinkModuleUuidPathOfProjects.class,
       AddBUuidPathToProjects.class,
       AddErrorColumnsToCeActivity.class,
       PopulateTableProperties2.class,
       RemoveViewsDefinitionFromProperties.class,
-      CopyActivitiesToQprofileChanges.class
-      );
+      CopyActivitiesToQprofileChanges.class);
   }
 }

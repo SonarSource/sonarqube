@@ -24,12 +24,6 @@
 class CreateTableCeTaskInput < ActiveRecord::Migration
 
   def self.up
-    create_table 'ce_task_input', :id => false do |t|
-      t.column 'task_uuid', :string, :limit => 40, :null => false
-      t.column 'data', :binary, :null => true
-      t.column 'created_at', :big_integer, :null => false
-      t.column 'updated_at', :big_integer, :null => false
-    end
-    add_primary_key 'ce_task_input', 'task_uuid'
+    execute_java_migration('org.sonar.db.version.v61.CreateTableCeTaskInput')
   end
 end
