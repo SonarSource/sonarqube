@@ -20,7 +20,9 @@
 package org.sonar.db;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -31,7 +33,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -152,7 +157,7 @@ public class DbTester extends ExternalResource {
 
   public void executeDdl(String ddl) {
     try (Connection connection = getConnection();
-    Statement stmt = connection.createStatement()) {
+      Statement stmt = connection.createStatement()) {
       stmt.execute(ddl);
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to execute DDL: " + ddl, e);
@@ -435,6 +440,70 @@ public class DbTester extends ExternalResource {
     }
   }
 
+  public void assertPrimaryKey(String tableName, @Nullable String expectedPkName, String columnName, String... otherColumnNames) {
+    try (Connection connection = getConnection()) {
+      PK pk = pkOf(connection, tableName.toUpperCase(Locale.ENGLISH));
+      if (pk == null) {
+        pkOf(connection, tableName.toLowerCase(Locale.ENGLISH));
+      }
+      assertThat(pk).as("No primary key is defined on table %s", tableName).isNotNull();
+      if (expectedPkName != null) {
+        assertThat(pk.getName()).isEqualToIgnoringCase(expectedPkName);
+      }
+      List<String> expectedColumns = ImmutableList.copyOf(Iterables.concat(Collections.singletonList(columnName), Arrays.asList(otherColumnNames)));
+      assertThat(pk.getColumns()).as("Primary key does not have the '%s' expected columns", expectedColumns.size()).hasSize(expectedColumns.size());
+
+      Iterator<String> expectedColumnsIt = expectedColumns.iterator();
+      Iterator<String> actualColumnsIt = pk.getColumns().iterator();
+      while (expectedColumnsIt.hasNext() && actualColumnsIt.hasNext()) {
+        assertThat(actualColumnsIt.next()).isEqualToIgnoringCase(expectedColumnsIt.next());
+      }
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to check primary key", e);
+    }
+  }
+
+  @CheckForNull
+  private PK pkOf(Connection connection, String tableName) throws SQLException {
+    try (ResultSet resultSet = connection.getMetaData().getPrimaryKeys(null, null, tableName)) {
+      String pkName = null;
+      ArrayList<String> columnNames = null;
+      while (resultSet.next()) {
+        if (columnNames == null) {
+          pkName = resultSet.getString("PK_NAME");
+          columnNames = new ArrayList<>(1);
+        } else {
+          assertThat(pkName).as("Multiple primary keys found").isEqualTo(resultSet.getString("PK_NAME"));
+        }
+        columnNames.add(resultSet.getInt("KEY_SEQ") - 1, resultSet.getString("COLUMN_NAME"));
+      }
+      if (columnNames == null) {
+        return null;
+      }
+      return new PK(pkName, columnNames);
+    }
+  }
+
+  private static class PK {
+    @CheckForNull
+    private final String name;
+    private final List<String> columns;
+
+    private PK(@Nullable String name, List<String> columns) {
+      this.name = name;
+      this.columns = ImmutableList.copyOf(columns);
+    }
+
+    @CheckForNull
+    public String getName() {
+      return name;
+    }
+
+    public List<String> getColumns() {
+      return columns;
+    }
+  }
+
   @CheckForNull
   private Integer getColumnIndex(ResultSet res, String column) {
     try {
@@ -448,7 +517,7 @@ public class DbTester extends ExternalResource {
       return null;
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get column idnex");
+      throw new IllegalStateException("Fail to get column index");
     }
   }
 
