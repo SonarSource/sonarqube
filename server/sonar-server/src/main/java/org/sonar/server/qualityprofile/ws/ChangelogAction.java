@@ -36,12 +36,14 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileRef;
 
+import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
+import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class ChangelogAction implements QProfileWsAction {
 
-  private static final String PARAM_SINCE = "since";
-  private static final String PARAM_TO = "to";
+  static final String PARAM_SINCE = "since";
+  static final String PARAM_TO = "to";
 
   private final ChangelogLoader changelogLoader;
   private final QProfileFactory profileFactory;
@@ -83,11 +85,11 @@ public class ChangelogAction implements QProfileWsAction {
       QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
 
       QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
-      Date since = request.paramAsDateTime(PARAM_SINCE);
+      Date since = parseStartingDateOrDateTime(request.param(PARAM_SINCE));
       if (since != null) {
         query.setFromIncluded(since.getTime());
       }
-      Date to = request.paramAsDateTime(PARAM_TO);
+      Date to = parseEndingDateOrDateTime(request.param(PARAM_TO));
       if (to != null) {
         query.setToExcluded(to.getTime());
       }

@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -37,12 +38,17 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.ws.WsTester;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.server.qualityprofile.QProfileRef.PARAM_PROFILE_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
+import static org.sonar.server.qualityprofile.ws.ChangelogAction.PARAM_SINCE;
+import static org.sonar.server.qualityprofile.ws.ChangelogAction.PARAM_TO;
 
 public class ChangelogActionTest {
 
@@ -50,7 +56,6 @@ public class ChangelogActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private DbSession dbSession = dbTester.getSession();
 
   private WsTester wsTester;
   private ChangelogLoader changelogLoader = mock(ChangelogLoader.class);
@@ -94,6 +99,23 @@ public class ChangelogActionTest {
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_full.json");
+  }
+
+  @Test
+  public void changelog_inclusive_for_dates() throws Exception {
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
+
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog")
+      .setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
+      .setParam(PARAM_SINCE, "2016-09-01")
+      .setParam(PARAM_TO, "2016-09-01")
+      .execute();
+
+    ArgumentCaptor<QProfileChangeQuery> argumentCaptor = ArgumentCaptor.forClass(QProfileChangeQuery.class);
+    verify(changelogLoader).load(any(DbSession.class), argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getFromIncluded()).isEqualTo(parseDate("2016-09-01").getTime());
+    assertThat(argumentCaptor.getValue().getToExcluded()).isEqualTo(parseDate("2016-09-02").getTime());
   }
 
   @Test(expected = NotFoundException.class)
