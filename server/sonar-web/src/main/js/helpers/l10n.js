@@ -52,12 +52,17 @@ function makeRequest (params) {
       .setData(params)
       .submit()
       .then(response => {
-        if (response.status === 304) {
-          return JSON.parse(localStorage.getItem('l10n.bundle'));
-        } else if (response.status === 200) {
-          return response.json();
-        } else {
-          throw new Error(response.status);
+        switch (response.status) {
+          case 200:
+            return response.json();
+          case 304:
+            return JSON.parse(localStorage.getItem('l10n.bundle'));
+          case 401:
+            window.location = window.baseUrl + '/sessions/new?return_to=' +
+                encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+            return {};
+          default:
+            throw new Error('Unexpected status code: ' + response.status);
         }
       });
 }

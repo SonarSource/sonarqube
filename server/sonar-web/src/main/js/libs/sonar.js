@@ -37,6 +37,12 @@ jQuery(function () {
 jQuery.ajaxSetup({
   beforeSend: function (jqXHR) {
     jqXHR.setRequestHeader(request.getCSRFTokenName(), request.getCSRFTokenValue());
+  },
+  statusCode: {
+    401: function () {
+      window.location = window.baseUrl + '/sessions/new?return_to=' +
+          encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    }
   }
 });
 

@@ -67,7 +67,8 @@ export default class App extends React.Component {
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
-    retrieveComponentBase(component.key).then(component => {
+    const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
+    retrieveComponentBase(component.key, isView).then(component => {
       const prefix = selectCoverageMetric(component.measures);
       this.coverageMetric = `${prefix}coverage`;
       this.handleUpdate();
@@ -82,7 +83,8 @@ export default class App extends React.Component {
   loadComponent (componentKey) {
     this.setState({ loading: true });
 
-    retrieveComponent(componentKey).then(r => {
+    const isView = this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
+    retrieveComponent(componentKey, isView).then(r => {
       if (this.mounted) {
         if (['FIL', 'UTS'].includes(r.component.qualifier)) {
           this.setState({
@@ -122,7 +124,8 @@ export default class App extends React.Component {
 
   handleLoadMore () {
     const { baseComponent, page } = this.state;
-    loadMoreChildren(baseComponent.key, page + 1).then(r => {
+    const isView = this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
+    loadMoreChildren(baseComponent.key, page + 1, isView).then(r => {
       if (this.mounted) {
         this.setState({
           components: [...this.state.components, ...r.components],

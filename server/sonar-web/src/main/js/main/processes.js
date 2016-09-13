@@ -176,7 +176,6 @@ $.ajaxSetup({
   },
   statusCode: {
     400: handleAjaxError,
-    401: handleAjaxError,
     403: handleAjaxError,
     500: handleAjaxError,
     502: handleAjaxError,

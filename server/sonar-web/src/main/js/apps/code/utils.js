@@ -20,12 +20,12 @@
 import without from 'lodash/without';
 
 import {
-    addComponent,
-    getComponent as getComponentFromBucket,
-    addComponentChildren,
-    getComponentChildren,
-    addComponentBreadcrumbs,
-    getComponentBreadcrumbs
+  addComponent,
+  getComponent as getComponentFromBucket,
+  addComponentChildren,
+  getComponentChildren,
+  addComponentBreadcrumbs,
+  getComponentBreadcrumbs
 } from './bucket';
 import { getChildren, getComponent, getBreadcrumbs } from '../../api/components';
 import { translate } from '../../helpers/l10n';
@@ -46,19 +46,45 @@ const METRICS_WITH_COVERAGE = [
   'overall_coverage'
 ];
 
+const VIEW_METRICS = [
+  'releasability_rating',
+  'alert_status',
+  'reliability_rating',
+  'security_rating',
+  'sqale_rating',
+  'ncloc'
+];
+
 const PAGE_SIZE = 100;
 
-function expandRootDir ({ components, total, ...other }) {
-  const rootDir = components.find(component => component.qualifier === 'DIR' && component.name === '/');
-  if (rootDir) {
-    return getChildren(rootDir.key, METRICS_WITH_COVERAGE).then(r => {
-      const nextComponents = without([...r.components, ...components], rootDir);
-      const nextTotal = total + r.components.length - /* root dir */ 1;
-      return { components: nextComponents, total: nextTotal, ...other };
-    });
-  } else {
-    return { components, total, ...other };
-  }
+function requestChildren (componentKey, metrics, page) {
+  return getChildren(componentKey, metrics, { p: page, ps: PAGE_SIZE }).then(r => {
+    if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
+      return requestChildren(componentKey, metrics, page + 1).then(moreComponents => {
+        return [...r.components, ...moreComponents];
+      })
+    }
+    return r.components;
+  });
+}
+
+function requestAllChildren (componentKey, metrics) {
+  return requestChildren(componentKey, metrics, 1);
+}
+
+function expandRootDir (metrics) {
+  return function ({ components, total, ...other }) {
+    const rootDir = components.find(component => component.qualifier === 'DIR' && component.name === '/');
+    if (rootDir) {
+      return requestAllChildren(rootDir.key, metrics).then(rootDirComponents => {
+        const nextComponents = without([...rootDirComponents, ...components], rootDir);
+        const nextTotal = total + rootDirComponents.length - /* root dir */ 1;
+        return { components: nextComponents, total: nextTotal, ...other };
+      });
+    } else {
+      return { components, total, ...other };
+    }
+  };
 }
 
 function prepareChildren (r) {
@@ -89,19 +115,35 @@ function storeChildrenBreadcrumbs (parentComponentKey, children) {
   }
 }
 
-export function retrieveComponentBase (componentKey) {
+function getMetrics (isView) {
+  return isView ? VIEW_METRICS : METRICS_WITH_COVERAGE;
+}
+
+/**
+ * @param {string} componentKey
+ * @param {boolean} isView
+ * @returns {Promise}
+ */
+export function retrieveComponentBase (componentKey, isView) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  return getComponent(componentKey, METRICS_WITH_COVERAGE).then(component => {
+  const metrics = getMetrics(isView);
+
+  return getComponent(componentKey, metrics).then(component => {
     addComponent(component);
     return component;
   });
 }
 
-function retrieveComponentChildren (componentKey) {
+/**
+ * @param {string} componentKey
+ * @param {boolean} isView
+ * @returns {Promise}
+ */
+function retrieveComponentChildren (componentKey, isView) {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -110,9 +152,11 @@ function retrieveComponentChildren (componentKey) {
     });
   }
 
-  return getChildren(componentKey, METRICS_WITH_COVERAGE, { ps: PAGE_SIZE, s: 'name' })
+  const metrics = getMetrics(isView);
+
+  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'name' })
       .then(prepareChildren)
-      .then(expandRootDir)
+      .then(expandRootDir(metrics))
       .then(r => {
         addComponentChildren(componentKey, r.components, r.total);
         storeChildrenBase(r.components);
@@ -135,10 +179,15 @@ function retrieveComponentBreadcrumbs (componentKey) {
       });
 }
 
-export function retrieveComponent (componentKey) {
+/**
+ * @param {string} componentKey
+ * @param {boolean} isView
+ * @returns {Promise}
+ */
+export function retrieveComponent (componentKey, isView) {
   return Promise.all([
-    retrieveComponentBase(componentKey),
-    retrieveComponentChildren(componentKey),
+    retrieveComponentBase(componentKey, isView),
+    retrieveComponentChildren(componentKey, isView),
     retrieveComponentBreadcrumbs(componentKey)
   ]).then(r => {
     return {
@@ -151,10 +200,12 @@ export function retrieveComponent (componentKey) {
   });
 }
 
-export function loadMoreChildren (componentKey, page) {
-  return getChildren(componentKey, METRICS_WITH_COVERAGE, { ps: PAGE_SIZE, p: page })
+export function loadMoreChildren (componentKey, page, isView) {
+  const metrics = getMetrics(isView);
+
+  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, p: page })
       .then(prepareChildren)
-      .then(expandRootDir)
+      .then(expandRootDir(metrics))
       .then(r => {
         addComponentChildren(componentKey, r.components, r.total);
         storeChildrenBase(r.components);

@@ -25,7 +25,7 @@ import ComponentsHeader from './ComponentsHeader';
 
 const Components = ({ rootComponent, baseComponent, components, selected, coverageMetric }) => (
     <table className="data zebra">
-      <ComponentsHeader baseComponent={baseComponent}/>
+      <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent}/>
       {baseComponent && (
           <tbody>
             <Component
