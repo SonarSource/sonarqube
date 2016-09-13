@@ -27,6 +27,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -35,11 +37,13 @@ import org.sonarqube.ws.MediaTypes;
 
 public class BackupAction implements QProfileWsAction {
 
+  private final DbClient dbClient;
   private final QProfileBackuper backuper;
   private final QProfileFactory profileFactory;
   private final Languages languages;
 
-  public BackupAction(QProfileBackuper backuper, QProfileFactory profileFactory, Languages languages) {
+  public BackupAction(DbClient dbClient, QProfileBackuper backuper, QProfileFactory profileFactory, Languages languages) {
+    this.dbClient = dbClient;
     this.backuper = backuper;
     this.profileFactory = profileFactory;
     this.languages = languages;
@@ -60,8 +64,10 @@ public class BackupAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
     stream.setMediaType(MediaTypes.XML);
-    try (OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8)) {
-      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
+    try (OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
+      DbSession dbSession = dbClient.openSession(false)) {
+
+      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
       response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profile.getKee()));
       backuper.backup(profile.getKee(), writer);
     }

@@ -64,7 +64,7 @@ public class DeleteAction implements QProfileWsAction {
     userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request), dbSession);
+      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
       profileFactory.delete(dbSession, profile.getKey(), false);
       dbSession.commit();
     }

@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileRef;
@@ -38,12 +40,15 @@ public class ChangeParentAction implements QProfileWsAction {
   private static final String PARAM_PARENT_KEY = "parentKey";
   private static final String PARAM_PARENT_NAME = "parentName";
 
+  private DbClient dbClient;
   private final RuleActivator ruleActivator;
   private final QProfileFactory profileFactory;
   private final Languages languages;
   private final UserSession userSession;
 
-  public ChangeParentAction(RuleActivator ruleActivator, QProfileFactory profileFactory, Languages languages, UserSession userSession) {
+  public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory,
+    Languages languages, UserSession userSession) {
+    this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.profileFactory = profileFactory;
     this.languages = languages;
@@ -75,15 +80,18 @@ public class ChangeParentAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
-    String parentKey = request.param(PARAM_PARENT_KEY);
-    String parentName = request.param(PARAM_PARENT_NAME);
-    if (isEmpty(parentKey) && isEmpty(parentName)) {
-      ruleActivator.setParent(profile.getKey(), null);
-    } else {
-      QualityProfileDto parent = profileFactory.find(QProfileRef.from(parentKey, request.param(QProfileRef.PARAM_LANGUAGE), parentName));
-      ruleActivator.setParent(profile.getKey(), parent.getKey());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
+      String parentKey = request.param(PARAM_PARENT_KEY);
+      String parentName = request.param(PARAM_PARENT_NAME);
+      if (isEmpty(parentKey) && isEmpty(parentName)) {
+        ruleActivator.setParent(dbSession, profile.getKey(), null);
+      } else {
+        QProfileRef parentRef = QProfileRef.from(parentKey, request.param(QProfileRef.PARAM_LANGUAGE), parentName);
+        QualityProfileDto parent = profileFactory.find(dbSession, parentRef);
+        ruleActivator.setParent(dbSession, profile.getKey(), parent.getKey());
+      }
+      response.noContent();
     }
-    response.noContent();
   }
 }

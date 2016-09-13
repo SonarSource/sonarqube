@@ -51,17 +51,15 @@ public class ChangelogLoader {
   /**
    * @return non-null list of changes, by descending order of date
    */
-  public Changelog load(QProfileChangeQuery query) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<QProfileChangeDto> dtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
-      List<Change> changes = dtos.stream()
-        .map(Change::from)
-        .collect(Collectors.toList(dtos.size()));
-      completeUserAndRuleNames(dbSession, changes);
+  public Changelog load(DbSession dbSession, QProfileChangeQuery query) {
+    List<QProfileChangeDto> dtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
+    List<Change> changes = dtos.stream()
+      .map(Change::from)
+      .collect(Collectors.toList(dtos.size()));
+    completeUserAndRuleNames(dbSession, changes);
 
-      int total = dbClient.qProfileChangeDao().countForProfileKey(dbSession, query.getProfileKey());
-      return new Changelog(total, changes);
-    }
+    int total = dbClient.qProfileChangeDao().countForProfileKey(dbSession, query.getProfileKey());
+    return new Changelog(total, changes);
   }
 
   private void completeUserAndRuleNames(DbSession dbSession, List<Change> changes) {
@@ -100,7 +98,7 @@ public class ChangelogLoader {
 
     @VisibleForTesting
     Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin,
-           @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
+      @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
       this.key = key;
       this.type = type;
       this.at = at;

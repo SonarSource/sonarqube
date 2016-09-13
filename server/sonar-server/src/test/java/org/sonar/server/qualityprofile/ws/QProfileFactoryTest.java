@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
@@ -37,6 +38,7 @@ public class QProfileFactoryTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private DbSession dbSession = dbTester.getSession();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -46,13 +48,13 @@ public class QProfileFactoryTest {
   @Before
   public void setUp() throws Exception {
     QualityProfileDto dto = QualityProfileTesting.newQualityProfileDto().setKey("sw").setName("Sonar way").setLanguage("js");
-    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), dto);
+    dbTester.getDbClient().qualityProfileDao().insert(dbSession, dto);
     dbTester.commit();
   }
 
   @Test
   public void find_profile_by_key() {
-    QualityProfileDto profile = underTest.find(QProfileRef.fromKey("sw"));
+    QualityProfileDto profile = underTest.find(dbSession, QProfileRef.fromKey("sw"));
     assertThat(profile.getKey()).isEqualTo("sw");
     assertThat(profile.getLanguage()).isEqualTo("js");
     assertThat(profile.getName()).isEqualTo("Sonar way");
@@ -60,7 +62,7 @@ public class QProfileFactoryTest {
 
   @Test
   public void find_profile_by_name() {
-    QualityProfileDto profile = underTest.find(QProfileRef.fromName("js", "Sonar way"));
+    QualityProfileDto profile = underTest.find(dbSession, QProfileRef.fromName("js", "Sonar way"));
     assertThat(profile.getKey()).isEqualTo("sw");
     assertThat(profile.getLanguage()).isEqualTo("js");
     assertThat(profile.getName()).isEqualTo("Sonar way");
@@ -70,13 +72,13 @@ public class QProfileFactoryTest {
   public void throw_NFE_if_profile_key_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
-    underTest.find(QProfileRef.fromKey("missing"));
+    underTest.find(dbSession, QProfileRef.fromKey("missing"));
   }
 
   @Test
   public void throw_NFE_if_profile_name_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
-    underTest.find(QProfileRef.fromName("js", "Missing"));
+    underTest.find(dbSession, QProfileRef.fromName("js", "Missing"));
   }
 }

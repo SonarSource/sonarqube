@@ -932,7 +932,7 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P2_KEY);
 
     // set parent -> child profile inherits rule x1 and still has x2
-    ruleActivator.setParent(XOO_P2_KEY, XOO_P1_KEY);
+    ruleActivator.setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
 
@@ -941,7 +941,7 @@ public class RuleActivatorMediumTest {
 
     // unset parent
     dbSession.clearCache();
-    ruleActivator.setParent(XOO_P2_KEY, null);
+    ruleActivator.setParent(dbSession, XOO_P2_KEY, null);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.emptyMap());
@@ -950,7 +950,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void unset_no_parent_does_not_fail() {
     // P1 has no parent !
-    ruleActivator.setParent(XOO_P1_KEY, null);
+    ruleActivator.setParent(dbSession, XOO_P1_KEY, null);
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).getParentKee()).isNull();
   }
 
@@ -959,7 +959,7 @@ public class RuleActivatorMediumTest {
     createChildProfiles();
 
     try {
-      ruleActivator.setParent(XOO_P1_KEY, XOO_P3_KEY);
+      ruleActivator.setParent(dbSession, XOO_P1_KEY, XOO_P3_KEY);
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Descendant profile 'XOO_P3' can not be selected as parent of 'XOO_P1'");
@@ -980,7 +980,7 @@ public class RuleActivatorMediumTest {
     dbSession.clearCache();
 
     // set parent -> child profile inherits rule x1
-    ruleActivator.setParent(XOO_P2_KEY, XOO_P1_KEY);
+    ruleActivator.setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     verifyOneActiveRuleInDbAndIndex(XOO_P2_KEY, XOO_X1, MAJOR, INHERITED, ImmutableMap.of("max", "10"));
 
     // override x1
@@ -990,7 +990,7 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRuleInDb(XOO_P2_KEY, XOO_X1, BLOCKER, OVERRIDES, ImmutableMap.of("max", "333"));
 
     // unset parent -> keep x1
-    ruleActivator.setParent(XOO_P2_KEY, null);
+    ruleActivator.setParent(dbSession, XOO_P2_KEY, null);
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyOneActiveRuleInDbAndIndex(XOO_P2_KEY, XOO_X1, BLOCKER, null, ImmutableMap.of("max", "333"));
@@ -1015,7 +1015,7 @@ public class RuleActivatorMediumTest {
     dbSession.clearCache();
 
     // set parent -> child profile inherits x2 but not x1
-    ruleActivator.setParent(XOO_P2_KEY, XOO_P1_KEY);
+    ruleActivator.setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
 
     assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);

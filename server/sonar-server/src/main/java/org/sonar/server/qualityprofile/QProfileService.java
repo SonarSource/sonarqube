@@ -183,16 +183,16 @@ public class QProfileService {
     factory.rename(key, newName);
   }
 
-  /**
-   * Set or unset parent profile.
-   *
-   * @param key       key of existing profile
-   * @param parentKey key of parent profile to be inherited from. Or <code>null</code> to unset the parent.
-   */
-  public void setParent(String key, @Nullable String parentKey) {
-    verifyAdminPermission();
-    ruleActivator.setParent(key, parentKey);
-  }
+//  /**
+//   * Set or unset parent profile.
+//   *
+//   * @param key       key of existing profile
+//   * @param parentKey key of parent profile to be inherited from. Or <code>null</code> to unset the parent.
+//   */
+//  public void setParent(String key, @Nullable String parentKey) {
+//    verifyAdminPermission();
+//    ruleActivator.setParent(key, parentKey);
+//  }
 
   /**
    * Set the given quality profile as default for the related language

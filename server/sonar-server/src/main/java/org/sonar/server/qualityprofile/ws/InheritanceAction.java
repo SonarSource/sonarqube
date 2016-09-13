@@ -73,7 +73,7 @@ public class InheritanceAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      QualityProfileDto profile = profileFactory.find(QProfileRef.from(request), dbSession);
+      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
       List<QProfile> ancestors = profileLookup.ancestors(profile, dbSession);
       List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
       Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();

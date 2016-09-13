@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
@@ -49,6 +50,7 @@ public class ChangelogLoaderTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private DbSession dbSession = dbTester.getSession();
 
   private ChangelogLoader underTest = new ChangelogLoader(dbTester.getDbClient());
 
@@ -58,7 +60,7 @@ public class ChangelogLoaderTest {
     insertChange("C2", ActiveRuleChange.Type.DEACTIVATED, A_DATE + 10, "mazout", null);
 
     QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
-    ChangelogLoader.Changelog changes = underTest.load(query);
+    ChangelogLoader.Changelog changes = underTest.load(dbSession, query);
 
     assertThat(changes.getTotal()).isEqualTo(2);
     assertThat(changes.getChanges()).extracting(ChangelogLoader.Change::getKey).containsExactly("C2", "C1");
@@ -69,7 +71,7 @@ public class ChangelogLoaderTest {
     insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, null, null);
 
     QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
-    ChangelogLoader.Change change = underTest.load(query).getChanges().get(0);
+    ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
     assertThat(change.getKey()).isEqualTo("C1");
     assertThat(change.getCreatedAt()).isEqualTo(A_DATE);
@@ -95,7 +97,7 @@ public class ChangelogLoaderTest {
     insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, A_USER_LOGIN, data);
 
     QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
-    ChangelogLoader.Change change = underTest.load(query).getChanges().get(0);
+    ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
     assertThat(change.getKey()).isEqualTo("C1");
     assertThat(change.getCreatedAt()).isEqualTo(A_DATE);
@@ -116,7 +118,7 @@ public class ChangelogLoaderTest {
     insertRule(A_RULE_KEY, "Potential NPE");
 
     QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
-    ChangelogLoader.Change change = underTest.load(query).getChanges().get(0);
+    ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
     assertThat(change.getRuleKey()).isEqualTo(A_RULE_KEY);
     assertThat(change.getRuleName()).isEqualTo("Potential NPE");
@@ -128,7 +130,7 @@ public class ChangelogLoaderTest {
     insertUser(A_USER_LOGIN, "Marcel");
 
     QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
-    ChangelogLoader.Change change = underTest.load(query).getChanges().get(0);
+    ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
     assertThat(change.getUserLogin()).isEqualTo(A_USER_LOGIN);
     assertThat(change.getUserName()).isEqualTo("Marcel");
@@ -138,7 +140,7 @@ public class ChangelogLoaderTest {
   public void return_empty_changelog() {
     QProfileChangeQuery query = new QProfileChangeQuery("P1");
 
-    ChangelogLoader.Changelog changelog = underTest.load(query);
+    ChangelogLoader.Changelog changelog = underTest.load(dbSession, query);
 
     assertThat(changelog.getTotal()).isEqualTo(0);
     assertThat(changelog.getChanges()).isEmpty();

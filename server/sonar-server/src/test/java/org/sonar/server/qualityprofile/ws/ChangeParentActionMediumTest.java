@@ -128,7 +128,7 @@ public class ChangeParentActionMediumTest {
     activeRuleIndexer.index();
 
     // Set parent 1
-    tester.get(RuleActivator.class).setParent(child.getKey(), parent1.getKey());
+    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent1.getKey());
     session.clearCache();
 
     // Set parent 2 through WS
@@ -158,7 +158,7 @@ public class ChangeParentActionMediumTest {
     activeRuleIndexer.index();
 
     // Set parent
-    tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
+    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent.getKey());
     session.clearCache();
 
     // Remove parent through WS
@@ -245,7 +245,7 @@ public class ChangeParentActionMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     // Set parent
-    tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
+    tester.get(RuleActivator.class).setParent(session, child.getKey(), parent.getKey());
     session.clearCache();
 
     // Remove parent

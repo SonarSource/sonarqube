@@ -172,13 +172,7 @@ public class QProfileFactory {
     db.qualityProfileDao().update(session, profile.setDefault(true));
   }
 
-  public QualityProfileDto find(QProfileRef ref) {
-    try (DbSession dbSession = db.openSession(false)) {
-      return find(ref, dbSession);
-    }
-  }
-
-  public QualityProfileDto find(QProfileRef ref, DbSession dbSession) {
+  public QualityProfileDto find(DbSession dbSession, QProfileRef ref) {
     if (ref.hasKey()) {
       return findByKey(dbSession, ref.getKey());
     }

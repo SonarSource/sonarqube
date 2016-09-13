@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.rule.RuleTesting;
@@ -49,6 +50,7 @@ public class ChangelogActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private DbSession dbSession = dbTester.getSession();
 
   private WsTester wsTester;
   private ChangelogLoader changelogLoader = mock(ChangelogLoader.class);
@@ -57,13 +59,13 @@ public class ChangelogActionTest {
   @Before
   public void before() {
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
-      new ChangelogAction(changelogLoader, profileFactory, new Languages())));
+      new ChangelogAction(changelogLoader, profileFactory, new Languages(), dbTester.getDbClient())));
   }
 
   @Test
   public void changelog_empty() throws Exception {
-    when(profileFactory.find(eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
-    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(0, Collections.emptyList()));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_empty.json");
@@ -71,11 +73,11 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_nominal() throws Exception {
-    when(profileFactory.find(eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
     ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, null, null, null, null, null, null);
     ChangelogLoader.Change change2 = new ChangelogLoader.Change("C2", "ACTIVATED", A_DATE + 10, null, null, null, null, null, null);
     List<ChangelogLoader.Change> changes = asList(change1, change2);
-    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
+    when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_nominal.json");
@@ -83,12 +85,12 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_with_all_fields() throws Exception {
-    when(profileFactory.find(eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenReturn(QProfileTesting.newXooP1());
     ChangelogLoader.Change change1 = new ChangelogLoader.Change("C1", "ACTIVATED", A_DATE, "MAJOR", "marcel", "Marcel", "INHERITED", RuleTesting.XOO_X1, "X One");
     change1.getParams().put("foo", "foo_value");
     change1.getParams().put("bar", "bar_value");
     List<ChangelogLoader.Change> changes = asList(change1);
-    when(changelogLoader.load(any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
+    when(changelogLoader.load(any(DbSession.class), any(QProfileChangeQuery.class))).thenReturn(new ChangelogLoader.Changelog(10, changes));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_full.json");
@@ -96,7 +98,7 @@ public class ChangelogActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_profile() throws Exception {
-    when(profileFactory.find(eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenThrow(new NotFoundException("Profile not found"));
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(XOO_P1_KEY)))).thenThrow(new NotFoundException("Profile not found"));
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam(PARAM_PROFILE_KEY, XOO_P1_KEY).execute();
   }
