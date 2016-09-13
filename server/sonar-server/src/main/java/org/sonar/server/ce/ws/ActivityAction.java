@@ -30,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -59,8 +58,8 @@ import org.sonarqube.ws.client.ce.ActivityWsRequest;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sonar.api.utils.DateUtils.parseDateQuietly;
-import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
+import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
+import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
@@ -211,8 +210,10 @@ public class ActivityAction implements CeWsAction {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(request.getOnlyCurrents());
-    query.setMinSubmittedAt(parseFromDate(request.getMinSubmittedAt()));
-    query.setMaxExecutedAt(parseToDate(request.getMaxExecutedAt()));
+    Date minSubmittedAt = parseStartingDateOrDateTime(request.getMinSubmittedAt());
+    query.setMinSubmittedAt(minSubmittedAt == null ? null : minSubmittedAt.getTime());
+    Date maxExecutedAt = parseEndingDateOrDateTime(request.getMaxExecutedAt());
+    query.setMaxExecutedAt(maxExecutedAt == null ? null : maxExecutedAt.getTime());
 
     List<String> statuses = request.getStatus();
     if (statuses != null && !statuses.isEmpty()) {
@@ -262,37 +263,6 @@ public class ActivityAction implements CeWsAction {
     } else {
       userSession.checkPermission(UserRole.ADMIN);
     }
-  }
-
-  @CheckForNull
-  private static Long parseToDate(@Nullable String dateAsString) {
-    if (dateAsString == null) {
-      return null;
-    }
-
-    Date date = parseDateTimeQuietly(dateAsString);
-    if (date == null) {
-      date = parseDateQuietly(dateAsString);
-      checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
-      date = DateUtils.addDays(date, 1);
-    }
-
-    return date.getTime();
-  }
-
-  @CheckForNull
-  private static Long parseFromDate(@Nullable String dateAsString) {
-    if (dateAsString == null) {
-      return null;
-    }
-
-    Date date = parseDateTimeQuietly(dateAsString);
-    if (date == null) {
-      date = parseDateQuietly(dateAsString);
-      checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
-    }
-
-    return date.getTime();
   }
 
   public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {

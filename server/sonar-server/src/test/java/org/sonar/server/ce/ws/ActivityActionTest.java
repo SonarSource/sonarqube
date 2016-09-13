@@ -312,7 +312,7 @@ public class ActivityActionTest {
 
   @Test
   public void fail_if_date_is_not_well_formatted() {
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
 
     ws.newRequest()

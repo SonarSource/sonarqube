@@ -161,7 +161,7 @@ public final class DateUtils {
     }
 
     date = parseDateQuietly(stringDate);
-    checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
+    checkArgument(date != null, "Date '%s' cannot be parsed as either a date or date+time", stringDate);
 
     return date;
   }
@@ -194,7 +194,7 @@ public final class DateUtils {
     }
 
     date = parseDateQuietly(stringDate);
-    checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
+    checkArgument(date != null, "Date '%s' cannot be parsed as either a date or date+time", stringDate);
 
     return addDays(date, 1);
   }

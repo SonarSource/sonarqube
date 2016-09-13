@@ -173,7 +173,7 @@ public class DateUtilsTest {
   @Test
   public void fail_when_param_as_date_or_datetime_not_a_datetime() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'polop' cannot be parsed as either a date or date+time");
+    expectedException.expectMessage("Date 'polop' cannot be parsed as either a date or date+time");
 
     parseDateOrDateTime("polop");
   }
@@ -181,7 +181,7 @@ public class DateUtilsTest {
   @Test
   public void fail_when_param_as_starting_datetime_not_a_datetime() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'polop' cannot be parsed as either a date or date+time");
+    expectedException.expectMessage("Date 'polop' cannot be parsed as either a date or date+time");
 
     parseStartingDateOrDateTime("polop");
   }
