@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -168,10 +167,6 @@ public class QProfileExporters {
       }
     }
     return result;
-  }
-
-  public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, String xml, DbSession dbSession) {
-    return importXml(profileDto, importerKey, new StringReader(xml), dbSession);
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {

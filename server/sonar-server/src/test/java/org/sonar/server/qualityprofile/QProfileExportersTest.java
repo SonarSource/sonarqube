@@ -50,6 +50,8 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -142,7 +144,7 @@ public class QProfileExportersTest {
 
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())).isEmpty();
 
-    QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
+    QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", toInputStream("<xml/>", UTF_8), dbSession);
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
 
@@ -159,7 +161,7 @@ public class QProfileExportersTest {
 
   @Test
   public void import_xml_return_messages() {
-    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithMessages", "<xml/>", dbSession);
+    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithMessages", toInputStream("<xml/>", UTF_8), dbSession);
     dbSession.commit();
 
     assertThat(result.infos()).containsOnly("an info");
@@ -169,7 +171,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_when_error_in_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", "<xml/>", dbSession);
+      exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), dbSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("error!");
@@ -179,7 +181,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_on_unknown_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1(), "Unknown", "<xml/>", dbSession);
+      exporters.importXml(QProfileTesting.newXooP1(), "Unknown", toInputStream("<xml/>", UTF_8), dbSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such importer : Unknown");

@@ -24,7 +24,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -45,43 +44,18 @@ public class QProfileService {
   private final RuleActivator ruleActivator;
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
-  private final QProfileCopier copier;
   private final QProfileReset reset;
-  private final QProfileExporters exporters;
   private final UserSession userSession;
 
   public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters,
-    UserSession userSession) {
+    QProfileBackuper backuper, QProfileReset reset, UserSession userSession) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
     this.factory = factory;
     this.backuper = backuper;
-    this.copier = copier;
     this.reset = reset;
-    this.exporters = exporters;
     this.userSession = userSession;
-  }
-
-  public QProfileResult create(QProfileName name, @Nullable Map<String, String> xmlQProfilesByPlugin) {
-    verifyAdminPermission();
-    DbSession dbSession = db.openSession(false);
-    try {
-      QProfileResult result = new QProfileResult();
-      QualityProfileDto profile = factory.create(dbSession, name);
-      result.setProfile(profile);
-      if (xmlQProfilesByPlugin != null) {
-        for (Map.Entry<String, String> entry : xmlQProfilesByPlugin.entrySet()) {
-          result.add(exporters.importXml(profile, entry.getKey(), entry.getValue(), dbSession));
-        }
-      }
-      dbSession.commit();
-      activeRuleIndexer.index(result.getChanges());
-      return result;
-    } finally {
-      dbSession.close();
-    }
   }
 
   /**

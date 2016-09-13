@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.Reader;
@@ -40,15 +39,12 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -102,36 +98,6 @@ public class QProfileServiceMediumTest {
   @After
   public void after() {
     dbSession.close();
-  }
-
-  @Test
-  public void create_profile() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    QualityProfileDto profile = service.create(QProfileName.createFor("xoo", "New Profile"), null).profile();
-
-    assertThat(loader.getByKey(profile.getKey())).isNotNull();
-    assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
-    assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
-  }
-
-  @Test
-  public void create_profile_with_xml() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    dbClient.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
-    dbSession.commit();
-    ruleIndexer.index();
-
-    QProfileResult result = service.create(QProfileName.createFor("xoo", "New Profile"), ImmutableMap.of("XooProfileImporter", "<xml/>"));
-    QualityProfileDto profile = result.profile();
-
-    assertThat(loader.getByKey(profile.getKey())).isNotNull();
-    assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
-    assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
-
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())).hasSize(1);
-    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profile.getKey()).setActivation(true))).hasSize(1);
   }
 
   @Test
