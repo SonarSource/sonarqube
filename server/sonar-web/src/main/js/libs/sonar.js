@@ -33,5 +33,14 @@ jQuery(function () {
   jQuery('.open-modal').modal();
 });
 
+jQuery.ajaxSetup({
+  statusCode: {
+    401: function () {
+      window.location = window.baseUrl + '/sessions/new?return_to=' +
+          encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    }
+  }
+});
+
 window.sonarqube = {};
 window.sonarqube.el = '#content';

@@ -190,18 +190,13 @@ function requestTree (query, baseComponent, dispatch) {
 }
 
 async function getErrorMessage (response) {
-  switch (response.status) {
-    case 401:
-      return translate('not_authorized');
-    default:
-      try {
-        const json = await response.json();
-        return json['err_msg'] ||
-            (json.errors && _.pluck(json.errors, 'msg').join('. ')) ||
-            translate('default_error_message');
-      } catch (e) {
-        return translate('default_error_message');
-      }
+  try {
+    const json = await response.json();
+    return json['err_msg'] ||
+        (json.errors && _.pluck(json.errors, 'msg').join('. ')) ||
+        translate('default_error_message');
+  } catch (e) {
+    return translate('default_error_message');
   }
 }
 
