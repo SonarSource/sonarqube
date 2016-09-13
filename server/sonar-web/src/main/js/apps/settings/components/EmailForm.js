@@ -50,7 +50,7 @@ export default class EmailForm extends React.Component {
         <div className="huge-spacer-top">
           <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
 
-          <form className="display-inline-block" onSubmit={e => this.handleFormSubmit(e)}>
+          <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
             {this.state.success && (
                 <div className="alert alert-success">
                   {translateWithParameters('email_configuration.test.email_was_sent_to_x', this.state.recipient)}
@@ -58,8 +58,10 @@ export default class EmailForm extends React.Component {
             )}
 
             {this.state.error != null && (
-                <div className="alert alert-danger">
-                  {this.state.error}
+                <div className="modal-field">
+                  <div className="alert alert-danger">
+                    {this.state.error}
+                  </div>
                 </div>
             )}
 
@@ -101,7 +103,7 @@ export default class EmailForm extends React.Component {
                   onChange={e => this.setState({ message: e.target.value })}/>
             </div>
 
-            <div className="text-right">
+            <div className="modal-field">
               {this.state.loading && <i className="spacer-right spinner"/>}
               <button disabled={this.state.loading}>{translate('email_configuration.test.send')}</button>
             </div>
