@@ -61,18 +61,22 @@ public class CreateAction implements QProfileWsAction {
   private final ProfileImporter[] importers;
   private final UserSession userSession;
 
+  private final ActiveRuleIndexer activeRuleIndexer;
+
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters,
-                      Languages languages, ProfileImporter[] importers, UserSession userSession) {
+                      Languages languages, ProfileImporter[] importers, UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
     this.languages = languages;
     this.importers = importers;
     this.userSession = userSession;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
-  public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, UserSession userSession) {
-    this(dbClient, profileFactory, exporters, languages, new ProfileImporter[0], userSession);
+  public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, UserSession userSession,
+                      ActiveRuleIndexer activeRuleIndexer) {
+    this(dbClient, profileFactory, exporters, languages, new ProfileImporter[0], userSession, activeRuleIndexer);
   }
 
   @Override
@@ -127,6 +131,7 @@ public class CreateAction implements QProfileWsAction {
       }
     }
     dbSession.commit();
+    activeRuleIndexer.index(result.getChanges());
     return buildResponse(result);
   }
 

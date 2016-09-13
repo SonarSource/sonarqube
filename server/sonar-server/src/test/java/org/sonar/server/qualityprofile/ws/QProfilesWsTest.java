@@ -66,7 +66,7 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, null, i18n, userSessionRule),
       new AddProjectAction(projectAssociationParameters, null, null, null),
       new RemoveProjectAction(projectAssociationParameters, null, null, null),
-      new CreateAction(null, null, null, languages, importers, userSessionRule),
+      new CreateAction(null, null, null, languages, importers, userSessionRule, null),
       new ImportersAction(importers),
       new RestoreBuiltInAction(null, languages),
       new SearchAction(null, languages),
