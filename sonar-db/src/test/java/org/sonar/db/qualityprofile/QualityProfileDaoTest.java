@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -379,6 +380,26 @@ public class QualityProfileDaoTest {
 
     assertThat(underTest.selectProjectAssociations(profile1.getKey(), "ect2", dbSession)).hasSize(1);
     assertThat(underTest.selectProjectAssociations("unknown", null, dbSession)).hasSize(3);
+  }
+
+  @Test
+  public void update_project_profile_association() {
+    ComponentDto project = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
+    QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
+    QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
+    QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
+    qualityProfileDb.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
+
+    underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKey(), profile1Language1.getKey(), dbSession);
+
+    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKey()).isEqualTo(profile3Language1.getKey());
+    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKey()).isEqualTo(profile2Language2.getKey());
+  }
+
+  private QualityProfileDto insertQualityProfileDto(String key, String name, String language) {
+    QualityProfileDto dto = QualityProfileDto.createFor(key).setName(name).setLanguage(language);
+    underTest.insert(dbSession, dto);
+    return dto;
   }
 
 }

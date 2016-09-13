@@ -259,7 +259,7 @@
   </insert>
 
   <update id="updateProjectProfileAssociation">
-    UPDATE project_qprofiles SET profile_key=#{profileKey} WHERE project_uuid=#{projectUuid}
+    UPDATE project_qprofiles SET profile_key=#{profileKey} WHERE project_uuid=#{projectUuid} AND profile_key=#{oldProfileKey}
   </update>
 
   <update id="deleteProjectProfileAssociation">

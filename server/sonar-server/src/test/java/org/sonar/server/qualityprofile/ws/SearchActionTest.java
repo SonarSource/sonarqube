@@ -59,10 +59,8 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULTS;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROFILE_NAME;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.*;
 
 public class SearchActionTest {
 

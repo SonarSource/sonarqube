@@ -67,7 +67,7 @@ public class QProfileProjectOperations {
       db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
       updated = true;
     } else if (!profileKey.equals(currentProfile.getKey())) {
-      db.qualityProfileDao().updateProjectProfileAssociation(projectUuid, profileKey, session);
+      db.qualityProfileDao().updateProjectProfileAssociation(projectUuid, profileKey, currentProfile.getKey(), session);
       updated = true;
     }
     if (updated) {

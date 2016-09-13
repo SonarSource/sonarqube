@@ -37,13 +37,9 @@ import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.*;
 
 public class SearchAction implements QProfileWsAction {
-
-  static final String PARAM_LANGUAGE = "language";
-  static final String PARAM_PROJECT_KEY = "projectKey";
-  static final String PARAM_DEFAULTS = "defaults";
-  static final String PARAM_PROFILE_NAME = "profileName";
 
   private final SearchDataLoader dataLoader;
   private final Languages languages;
@@ -55,7 +51,7 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("search")
+    NewAction action = controller.createAction(ACTION_SEARCH)
       .setSince("5.2")
       .setDescription("List quality profiles.")
       .setHandler(this)
@@ -76,7 +72,7 @@ public class SearchAction implements QProfileWsAction {
     action
       .createParam(PARAM_DEFAULTS)
       .setDescription(format("Return the quality profile marked as default for each language. " +
-        "If provided, then the parameters '%s', '%s' must not be set.",
+          "If provided, then the parameters '%s', '%s' must not be set.",
         PARAM_LANGUAGE, PARAM_PROJECT_KEY))
       .setDefaultValue(false)
       .setBooleanPossibleValues();

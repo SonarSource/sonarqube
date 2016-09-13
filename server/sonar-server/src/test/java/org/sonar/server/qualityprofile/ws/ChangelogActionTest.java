@@ -58,7 +58,7 @@ public class ChangelogActionTest {
 
   @Before
   public void before() {
-    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
+    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class),
       new ChangelogAction(changelogLoader, profileFactory, new Languages(), dbTester.getDbClient())));
   }
 
