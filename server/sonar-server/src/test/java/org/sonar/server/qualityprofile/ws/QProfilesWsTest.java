@@ -30,6 +30,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -53,6 +54,7 @@ public class QProfilesWsTest {
   public void setUp() {
     QProfileService profileService = mock(QProfileService.class);
     I18n i18n = mock(I18n.class);
+    DbClient dbClient = mock(DbClient.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
 
@@ -68,10 +70,10 @@ public class QProfilesWsTest {
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, userSessionRule),
       new ProjectsAction(null, userSessionRule),
-      new BackupAction(null, null, languages),
+      new BackupAction(dbClient, null, null, languages),
       new RestoreAction(null, languages, userSessionRule),
-      new ChangelogAction(null, mock(QProfileFactory.class), languages),
-      new ChangeParentAction(null, null, languages, userSessionRule),
+      new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
+      new ChangeParentAction(dbClient, null, null, languages, userSessionRule),
       new CompareAction(null, null, null, languages),
       new CopyAction(null, languages, userSessionRule),
       new DeleteAction(languages, null, null, userSessionRule),

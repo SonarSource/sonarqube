@@ -26,6 +26,8 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -52,11 +54,11 @@ public class BackupActionTest {
     mock(RuleActivationActions.class),
     mock(BulkRuleActivationActions.class),
     mock(ProjectAssociationActions.class),
-    new BackupAction(backuper, profileFactory, LanguageTesting.newLanguages("xoo"))));
+    new BackupAction(mock(DbClient.class), backuper, profileFactory, LanguageTesting.newLanguages("xoo"))));
 
   @Test
   public void backup_profile() throws Exception {
-    when(profileFactory.find(QProfileRef.fromKey(SOME_PROFILE_KEY))).thenReturn(QualityProfileTesting.newQualityProfileDto().setKey(SOME_PROFILE_KEY));
+    when(profileFactory.find(any(DbSession.class), eq(QProfileRef.fromKey(SOME_PROFILE_KEY)))).thenReturn(QualityProfileTesting.newQualityProfileDto().setKey(SOME_PROFILE_KEY));
 
     final String response = "<polop><palap/></polop>";
     doAnswer(new Answer<Void>() {

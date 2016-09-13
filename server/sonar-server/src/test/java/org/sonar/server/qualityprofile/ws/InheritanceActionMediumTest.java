@@ -136,7 +136,7 @@ public class InheritanceActionMediumTest {
   }
 
   private void setParent(QualityProfileDto profile, QualityProfileDto parent) {
-    tester.get(RuleActivator.class).setParent(parent.getKey(), profile.getKey());
+    tester.get(RuleActivator.class).setParent(session, parent.getKey(), profile.getKey());
   }
 
   private RuleDto createRule(String lang, String id) {

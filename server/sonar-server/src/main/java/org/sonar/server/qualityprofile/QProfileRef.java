@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.component.ws.LanguageParamUtils;
+import org.sonar.server.util.LanguageParamUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;

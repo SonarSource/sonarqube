@@ -29,6 +29,8 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -44,11 +46,13 @@ public class ChangelogAction implements QProfileWsAction {
   private final ChangelogLoader changelogLoader;
   private final QProfileFactory profileFactory;
   private final Languages languages;
+  private DbClient dbClient;
 
-  public ChangelogAction(ChangelogLoader changelogLoader, QProfileFactory profileFactory, Languages languages) {
+  public ChangelogAction(ChangelogLoader changelogLoader, QProfileFactory profileFactory, Languages languages, DbClient dbClient) {
     this.changelogLoader = changelogLoader;
     this.profileFactory = profileFactory;
     this.languages = languages;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -75,23 +79,25 @@ public class ChangelogAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    QualityProfileDto profile = profileFactory.find(QProfileRef.from(request));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));
 
-    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
-    Date since = request.paramAsDateTime(PARAM_SINCE);
-    if (since != null) {
-      query.setFromIncluded(since.getTime());
-    }
-    Date to = request.paramAsDateTime(PARAM_TO);
-    if (to != null) {
-      query.setToExcluded(to.getTime());
-    }
-    int page = request.mandatoryParamAsInt(Param.PAGE);
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    query.setPage(page, pageSize);
+      QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
+      Date since = request.paramAsDateTime(PARAM_SINCE);
+      if (since != null) {
+        query.setFromIncluded(since.getTime());
+      }
+      Date to = request.paramAsDateTime(PARAM_TO);
+      if (to != null) {
+        query.setToExcluded(to.getTime());
+      }
+      int page = request.mandatoryParamAsInt(Param.PAGE);
+      int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
+      query.setPage(page, pageSize);
 
-    ChangelogLoader.Changelog changelog = changelogLoader.load(query);
-    writeResponse(response.newJsonWriter(), page, pageSize, changelog);
+      ChangelogLoader.Changelog changelog = changelogLoader.load(dbSession, query);
+      writeResponse(response.newJsonWriter(), page, pageSize, changelog);
+    }
   }
 
   private void writeResponse(JsonWriter json, int page, int pageSize, ChangelogLoader.Changelog changelog) {

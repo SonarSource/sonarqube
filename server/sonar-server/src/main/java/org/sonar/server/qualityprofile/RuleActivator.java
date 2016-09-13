@@ -455,19 +455,7 @@ public class RuleActivator {
     }
   }
 
-  public void setParent(String key, @Nullable String parentKey) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      List<ActiveRuleChange> changes = setParent(dbSession, key, parentKey);
-      dbSession.commit();
-      activeRuleIndexer.index(changes);
-
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  List<ActiveRuleChange> setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
+  public List<ActiveRuleChange> setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
     QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, profileKey);
     List<ActiveRuleChange> changes = new ArrayList<>();
     if (parentKey == null) {
@@ -494,6 +482,8 @@ public class RuleActivator {
         }
       }
     }
+    dbSession.commit();
+    activeRuleIndexer.index(changes);
     return changes;
   }
 
