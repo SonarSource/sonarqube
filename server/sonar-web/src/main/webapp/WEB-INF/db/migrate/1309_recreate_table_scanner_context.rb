@@ -24,12 +24,6 @@
 class RecreateTableScannerContext < ActiveRecord::Migration
 
   def self.up
-    create_table 'ce_scanner_context', :id => false do |t|
-      t.column 'task_uuid', :string, :limit => 40, :null => false
-      t.column 'data', :binary, :null => false
-      t.column 'created_at', :big_integer, :null => false
-      t.column 'updated_at', :big_integer, :null => false
-    end
-    add_primary_key 'ce_scanner_context', 'task_uuid'
+    execute_java_migration('org.sonar.db.version.v61.CreateTableScannerContext')
   end
 end
