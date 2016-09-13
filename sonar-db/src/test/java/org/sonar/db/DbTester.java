@@ -30,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -146,6 +147,15 @@ public class DbTester extends ExternalResource {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
+    }
+  }
+
+  public void executeDdl(String ddl) {
+    try (Connection connection = getConnection();
+    Statement stmt = connection.createStatement()) {
+      stmt.execute(ddl);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Failed to execute DDL: " + ddl, e);
     }
   }
 
