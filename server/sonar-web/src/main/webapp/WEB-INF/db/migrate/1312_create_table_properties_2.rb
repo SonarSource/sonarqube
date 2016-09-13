@@ -24,15 +24,7 @@
 class CreateTableProperties2 < ActiveRecord::Migration
 
   def self.up
-    create_table 'properties2' do |t|
-      t.column 'prop_key', :string, :limit => 512, :null => false
-      t.column :resource_id, :integer, :null => true
-      t.column :user_id, :integer, :null => true
-      t.column 'is_empty', :boolean, :null => false
-	    t.column :text_value, :string, :limit => 4000, :null => true
-	    t.column :clob_value, :text, :null => true
-      t.column 'created_at', :big_integer, :null => false
-    end
+    execute_java_migration('org.sonar.db.version.v61.CreateTableProperties2')
     add_varchar_index :properties2, :prop_key, :name => 'properties2_key'
   end
 end
