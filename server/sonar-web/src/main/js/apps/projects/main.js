@@ -182,6 +182,7 @@ export default React.createClass({
   },
 
   deleteProjects() {
+    this.setState({ ready: false });
     const ids = this.state.selection.join(',');
     deleteComponents({ ids }).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
