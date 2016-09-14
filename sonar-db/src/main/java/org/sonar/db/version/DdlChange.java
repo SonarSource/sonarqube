@@ -21,6 +21,7 @@ package org.sonar.db.version;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.dbutils.DbUtils;
@@ -78,8 +79,9 @@ public abstract class DdlChange implements MigrationStep {
     }
 
     public void execute(String original, String sql, int errorCount) throws SQLException {
-      try {
-        UpsertImpl.create(writeConnection, sql).execute().commit();
+      try (Statement stmt = writeConnection.createStatement()) {
+        stmt.execute(sql);
+        writeConnection.commit();
       } catch (SQLException e) {
         if (errorCount < ERROR_HANDLING_THRESHOLD) {
           String message = e.getMessage();
