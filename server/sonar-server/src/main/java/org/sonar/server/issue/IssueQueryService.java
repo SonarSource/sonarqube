@@ -49,8 +49,6 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -70,7 +68,9 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.longToDate;
+import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
+import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -193,7 +193,7 @@ public class IssueQueryService {
         .tags(request.getTags())
         .types(request.getTypes())
         .assigned(request.getAssigned())
-        .createdAt(parseAsDateTime(request.getCreatedAt()))
+        .createdAt(parseDateOrDateTime(request.getCreatedAt()))
         .createdBefore(parseEndingDateOrDateTime(request.getCreatedBefore()))
         .facetMode(request.getFacetMode());
 
@@ -232,7 +232,7 @@ public class IssueQueryService {
   }
 
   private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids) {
-    Date createdAfter = parseAsDateTime(request.getCreatedAfter());
+    Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
     if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
@@ -455,23 +455,6 @@ public class IssueQueryService {
       return newArrayList(Iterables.transform(rules, RuleKeyFunctions.stringToRuleKey()));
     }
     return null;
-  }
-
-  @CheckForNull
-  private static Date parseAsDateTime(@Nullable String stringDate) {
-    if (stringDate == null) {
-      return null;
-    }
-
-    try {
-      return DateUtils.parseDateTime(stringDate);
-    } catch (SonarException notDateTime) {
-      try {
-        return DateUtils.parseDate(stringDate);
-      } catch (SonarException notDateEither) {
-        throw new IllegalArgumentException(String.format("'%s' cannot be parsed as either a date or date+time", stringDate));
-      }
-    }
   }
 
   private static class HasTwoOrMoreElements implements Predicate<Object> {
