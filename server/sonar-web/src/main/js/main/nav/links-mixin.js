@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint no-unused-vars: 0 */
-import _ from 'underscore';
 import React from 'react';
+import classNames from 'classnames';
 
 export default {
   activeLink(url) {
@@ -28,20 +27,13 @@ export default {
 
   renderLink(url, title, highlightUrl = url) {
     const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
-    return (
-        <li key={url} className={check(fullUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
+    const isActive = typeof highlightUrl === 'string' ?
+        window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
+        highlightUrl(fullUrl);
 
-  renderNewLink(url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
-          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
+        <li key={url} className={classNames({ 'active': isActive })}>
+          <a href={fullUrl}>{title}</a>
         </li>
     );
   }
