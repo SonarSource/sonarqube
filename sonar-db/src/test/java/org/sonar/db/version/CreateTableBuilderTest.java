@@ -124,17 +124,17 @@ public class CreateTableBuilderTest {
 
   @DataProvider
   public static Object[][] digitCharsDataProvider() {
-    return new Object[][]{
-        {'0'},
-        {'1'},
-        {'2'},
-        {'3'},
-        {'4'},
-        {'5'},
-        {'6'},
-        {'7'},
-        {'8'},
-        {'9'},
+    return new Object[][] {
+      {'0'},
+      {'1'},
+      {'2'},
+      {'3'},
+      {'4'},
+      {'5'},
+      {'6'},
+      {'7'},
+      {'8'},
+      {'9'},
     };
   }
 
@@ -189,115 +189,125 @@ public class CreateTableBuilderTest {
   @Test
   public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_with_def_other_than_Integer_and_BigInteger() {
     ColumnDef[] columnDefs = {
-        newBooleanColumnDefBuilder().setColumnName("id").build(),
-        newClobColumnDefBuilder().setColumnName("id").build(),
-        newDecimalColumnDefBuilder().setColumnName("id").build(),
-        new TinyIntColumnDef.Builder().setColumnName("id").build(),
-        newVarcharColumnDefBuilder().setColumnName("id").setLimit(40).build(),
-        newBlobColumnDefBuilder().setColumnName("id").build()
+      newBooleanColumnDefBuilder().setColumnName("id").build(),
+      newClobColumnDefBuilder().setColumnName("id").build(),
+      newDecimalColumnDefBuilder().setColumnName("id").build(),
+      new TinyIntColumnDef.Builder().setColumnName("id").build(),
+      newVarcharColumnDefBuilder().setColumnName("id").setLimit(40).build(),
+      newBlobColumnDefBuilder().setColumnName("id").build()
     };
     Arrays.stream(columnDefs)
-        .forEach(columnDef -> {
-          try {
-            underTest.addPkColumn(columnDef, AUTO_INCREMENT);
-            fail("A IllegalArgumentException should have been raised");
-          } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessage("Auto increment column must either be BigInteger or Integer");
-          }
-        });
+      .forEach(columnDef -> {
+        try {
+          underTest.addPkColumn(columnDef, AUTO_INCREMENT);
+          fail("A IllegalArgumentException should have been raised");
+        } catch (IllegalArgumentException e) {
+          assertThat(e).hasMessage("Auto increment column must either be BigInteger or Integer");
+        }
+      });
   }
 
   @Test
   public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_and_column_is_nullable() {
     ColumnDef[] columnDefs = {
-        newIntegerColumnDefBuilder().setColumnName("id").build(),
-        newBigIntegerColumnDefBuilder().setColumnName("id").build()
+      newIntegerColumnDefBuilder().setColumnName("id").build(),
+      newBigIntegerColumnDefBuilder().setColumnName("id").build()
     };
     Arrays.stream(columnDefs)
-        .forEach(columnDef -> {
-          try {
-            underTest.addPkColumn(columnDef, AUTO_INCREMENT);
-            fail("A IllegalArgumentException should have been raised");
-          } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessage("Auto increment column can't be nullable");
-          }
-        });
+      .forEach(columnDef -> {
+        try {
+          underTest.addPkColumn(columnDef, AUTO_INCREMENT);
+          fail("A IllegalArgumentException should have been raised");
+        } catch (IllegalArgumentException e) {
+          assertThat(e).hasMessage("Auto increment column can't be nullable");
+        }
+      });
   }
 
   @Test
   public void build_sets_type_SERIAL_for_autoincrement_integer_pk_column_on_Postgresql() {
     List<String> stmts = new CreateTableBuilder(POSTGRESQL, TABLE_NAME)
-        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
-        .isEqualTo(
-            "CREATE TABLE table_42 (id SERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo(
+        "CREATE TABLE table_42 (id SERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
   public void build_sets_type_BIGSERIAL_for_autoincrement_biginteger_pk_column_on_Postgresql() {
     List<String> stmts = new CreateTableBuilder(POSTGRESQL, TABLE_NAME)
-        .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
-        .isEqualTo(
-            "CREATE TABLE table_42 (id BIGSERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo(
+        "CREATE TABLE table_42 (id BIGSERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
   public void build_generates_a_create_trigger_statement_when_an_autoincrement_pk_column_is_specified_and_on_Oracle() {
     List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
-        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(3);
     assertThat(stmts.get(0))
-        .isEqualTo("CREATE TABLE table_42 (id INTEGER NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo("CREATE TABLE table_42 (id INTEGER NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
     assertThat(stmts.get(1))
-        .isEqualTo("CREATE SEQUENCE table_42_seq START WITH 1 INCREMENT BY 1");
+      .isEqualTo("CREATE SEQUENCE table_42_seq START WITH 1 INCREMENT BY 1");
     assertThat(stmts.get(2))
-        .isEqualTo("CREATE OR REPLACE TRIGGER table_42_idt" +
-            " BEFORE INSERT ON table_42" +
-            " FOR EACH ROW" +
-            " BEGIN" +
-            " IF :new.id IS null THEN" +
-            " SELECT table_42_seq.nextval INTO :new.id FROM dual;" +
-            " END IF;" +
-            " END;");
+      .isEqualTo("CREATE OR REPLACE TRIGGER table_42_idt" +
+        " BEFORE INSERT ON table_42" +
+        " FOR EACH ROW" +
+        " BEGIN" +
+        " IF :new.id IS null THEN" +
+        " SELECT table_42_seq.nextval INTO :new.id FROM dual;" +
+        " END IF;" +
+        " END;");
   }
 
   @Test
   public void build_adds_IDENTITY_clause_on_MsSql() {
     List<String> stmts = new CreateTableBuilder(MS_SQL, TABLE_NAME)
-        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
-        .isEqualTo(
-            "CREATE TABLE table_42 (id INT NOT NULL IDENTITY (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo(
+        "CREATE TABLE table_42 (id INT NOT NULL IDENTITY (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
   public void build_adds_AUTO_INCREMENT_clause_on_H2() {
     List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
-        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
-        .isEqualTo(
-            "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo(
+        "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
   public void build_adds_AUTO_INCREMENT_clause_on_MySql() {
     List<String> stmts = new CreateTableBuilder(MY_SQL, TABLE_NAME)
-        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-        .build();
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
-        .isEqualTo(
-            "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .startsWith("CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void builds_adds_hardcoded_collation_clause_on_MySql() {
+    List<String> stmts = new CreateTableBuilder(MY_SQL, TABLE_NAME)
+      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .endsWith(" ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
+
   }
 
   @Test
@@ -364,43 +374,43 @@ public class CreateTableBuilderTest {
   @Test
   public void build_adds_NULL_when_column_is_nullable_for_all_DBs() {
     Arrays.stream(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col " +
-                  bigIntSqlType(dialect) + " NULL" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col " +
+            bigIntSqlType(dialect) + " NULL" +
+            ")");
+      });
   }
 
   @Test
   public void build_adds_NOT_NULL_when_column_is_not_nullable_for_all_DBs() {
     Arrays.stream(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col " +
-                  bigIntSqlType(dialect) +
-                  " NOT NULL" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col " +
+            bigIntSqlType(dialect) +
+            " NOT NULL" +
+            ")");
+      });
   }
 
   @Test
   public void build_of_single_column_table() {
     List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
-        .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col_1").build())
-        .build();
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col_1").build())
+      .build();
     assertThat(stmts).hasSize(1);
 
     assertThat(stmts.iterator().next()).isEqualTo("CREATE TABLE table_42 (bool_col_1 BOOLEAN NULL)");
@@ -409,148 +419,148 @@ public class CreateTableBuilderTest {
   @Test
   public void build_table_with_pk() {
     List<String> stmts = new CreateTableBuilder(H2, TABLE_NAME)
-        .addPkColumn(newBooleanColumnDefBuilder().setColumnName("bool_col").build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col").setLimit(40).build())
-        .build();
+      .addPkColumn(newBooleanColumnDefBuilder().setColumnName("bool_col").build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col").setLimit(40).build())
+      .build();
     assertThat(stmts).hasSize(1);
 
     assertThat(stmts.iterator().next())
-        .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-            "bool_col BOOLEAN NULL," +
-            "varchar_col VARCHAR (40) NULL," +
-            " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bool_col)" +
-            ")");
+      .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
+        "bool_col BOOLEAN NULL," +
+        "varchar_col VARCHAR (40) NULL," +
+        " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bool_col)" +
+        ")");
 
   }
 
   @Test
   public void build_adds_PRIMARY_KEY_constraint_on_single_column_with_name_computed_from_tablename() {
     Arrays.asList(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col " + bigIntSqlType(dialect) + " NOT NULL," +
-                  " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bg_col)" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col " + bigIntSqlType(dialect) + " NOT NULL," +
+            " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bg_col)" +
+            ")");
+      });
   }
 
   @Test
   public void build_adds_PRIMARY_KEY_constraint_on_single_column_with_lower_case_of_specified_name() {
     Arrays.asList(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
-              .withPkConstraintName("my_pk")
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col").setIsNullable(false).build())
+          .withPkConstraintName("my_pk")
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col " +
-                  bigIntSqlType(dialect) +
-                  " NOT NULL," +
-                  " CONSTRAINT my_pk PRIMARY KEY (bg_col)" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col " +
+            bigIntSqlType(dialect) +
+            " NOT NULL," +
+            " CONSTRAINT my_pk PRIMARY KEY (bg_col)" +
+            ")");
+      });
   }
 
   @Test
   public void build_adds_PRIMARY_KEY_constraint_on_multiple_columns_with_name_computed_from_tablename() {
     Arrays.asList(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_2").setIsNullable(false).build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_2").setIsNullable(false).build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col_1 " + bigIntSqlType(dialect) + " NOT NULL," +
-                  "bg_col_2 " + bigIntSqlType(dialect) + " NOT NULL," +
-                  " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bg_col_1,bg_col_2)" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col_1 " + bigIntSqlType(dialect) + " NOT NULL," +
+            "bg_col_2 " + bigIntSqlType(dialect) + " NOT NULL," +
+            " CONSTRAINT pk_" + TABLE_NAME + " PRIMARY KEY (bg_col_1,bg_col_2)" +
+            ")");
+      });
   }
 
   @Test
   public void build_adds_PRIMARY_KEY_constraint_on_multiple_columns_with_lower_case_of_specified_name() {
     Arrays.asList(ALL_DIALECTS)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
-              .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_2").setIsNullable(false).build())
-              .withPkConstraintName("my_pk")
-              .build();
-          assertThat(stmts).hasSize(1);
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
+          .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_2").setIsNullable(false).build())
+          .withPkConstraintName("my_pk")
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next())
-              .isEqualTo("CREATE TABLE " + TABLE_NAME + " (" +
-                  "bg_col_1 " + bigIntSqlType(dialect) + " NOT NULL," +
-                  "bg_col_2 " + bigIntSqlType(dialect) + " NOT NULL," +
-                  " CONSTRAINT my_pk PRIMARY KEY (bg_col_1,bg_col_2)" +
-                  ")");
-        });
+        assertThat(stmts.iterator().next())
+          .startsWith("CREATE TABLE " + TABLE_NAME + " (" +
+            "bg_col_1 " + bigIntSqlType(dialect) + " NOT NULL," +
+            "bg_col_2 " + bigIntSqlType(dialect) + " NOT NULL," +
+            " CONSTRAINT my_pk PRIMARY KEY (bg_col_1,bg_col_2)" +
+            ")");
+      });
   }
 
   @Test
   public void builds_adds_LOB_storage_clause_on_Oracle_for_CLOB_column() {
     List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
-        .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
-        .build();
+      .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
+      .build();
     assertThat(stmts).hasSize(1);
 
     assertThat(stmts.iterator().next()).isEqualTo(
-        "CREATE TABLE " + TABLE_NAME + " (" +
-            "clob_1 CLOB NOT NULL)" +
-            " LOB (clob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
+      "CREATE TABLE " + TABLE_NAME + " (" +
+        "clob_1 CLOB NOT NULL)" +
+        " LOB (clob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
   }
 
   @Test
   public void builds_adds_LOB_storage_clause_on_Oracle_for_BLOB_column() {
     List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
-        .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
-        .build();
+      .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
+      .build();
     assertThat(stmts).hasSize(1);
 
     assertThat(stmts.iterator().next()).isEqualTo(
-        "CREATE TABLE " + TABLE_NAME + " (" +
-            "blob_1 BLOB NOT NULL)" +
-            " LOB (blob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
+      "CREATE TABLE " + TABLE_NAME + " (" +
+        "blob_1 BLOB NOT NULL)" +
+        " LOB (blob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
   }
 
   @Test
   public void build_does_not_add_LOB_storage_clause_for_CLOB_column_for_other_than_Oracle() {
     Arrays.stream(ALL_DIALECTS)
-        .filter(dialect -> dialect != ORACLE)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .filter(dialect -> dialect != ORACLE)
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
-        });
+        assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
+      });
   }
 
   @Test
   public void build_does_not_add_LOB_storage_clause_for_BLOB_column_for_other_than_Oracle() {
     Arrays.stream(ALL_DIALECTS)
-        .filter(dialect -> dialect != ORACLE)
-        .forEach(dialect -> {
-          List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-              .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
-              .build();
-          assertThat(stmts).hasSize(1);
+      .filter(dialect -> dialect != ORACLE)
+      .forEach(dialect -> {
+        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+          .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
+          .build();
+        assertThat(stmts).hasSize(1);
 
-          assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
-        });
+        assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
+      });
   }
 
   private static String bigIntSqlType(Dialect dialect) {

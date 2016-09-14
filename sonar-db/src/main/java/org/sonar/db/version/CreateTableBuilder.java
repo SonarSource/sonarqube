@@ -67,30 +67,6 @@ public class CreateTableBuilder {
       .collect(Collectors.toList());
   }
 
-  private Stream<String> createOracleAutoIncrementStatements() {
-    if (!Oracle.ID.equals(dialect.getId())) {
-      return Stream.empty();
-    }
-    return pkColumnDefs.stream()
-      .filter(this::isAutoIncrement)
-      .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
-  }
-
-  private String createSequenceFor(String tableName) {
-    return "CREATE SEQUENCE " + tableName + "_seq START WITH 1 INCREMENT BY 1";
-  }
-
-  private static String createTriggerFor(String tableName) {
-    return "CREATE OR REPLACE TRIGGER " + tableName + "_idt" +
-      " BEFORE INSERT ON " + tableName +
-      " FOR EACH ROW" +
-      " BEGIN" +
-      " IF :new.id IS null THEN" +
-      " SELECT " + tableName + "_seq.nextval INTO :new.id FROM dual;" +
-      " END IF;" +
-      " END;";
-  }
-
   public CreateTableBuilder addColumn(ColumnDef columnDef) {
     columnDefs.add(requireNonNull(columnDef, "column def can't be null"));
     return this;
@@ -139,6 +115,7 @@ public class CreateTableBuilder {
     addPkConstraint(res);
     res.append(')');
     addLOBStorageClause(res, dialect, columnDefs);
+    addCollationClause(res, dialect);
     return res.toString();
   }
 
@@ -264,6 +241,36 @@ public class CreateTableBuilder {
       res.append(')');
       res.append(" STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
     }
+  }
+
+  private static void addCollationClause(StringBuilder res, Dialect dialect) {
+    if (MySql.ID.equals(dialect.getId())) {
+      res.append(" ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
+    }
+  }
+
+  private Stream<String> createOracleAutoIncrementStatements() {
+    if (!Oracle.ID.equals(dialect.getId())) {
+      return Stream.empty();
+    }
+    return pkColumnDefs.stream()
+        .filter(this::isAutoIncrement)
+        .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
+  }
+
+  private String createSequenceFor(String tableName) {
+    return "CREATE SEQUENCE " + tableName + "_seq START WITH 1 INCREMENT BY 1";
+  }
+
+  private static String createTriggerFor(String tableName) {
+    return "CREATE OR REPLACE TRIGGER " + tableName + "_idt" +
+        " BEFORE INSERT ON " + tableName +
+        " FOR EACH ROW" +
+        " BEGIN" +
+        " IF :new.id IS null THEN" +
+        " SELECT " + tableName + "_seq.nextval INTO :new.id FROM dual;" +
+        " END IF;" +
+        " END;";
   }
 
   public enum ColumnFlag {
