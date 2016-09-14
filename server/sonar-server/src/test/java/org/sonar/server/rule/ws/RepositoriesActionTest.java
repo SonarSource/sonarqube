@@ -60,8 +60,6 @@ public class RepositoriesActionTest {
     newRequest().setParam("q", "common").execute().assertJson(this.getClass(), "repositories_common.json");
     newRequest().setParam("q", "squid").execute().assertJson(this.getClass(), "repositories_squid.json");
     newRequest().setParam("q", "sonar").execute().assertJson(this.getClass(), "repositories_sonar.json");
-    newRequest().setParam("ps", "4").execute().assertJson(this.getClass(), "repositories.json");
-    newRequest().setParam("ps", "100").execute().assertJson(this.getClass(), "repositories.json");
   }
 
   protected TestRequest newRequest() {

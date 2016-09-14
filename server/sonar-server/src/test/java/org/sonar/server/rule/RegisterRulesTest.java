@@ -34,6 +34,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -48,6 +49,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -117,7 +119,19 @@ public class RegisterRulesTest {
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY2);
 
     // verify repositories
-    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKee).containsOnly("fake");
+    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
+  }
+
+  @Test
+  public void delete_repositories_that_have_been_uninstalled() {
+    RuleRepositoryDto repository = new RuleRepositoryDto("findbugs", "java", "Findbugs");
+    DbSession dbSession = dbTester.getSession();
+    dbTester.getDbClient().ruleRepositoryDao().insert(dbSession, asList(repository));
+    dbSession.commit();
+
+    execute(new FakeRepositoryV1());
+
+    assertThat(dbTester.getDbClient().ruleRepositoryDao().selectAll(dbSession)).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
   }
 
   @Test
@@ -173,7 +187,7 @@ public class RegisterRulesTest {
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY3);
 
     // verify repositories
-    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKee).containsOnly("fake");
+    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
   }
 
   @Test
