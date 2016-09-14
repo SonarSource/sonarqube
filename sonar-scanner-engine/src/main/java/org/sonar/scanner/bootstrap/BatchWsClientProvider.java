@@ -44,8 +44,6 @@ public class BatchWsClientProvider extends ProviderAdapter {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
-      // TODO proxy
-
       String timeoutSec = defaultIfBlank(settings.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
       String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), null);
       connectorBuilder
@@ -54,6 +52,12 @@ public class BatchWsClientProvider extends ProviderAdapter {
         .userAgent(env.toString())
         .url(url)
         .credentials(login, settings.property(CoreProperties.PASSWORD));
+
+      // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
+      final String proxyUser = System.getProperty("http.proxyUser", "");
+      if (!System.getProperty("http.proxyHost", "").isEmpty() && !proxyUser.isEmpty()) {
+        connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
+      }
 
       wsClient = new BatchWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null);
     }
