@@ -21,10 +21,11 @@ package org.sonar.server.issue.workflow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
@@ -43,47 +44,46 @@ public class State {
   }
 
   private static void checkDuplications(Transition[] transitions, String stateKey) {
-    Set<String> keys = Sets.newHashSet();
-    for (Transition transition : transitions) {
-      if (keys.contains(transition.key())) {
+    Set<String> keys = new HashSet<>();
+
+    Arrays.stream(transitions)
+      .filter(transition -> !keys.add(transition.key()))
+      .findAny()
+      .ifPresent(transition -> {
         throw new IllegalArgumentException("Transition '" + transition.key() +
           "' is declared several times from the originating state '" + stateKey + "'");
-      }
-      keys.add(transition.key());
-    }
+      });
   }
 
   public List<Transition> outManualTransitions(Issue issue) {
-    List<Transition> result = Lists.newArrayList();
-    for (Transition transition : outTransitions) {
-      if (!transition.automatic() && transition.supports(issue)) {
-        result.add(transition);
-      }
-    }
-    return result;
+    return Arrays.stream(outTransitions)
+      .filter(transition -> !transition.automatic())
+      .filter(transition -> transition.supports(issue))
+      .collect(Collectors.toList());
   }
 
   @CheckForNull
   public Transition outAutomaticTransition(Issue issue) {
-    Transition result = null;
-    for (Transition transition : outTransitions) {
-      if (transition.automatic() && transition.supports(issue)) {
-        if (result == null) {
-          result = transition;
-        } else {
-          throw new IllegalStateException("Several automatic transitions are available for issue: " + issue);
-        }
-      }
-    }
-    return result;
+    final Transition[] result = new Transition[1];
+    Set<String> keys = new HashSet<>();
+
+    Arrays.stream(outTransitions)
+      .filter(Transition::automatic)
+      .filter(transition -> transition.supports(issue))
+      .peek(transition -> result[0] = transition)
+      .filter(transition -> !keys.add(transition.key()))
+      .findAny()
+      .ifPresent(transition -> {
+        throw new IllegalArgumentException("Several automatic transitions are available for issue: " + issue);
+      });
+
+    return result[0];
   }
 
   Transition transition(String transitionKey) {
-    for (Transition transition : outTransitions) {
-      if (transitionKey.equals(transition.key())) {
-        return transition;
-      }
-    }
-    throw new IllegalStateException("Transition from state " + key + " does not exist: " + transitionKey);
+    return Arrays.stream(outTransitions)
+      .filter(transition -> transitionKey.equals(transition.key()))
+      .findAny()
+      .orElseThrow(() -> new IllegalArgumentException("Transition from state " + key + " does not exist: " + transitionKey));
   }
 }

@@ -19,42 +19,48 @@
  */
 package org.sonar.server.issue.workflow;
 
+import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import org.junit.rules.ExpectedException;
 
 public class StateTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
 
   @Test
   public void key_should_be_set() {
-    try {
-      new State("", new Transition[0]);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("State key must be set");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("State key must be set");
+
+    new State("", new Transition[0]);
   }
 
   @Test
   public void key_should_be_upper_case() {
-    try {
-      new State("close", new Transition[0]);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("State key must be upper-case");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("State key must be upper-case");
+
+    new State("close", new Transition[0]);
   }
 
   @Test
   public void no_duplicated_out_transitions() {
-    try {
-      new State("CLOSE", new Transition[] {t1, t1});
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
+
+    new State("CLOSE", new Transition[] {t1, t1});
+  }
+
+  @Test
+  public void fail_when_transition_is_unknown() {
+    State state = new State("VALIDATED", new Transition[0]);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Transition from state VALIDATED does not exist: Unknown Transition");
+
+    state.transition("Unknown Transition");
   }
 }
