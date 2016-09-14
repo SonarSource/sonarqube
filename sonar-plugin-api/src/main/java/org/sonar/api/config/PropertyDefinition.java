@@ -299,6 +299,10 @@ public final class PropertyDefinition {
     return multiValues;
   }
 
+  /**
+   * @deprecated since 6.1, as it was not used and too complex to maintain.
+   */
+  @Deprecated
   public String propertySetKey() {
     return propertySetKey;
   }
@@ -503,6 +507,10 @@ public final class PropertyDefinition {
       return this;
     }
 
+    /**
+     * @deprecated since 6.1, as it was not used and too complex to maintain.
+     */
+    @Deprecated
     public Builder propertySetKey(String propertySetKey) {
       this.propertySetKey = propertySetKey;
       return this;

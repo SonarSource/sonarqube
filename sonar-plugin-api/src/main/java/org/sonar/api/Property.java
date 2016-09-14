@@ -109,7 +109,9 @@ public @interface Property {
    * by its key.
    *
    * @since 3.3
+   * @deprecated since 6.1, as it was not used and too complex to maintain.
    */
+  @Deprecated
   String propertySetKey() default "";
 
   /**
