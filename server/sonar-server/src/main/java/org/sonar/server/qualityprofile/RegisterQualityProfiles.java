@@ -58,7 +58,6 @@ public class RegisterQualityProfiles {
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final List<ProfileDefinition> definitions;
-  private final BuiltInProfiles builtInProfiles;
   private final DbClient dbClient;
   private final QProfileFactory profileFactory;
   private final RuleActivator ruleActivator;
@@ -68,15 +67,14 @@ public class RegisterQualityProfiles {
   /**
    * To be kept when no ProfileDefinition are injected
    */
-  public RegisterQualityProfiles(BuiltInProfiles builtInProfiles,
-    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
-    this(builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList(), languages, activeRuleIndexer);
+  public RegisterQualityProfiles(DbClient dbClient,
+    QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
+    this(dbClient, profileFactory, ruleActivator, Collections.emptyList(), languages, activeRuleIndexer);
   }
 
-  public RegisterQualityProfiles(BuiltInProfiles builtInProfiles,
-    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+  public RegisterQualityProfiles(DbClient dbClient,
+    QProfileFactory profileFactory, RuleActivator ruleActivator,
     List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
-    this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
@@ -129,7 +127,6 @@ public class RegisterQualityProfiles {
       if (shouldRegister(profileName, session)) {
         changes.addAll(register(profileName, entry.getValue(), session));
       }
-      builtInProfiles.put(language, name);
     }
     setDefault(language, defs, session);
     session.commit();

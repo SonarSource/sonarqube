@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
@@ -44,17 +42,15 @@ public class QProfileService {
   private final RuleActivator ruleActivator;
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
-  private final QProfileReset reset;
   private final UserSession userSession;
 
   public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileBackuper backuper, QProfileReset reset, UserSession userSession) {
+    QProfileBackuper backuper, UserSession userSession) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
     this.factory = factory;
     this.backuper = backuper;
-    this.reset = reset;
     this.userSession = userSession;
   }
 
@@ -107,49 +103,6 @@ public class QProfileService {
     StringWriter output = new StringWriter();
     backup(profileKey, output);
     return output.toString();
-  }
-
-  public void restore(Reader backup) {
-    verifyAdminPermission();
-    backuper.restore(backup, null);
-  }
-
-  /**
-   * @deprecated used only by Ruby on Rails. Use {@link #restore(java.io.Reader)}
-   */
-  @Deprecated
-  public void restore(String backup) {
-    restore(new StringReader(backup));
-  }
-
-  public void restoreBuiltInProfilesForLanguage(String lang) {
-    verifyAdminPermission();
-    reset.resetLanguage(lang);
-  }
-
-  public void delete(String key) {
-    verifyAdminPermission();
-    DbSession session = db.openSession(false);
-    try {
-      List<ActiveRuleChange> changes = factory.delete(session, key, false);
-      session.commit();
-      activeRuleIndexer.index(changes);
-    } finally {
-      db.closeSession(session);
-    }
-  }
-
-  public void rename(String key, String newName) {
-    verifyAdminPermission();
-    factory.rename(key, newName);
-  }
-
-  /**
-   * Set the given quality profile as default for the related language
-   */
-  public void setDefault(String key) {
-    verifyAdminPermission();
-    factory.setDefault(key);
   }
 
   /**

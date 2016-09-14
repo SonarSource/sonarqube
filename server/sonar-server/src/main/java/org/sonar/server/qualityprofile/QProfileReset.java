@@ -52,32 +52,26 @@ public class QProfileReset {
   private final QProfileFactory factory;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final BuiltInProfiles builtInProfiles;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, BuiltInProfiles builtInProfiles, QProfileFactory factory,
+  public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory,
     ProfileDefinition[] definitions) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.builtInProfiles = builtInProfiles;
     this.factory = factory;
     this.definitions = definitions;
   }
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory, ActiveRuleIndexer activeRuleIndexer) {
-    this(db, activator, activeRuleIndexer, builtInProfiles, factory, new ProfileDefinition[0]);
-  }
-
-  public Collection<String> builtInProfileNamesForLanguage(String language) {
-    return builtInProfiles.byLanguage(language);
+  public QProfileReset(DbClient db, RuleActivator activator, QProfileFactory factory, ActiveRuleIndexer activeRuleIndexer) {
+    this(db, activator, activeRuleIndexer, factory, new ProfileDefinition[0]);
   }
 
   /**
    * Reset built-in profiles for the given language. Missing profiles are created and
    * existing ones are updated.
    */
-  void resetLanguage(String language) {
+  public void resetLanguage(String language) {
     DbSession dbSession = db.openSession(false);
     try {
       ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);

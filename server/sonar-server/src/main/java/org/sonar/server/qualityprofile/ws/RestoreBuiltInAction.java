@@ -23,19 +23,23 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.qualityprofile.QProfileReset;
+import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
 
 public class RestoreBuiltInAction implements QProfileWsAction {
 
-  private final QProfileService service;
+  private final QProfileReset reset;
   private final Languages languages;
+  private final UserSession userSession;
 
-  public RestoreBuiltInAction(QProfileService service, Languages languages) {
-    this.service = service;
+  public RestoreBuiltInAction(QProfileReset reset, Languages languages, UserSession userSession) {
+    this.reset = reset;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   @Override
@@ -55,9 +59,15 @@ public class RestoreBuiltInAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) {
+    verifyAdminPermission();
+
     String language = request.mandatoryParam("language");
-    service.restoreBuiltInProfilesForLanguage(language);
+    reset.resetLanguage(language);
     response.noContent();
   }
 
+  private void verifyAdminPermission() {
+    userSession.checkLoggedIn();
+    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
 }
