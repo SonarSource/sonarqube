@@ -19,14 +19,9 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.Collection;
-import java.util.List;
-import java.util.SortedMap;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,8 +29,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.rule.RuleRepositories.Repository;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleRepositoryDto;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @since 5.1
@@ -44,10 +43,11 @@ public class RepositoriesAction implements RulesWsAction {
 
   private static final String LANGUAGE = "language";
   private static final String MATCH_ALL = ".*";
-  private final RuleRepositories repositories;
 
-  public RepositoriesAction(RuleRepositories repositories) {
-    this.repositories = repositories;
+  private final DbClient dbClient;
+
+  public RepositoriesAction(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -64,66 +64,39 @@ public class RepositoriesAction implements RulesWsAction {
     action.createParam(LANGUAGE)
       .setDescription("A language key; if provided, only repositories for the given language will be returned")
       .setExampleValue("java");
-    action.createParam(Param.PAGE_SIZE)
-      .setDescription("The size of the list to return, 0 for all repositories")
-      .setExampleValue("25")
-      .setDefaultValue("0");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String query = request.param(Param.TEXT_QUERY);
     String languageKey = request.param(LANGUAGE);
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
 
     JsonWriter json = response.newJsonWriter().beginObject().name("repositories").beginArray();
-    for (Repo repo : listMatchingRepositories(query, languageKey, pageSize)) {
-      json.beginObject().prop("key", repo.key).prop("name", repo.name).prop(LANGUAGE, repo.language).endObject();
+    for (RuleRepositoryDto repo : listMatchingRepositories(query, languageKey)) {
+      json
+        .beginObject()
+        .prop("key", repo.getKee())
+        .prop("name", repo.getName())
+        .prop(LANGUAGE, repo.getLanguage())
+        .endObject();
     }
     json.endArray().endObject().close();
   }
 
-  private Collection<Repo> listMatchingRepositories(@Nullable String query, @Nullable String languageKey, int pageSize) {
+  private Collection<RuleRepositoryDto> listMatchingRepositories(@Nullable String query, @Nullable String languageKey) {
     Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
-    SortedMap<String, Repo> reposByName = Maps.newTreeMap();
-    Collection<Repo> repos = listRepositories(languageKey);
+    return selectFromDb(languageKey).stream()
+      .filter(r -> pattern.matcher(r.getKee()).matches() || pattern.matcher(r.getName()).matches())
+      .collect(Collectors.toList());
+  }
 
-    for (Repo repo : repos) {
-      if (pattern.matcher(repo.key).matches() || pattern.matcher(repo.name).matches()) {
-        reposByName.put(repo.name + " -- " + repo.language, repo);
+  private Collection<RuleRepositoryDto> selectFromDb(@Nullable String language) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (isEmpty(language)) {
+        return dbClient.ruleRepositoryDao().selectAll(dbSession);
       }
-    }
-
-    List<Repo> result = Lists.newArrayList(reposByName.values());
-    if (pageSize > 0 && pageSize < result.size()) {
-      result = result.subList(0, pageSize);
-    }
-    return result;
-  }
-
-  private Collection<Repo> listRepositories(@CheckForNull String languageKey) {
-    List<Repo> allRepos = Lists.newArrayList();
-    Collection<Repository> reposFromPlugins = languageKey == null ? repositories.repositories() : repositories.repositoriesForLang(languageKey);
-    for (Repository repo : reposFromPlugins) {
-      allRepos.add(new Repo(repo));
-    }
-    return allRepos;
-  }
-
-  private static final class Repo {
-    private String key;
-    private String name;
-    private String language;
-
-    private Repo(String key, String name, String language) {
-      this.key = key;
-      this.name = name;
-      this.language = language;
-    }
-
-    private Repo(Repository repo) {
-      this(repo.key(), repo.name(), repo.language());
+      return dbClient.ruleRepositoryDao().selectByLanguage(dbSession, language);
     }
   }
 }
