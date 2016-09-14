@@ -41,10 +41,11 @@ public class ProgressLoggerTest {
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()));
     progress.setPeriodMs(1L);
     progress.start();
-    while (!hasInfoLog("42 rows processed")) {
+    while (logTester.logs(LoggerLevel.INFO).size()<2) {
       Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MILLISECONDS);
     }
     progress.stop();
+    assertThat(hasInfoLog("42 rows processed")).isTrue();
 
     // ability to manual log, generally final status
     counter.incrementAndGet();
