@@ -110,23 +110,23 @@ public class CreateTableBuilder {
     StringBuilder res = new StringBuilder("CREATE TABLE ");
     res.append(tableName);
     res.append(" (");
-    addPkColumns(res);
-    addColumns(res, dialect, columnDefs);
-    addPkConstraint(res);
+    appendPkColumns(res);
+    appendColumns(res, dialect, columnDefs);
+    appendPkConstraint(res);
     res.append(')');
-    addLOBStorageClause(res, dialect, columnDefs);
-    addCollationClause(res, dialect);
+    appendLOBStorageClause(res, dialect, columnDefs);
+    appendCollationClause(res, dialect);
     return res.toString();
   }
 
-  private void addPkColumns(StringBuilder res) {
-    addColumns(res, dialect, pkColumnDefs);
+  private void appendPkColumns(StringBuilder res) {
+    appendColumns(res, dialect, pkColumnDefs);
     if (!pkColumnDefs.isEmpty() && !columnDefs.isEmpty()) {
       res.append(',');
     }
   }
 
-  private void addColumns(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
+  private void appendColumns(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
     if (columnDefs.isEmpty()) {
       return;
     }
@@ -196,20 +196,20 @@ public class CreateTableBuilder {
     }
   }
 
-  private void addPkConstraint(StringBuilder res) {
+  private void appendPkConstraint(StringBuilder res) {
     if (pkColumnDefs.isEmpty()) {
       return;
     }
     res.append(", ");
     res.append("CONSTRAINT ");
-    addPkConstraintName(res);
+    appendPkConstraintName(res);
     res.append(" PRIMARY KEY ");
     res.append('(');
     appendColumnNames(res, pkColumnDefs);
     res.append(')');
   }
 
-  private void addPkConstraintName(StringBuilder res) {
+  private void appendPkConstraintName(StringBuilder res) {
     if (pkConstraintName == null) {
       res.append("pk_").append(tableName);
     } else {
@@ -227,7 +227,7 @@ public class CreateTableBuilder {
     }
   }
 
-  private void addLOBStorageClause(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
+  private static void appendLOBStorageClause(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
     if (!Oracle.ID.equals(dialect.getId())) {
       return;
     }
@@ -243,7 +243,7 @@ public class CreateTableBuilder {
     }
   }
 
-  private static void addCollationClause(StringBuilder res, Dialect dialect) {
+  private static void appendCollationClause(StringBuilder res, Dialect dialect) {
     if (MySql.ID.equals(dialect.getId())) {
       res.append(" ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
     }
@@ -258,7 +258,7 @@ public class CreateTableBuilder {
         .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
   }
 
-  private String createSequenceFor(String tableName) {
+  private static String createSequenceFor(String tableName) {
     return "CREATE SEQUENCE " + tableName + "_seq START WITH 1 INCREMENT BY 1";
   }
 
