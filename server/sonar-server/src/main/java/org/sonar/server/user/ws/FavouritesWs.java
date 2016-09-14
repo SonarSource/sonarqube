@@ -22,11 +22,11 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
-public class FavoritesWs implements WebService {
+public class FavouritesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/favorites");
+    NewController controller = context.createController("api/favourites");
     controller.setDescription("Manage user favorites.");
     controller.setSince("2.6");
 

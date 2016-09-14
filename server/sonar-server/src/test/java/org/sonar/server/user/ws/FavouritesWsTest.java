@@ -25,13 +25,13 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FavoritesWsTest {
+public class FavouritesWsTest {
 
-  WsTester tester = new WsTester(new FavoritesWs());
+  WsTester tester = new WsTester(new FavouritesWs());
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = tester.controller("api/favorites");
+    WebService.Controller controller = tester.controller("api/favourites");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);
