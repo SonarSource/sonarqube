@@ -25,8 +25,8 @@ import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './../../../components/source-viewer/SourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
-import { retrieveComponentBase, retrieveComponent, loadMoreChildren, parseError } from '../utils';
-import { addComponentBreadcrumbs } from '../bucket';
+import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
+import { addComponent, addComponentBreadcrumbs } from '../bucket';
 import { selectCoverageMetric } from '../../../helpers/measures';
 
 import '../code.css';
@@ -68,8 +68,9 @@ export default class App extends React.Component {
 
     this.setState({ loading: true });
     const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
-    retrieveComponentBase(component.key, isView).then(component => {
-      const prefix = selectCoverageMetric(component.measures);
+    retrieveComponentChildren(component.key, isView).then(r => {
+      addComponent(r.baseComponent);
+      const prefix = selectCoverageMetric(r.baseComponent.measures);
       this.coverageMetric = `${prefix}coverage`;
       this.handleUpdate();
     }).catch(e => {
