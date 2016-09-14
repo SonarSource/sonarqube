@@ -28,6 +28,8 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 /**
+ * Export quality profile rules to a file
+ *
  * @since 2.3
  */
 @ScannerSide
@@ -45,6 +47,11 @@ public abstract class ProfileExporter {
     this.name = name;
   }
 
+  /**
+   * Export activated rule from a quality profile to a writer
+   *
+   * Note that the quality profile can contain some rules from other plugins. It should not fail in this case.
+   */
   public abstract void exportProfile(RulesProfile profile, Writer writer);
 
   public String getKey() {
@@ -65,6 +72,10 @@ public abstract class ProfileExporter {
     return this;
   }
 
+  /**
+   * Set the list of languages supported
+   * An empty value means that it will be available for every languages.
+   */
   protected final ProfileExporter setSupportedLanguages(String... languages) {
     supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
@@ -74,6 +85,9 @@ public abstract class ProfileExporter {
     return mimeType;
   }
 
+  /**
+   * Set the mime type of the exported file
+   */
   public final ProfileExporter setMimeType(String s) {
     if (StringUtils.isNotBlank(s)) {
       this.mimeType = s;

@@ -27,6 +27,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 
 /**
+ * Create a quality profile from an external rules file.
+ *
  * @since 2.3
  */
 @ServerSide
@@ -42,6 +44,12 @@ public abstract class ProfileImporter {
     this.importerName = name;
   }
 
+  /**
+   * Import the profile from a reader.
+   *
+   * {@link ValidationMessages#warnings} can be used to return some warnings to the user, for instance when some rules doesn't exist.
+   * {@link ValidationMessages#errors} can be used when an unrecoverable error is generating during import. No quality profile will be created.
+   */
   public abstract RulesProfile importProfile(Reader reader, ValidationMessages messages);
 
   public String getKey() {
@@ -62,6 +70,10 @@ public abstract class ProfileImporter {
     return this;
   }
 
+  /**
+   * Set the list of languages supported
+   * An empty value means that it will be available for every languages.
+   */
   protected final ProfileImporter setSupportedLanguages(String... languages) {
     supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
