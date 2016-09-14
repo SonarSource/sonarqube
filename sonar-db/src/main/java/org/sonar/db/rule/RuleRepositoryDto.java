@@ -21,12 +21,13 @@ package org.sonar.db.rule;
 
 public class RuleRepositoryDto {
 
+  // do not rename "key" as MyBatis maps it with the db column "kee"
   private String kee;
   private String language;
   private String name;
 
   public RuleRepositoryDto() {
-
+    // used by MyBatis
   }
 
   public RuleRepositoryDto(String kee, String language, String name) {
@@ -35,13 +36,6 @@ public class RuleRepositoryDto {
     this.name = name;
   }
 
-  public String getKee() {
-    return kee;
-  }
-
-  /**
-   * Kept for compatibility with ruby code
-   */
   public String getKey() {
     return kee;
   }
@@ -54,7 +48,7 @@ public class RuleRepositoryDto {
     return name;
   }
 
-  public RuleRepositoryDto setKee(String s) {
+  public RuleRepositoryDto setKey(String s) {
     this.kee = s;
     return this;
   }

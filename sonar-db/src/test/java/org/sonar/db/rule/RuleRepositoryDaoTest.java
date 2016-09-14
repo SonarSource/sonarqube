@@ -48,7 +48,7 @@ public class RuleRepositoryDaoTest {
     List<RuleRepositoryDto> rows = underTest.selectAll(dbSession);
     assertThat(rows).hasSize(1);
     RuleRepositoryDto row = rows.get(0);
-    assertThat(row.getKee()).isEqualTo("findbugs");
+    assertThat(row.getKey()).isEqualTo("findbugs");
     assertThat(row.getName()).isEqualTo("Findbugs");
     assertThat(row.getLanguage()).isEqualTo("java");
   }
@@ -61,7 +61,7 @@ public class RuleRepositoryDaoTest {
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
     underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
-    assertThat(underTest.selectAll(dbSession)).extracting(RuleRepositoryDto::getKee)
+    assertThat(underTest.selectAll(dbSession)).extracting(RuleRepositoryDto::getKey)
       // ordered by key
       .containsExactly("cobol-lint", "findbugs", "squid");
   }
@@ -74,7 +74,7 @@ public class RuleRepositoryDaoTest {
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
     underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
-    assertThat(underTest.selectByLanguage(dbSession, "java")).extracting(RuleRepositoryDto::getKee)
+    assertThat(underTest.selectByLanguage(dbSession, "java")).extracting(RuleRepositoryDto::getKey)
       // ordered by key
       .containsExactly("findbugs", "squid");
   }
@@ -94,7 +94,7 @@ public class RuleRepositoryDaoTest {
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     underTest.insert(dbSession, asList(dto1));
 
-    assertThat(underTest.selectByKey(dbSession, "findbugs").get().getKee()).isEqualTo("findbugs");
+    assertThat(underTest.selectByKey(dbSession, "findbugs").get().getKey()).isEqualTo("findbugs");
     assertThat(underTest.selectByKey(dbSession, "missing")).isNotPresent();
   }
 

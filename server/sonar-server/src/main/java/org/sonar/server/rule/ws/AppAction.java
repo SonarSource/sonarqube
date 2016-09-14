@@ -115,7 +115,7 @@ public class AppAction implements RulesWsAction {
       dbClient.ruleRepositoryDao()
         .selectAll(dbSession)
         .forEach(r -> json.beginObject()
-          .prop("key", r.getKee())
+          .prop("key", r.getKey())
           .prop("name", r.getName())
           .prop("language", r.getLanguage())
           .endObject());

@@ -75,7 +75,7 @@ public class RepositoriesAction implements RulesWsAction {
     for (RuleRepositoryDto repo : listMatchingRepositories(query, languageKey)) {
       json
         .beginObject()
-        .prop("key", repo.getKee())
+        .prop("key", repo.getKey())
         .prop("name", repo.getName())
         .prop(LANGUAGE, repo.getLanguage())
         .endObject();
@@ -87,7 +87,7 @@ public class RepositoriesAction implements RulesWsAction {
     Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
     return selectFromDb(languageKey).stream()
-      .filter(r -> pattern.matcher(r.getKee()).matches() || pattern.matcher(r.getName()).matches())
+      .filter(r -> pattern.matcher(r.getKey()).matches() || pattern.matcher(r.getName()).matches())
       .collect(Collectors.toList());
   }
 
