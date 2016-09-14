@@ -27,36 +27,30 @@ import static org.mockito.Mockito.mock;
 
 public class RuleDefinitionsLoaderTest {
 
-  RuleRepositories output = new RuleRepositories();
-
   @Test
   public void no_definitions() {
     CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), output, commonRulesDefinitions).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions).load();
 
     assertThat(context.repositories()).isEmpty();
-    assertThat(output.repositories()).isEmpty();
   }
 
   @Test
   public void load_definitions() {
     CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), output, commonRulesDefinitions, new RulesDefinition[] {
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, new RulesDefinition[] {
       new FindbugsDefinitions(), new SquidDefinitions()
     }).load();
 
     assertThat(context.repositories()).hasSize(2);
     assertThat(context.repository("findbugs")).isNotNull();
     assertThat(context.repository("squid")).isNotNull();
-    assertThat(output.repositories()).hasSize(2);
-    assertThat(output.repository("findbugs")).isNotNull();
-    assertThat(output.repository("squid")).isNotNull();
   }
 
   @Test
   public void define_common_rules() throws Exception {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), output, commonRulesDefinitions, new RulesDefinition[] {
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, new RulesDefinition[] {
       new SquidDefinitions()
     }).load();
 
@@ -71,7 +65,7 @@ public class RuleDefinitionsLoaderTest {
   @Test
   public void plugin_common_rules_are_overridden() throws Exception {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), output, commonRulesDefinitions, new RulesDefinition[] {
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, new RulesDefinition[] {
       new PluginCommonRuleDefinitions()
     }).load();
 

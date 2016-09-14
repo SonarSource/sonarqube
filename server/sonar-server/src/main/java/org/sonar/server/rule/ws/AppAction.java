@@ -29,10 +29,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -41,15 +41,15 @@ import org.sonar.server.user.UserSession;
 public class AppAction implements RulesWsAction {
 
   private final Languages languages;
-  private final RuleRepositories ruleRepositories;
+  private final DbClient dbClient;
   private final I18n i18n;
   private final QProfileLoader profileLoader;
   private final UserSession userSession;
 
-  public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
+  public AppAction(Languages languages, DbClient dbClient, I18n i18n,
     QProfileLoader profileLoader, UserSession userSession) {
     this.languages = languages;
-    this.ruleRepositories = ruleRepositories;
+    this.dbClient = dbClient;
     this.i18n = i18n;
     this.profileLoader = profileLoader;
     this.userSession = userSession;
@@ -111,12 +111,14 @@ public class AppAction implements RulesWsAction {
 
   private void addRuleRepositories(JsonWriter json) {
     json.name("repositories").beginArray();
-    for (Repository repo : ruleRepositories.repositories()) {
-      json.beginObject()
-        .prop("key", repo.key())
-        .prop("name", repo.name())
-        .prop("language", repo.language())
-        .endObject();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.ruleRepositoryDao()
+        .selectAll(dbSession)
+        .forEach(r -> json.beginObject()
+          .prop("key", r.getKee())
+          .prop("name", r.getName())
+          .prop("language", r.getLanguage())
+          .endObject());
     }
     json.endArray();
   }

@@ -76,7 +76,7 @@ public class QProfilesWsTest {
       new RestoreAction(null, languages, userSessionRule),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
       new ChangeParentAction(dbClient, null, null, languages, userSessionRule),
-      new CompareAction(null, null, null, languages),
+      new CompareAction(null, null, languages),
       new CopyAction(null, languages, userSessionRule),
       new DeleteAction(languages, null, null, userSessionRule),
       new ExportAction(null, null, null, mock(QProfileExporters.class), languages),

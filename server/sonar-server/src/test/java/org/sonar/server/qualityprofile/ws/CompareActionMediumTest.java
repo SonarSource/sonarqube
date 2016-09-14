@@ -37,11 +37,14 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import static java.util.Arrays.asList;
 
 public class CompareActionMediumTest {
 
@@ -80,6 +83,8 @@ public class CompareActionMediumTest {
 
   @Test
   public void compare_nominal() throws Exception {
+    createRepository("blah", "xoo", "Blah");
+
     RuleDto rule1 = createRule("xoo", "rule1");
     RuleDto rule2 = createRule("xoo", "rule2");
     RuleDto rule3 = createRule("xoo", "rule3");
@@ -122,11 +127,9 @@ public class CompareActionMediumTest {
   @Test
   public void compare_param_on_left() throws Exception {
     RuleDto rule1 = createRuleWithParam("xoo", "rule1");
-
+    createRepository("blah", "xoo", "Blah");
     QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRuleWithParam(rule1, profile1, "polop");
-    session.commit();
-
     QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     session.commit();
@@ -140,11 +143,9 @@ public class CompareActionMediumTest {
   @Test
   public void compare_param_on_right() throws Exception {
     RuleDto rule1 = createRuleWithParam("xoo", "rule1");
-
+    createRepository("blah", "xoo", "Blah");
     QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
-    session.commit();
-
     QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRuleWithParam(rule1, profile2, "polop");
     session.commit();
@@ -233,5 +234,11 @@ public class CompareActionMediumTest {
       .setSeverity(severity);
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
+  }
+
+  private void createRepository(String repositoryKey, String repositoryLanguage, String repositoryName) {
+    RuleRepositoryDto dto = new RuleRepositoryDto(repositoryKey, repositoryLanguage, repositoryName);
+    db.ruleRepositoryDao().insert(session, asList(dto));
+    session.commit();
   }
 }

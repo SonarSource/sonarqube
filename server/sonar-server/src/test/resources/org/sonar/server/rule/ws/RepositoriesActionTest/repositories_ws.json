@@ -1,13 +1,13 @@
 {
   "repositories": [
     {
-      "key": "squid",
-      "name": "SonarQube",
+      "key": "common-ws",
+      "name": "SonarQube Common",
       "language": "ws"
     },
     {
-      "key": "common-ws",
-      "name": "SonarQube Common",
+      "key": "squid",
+      "name": "SonarQube",
       "language": "ws"
     }
   ]

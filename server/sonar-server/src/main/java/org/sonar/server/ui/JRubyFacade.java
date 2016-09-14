@@ -48,6 +48,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
@@ -59,7 +60,6 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.ws.UpgradesAction;
-import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -170,16 +170,18 @@ public final class JRubyFacade {
    */
   @Deprecated
   @CheckForNull
-  public RuleRepositories.Repository getRuleRepository(String repositoryKey) {
-    return get(RuleRepositories.class).repository(repositoryKey);
+  public RuleRepositoryDto getRuleRepository(String repositoryKey) {
+    DbClient dbClient = get(DbClient.class);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ruleRepositoryDao().selectByKey(dbSession, repositoryKey).orElse(null);
+    }
   }
 
-  public Collection<RuleRepositories.Repository> getRuleRepositories() {
-    return get(RuleRepositories.class).repositories();
-  }
-
-  public Collection<RuleRepositories.Repository> getRuleRepositoriesByLanguage(String languageKey) {
-    return get(RuleRepositories.class).repositoriesForLang(languageKey);
+  public Collection<RuleRepositoryDto> getRuleRepositories() {
+    DbClient dbClient = get(DbClient.class);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ruleRepositoryDao().selectAll(dbSession);
+    }
   }
 
   public List<Footer> getWebFooters() {

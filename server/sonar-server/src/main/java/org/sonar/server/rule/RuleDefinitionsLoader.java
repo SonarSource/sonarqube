@@ -22,20 +22,18 @@ package org.sonar.server.rule;
 import org.sonar.api.server.rule.RulesDefinition;
 
 /**
- * Loads all instances of {@link RulesDefinition}
- * and initializes {@link RuleRepositories}. Used at server startup.
+ * Loads all instances of {@link RulesDefinition}. Used during server startup
+ * and restore of debt model backup.
  */
 public class RuleDefinitionsLoader {
 
   private final DeprecatedRulesDefinitionLoader deprecatedDefConverter;
   private final CommonRuleDefinitions coreCommonDefs;
   private final RulesDefinition[] pluginDefs;
-  private final RuleRepositories output;
 
-  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefConverter, RuleRepositories output,
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefConverter,
     CommonRuleDefinitions coreCommonDefs, RulesDefinition[] pluginDefs) {
     this.deprecatedDefConverter = deprecatedDefConverter;
-    this.output = output;
     this.coreCommonDefs = coreCommonDefs;
     this.pluginDefs = pluginDefs;
   }
@@ -43,9 +41,9 @@ public class RuleDefinitionsLoader {
   /**
    * Used when no definitions at all.
    */
-  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter, RuleRepositories output,
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter,
     CommonRuleDefinitions coreCommonDefs) {
-    this(converter, output, coreCommonDefs, new RulesDefinition[0]);
+    this(converter, coreCommonDefs, new RulesDefinition[0]);
   }
 
   public RulesDefinition.Context load() {
@@ -55,7 +53,6 @@ public class RuleDefinitionsLoader {
     }
     deprecatedDefConverter.complete(context);
     coreCommonDefs.define(context);
-    output.register(context);
     return context;
   }
 }

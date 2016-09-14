@@ -121,7 +121,6 @@ import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
@@ -296,7 +295,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
-      RuleRepositories.class,
       DeprecatedRulesDefinitionLoader.class,
       CommonRuleDefinitionsImpl.class,
       RuleDefinitionsLoader.class,

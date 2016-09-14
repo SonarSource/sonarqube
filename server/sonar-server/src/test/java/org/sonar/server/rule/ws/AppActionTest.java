@@ -31,14 +31,17 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -46,14 +49,15 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppActionTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   Languages languages;
-
-  @Mock
-  RuleRepositories ruleRepositories;
 
   @Mock
   I18n i18n;
@@ -63,7 +67,7 @@ public class AppActionTest {
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, ruleRepositories, i18n, profileLoader, userSessionRule);
+    AppAction app = new AppAction(languages, dbTester.getDbClient(), i18n, profileLoader, userSessionRule);
     WsTester tester = new WsTester(new RulesWs(app));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -81,15 +85,10 @@ public class AppActionTest {
     when(languages.get("xoo")).thenReturn(xoo);
     when(languages.all()).thenReturn(new Language[] {xoo, whitespace});
 
-    RuleRepositories.Repository repo1 = mock(RuleRepositories.Repository.class);
-    when(repo1.key()).thenReturn("xoo");
-    when(repo1.name()).thenReturn("SonarQube");
-    when(repo1.language()).thenReturn("xoo");
-    RuleRepositories.Repository repo2 = mock(RuleRepositories.Repository.class);
-    when(repo2.key()).thenReturn("squid");
-    when(repo2.name()).thenReturn("SonarQube");
-    when(repo2.language()).thenReturn("ws");
-    when(ruleRepositories.repositories()).thenReturn(ImmutableList.of(repo1, repo2));
+    RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
+    dbTester.getDbClient().ruleRepositoryDao().insert(dbTester.getSession(), asList(repo1, repo2));
+    dbTester.getSession().commit();
 
     when(i18n.message(isA(Locale.class), anyString(), anyString())).thenAnswer(new Answer<String>() {
       @Override

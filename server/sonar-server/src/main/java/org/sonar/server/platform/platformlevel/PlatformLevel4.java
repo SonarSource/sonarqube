@@ -205,7 +205,6 @@ import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDeleter;
 import org.sonar.server.rule.RuleOperations;
-import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -357,7 +356,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultRuleFinder.class,
       RuleOperations.class,
       RubyRuleService.class,
-      RuleRepositories.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,
       CommonRuleDefinitionsImpl.class,

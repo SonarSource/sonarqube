@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -40,11 +41,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
-import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.rule.RuleRepositories.Repository;
 
 public class CompareAction implements QProfileWsAction {
 
@@ -68,13 +68,11 @@ public class CompareAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final QProfileComparison comparator;
-  private final RuleRepositories ruleRepositories;
   private final Languages languages;
 
-  public CompareAction(DbClient dbClient, QProfileComparison comparator, RuleRepositories ruleRepositories, Languages languages) {
+  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages) {
     this.dbClient = dbClient;
     this.comparator = comparator;
-    this.ruleRepositories = ruleRepositories;
     this.languages = languages;
   }
 
@@ -109,13 +107,14 @@ public class CompareAction implements QProfileWsAction {
     try {
       List<RuleDto> referencedRules = dbClient.ruleDao().selectByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
       Map<RuleKey, RuleDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDtoToRuleKey.INSTANCE);
-      writeResult(response.newJsonWriter(), result, rulesByKey);
+      Map<String, RuleRepositoryDto> repositoriesByKey = Maps.uniqueIndex(dbClient.ruleRepositoryDao().selectAll(dbSession), RuleRepositoryDto::getKey);
+      writeResult(response.newJsonWriter(), result, rulesByKey, repositoriesByKey);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, RuleDto> rulesByKey) {
+  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, RuleDto> rulesByKey, Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginObject();
 
     json.name(ATTRIBUTE_LEFT).beginObject();
@@ -127,16 +126,16 @@ public class CompareAction implements QProfileWsAction {
     json.endObject();
 
     json.name(ATTRIBUTE_IN_LEFT);
-    writeRules(json, result.inLeft(), rulesByKey);
+    writeRules(json, result.inLeft(), rulesByKey, repositoriesByKey);
 
     json.name(ATTRIBUTE_IN_RIGHT);
-    writeRules(json, result.inRight(), rulesByKey);
+    writeRules(json, result.inRight(), rulesByKey, repositoriesByKey);
 
     json.name(ATTRIBUTE_MODIFIED);
-    writeDifferences(json, result.modified(), rulesByKey);
+    writeDifferences(json, result.modified(), rulesByKey, repositoriesByKey);
 
     json.name(ATTRIBUTE_SAME);
-    writeRules(json, result.same(), rulesByKey);
+    writeRules(json, result.same(), rulesByKey, repositoriesByKey);
 
     json.endObject().close();
   }
@@ -146,44 +145,47 @@ public class CompareAction implements QProfileWsAction {
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 
-  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey) {
+  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey,
+    Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDto> activeRule : activeRules.entrySet()) {
       RuleKey key = activeRule.getKey();
       ActiveRuleDto value = activeRule.getValue();
 
       json.beginObject();
-      writeRule(json, key, rulesByKey);
+      RuleDto rule = rulesByKey.get(key);
+      writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
       json.prop(ATTRIBUTE_SEVERITY, value.getSeverityString());
       json.endObject();
     }
     json.endArray();
   }
 
-  private void writeRule(JsonWriter json, RuleKey key, Map<RuleKey, RuleDto> rulesByKey) {
-    String repositoryKey = key.repository();
-    json.prop(ATTRIBUTE_KEY, key.toString())
-      .prop(ATTRIBUTE_NAME, rulesByKey.get(key).getName())
+  private void writeRule(JsonWriter json, RuleDto rule, @Nullable RuleRepositoryDto repository) {
+    String repositoryKey = rule.getRepositoryKey();
+    json.prop(ATTRIBUTE_KEY, rule.getKey().toString())
+      .prop(ATTRIBUTE_NAME, rule.getName())
       .prop(ATTRIBUTE_PLUGIN_KEY, repositoryKey);
 
-    Repository repo = ruleRepositories.repository(repositoryKey);
-    if (repo != null) {
-      String languageKey = repo.getLanguage();
+    if (repository != null) {
+      String languageKey = repository.getLanguage();
       Language language = languages.get(languageKey);
 
-      json.prop(ATTRIBUTE_PLUGIN_NAME, repo.getName());
+      json.prop(ATTRIBUTE_PLUGIN_NAME, repository.getName());
       json.prop(ATTRIBUTE_LANGUAGE_KEY, languageKey);
       json.prop(ATTRIBUTE_LANGUAGE_NAME, language == null ? null : language.getName());
     }
   }
 
-  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey) {
+  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey,
+    Map<String, RuleRepositoryDto> repositoriesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDiff> diffEntry : modified.entrySet()) {
       RuleKey key = diffEntry.getKey();
       ActiveRuleDiff value = diffEntry.getValue();
       json.beginObject();
-      writeRule(json, key, rulesByKey);
+      RuleDto rule = rulesByKey.get(key);
+      writeRule(json, rule, repositoriesByKey.get(rule.getRepositoryKey()));
 
       json.name(ATTRIBUTE_LEFT).beginObject();
       json.prop(ATTRIBUTE_SEVERITY, value.leftSeverity());
