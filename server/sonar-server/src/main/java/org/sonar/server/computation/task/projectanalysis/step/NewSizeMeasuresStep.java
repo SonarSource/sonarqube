@@ -123,16 +123,17 @@ public class NewSizeMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
+      Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
+      if (!scmInfo.isPresent()) {
+        return;
+      }
+
       context.getPeriods().forEach(period -> newLines.increment(period, 0));
       if (leaf.getType() != Component.Type.FILE) {
         context.getPeriods().forEach(period -> {
           newDuplicatedLines.increment(period, 0);
           newDuplicatedBlocks.increment(period, 0);
         });
-        return;
-      }
-      Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
-      if (!scmInfo.isPresent()) {
         return;
       }
 

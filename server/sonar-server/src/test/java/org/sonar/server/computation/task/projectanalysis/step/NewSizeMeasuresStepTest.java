@@ -126,10 +126,10 @@ public class NewSizeMeasuresStepTest {
 
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_LINES_KEY, 11);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_LINES_KEY, 11);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_LINES_KEY, 0);
+    assertNoRawMeasure(FILE_3_REF, NEW_LINES_KEY);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_LINES_KEY, 11);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_LINES_KEY, 22);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_2_REF, NEW_LINES_KEY, 0);
+    assertNoRawMeasure(DIRECTORY_2_REF, NEW_LINES_KEY);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_LINES_KEY, 22);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_LINES_KEY, 11);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_LINES_KEY, 33);
@@ -137,17 +137,10 @@ public class NewSizeMeasuresStepTest {
   }
 
   @Test
-  public void compute_new_lines_with_no_changeset() {
+  public void does_not_compute_new_lines_when_no_changeset() {
     underTest.execute();
 
-    assertComputedAndAggregatedToZeroInt(NEW_LINES_KEY);
-  }
-
-  @Test
-  public void compute_new_lines_with_no_ncloc_data() {
-    underTest.execute();
-
-    assertComputedAndAggregatedToZeroInt(NEW_LINES_KEY);
+    assertNoRawMeasures(NEW_LINES_KEY);
   }
 
   @Test
@@ -235,7 +228,7 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_DUPLICATED_LINES_KEY, 9d);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 11d);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
+    assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 20d);
     assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 22d);

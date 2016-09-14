@@ -375,11 +375,14 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       }
       ScmInfo componentScm = scmInfoOptional.get();
 
-      Optional<Measure> hitsByLineMeasure = context.getMeasure(metricKeys.getCoverageLineHitsData());
-      if (!hitsByLineMeasure.isPresent() || hitsByLineMeasure.get().getValueType() == Measure.ValueType.NO_VALUE) {
-        return;
-      }
+      context.getPeriods().forEach(period -> {
+        newLines.increment(period, 0);
+        newCoveredLines.increment(period, 0);
+        newConditions.increment(period, 0);
+        newCoveredConditions.increment(period, 0);
+      });
 
+      Optional<Measure> hitsByLineMeasure = context.getMeasure(metricKeys.getCoverageLineHitsData());
       Map<Integer, Integer> hitsByLine = parseCountByLine(hitsByLineMeasure);
       Map<Integer, Integer> conditionsByLine = parseCountByLine(context.getMeasure(metricKeys.getConditionsByLine()));
       Map<Integer, Integer> coveredConditionsByLine = parseCountByLine(context.getMeasure(metricKeys.getCoveredConditionsByLine()));
