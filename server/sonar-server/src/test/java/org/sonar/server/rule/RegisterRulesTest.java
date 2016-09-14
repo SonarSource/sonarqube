@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -55,15 +56,15 @@ import static org.sonar.api.rule.Severity.INFO;
 
 public class RegisterRulesTest {
 
-  static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
-  static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
-  static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
+  private static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
+  private static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
+  private static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
-  static final RuleKey RULE_KEY1 = RuleKey.of("fake", "rule1");
-  static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");
-  static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
+  private static final RuleKey RULE_KEY1 = RuleKey.of("fake", "rule1");
+  private static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");
+  private static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
 
-  System2 system = mock(System2.class);;
+  private System2 system = mock(System2.class);;
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
@@ -71,14 +72,11 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  RuleActivator ruleActivator = mock(RuleActivator.class);
-
-  DbClient dbClient = dbTester.getDbClient();
-
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
-
-  RuleIndex ruleIndex;
+  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private DbClient dbClient = dbTester.getDbClient();
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private RuleIndex ruleIndex;
 
   @Before
   public void before() {
@@ -117,6 +115,9 @@ public class RegisterRulesTest {
 
     // verify index
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY2);
+
+    // verify repositories
+    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKee).containsOnly("fake");
   }
 
   @Test
@@ -168,7 +169,11 @@ public class RegisterRulesTest {
     assertThat(rule3).isNotNull();
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY);
 
+    // verify index
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY3);
+
+    // verify repositories
+    assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKee).containsOnly("fake");
   }
 
   @Test
@@ -386,7 +391,7 @@ public class RegisterRulesTest {
   }
 
   private void execute(RulesDefinition... defs) {
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(), mock(CommonRuleDefinitionsImpl.class), defs);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 

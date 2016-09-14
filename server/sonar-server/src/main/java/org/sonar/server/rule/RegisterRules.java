@@ -45,6 +45,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -52,6 +53,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -106,12 +108,24 @@ public class RegisterRules implements Startable {
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
+
+      persistRepositories(session, context.repositories());
       ruleIndexer.index();
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
     } finally {
       session.close();
     }
+  }
+
+  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
+    dbClient.ruleRepositoryDao().truncate(dbSession);
+    List<RuleRepositoryDto> dtos = repositories
+      .stream()
+      .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
+      .collect(Collectors.toList(repositories.size()));
+    dbClient.ruleRepositoryDao().insert(dbSession, dtos);
+    dbSession.commit();
   }
 
   @Override
