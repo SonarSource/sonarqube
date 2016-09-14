@@ -87,12 +87,16 @@ export default Controller.extend({
       }), { merge: true });
       that._myIssuesFromResponse(r);
       that.enableFacets(that._enabledFacets());
-      that.options.app.state.set({
-        page: r.p,
-        pageSize: r.ps,
-        total: r.total,
-        maxResultsReached: r.p * r.ps >= r.total
-      });
+      if (firstPage) {
+        that.options.app.state.set({
+          page: r.p,
+          pageSize: r.ps,
+          total: r.total,
+          maxResultsReached: r.p * r.ps >= r.total
+        });
+      } else {
+        that.options.app.state.set({ page: r.p });
+      }
       if (firstPage && that.isIssuePermalink()) {
         return that.showComponentViewer(that.options.app.list.first());
       }
