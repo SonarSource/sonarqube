@@ -27,7 +27,7 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
-import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
+import static org.sonar.db.version.Validations.validateColumnName;
 
 /**
  * Integer that supports at least range [0..128]. Full range depends on database vendor.

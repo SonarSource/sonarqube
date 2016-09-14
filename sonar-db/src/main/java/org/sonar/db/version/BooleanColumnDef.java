@@ -26,7 +26,7 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
-import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
+import static org.sonar.db.version.Validations.validateColumnName;
 
 /**
  * Used to define VARCHAR column

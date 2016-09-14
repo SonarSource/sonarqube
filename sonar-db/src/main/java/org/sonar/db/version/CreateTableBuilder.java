@@ -19,7 +19,6 @@
  */
 package org.sonar.db.version;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
@@ -38,20 +37,15 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
-import static com.google.common.base.CharMatcher.anyOf;
-import static com.google.common.base.CharMatcher.inRange;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.of;
+import static org.sonar.db.version.Validations.CONSTRAINT_NAME_MAX_SIZE;
+import static org.sonar.db.version.Validations.TABLE_NAME_MAX_SIZE;
+import static org.sonar.db.version.Validations.checkDbIdentifier;
 
 public class CreateTableBuilder {
-  private static final int TABLE_NAME_MAX_SIZE = 25;
-  private static final int CONSTRAINT_NAME_MAX_SIZE = 30;
-  private static final CharMatcher DIGIT_CHAR_MATCHER = inRange('0', '9');
-  private static final CharMatcher LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('a', 'z');
-  private static final CharMatcher UNDERSCORE_CHAR_MATCHER = anyOf("_");
 
   private final Dialect dialect;
   private final String tableName;
@@ -134,20 +128,6 @@ public class CreateTableBuilder {
   public CreateTableBuilder withPkConstraintName(String pkConstraintName) {
     this.pkConstraintName = checkDbIdentifier(pkConstraintName, "Primary key constraint name", CONSTRAINT_NAME_MAX_SIZE);
     return this;
-  }
-
-  private static String checkDbIdentifier(String identifier, String identifierDesc, int maxSize) {
-    String res = checkNotNull(identifier, "%s can't be null", identifierDesc);
-    checkArgument(
-      identifier.length() <= maxSize,
-      "%s length can't be more than %s", identifierDesc, maxSize);
-    checkArgument(
-      LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER.or(DIGIT_CHAR_MATCHER).or(anyOf("_")).matchesAllOf(identifier),
-      "%s must be lower case and contain only alphanumeric chars or '_', got '%s'", identifierDesc, identifier);
-    checkArgument(
-      DIGIT_CHAR_MATCHER.or(UNDERSCORE_CHAR_MATCHER).matchesNoneOf(identifier.subSequence(0, 1)),
-      "%s must not start by a number or '_', got '%s'", identifierDesc, identifier);
-    return res;
   }
 
   private String createTableStatement() {

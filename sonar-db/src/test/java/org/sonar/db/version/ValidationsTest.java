@@ -23,9 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
+import static org.sonar.db.version.Validations.validateColumnName;
 
-public class ColumnDefValidationTest {
+public class ValidationsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -47,7 +47,7 @@ public class ColumnDefValidationTest {
   @Test
   public void fail_when_column_name_is_in_upper_case() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Column name should only contains lowercase and _ characters, got 'DATE_IN_MS'");
+    thrown.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'DATE_IN_MS'");
 
     validateColumnName("DATE_IN_MS");
   }
@@ -55,7 +55,7 @@ public class ColumnDefValidationTest {
   @Test
   public void fail_when_column_name_contains_invalid_character() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Column name should only contains lowercase and _ characters, got 'date-in/ms'");
+    thrown.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'date-in/ms'");
 
     validateColumnName("date-in/ms");
   }

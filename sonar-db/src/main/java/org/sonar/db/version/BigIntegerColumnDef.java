@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
 
-import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
+import static org.sonar.db.version.Validations.validateColumnName;
 
 public class BigIntegerColumnDef extends AbstractColumnDef {
 

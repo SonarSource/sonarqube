@@ -45,7 +45,7 @@ public class IntegerColumnDefTest {
     IntegerColumnDef.Builder builder = newIntegerColumnDefBuilder();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Column name should only contains lowercase and _ characters, got 'T'");
+    expectedException.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'T'");
     builder.setColumnName("T");
   }
 

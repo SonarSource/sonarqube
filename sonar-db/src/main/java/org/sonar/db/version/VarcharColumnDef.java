@@ -25,7 +25,7 @@ import org.sonar.db.dialect.MsSql;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
+import static org.sonar.db.version.Validations.validateColumnName;
 
 /**
  * Used to define VARCHAR column
