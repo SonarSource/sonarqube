@@ -22,13 +22,11 @@ package org.sonar.api.config;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.PropertyField;
-import org.sonar.api.PropertyType;
-
-import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.PropertyField;
+import org.sonar.api.PropertyType;
 
 /**
  * @since 3.3
@@ -81,6 +79,10 @@ public final class PropertyFieldDefinition {
     return description;
   }
 
+  /**
+   * @deprecated since 6.1, as it was only used for UI.
+   */
+  @Deprecated
   public int indicativeSize() {
     return indicativeSize;
   }
@@ -124,6 +126,10 @@ public final class PropertyFieldDefinition {
       return this;
     }
 
+    /**
+     * @deprecated since 6.1, as it was only used for UI.
+     */
+    @Deprecated
     public Builder indicativeSize(int indicativeSize) {
       this.indicativeSize = indicativeSize;
       return this;
