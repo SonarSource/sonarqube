@@ -84,6 +84,10 @@ public class RoleDao implements Dao {
     return mapper(session).countUsersWithPermission(permission, allGroupsExceptThisGroupId);
   }
 
+  public int countGroupsWithSystemAdminRole(DbSession session) {
+    return mapper(session).countGroupsWithSystemAdminRole();
+  }
+
   public void removeAllPermissions(DbSession session, Long resourceId) {
     deleteGroupRolesByResourceId(session, resourceId);
     deleteUserRolesByResourceId(session, resourceId);

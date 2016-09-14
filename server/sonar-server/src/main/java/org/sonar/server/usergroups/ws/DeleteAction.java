@@ -77,6 +77,7 @@ public class DeleteAction implements UserGroupsWsAction {
       long groupId = group.getId();
 
       checkNotTryingToDeleteDefaultGroup(dbSession, groupId);
+      checkNotTryingToDeleteLastSystemAdminGroup(dbSession, group.getName());
       removeGroupMembers(dbSession, groupId);
       removeGroupPermissions(dbSession, groupId);
       removeFromPermissionTemplates(dbSession, groupId);
@@ -94,6 +95,23 @@ public class DeleteAction implements UserGroupsWsAction {
     GroupDto defaultGroup = dbClient.groupDao().selectOrFailByName(dbSession, defaultGroupName);
     checkArgument(groupId != defaultGroup.getId(),
       format("Default group '%s' cannot be deleted", defaultGroupName));
+  }
+
+  private void checkNotTryingToDeleteLastSystemAdminGroup(DbSession dbSession, String groupName) {
+    boolean hasSystemAdminRole = dbClient.roleDao()
+      .selectGroupPermissions(dbSession, groupName, null)
+      .contains(GlobalPermissions.SYSTEM_ADMIN);
+
+    boolean isOneRemainingSystemAdminGroup =
+      dbClient.roleDao().countGroupsWithSystemAdminRole(dbSession) == 1;
+
+    boolean existsOtherSystemAdminUser = false;  // TODO see SONAR-6912
+
+    boolean willLockoutSystemAdmin =
+      hasSystemAdminRole && isOneRemainingSystemAdminGroup && !existsOtherSystemAdminUser;
+
+    checkArgument(!willLockoutSystemAdmin,
+      format("The last system admin group '%s' cannot be deleted", groupName));
   }
 
   private void removeGroupMembers(DbSession dbSession, long groupId) {
