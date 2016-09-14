@@ -68,7 +68,7 @@ public class QProfilesWsTest {
       new RemoveProjectAction(projectAssociationParameters, null, null, null),
       new CreateAction(null, null, null, languages, importers, userSessionRule),
       new ImportersAction(importers),
-      new RestoreBuiltInAction(null, languages),
+      new RestoreBuiltInAction(null, languages, userSessionRule),
       new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, userSessionRule),
       new ProjectsAction(null, userSessionRule),

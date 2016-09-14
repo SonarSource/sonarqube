@@ -23,36 +23,50 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileReset;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 
 public class RestoreBuiltInActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  QProfileService profileService = mock(QProfileService.class);
-  Languages languages = LanguageTesting.newLanguages("xoo");
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(profileService, languages));
+  private QProfileReset reset = mock(QProfileReset.class);
+  private Languages languages = LanguageTesting.newLanguages("xoo");
+
+  private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(reset, languages, userSession));
 
   @Test
   public void return_empty_result_when_no_info_or_warning() {
+    userSession.login("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
     TestResponse response = tester.newRequest().setParam("language", "xoo").execute();
 
-    verify(profileService).restoreBuiltInProfilesForLanguage("xoo");
+    verify(reset).resetLanguage("xoo");
     assertThat(response.getStatus()).isEqualTo(204);
   }
 
   @Test
   public void fail_on_unknown_language() throws Exception {
+    userSession.login("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
     expectedException.expect(IllegalArgumentException.class);
     tester.newRequest().setParam("language", "unknown").execute();
+  }
+
+  @Test
+  public void fail_if_not_profile_administrator() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    tester.newRequest().setParam("language", "xoo").execute();
   }
 }

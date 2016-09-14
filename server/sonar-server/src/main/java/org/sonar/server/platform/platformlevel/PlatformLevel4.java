@@ -178,7 +178,6 @@ import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateModule;
-import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
@@ -336,7 +335,6 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileProjectOperations.class,
       QProfileProjectLookup.class,
       QProfileComparison.class,
-      BuiltInProfiles.class,
       SearchDataLoader.class,
       ProfilesWs.class,
       OldRestoreAction.class,
