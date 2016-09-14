@@ -22,6 +22,8 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.api.server.ws.RailsHandler.addFormatParam;
+
 public class FavouritesWs implements WebService {
 
   @Override
@@ -36,10 +38,11 @@ public class FavouritesWs implements WebService {
   }
 
   private void defineIndexAction(NewController controller) {
-    controller.createAction("index")
+    NewAction action = controller.createAction("index")
       .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
       .setResponseExample(getClass().getResource("favourites-index-example.xml"))
       .setSince("2.6")
       .setHandler(RailsHandler.INSTANCE);
+    addFormatParam(action);
   }
 }

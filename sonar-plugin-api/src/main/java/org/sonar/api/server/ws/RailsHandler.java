@@ -47,8 +47,10 @@ public class RailsHandler implements RequestHandler {
         "<li>Accept:text/xml</li>" +
         "<li>Accept:application/json</li>" +
         "</ul></li></ul>" +
-        "If nothing is set, json is used")
-      .setPossibleValues("json", "xml");
+        "If nothing is set, json is used.<br/>" +
+        "Since 6.1, XML format is deprecated, only JSON format should be used.")
+      .setPossibleValues("json", "xml")
+      .setDeprecatedSince("6.1");
   }
 
   public static WebService.NewParam addJsonOnlyFormatParam(WebService.NewAction action) {

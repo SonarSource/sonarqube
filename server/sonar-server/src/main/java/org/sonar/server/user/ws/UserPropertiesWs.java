@@ -19,8 +19,10 @@
  */
 package org.sonar.server.user.ws;
 
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+
+import static org.sonar.api.server.ws.RailsHandler.INSTANCE;
+import static org.sonar.api.server.ws.RailsHandler.addFormatParam;
 
 public class UserPropertiesWs implements WebService {
 
@@ -36,11 +38,12 @@ public class UserPropertiesWs implements WebService {
   }
 
   private void defineIndexAction(NewController controller) {
-    controller.createAction("index")
+    NewAction action = controller.createAction("index")
       .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
       .setSince("2.6")
       .setResponseExample(getClass().getResource("user_properties-index-example.xml"))
-      .setHandler(RailsHandler.INSTANCE);
+      .setHandler(INSTANCE);
+    addFormatParam(action);
   }
 
 }

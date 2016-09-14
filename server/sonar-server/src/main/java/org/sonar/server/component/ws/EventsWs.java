@@ -36,10 +36,11 @@ public class EventsWs implements WebService {
   }
 
   private void defineIndexAction(NewController controller) {
-    controller.createAction("index")
+    WebService.NewAction action = controller.createAction("index")
       .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
       .setResponseExample(getClass().getResource("events-index-example.json"))
       .setSince("2.6")
       .setHandler(RailsHandler.INSTANCE);
+    RailsHandler.addFormatParam(action);
   }
 }
