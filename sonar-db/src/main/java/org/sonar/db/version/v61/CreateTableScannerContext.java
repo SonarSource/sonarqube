@@ -39,7 +39,7 @@ public class CreateTableScannerContext extends DdlChange {
     context.execute(
       new CreateTableBuilder(getDialect(), "ce_scanner_context")
         .addPkColumn(newVarcharColumnDefBuilder().setColumnName("task_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
-        .addColumn(newBlobColumnDefBuilder().setColumnName("data").setIsNullable(false).build())
+        .addColumn(newBlobColumnDefBuilder().setColumnName("context_data").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());

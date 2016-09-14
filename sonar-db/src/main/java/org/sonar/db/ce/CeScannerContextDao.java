@@ -55,7 +55,7 @@ public class CeScannerContextDao implements Dao {
     long now = system.now();
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-        "INSERT INTO ce_scanner_context (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)");
+        "INSERT INTO ce_scanner_context (task_uuid, created_at, updated_at, context_data) VALUES (?, ?, ?, ?)");
       InputStream inputStream = new LogsIteratorInputStream(scannerContextLines, UTF_8)) {
       stmt.setString(1, taskUuid);
       stmt.setLong(2, now);
@@ -73,7 +73,7 @@ public class CeScannerContextDao implements Dao {
    * whichever the platform SQ is running on ({@see LogsIteratorInputStream}).
    */
   public Optional<String> selectScannerContext(DbSession dbSession, String taskUuid) {
-    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement("select data from ce_scanner_context where task_uuid=?")) {
+    try (PreparedStatement stmt = dbSession.getConnection().prepareStatement("select context_data from ce_scanner_context where task_uuid=?")) {
       stmt.setString(1, taskUuid);
       try (ResultSet rs = stmt.executeQuery()) {
         if (rs.next()) {

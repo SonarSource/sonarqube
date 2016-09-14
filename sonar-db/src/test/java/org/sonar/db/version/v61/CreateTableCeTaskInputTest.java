@@ -46,7 +46,7 @@ public class CreateTableCeTaskInputTest {
     assertThat(dbTester.countRowsOfTable(TABLE_CE_TASK_INPUT)).isEqualTo(0);
 
     dbTester.assertColumnDefinition(TABLE_CE_TASK_INPUT, "task_uuid", Types.VARCHAR, 40, false);
-    dbTester.assertColumnDefinition(TABLE_CE_TASK_INPUT, "data", Types.BLOB, null, true);
+    dbTester.assertColumnDefinition(TABLE_CE_TASK_INPUT, "input_data", Types.BLOB, null, true);
     dbTester.assertColumnDefinition(TABLE_CE_TASK_INPUT, "created_at", Types.BIGINT, null, false);
     dbTester.assertColumnDefinition(TABLE_CE_TASK_INPUT, "updated_at", Types.BIGINT, null, false);
     dbTester.assertPrimaryKey(TABLE_CE_TASK_INPUT, "pk_" + TABLE_CE_TASK_INPUT, "task_uuid");

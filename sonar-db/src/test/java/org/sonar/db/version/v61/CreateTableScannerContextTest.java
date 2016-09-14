@@ -46,7 +46,7 @@ public class CreateTableScannerContextTest {
     assertThat(dbTester.countRowsOfTable(TABLE_CE_SCANNER_CONTEXT)).isEqualTo(0);
 
     dbTester.assertColumnDefinition(TABLE_CE_SCANNER_CONTEXT, "task_uuid", Types.VARCHAR, 40, false);
-    dbTester.assertColumnDefinition(TABLE_CE_SCANNER_CONTEXT, "data", Types.BLOB, null, false);
+    dbTester.assertColumnDefinition(TABLE_CE_SCANNER_CONTEXT, "context_data", Types.BLOB, null, false);
     dbTester.assertColumnDefinition(TABLE_CE_SCANNER_CONTEXT, "created_at", Types.BIGINT, null, false);
     dbTester.assertColumnDefinition(TABLE_CE_SCANNER_CONTEXT, "updated_at", Types.BIGINT, null, false);
     dbTester.assertPrimaryKey(TABLE_CE_SCANNER_CONTEXT, "pk_" + TABLE_CE_SCANNER_CONTEXT, "task_uuid");

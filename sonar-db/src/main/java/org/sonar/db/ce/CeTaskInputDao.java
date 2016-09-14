@@ -45,7 +45,7 @@ public class CeTaskInputDao implements Dao {
     long now = system.now();
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-      "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, data) VALUES (?, ?, ?, ?)")) {
+      "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, input_data) VALUES (?, ?, ?, ?)")) {
       stmt.setString(1, taskUuid);
       stmt.setLong(2, now);
       stmt.setLong(3, now);
@@ -62,7 +62,7 @@ public class CeTaskInputDao implements Dao {
     ResultSet rs = null;
     DataStream result = null;
     try {
-      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM ce_task_input WHERE task_uuid=? AND data IS NOT NULL");
+      stmt = dbSession.getConnection().prepareStatement("SELECT input_data FROM ce_task_input WHERE task_uuid=? AND input_data IS NOT NULL");
       stmt.setString(1, taskUuid);
       rs = stmt.executeQuery();
       if (rs.next()) {

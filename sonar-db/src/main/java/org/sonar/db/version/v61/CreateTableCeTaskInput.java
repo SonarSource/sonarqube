@@ -39,7 +39,7 @@ public class CreateTableCeTaskInput extends DdlChange {
     context.execute(
       new CreateTableBuilder(getDialect(), "ce_task_input")
         .addPkColumn(newVarcharColumnDefBuilder().setColumnName("task_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
-        .addColumn(newBlobColumnDefBuilder().setColumnName("data").setIsNullable(true).build())
+        .addColumn(newBlobColumnDefBuilder().setColumnName("input_data").setIsNullable(true).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());
