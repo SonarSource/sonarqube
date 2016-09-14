@@ -62,6 +62,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -112,6 +113,7 @@ public class DaoModule extends Module {
     QProfileChangeDao.class,
     CeScannerContextDao.class,
     RuleDao.class,
+    RuleRepositoryDao.class,
     ActiveRuleDao.class,
     ResourceIndexDao.class,
     ResourceDao.class,

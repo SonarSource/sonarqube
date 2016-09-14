@@ -112,6 +112,7 @@ import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.source.FileSourceMapper;
 import org.sonar.db.user.AuthorDto;
 import org.sonar.db.user.AuthorMapper;
@@ -242,7 +243,9 @@ public class MyBatis {
       PurgeMapper.class,
       ComponentKeyUpdaterMapper.class,
       ResourceIndexMapper.class,
-      RoleMapper.class, RuleMapper.class,
+      RoleMapper.class,
+      RuleMapper.class,
+      RuleRepositoryMapper.class,
       SchemaMigrationMapper.class,
       WidgetMapper.class,
       WidgetPropertyMapper.class,

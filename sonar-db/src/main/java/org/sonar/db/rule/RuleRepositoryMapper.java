@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.rule;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface RuleRepositoryMapper {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
-  }
+  List<RuleRepositoryDto> selectAll();
+
+  List<RuleRepositoryDto> selectByLanguage(@Param("language") String language);
+
+  @CheckForNull
+  RuleRepositoryDto selectByKey(@Param("key") String key);
+
+  void truncate();
+
+  void insert(@Param("repository") RuleRepositoryDto repository, @Param("now") long now);
 }

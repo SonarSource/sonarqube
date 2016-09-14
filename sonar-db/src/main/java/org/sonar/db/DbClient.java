@@ -62,6 +62,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -123,6 +124,7 @@ public class DbClient {
   private final MetricDao metricDao;
   private final GroupDao groupDao;
   private final RuleDao ruleDao;
+  private final RuleRepositoryDao ruleRepositoryDao;
   private final ActiveRuleDao activeRuleDao;
   private final QProfileChangeDao qProfileChangeDao;
 
@@ -181,6 +183,7 @@ public class DbClient {
     metricDao = getDao(map, MetricDao.class);
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
+    ruleRepositoryDao = getDao(map, RuleRepositoryDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
   }
@@ -383,6 +386,10 @@ public class DbClient {
 
   public RuleDao ruleDao() {
     return ruleDao;
+  }
+
+  public RuleRepositoryDao ruleRepositoryDao() {
+    return ruleRepositoryDao;
   }
 
   public ActiveRuleDao activeRuleDao() {

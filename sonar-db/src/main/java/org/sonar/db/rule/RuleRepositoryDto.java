@@ -17,18 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.rule;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class RuleRepositoryDto {
 
-import static org.assertj.core.api.Assertions.assertThat;
+  private String kee;
+  private String language;
+  private String name;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 50);
+  public RuleRepositoryDto() {
+
+  }
+
+  public RuleRepositoryDto(String kee, String language, String name) {
+    this.kee = kee;
+    this.language = language;
+    this.name = name;
+  }
+
+  public String getKee() {
+    return kee;
+  }
+
+  /**
+   * Kept for compatibility with ruby code
+   */
+  public String getKey() {
+    return kee;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public RuleRepositoryDto setKee(String s) {
+    this.kee = s;
+    return this;
+  }
+
+  public RuleRepositoryDto setLanguage(String s) {
+    this.language = s;
+    return this;
+  }
+
+  public RuleRepositoryDto setName(String s) {
+    this.name = s;
+    return this;
   }
 }
