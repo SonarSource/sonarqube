@@ -30,11 +30,13 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class WsUtilsTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public LogTester logger = new LogTester();
 
@@ -73,13 +75,11 @@ public class WsUtilsTest {
 
     WsPermissions.Permission message = WsPermissions.Permission.newBuilder().setName("permission-name").build();
 
-    try {
-      // provoke NullPointerException
-      WsUtils.writeProtobuf(message, null, new DumbResponse());
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NullPointerException.class);
-      assertThat(logger.logs()).contains("Error while writing protobuf message org.sonarqube.ws.WsPermissions.Permission[name: \"permission-name\"]");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectCause(hasType(NullPointerException.class));
+    expectedException.expectMessage("Error while writing protobuf message org.sonarqube.ws.WsPermissions.Permission[name: \"permission-name\"]");
+    // provoke NullPointerException
+    WsUtils.writeProtobuf(message, null, new DumbResponse());
   }
 
   @Test

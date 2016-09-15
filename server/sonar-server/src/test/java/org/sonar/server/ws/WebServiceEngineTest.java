@@ -295,7 +295,7 @@ public class WebServiceEngineTest {
     underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).isNotEmpty();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).isNotEmpty();
   }
 
   static class SystemWs implements WebService {

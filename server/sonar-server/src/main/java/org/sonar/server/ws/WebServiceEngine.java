@@ -117,7 +117,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
       Throwable cause = e.getCause();
       if (cause != null && cause instanceof ClientAbortException) {
         // Request has been aborted by the client, nothing can been done as Tomcat has committed the response
-        LOGGER.warn("Request {} has been aborted by client, error is '{}'", request, e.getMessage());
+        LOGGER.debug("Request {} has been aborted by client, error is '{}'", request, e.getMessage());
         return;
       }
       LOGGER.error("Fail to process request " + request, e);

@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -60,8 +59,7 @@ public class WsUtils {
         }
       }
     } catch (Exception e) {
-      LOG.error("Error while writing protobuf message {}", MessageFormatter.print(msg));
-      Throwables.propagate(e);
+      throw new IllegalStateException(format("Error while writing protobuf message %s", MessageFormatter.print(msg)), e);
     } finally {
       IOUtils.closeQuietly(output);
     }
