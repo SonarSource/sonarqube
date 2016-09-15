@@ -22,20 +22,21 @@ package org.sonar.server.platform.web;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,10 +76,22 @@ public class RootFilterTest {
     filter.doFilter(request("POST", "/context", null), null, chain);
   }
 
-  @Test(expected = ServletException.class)
-  public void should_profile_even_when_exception() throws Exception {
-    Mockito.doThrow(new ServletException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-    filter.doFilter(request("POST", "/context/service/call", "param=value"), null, chain);
+  @Test
+  public void throwable_in_dofilter_is_caught_and_500_error_returned_if_response_is_not_committed() throws Exception {
+    doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+    HttpServletResponse response = mockHttpResponse(false);
+    filter.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
+
+    verify(response).sendError(500);
+  }
+
+  @Test
+  public void throwable_in_dofilter_is_caught_but_no_500_response_is_sent_if_response_already_committed() throws Exception {
+    doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+    HttpServletResponse response = mockHttpResponse(true);
+    filter.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
+
+    verify(response, never()).sendError(500);
   }
 
   @Test
@@ -148,5 +161,11 @@ public class RootFilterTest {
     when(request.getRequestURI()).thenReturn(path);
     when(request.getQueryString()).thenReturn(query);
     return request;
+  }
+
+  private HttpServletResponse mockHttpResponse(boolean commited) {
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    when(response.isCommitted()).thenReturn(commited);
+    return response;
   }
 }

@@ -31,10 +31,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+
+import static java.lang.String.format;
 
 /**
  * <p>Profile HTTP requests using platform profiling utility.</p>
@@ -72,28 +75,49 @@ public class RootFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     if (request instanceof HttpServletRequest) {
-      HttpServletRequest httpRequest = new ServletRequestWrapper((HttpServletRequest) request);
-      String requestUri = httpRequest.getRequestURI();
-      String rootDir = getRootDir(requestUri);
-
-      if (staticResourceDirs.contains(rootDir)) {
-        // Static resource, not profiled
-        chain.doFilter(httpRequest, response);
-      } else {
-        Profiler profiler = Profiler.createIfDebug(Logger).start();
-        try {
-          chain.doFilter(httpRequest, response);
-        } finally {
-          if (profiler.isDebugEnabled()) {
-            String queryString = httpRequest.getQueryString();
-            String message = String.format(queryString == null ? MESSAGE_WITHOUT_QUERY : MESSAGE_WITH_QUERY, httpRequest.getMethod(), requestUri, queryString);
-            profiler.stopDebug(message);
-          }
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      HttpServletResponse httpResponse = (HttpServletResponse) response;
+      try {
+        doFilter(new ServletRequestWrapper(httpRequest), httpResponse, chain);
+      } catch (Throwable e) {
+        Loggers.get(RootFilter.class).error(format("Processing of request %s failed", toUrl(httpRequest)), e);
+        if (!response.isCommitted()) {
+          httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
       }
     } else {
       // Not an HTTP request, not profiled
       chain.doFilter(request, response);
+    }
+  }
+
+  private static String toUrl(HttpServletRequest request) {
+    String requestURI = request.getRequestURI();
+    String queryString = request.getQueryString();
+    if (queryString == null) {
+      return requestURI;
+    }
+    return requestURI + '?' + queryString;
+  }
+
+  private void doFilter(HttpServletRequest httpRequest, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    String requestUri = httpRequest.getRequestURI();
+    String rootDir = getRootDir(requestUri);
+
+    if (staticResourceDirs.contains(rootDir)) {
+      // Static resource, not profiled
+      chain.doFilter(httpRequest, response);
+    } else {
+      Profiler profiler = Profiler.createIfDebug(Logger).start();
+      try {
+        chain.doFilter(httpRequest, response);
+      } finally {
+        if (profiler.isDebugEnabled()) {
+          String queryString = httpRequest.getQueryString();
+          String message = format(queryString == null ? MESSAGE_WITHOUT_QUERY : MESSAGE_WITH_QUERY, httpRequest.getMethod(), requestUri, queryString);
+          profiler.stopDebug(message);
+        }
+      }
     }
   }
 
