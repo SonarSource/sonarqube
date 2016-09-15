@@ -142,13 +142,10 @@ export default ActionOptionsView.extend({
     if (this.assignees) {
       return this.assignees;
     }
-    const assignees = [{ id: '', text: translate('unassigned') }];
-    const currentUser = window.SS.user;
-    const currentUserName = window.SS.userName;
-    assignees.push({ id: currentUser, text: currentUserName });
-    if (this.getAssignee()) {
-      assignees.push({ id: this.getAssignee(), text: this.getAssigneeName() });
-    }
+    const assignees = [
+      { id: window.SS.user, text: window.SS.userName },
+      { id: '', text: translate('unassigned') }
+    ];
     return this.makeUnique(assignees);
   },
 
