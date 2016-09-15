@@ -24,7 +24,7 @@ import classNames from 'classnames';
 import Input from './inputs/Input';
 import DefinitionDefaults from './DefinitionDefaults';
 import DefinitionChanges from './DefinitionChanges';
-import { getPropertyName, getPropertyDescription, isEmptyValue, getSettingValue, isDefaultOrInherited } from '../utils';
+import { getPropertyName, getPropertyDescription, getSettingValue, isDefaultOrInherited } from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue } from '../store/actions';
 import { isLoading, getValidationMessage, getChangedValue } from '../store/rootReducer';
