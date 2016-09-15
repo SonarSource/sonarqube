@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.Locale;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -26,8 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OldPermissionQuery;
-import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
@@ -78,7 +78,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     Permission.Builder permission = newBuilder();
 
     for (String permissionKey : GlobalPermissions.ALL) {
-      OldPermissionQuery permissionQuery = permissionQuery(permissionKey);
+      PermissionQuery permissionQuery = permissionQuery(permissionKey);
 
       response.addPermissions(
         permission
@@ -95,25 +95,25 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   }
 
   private String i18nDescriptionMessage(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
   }
 
   private String i18nName(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey, permissionKey);
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
   }
 
   private int countGroups(DbSession dbSession, String permissionKey) {
     return dbClient.permissionDao().countGroups(dbSession, permissionKey, null);
   }
 
-  private int countUsers(DbSession dbSession, OldPermissionQuery permissionQuery) {
-    return dbClient.permissionDao().countUsers(dbSession, permissionQuery, null);
+  private int countUsers(DbSession dbSession, PermissionQuery permissionQuery) {
+    return dbClient.permissionDao().countUsersByQuery(dbSession, permissionQuery);
   }
 
-  private static OldPermissionQuery permissionQuery(String permissionKey) {
-    return OldPermissionQuery.builder()
-      .permission(permissionKey)
-      .membership(GroupMembershipQuery.IN)
+  private static PermissionQuery permissionQuery(String permissionKey) {
+    return PermissionQuery.builder()
+      .setPermission(permissionKey)
+      .withPermissionOnly()
       .build();
   }
 }

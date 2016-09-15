@@ -19,20 +19,8 @@
  */
 package org.sonar.server.permission.ws;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
-import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-
 import com.google.common.base.Optional;
+import java.util.Locale;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
@@ -50,6 +38,19 @@ import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse.Project;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
+
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
 public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
@@ -176,10 +177,10 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private String i18nDescriptionMessage(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
   }
 
   private String i18nName(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey, permissionKey);
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
   }
 }

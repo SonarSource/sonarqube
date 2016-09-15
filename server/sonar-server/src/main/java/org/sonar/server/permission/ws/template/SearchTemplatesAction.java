@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Locale;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -152,10 +153,10 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   }
 
   private String i18nDescriptionMessage(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey + DESCRIPTION_SUFFIX, "");
   }
 
   private String i18nName(String permissionKey) {
-    return i18n.message(userSession.locale(), PROPERTY_PREFIX + permissionKey, permissionKey);
+    return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
   }
 }
