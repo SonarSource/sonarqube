@@ -24,12 +24,6 @@
 class CreateTableRuleRepositories < ActiveRecord::Migration
 
   def self.up
-    create_table 'rule_repositories', :id => false do |t|
-      t.column 'kee', :string, :limit => 200, :null => false
-      t.column 'language', :string, :limit => 20, :null => false
-      t.column 'name', :string, :limit => 4000, :null => false
-      t.column 'created_at', :big_integer, :null => false
-    end
-    add_primary_key 'rule_repositories', 'kee'
+    execute_java_migration('org.sonar.db.version.v61.CreateTableRuleRepositories')
   end
 end
