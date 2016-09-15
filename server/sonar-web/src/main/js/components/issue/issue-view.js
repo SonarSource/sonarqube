@@ -26,6 +26,7 @@ import ChangeLogView from './views/changelog-view';
 import TransitionsFormView from './views/transitions-form-view';
 import AssignFormView from './views/assign-form-view';
 import CommentFormView from './views/comment-form-view';
+import DeleteCommentView from './views/DeleteCommentView';
 import SetSeverityFormView from './views/set-severity-form-view';
 import SetTypeFormView from './views/set-type-form-view';
 import TagsFormView from './views/tags-form-view';
@@ -144,18 +145,22 @@ export default Marionette.ItemView.extend({
   },
 
   deleteComment (e) {
-    const that = this;
-    const commentKey = $(e.target).closest('[data-comment-key]').data('comment-key');
-    const confirmMsg = $(e.target).data('confirm-msg');
-    if (confirm(confirmMsg)) {
-      this.disableControls();
-      return $.ajax({
-        type: 'POST',
-        url: window.baseUrl + '/api/issues/delete_comment?key=' + commentKey
-      }).done(function () {
-        that.updateAfterAction(true);
-      });
-    }
+    e.stopPropagation();
+    $('body').click();
+    const commentEl = $(e.currentTarget).closest('.issue-comment');
+    const commentKey = commentEl.data('comment-key');
+    this.popup = new DeleteCommentView({
+      triggerEl: $(e.currentTarget),
+      bottomRight: true,
+      onDelete: () => {
+        this.disableControls();
+        $.ajax({
+          type: 'POST',
+          url: window.baseUrl + '/api/issues/delete_comment?key=' + commentKey
+        }).done(() => this.updateAfterAction(true));
+      }
+    });
+    this.popup.render();
   },
 
   transition (e) {
