@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
+import escapeHtml from 'escape-html';
 import { translate } from '../helpers/l10n';
 import { getCSRFTokenName, getCSRFTokenValue } from '../helpers/request';
 
@@ -160,7 +161,7 @@ function handleAjaxError (jqXHR) {
     if (jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
       message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
     }
-    failBackgroundProcess(jqXHR.processId, message);
+    failBackgroundProcess(jqXHR.processId, escapeHtml(message));
   }
 }
 

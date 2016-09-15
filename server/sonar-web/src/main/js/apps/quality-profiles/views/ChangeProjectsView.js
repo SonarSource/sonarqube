@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import escapeHtml from 'escape-html';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-change-projects.hbs';
 import { translate } from '../../../helpers/l10n';
@@ -40,7 +41,7 @@ export default ModalFormView.extend({
       readOnly: false,
       focusSearch: false,
       format (item) {
-        return item.name;
+        return escapeHtml(item.name);
       },
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
       deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
