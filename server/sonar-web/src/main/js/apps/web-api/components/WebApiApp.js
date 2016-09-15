@@ -19,13 +19,11 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-
 import { fetchWebApi } from '../../../api/web-api';
 import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
-import { getActionKey } from '../utils';
-import { isDomainPathActive } from '../utils';
+import { getActionKey, isDomainPathActive } from '../utils';
 
 export default class WebApiApp extends React.Component {
   state = {

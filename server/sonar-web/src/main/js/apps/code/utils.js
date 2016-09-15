@@ -62,7 +62,7 @@ function requestChildren (componentKey, metrics, page) {
     if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
       return requestChildren(componentKey, metrics, page + 1).then(moreComponents => {
         return [...r.components, ...moreComponents];
-      })
+      });
     }
     return r.components;
   });
