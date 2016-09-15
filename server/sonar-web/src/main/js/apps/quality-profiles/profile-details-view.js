@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
+import escapeHtml from 'escape-html';
 import ChangeProfileParentView from './change-profile-parent-view';
 import ProfileChangelogView from './profile-changelog-view';
 import ProfileComparisonView from './profile-comparison-view';
@@ -81,9 +82,7 @@ export default Marionette.LayoutView.extend({
       height: 200,
       readOnly: !this.options.canWrite,
       focusSearch: false,
-      format (item) {
-        return item.name;
-      },
+      format: item => escapeHtml(item.name),
       searchUrl: window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
       deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
