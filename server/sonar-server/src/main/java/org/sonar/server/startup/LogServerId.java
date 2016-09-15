@@ -43,14 +43,14 @@ public final class LogServerId implements Startable {
       PropertyDto serverIdProp = selectProperty(dbSession, propertyKey);
       if (serverIdProp != null) {
         // a server ID has been generated, let's print out the other useful information that can help debugging license issues
-        PropertyDto organisationProp = selectProperty(dbSession, CoreProperties.ORGANISATION);
+        PropertyDto organizationProp = selectProperty(dbSession, CoreProperties.ORGANISATION);
         PropertyDto ipAddressProp = selectProperty(dbSession, CoreProperties.SERVER_ID_IP_ADDRESS);
 
         StringBuilder message = new StringBuilder("Server information:\n");
         message.append("  - ID           : ");
         addQuotedValue(serverIdProp, message);
-        message.append("  - Organisation : ");
-        addQuotedValue(organisationProp, message);
+        message.append("  - Organization : ");
+        addQuotedValue(organizationProp, message);
         message.append("  - Registered IP: ");
         addQuotedValue(ipAddressProp, message);
 

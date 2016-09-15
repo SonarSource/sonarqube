@@ -45,11 +45,11 @@ public class ServerIdLoader {
       return Optional.absent();
     }
 
-    String organisation = settings.getString(CoreProperties.ORGANISATION);
+    String organization = settings.getString(CoreProperties.ORGANISATION);
     String ipAddress = settings.getString(CoreProperties.SERVER_ID_IP_ADDRESS);
-    boolean validated = organisation != null
+    boolean validated = organization != null
       && ipAddress != null
-      && idGenerator.validate(organisation, ipAddress, rawId.get());
+      && idGenerator.validate(organization, ipAddress, rawId.get());
 
     return Optional.of(new ServerId(rawId.get(), validated));
   }

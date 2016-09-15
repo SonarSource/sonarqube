@@ -58,7 +58,7 @@ public class ListActionTest {
 
   private static final String LICENSE_KEY_SAMPLE = "sonar.governance.license.secured";
   private static final String LICENSE_NAME_SAMPLE = "Governance";
-  private static final String ORGANISATION_SAMPLE = "SonarSource";
+  private static final String ORGANIZATION_SAMPLE = "SonarSource";
   private static final String SERVER_ID_SAMPLE = "12345";
   private static final String PRODUCT_SAMPLE = "governance";
   private static final String TYPE_SAMPLE = "PRODUCTION";
@@ -159,7 +159,7 @@ public class ListActionTest {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, "Other", SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, "Other", SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -176,7 +176,7 @@ public class ListActionTest {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "Other", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "Other", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -192,7 +192,7 @@ public class ListActionTest {
   public void return_bad_server_id_when_server_has_no_server_id() throws Exception {
     setUserAsSystemAdmin();
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -205,7 +205,7 @@ public class ListActionTest {
   public void does_not_return_invalid_server_id_when_all_servers_accepted_and_no_server_id_setting() throws Exception {
     setUserAsSystemAdmin();
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -220,7 +220,7 @@ public class ListActionTest {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -235,7 +235,7 @@ public class ListActionTest {
     setUserAsSystemAdmin();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
-      createBase64License(ORGANISATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, "2010-01-01", TYPE_SAMPLE, Collections.emptyMap()));
+      createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, "2010-01-01", TYPE_SAMPLE, Collections.emptyMap()));
 
     ListWsResponse result = executeRequest();
 
@@ -305,10 +305,10 @@ public class ListActionTest {
     return Base64.encodeBase64String((data.getBytes(StandardCharsets.UTF_8)));
   }
 
-  private static String createBase64License(@Nullable String organisation, @Nullable String product, @Nullable String serverId, @Nullable String expirationDate,
+  private static String createBase64License(@Nullable String organization, @Nullable String product, @Nullable String serverId, @Nullable String expirationDate,
     @Nullable String type, Map<String, String> additionalProperties) {
     StringBuilder data = new StringBuilder();
-    data.append("Organisation: ").append(organisation).append(" \n");
+    data.append("Organisation: ").append(organization).append(" \n");
     data.append("Server: ").append(serverId).append(" \n");
     data.append("Product: ").append(product).append(" \n");
     data.append("Expiration: ").append(expirationDate).append(" \n");

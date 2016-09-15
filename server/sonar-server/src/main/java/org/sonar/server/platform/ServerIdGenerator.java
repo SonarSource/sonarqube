@@ -60,8 +60,8 @@ public class ServerIdGenerator {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
-  public boolean validate(String organisationName, String ipAddress, String expectedServerId) {
-    String organization = organisationName.trim();
+  public boolean validate(String organizationName, String ipAddress, String expectedServerId) {
+    String organization = organizationName.trim();
     String ip = ipAddress.trim();
     if (isBlank(ip) || isBlank(organization) || !isValidOrganizationName(organization)) {
       return false;
@@ -86,8 +86,8 @@ public class ServerIdGenerator {
     return toId(organization, inetAddress);
   }
 
-  static boolean isValidOrganizationName(String organisation) {
-    return ORGANIZATION_PATTERN.matcher(organisation).matches();
+  static boolean isValidOrganizationName(String organization) {
+    return ORGANIZATION_PATTERN.matcher(organization).matches();
   }
 
   boolean isFixed(InetAddress address) {
@@ -97,8 +97,8 @@ public class ServerIdGenerator {
     return acceptPrivateAddress || (!address.isLoopbackAddress() && !address.isLinkLocalAddress());
   }
 
-  static String toId(String organisation, InetAddress address) {
-    String id = new StringBuilder().append(organisation).append("-").append(address.getHostAddress()).toString();
+  static String toId(String organization, InetAddress address) {
+    String id = new StringBuilder().append(organization).append("-").append(address.getHostAddress()).toString();
     return VERSION + DigestUtils.sha1Hex(id.getBytes(StandardCharsets.UTF_8)).substring(0, CHECKSUM_SIZE);
   }
 

@@ -94,15 +94,15 @@ public class ShowAction implements ServerIdWsAction {
     Optional<String> serverId = getSettingValue(properties.get(PERMANENT_SERVER_ID));
     if (serverId.isPresent()) {
       responseBuilder.setServerId(serverId.get());
-      Optional<String> organisation = getSettingValue(properties.get(ORGANISATION));
-      if (organisation.isPresent()) {
-        responseBuilder.setOrganization(organisation.get());
+      Optional<String> organization = getSettingValue(properties.get(ORGANISATION));
+      if (organization.isPresent()) {
+        responseBuilder.setOrganization(organization.get());
       }
       Optional<String> ip = getSettingValue(properties.get(SERVER_ID_IP_ADDRESS));
       if (ip.isPresent()) {
         responseBuilder.setIp(ip.get());
       }
-      boolean isValidServId = isValidServerId(serverId.get(), organisation, ip);
+      boolean isValidServId = isValidServerId(serverId.get(), organization, ip);
       if (!isValidServId) {
         responseBuilder.setInvalidServerId(true);
       }

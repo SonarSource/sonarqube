@@ -121,7 +121,7 @@ public class LogServerIdTest {
   private void verifyLog(String expectedId, String expectedOrganisation, String expectedIp) {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Server information:\n"
       + "  - ID           : " + expectedId + "\n"
-      + "  - Organisation : " + expectedOrganisation + "\n"
+      + "  - Organization : " + expectedOrganisation + "\n"
       + "  - Registered IP: " + expectedIp + "\n");
   }
 

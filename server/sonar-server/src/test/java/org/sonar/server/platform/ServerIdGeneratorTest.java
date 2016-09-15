@@ -123,7 +123,7 @@ public class ServerIdGeneratorTest {
   }
 
   @Test
-  public void idShouldBeUniquePerOrganisation() {
+  public void idShouldBeUniquePerOrganization() {
     ServerIdGenerator generator = new ServerIdGenerator(true);
 
     String k1 = generator.generate("Corp One", "127.0.0.1");
