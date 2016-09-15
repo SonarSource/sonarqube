@@ -66,7 +66,7 @@ public class QProfileChangeDaoTest {
     assertThat(row.get("createdAt")).isEqualTo(A_DATE);
     assertThat(row.get("login")).isEqualTo(login);
     assertThat(row.get("changeType")).isEqualTo(type);
-    assertThat(row.get("data")).isEqualTo(data);
+    assertThat(row.get("changeData")).isEqualTo(data);
   }
 
   /**
@@ -84,7 +84,7 @@ public class QProfileChangeDaoTest {
     assertThat(row.get("createdAt")).isEqualTo(A_DATE);
     assertThat(row.get("changeType")).isEqualTo("ACTIVATED");
     assertThat(row.get("login")).isNull();
-    assertThat(row.get("data")).isNull();
+    assertThat(row.get("changeData")).isNull();
   }
 
   @Test
@@ -207,7 +207,7 @@ public class QProfileChangeDaoTest {
 
   private Map<String, Object> selectChangeByKey(String key) {
     return dbTester.selectFirst(dbSession,
-      "select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", data as \"data\" from qprofile_changes where kee='"
+      "select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
         + key + "'");
   }
 }

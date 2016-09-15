@@ -11,7 +11,7 @@
     created_at,
     user_login,
     change_type,
-    data
+    change_data
     ) values (
     #{key,jdbcType=VARCHAR},
     #{profileKey,jdbcType=VARCHAR},
@@ -55,7 +55,7 @@
     created_at as createdAt,
     user_login as login,
     change_type as changeType,
-    data
+    change_data as data
   </sql>
 
   <sql id="sqlSelectByQuery">

@@ -66,7 +66,7 @@ public class CopyActivitiesToQprofileChangesTest {
     assertThat(change.get("createdAt")).isEqualTo(A_DATE);
     assertThat(change.get("login")).isEqualTo(login);
     assertThat(change.get("changeType")).isEqualTo(type);
-    assertThat(change.get("data")).isEqualTo(data);
+    assertThat(change.get("changeData")).isEqualTo(data);
   }
 
   /**
@@ -128,6 +128,6 @@ public class CopyActivitiesToQprofileChangesTest {
   }
 
   private Map<String, Object> selectChangeByKey(String key) {
-    return db.selectFirst("select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", data as \"data\" from qprofile_changes where kee='" + key + "'");
+    return db.selectFirst("select qprofile_key as \"qprofileKey\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='" + key + "'");
   }
 }

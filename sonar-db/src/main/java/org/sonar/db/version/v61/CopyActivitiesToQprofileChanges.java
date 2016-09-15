@@ -46,7 +46,7 @@ public class CopyActivitiesToQprofileChanges extends BaseDataChange {
         "and qc.kee is null")
       .setString(1, "QPROFILE");
 
-    massUpdate.update("insert into qprofile_changes (kee, qprofile_key, created_at, user_login, change_type, data) values (?,?,?,?,?,?)");
+    massUpdate.update("insert into qprofile_changes (kee, qprofile_key, created_at, user_login, change_type, change_data) values (?,?,?,?,?,?)");
     massUpdate.execute((row, update) -> {
       String key = row.getString(1);
       String profileKey = row.getString(2);
