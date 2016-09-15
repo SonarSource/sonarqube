@@ -54,7 +54,7 @@ class AccountController < ApplicationController
       project_notifs.each do |r_id, per_project_notif|
         per_project_notif.each do |dispatch, channels|
           channels.each do |channel, value|
-            Api::Utils.java_facade.saveProperty('notification.' + dispatch + '.' + channel, r_id, current_user.id, 'true')
+            Api::Utils.java_facade.saveProperty('notification.' + dispatch + '.' + channel, r_id.to_i, current_user.id, 'true')
           end
         end
       end

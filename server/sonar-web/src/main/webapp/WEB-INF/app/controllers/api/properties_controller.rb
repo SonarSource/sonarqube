@@ -135,7 +135,7 @@ class Api::PropertiesController < Api::ApiController
         not_found('resource not found')
       end
     end
-    Api::Utils.java_facade.saveProperty(key, resource_id_or_key, nil, nil)
+    Api::Utils.java_facade.saveProperty(key, resource_id_or_key.nil? ? nil : resource_id_or_key.to_i, nil, nil)
     render_success('property deleted')
   end
 

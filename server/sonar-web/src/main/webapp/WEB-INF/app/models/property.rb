@@ -55,7 +55,7 @@ class Property < ActiveRecord::Base
   def self.clear(key, resource_id=nil, user_id=nil)
     prop = by_key(key, resource_id, user_id)
     if prop
-      Api::Utils.java_facade.saveProperty(key, resource_id, user_id, nil)
+      Api::Utils.java_facade.saveProperty(key, resource_id.nil? ? nil : resource_id.to_i, user_id, nil)
     end
     prop
   end
@@ -124,7 +124,7 @@ class Property < ActiveRecord::Base
     end
 
     # create/update property in DB
-    Api::Utils.java_facade.saveProperty(key, resource_id, user_id, raw_value)
+    Api::Utils.java_facade.saveProperty(key, resource_id.nil? ? nil : resource_id.to_i, user_id, raw_value)
 
     # update returned property
     if raw_value.nil?
