@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
@@ -106,7 +107,7 @@ public class UserUpdaterTest {
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
-      .setScmAccounts(newArrayList("u1", "u_1", "User 1")));
+      .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1")));
 
     UserDto dto = userDao.selectByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();

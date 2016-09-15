@@ -72,7 +72,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(6);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("update");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
   @Test

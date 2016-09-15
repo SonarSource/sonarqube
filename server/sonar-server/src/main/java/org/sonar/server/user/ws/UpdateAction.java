@@ -20,6 +20,8 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,18 +35,20 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
+import org.sonarqube.ws.client.user.UpdateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_DEPRECATED;
 
 public class UpdateAction implements UsersWsAction {
-
-  private static final String PARAM_LOGIN = "login";
-  private static final String PARAM_NAME = "name";
-  private static final String PARAM_EMAIL = "email";
-  private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
-  private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
   private final UserUpdater userUpdater;
   private final UserSession userSession;
@@ -60,7 +64,7 @@ public class UpdateAction implements UsersWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("update")
+    WebService.NewAction action = controller.createAction(ACTION_UPDATE)
       .setDescription("Update a user. If a deactivated user account exists with the given login, it will be reactivated. " +
         "Requires Administer System permission. Since 5.2, a user's password can only be changed using the 'change_password' action.")
       .setSince("3.7")
@@ -82,29 +86,37 @@ public class UpdateAction implements UsersWsAction {
       .setExampleValue("myname@email.com");
 
     action.createParam(PARAM_SCM_ACCOUNTS)
-      .setDescription("SCM accounts. This parameter has been added in 5.1")
+      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
       .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED)
+      .setDeprecatedSince("6.1")
       .setExampleValue("myscmaccount1,myscmaccount2");
+
+    action.createParam(PARAM_SCM_ACCOUNT)
+      .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
+      .setExampleValue("scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    UpdateRequest updateRequest = toWsRequest(request);
+    doHandle(toWsRequest(request));
+    writeResponse(response, updateRequest.getLogin());
+  }
 
-    String login = request.mandatoryParam(PARAM_LOGIN);
+  private void doHandle(UpdateRequest request) {
+    String login = request.getLogin();
     UpdateUser updateUser = UpdateUser.create(login);
-    if (request.hasParam(PARAM_NAME)) {
-      updateUser.setName(request.mandatoryParam(PARAM_NAME));
+    if (request.getName() != null) {
+      updateUser.setName(request.getName());
     }
-    if (request.hasParam(PARAM_EMAIL)) {
-      updateUser.setEmail(emptyToNull(request.param(PARAM_EMAIL)));
+    if (request.getEmail() != null) {
+      updateUser.setEmail(emptyToNull(request.getEmail()));
     }
-    if (request.hasParam(PARAM_SCM_ACCOUNTS) || request.hasParam(PARAM_SCM_ACCOUNTS_DEPRECATED)) {
-      updateUser.setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS));
+    if (!request.getScmAccounts().isEmpty()) {
+      updateUser.setScmAccounts(request.getScmAccounts());
     }
-
     userUpdater.update(updateUser);
-    writeResponse(response, login);
   }
 
   private void writeResponse(Response response, String login) {
@@ -127,5 +139,22 @@ public class UpdateAction implements UsersWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static UpdateRequest toWsRequest(Request request) {
+    return UpdateRequest.builder()
+      .setLogin(request.mandatoryParam(PARAM_LOGIN))
+      .setName(request.param(PARAM_NAME))
+      .setEmail(request.param(PARAM_EMAIL))
+      .setScmAccounts(getScmAccounts(request))
+      .build();
+  }
+
+  private static List<String> getScmAccounts(Request request) {
+    if (request.hasParam(PARAM_SCM_ACCOUNT)) {
+      return new ArrayList<>(request.multiParam(PARAM_SCM_ACCOUNT));
+    }
+    List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
+    return oldScmAccounts != null ? oldScmAccounts : new ArrayList<>();
   }
 }

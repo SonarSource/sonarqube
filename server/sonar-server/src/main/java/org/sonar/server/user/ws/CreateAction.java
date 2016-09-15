@@ -20,6 +20,8 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,15 +34,17 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
+import org.sonarqube.ws.client.user.CreateRequest;
+
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_DEPRECATED;
 
 public class CreateAction implements UsersWsAction {
-
-  private static final String PARAM_LOGIN = "login";
-  private static final String PARAM_PASSWORD = "password";
-  private static final String PARAM_NAME = "name";
-  private static final String PARAM_EMAIL = "email";
-  private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
-  private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
@@ -85,26 +89,31 @@ public class CreateAction implements UsersWsAction {
       .setExampleValue("myname@email.com");
 
     action.createParam(PARAM_SCM_ACCOUNTS)
-      .setDescription("SCM accounts. This parameter has been added in 5.1")
+      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
       .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED)
+      .setDeprecatedSince("6.1")
       .setExampleValue("myscmaccount1,myscmaccount2");
+
+    action.createParam(PARAM_SCM_ACCOUNT)
+      .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
+      .setExampleValue("scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    doHandle(toWsRequest(request), response);
+  }
 
-    String login = request.mandatoryParam(PARAM_LOGIN);
-    String password = request.mandatoryParam(PARAM_PASSWORD);
+  private void doHandle(CreateRequest request, Response response) {
     NewUser newUser = NewUser.create()
-      .setLogin(login)
-      .setName(request.mandatoryParam(PARAM_NAME))
-      .setEmail(request.param(PARAM_EMAIL))
-      .setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS))
-      .setPassword(password);
-
+      .setLogin(request.getLogin())
+      .setName(request.getName())
+      .setEmail(request.getEmail())
+      .setScmAccounts(request.getScmAccounts())
+      .setPassword(request.getPassword());
     boolean isUserReactivated = userUpdater.create(newUser);
-    writeResponse(response, login, isUserReactivated);
+    writeResponse(response, request.getLogin(), isUserReactivated);
   }
 
   private void writeResponse(Response response, String login, boolean isUserReactivated) {
@@ -119,7 +128,7 @@ public class CreateAction implements UsersWsAction {
 
   private void writeUser(JsonWriter json, UserDto user) {
     json.name("user");
-    userWriter.write(json, user, ImmutableSet.<String>of(), UserJsonWriter.FIELDS);
+    userWriter.write(json, user, ImmutableSet.of(), UserJsonWriter.FIELDS);
   }
 
   private void writeReactivationMessage(JsonWriter json, String login) {
@@ -131,12 +140,30 @@ public class CreateAction implements UsersWsAction {
     json.endArray();
   }
 
-  private UserDto loadUser(String login){
+  private UserDto loadUser(String login) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       return dbClient.userDao().selectOrFailByLogin(dbSession, login);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static CreateRequest toWsRequest(Request request) {
+    return CreateRequest.builder()
+      .setLogin(request.mandatoryParam(PARAM_LOGIN))
+      .setPassword(request.mandatoryParam(PARAM_PASSWORD))
+      .setName(request.param(PARAM_NAME))
+      .setEmail(request.param(PARAM_EMAIL))
+      .setScmAccounts(getScmAccounts(request))
+      .build();
+  }
+
+  private static List<String> getScmAccounts(Request request) {
+    if (request.hasParam(PARAM_SCM_ACCOUNT)) {
+      return request.multiParam(PARAM_SCM_ACCOUNT);
+    }
+    List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
+    return oldScmAccounts != null ? oldScmAccounts : Collections.emptyList();
   }
 }

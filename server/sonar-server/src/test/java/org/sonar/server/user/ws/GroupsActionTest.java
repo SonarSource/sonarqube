@@ -42,6 +42,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Collections.singletonList;
+
 public class GroupsActionTest {
 
   @Rule
@@ -154,7 +156,7 @@ public class GroupsActionTest {
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
-      .setScmAccounts("jn"));
+      .setScmAccounts(singletonList("jn")));
   }
 
   @Test

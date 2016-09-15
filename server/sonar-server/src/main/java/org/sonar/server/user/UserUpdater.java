@@ -21,10 +21,10 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import java.net.HttpURLConnection;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.CheckForNull;
@@ -35,6 +35,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -353,9 +354,9 @@ public class UserUpdater {
   @CheckForNull
   private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
-      scmAccounts.removeAll(Arrays.asList(null, ""));
+      return scmAccounts.stream().filter(s -> !Strings.isNullOrEmpty(s)).collect(Collectors.toList());
     }
-    return scmAccounts;
+    return null;
   }
 
   private void saveUser(DbSession dbSession, UserDto userDto) {

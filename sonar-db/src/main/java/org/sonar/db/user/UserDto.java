@@ -19,8 +19,6 @@
  */
 package org.sonar.db.user;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -30,6 +28,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.user.DefaultUser;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * @since 3.2
@@ -110,9 +110,6 @@ public class UserDto {
     return decodeScmAccounts(scmAccounts);
   }
 
-  /**
-   * List of SCM accounts separated by '|'
-   */
   public UserDto setScmAccounts(@Nullable String s) {
     this.scmAccounts = s;
     return this;

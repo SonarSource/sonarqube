@@ -19,16 +19,6 @@
  */
 package org.sonar.db.user;
 
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.GroupMembershipQuery.builder;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +41,16 @@ import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
+import static org.sonar.db.user.GroupMembershipQuery.builder;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
 

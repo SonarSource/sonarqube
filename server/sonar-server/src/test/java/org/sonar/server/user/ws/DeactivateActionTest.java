@@ -22,8 +22,8 @@ package org.sonar.server.user.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -47,6 +47,7 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
@@ -136,7 +137,7 @@ public class DeactivateActionTest {
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
-      .setScmAccounts("jn"));
+      .setScmAccounts(singletonList("jn")));
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin("john"));
     dbSession.commit();
     userIndexer.index();

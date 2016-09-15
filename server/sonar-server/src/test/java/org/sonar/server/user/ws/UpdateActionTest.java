@@ -23,8 +23,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -148,7 +148,47 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void remove_scm_accounts() throws Exception {
+    createUser();
+
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .setParam("scmAccount", "")
+      .execute();
+
+    UserDto userDto = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(userDto.getScmAccounts()).isNull();
+  }
+
+  @Test
   public void update_only_scm_accounts() throws Exception {
+    createUser();
+
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .setParam("scmAccount", "jon.snow")
+      .execute()
+      .assertJson(getClass(), "update_scm_accounts.json");
+
+    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
+  }
+
+  @Test
+  public void update_scm_account_having_coma() throws Exception {
+    createUser();
+
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .setParam("scmAccount", "jon,snow")
+      .execute();
+
+    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(user.getScmAccountsAsList()).containsOnly("jon,snow");
+  }
+
+  @Test
+  public void update_only_scm_accounts_with_deprecated_scmAccounts_parameter() throws Exception {
     createUser();
 
     tester.newPostRequest("api/users", "update")
@@ -156,10 +196,13 @@ public class UpdateActionTest {
       .setParam("scmAccounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
+
+    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
   }
 
   @Test
-  public void update_only_scm_accounts_with_deprecated_parameter() throws Exception {
+  public void update_only_scm_accounts_with_deprecated_scm_accounts_parameter() throws Exception {
     createUser();
 
     tester.newPostRequest("api/users", "update")
@@ -167,6 +210,9 @@ public class UpdateActionTest {
       .setParam("scm_accounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
+
+    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
   }
 
   @Test(expected = NotFoundException.class)

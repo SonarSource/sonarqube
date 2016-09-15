@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
@@ -35,7 +36,7 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setScmAccounts(randomAlphanumeric(40))
+      .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(login)
       .setExternalIdentityProvider("sonarqube")
       .setSalt(randomAlphanumeric(40))
@@ -51,7 +52,7 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setScmAccounts(randomAlphanumeric(40))
+      .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(login)
       .setExternalIdentityProvider("sonarqube")
       .setSalt(randomAlphanumeric(40))
@@ -67,7 +68,7 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setScmAccounts(randomAlphanumeric(40))
+      .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(randomAlphanumeric(40))
       .setExternalIdentityProvider(randomAlphanumeric(40))
       .setCreatedAt(nextLong())

@@ -122,9 +122,7 @@ public class SearchActionTest {
   public void search_with_query() throws Exception {
     loginAsSimpleUser();
     injectUsers(5);
-    UserDto user = userDb.insertUser(
-      newUserDto("user-%_%-login", "user-name", "user@mail.com")
-        .setScmAccounts("user1"));
+    UserDto user = userDb.insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com").setScmAccounts(singletonList("user1")));
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc()
         .setActive(true)

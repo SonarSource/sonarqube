@@ -24,8 +24,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -112,7 +112,7 @@ public class CreateActionTest {
       .setParam("login", "john")
       .setParam("name", "John")
       .setParam("email", "john@email.com")
-      .setParam("scmAccounts", "jn")
+      .setParam("scmAccount", "jn")
       .setParam("password", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
@@ -124,7 +124,38 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_user_with_deprecated_scm_parameter() throws Exception {
+  public void create_user_with_coma_in_scm_account() throws Exception {
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    tester.newPostRequest("api/users", "create")
+      .setParam("login", "john")
+      .setParam("name", "John")
+      .setParam("email", "john@email.com")
+      .setParam("scmAccount", "j,n")
+      .setParam("password", "1234").execute();
+
+    UserDoc user = index.getNullableByLogin("john");
+    assertThat(user.scmAccounts()).containsOnly("j,n");
+  }
+
+  @Test
+  public void create_user_with_deprecated_scmAccounts_parameter() throws Exception {
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    tester.newPostRequest("api/users", "create")
+      .setParam("login", "john")
+      .setParam("name", "John")
+      .setParam("email", "john@email.com")
+      .setParam("scmAccounts", "jn")
+      .setParam("password", "1234").execute()
+      .assertJson(getClass(), "create_user.json");
+
+    UserDoc user = index.getNullableByLogin("john");
+    assertThat(user.scmAccounts()).containsOnly("jn");
+  }
+
+  @Test
+  public void create_user_with_deprecated_scm_accounts_parameter() throws Exception {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     tester.newPostRequest("api/users", "create")
@@ -136,9 +167,6 @@ public class CreateActionTest {
       .assertJson(getClass(), "create_user.json");
 
     UserDoc user = index.getNullableByLogin("john");
-    assertThat(user.login()).isEqualTo("john");
-    assertThat(user.name()).isEqualTo("John");
-    assertThat(user.email()).isEqualTo("john@email.com");
     assertThat(user.scmAccounts()).containsOnly("jn");
   }
 
