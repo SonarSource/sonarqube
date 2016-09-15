@@ -21,7 +21,8 @@
 class WebApiController < ApplicationController
 
   def index
-
+    # Fix a very strange bug that generates a server error when the format parameter is set
+    params[:format] = nil if params[:format]
   end
 
 end
