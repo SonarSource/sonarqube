@@ -24,13 +24,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -40,6 +43,8 @@ import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.ComponentAction.PARAM_COMPONENT_KEY;
 
 public class ComponentActionTest {
 
@@ -55,14 +60,14 @@ public class ComponentActionTest {
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
   ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, new ComponentFinder(dbTester.getDbClient()));
-  WsActionTester tester = new WsActionTester(underTest);
+  WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void empty_queue_and_empty_activity() {
     componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
@@ -82,7 +87,7 @@ public class ComponentActionTest {
     insertQueue("T4", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertQueue("T5", "PROJECT_1", CeQueueDto.Status.PENDING);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
@@ -97,6 +102,21 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void search_tasks_by_component_key() {
+    ComponentDto project = componentDbTester.insertProject();
+    setUserWithBrowsePermission(project);
+    insertActivity("T1", project.uuid(), CeActivityDto.Status.SUCCESS);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEY, project.key())
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
+
+    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
+    assertThat(response.hasCurrent()).isTrue();
+  }
+
+  @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
     componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
@@ -106,7 +126,7 @@ public class ComponentActionTest {
     insertActivity("T4", "PROJECT_1", CeActivityDto.Status.CANCELED);
     insertActivity("T5", "PROJECT_1", CeActivityDto.Status.CANCELED);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
@@ -123,10 +143,34 @@ public class ComponentActionTest {
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
     expectedException.expect(NotFoundException.class);
-    tester.newRequest()
+    ws.newRequest()
       .setParam("componentId", "UNKNOWN")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
+  }
+
+  @Test
+  public void fail_when_insufficient_permissions() {
+    ComponentDto project = componentDbTester.insertProject();
+    userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, project.uuid())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_no_component_parameter() {
+    expectedException.expect(IllegalArgumentException.class);
+    setUserWithBrowsePermission(componentDbTester.insertProject());
+
+    ws.newRequest().execute();
+  }
+
+  private void setUserWithBrowsePermission(ComponentDto project) {
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {

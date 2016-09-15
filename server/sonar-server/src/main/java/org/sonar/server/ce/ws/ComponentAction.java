@@ -33,13 +33,16 @@ import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.WsUtils;
 
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
 
 public class ComponentAction implements CeWsAction {
 
-  public static final String PARAM_COMPONENT_UUID = "componentId";
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_KEY = "componentKey";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -56,23 +59,32 @@ public class ComponentAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("component")
-      .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component " +
-        "(usually a project). Requires the administration permission on the component.<br/>" +
+      .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified component</li>" +
+        "</ul>" +
+        "Either '%s' or '%s' must be provided, not both.<br>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.")
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_UUID)
-      .setRequired(true)
+    action.createParam(PARAM_COMPONENT_ID)
+      .setRequired(false)
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
+
+    action.createParam(PARAM_COMPONENT_KEY)
+      .setRequired(false)
+      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto component = componentFinder.getByUuid(dbSession, wsRequest.mandatoryParam(PARAM_COMPONENT_UUID));
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, wsRequest.param(PARAM_COMPONENT_ID), wsRequest.param(PARAM_COMPONENT_KEY), COMPONENT_ID_AND_KEY);
       userSession.checkComponentUuidPermission(UserRole.USER, component.uuid());
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
