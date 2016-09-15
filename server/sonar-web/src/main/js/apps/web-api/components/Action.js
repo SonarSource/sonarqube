@@ -36,13 +36,13 @@ export default class Action extends React.Component {
   handleShowParamsClick (e) {
     e.preventDefault();
     this.refs.toggleParameters.blur();
-    this.setState({ showParams: !this.state.showParams });
+    this.setState({ showResponse: false, showParams: !this.state.showParams });
   }
 
   handleShowResponseClick (e) {
     e.preventDefault();
     this.refs.toggleResponse.blur();
-    this.setState({ showResponse: !this.state.showResponse });
+    this.setState({ showParams: false, showResponse: !this.state.showResponse });
   }
 
   render () {
