@@ -39,6 +39,7 @@ public class CheckDatabaseCharsetAtStartup implements Startable {
 
   @Override
   public void start() {
+    System.out.println("xxxxxxxxxxx");
     DatabaseCharsetChecker.State state = DatabaseCharsetChecker.State.STARTUP;
     if (upgradeStatus.isUpgraded()) {
       state = DatabaseCharsetChecker.State.UPGRADE;

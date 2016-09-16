@@ -27,19 +27,25 @@ public class ColumnDefTest {
 
   @Test
   public void isInSonarQubeTable_returns_false_if_sqlazure_system_table() {
-    ColumnDef underTest = new ColumnDef("sys.sysusers", "colum", "charset", "collation", "NVARCHAR", 100L, false);
+    ColumnDef underTest = new ColumnDef("sys.sysusers", "login", "charset", "collation", "NVARCHAR", 100L, false);
     assertThat(underTest.isInSonarQubeTable()).isFalse();
 
-    underTest = new ColumnDef("SYS.SYSUSERS", "colum", "charset", "collation", "NVARCHAR", 100L, false);
+    underTest = new ColumnDef("SYS.SYSUSERS", "login", "charset", "collation", "NVARCHAR", 100L, false);
     assertThat(underTest.isInSonarQubeTable()).isFalse();
   }
 
   @Test
   public void isInSonarQubeTable_returns_true_if_table_created_by_sonarqube() {
-    ColumnDef underTest = new ColumnDef("project_measures", "column", "charset", "collation", "NVARCHAR", 100L, false);
+    ColumnDef underTest = new ColumnDef("project_measures", "text_value", "charset", "collation", "NVARCHAR", 100L, false);
     assertThat(underTest.isInSonarQubeTable()).isTrue();
 
-    underTest = new ColumnDef("PROJECT_MEASURES", "column", "charset", "collation", "NVARCHAR", 100L, false);
+    underTest = new ColumnDef("PROJECT_MEASURES", "text_value", "charset", "collation", "NVARCHAR", 100L, false);
+    assertThat(underTest.isInSonarQubeTable()).isTrue();
+  }
+
+  @Test
+  public void isInSonarQubeTable_returns_true_if_table_existed_in_previous_versions_of_sonarqube() {
+    ColumnDef underTest = new ColumnDef("activities", "kee", "charset", "collation", "NVARCHAR", 100L, false);
     assertThat(underTest.isInSonarQubeTable()).isTrue();
   }
 }

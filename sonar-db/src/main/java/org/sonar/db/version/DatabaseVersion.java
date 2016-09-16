@@ -40,6 +40,17 @@ public class DatabaseVersion {
   public static final int MIN_UPGRADE_VERSION = 1152;
 
   /**
+   * These tables are still involved in DB migrations, so potentially
+   * incorrect collation must be fixed so that joins with other
+   * tables are possible.
+   *
+   * @see org.sonar.db.charset.ColumnDef#isInSonarQubeTable() 
+   */
+  public static final Set<String> OLD_DROPPED_TABLES = ImmutableSet.of(
+    "activities"
+  );
+
+  /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
@@ -95,6 +106,7 @@ public class DatabaseVersion {
     "user_tokens",
     "widgets",
     "widget_properties");
+
   private MyBatis mybatis;
 
   public DatabaseVersion(MyBatis mybatis) {
