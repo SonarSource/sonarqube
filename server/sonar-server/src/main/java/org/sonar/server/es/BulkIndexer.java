@@ -81,7 +81,8 @@ public class BulkIndexer implements Startable {
     this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
       .setPluralLabel("requests");
 
-    this.concurrentRequests = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    // see https://jira.sonarsource.com/browse/SONAR-8075
+    this.concurrentRequests = Math.max(1, Runtime.getRuntime().availableProcessors() / 5);
     this.semaphore = new Semaphore(concurrentRequests);
   }
 
