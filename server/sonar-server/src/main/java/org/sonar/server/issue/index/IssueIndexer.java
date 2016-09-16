@@ -97,7 +97,6 @@ public class IssueIndexer extends BaseIndexer {
 
   public void deleteProject(String uuid) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
-    bulk.setDisableRefresh(false);
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
       .setTypes(TYPE_ISSUE, TYPE_AUTHORIZATION)

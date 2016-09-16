@@ -102,21 +102,6 @@ public class BulkIndexerTest {
     assertThat(count()).isEqualTo(removeFrom);
   }
 
-  @Test
-  public void disable_refresh() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
-      .setDisableRefresh(true);
-    indexer.start();
-    indexer.add(newIndexRequest(42));
-    indexer.add(newIndexRequest(78));
-    indexer.stop();
-
-    assertThat(count()).isEqualTo(0);
-
-    esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get();
-    assertThat(count()).isEqualTo(2);
-  }
-
   private long count() {
     return esTester.countDocuments("fakes", "fake");
   }

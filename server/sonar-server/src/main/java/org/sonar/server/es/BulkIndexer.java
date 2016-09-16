@@ -68,7 +68,6 @@ public class BulkIndexer implements Startable {
   private final String indexName;
   private boolean large = false;
   private long flushByteSize = FLUSH_BYTE_SIZE;
-  private boolean disableRefresh = false;
   private BulkRequestBuilder bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
   private final AtomicLong counter = new AtomicLong(0L);
@@ -98,15 +97,6 @@ public class BulkIndexer implements Startable {
 
   public BulkIndexer setFlushByteSize(long flushByteSize) {
     this.flushByteSize = flushByteSize;
-    return this;
-  }
-
-  /**
-   * By default refresh of index is executed in method {@link #stop()}. Set to true
-   * to disable refresh.
-   */
-  public BulkIndexer setDisableRefresh(boolean b) {
-    this.disableRefresh = b;
     return this;
   }
 
@@ -204,10 +194,7 @@ public class BulkIndexer implements Startable {
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 10 minutes", e);
     }
     progress.stop();
-
-    if (!disableRefresh) {
-      client.prepareRefresh(indexName).get();
-    }
+    client.prepareRefresh(indexName).get();
     if (large) {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
