@@ -98,7 +98,7 @@ class Duplications extends React.Component {
         <span>—</span>
     );
 
-    const label = newLinesValue != null ? (
+    const label = (newLinesValue != null && newLinesValue > 0) ? (
         <div className="overview-domain-measure-label">
           {translate('overview.duplications_on')}
           <br/>
