@@ -35,13 +35,9 @@ export default Backbone.Model.extend({
   },
 
   toQuery () {
-    const q = this.toJSON();
-    _.each(q, function (value, key) {
-      if (_.isArray(value)) {
-        q[key] = value.join(',');
-      }
-    });
-    return q;
+    const data = { ...this.toJSON(), scmAccount: this.get('scmAccounts') };
+    delete data.scmAccounts;
+    return data;
   },
 
   isNew () {
@@ -55,14 +51,16 @@ export default Backbone.Model.extend({
       _.defaults(opts, {
         url: this.urlRoot() + '/create',
         type: 'POST',
-        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'password', 'scmAccounts')
+        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'password', 'scmAccount'),
+        traditional: true
       });
     }
     if (method === 'update') {
       _.defaults(opts, {
         url: this.urlRoot() + '/update',
         type: 'POST',
-        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'scmAccounts')
+        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'scmAccount'),
+        traditional: true
       });
     }
     if (method === 'delete') {
