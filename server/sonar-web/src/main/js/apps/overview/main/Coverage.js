@@ -137,7 +137,7 @@ class Coverage extends React.Component {
         <span>—</span>
     );
 
-    const label = newLinesToCoverValue != null ? (
+    const label = (newLinesToCoverValue != null && newLinesToCoverValue > 0) ? (
         <div className="overview-domain-measure-label">
           {translate('overview.coverage_on')}
           <br/>
