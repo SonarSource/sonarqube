@@ -108,7 +108,8 @@ class IntArrayList {
    */
   public boolean add(int e) {
     ensureCapacityInternal(size + 1);
-    elementData[size++] = e;
+    elementData[size] = e;
+    size++;
     return true;
   }
 
