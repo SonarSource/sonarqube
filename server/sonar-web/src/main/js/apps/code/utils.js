@@ -91,7 +91,8 @@ function prepareChildren (r) {
   return {
     components: r.components,
     total: r.paging.total,
-    page: r.paging.pageIndex
+    page: r.paging.pageIndex,
+    baseComponent: r.baseComponent
   };
 }
 
@@ -124,7 +125,7 @@ function getMetrics (isView) {
  * @param {boolean} isView
  * @returns {Promise}
  */
-export function retrieveComponentBase (componentKey, isView) {
+function retrieveComponentBase (componentKey, isView) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -143,7 +144,7 @@ export function retrieveComponentBase (componentKey, isView) {
  * @param {boolean} isView
  * @returns {Promise}
  */
-function retrieveComponentChildren (componentKey, isView) {
+export function retrieveComponentChildren (componentKey, isView) {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
