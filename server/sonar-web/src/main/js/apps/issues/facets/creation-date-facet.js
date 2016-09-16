@@ -126,7 +126,8 @@ export default BaseFacet.extend({
     });
   },
 
-  onAllClick () {
+  onAllClick (e) {
+    e.preventDefault();
     return this.disable();
   },
 
