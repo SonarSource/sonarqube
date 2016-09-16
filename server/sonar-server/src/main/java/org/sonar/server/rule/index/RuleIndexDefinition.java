@@ -81,7 +81,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings);
+    index.configureShards(settings, 1);
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);

@@ -54,7 +54,7 @@ public class UserIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    index.configureShards(settings);
+    index.configureShards(settings, 1);
 
     index.getSettings()
       // NGram filter (not edge) for logins and names

@@ -125,8 +125,8 @@ public class NewIndexTest {
   @Test
   public void default_shards_and_replicas() {
     NewIndex index = new NewIndex("issues");
-    index.configureShards(new MapSettings());
-    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
+    index.configureShards(new MapSettings(), 5);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
@@ -135,8 +135,8 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    index.configureShards(settings);
-    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
+    index.configureShards(settings, 5);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
@@ -145,7 +145,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
-    index.configureShards(settings);
+    index.configureShards(settings, 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     // keep default value
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
@@ -157,7 +157,7 @@ public class NewIndexTest {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
     settings.setProperty("sonar.search.issues.replicas", "1");
-    index.configureShards(settings);
+    index.configureShards(settings, 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }

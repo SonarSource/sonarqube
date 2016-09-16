@@ -40,8 +40,6 @@ import static org.sonar.server.es.BaseIndex.SORT_SUFFIX;
 
 public class NewIndex {
 
-  public static final int DEFAULT_NUMBER_OF_SHARDS = 5;
-
   private final String indexName;
   private final Settings.Builder settings = DefaultIndexSettings.defaults();
   private final Map<String, NewIndexType> types = new LinkedHashMap<>();
@@ -73,11 +71,11 @@ public class NewIndex {
     return types;
   }
 
-  public void configureShards(org.sonar.api.config.Settings settings) {
+  public void configureShards(org.sonar.api.config.Settings settings, int defaultNbOfShards) {
     boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
     int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
     if (shards == 0) {
-      shards = DEFAULT_NUMBER_OF_SHARDS;
+      shards = defaultNbOfShards;
     }
     int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
     if (replicas == 0) {
