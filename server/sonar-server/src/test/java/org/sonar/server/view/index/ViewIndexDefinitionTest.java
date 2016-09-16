@@ -40,7 +40,7 @@ public class ViewIndexDefinitionTest {
     assertThat(index).isNotNull();
     assertThat(index.getTypes().keySet()).containsOnly("view");
 
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
+    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("5");
     assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
   }
 }

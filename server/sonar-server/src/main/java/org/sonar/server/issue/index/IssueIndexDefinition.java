@@ -91,7 +91,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings);
+    index.configureShards(settings, 5);
 
     // type "issue"
     NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);

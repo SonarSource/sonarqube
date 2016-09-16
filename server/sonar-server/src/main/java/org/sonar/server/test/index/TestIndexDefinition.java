@@ -51,7 +51,7 @@ public class TestIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings);
+    index.configureShards(settings, 5);
 
     NewIndex.NewIndexType mapping = index.createType(TYPE);
     mapping.setAttribute("_routing", ImmutableMap.of("required", true));
