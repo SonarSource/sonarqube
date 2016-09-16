@@ -155,7 +155,7 @@ export function retrieveComponentChildren (componentKey, isView) {
 
   const metrics = getMetrics(isView);
 
-  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'name' })
+  return getChildren(componentKey, metrics, { ps: PAGE_SIZE, s: 'qualifier,name' })
       .then(prepareChildren)
       .then(expandRootDir(metrics))
       .then(r => {

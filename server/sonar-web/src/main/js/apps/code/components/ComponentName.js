@@ -61,7 +61,13 @@ const Component = ({ component, rootComponent, previous, canBrowse }) => {
   let inner = null;
 
   if (component.refKey) {
-    inner = <a href={getComponentUrl(component.refKey)}>{name}</a>;
+    inner = (
+        <a className="link-with-icon" href={getComponentUrl(component.refKey)}>
+          <QualifierIcon qualifier={component.qualifier}/>
+          {' '}
+          <span>{name}</span>
+        </a>
+    );
   } else {
     if (canBrowse) {
       const query = { id: rootComponent.key };
