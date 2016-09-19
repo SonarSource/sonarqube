@@ -31,6 +31,7 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
+import org.sonar.api.utils.System2;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
@@ -58,6 +59,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private final QualityGateStatusHolder qualityGateStatusHolder;
   private final PostProjectAnalysisTask[] postProjectAnalysisTasks;
   private final BatchReportReader reportReader;
+  private final System2 system2;
 
   /**
    * Constructor used by Pico when there is no {@link PostProjectAnalysisTask} in the container.
@@ -65,13 +67,14 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
     AnalysisMetadataHolder analysisMetadataHolder,
     QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
-    BatchReportReader reportReader) {
-    this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, null);
+    BatchReportReader reportReader, System2 system2) {
+    this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, system2, null);
   }
 
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
     AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder, BatchReportReader reportReader,
+    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+    BatchReportReader reportReader, System2 system2,
     @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.qualityGateHolder = qualityGateHolder;
@@ -79,6 +82,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.postProjectAnalysisTasks = postProjectAnalysisTasks == null ? NO_POST_PROJECT_ANALYSIS_TASKS : postProjectAnalysisTasks;
+    this.system2 = system2;
   }
 
   @Override
@@ -109,8 +113,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       ceTask.getComponentName());
   }
 
-  private Date getAnalysisDate() {
-    return new Date(this.analysisMetadataHolder.getAnalysisDate());
+  private long getAnalysisDate() {
+    if (this.analysisMetadataHolder.hasAnalysisDateBeenSet()) {
+      return this.analysisMetadataHolder.getAnalysisDate();
+    }
+    return system2.now();
   }
 
   @CheckForNull
@@ -152,16 +159,16 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private static class ProjectAnalysis implements PostProjectAnalysisTask.ProjectAnalysis {
     private final CeTask ceTask;
     private final Project project;
-    private final Date date;
+    private final long date;
     private final ScannerContext scannerContext;
     @CheckForNull
     private final QualityGate qualityGate;
 
-    private ProjectAnalysis(CeTask ceTask, Project project, Date date,
+    private ProjectAnalysis(CeTask ceTask, Project project, long date,
       ScannerContext scannerContext, @Nullable QualityGate qualityGate) {
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
-      this.date = requireNonNull(date, "date can not be null");
+      this.date = date;
       this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
     }
@@ -184,7 +191,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     @Override
     public Date getDate() {
-      return date;
+      return new Date(date);
     }
 
     @Override

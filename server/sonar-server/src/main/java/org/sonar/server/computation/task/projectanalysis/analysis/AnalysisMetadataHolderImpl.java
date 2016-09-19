@@ -71,6 +71,11 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
+  public boolean hasAnalysisDateBeenSet() {
+    return analysisDate.isInitialized();
+  }
+
+  @Override
   public boolean isFirstAnalysis() {
     return getBaseAnalysis() == null;
   }

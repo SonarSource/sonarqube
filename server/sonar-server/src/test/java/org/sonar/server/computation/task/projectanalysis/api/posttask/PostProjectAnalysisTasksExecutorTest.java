@@ -33,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -62,16 +63,15 @@ public class PostProjectAnalysisTasksExecutorTest {
   private static final Condition CONDITION_2 = createCondition("metric key 2");
 
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setAnalysisDate(8465132498L);
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
   public MutableQualityGateHolderRule qualityGateHolder = new MutableQualityGateHolderRule();
   @Rule
   public MutableQualityGateStatusHolderRule qualityGateStatusHolder = new MutableQualityGateStatusHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  private System2 system2 = mock(System2.class);
   private ArgumentCaptor<PostProjectAnalysisTask.ProjectAnalysis> projectAnalysisArgumentCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.ProjectAnalysis.class);
   private CeTask ceTask = new CeTask.Builder()
     .setType("type")
@@ -83,7 +83,8 @@ public class PostProjectAnalysisTasksExecutorTest {
   private PostProjectAnalysisTask postProjectAnalysisTask = mock(PostProjectAnalysisTask.class);
   private PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
     ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder,
-    reportReader, new PostProjectAnalysisTask[] {postProjectAnalysisTask});
+    reportReader, system2,
+    new PostProjectAnalysisTask[] {postProjectAnalysisTask});
 
   @Before
   public void setUp() throws Exception {
@@ -96,7 +97,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void does_not_fail_when_there_is_no_PostProjectAnalysisTasksExecutor(boolean allStepsExecuted) {
-    new PostProjectAnalysisTasksExecutor(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader)
+    new PostProjectAnalysisTasksExecutor(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, system2)
       .finished(allStepsExecuted);
   }
 
@@ -109,7 +110,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
-      new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
+      system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
         .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
@@ -157,12 +158,26 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Test
   public void analysisDate_comes_from_AnalysisMetadataHolder() {
+    analysisMetadataHolder.setAnalysisDate(8465132498L);
+
     underTest.finished(true);
 
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
     assertThat(projectAnalysisArgumentCaptor.getValue().getDate())
       .isEqualTo(new Date(analysisMetadataHolder.getAnalysisDate()));
+  }
+
+  @Test
+  public void analysisDate_comes_from_system2_if_not_set_in_AnalysisMetadataHolder() {
+    long now = 1_999_663L;
+    when(system2.now()).thenReturn(now);
+
+    underTest.finished(false);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    assertThat(projectAnalysisArgumentCaptor.getValue().getDate()).isEqualTo(new Date(now));
   }
 
   @Test

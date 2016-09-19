@@ -67,6 +67,18 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
+  public void hasAnalysisDateBeenSet_returns_false_when_holder_is_not_initialized() {
+    assertThat(new AnalysisMetadataHolderImpl().hasAnalysisDateBeenSet()).isFalse();
+  }
+
+  @Test
+  public void hasAnalysisDateBeenSet_returns_true_when_holder_date_is_set() {
+    AnalysisMetadataHolderImpl holder = new AnalysisMetadataHolderImpl();
+    holder.setAnalysisDate(46532);
+    assertThat(holder.hasAnalysisDateBeenSet()).isTrue();
+  }
+
+  @Test
   public void isFirstAnalysis_return_true() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 

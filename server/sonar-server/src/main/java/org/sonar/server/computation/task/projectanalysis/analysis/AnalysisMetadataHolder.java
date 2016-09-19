@@ -37,6 +37,11 @@ public interface AnalysisMetadataHolder {
   long getAnalysisDate();
 
   /**
+   * Tell whether the analysisDate has been set.
+   */
+  boolean hasAnalysisDateBeenSet();
+
+  /**
    * Convenience method equivalent to calling {@link #getBaseAnalysis() == null}
    *
    * @throws IllegalStateException if baseProjectSnapshot has not been set

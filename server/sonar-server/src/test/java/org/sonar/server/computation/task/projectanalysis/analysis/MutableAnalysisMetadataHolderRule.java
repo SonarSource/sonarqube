@@ -49,6 +49,11 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return delegate.getAnalysisDate();
   }
 
+  @Override
+  public boolean hasAnalysisDateBeenSet() {
+    return delegate.hasAnalysisDateBeenSet();
+  }
+
   public MutableAnalysisMetadataHolderRule setAnalysisDate(long date) {
     delegate.setAnalysisDate(date);
     return this;

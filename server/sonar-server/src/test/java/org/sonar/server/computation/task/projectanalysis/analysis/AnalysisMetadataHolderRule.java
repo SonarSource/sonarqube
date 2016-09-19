@@ -79,6 +79,11 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
+  public boolean hasAnalysisDateBeenSet() {
+    return analysisDate.isInitialized();
+  }
+
+  @Override
   public boolean isFirstAnalysis() {
     return getBaseAnalysis() == null;
   }
