@@ -28,8 +28,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.exceptions.BadRequestException;
@@ -40,7 +38,6 @@ import org.sonarqube.ws.MessageFormatter;
 import static java.lang.String.format;
 
 public class WsUtils {
-  private static final Logger LOG = Loggers.get(WsUtils.class);
 
   private WsUtils() {
     // only statics
