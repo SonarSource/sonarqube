@@ -76,3 +76,18 @@ message QualityGate {
   optional string name = 2;
   optional bool default = 3;
 }
+
+// GET api/qualitygates/app
+message AppWsResponse {
+  optional bool edit = 1;
+  repeated Metric metrics = 3;
+
+  message Metric {
+    optional string key = 1;
+    optional string name = 2;
+    optional string type = 3;
+    optional string domain = 4;
+    optional bool hidden = 5;
+  }
+}
+

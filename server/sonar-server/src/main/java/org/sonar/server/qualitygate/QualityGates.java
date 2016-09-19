@@ -51,7 +51,6 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -242,23 +241,6 @@ public class QualityGates {
     }
   }
 
-  public Collection<Metric> gateMetrics() {
-    return metricFinder.findAll().stream()
-      .filter(QualityGates::isAvailableForInit)
-      .collect(Collectors.toList());
-  }
-
-  public boolean currentUserHasWritePermission() {
-    boolean hasWritePermission = false;
-    try {
-      checkPermission();
-      hasWritePermission = true;
-    } catch (ServerException unallowed) {
-      // Ignored
-    }
-    return hasWritePermission;
-  }
-
   private Collection<QualityGateConditionDto> getConditions(long qGateId, @Nullable Long conditionId) {
     Collection<QualityGateConditionDto> conditions = conditionDao.selectForQualityGate(qGateId);
     if (conditionId == null) {
@@ -315,12 +297,12 @@ public class QualityGates {
     errors.check(isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
   }
 
-  private static boolean isAvailableForInit(Metric metric) {
-    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
-  }
-
   private static boolean isAlertable(Metric metric) {
     return isAvailableForInit(metric) && BooleanUtils.isFalse(metric.isHidden());
+  }
+
+  private static boolean isAvailableForInit(Metric metric) {
+    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
   }
 
   private boolean isDefault(QualityGateDto qGate) {
