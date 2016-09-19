@@ -98,10 +98,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private ProjectAnalysis createProjectAnalysis(CeTask.Status status) {
+    Long analysisDate = getAnalysisDate();
     return new ProjectAnalysis(
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
-      getAnalysisDate(),
+      analysisDate,
+      analysisDate == null ? system2.now() : analysisDate,
       ScannerContextImpl.from(reportReader.readContextProperties()),
       status == SUCCESS ? createQualityGate(this.qualityGateHolder) : null);
   }
@@ -113,11 +115,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       ceTask.getComponentName());
   }
 
-  private long getAnalysisDate() {
+  @CheckForNull
+  private Long getAnalysisDate() {
     if (this.analysisMetadataHolder.hasAnalysisDateBeenSet()) {
       return this.analysisMetadataHolder.getAnalysisDate();
     }
-    return system2.now();
+    return null;
   }
 
   @CheckForNull
@@ -159,15 +162,19 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private static class ProjectAnalysis implements PostProjectAnalysisTask.ProjectAnalysis {
     private final CeTask ceTask;
     private final Project project;
+    @CheckForNull
+    private final Long analysisDate;
     private final long date;
     private final ScannerContext scannerContext;
     @CheckForNull
     private final QualityGate qualityGate;
 
-    private ProjectAnalysis(CeTask ceTask, Project project, long date,
+    private ProjectAnalysis(CeTask ceTask, Project project,
+      @Nullable Long analysisDate, long date,
       ScannerContext scannerContext, @Nullable QualityGate qualityGate) {
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
+      this.analysisDate = analysisDate;
       this.date = date;
       this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
@@ -195,6 +202,14 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     }
 
     @Override
+    public java.util.Optional<Date> getAnalysisDate() {
+      if (analysisDate == null) {
+        return java.util.Optional.empty();
+      }
+      return java.util.Optional.of(new Date(analysisDate));
+    }
+
+    @Override
     public ScannerContext getScannerContext() {
       return scannerContext;
     }
@@ -204,7 +219,9 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       return "ProjectAnalysis{" +
         "ceTask=" + ceTask +
         ", project=" + project +
+        ", analysisDate=" + analysisDate +
         ", date=" + date +
+        ", scannerContext=" + scannerContext +
         ", qualityGate=" + qualityGate +
         '}';
     }

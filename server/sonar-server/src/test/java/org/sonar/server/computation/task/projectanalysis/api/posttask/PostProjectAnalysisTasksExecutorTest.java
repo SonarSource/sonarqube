@@ -157,7 +157,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   }
 
   @Test
-  public void analysisDate_comes_from_AnalysisMetadataHolder() {
+  public void date_comes_from_AnalysisMetadataHolder() {
     analysisMetadataHolder.setAnalysisDate(8465132498L);
 
     underTest.finished(true);
@@ -169,7 +169,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   }
 
   @Test
-  public void analysisDate_comes_from_system2_if_not_set_in_AnalysisMetadataHolder() {
+  public void date_comes_from_system2_if_not_set_in_AnalysisMetadataHolder() {
     long now = 1_999_663L;
     when(system2.now()).thenReturn(now);
 
@@ -178,6 +178,27 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
     assertThat(projectAnalysisArgumentCaptor.getValue().getDate()).isEqualTo(new Date(now));
+  }
+
+  @Test
+  public void analysisDate_comes_from_AnalysisMetadataHolder_when_set() {
+    analysisMetadataHolder.setAnalysisDate(8465132498L);
+
+    underTest.finished(true);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysisDate())
+      .contains(new Date(analysisMetadataHolder.getAnalysisDate()));
+  }
+
+  @Test
+  public void analysisDate_is_empty_when_not_set_in_AnalysisMetadataHolder() {
+    underTest.finished(false);
+
+    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
+
+    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysisDate()).isEmpty();
   }
 
   @Test

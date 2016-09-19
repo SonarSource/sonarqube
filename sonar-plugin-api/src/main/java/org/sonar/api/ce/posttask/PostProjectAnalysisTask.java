@@ -20,6 +20,7 @@
 package org.sonar.api.ce.posttask;
 
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -71,9 +72,21 @@ public interface PostProjectAnalysisTask {
      * Date of the analysis.
      * <p>
      * This date is the same as the date of the project analysis report and the snapshot.
-     * 
+     *
+     * @deprecated use {@link #getAnalysisDate()} instead. When {@link #getAnalysisDate()} returns
+     *             {@link Optional#empty() empty}, the current date will be returned.
      */
+    @Deprecated
     Date getDate();
+
+    /**
+     * Date of the analysis.
+     * <p>
+     * This date is the same as the date of the project analysis report and therefore as the analysis in DB. It can be
+     * missing when the status of the task is {@link org.sonar.api.ce.posttask.CeTask.Status#FAILED FAILED}.
+     * </p>
+     */
+    Optional<Date> getAnalysisDate();
 
     /**
      * Context as defined by scanner through {@link org.sonar.api.batch.sensor.SensorContext#addContextProperty(String, String)}.

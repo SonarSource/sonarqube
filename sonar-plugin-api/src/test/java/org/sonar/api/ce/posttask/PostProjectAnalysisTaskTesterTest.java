@@ -121,7 +121,7 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.execute();
 
     assertThat(captorPostProjectAnalysisTask.projectAnalysis.toString())
-      .isEqualTo("ProjectAnalysis{ceTask=CeTask, project=Project, date=846351351684351, qualityGate=QualityGate}");
+      .isEqualTo("ProjectAnalysis{ceTask=CeTask, project=Project, date=846351351684351, analysisDate=846351351684351, qualityGate=QualityGate}");
 
   }
 

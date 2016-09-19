@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -197,11 +198,17 @@ public class PostProjectAnalysisTaskTester {
         }
 
         @Override
+        public Optional<Date> getAnalysisDate() {
+          return Optional.of(date);
+        }
+
+        @Override
         public String toString() {
           return "ProjectAnalysis{" +
             "ceTask=" + ceTask +
             ", project=" + project +
             ", date=" + date.getTime() +
+            ", analysisDate=" + date.getTime() +
             ", qualityGate=" + qualityGate +
             '}';
         }
