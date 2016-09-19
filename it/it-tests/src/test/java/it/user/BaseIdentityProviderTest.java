@@ -80,10 +80,11 @@ public class BaseIdentityProviderTest {
 
   @After
   public void cleanUpUsersAndGroupsAndProperties() throws Exception {
-    userRule.deactivateUsers(USER_LOGIN);
+    userRule.resetUsers();
     userRule.removeGroups(GROUP1, GROUP2, GROUP3);
     resetSettings(ORCHESTRATOR, null, "sonar.auth.fake-base-id-provider.enabled", "sonar.auth.fake-base-id-provider.user",
-      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups");
+      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups",
+      "sonar.auth.fake-base-id-provider.allowsUsersToSignUp");
   }
 
   @Test
@@ -245,6 +246,19 @@ public class BaseIdentityProviderTest {
 
     // User is not member to any group
     userRule.verifyUserGroupMembership(USER_LOGIN);
+  }
+
+  @Test
+  public void allow_user_login_with_2_characters() throws Exception {
+    enablePlugin();
+    String login = "jo";
+    setUserCreatedByAuthPlugin(login, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    userRule.verifyUserDoesNotExist(login);
+
+    // First connection, user is created
+    authenticateWithFakeAuthProvider();
+
+    userRule.verifyUserExists(login, USER_NAME, USER_EMAIL, false);
   }
 
   private static void enablePlugin() {

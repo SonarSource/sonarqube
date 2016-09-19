@@ -48,6 +48,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 import util.selenium.SeleneseTest;
+import util.user.UserRule;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -82,22 +83,16 @@ public class RealmAuthenticationTest {
     .setServerProperty("sonar.security.realm", "FakeRealm")
     .build();
 
+  @ClassRule
+  public static UserRule USER_RULE = UserRule.from(orchestrator);
+
   @Before
   @After
   public void resetData() throws Exception {
     setServerProperty(orchestrator, USERS_PROPERTY, null);
     setServerProperty(orchestrator, "sonar.security.updateUserAttributes", null);
     setServerProperty(orchestrator, "sonar.authenticator.createUsers", null);
-    resetUsers(USER_LOGIN, TECH_USER);
-  }
-
-  private void resetUsers(String... logins) {
-    for (String login : logins) {
-      String result = orchestrator.getServer().adminWsClient().get("/api/users/search?q=" + login);
-      if (result.contains(login)) {
-        orchestrator.getServer().adminWsClient().userClient().deactivate(login);
-      }
-    }
+    USER_RULE.resetUsers();
   }
 
   /**
@@ -331,6 +326,15 @@ public class RealmAuthenticationTest {
     assertThat(checkAuthenticationWithWebService(login, "wrong").code()).isEqualTo(HTTP_UNAUTHORIZED);
     assertThat(checkAuthenticationWithWebService(login, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
     assertThat(checkAuthenticationWithWebService(null, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
+  }
+
+  @Test
+  public void allow_user_login_with_2_characters() {
+    String username = "jo";
+    String password = "1234567";
+    updateUsersInExtAuth(ImmutableMap.of(username + ".password", password));
+
+    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
   }
 
   protected void verifyHttpException(Exception e, int expectedCode) {

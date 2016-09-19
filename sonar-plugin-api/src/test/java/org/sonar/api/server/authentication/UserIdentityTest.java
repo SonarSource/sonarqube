@@ -19,13 +19,13 @@
  */
 package org.sonar.api.server.authentication;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.base.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIdentityTest {
 
@@ -75,7 +75,7 @@ public class UserIdentityTest {
   @Test
   public void fail_when_login_is_too_long() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User login size is incorrect (Between 3 and 255 characters)");
+    thrown.expectMessage("User login size is incorrect (Between 2 and 255 characters)");
     UserIdentity.builder()
       .setProviderLogin("john")
       .setLogin(Strings.repeat("1", 256))
@@ -87,10 +87,10 @@ public class UserIdentityTest {
   @Test
   public void fail_when_login_is_too_small() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User login size is incorrect (Between 3 and 255 characters)");
+    thrown.expectMessage("User login size is incorrect (Between 2 and 255 characters)");
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("12")
+      .setLogin("j")
       .setName("John")
       .setEmail("john@email.com")
       .build();

@@ -186,6 +186,13 @@ public class LocalAuthenticationTest {
   }
 
   @Test
+  public void allow_user_login_with_2_characters() throws Exception {
+    userRule.createUser("jo", "password");
+
+    assertThat(checkAuthenticationWithAuthenticateWebService("jo", "password")).isTrue();
+  }
+
+  @Test
   public void allow_users_to_sign_up() throws IOException {
     setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", "true");
 

@@ -19,12 +19,6 @@
  */
 package org.sonar.api.server.authentication;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.FluentIterable.from;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.api.user.UserGroupValidation.validateGroupName;
-
 import com.google.common.base.Predicate;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +27,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.FluentIterable.from;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.user.UserGroupValidation.validateGroupName;
 
 /**
  * User information provided by the Identity Provider to be register into the platform.
@@ -193,7 +193,7 @@ public final class UserIdentity {
 
     private static void validateLogin(String login) {
       checkArgument(isNotBlank(login), "User login must not be blank");
-      checkArgument(login.length() <= 255 && login.length() >= 3, "User login size is incorrect (Between 3 and 255 characters)");
+      checkArgument(login.length() <= 255 && login.length() >= 2, "User login size is incorrect (Between 2 and 255 characters)");
     }
 
     private static void validateName(String name) {
