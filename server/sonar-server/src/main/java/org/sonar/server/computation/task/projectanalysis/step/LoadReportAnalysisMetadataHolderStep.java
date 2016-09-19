@@ -61,12 +61,12 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   @Override
   public void execute() {
     ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
+    mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
 
     checkProjectKeyConsistency(reportMetadata);
 
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
-    mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
   }

@@ -23,10 +23,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,6 +160,21 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     expectedException.expectMessage("ProjectKey in report (some other key) is not consistent with projectKey under which the report as been submitted (" + PROJECT_KEY + ")");
 
     underTest.execute();
+  }
+
+  @Test
+  public void execute_sets_analysis_date_even_if_MessageException_is_thrown_because_projectKey_is_different_from_componentKey_in_CE_task() {
+    reportReader.setMetadata(
+      ScannerReport.Metadata.newBuilder()
+        .setProjectKey("some other key")
+        .setAnalysisDate(ANALYSIS_DATE)
+        .build());
+
+    try {
+      underTest.execute();
+    } catch (MessageException e) {
+      assertThat(analysisMetadataHolder.getAnalysisDate()).isEqualTo(ANALYSIS_DATE);
+    }
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
