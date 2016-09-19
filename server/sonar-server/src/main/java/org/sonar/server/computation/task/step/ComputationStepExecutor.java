@@ -53,7 +53,7 @@ public final class ComputationStepExecutor {
       allStepsExecuted = true;
     } finally {
       if (listener != null) {
-        listener.finished(allStepsExecuted);
+        executeListener(allStepsExecuted);
       }
     }
   }
@@ -63,6 +63,16 @@ public final class ComputationStepExecutor {
       stepProfiler.start();
       step.execute();
       stepProfiler.stopDebug(step.getDescription());
+    }
+  }
+
+  private void executeListener(boolean allStepsExecuted) {
+    try {
+      listener.finished(allStepsExecuted);
+    } catch (Throwable e) {
+      // any Throwable throws by the listener going up the stack might hide an Exception/Error thrown by the step and
+      // cause it be swallowed. We don't wan't that => we catch Throwable
+      LOGGER.error("Execution of listener failed", e);
     }
   }
 

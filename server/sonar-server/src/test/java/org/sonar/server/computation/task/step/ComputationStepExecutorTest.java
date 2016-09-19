@@ -31,6 +31,7 @@ import org.sonar.server.computation.task.ChangeLogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -105,8 +106,8 @@ public class ComputationStepExecutorTest {
 
   private List<String> execute_logs_end_timing_for_each_ComputationStep_called_when_(LoggerLevel level) {
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, level);
-         ChangeLogLevel step1 = new ChangeLogLevel(computationStep1.getClass(), level);
-         ChangeLogLevel step2 = new ChangeLogLevel(computationStep2.getClass(), level)) {
+      ChangeLogLevel step1 = new ChangeLogLevel(computationStep1.getClass(), level);
+      ChangeLogLevel step2 = new ChangeLogLevel(computationStep2.getClass(), level)) {
       new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2))
         .execute();
 
@@ -139,7 +140,16 @@ public class ComputationStepExecutorTest {
       verify(listener).finished(false);
       verifyNoMoreInteractions(listener);
     }
+  }
 
+  @Test
+  public void execute_does_not_fail_if_listener_throws_Throwable() {
+    ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
+    doThrow(new Error("Facking error thrown by Listener"))
+        .when(listener)
+        .finished(anyBoolean());
+
+    new ComputationStepExecutor(mockComputationSteps(computationStep1), listener).execute();
   }
 
   private static ComputationSteps mockComputationSteps(ComputationStep... computationSteps) {
