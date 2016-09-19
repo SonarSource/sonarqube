@@ -509,60 +509,6 @@ public class CreateTableBuilderTest {
       });
   }
 
-  @Test
-  public void builds_adds_LOB_storage_clause_on_Oracle_for_CLOB_column() {
-    List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
-      .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
-      .build();
-    assertThat(stmts).hasSize(1);
-
-    assertThat(stmts.iterator().next()).isEqualTo(
-      "CREATE TABLE " + TABLE_NAME + " (" +
-        "clob_1 CLOB NOT NULL)" +
-        " LOB (clob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
-  }
-
-  @Test
-  public void builds_adds_LOB_storage_clause_on_Oracle_for_BLOB_column() {
-    List<String> stmts = new CreateTableBuilder(ORACLE, TABLE_NAME)
-      .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
-      .build();
-    assertThat(stmts).hasSize(1);
-
-    assertThat(stmts.iterator().next()).isEqualTo(
-      "CREATE TABLE " + TABLE_NAME + " (" +
-        "blob_1 BLOB NOT NULL)" +
-        " LOB (blob_1) STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
-  }
-
-  @Test
-  public void build_does_not_add_LOB_storage_clause_for_CLOB_column_for_other_than_Oracle() {
-    Arrays.stream(ALL_DIALECTS)
-      .filter(dialect -> dialect != ORACLE)
-      .forEach(dialect -> {
-        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-          .addColumn(newClobColumnDefBuilder().setColumnName("clob_1").setIsNullable(false).build())
-          .build();
-        assertThat(stmts).hasSize(1);
-
-        assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
-      });
-  }
-
-  @Test
-  public void build_does_not_add_LOB_storage_clause_for_BLOB_column_for_other_than_Oracle() {
-    Arrays.stream(ALL_DIALECTS)
-      .filter(dialect -> dialect != ORACLE)
-      .forEach(dialect -> {
-        List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
-          .addColumn(newBlobColumnDefBuilder().setColumnName("blob_1").setIsNullable(false).build())
-          .build();
-        assertThat(stmts).hasSize(1);
-
-        assertThat(stmts.iterator().next()).doesNotContain("STORE AS SECUREFILE");
-      });
-  }
-
   private static String bigIntSqlType(Dialect dialect) {
     return Oracle.ID.equals(dialect.getId()) ? "NUMBER (38)" : "BIGINT";
   }

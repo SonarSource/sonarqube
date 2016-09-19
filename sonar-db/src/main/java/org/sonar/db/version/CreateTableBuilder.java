@@ -114,7 +114,6 @@ public class CreateTableBuilder {
     appendColumns(res, dialect, columnDefs);
     appendPkConstraint(res);
     res.append(')');
-    appendLOBStorageClause(res, dialect, columnDefs);
     appendCollationClause(res, dialect);
     return res.toString();
   }
@@ -224,22 +223,6 @@ public class CreateTableBuilder {
       if (columnDefIterator.hasNext()) {
         res.append(',');
       }
-    }
-  }
-
-  private static void appendLOBStorageClause(StringBuilder res, Dialect dialect, List<ColumnDef> columnDefs) {
-    if (!Oracle.ID.equals(dialect.getId())) {
-      return;
-    }
-
-    List<ColumnDef> clobColumnDefs = columnDefs.stream()
-      .filter(columnDef -> columnDef instanceof ClobColumnDef || columnDef instanceof BlobColumnDef)
-      .collect(Collectors.toList());
-    if (!clobColumnDefs.isEmpty()) {
-      res.append(" LOB (");
-      appendColumnNames(res, clobColumnDefs);
-      res.append(')');
-      res.append(" STORE AS SECUREFILE (RETENTION NONE NOCACHE NOLOGGING)");
     }
   }
 
