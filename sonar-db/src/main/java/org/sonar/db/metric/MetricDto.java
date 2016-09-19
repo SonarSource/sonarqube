@@ -105,11 +105,12 @@ public class MetricDto {
     return this;
   }
 
+  @CheckForNull
   public String getDomain() {
     return domain;
   }
 
-  public MetricDto setDomain(String domain) {
+  public MetricDto setDomain(@Nullable String domain) {
     this.domain = domain;
     return this;
   }
@@ -206,4 +207,5 @@ public class MetricDto {
     this.decimalScale = i;
     return this;
   }
+
 }

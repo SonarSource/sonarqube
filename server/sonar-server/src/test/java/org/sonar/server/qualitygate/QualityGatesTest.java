@@ -122,23 +122,6 @@ public class QualityGatesTest {
     assertThat(underTest.list()).isEqualTo(allQgates);
   }
 
-  @Test
-  public void should_create_qgate() {
-    String name = "SG-1";
-    QualityGateDto sg1 = underTest.create(name);
-    assertThat(sg1.getName()).isEqualTo(name);
-    verify(dao).selectByName(name);
-    verify(dao).insert(sg1);
-    assertThat(underTest.currentUserHasWritePermission()).isTrue();
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void should_fail_create_on_anonymous() {
-    userSessionRule.set(unauthenticatedUserSession);
-    assertThat(underTest.currentUserHasWritePermission()).isFalse();
-    underTest.create("polop");
-  }
-
   @Test(expected = ForbiddenException.class)
   public void should_fail_create_on_missing_permission() {
     userSessionRule.set(unauthorizedUserSession);
@@ -637,7 +620,6 @@ public class QualityGatesTest {
     when(classicMetric.getType()).thenReturn(ValueType.BOOL);
     when(metricFinder.findAll()).thenReturn(ImmutableList.of(
       dataMetric, hiddenMetric, nullHiddenMetric, alertMetric, ratingMetric, classicMetric));
-    assertThat(underTest.gateMetrics()).hasSize(3).containsOnly(classicMetric, hiddenMetric, nullHiddenMetric);
   }
 
   private Metric addMetric(String metricKey, String metricName) {
