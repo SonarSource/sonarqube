@@ -32,7 +32,9 @@ public interface NewSymbol {
    * Register a new symbol reference.
    * @param startOffset Starting position in file for the declaration of this symbol. Beginning of a file starts with offset '0'.
    * @param endOffset End position in file for this symbol declaration.
+   * @deprecated since 6.1 Only supported to ease migration from old API. Please prefer other {@code newReference()} methods.
    */
+  @Deprecated
   NewSymbol newReference(int startOffset, int endOffset);
 
   /**
