@@ -50,6 +50,8 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -232,6 +234,29 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     org.sonar.api.ce.posttask.ScannerContext scannerContext = projectAnalysisArgumentCaptor.getValue().getScannerContext();
     assertThat(scannerContext.getProperties()).containsExactly(entry("foo", "bar"));
+  }
+
+  @Test
+  @UseDataProvider("booleanValues")
+  public void finished_does_not_fail_if_listener_throws_exception_and_execute_subsequent_listeners(boolean allStepsExecuted) {
+    PostProjectAnalysisTask postProjectAnalysisTask1 = mock(PostProjectAnalysisTask.class);
+    PostProjectAnalysisTask postProjectAnalysisTask2 = mock(PostProjectAnalysisTask.class);
+    PostProjectAnalysisTask postProjectAnalysisTask3 = mock(PostProjectAnalysisTask.class);
+    InOrder inOrder = inOrder(postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3);
+
+    doThrow(new RuntimeException("Faking a listener throws an exception"))
+        .when(postProjectAnalysisTask2)
+        .finished(any(PostProjectAnalysisTask.ProjectAnalysis.class));
+
+    new PostProjectAnalysisTasksExecutor(
+        ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
+        system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
+        .finished(allStepsExecuted);
+
+    inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask2).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask3).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verifyNoMoreInteractions();
   }
 
   @DataProvider

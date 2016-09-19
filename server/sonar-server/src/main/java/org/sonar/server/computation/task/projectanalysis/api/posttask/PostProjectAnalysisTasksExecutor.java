@@ -32,6 +32,8 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
@@ -52,6 +54,8 @@ import static org.sonar.api.ce.posttask.CeTask.Status.SUCCESS;
  */
 public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor.Listener {
   private static final PostProjectAnalysisTask[] NO_POST_PROJECT_ANALYSIS_TASKS = new PostProjectAnalysisTask[0];
+
+  private static final Logger LOG = Loggers.get(PostProjectAnalysisTasksExecutor.class);
 
   private final org.sonar.ce.queue.CeTask ceTask;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -93,7 +97,15 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     ProjectAnalysis projectAnalysis = createProjectAnalysis(allStepsExecuted ? SUCCESS : FAILED);
     for (PostProjectAnalysisTask postProjectAnalysisTask : postProjectAnalysisTasks) {
+      executeTask(projectAnalysis, postProjectAnalysisTask);
+    }
+  }
+
+  private static void executeTask(ProjectAnalysis projectAnalysis, PostProjectAnalysisTask postProjectAnalysisTask) {
+    try {
       postProjectAnalysisTask.finished(projectAnalysis);
+    } catch (Exception e) {
+      LOG.error("Execution of task " + postProjectAnalysisTask.getClass() + " failed", e);
     }
   }
 
