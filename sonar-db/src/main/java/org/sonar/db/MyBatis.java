@@ -162,60 +162,61 @@ public class MyBatis {
 
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
+    // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveDashboard", ActiveDashboardDto.class);
-    confBuilder.loadAlias("Author", AuthorDto.class);
-    confBuilder.loadAlias("Component", ComponentDto.class);
-    confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
-    confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
-    confBuilder.loadAlias("Dashboard", DashboardDto.class);
-    confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
-    confBuilder.loadAlias("Group", GroupDto.class);
-    confBuilder.loadAlias("GroupRole", GroupRoleDto.class);
-    confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
-    confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
-    confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
-    confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
-    confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
-    confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
-    confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
-    confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
-    confBuilder.loadAlias("QualityGate", QualityGateDto.class);
-    confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
-    confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
-    confBuilder.loadAlias("Resource", ResourceDto.class);
-    confBuilder.loadAlias("ResourceIndex", ResourceIndexDto.class);
-    confBuilder.loadAlias("Rule", RuleDto.class);
-    confBuilder.loadAlias("RuleParam", RuleParamDto.class);
-    confBuilder.loadAlias("Snapshot", SnapshotDto.class);
-    confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
-    confBuilder.loadAlias("User", UserDto.class);
-    confBuilder.loadAlias("UserRole", UserPermissionDto.class);
-    confBuilder.loadAlias("UserGroup", UserGroupDto.class);
-    confBuilder.loadAlias("Widget", WidgetDto.class);
-    confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
-    confBuilder.loadAlias("Measure", MeasureDto.class);
-    confBuilder.loadAlias("Issue", IssueDto.class);
-    confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
-    confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
-    confBuilder.loadAlias("IssueFilterFavourite", IssueFilterFavouriteDto.class);
-    confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
-    confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
-    confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
-    confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
-    confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
-    confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
-    confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
-    confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
-    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
-    confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
-    confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
-    confBuilder.loadAlias("Event", EventDto.class);
+    confBuilder.loadAlias("Author", AuthorDto.class);
+    confBuilder.loadAlias("Component", ComponentDto.class);
+    confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
+    confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
-    confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
-    confBuilder.loadAlias("UserToken", UserTokenDto.class);
+    confBuilder.loadAlias("Dashboard", DashboardDto.class);
+    confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
+    confBuilder.loadAlias("Event", EventDto.class);
+    confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
+    confBuilder.loadAlias("Group", GroupDto.class);
+    confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
+    confBuilder.loadAlias("GroupRole", GroupRoleDto.class);
+    confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
+    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
+    confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
+    confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
+    confBuilder.loadAlias("IssueFilterFavourite", IssueFilterFavouriteDto.class);
+    confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
+    confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
+    confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
+    confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
+    confBuilder.loadAlias("Measure", MeasureDto.class);
+    confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
+    confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
+    confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
+    confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
+    confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
+    confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
+    confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
+    confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
+    confBuilder.loadAlias("QualityGate", QualityGateDto.class);
+    confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
+    confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
+    confBuilder.loadAlias("ResourceIndex", ResourceIndexDto.class);
+    confBuilder.loadAlias("Resource", ResourceDto.class);
+    confBuilder.loadAlias("RuleParam", RuleParamDto.class);
+    confBuilder.loadAlias("Rule", RuleDto.class);
+    confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
+    confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
+    confBuilder.loadAlias("Snapshot", SnapshotDto.class);
+    confBuilder.loadAlias("UserGroup", UserGroupDto.class);
+    confBuilder.loadAlias("UserRole", UserPermissionDto.class);
     confBuilder.loadAlias("UserTokenCount", UserTokenCount.class);
+    confBuilder.loadAlias("UserToken", UserTokenDto.class);
+    confBuilder.loadAlias("User", UserDto.class);
+    confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
+    confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
+    confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
+    confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
+    confBuilder.loadAlias("Widget", WidgetDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     confBuilder.loadMapper("org.sonar.db.user.AuthorizationMapper");
@@ -223,59 +224,60 @@ public class MyBatis {
     confBuilder.loadMapper(ResourceMapper.class);
 
     confBuilder.loadMapper("org.sonar.db.permission.PermissionMapper");
+    // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveDashboardMapper.class,
+      ActiveRuleMapper.class,
       AuthorMapper.class,
+      CeActivityMapper.class,
+      CeQueueMapper.class,
+      CeScannerContextMapper.class,
+      CeTaskInputMapper.class,
+      ComponentKeyUpdaterMapper.class,
+      ComponentLinkMapper.class,
+      ComponentMapper.class,
+      CustomMeasureMapper.class,
       DashboardMapper.class,
       DuplicationMapper.class,
+      EventMapper.class,
+      FileSourceMapper.class,
+      GroupMapper.class,
+      GroupMembershipMapper.class,
       InternalPropertiesMapper.class,
-      IssueMapper.class,
-      IssueChangeMapper.class,
-      IssueFilterMapper.class,
-      IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
+      IssueChangeMapper.class,
+      IssueFilterFavouriteMapper.class,
+      IssueFilterMapper.class,
+      IssueMapper.class,
       LoadedTemplateMapper.class,
-      MeasureFilterMapper.class,
       MeasureFilterFavouriteMapper.class,
-      PermissionTemplateMapper.class,
+      MeasureFilterMapper.class,
+      MeasureMapper.class,
+      MetricMapper.class,
+      Migration45Mapper.class,
+      Migration50Mapper.class,
+      Migration53Mapper.class,
+      NotificationQueueMapper.class,
       PermissionTemplateCharacteristicMapper.class,
+      PermissionTemplateMapper.class,
+      ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,
       PurgeMapper.class,
-      ComponentKeyUpdaterMapper.class,
+      QProfileChangeMapper.class,
+      QualityGateConditionMapper.class,
+      QualityGateMapper.class,
+      QualityProfileMapper.class,
       ResourceIndexMapper.class,
       RoleMapper.class,
       RuleMapper.class,
       RuleRepositoryMapper.class,
       SchemaMigrationMapper.class,
-      WidgetMapper.class,
-      WidgetPropertyMapper.class,
-      UserMapper.class,
-      GroupMapper.class,
-      UserGroupMapper.class,
-      UserTokenMapper.class,
-      FileSourceMapper.class,
-      NotificationQueueMapper.class,
-      GroupMembershipMapper.class,
-      QualityProfileMapper.class,
-      ActiveRuleMapper.class,
-      QProfileChangeMapper.class,
-      MeasureMapper.class,
-      MetricMapper.class,
-      CustomMeasureMapper.class,
-      QualityGateMapper.class,
-      QualityGateConditionMapper.class,
-      ComponentMapper.class,
       SnapshotMapper.class,
-      ProjectQgateAssociationMapper.class,
-      EventMapper.class,
-      CeQueueMapper.class,
-      CeActivityMapper.class,
-      CeTaskInputMapper.class,
-      CeScannerContextMapper.class,
-      ComponentLinkMapper.class,
-      Migration45Mapper.class,
-      Migration50Mapper.class,
-      Migration53Mapper.class
+      UserGroupMapper.class,
+      UserMapper.class,
+      UserTokenMapper.class,
+      WidgetMapper.class,
+      WidgetPropertyMapper.class
     };
     confBuilder.loadMappers(mappers);
 
