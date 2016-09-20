@@ -70,9 +70,9 @@ public class QualityGatesWsTest {
 
     tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
-      new CreateAction(null, null), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
+      new CreateAction(null, null, null), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
-      new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
+      new CreateConditionAction(null, null, null), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
       selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(null, null)));
   }
 
@@ -303,26 +303,6 @@ public class QualityGatesWsTest {
   @Test(expected = BadRequestException.class)
   public void show_with_both_parameters() throws Exception {
     tester.newGetRequest("api/qualitygates", "show").setParam("id", "12345").setParam("name", "Polop").execute();
-  }
-
-  @Test
-  public void create_condition_nominal() throws Exception {
-    long qGateId = 42L;
-    String metricKey = "coverage";
-    String operator = "LT";
-    String warningThreshold = "80";
-    String errorThreshold = "75";
-    when(qGates.createCondition(qGateId, metricKey, operator, warningThreshold, errorThreshold, null))
-      .thenReturn(new QualityGateConditionDto().setId(12345L).setQualityGateId(qGateId).setMetricId(10).setMetricKey(metricKey)
-        .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold));
-    tester.newPostRequest("api/qualitygates", "create_condition")
-      .setParam("gateId", Long.toString(qGateId))
-      .setParam("metric", metricKey)
-      .setParam("op", operator)
-      .setParam("warning", warningThreshold)
-      .setParam("error", errorThreshold)
-      .execute()
-      .assertJson("{\"id\":12345,\"metric\":\"coverage\",\"op\":\"LT\",\"warning\":\"80\",\"error\":\"75\"}");
   }
 
   @Test

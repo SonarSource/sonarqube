@@ -56,7 +56,7 @@ public class CreateActionTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  CreateAction underTest = new CreateAction(userSession, new QualityGateUpdater(dbClient));
+  CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient));
 
   WsActionTester ws = new WsActionTester(underTest);
 

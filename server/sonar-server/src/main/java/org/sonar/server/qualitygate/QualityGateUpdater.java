@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate;
 
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
@@ -38,10 +39,10 @@ public class QualityGateUpdater {
     this.dbClient = dbClient;
   }
 
-  public QualityGateDto create(String name) {
+  public QualityGateDto create(DbSession dbSession, String name) {
     validateQualityGate(null, name);
     QualityGateDto newQualityGate = new QualityGateDto().setName(name);
-    dbClient.qualityGateDao().insert(newQualityGate);
+    dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
   }
 

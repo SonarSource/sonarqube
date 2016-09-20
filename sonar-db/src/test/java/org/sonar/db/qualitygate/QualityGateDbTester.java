@@ -17,19 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.qualitygate;
 
-package org.sonar.server.qualitygate;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class QualityGateDbTester {
 
-public class QualityGateModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new QualityGateModule().configure(container);
-    assertThat(container.size()).isEqualTo(22 + 2);
+  private final DbTester db;
+  private final DbClient dbClient;
+  private final DbSession dbSession;
+
+  public QualityGateDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
+  }
+
+  public QualityGateDto insertQualityGate() {
+    return insertQualityGate(randomAlphanumeric(30));
+  }
+
+  public QualityGateDto insertQualityGate(String name) {
+    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name));
+    db.commit();
+    return updatedUser;
   }
 }

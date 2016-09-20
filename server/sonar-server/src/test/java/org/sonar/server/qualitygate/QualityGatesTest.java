@@ -62,7 +62,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -126,9 +125,9 @@ public class QualityGatesTest {
     long id = QUALITY_GATE_ID;
     final String name = "Golden";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
-    when(dao.selectById(id)).thenReturn(existing);
+    when(dao.selectById(dbSession, id)).thenReturn(existing);
     assertThat(underTest.get(id)).isEqualTo(existing);
-    verify(dao).selectById(id);
+    verify(dao).selectById(dbSession, id);
   }
 
   @Test
@@ -151,10 +150,10 @@ public class QualityGatesTest {
     long id = QUALITY_GATE_ID;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
-    when(dao.selectById(id)).thenReturn(existing);
+    when(dao.selectById(dbSession, id)).thenReturn(existing);
     QualityGateDto sg1 = underTest.rename(id, name);
     assertThat(sg1.getName()).isEqualTo(name);
-    verify(dao).selectById(id);
+    verify(dao).selectById(dbSession, id);
     verify(dao).selectByName(name);
     verify(dao).update(sg1);
   }
@@ -164,10 +163,10 @@ public class QualityGatesTest {
     long id = QUALITY_GATE_ID;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
-    when(dao.selectById(id)).thenReturn(existing);
+    when(dao.selectById(dbSession, id)).thenReturn(existing);
     QualityGateDto sg1 = underTest.rename(id, name);
     assertThat(sg1.getName()).isEqualTo(name);
-    verify(dao).selectById(id);
+    verify(dao).selectById(dbSession, id);
     verify(dao).selectByName(name);
     verify(dao).update(sg1);
   }
@@ -182,7 +181,7 @@ public class QualityGatesTest {
     long id = QUALITY_GATE_ID;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
-    when(dao.selectById(id)).thenReturn(existing);
+    when(dao.selectById(dbSession, id)).thenReturn(existing);
     when(dao.selectByName(name)).thenReturn(new QualityGateDto().setId(666L).setName(name));
     underTest.rename(id, name);
   }
@@ -191,13 +190,13 @@ public class QualityGatesTest {
   public void should_select_default_qgate() {
     long defaultId = QUALITY_GATE_ID;
     String defaultName = "Default Name";
-    when(dao.selectById(defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
+    when(dao.selectById(dbSession, defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
 
     underTest.setDefault(defaultId);
 
-    verify(dao).selectById(defaultId);
+    verify(dao).selectById(dbSession, defaultId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).saveProperty(propertyCaptor.capture());
+    verify(propertiesDao).saveProperty(any(DbSession.class), propertyCaptor.capture());
 
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
@@ -208,10 +207,10 @@ public class QualityGatesTest {
     long idToDelete = QUALITY_GATE_ID;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(idToDelete)).thenReturn(toDelete);
+    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
     when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
-    verify(dao).selectById(idToDelete);
+    verify(dao).selectById(dbSession, idToDelete);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
     verify(dao).delete(toDelete, dbSession);
   }
@@ -221,11 +220,11 @@ public class QualityGatesTest {
     long idToDelete = QUALITY_GATE_ID;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(idToDelete)).thenReturn(toDelete);
+    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
     when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
-    verify(dao).selectById(idToDelete);
+    verify(dao).selectById(dbSession, idToDelete);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
     verify(dao).delete(toDelete, dbSession);
   }
@@ -235,11 +234,11 @@ public class QualityGatesTest {
     long idToDelete = QUALITY_GATE_ID;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(idToDelete)).thenReturn(toDelete);
+    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("42"));
     when(dbClient.openSession(false)).thenReturn(dbSession);
     underTest.delete(idToDelete);
-    verify(dao).selectById(idToDelete);
+    verify(dao).selectById(dbSession, idToDelete);
     verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", dbSession);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
     verify(dao).delete(toDelete, dbSession);
@@ -259,167 +258,6 @@ public class QualityGatesTest {
   public void should_return_null_default_qgate_if_unset() {
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(""));
     assertThat(underTest.getDefault()).isNull();
-  }
-
-  @Test
-  public void should_create_warning_condition_without_period() {
-    long qGateId = QUALITY_GATE_ID;
-    String metricKey = "coverage";
-    String operator = "LT";
-    String warningThreshold = "90";
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    int metricId = 10;
-    Metric coverage = Mockito.spy(CoreMetrics.COVERAGE);
-    when(coverage.getId()).thenReturn(metricId);
-    when(metricFinder.findByKey(metricKey)).thenReturn(coverage);
-
-    QualityGateConditionDto newCondition = underTest.createCondition(qGateId, metricKey, operator, warningThreshold, null, null);
-    assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo((long) metricId);
-    assertThat(newCondition.getOperator()).isEqualTo(operator);
-    assertThat(newCondition.getWarningThreshold()).isEqualTo(warningThreshold);
-    assertThat(newCondition.getErrorThreshold()).isNull();
-    assertThat(newCondition.getPeriod()).isNull();
-    verify(conditionDao).insert(newCondition);
-  }
-
-  @Test
-  public void should_create_error_condition_with_period() {
-    long qGateId = QUALITY_GATE_ID;
-    String metricKey = "new_coverage";
-    String operator = "LT";
-    String errorThreshold = "80";
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    int metricId = 10;
-    Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
-    when(newCoverage.getId()).thenReturn(metricId);
-    when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
-    int period = 1;
-
-    QualityGateConditionDto newCondition = underTest.createCondition(qGateId, metricKey, operator, null, errorThreshold, period);
-    assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo((long) metricId);
-    assertThat(newCondition.getMetricKey()).isEqualTo(metricKey);
-    assertThat(newCondition.getOperator()).isEqualTo(operator);
-    assertThat(newCondition.getWarningThreshold()).isNull();
-    assertThat(newCondition.getErrorThreshold()).isEqualTo(errorThreshold);
-    assertThat(newCondition.getPeriod()).isEqualTo(period);
-    verify(conditionDao).insert(newCondition);
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void should_fail_create_condition_on_missing_metric() {
-    long qGateId = QUALITY_GATE_ID;
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "new_coverage", "LT", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_alert_metric() {
-    long qGateId = QUALITY_GATE_ID;
-    when(metricFinder.findByKey(anyString())).thenReturn(CoreMetrics.ALERT_STATUS);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "EQ", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_non_data_metric() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getType()).thenReturn(ValueType.DATA);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_hidden_metric() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.isHidden()).thenReturn(true);
-    when(metric.getType()).thenReturn(ValueType.INT);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_rating_metric() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getType()).thenReturn(ValueType.RATING);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_unallowed_operator() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "LT", null, "80", 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_missing_thresholds() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "EQ", null, null, 2);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_missing_period() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getKey()).thenReturn("new_coverage");
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "EQ", null, "90", null);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_condition_on_invalid_period() {
-    long qGateId = QUALITY_GATE_ID;
-    final Metric metric = mock(Metric.class);
-    when(metric.getKey()).thenReturn("new_coverage");
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metricFinder.findByKey(anyString())).thenReturn(metric);
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.createCondition(qGateId, "alert_status", "EQ", null, "90", 6);
-  }
-
-  @Test
-  public void fail_to_create_condition_when_condition_on_same_metric_already_exist() throws Exception {
-    String metricKey = "coverage";
-    addMetric(metricKey, "Coverage");
-    when(dao.selectById(QUALITY_GATE_ID)).thenReturn(new QualityGateDto().setId(QUALITY_GATE_ID));
-    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(
-      singletonList(new QualityGateConditionDto().setMetricKey(metricKey).setMetricId(METRIC_ID)));
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Condition on metric 'Coverage' already exists.");
-    underTest.createCondition(QUALITY_GATE_ID, metricKey, "LT", "90", null, null);
-  }
-
-  @Test
-  public void fail_to_create_condition_when_condition_on_same_metric_and_period_already_exist() throws Exception {
-    String metricKey = "new_coverage";
-    addMetric(metricKey, "New Coverage");
-    when(dao.selectById(QUALITY_GATE_ID)).thenReturn(new QualityGateDto().setId(QUALITY_GATE_ID));
-
-    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(
-      singletonList(new QualityGateConditionDto().setMetricKey(metricKey).setMetricId(METRIC_ID).setPeriod(1)));
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Condition on metric 'New Coverage' over leak period already exists.");
-    underTest.createCondition(QUALITY_GATE_ID, metricKey, "LT", "90", null, 1);
   }
 
   @Test
@@ -511,9 +349,9 @@ public class QualityGatesTest {
   public void should_associate_project() {
     Long qGateId = QUALITY_GATE_ID;
     Long projectId = 24L;
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
     underTest.associateProject(qGateId, projectId);
-    verify(dao).selectById(qGateId);
+    verify(dao).selectById(dbSession, qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).saveProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
@@ -528,9 +366,9 @@ public class QualityGatesTest {
 
     Long qGateId = QUALITY_GATE_ID;
     Long projectId = 24L;
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
     underTest.associateProject(qGateId, projectId);
-    verify(dao).selectById(qGateId);
+    verify(dao).selectById(dbSession, qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).saveProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
@@ -543,9 +381,9 @@ public class QualityGatesTest {
   public void should_dissociate_project() {
     Long qGateId = QUALITY_GATE_ID;
     Long projectId = 24L;
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
     underTest.dissociateProject(qGateId, projectId);
-    verify(dao).selectById(qGateId);
+    verify(dao).selectById(dbSession, qGateId);
     verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
   }
 
@@ -555,9 +393,9 @@ public class QualityGatesTest {
 
     Long qGateId = QUALITY_GATE_ID;
     Long projectId = 24L;
-    when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
+    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
     underTest.dissociateProject(qGateId, projectId);
-    verify(dao).selectById(qGateId);
+    verify(dao).selectById(dbSession, qGateId);
     verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
   }
 
@@ -572,7 +410,7 @@ public class QualityGatesTest {
     QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
 
-    when(dao.selectById(sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
+    when(dao.selectById(dbSession, sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
     Mockito.doAnswer(invocation -> {
       ((QualityGateDto) invocation.getArguments()[1]).setId(destId);
       return null;

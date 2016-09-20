@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -43,17 +44,18 @@ public class QualityGateUpdaterTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient = db.getDbClient();
+  DbSession dbSession= db.getSession();
 
   QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
 
   @Test
   public void create_quality_gate() throws Exception {
-    QualityGateDto result = underTest.create(QGATE_NAME);
+    QualityGateDto result = underTest.create(dbSession, QGATE_NAME);
 
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo(QGATE_NAME);
     assertThat(result.getCreatedAt()).isNotNull();
-    QualityGateDto reloaded = dbClient.qualityGateDao().selectByName(QGATE_NAME);
+    QualityGateDto reloaded = dbClient.qualityGateDao().selectByName(dbSession, QGATE_NAME);
     assertThat(reloaded).isNotNull();
   }
 
@@ -61,7 +63,7 @@ public class QualityGateUpdaterTest {
   public void fail_to_create_when_name_is_empty() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("errors.cant_be_empty", "Name"));
-    underTest.create("");
+    underTest.create(dbSession, "");
   }
 
   @Test
@@ -70,6 +72,6 @@ public class QualityGateUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("errors.is_already_used");
-    underTest.create(QGATE_NAME);
+    underTest.create(dbSession, QGATE_NAME);
   }
 }
