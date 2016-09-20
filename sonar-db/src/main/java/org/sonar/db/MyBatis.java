@@ -82,6 +82,8 @@ import org.sonar.db.measure.custom.CustomMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationMapper;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -190,6 +192,7 @@ public class MyBatis {
     confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
+    confBuilder.loadAlias("Organization", OrganizationDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
@@ -258,6 +261,7 @@ public class MyBatis {
       Migration50Mapper.class,
       Migration53Mapper.class,
       NotificationQueueMapper.class,
+      OrganizationMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       ProjectQgateAssociationMapper.class,

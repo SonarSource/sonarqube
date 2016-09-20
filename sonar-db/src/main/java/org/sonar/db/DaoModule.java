@@ -49,6 +49,7 @@ import org.sonar.db.measure.MeasureFilterFavouriteDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
+import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
@@ -101,6 +102,7 @@ public class DaoModule extends Module {
     MeasureFilterFavouriteDao.class,
     MetricDao.class,
     NotificationQueueDao.class,
+    OrganizationDao.class,
     PermissionDao.class,
     PermissionTemplateDao.class,
     PermissionTemplateCharacteristicDao.class,
@@ -124,8 +126,7 @@ public class DaoModule extends Module {
     UserGroupDao.class,
     UserTokenDao.class,
     WidgetDao.class,
-    WidgetPropertyDao.class
-  ).build();
+    WidgetPropertyDao.class).build();
 
   @Override
   protected void configureModule() {
