@@ -98,5 +98,15 @@ message CreateWsResponse {
   optional string name = 2;
 }
 
+// POST api/qualitygates/create_condition
+message CreateConditionWsResponse {
+  optional int64 id = 1;
+  optional string metric = 2;
+  optional string op = 3;
+  optional string warning = 4;
+  optional string error = 5;
+  optional int32 period = 6;
+}
+
 
 

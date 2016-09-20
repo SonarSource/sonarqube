@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.qualitygate;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.GetRequest;
@@ -32,10 +33,15 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
 
 public class QualityGatesServiceTest {
   private static final String PROJECT_ID_VALUE = "195";
@@ -90,6 +96,31 @@ public class QualityGatesServiceTest {
     assertThat(serviceTester.getPostParser()).isSameAs(CreateWsResponse.parser());
     serviceTester.assertThat(request)
       .hasParam(PARAM_NAME, "Default")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void create_condition() {
+    underTest.createCondition(CreateConditionRequest.builder()
+      .setQualityGateId(10)
+      .setMetricKey("metric")
+      .setOperator("LT")
+      .setWarning("warning")
+      .setError("error")
+      .setPeriod(1)
+    .build());
+
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(CreateConditionWsResponse.parser());
+    serviceTester.assertThat(request)
+      .hasPath("create_condition")
+      .hasParam(PARAM_GATE_ID, 10)
+      .hasParam(PARAM_METRIC, "metric")
+      .hasParam(PARAM_OPERATOR, "LT")
+      .hasParam(PARAM_WARNING, "warning")
+      .hasParam(PARAM_ERROR, "error")
+      .hasParam(PARAM_PERIOD, 1)
       .andNoOtherParam();
   }
 }

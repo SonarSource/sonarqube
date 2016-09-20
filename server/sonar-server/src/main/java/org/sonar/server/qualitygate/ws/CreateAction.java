@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
@@ -34,10 +36,12 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 
 public class CreateAction implements QualityGatesWsAction {
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
 
-  public CreateAction(UserSession userSession, QualityGateUpdater qualityGateUpdater) {
+  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.qualityGateUpdater = qualityGateUpdater;
   }
@@ -59,11 +63,17 @@ public class CreateAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     userSession.checkPermission(GlobalPermissions.QUALITY_GATE_ADMIN);
-    QualityGateDto newQualityGate = qualityGateUpdater.create(request.mandatoryParam(PARAM_NAME));
-    CreateWsResponse.Builder createWsResponse = CreateWsResponse.newBuilder()
-      .setId(newQualityGate.getId())
-      .setName(newQualityGate.getName());
-    writeProtobuf(createWsResponse.build(), request, response);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, request.mandatoryParam(PARAM_NAME));
+      CreateWsResponse.Builder createWsResponse = CreateWsResponse.newBuilder()
+        .setId(newQualityGate.getId())
+        .setName(newQualityGate.getName());
+      writeProtobuf(createWsResponse.build(), request, response);
+      dbSession.commit();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
 }

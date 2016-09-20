@@ -140,13 +140,23 @@ public class QualityGates {
     }
   }
 
-  public void setDefault(@Nullable Long idToUseAsDefault) {
+  public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
     checkPermission();
     if (idToUseAsDefault == null) {
-      propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
+      propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
     } else {
-      QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
-      propertiesDao.saveProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
+      QualityGateDto newDefault = getNonNullQgate(dbSession, idToUseAsDefault);
+      propertiesDao.saveProperty(dbSession, new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
+    }
+  }
+
+  public void setDefault(@Nullable Long idToUseAsDefault) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      setDefault(dbSession, idToUseAsDefault);
+      dbSession.commit();
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 
@@ -158,23 +168,6 @@ public class QualityGates {
     } else {
       return dao.selectById(defaultId);
     }
-  }
-
-  public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    checkPermission();
-    getNonNullQgate(qGateId);
-    Metric metric = getNonNullMetric(metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
-    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(qGateId, null), metric, period);
-    QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
-      .setMetricId(metric.getId()).setMetricKey(metric.getKey())
-      .setOperator(operator)
-      .setWarningThreshold(warningThreshold)
-      .setErrorThreshold(errorThreshold)
-      .setPeriod(period);
-    conditionDao.insert(newCondition);
-    return newCondition;
   }
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
@@ -312,7 +305,16 @@ public class QualityGates {
   }
 
   private QualityGateDto getNonNullQgate(long id) {
-    QualityGateDto qGate = dao.selectById(id);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return getNonNullQgate(dbSession, id);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private QualityGateDto getNonNullQgate(DbSession dbSession, long id) {
+    QualityGateDto qGate = dao.selectById(dbSession, id);
     if (qGate == null) {
       throw new NotFoundException("There is no quality gate with id=" + id);
     }

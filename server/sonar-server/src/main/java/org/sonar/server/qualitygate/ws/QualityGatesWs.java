@@ -25,9 +25,15 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PERIOD;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
 
 public class QualityGatesWs implements WebService {
   private final QualityGatesWsAction[] actions;
@@ -51,12 +57,12 @@ public class QualityGatesWs implements WebService {
 
   static void addConditionParams(NewAction action) {
     action
-      .createParam(QualityGatesWsParameters.PARAM_METRIC)
+      .createParam(PARAM_METRIC)
       .setDescription("Condition metric")
       .setRequired(true)
       .setExampleValue("blocker_violations");
 
-    action.createParam(QualityGatesWsParameters.PARAM_OPERATOR)
+    action.createParam(PARAM_OPERATOR)
       .setDescription("Condition operator:<br/>" +
         "<ul>" +
         "<li>EQ = equals</li>" +
@@ -67,15 +73,15 @@ public class QualityGatesWs implements WebService {
       .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
 
-    action.createParam(QualityGatesWsParameters.PARAM_PERIOD)
+    action.createParam(PARAM_PERIOD)
       .setDescription("Condition period. If not set, the absolute value is considered.")
       .setPossibleValues("1");
 
-    action.createParam(QualityGatesWsParameters.PARAM_WARNING)
+    action.createParam(PARAM_WARNING)
       .setDescription("Condition warning threshold")
       .setExampleValue("5");
 
-    action.createParam(QualityGatesWsParameters.PARAM_ERROR)
+    action.createParam(PARAM_ERROR)
       .setDescription("Condition error threshold")
       .setExampleValue("10");
   }
@@ -90,24 +96,24 @@ public class QualityGatesWs implements WebService {
 
   static JsonWriter writeQualityGate(QualityGateDto qualityGate, JsonWriter writer) {
     return writer.beginObject()
-      .prop(QualityGatesWsParameters.PARAM_ID, qualityGate.getId())
-      .prop(QualityGatesWsParameters.PARAM_NAME, qualityGate.getName())
+      .prop(PARAM_ID, qualityGate.getId())
+      .prop(PARAM_NAME, qualityGate.getName())
       .endObject();
   }
 
   static JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
     writer.beginObject()
-      .prop(QualityGatesWsParameters.PARAM_ID, condition.getId())
-      .prop(QualityGatesWsParameters.PARAM_METRIC, condition.getMetricKey())
-      .prop(QualityGatesWsParameters.PARAM_OPERATOR, condition.getOperator());
+      .prop(PARAM_ID, condition.getId())
+      .prop(PARAM_METRIC, condition.getMetricKey())
+      .prop(PARAM_OPERATOR, condition.getOperator());
     if (condition.getWarningThreshold() != null) {
-      writer.prop(QualityGatesWsParameters.PARAM_WARNING, condition.getWarningThreshold());
+      writer.prop(PARAM_WARNING, condition.getWarningThreshold());
     }
     if (condition.getErrorThreshold() != null) {
-      writer.prop(QualityGatesWsParameters.PARAM_ERROR, condition.getErrorThreshold());
+      writer.prop(PARAM_ERROR, condition.getErrorThreshold());
     }
     if (condition.getPeriod() != null) {
-      writer.prop(QualityGatesWsParameters.PARAM_PERIOD, condition.getPeriod());
+      writer.prop(PARAM_PERIOD, condition.getPeriod());
     }
     writer.endObject();
     return writer;

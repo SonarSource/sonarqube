@@ -22,46 +22,104 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
+import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_CREATE_CONDITION;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PERIOD;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
 
 public class CreateConditionAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
 
-  public CreateConditionAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public CreateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction createCondition = controller.createAction("create_condition")
+    WebService.NewAction createCondition = controller.createAction(ACTION_CREATE_CONDITION)
       .setDescription("Add a new condition to a quality gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);
 
     createCondition
-      .createParam(QualityGatesWsParameters.PARAM_GATE_ID)
+      .createParam(PARAM_GATE_ID)
       .setDescription("ID of the quality gate")
       .setRequired(true)
       .setExampleValue("1");
 
-    QualityGatesWs.addConditionParams(createCondition);
+    addConditionParams(createCondition);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    QualityGatesWs.writeQualityGateCondition(
-      qualityGates.createCondition(
-        QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_GATE_ID),
-        request.mandatoryParam(QualityGatesWsParameters.PARAM_METRIC),
-        request.mandatoryParam(QualityGatesWsParameters.PARAM_OPERATOR),
-        request.param(QualityGatesWsParameters.PARAM_WARNING),
-        request.param(QualityGatesWsParameters.PARAM_ERROR),
-        request.paramAsInt(QualityGatesWsParameters.PARAM_PERIOD)
-        ), response.newJsonWriter()
-      ).close();
+    userSession.checkPermission(QUALITY_GATE_ADMIN);
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      writeProtobuf(doHandle(toWsRequest(request), dbSession), request, response);
+      dbSession.commit();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private CreateConditionWsResponse doHandle(CreateConditionRequest request, DbSession dbSession){
+    QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession,
+      request.getQualityGateId(),
+      request.getMetricKey(),
+      request.getOperator(),
+      request.getWarning(),
+      request.getError(),
+      request.getPeriod());
+
+    CreateConditionWsResponse.Builder response = CreateConditionWsResponse.newBuilder()
+      .setId(condition.getId())
+      .setMetric(condition.getMetricKey())
+      .setOp(condition.getOperator());
+    String warning = condition.getWarningThreshold();
+    if (warning != null) {
+      response.setWarning(warning);
+    }
+    String error = condition.getErrorThreshold();
+    if (error != null) {
+      response.setError(error);
+    }
+    Integer period = condition.getPeriod();
+    if (period != null) {
+      response.setPeriod(period);
+    }
+    return response.build();
+  }
+
+  private static CreateConditionRequest toWsRequest(Request request) {
+    return CreateConditionRequest.builder()
+      .setQualityGateId(request.mandatoryParamAsInt(PARAM_GATE_ID))
+      .setMetricKey(request.mandatoryParam(PARAM_METRIC))
+      .setOperator(request.mandatoryParam(PARAM_OPERATOR))
+      .setWarning(request.param(PARAM_WARNING))
+      .setError(request.param(PARAM_ERROR))
+      .setPeriod(request.paramAsInt(PARAM_PERIOD))
+      .build();
   }
 
 }

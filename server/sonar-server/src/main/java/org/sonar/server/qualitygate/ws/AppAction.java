@@ -31,8 +31,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.Metric.ValueType.DATA;
-import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsQualityGates.AppWsResponse;
@@ -91,15 +89,11 @@ public class AppAction implements QualityGatesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       return dbClient.metricDao().selectEnabled(dbSession).stream()
-        .filter(metric -> !isDataType(metric) && !ALERT_STATUS_KEY.equals(metric.getKey()))
+        .filter(metric -> !metric.isDataType() && !ALERT_STATUS_KEY.equals(metric.getKey()))
         .collect(Collectors.toList());
     } finally {
       dbClient.closeSession(dbSession);
     }
-  }
-
-  private static boolean isDataType(MetricDto metric) {
-    return DATA.name().equals(metric.getValueType()) || DISTRIB.name().equals(metric.getValueType());
   }
 
 }
