@@ -159,6 +159,7 @@ import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
+import org.sonar.db.version.v62.CreateTableOrganizations;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -336,6 +337,9 @@ public class MigrationStepModule extends Module {
       RemoveViewsDefinitionFromProperties.class,
       CreateTableQprofileChanges.class,
       CopyActivitiesToQprofileChanges.class,
-      CreateTableRuleRepositories.class);
+      CreateTableRuleRepositories.class,
+
+      // 6.2
+      CreateTableOrganizations.class);
   }
 }
