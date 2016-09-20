@@ -21,7 +21,6 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -137,7 +136,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static boolean isAvailableForInit(MetricDto metric) {
-    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey()) && !Objects.equals(Metric.ValueType.RATING.name(), metric.getValueType());
+    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey());
   }
 
   private static void checkOperator(MetricDto metric, String operator, Errors errors) {

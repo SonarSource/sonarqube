@@ -99,11 +99,24 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
+  public void create_condition_on_rating_metric() {
+    MetricDto metricDto = dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("rating_metric")
+      .setValueType(RATING.name())
+      .setHidden(false));
+    dbSession.commit();
+
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "LT", null, "3", 1);
+
+    verifyCondition(result, metricDto.getId(), "LT", null, "3", 1);
+  }
+
+  @Test
   public void fail_to_create_condition_when_condition_on_same_metric_already_exist() throws Exception {
     dbClient.gateConditionDao().insert(new QualityGateConditionDto()
-      .setQualityGateId(qualityGateDto.getId())
-      .setMetricId(coverageMetricDto.getId())
-      .setPeriod(null),
+        .setQualityGateId(qualityGateDto.getId())
+        .setMetricId(coverageMetricDto.getId())
+        .setPeriod(null),
       dbSession);
 
     expectedException.expect(BadRequestException.class);
@@ -114,9 +127,9 @@ public class QualityGateConditionsUpdaterTest {
   @Test
   public void fail_to_create_condition_when_condition_on_same_metric_and_on_leak_period_already_exist() throws Exception {
     dbClient.gateConditionDao().insert(new QualityGateConditionDto()
-      .setQualityGateId(qualityGateDto.getId())
-      .setMetricId(coverageMetricDto.getId())
-      .setPeriod(1),
+        .setQualityGateId(qualityGateDto.getId())
+        .setMetricId(coverageMetricDto.getId())
+        .setPeriod(1),
       dbSession);
 
     expectedException.expect(BadRequestException.class);
@@ -191,6 +204,20 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
+  public void update_condition_on_rating_metric() {
+    MetricDto metricDto = dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("rating_metric")
+      .setValueType(RATING.name())
+      .setHidden(false));
+    dbSession.commit();
+    QualityGateConditionDto condition = insertCondition(metricDto.getId(), "LT", null, "3", null);
+
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "rating_metric", "GT", "4", null, 1);
+
+    verifyCondition(result, metricDto.getId(), "GT", "4", null, 1);
+  }
+
+  @Test
   @UseDataProvider("invalid_metrics")
   public void fail_to_update_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
     MetricDto metricDto = dbClient.metricDao().insert(dbSession, newMetricDto()
@@ -221,13 +248,12 @@ public class QualityGateConditionsUpdaterTest {
     return new Object[][] {
       {ALERT_STATUS_KEY, INT, false},
       {"data_metric", DATA, false},
-      {"hidden", INT, true},
-      {"rating_metric", RATING, false},
+      {"hidden", INT, true}
     };
   }
 
   private QualityGateConditionDto insertCondition(long metricId, String operator, @Nullable String warning, @Nullable String error,
-    @Nullable Integer period) {
+                                                  @Nullable Integer period) {
     QualityGateConditionDto qualityGateConditionDto = new QualityGateConditionDto().setQualityGateId(qualityGateDto.getId())
       .setMetricId(metricId)
       .setOperator(operator)
