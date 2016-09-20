@@ -57,8 +57,6 @@ import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -258,37 +256,6 @@ public class QualityGatesTest {
   public void should_return_null_default_qgate_if_unset() {
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(""));
     assertThat(underTest.getDefault()).isNull();
-  }
-
-  @Test
-  public void should_update_condition() {
-    String metricKey = "new_coverage";
-    String operator = "LT";
-    String errorThreshold = "80";
-    addMetric(metricKey, "New Coverage");
-
-    QualityGateConditionDto condition = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID));
-    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(singletonList(condition));
-
-    assertThat(underTest.updateCondition(condition.getId(), metricKey, operator, null, errorThreshold, 1)).isEqualTo(condition);
-    verify(conditionDao).update(condition);
-  }
-
-  @Test
-  public void fail_to_update_condition_when_condition_on_same_metric_already_exist() throws Exception {
-    String metricKey = "coverage";
-    addMetric(metricKey, "Coverage");
-    when(dao.selectById(QUALITY_GATE_ID)).thenReturn(new QualityGateDto().setId(QUALITY_GATE_ID));
-
-    QualityGateConditionDto conditionNotOnLeakPeriod = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID)).setPeriod(0);
-    QualityGateConditionDto conditionOnLeakPeriod = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID)).setPeriod(1);
-    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(asList(conditionNotOnLeakPeriod, conditionOnLeakPeriod));
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Condition on metric 'Coverage' over leak period already exists.");
-
-    // Update condition not on leak period to be on leak period => will fail as this condition already exist
-    underTest.updateCondition(conditionNotOnLeakPeriod.getId(), metricKey, "LT", null, "60", 1);
   }
 
   @Test

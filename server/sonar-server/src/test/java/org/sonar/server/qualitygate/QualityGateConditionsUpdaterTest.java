@@ -23,6 +23,7 @@ package org.sonar.server.qualitygate;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -73,7 +74,6 @@ public class QualityGateConditionsUpdaterTest {
   @Before
   public void setUp() throws Exception {
     qualityGateDto = qualityGateDbTester.insertQualityGate();
-
     dbClient.metricDao().insert(dbSession, coverageMetricDto);
     dbSession.commit();
   }
@@ -82,13 +82,7 @@ public class QualityGateConditionsUpdaterTest {
   public void create_warning_condition_without_period() {
     QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "coverage", "LT", "90", null, null);
 
-    assertThat(result.getQualityGateId()).isEqualTo(qualityGateDto.getId());
-    assertThat(result.getMetricId()).isEqualTo(coverageMetricDto.getId().longValue());
-    assertThat(result.getOperator()).isEqualTo("LT");
-    assertThat(result.getWarningThreshold()).isEqualTo("90");
-    assertThat(result.getErrorThreshold()).isNull();
-    assertThat(result.getPeriod()).isNull();
-    assertThat(dbClient.gateConditionDao().selectById(result.getId(), dbSession)).isNotNull();
+    verifyCondition(result, coverageMetricDto.getId(), "LT", "90", null, null);
   }
 
   @Test
@@ -101,14 +95,7 @@ public class QualityGateConditionsUpdaterTest {
 
     QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "new_coverage", "LT", null, "80", 1);
 
-    assertThat(result.getQualityGateId()).isEqualTo(qualityGateDto.getId());
-    assertThat(result.getMetricId()).isEqualTo(metricDto.getId().longValue());
-    assertThat(result.getMetricKey()).isEqualTo("new_coverage");
-    assertThat(result.getOperator()).isEqualTo("LT");
-    assertThat(result.getWarningThreshold()).isNull();
-    assertThat(result.getErrorThreshold()).isEqualTo("80");
-    assertThat(result.getPeriod()).isEqualTo(1);
-    assertThat(dbClient.gateConditionDao().selectById(result.getId(), dbSession)).isNotNull();
+    verifyCondition(result, metricDto.getId(), "LT", null, "80", 1);
   }
 
   @Test
@@ -127,9 +114,9 @@ public class QualityGateConditionsUpdaterTest {
   @Test
   public void fail_to_create_condition_when_condition_on_same_metric_and_on_leak_period_already_exist() throws Exception {
     dbClient.gateConditionDao().insert(new QualityGateConditionDto()
-        .setQualityGateId(qualityGateDto.getId())
-        .setMetricId(coverageMetricDto.getId())
-        .setPeriod(1),
+      .setQualityGateId(qualityGateDto.getId())
+      .setMetricId(coverageMetricDto.getId())
+      .setPeriod(1),
       dbSession);
 
     expectedException.expect(BadRequestException.class);
@@ -185,6 +172,50 @@ public class QualityGateConditionsUpdaterTest {
     underTest.createCondition(dbSession, qualityGateDto.getId(), "coverage", "EQ", null, "90", 6);
   }
 
+  @Test
+  public void update_condition() {
+    QualityGateConditionDto condition = insertCondition(coverageMetricDto.getId(), "LT", null, "80", null);
+
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "coverage", "GT", "60", null, 1);
+
+    verifyCondition(result, coverageMetricDto.getId(), "GT", "60", null, 1);
+  }
+
+  @Test
+  public void update_condition_over_leak_period() {
+    QualityGateConditionDto condition = insertCondition(coverageMetricDto.getId(), "GT", "80", null, 1);
+
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "coverage", "LT", null, "80", null);
+
+    verifyCondition(result, coverageMetricDto.getId(), "LT", null, "80", null);
+  }
+
+  @Test
+  @UseDataProvider("invalid_metrics")
+  public void fail_to_update_condition_on_invalid_metric(String metricKey, Metric.ValueType valueType, boolean hidden) {
+    MetricDto metricDto = dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey(metricKey)
+      .setValueType(valueType.name())
+      .setHidden(hidden));
+    QualityGateConditionDto condition = insertCondition(metricDto.getId(), "LT", null, "80", null);
+    dbSession.commit();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Metric '" + metricKey + "' cannot be used to define a condition.");
+    underTest.updateCondition(dbSession, condition.getId(), metricDto.getKey(), "GT", "60", null, 1);
+  }
+
+  @Test
+  public void fail_to_update_condition_when_condition_on_same_metric_already_exist() throws Exception {
+    QualityGateConditionDto conditionNotOnLeakPeriod = insertCondition(coverageMetricDto.getId(), "GT", "80", null, null);
+    QualityGateConditionDto conditionOnLeakPeriod = insertCondition(coverageMetricDto.getId(), "GT", "80", null, 1);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Condition on metric 'Coverage' over leak period already exists.");
+    // Update condition not on leak period to be on leak period => will fail as this condition already exist
+    underTest.updateCondition(dbSession, conditionNotOnLeakPeriod.getId(), coverageMetricDto.getKey(), "GT", "80", null, 1);
+  }
+
   @DataProvider
   public static Object[][] invalid_metrics() {
     return new Object[][] {
@@ -193,6 +224,36 @@ public class QualityGateConditionsUpdaterTest {
       {"hidden", INT, true},
       {"rating_metric", RATING, false},
     };
+  }
+
+  private QualityGateConditionDto insertCondition(long metricId, String operator, @Nullable String warning, @Nullable String error,
+    @Nullable Integer period) {
+    QualityGateConditionDto qualityGateConditionDto = new QualityGateConditionDto().setQualityGateId(qualityGateDto.getId())
+      .setMetricId(metricId)
+      .setOperator(operator)
+      .setWarningThreshold(warning)
+      .setErrorThreshold(error)
+      .setPeriod(period);
+    dbClient.gateConditionDao().insert(qualityGateConditionDto, dbSession);
+    dbSession.commit();
+    return qualityGateConditionDto;
+  }
+
+  private void verifyCondition(QualityGateConditionDto dto, int metricId, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
+    QualityGateConditionDto reloaded = dbClient.gateConditionDao().selectById(dto.getId(), dbSession);
+    assertThat(reloaded.getQualityGateId()).isEqualTo(qualityGateDto.getId());
+    assertThat(reloaded.getMetricId()).isEqualTo(metricId);
+    assertThat(reloaded.getOperator()).isEqualTo(operator);
+    assertThat(reloaded.getWarningThreshold()).isEqualTo(warning);
+    assertThat(reloaded.getErrorThreshold()).isEqualTo(error);
+    assertThat(reloaded.getPeriod()).isEqualTo(period);
+
+    assertThat(dto.getQualityGateId()).isEqualTo(qualityGateDto.getId());
+    assertThat(dto.getMetricId()).isEqualTo(metricId);
+    assertThat(dto.getOperator()).isEqualTo(operator);
+    assertThat(dto.getWarningThreshold()).isEqualTo(warning);
+    assertThat(dto.getErrorThreshold()).isEqualTo(error);
+    assertThat(dto.getPeriod()).isEqualTo(period);
   }
 
 }

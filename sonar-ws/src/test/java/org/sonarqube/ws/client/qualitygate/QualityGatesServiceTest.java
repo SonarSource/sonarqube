@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
+import org.sonarqube.ws.WsQualityGates.UpdateConditionWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
@@ -116,6 +118,31 @@ public class QualityGatesServiceTest {
     serviceTester.assertThat(request)
       .hasPath("create_condition")
       .hasParam(PARAM_GATE_ID, 10)
+      .hasParam(PARAM_METRIC, "metric")
+      .hasParam(PARAM_OPERATOR, "LT")
+      .hasParam(PARAM_WARNING, "warning")
+      .hasParam(PARAM_ERROR, "error")
+      .hasParam(PARAM_PERIOD, 1)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void update_condition() {
+    underTest.updateCondition(UpdateConditionRequest.builder()
+      .setConditionId(10)
+      .setMetricKey("metric")
+      .setOperator("LT")
+      .setWarning("warning")
+      .setError("error")
+      .setPeriod(1)
+      .build());
+
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(UpdateConditionWsResponse.parser());
+    serviceTester.assertThat(request)
+      .hasPath("update_condition")
+      .hasParam(PARAM_ID, 10)
       .hasParam(PARAM_METRIC, "metric")
       .hasParam(PARAM_OPERATOR, "LT")
       .hasParam(PARAM_WARNING, "warning")
