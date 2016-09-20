@@ -107,5 +107,15 @@ message CreateConditionWsResponse {
   optional int32 period = 6;
 }
 
+// POST api/qualitygates/update_condition
+message UpdateConditionWsResponse {
+  optional int64 id = 1;
+  optional string metric = 2;
+  optional string op = 3;
+  optional string warning = 4;
+  optional string error = 5;
+  optional int32 period = 6;
+}
+
 
 

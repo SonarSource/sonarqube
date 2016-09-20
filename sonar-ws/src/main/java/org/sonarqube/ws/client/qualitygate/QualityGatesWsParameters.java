@@ -29,6 +29,7 @@ public class QualityGatesWsParameters {
   public static final String ACTION_SELECT = "select";
   public static final String ACTION_CREATE = "create";
   public static final String ACTION_CREATE_CONDITION = "create_condition";
+  public static final String ACTION_UPDATE_CONDITION = "update_condition";
 
   public static final String PARAM_ANALYSIS_ID = "analysisId";
   public static final String PARAM_PROJECT_ID = "projectId";
