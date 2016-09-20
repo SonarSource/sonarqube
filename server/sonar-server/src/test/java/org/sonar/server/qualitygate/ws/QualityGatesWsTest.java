@@ -70,7 +70,7 @@ public class QualityGatesWsTest {
 
     tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
-      new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
+      new CreateAction(null, null), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
       selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(null, null)));
@@ -187,31 +187,11 @@ public class QualityGatesWsTest {
   }
 
   @Test
-  public void create_nominal() throws Exception {
-    String name = "New QG";
-    when(qGates.create(name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
-    tester.newPostRequest("api/qualitygates", "create").setParam("name", name).execute()
-      .assertJson("{\"id\":42,\"name\":\"New QG\"}");
-  }
-
-  @Test
   public void copy_nominal() throws Exception {
     String name = "Copied QG";
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void create_with_missing_name() throws Exception {
-    tester.newPostRequest("api/qualitygates", "create").execute();
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void create_with_duplicate_name() throws Exception {
-    String name = "New QG";
-    when(qGates.create(name)).thenThrow(new BadRequestException("Name is already used"));
-    tester.newPostRequest("api/qualitygates", "create").setParam("name", name).execute();
   }
 
   @Test

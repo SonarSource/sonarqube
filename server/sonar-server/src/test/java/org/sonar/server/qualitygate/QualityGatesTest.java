@@ -51,7 +51,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
@@ -120,24 +119,6 @@ public class QualityGatesTest {
     List<QualityGateDto> allQgates = Lists.newArrayList(new QualityGateDto().setName("Gate One"), new QualityGateDto().setName("Gate Two"));
     when(dao.selectAll()).thenReturn(allQgates);
     assertThat(underTest.list()).isEqualTo(allQgates);
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void should_fail_create_on_missing_permission() {
-    userSessionRule.set(unauthorizedUserSession);
-    underTest.create("polop");
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_on_empty_name() {
-    underTest.create("");
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_create_on_duplicate_name() {
-    String name = "SG-1";
-    when(dao.selectByName(name)).thenReturn(new QualityGateDto().setName(name).setId(QUALITY_GATE_ID));
-    underTest.create(name);
   }
 
   @Test

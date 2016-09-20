@@ -22,28 +22,35 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+import org.sonar.server.qualitygate.QualityGateUpdater;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
 public class CreateAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final UserSession userSession;
+  private final QualityGateUpdater qualityGateUpdater;
 
-  public CreateAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public CreateAction(UserSession userSession, QualityGateUpdater qualityGateUpdater) {
+    this.userSession = userSession;
+    this.qualityGateUpdater = qualityGateUpdater;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("create")
+    WebService.NewAction action = controller.createAction(ACTION_CREATE)
       .setDescription("Create a Quality Gate. Require Administer Quality Gates permission")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QualityGatesWsParameters.PARAM_NAME)
+    action.createParam(PARAM_NAME)
       .setDescription("The name of the quality gate to create")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -51,9 +58,12 @@ public class CreateAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.create(request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME));
-    JsonWriter writer = response.newJsonWriter();
-    QualityGatesWs.writeQualityGate(newQualityGate, writer).close();
+    userSession.checkPermission(GlobalPermissions.QUALITY_GATE_ADMIN);
+    QualityGateDto newQualityGate = qualityGateUpdater.create(request.mandatoryParam(PARAM_NAME));
+    CreateWsResponse.Builder createWsResponse = CreateWsResponse.newBuilder()
+      .setId(newQualityGate.getId())
+      .setName(newQualityGate.getName());
+    writeProtobuf(createWsResponse.build(), request, response);
   }
 
 }

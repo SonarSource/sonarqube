@@ -22,15 +22,20 @@ package org.sonarqube.ws.client.qualitygate;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
+import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
 
 public class QualityGatesServiceTest {
   private static final String PROJECT_ID_VALUE = "195";
@@ -43,7 +48,7 @@ public class QualityGatesServiceTest {
   private QualityGatesService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
-  public void associate_project_does_POST_request() {
+  public void associate_project() {
     underTest.associateProject(new SelectWsRequest()
       .setGateId(GATE_ID_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
@@ -58,6 +63,33 @@ public class QualityGatesServiceTest {
       .hasParam(PARAM_GATE_ID, String.valueOf(GATE_ID_VALUE))
       .hasParam(PARAM_PROJECT_ID, String.valueOf(PROJECT_ID_VALUE))
       .hasParam(PARAM_PROJECT_KEY, PROJECT_KEY_VALUE)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void project_status() {
+    underTest.projectStatus(new ProjectStatusWsRequest()
+      .setAnalysisId("analysisId")
+      .setProjectId("projectId")
+      .setProjectKey("projectKey"));
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ProjectStatusWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_ANALYSIS_ID, "analysisId")
+      .hasParam(PARAM_PROJECT_ID, "projectId")
+      .hasParam(PARAM_PROJECT_KEY, "projectKey")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void create() {
+    underTest.create("Default");
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(CreateWsResponse.parser());
+    serviceTester.assertThat(request)
+      .hasParam(PARAM_NAME, "Default")
       .andNoOtherParam();
   }
 }
