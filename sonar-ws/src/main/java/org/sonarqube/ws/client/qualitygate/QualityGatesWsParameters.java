@@ -21,6 +21,14 @@
 package org.sonarqube.ws.client.qualitygate;
 
 public class QualityGatesWsParameters {
+
+  public static final String CONTROLLER_QUALITY_GATES = "api/qualitygates";
+
+  public static final String ACTION_PROJECT_STATUS = "project_status";
+  public static final String ACTION_GET_BY_PROJECT = "get_by_project";
+  public static final String ACTION_SELECT = "select";
+  public static final String ACTION_CREATE = "create";
+
   public static final String PARAM_ANALYSIS_ID = "analysisId";
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";

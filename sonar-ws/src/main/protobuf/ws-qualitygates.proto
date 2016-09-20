@@ -91,3 +91,11 @@ message AppWsResponse {
   }
 }
 
+// POST api/qualitygates/create
+message CreateWsResponse {
+  optional int64 id = 1;
+  optional string name = 2;
+}
+
+
+

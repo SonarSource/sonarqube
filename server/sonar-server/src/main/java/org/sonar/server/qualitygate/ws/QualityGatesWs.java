@@ -27,6 +27,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
+
 public class QualityGatesWs implements WebService {
   private final QualityGatesWsAction[] actions;
 
@@ -36,7 +38,7 @@ public class QualityGatesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/qualitygates")
+    NewController controller = context.createController(CONTROLLER_QUALITY_GATES)
       .setSince("4.3")
       .setDescription("Manage quality gates, including conditions and project association.");
 

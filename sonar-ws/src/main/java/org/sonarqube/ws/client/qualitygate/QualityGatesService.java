@@ -19,25 +19,31 @@
  */
 package org.sonarqube.ws.client.qualitygate;
 
+import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_PROJECT_STATUS;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_SELECT;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class QualityGatesService extends BaseService {
 
   public QualityGatesService(WsConnector wsConnector) {
-    super(wsConnector, "api/qualitygates");
+    super(wsConnector, CONTROLLER_QUALITY_GATES);
   }
 
   public ProjectStatusWsResponse projectStatus(ProjectStatusWsRequest request) {
-    return call(new GetRequest(path("project_status"))
+    return call(new GetRequest(path(ACTION_PROJECT_STATUS))
       .setParam(PARAM_ANALYSIS_ID, request.getAnalysisId())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()),
@@ -45,9 +51,15 @@ public class QualityGatesService extends BaseService {
   }
 
   public void associateProject(SelectWsRequest request) {
-    call(new PostRequest(path("select"))
+    call(new PostRequest(path(ACTION_SELECT))
       .setParam(PARAM_GATE_ID, request.getGateId())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
+  }
+
+  public CreateWsResponse create(String name) {
+    return call(new PostRequest(path(ACTION_CREATE))
+      .setParam(PARAM_NAME, name),
+      CreateWsResponse.parser());
   }
 }

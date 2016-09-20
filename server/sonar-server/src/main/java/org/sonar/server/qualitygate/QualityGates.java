@@ -57,7 +57,8 @@ import org.sonar.server.util.Validation;
 import static java.lang.String.format;
 
 /**
- * @since 4.3
+ * Methods from this class should be moved to {@link QualityGateUpdater} and to new classes QualityGateFinder / QualityGateConditionsUpdater / etc.
+ * in order to have classes with clearer responsibilities and more easily testable (without having to use too much mocks)
  */
 public class QualityGates {
 
@@ -79,14 +80,6 @@ public class QualityGates {
     this.propertiesDao = dbClient.propertiesDao();
     this.componentDao = dbClient.componentDao();
     this.userSession = userSession;
-  }
-
-  public QualityGateDto create(String name) {
-    checkPermission();
-    validateQualityGate(null, name);
-    QualityGateDto newQualityGate = new QualityGateDto().setName(name);
-    dao.insert(newQualityGate);
-    return newQualityGate;
   }
 
   public QualityGateDto get(Long qGateId) {

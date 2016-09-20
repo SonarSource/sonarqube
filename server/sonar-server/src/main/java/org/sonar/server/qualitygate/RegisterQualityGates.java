@@ -41,10 +41,12 @@ public class RegisterQualityGates implements Startable {
   private static final String NEW_COVERAGE_ERROR_THRESHOLD = "80";
 
   private final QualityGates qualityGates;
+  private final QualityGateUpdater qualityGateUpdater;
   private final LoadedTemplateDao loadedTemplateDao;
 
-  public RegisterQualityGates(QualityGates qualityGates, LoadedTemplateDao loadedTemplateDao) {
+  public RegisterQualityGates(QualityGates qualityGates, QualityGateUpdater qualityGateUpdater, LoadedTemplateDao loadedTemplateDao) {
     this.qualityGates = qualityGates;
+    this.qualityGateUpdater = qualityGateUpdater;
     this.loadedTemplateDao = loadedTemplateDao;
   }
 
@@ -66,7 +68,7 @@ public class RegisterQualityGates implements Startable {
   }
 
   private void createBuiltinQualityGate() {
-    QualityGateDto builtin = qualityGates.create(BUILTIN_QUALITY_GATE);
+    QualityGateDto builtin = qualityGateUpdater.create(BUILTIN_QUALITY_GATE);
     qualityGates.createCondition(builtin.getId(), NEW_VULNERABILITIES_KEY, OPERATOR_GREATER_THAN, null, NEW_VULNERABILITIES_ERROR_THRESHOLD, LEAK_PERIOD);
     qualityGates.createCondition(builtin.getId(), NEW_BUGS_KEY, OPERATOR_GREATER_THAN, null, NEW_BUGS_ERROR_THRESHOLD, LEAK_PERIOD);
     qualityGates.createCondition(builtin.getId(), NEW_SQALE_DEBT_RATIO_KEY, OPERATOR_GREATER_THAN, null, DEBT_ON_NEW_CODE_ERROR_THRESHOLD, LEAK_PERIOD);
