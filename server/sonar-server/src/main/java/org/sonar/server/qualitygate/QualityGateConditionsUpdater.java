@@ -21,25 +21,40 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.api.measures.Metric.ValueType.valueOf;
+import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
+import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
 public class QualityGateConditionsUpdater {
+
+  private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).collect(Collectors.toList());
 
   private final DbClient dbClient;
 
@@ -122,6 +137,7 @@ public class QualityGateConditionsUpdater {
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
+    checkRatingMetric(metric, operator, warningThreshold, errorThreshold, errors);
     if (!errors.isEmpty()) {
       throw new BadRequestException(errors);
     }
@@ -140,7 +156,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void checkOperator(MetricDto metric, String operator, Errors errors) {
-    Metric.ValueType valueType = Metric.ValueType.valueOf(metric.getValueType());
+    ValueType valueType = valueOf(metric.getValueType());
     errors.check(isOperatorAllowed(operator, valueType), format("Operator %s is not allowed for metric type %s.", operator, metric.getValueType()));
   }
 
@@ -170,4 +186,44 @@ public class QualityGateConditionsUpdater {
     }
   }
 
+  private static void checkRatingMetric(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
+    if (!metric.getValueType().equals(RATING.name())) {
+      return;
+    }
+    if (!isValidRating(warningThreshold)) {
+      addInvalidRatingError(warningThreshold, errors);
+      return;
+    }
+    if (!isValidRating(errorThreshold)) {
+      addInvalidRatingError(errorThreshold, errors);
+      return;
+    }
+    if (OPERATOR_GREATER_THAN.equals(operator)) {
+      checkRatingGreaterThanOperator(warningThreshold, errors);
+      checkRatingGreaterThanOperator(errorThreshold, errors);
+    } else if (OPERATOR_LESS_THAN.equals(operator)) {
+      checkRatingLesserThanOperator(warningThreshold, errors);
+      checkRatingLesserThanOperator(errorThreshold, errors);
+    }
+  }
+
+  private static void addInvalidRatingError(@Nullable String value, Errors errors) {
+    errors.add(Message.of(format("'%s' is not a valid rating", value)));
+  }
+
+  private static void checkRatingGreaterThanOperator(@Nullable String value, Errors errors) {
+    errors.check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), format("There's no worse rating than E (%s)", value));
+  }
+
+  private static void checkRatingLesserThanOperator(@Nullable String value, Errors errors) {
+    errors.check(isNullOrEmpty(value) || !Objects.equals(toRating(value), A), format("There's no better rating than A (%s)", value));
+  }
+
+  private static Rating toRating(String value) {
+    return Rating.valueOf(parseInt(value));
+  }
+
+  private static boolean isValidRating(@Nullable String value) {
+    return isNullOrEmpty(value) || RATING_VALID_INT_VALUES.contains(value);
+  }
 }
