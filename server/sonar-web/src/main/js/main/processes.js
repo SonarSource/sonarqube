@@ -161,7 +161,7 @@ function handleAjaxError (jqXHR) {
     if (jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
       message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
     }
-    failBackgroundProcess(jqXHR.processId, escapeHtml(message));
+    failBackgroundProcess(jqXHR.processId, message ? escapeHtml(message) : null);
   }
 }
 
