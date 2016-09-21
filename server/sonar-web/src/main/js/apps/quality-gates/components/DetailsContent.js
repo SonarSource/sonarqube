@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class DetailsContent extends Component {
   render () {
-    const { gate, canEdit, metrics, periods } = this.props;
+    const { gate, canEdit, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
     const conditions = gate.conditions || [];
 
@@ -37,7 +37,6 @@ export default class DetailsContent extends Component {
               qualityGate={gate}
               conditions={conditions}
               metrics={metrics}
-              periods={periods}
               edit={canEdit}
               onAddCondition={onAddCondition}
               onSaveCondition={onSaveCondition}

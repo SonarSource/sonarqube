@@ -96,7 +96,7 @@ export default class Details extends Component {
   }
 
   render () {
-    const { qualityGate, edit, metrics, periods } = this.props;
+    const { qualityGate, edit, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
 
     if (!qualityGate) {
@@ -124,7 +124,6 @@ export default class Details extends Component {
               gate={qualityGate}
               canEdit={edit}
               metrics={metrics}
-              periods={periods}
               onAddCondition={onAddCondition}
               onSaveCondition={onSaveCondition}
               onDeleteCondition={onDeleteCondition}/>
