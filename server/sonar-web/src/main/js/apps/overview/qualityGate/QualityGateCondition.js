@@ -41,6 +41,10 @@ const QualityGateCondition = ({ component, periods, condition }) => {
   const periodLabel = getPeriodLabel(period);
   const periodDate = getPeriodDate(period);
 
+  const operator = metric.type === 'RATING' ?
+      translate('quality_gates.operator', condition.op, 'rating') :
+      translate('quality_gates.operator', condition.op, 'short');
+
   return (
       <li className="overview-quality-gate-condition">
         <div className="overview-quality-gate-condition-period">
@@ -65,7 +69,7 @@ const QualityGateCondition = ({ component, periods, condition }) => {
               {metric.name}
             </div>
             <div className="overview-quality-gate-condition-threshold">
-              {translate('quality_gates.operator', condition.op, 'short')}
+              {operator}
               {' '}
               {formatMeasure(threshold, metric.type)}
             </div>
