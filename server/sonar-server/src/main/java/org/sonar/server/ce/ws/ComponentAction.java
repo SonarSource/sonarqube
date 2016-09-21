@@ -66,7 +66,8 @@ public class ComponentAction implements CeWsAction {
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>" +
         "Either '%s' or '%s' must be provided, not both.<br>" +
-        "Since 6.1, field \"logs\" is deprecated and its value is always false.")
+        "Since 6.1, field \"logs\" is deprecated and its value is always false.",
+        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);
