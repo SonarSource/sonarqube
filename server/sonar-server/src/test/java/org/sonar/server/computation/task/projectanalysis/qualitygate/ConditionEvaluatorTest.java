@@ -34,10 +34,20 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.fail;
+import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.BOOL;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.DATA;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.FLOAT;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.INT;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.LEVEL;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.RATING;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.STRING;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.WORK_DUR;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.values;
 import static org.sonar.server.computation.task.projectanalysis.qualitygate.Condition.Operator.EQUALS;
 import static org.sonar.server.computation.task.projectanalysis.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.computation.task.projectanalysis.qualitygate.Condition.Operator.LESS_THAN;
@@ -51,9 +61,9 @@ public class ConditionEvaluatorTest {
   private ConditionEvaluator underTest = new ConditionEvaluator();
 
   @Test
-  public void testInputNumbers() {
+  public void test_input_numbers() {
     try {
-      Metric metric = createMetric(MetricType.FLOAT);
+      Metric metric = createMetric(FLOAT);
       Measure measure = newMeasureBuilder().create(10.2d, 1, null);
       underTest.evaluate(createErrorCondition(metric, LESS_THAN, "20"), measure);
     } catch (NumberFormatException ex) {
@@ -61,7 +71,7 @@ public class ConditionEvaluatorTest {
     }
 
     try {
-      Metric metric = createMetric(MetricType.INT);
+      Metric metric = createMetric(INT);
       Measure measure = newMeasureBuilder().create(5, null);
       underTest.evaluate(createErrorCondition(metric, LESS_THAN, "20.1"), measure);
     } catch (NumberFormatException ex) {
@@ -69,7 +79,7 @@ public class ConditionEvaluatorTest {
     }
 
     try {
-      Metric metric = createMetric(MetricType.PERCENT);
+      Metric metric = createMetric(PERCENT);
       Measure measure = newMeasureBuilder().create(10.2d, 1, null);
       underTest.evaluate(createErrorCondition(metric, LESS_THAN, "20.1"), measure);
     } catch (NumberFormatException ex) {
@@ -77,17 +87,9 @@ public class ConditionEvaluatorTest {
     }
   }
 
-  private static Condition createErrorCondition(Metric metric, Condition.Operator operator, String errorThreshold) {
-    return new Condition(metric, operator.getDbValue(), errorThreshold, null, null);
-  }
-
-  private static MetricImpl createMetric(MetricType metricType) {
-    return new MetricImpl(1, "key", "name", metricType);
-  }
-
   @Test
   public void testEquals_for_double() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
@@ -96,7 +98,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_for_String() {
-    Metric metric = createMetric(MetricType.STRING);
+    Metric metric = createMetric(STRING);
     Measure measure = newMeasureBuilder().create("TEST");
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "TEST"), measure)).hasLevel(ERROR).hasValue("TEST");
@@ -105,7 +107,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testNotEquals_for_double() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, "10.2"), measure)).hasLevel(OK).hasValue(10.2d);
@@ -114,7 +116,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testNotEquals() {
-    Metric metric = createMetric(MetricType.STRING);
+    Metric metric = createMetric(STRING);
     Measure measure = newMeasureBuilder().create("TEST");
 
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, "TEST"), measure)).hasLevel(OK).hasValue("TEST");
@@ -123,7 +125,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testGreater() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, GREATER_THAN, "10.1"), measure)).hasLevel(ERROR).hasValue(10.2d);
@@ -133,7 +135,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testSmaller() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, LESS_THAN, "10.1"), measure)).hasLevel(OK).hasValue(10.2d);
@@ -143,7 +145,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_Percent() {
-    Metric metric = createMetric(MetricType.PERCENT);
+    Metric metric = createMetric(PERCENT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
@@ -151,7 +153,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_Float() {
-    Metric metric = createMetric(MetricType.PERCENT);
+    Metric metric = createMetric(PERCENT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
@@ -159,7 +161,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_Int() {
-    Metric metric = createMetric(MetricType.INT);
+    Metric metric = createMetric(INT);
     Measure measure = newMeasureBuilder().create(10, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10"), measure)).hasLevel(ERROR).hasValue(10);
@@ -168,7 +170,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_Level() {
-    Metric metric = createMetric(MetricType.LEVEL);
+    Metric metric = createMetric(LEVEL);
     Measure measure = newMeasureBuilder().create(ERROR);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, ERROR.name()), measure)).hasLevel(ERROR).hasValue(ERROR.name());
@@ -178,7 +180,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testNotEquals_Level() {
-    Metric metric = createMetric(MetricType.LEVEL);
+    Metric metric = createMetric(LEVEL);
     Measure measure = newMeasureBuilder().create(ERROR);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, OK.name()), measure)).hasLevel(ERROR).hasValue(ERROR.name());
@@ -186,7 +188,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_BOOL() {
-    Metric metric = createMetric(MetricType.BOOL);
+    Metric metric = createMetric(BOOL);
     Measure measure = newMeasureBuilder().create(false, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "1"), measure)).hasLevel(OK).hasValue(false);
@@ -195,7 +197,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testNotEquals_BOOL() {
-    Metric metric = createMetric(MetricType.BOOL);
+    Metric metric = createMetric(BOOL);
     Measure measure = newMeasureBuilder().create(false, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, "1"), measure)).hasLevel(ERROR).hasValue(false);
@@ -204,7 +206,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void getLevel_throws_IEA_if_error_threshold_is_not_parsable_boolean() {
-    Metric metric = createMetric(MetricType.BOOL);
+    Metric metric = createMetric(BOOL);
     Measure measure = newMeasureBuilder().create(false, null);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -215,7 +217,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testEquals_work_duration() {
-    Metric metric = createMetric(MetricType.WORK_DUR);
+    Metric metric = createMetric(WORK_DUR);
     Measure measure = newMeasureBuilder().create(60l, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "60"), measure)).hasLevel(ERROR);
@@ -223,7 +225,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void getLevel_throws_IEA_if_error_threshold_is_not_parsable_long() {
-    Metric metric = createMetric(MetricType.WORK_DUR);
+    Metric metric = createMetric(WORK_DUR);
     Measure measure = newMeasureBuilder().create(60l, null);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -234,7 +236,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testErrorAndWarningLevel() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR);
@@ -246,7 +248,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void condition_is_always_ok_when_measure_is_noValue() {
-    for (MetricType metricType : from(asList(MetricType.values())).filter(not(in(ImmutableSet.of(MetricType.DATA, MetricType.LEVEL))))) {
+    for (MetricType metricType : from(asList(values())).filter(not(in(ImmutableSet.of(DATA, LEVEL))))) {
       Metric metric = createMetric(metricType);
       Measure measure = newMeasureBuilder().createNoValue();
 
@@ -256,7 +258,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void testUnsupportedType() {
-    Metric metric = createMetric(MetricType.DATA);
+    Metric metric = createMetric(DATA);
     Measure measure = newMeasureBuilder().create("3.14159265358");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -267,7 +269,7 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void test_condition_on_period() {
-    for (MetricType metricType : ImmutableList.of(MetricType.FLOAT, MetricType.INT, MetricType.WORK_DUR)) {
+    for (MetricType metricType : ImmutableList.of(FLOAT, INT, WORK_DUR)) {
       Metric metric = createMetric(metricType);
       Measure measure = newMeasureBuilder().setVariations(new MeasureVariations(null, 3d, 4d, null, null)).createNoValue();
 
@@ -280,22 +282,56 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void condition_on_period_without_value_is_OK() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().setVariations(new MeasureVariations(null, 3d, 4d, null, null)).createNoValue();
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, 1), measure)).hasLevel(OK);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, 1), measure)).hasLevel(OK).hasValue(null);
     assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, 4), measure)).hasLevel(OK);
     assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, 5), measure)).hasLevel(OK);
   }
 
   @Test
   public void evaluate_throws_IAE_if_condition_is_on_invalid_period() {
-    Metric metric = createMetric(MetricType.FLOAT);
+    Metric metric = createMetric(FLOAT);
     Measure measure = newMeasureBuilder().setVariations(new MeasureVariations(null, 3d, 4d, null, null)).createNoValue();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Following index period is not allowed : 50");
 
     underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, 50), measure);
+  }
+
+  @Test
+  public void test_condition_on_rating() throws Exception {
+    Metric metric = createMetric(RATING);
+    Measure measure = newMeasureBuilder().create(4, "D");
+
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", null, null), measure)).hasLevel(OK).hasValue(4);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null, null), measure)).hasLevel(ERROR).hasValue(4);
+  }
+
+  @Test
+  public void test_condition_on_rating_on_leak_period() throws Exception {
+    Metric metric = createMetric(RATING);
+    Measure measure = newMeasureBuilder().setVariations(new MeasureVariations(4d, null, null, null, null)).createNoValue();
+
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "5", null, 1), measure)).hasLevel(OK).hasValue(4);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null, 1), measure)).hasLevel(ERROR).hasValue(4);
+  }
+
+  @Test
+  public void test_condition_on_rating_on_leak_period_when_variation_is_zero() throws Exception {
+    Metric metric = createMetric(RATING);
+    Measure measure = newMeasureBuilder().setVariations(new MeasureVariations(0d, null, null, null, null)).createNoValue();
+
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", null, 1), measure)).hasLevel(OK).hasValue(0);
+  }
+
+  private static Condition createErrorCondition(Metric metric, Condition.Operator operator, String errorThreshold) {
+    return new Condition(metric, operator.getDbValue(), errorThreshold, null, null);
+  }
+
+  private static MetricImpl createMetric(MetricType metricType) {
+    return new MetricImpl(1, "key", "name", metricType);
   }
 }

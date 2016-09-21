@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
@@ -64,5 +65,20 @@ public class RatingGridTest {
     throwable.expect(RuntimeException.class);
 
     ratingGrid.getRatingForDensity(-1);
+  }
+
+  @Test
+  public void convert_int_to_rating() throws Exception {
+    assertThat(Rating.valueOf(1)).isEqualTo(A);
+    assertThat(Rating.valueOf(2)).isEqualTo(B);
+    assertThat(Rating.valueOf(3)).isEqualTo(C);
+    assertThat(Rating.valueOf(4)).isEqualTo(D);
+    assertThat(Rating.valueOf(5)).isEqualTo(E);
+  }
+
+  @Test
+  public void fail_to_concert_invalid_value() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    Rating.valueOf(10);
   }
 }

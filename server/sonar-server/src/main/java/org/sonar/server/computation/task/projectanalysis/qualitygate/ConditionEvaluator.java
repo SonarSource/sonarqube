@@ -19,19 +19,19 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 
-import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Optional.of;
 
 public final class ConditionEvaluator {
 
-  private static final Optional<Double> NO_PERIOD_VALUE = Optional.absent();
+  private static final Optional<Double> NO_PERIOD_VALUE = Optional.empty();
 
   /**
    * Evaluates the condition for the specified measure
@@ -45,14 +45,14 @@ public final class ConditionEvaluator {
     }
 
     return evaluateCondition(condition, measureComparable, Measure.Level.ERROR)
-      .or(evaluateCondition(condition, measureComparable, Measure.Level.WARN))
-      .or(new EvaluationResult(Measure.Level.OK, measureComparable));
+      .orElse(evaluateCondition(condition, measureComparable, Measure.Level.WARN)
+        .orElse(new EvaluationResult(Measure.Level.OK, measureComparable)));
   }
 
   private static Optional<EvaluationResult> evaluateCondition(Condition condition, Comparable<?> measureComparable, Measure.Level alertLevel) {
     String conditionValue = getValueToEval(condition, alertLevel);
     if (StringUtils.isEmpty(conditionValue)) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     try {
@@ -60,7 +60,7 @@ public final class ConditionEvaluator {
       if (doesReachThresholds(measureComparable, conditionComparable, condition)) {
         return of(new EvaluationResult(alertLevel, measureComparable));
       }
-      return Optional.absent();
+      return Optional.empty();
     } catch (NumberFormatException badValueFormat) {
       throw new IllegalArgumentException(String.format(
         "Quality Gate: Unable to parse value '%s' to compare against %s",
@@ -69,9 +69,9 @@ public final class ConditionEvaluator {
   }
 
   private static String getValueToEval(Condition condition, Measure.Level alertLevel) {
-    if (alertLevel.equals(Measure.Level.ERROR)) {
+    if (Measure.Level.ERROR.equals(alertLevel)) {
       return condition.getErrorThreshold();
-    } else if (alertLevel.equals(Measure.Level.WARN)) {
+    } else if (Measure.Level.WARN.equals(alertLevel)) {
       return condition.getWarningThreshold();
     } else {
       throw new IllegalStateException(alertLevel.toString());
@@ -121,7 +121,6 @@ public final class ConditionEvaluator {
     if (condition.getPeriod() != null) {
       return parseMeasureFromVariation(condition, measure);
     }
-
     switch (measure.getValueType()) {
       case BOOLEAN:
         return measure.getBooleanValue();
@@ -168,7 +167,7 @@ public final class ConditionEvaluator {
 
   private static Optional<Double> getPeriodValue(Measure measure, int period) {
     if (!measure.hasVariations()) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     MeasureVariations variations = measure.getVariations();

@@ -23,7 +23,10 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import org.sonar.api.utils.MessageException;
 
-class RatingGrid {
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+
+public class RatingGrid {
 
   private final double[] gridValues;
 
@@ -53,7 +56,7 @@ class RatingGrid {
     return gridValues;
   }
 
-  enum Rating {
+  public enum Rating {
     E(5),
     D(4),
     C(3),
@@ -68,6 +71,14 @@ class RatingGrid {
 
     public int getIndex() {
       return index;
+    }
+
+    public static Rating valueOf(int index) {
+      return stream(Rating.values()).filter(r -> r.getIndex() == index).findFirst().orElseThrow(() -> new IllegalArgumentException(format("Unknown value '%s'", index)));
+    }
+
+    public static boolean isValidRating(String value) {
+      return stream(Rating.values()).anyMatch(r -> r.name().equals(value));
     }
   }
 
