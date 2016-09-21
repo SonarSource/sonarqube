@@ -135,7 +135,7 @@ public class ProcessEntryPoint implements Stoppable {
       stopperThread.join();
       lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
     } catch (InterruptedException e) {
-      // nothing to do, the process is going to be exited
+      Thread.currentThread().interrupt();
     }
     exit.exit(0);
   }

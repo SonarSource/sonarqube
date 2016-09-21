@@ -56,6 +56,8 @@ public class StopWatcher extends Thread {
             Thread.sleep(delayMs);
           } catch (InterruptedException ignored) {
             watching = false;
+            // restore interrupted flag
+            Thread.currentThread().interrupt();
           }
         }
       }

@@ -66,12 +66,13 @@ public class SearchServer implements Monitored {
 
   @Override
   public void awaitStop() {
-    while (node != null && !node.isClosed()) {
-      try {
+    try {
+      while (node != null && !node.isClosed()) {
         Thread.sleep(200L);
-      } catch (InterruptedException e) {
-        // Ignore
       }
+    } catch (InterruptedException e) {
+      // Restore the interrupted status
+      Thread.currentThread().interrupt();
     }
   }
 

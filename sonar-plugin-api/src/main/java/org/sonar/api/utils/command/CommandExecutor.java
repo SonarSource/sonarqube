@@ -147,7 +147,8 @@ public class CommandExecutor {
       try {
         thread.join();
       } catch (InterruptedException e) {
-        LOG.error("InterruptedException while waiting finish of " + thread.toString(), e);
+        // considered as finished, restore the interrupted flag
+        Thread.currentThread().interrupt();
       }
     }
   }
