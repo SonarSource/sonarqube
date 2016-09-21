@@ -68,7 +68,8 @@ class StreamGobbler extends Thread {
       try {
         gobbler.join();
       } catch (InterruptedException ignored) {
-        // consider as finished
+        // consider as finished, restore the interrupted flag
+        Thread.currentThread().interrupt();
       }
     }
   }
