@@ -135,6 +135,7 @@ import org.sonar.server.notification.NotificationDaemon;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionsWsModule;
@@ -323,6 +324,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // update center
       UpdateCenterModule.class,
+
+      // organizations
+      OrganizationsWsModule.class,
 
       // quality profile
       ActiveRuleIndexer.class,
