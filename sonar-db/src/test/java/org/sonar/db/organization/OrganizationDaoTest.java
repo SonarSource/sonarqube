@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,17 +34,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class OrganizationDaoTest {
   private static final OrganizationDto ORGANIZATION_DTO = new OrganizationDto()
-    .setUuid("a uuid")
-    .setKey("the_key")
-    .setName("the name")
-    .setDescription("the description")
-    .setUrl("the url")
-    .setAvatarUrl("the avatar url")
-    .setCreatedAt(1_999_000L)
-    .setUpdatedAt(1_888_000L);
+      .setUuid("a uuid")
+      .setKey("the_key")
+      .setName("the name")
+      .setDescription("the description")
+      .setUrl("the url")
+      .setAvatarUrl("the avatar url")
+      .setCreatedAt(1_999_000L)
+      .setUpdatedAt(1_888_000L);
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -80,7 +82,7 @@ public class OrganizationDaoTest {
 
   @Test
   public void description_url_and_avatarUrl_are_optional() {
-    insertOrganization(ORGANIZATION_DTO.setDescription(null).setUrl(null).setAvatarUrl(null));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setDescription(null).setUrl(null).setAvatarUrl(null));
 
     Map<String, Object> row = selectSingleRow();
     assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO.getUuid());
@@ -98,11 +100,11 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO);
 
     OrganizationDto dto = new OrganizationDto()
-      .setUuid(ORGANIZATION_DTO.getUuid())
-      .setKey("other key")
-      .setName("other name")
-      .setCreatedAt(2_999_000L)
-      .setUpdatedAt(2_888_000L);
+        .setUuid(ORGANIZATION_DTO.getUuid())
+        .setKey("other key")
+        .setName("other name")
+        .setCreatedAt(2_999_000L)
+        .setUpdatedAt(2_888_000L);
 
     expectedException.expect(PersistenceException.class);
 
@@ -130,7 +132,7 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void selectByLKey_is_case_sensitive() {
+  public void selectByKey_is_case_sensitive() {
     insertOrganization(ORGANIZATION_DTO);
 
     assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO.getKey().toUpperCase(Locale.ENGLISH))).isEmpty();
@@ -163,6 +165,75 @@ public class OrganizationDaoTest {
     assertThat(underTest.selectByUuid(dbSession, ORGANIZATION_DTO.getUuid().toUpperCase(Locale.ENGLISH))).isEmpty();
   }
 
+  @Test
+  public void selectByQuery_returns_empty_when_table_is_empty() {
+    assertThat(underTest.selectByQuery(dbSession, 1, 1)).isEmpty();
+  }
+
+  @Test
+  public void selectByQuery_returns_single_row_of_table_when_requesting_first_page_of_size_1_or_more() {
+    insertOrganization(ORGANIZATION_DTO);
+
+    assertThat(underTest.selectByQuery(dbSession, 0, 1))
+        .hasSize(1)
+        .extracting("uuid")
+        .containsOnly(ORGANIZATION_DTO.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, 0, 10))
+        .hasSize(1)
+        .extracting("uuid")
+        .containsOnly(ORGANIZATION_DTO.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_returns_empty_on_table_with_single_row_when_not_requesting_the_first_page() {
+    insertOrganization(ORGANIZATION_DTO);
+
+    assertThat(underTest.selectByQuery(dbSession, 1, 1)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, Math.abs(new Random().nextInt(10)) + 1, 1)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, 1, 10)).isEmpty();
+  }
+
+  @Test
+  public void selectByQuery_returns_rows_ordered_by_createdAt_descending_applying_requested_paging() {
+    long time = 1_999_999L;
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid3").setKey("key-3").setCreatedAt(time));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid1").setKey("key-1").setCreatedAt(time + 1_000));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid2").setKey("key-2").setCreatedAt(time + 2_000));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid5").setKey("key-5").setCreatedAt(time + 3_000));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid4").setKey("key-4").setCreatedAt(time + 5_000));
+
+    assertThat(underTest.selectByQuery(dbSession, 0, 1))
+        .extracting("uuid", "key")
+        .containsExactly(tuple("uuid4", "key-4"));
+    assertThat(underTest.selectByQuery(dbSession, 1, 1))
+        .extracting("uuid", "key")
+        .containsExactly(tuple("uuid5", "key-5"));
+    assertThat(underTest.selectByQuery(dbSession, 2, 1))
+        .extracting("uuid", "key")
+        .containsExactly(tuple("uuid2", "key-2"));
+    assertThat(underTest.selectByQuery(dbSession, 3, 1))
+        .extracting("uuid", "key")
+        .containsExactly(tuple("uuid1", "key-1"));
+    assertThat(underTest.selectByQuery(dbSession, 4, 1))
+        .extracting("uuid", "key")
+        .containsExactly(tuple("uuid3", "key-3"));
+    assertThat(underTest.selectByQuery(dbSession, 5, 1))
+        .isEmpty();
+
+    assertThat(underTest.selectByQuery(dbSession, 0, 5))
+        .extracting("uuid")
+        .containsExactly("uuid4", "uuid5", "uuid2", "uuid1", "uuid3");
+    assertThat(underTest.selectByQuery(dbSession, 5, 5))
+        .isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, 0, 3))
+        .extracting("uuid")
+        .containsExactly("uuid4", "uuid5", "uuid2");
+    assertThat(underTest.selectByQuery(dbSession, 3, 3))
+        .extracting("uuid")
+        .containsExactly("uuid1", "uuid3");
+  }
+
   private void insertOrganization(OrganizationDto dto) {
     underTest.insert(dbSession, dto);
     dbSession.commit();
@@ -183,10 +254,22 @@ public class OrganizationDaoTest {
 
   private Map<String, Object> selectSingleRow() {
     List<Map<String, Object>> rows = dbTester.select("select" +
-      " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
-      " created_at as \"createdAt\", updated_at as \"updatedAt\"" +
-      " from organizations");
+        " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
+        " created_at as \"createdAt\", updated_at as \"updatedAt\"" +
+        " from organizations");
     assertThat(rows).hasSize(1);
     return rows.get(0);
+  }
+
+  private static OrganizationDto copyOf(OrganizationDto organizationDto) {
+    return new OrganizationDto()
+        .setUuid(organizationDto.getUuid())
+        .setKey(organizationDto.getKey())
+        .setName(organizationDto.getName())
+        .setDescription(organizationDto.getDescription())
+        .setUrl(organizationDto.getUrl())
+        .setAvatarUrl(organizationDto.getAvatarUrl())
+        .setCreatedAt(organizationDto.getCreatedAt())
+        .setUpdatedAt(organizationDto.getUpdatedAt());
   }
 }
