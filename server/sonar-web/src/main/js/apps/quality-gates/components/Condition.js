@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 
+import ThresholdInput from './ThresholdInput';
 import DeleteConditionView from '../views/gate-conditions-delete-view';
 import Checkbox from '../../../components/controls/Checkbox';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
@@ -33,7 +34,9 @@ export default class Condition extends Component {
     this.state = {
       changed: false,
       period: props.condition.period,
-      op: props.condition.op
+      op: props.condition.op,
+      warning: props.condition.warning || '',
+      error: props.condition.error || ''
     };
   }
 
@@ -59,14 +62,22 @@ export default class Condition extends Component {
     this.setState({ changed: true, period });
   }
 
+  handleWarningChange (value) {
+    this.setState({ changed: true, warning: value });
+  }
+
+  handleErrorChange (value) {
+    this.setState({ changed: true, error: value });
+  }
+
   handleSaveClick (e) {
     const { qualityGate, condition, onSaveCondition, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
       metric: condition.metric,
       op: this.state.op,
-      warning: this.refs.warning.value,
-      error: this.refs.error.value
+      warning: this.state.warning,
+      error: this.state.error
     };
 
     if (period) {
@@ -92,8 +103,8 @@ export default class Condition extends Component {
       id: condition.id,
       metric: condition.metric,
       op: this.state.op,
-      warning: this.refs.warning.value,
-      error: this.refs.error.value
+      warning: this.state.warning,
+      error: this.state.error
     };
 
     if (period) {
@@ -194,28 +205,21 @@ export default class Condition extends Component {
 
           <td className="thin text-middle nowrap">
             {edit ? (
-                <input
-                    ref="warning"
+                <ThresholdInput
                     name="warning"
-                    type="text"
-                    className="input-tiny text-middle"
-                    defaultValue={condition.warning}
-                    data-type={metric.type}
-                    placeholder={metric.placeholder}
-                    onChange={this.handleChange}/>
+                    value={this.state.warning}
+                    metric={metric}
+                    onChange={value => this.handleWarningChange(value)}/>
             ) : formatMeasure(condition.warning, metric.type)}
           </td>
 
           <td className="thin text-middle nowrap">
             {edit ? (
-                <input
-                    ref="error"
+                <ThresholdInput
                     name="error"
-                    type="text"
-                    className="input-tiny text-middle"
-                    defaultValue={condition.error}
-                    data-type={metric.type}
-                    onChange={this.handleChange}/>
+                    value={this.state.error}
+                    metric={metric}
+                    onChange={value => this.handleErrorChange(value)}/>
             ) : formatMeasure(condition.error, metric.type)}
           </td>
 
