@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
+import WildcardsHelp from './WildcardsHelp';
 import { fetchSettings } from '../store/actions';
 import { getDefaultCategory } from '../store/rootReducer';
 import '../styles.css';
@@ -83,6 +84,10 @@ class App extends React.Component {
               <CategoryDefinitionsList
                   component={this.props.component}
                   category={selectedCategory}/>
+
+              {selectedCategory === 'exclusions' && (
+                  <WildcardsHelp/>
+              )}
             </div>
           </div>
         </div>
