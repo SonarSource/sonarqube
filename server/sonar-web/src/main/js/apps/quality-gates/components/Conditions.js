@@ -61,7 +61,6 @@ export default class Conditions extends React.Component {
         qualityGate,
         conditions,
         metrics,
-        periods,
         edit,
         onAddCondition,
         onSaveCondition,
@@ -143,7 +142,6 @@ export default class Conditions extends React.Component {
                         qualityGate={qualityGate}
                         condition={condition}
                         metrics={metrics}
-                        periods={periods}
                         edit={edit}
                         onSaveCondition={onSaveCondition}
                         onDeleteCondition={onDeleteCondition}

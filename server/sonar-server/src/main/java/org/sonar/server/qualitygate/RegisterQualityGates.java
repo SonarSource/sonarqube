@@ -20,6 +20,8 @@
 package org.sonar.server.qualitygate;
 
 import org.picocontainer.Startable;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -40,19 +42,32 @@ public class RegisterQualityGates implements Startable {
   private static final String DEBT_ON_NEW_CODE_ERROR_THRESHOLD = "5";
   private static final String NEW_COVERAGE_ERROR_THRESHOLD = "80";
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
+  private final QualityGateUpdater qualityGateUpdater;
+  private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
   private final LoadedTemplateDao loadedTemplateDao;
+  private final QualityGates qualityGates;
 
-  public RegisterQualityGates(QualityGates qualityGates, LoadedTemplateDao loadedTemplateDao) {
-    this.qualityGates = qualityGates;
+  public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater,
+    LoadedTemplateDao loadedTemplateDao, QualityGates qualityGates) {
+    this.dbClient = dbClient;
+    this.qualityGateUpdater = qualityGateUpdater;
+    this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
     this.loadedTemplateDao = loadedTemplateDao;
+    this.qualityGates = qualityGates;
   }
 
   @Override
   public void start() {
-    if (shouldRegisterBuiltinQualityGate()) {
-      createBuiltinQualityGate();
-      registerBuiltinQualityGate();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      if (shouldRegisterBuiltinQualityGate(dbSession)) {
+        createBuiltinQualityGate(dbSession);
+        registerBuiltinQualityGate(dbSession);
+        dbSession.commit();
+      }
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 
@@ -61,20 +76,21 @@ public class RegisterQualityGates implements Startable {
     // do nothing
   }
 
-  private boolean shouldRegisterBuiltinQualityGate() {
-    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_GATE_TYPE, BUILTIN_QUALITY_GATE) == 0;
+  private boolean shouldRegisterBuiltinQualityGate(DbSession dbSession) {
+    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_GATE_TYPE, BUILTIN_QUALITY_GATE, dbSession) == 0;
   }
 
-  private void createBuiltinQualityGate() {
-    QualityGateDto builtin = qualityGates.create(BUILTIN_QUALITY_GATE);
-    qualityGates.createCondition(builtin.getId(), NEW_VULNERABILITIES_KEY, OPERATOR_GREATER_THAN, null, NEW_VULNERABILITIES_ERROR_THRESHOLD, LEAK_PERIOD);
-    qualityGates.createCondition(builtin.getId(), NEW_BUGS_KEY, OPERATOR_GREATER_THAN, null, NEW_BUGS_ERROR_THRESHOLD, LEAK_PERIOD);
-    qualityGates.createCondition(builtin.getId(), NEW_SQALE_DEBT_RATIO_KEY, OPERATOR_GREATER_THAN, null, DEBT_ON_NEW_CODE_ERROR_THRESHOLD, LEAK_PERIOD);
-    qualityGates.createCondition(builtin.getId(), NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, NEW_COVERAGE_ERROR_THRESHOLD, LEAK_PERIOD);
-    qualityGates.setDefault(builtin.getId());
+  private void createBuiltinQualityGate(DbSession dbSession) {
+    QualityGateDto builtin = qualityGateUpdater.create(dbSession, BUILTIN_QUALITY_GATE);
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(), NEW_VULNERABILITIES_KEY, OPERATOR_GREATER_THAN, null, NEW_VULNERABILITIES_ERROR_THRESHOLD,
+      LEAK_PERIOD);
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(), NEW_BUGS_KEY, OPERATOR_GREATER_THAN, null, NEW_BUGS_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(), NEW_SQALE_DEBT_RATIO_KEY, OPERATOR_GREATER_THAN, null, DEBT_ON_NEW_CODE_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(), NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, NEW_COVERAGE_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGates.setDefault(dbSession, builtin.getId());
   }
 
-  private void registerBuiltinQualityGate() {
-    loadedTemplateDao.insert(new LoadedTemplateDto(BUILTIN_QUALITY_GATE, LoadedTemplateDto.QUALITY_GATE_TYPE));
+  private void registerBuiltinQualityGate(DbSession dbSession) {
+    loadedTemplateDao.insert(new LoadedTemplateDto(BUILTIN_QUALITY_GATE, LoadedTemplateDto.QUALITY_GATE_TYPE), dbSession);
   }
 }

@@ -19,85 +19,215 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-import org.json.simple.JSONValue;
-import org.junit.Before;
+import java.io.IOException;
+import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.core.timemachine.Periods;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.qualitygate.QgateProjectFinder;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsQualityGates.AppWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.Metric.ValueType.BOOL;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonarqube.ws.MediaTypes.JSON;
 
 public class AppActionTest {
 
-  private QualityGates qGates = mock(QualityGates.class);
-  private Periods periods = mock(Periods.class);
-  private I18n i18n = mock(I18n.class);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  WsTester ws;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
 
-    ws = new WsTester(new QualityGatesWs(
-      new ListAction(qGates), new ShowAction(qGates), new SearchAction(mock(QgateProjectFinder.class)),
-      new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
-      new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
-      new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(qGates)));
+  AppAction underTest = new AppAction(userSession, dbClient);
+  WsActionTester ws = new WsActionTester(underTest);
+
+  @Test
+  public void return_metrics() throws Exception {
+    MetricDto metricDto = dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("metric")
+      .setShortName("Metric")
+      .setDomain("General")
+      .setValueType(BOOL.name())
+      .setHidden(true));
+    dbSession.commit();
+
+    AppWsResponse response = executeRequest();
+
+    List<AppWsResponse.Metric> metrics = response.getMetricsList();
+    assertThat(metrics).hasSize(1);
+    AppWsResponse.Metric metric = metrics.get(0);
+    assertThat(metric.getId()).isEqualTo(metricDto.getId());
+    assertThat(metric.getKey()).isEqualTo("metric");
+    assertThat(metric.getName()).isEqualTo("Metric");
+    assertThat(metric.getDomain()).isEqualTo("General");
+    assertThat(metric.getType()).isEqualTo(BOOL.name());
+    assertThat(metric.getHidden()).isTrue();
   }
 
   @Test
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void should_initialize_app() throws Exception {
-    doAnswer(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return (String) invocation.getArguments()[1];
-      }
-    }).when(i18n).message(any(Locale.class), any(String.class), any(String.class));
+  public void return_metric_without_domain() throws Exception {
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("metric")
+      .setShortName("Metric")
+      .setDomain(null)
+      .setValueType(BOOL.name())
+      .setHidden(true));
+    dbSession.commit();
 
-    Metric metric = mock(Metric.class);
-    when(metric.getId()).thenReturn(42);
-    when(metric.getKey()).thenReturn("metric");
-    when(metric.getName()).thenReturn("Metric");
-    when(metric.getType()).thenReturn(ValueType.BOOL);
-    when(metric.getDomain()).thenReturn("General");
-    when(metric.isHidden()).thenReturn(false);
-    when(qGates.gateMetrics()).thenReturn(ImmutableList.of(metric));
+    AppWsResponse response = executeRequest();
 
-    String json = ws.newGetRequest("api/qualitygates", "app").execute().outputAsString();
-
-    Map responseJson = (Map) JSONValue.parse(json);
-    assertThat((Boolean) responseJson.get("edit")).isFalse();
-    Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
-    assertThat(periods).hasSize(1);
-    Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
+    List<AppWsResponse.Metric> metrics = response.getMetricsList();
     assertThat(metrics).hasSize(1);
-    Map metricMap = metrics.iterator().next();
-    assertThat(metricMap.get("id").toString()).isEqualTo("42");
-    assertThat(metricMap.get("key")).isEqualTo("metric");
-    assertThat(metricMap.get("name")).isEqualTo("Metric");
-    assertThat(metricMap.get("type")).isEqualTo("BOOL");
-    assertThat(metricMap.get("domain")).isEqualTo("General");
-    assertThat(metricMap.get("hidden")).isEqualTo(false);
+    AppWsResponse.Metric metric = metrics.get(0);
+    assertThat(metric.getKey()).isEqualTo("metric");
+    assertThat(metric.hasDomain()).isFalse();
+  }
+
+  @Test
+  public void return_rating_metrics() throws Exception {
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("reliability_rating")
+      .setShortName("Reliability Rating")
+      .setDomain("Reliability")
+      .setValueType(RATING.name())
+      .setHidden(false));
+    dbSession.commit();
+
+    AppWsResponse response = executeRequest();
+
+    List<AppWsResponse.Metric> metrics = response.getMetricsList();
+    assertThat(metrics).hasSize(1);
+    AppWsResponse.Metric metric = metrics.get(0);
+    assertThat(metric.getKey()).isEqualTo("reliability_rating");
+    assertThat(metric.getName()).isEqualTo("Reliability Rating");
+    assertThat(metric.getDomain()).isEqualTo("Reliability");
+    assertThat(metric.getType()).isEqualTo(RATING.name());
+    assertThat(metric.getHidden()).isFalse();
+  }
+
+  @Test
+  public void does_not_return_DISTRIB_metric() throws Exception {
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("function_complexity_distribution")
+      .setShortName("Function Distribution / Complexity")
+      .setDomain("Complexity")
+      .setValueType(DISTRIB.name())
+      .setHidden(false));
+    dbSession.commit();
+
+    AppWsResponse response = executeRequest();
+
+    assertThat(response.getMetricsList()).isEmpty();
+  }
+
+  @Test
+  public void does_not_return_DATA_metric() throws Exception {
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("ncloc_language_distribution")
+      .setShortName("Lines of Code Per Language")
+      .setDomain("Size")
+      .setValueType(DATA.name())
+      .setHidden(false));
+    dbSession.commit();
+
+    AppWsResponse response = executeRequest();
+
+    assertThat(response.getMetricsList()).isEmpty();
+  }
+
+  @Test
+  public void does_not_return_quality_gate_metric() throws Exception {
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("alert_status")
+      .setShortName("Quality Gate Status")
+      .setDomain("Releasability")
+      .setValueType(INT.name())
+      .setHidden(false));
+    dbSession.commit();
+
+    AppWsResponse response = executeRequest();
+
+    assertThat(response.getMetricsList()).isEmpty();
+  }
+
+  @Test
+  public void return_edit_to_false_when_not_quality_gate_permission() throws Exception {
+    userSession.login("not-admin").setGlobalPermissions(DASHBOARD_SHARING);
+
+    AppWsResponse response = executeRequest();
+
+    assertThat(response.getEdit()).isFalse();
+  }
+
+  @Test
+  public void return_edit_to_true_when_quality_gate_permission() throws Exception {
+    userSession.login("admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
+
+    AppWsResponse response = executeRequest();
+
+    assertThat(response.getEdit()).isTrue();
+  }
+
+  @Test
+  public void test_example_json_response() {
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto()
+        .setKey("accessors")
+        .setShortName("Accessors")
+        .setDomain("Size")
+        .setValueType(INT.name())
+        .setHidden(true),
+      newMetricDto()
+        .setKey("blocker_remediation_cost")
+        .setShortName("Blocker Technical Debt")
+        .setDomain("SQALE")
+        .setValueType(WORK_DUR.name())
+        .setHidden(false));
+    dbSession.commit();
+
+    String result = ws.newRequest()
+      .setMediaType(JSON)
+      .execute()
+      .getInput();
+
+    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).ignoreFields("id").isSimilarTo(result);
+  }
+
+  @Test
+  public void test_ws_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).isEmpty();
+  }
+
+  private AppWsResponse executeRequest() {
+    try {
+      return AppWsResponse.parseFrom(ws.newRequest().setMediaType(MediaTypes.PROTOBUF).execute().getInputStream());
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

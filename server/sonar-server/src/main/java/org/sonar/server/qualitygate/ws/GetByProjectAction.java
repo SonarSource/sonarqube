@@ -39,6 +39,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
@@ -57,7 +58,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("get_by_project")
+    WebService.NewAction action = context.createAction(ACTION_GET_BY_PROJECT)
       .setInternal(true)
       .setSince("6.1")
       .setDescription("Get the quality gate of a project.<br> " +

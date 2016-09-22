@@ -22,6 +22,9 @@ package org.sonar.db.metric;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+
 public class MetricDto {
 
   private Integer id;
@@ -105,11 +108,12 @@ public class MetricDto {
     return this;
   }
 
+  @CheckForNull
   public String getDomain() {
     return domain;
   }
 
-  public MetricDto setDomain(String domain) {
+  public MetricDto setDomain(@Nullable String domain) {
     this.domain = domain;
     return this;
   }
@@ -206,4 +210,9 @@ public class MetricDto {
     this.decimalScale = i;
     return this;
   }
+
+  public boolean isDataType() {
+    return DATA.name().equals(valueType) || DISTRIB.name().equals(valueType);
+  }
+
 }

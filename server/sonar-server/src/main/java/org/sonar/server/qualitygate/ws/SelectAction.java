@@ -40,6 +40,7 @@ import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPER
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -57,7 +58,7 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("select")
+    WebService.NewAction action = controller.createAction(ACTION_SELECT)
       .setDescription("Associate a project to a quality gate.<br>" +
         "The '%s' or '%s' must be provided.<br>" +
         "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +

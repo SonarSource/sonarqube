@@ -52,6 +52,7 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_PROJECT_STATUS;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -80,7 +81,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("project_status")
+    WebService.NewAction action = controller.createAction(ACTION_PROJECT_STATUS)
       .setDescription(String.format("Get the quality gate status of a project or a Compute Engine task.<br />" +
         MSG_ONE_PARAMETER_ONLY + "<br />" +
         "The different statuses returned are: %s. The %s status is returned when there is no quality gate associated with the analysis.<br />" +

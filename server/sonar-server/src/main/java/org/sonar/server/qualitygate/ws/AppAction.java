@@ -19,20 +19,30 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.sonar.api.measures.Metric;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
+
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsQualityGates.AppWsResponse;
 
 public class AppAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final UserSession userSession;
+  private final DbClient dbClient;
 
-  public AppAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public AppAction(UserSession userSession, DbClient dbClient) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -47,39 +57,43 @@ public class AppAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    JsonWriter writer = response.newJsonWriter().beginObject();
-    addPermissions(writer);
-    addPeriods(writer);
-    addMetrics(writer);
-    writer.endObject().close();
+    AppWsResponse.Builder responseBuilder = AppWsResponse.newBuilder();
+    addPermissions(responseBuilder);
+    addMetrics(responseBuilder);
+    writeProtobuf(responseBuilder.build(), request, response);
   }
 
-  private void addPermissions(JsonWriter writer) {
-    writer.prop("edit", qualityGates.currentUserHasWritePermission());
+  private void addPermissions(AppWsResponse.Builder responseBuilder) {
+    responseBuilder.setEdit(userSession.hasPermission(QUALITY_GATE_ADMIN));
   }
 
-  private static void addPeriods(JsonWriter writer) {
-    writer.name("periods").beginArray();
-    writer.beginObject()
-      .prop("key", 1L)
-      .prop("text", "Leak")
-      .endObject();
-    writer.endArray();
+  private void addMetrics(AppWsResponse.Builder builder) {
+    loadMetrics().forEach(metric -> builder.addMetrics(toMetric(metric)));
   }
 
-  private void addMetrics(JsonWriter writer) {
-    writer.name("metrics").beginArray();
-    for (Metric metric : qualityGates.gateMetrics()) {
-      writer.beginObject()
-        .prop("id", metric.getId())
-        .prop("key", metric.getKey())
-        .prop("name", metric.getName())
-        .prop("type", metric.getType().toString())
-        .prop("domain", metric.getDomain())
-        .prop("hidden", BooleanUtils.isNotFalse(metric.isHidden()))
-        .endObject();
+  private static Metric toMetric(MetricDto metricDto) {
+    String domain = metricDto.getDomain();
+    Metric.Builder metricBuilder = Metric.newBuilder()
+      .setId(metricDto.getId())
+      .setKey(metricDto.getKey())
+      .setName(metricDto.getShortName())
+      .setType(metricDto.getValueType())
+      .setHidden(metricDto.isHidden());
+    if (domain != null) {
+      metricBuilder.setDomain(domain);
     }
-    writer.endArray();
+    return metricBuilder.build();
+  }
+
+  private Collection<MetricDto> loadMetrics() {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return dbClient.metricDao().selectEnabled(dbSession).stream()
+        .filter(metric -> !metric.isDataType() && !ALERT_STATUS_KEY.equals(metric.getKey()))
+        .collect(Collectors.toList());
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
 }

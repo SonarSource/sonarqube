@@ -153,10 +153,10 @@ export default class Condition extends Component {
     const isLeakSelected = !!this.state.period;
     const operators = ['LT', 'GT', 'EQ', 'NE'];
     const operatorOptions = operators.map(op => {
-      return {
-        label: translate('quality_gates.operator', op),
-        value: op
-      };
+      const label = metric.type === 'RATING' ?
+          translate('quality_gates.operator', op, 'rating') :
+          translate('quality_gates.operator', op);
+      return { label, value: op };
     });
 
     return (
