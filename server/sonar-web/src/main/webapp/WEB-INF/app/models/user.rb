@@ -40,8 +40,7 @@ class User < ActiveRecord::Base
   include Authentication
   include Authentication::ByPassword
   include NeedAuthorization::ForUser
-  include NeedAuthentication::ForUser
-
+  
   validates_presence_of :name
   validates_length_of :name, :maximum => 200, :unless => 'name.blank?'
 
