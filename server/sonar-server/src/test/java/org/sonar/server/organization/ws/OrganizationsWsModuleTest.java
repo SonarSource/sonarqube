@@ -19,18 +19,22 @@
  */
 package org.sonar.server.organization.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class OrganizationsWsModule extends Module {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  protected void configureModule() {
-    add(
-      OrganizationsWs.class,
-      OrganizationsWsSupport.class,
-      // actions
-      CreateAction.class,
-      SearchAction.class);
+public class OrganizationsWsModuleTest {
+  private static final int CONTAINER_ITSELF = 1;
+  private static final int PROPERTY_DEFINITION = 1;
+
+  private OrganizationsWsModule underTest = new OrganizationsWsModule();
+
+  @Test
+  public void verify_component_count() {
+    ComponentContainer container = new ComponentContainer();
+    underTest.configure(container);
+    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(CONTAINER_ITSELF + PROPERTY_DEFINITION + 4);
   }
 
 }

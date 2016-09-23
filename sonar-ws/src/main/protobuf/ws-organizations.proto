@@ -27,13 +27,18 @@ option optimize_for = SPEED;
 // WS api/organizations/create
 message CreateWsResponse {
   optional Organization organization = 1;
+}
 
-  message Organization {
-    optional string id = 1;
-    optional string key = 2;
-    optional string name = 3;
-    optional string description = 4;
-    optional string url = 5;
-    optional string avatar = 6;
-  }
+// WS api/organizations/search
+message SearchWsResponse {
+  repeated Organization organizations = 1;
+}
+
+message Organization {
+  optional string id = 1;
+  optional string key = 2;
+  optional string name = 3;
+  optional string description = 4;
+  optional string url = 5;
+  optional string avatar = 6;
 }

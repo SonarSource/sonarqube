@@ -19,18 +19,28 @@
  */
 package org.sonar.server.organization.ws;
 
-import org.sonar.core.platform.Module;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonarqube.ws.Organizations;
 
-public class OrganizationsWsModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    add(
-      OrganizationsWs.class,
-      OrganizationsWsSupport.class,
-      // actions
-      CreateAction.class,
-      SearchAction.class);
+public class OrganizationsWsSupport {
+  Organizations.Organization toOrganization(OrganizationDto dto) {
+    return toOrganization(Organizations.Organization.newBuilder(), dto);
   }
 
+  Organizations.Organization toOrganization(Organizations.Organization.Builder builder, OrganizationDto dto) {
+    builder
+      .setId(dto.getUuid())
+      .setName(dto.getName())
+      .setKey(dto.getKey());
+    if (dto.getDescription() != null) {
+      builder.setDescription(dto.getDescription());
+    }
+    if (dto.getUrl() != null) {
+      builder.setUrl(dto.getUrl());
+    }
+    if (dto.getAvatarUrl() != null) {
+      builder.setAvatar(dto.getAvatarUrl());
+    }
+    return builder.build();
+  }
 }
