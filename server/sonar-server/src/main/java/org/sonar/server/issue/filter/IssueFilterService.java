@@ -204,11 +204,7 @@ public class IssueFilterService {
   }
 
   public boolean canShareFilter(UserSession userSession) {
-    if (userSession.isLoggedIn()) {
-      String user = userSession.getLogin();
-      return hasUserSharingPermission(user);
-    }
-    return false;
+    return userSession.isLoggedIn();
   }
 
   public String getLoggedLogin(UserSession userSession) {
@@ -243,12 +239,6 @@ public class IssueFilterService {
     }
   }
 
-  private void verifyCurrentUserCanShareFilter(IssueFilterDto issueFilter, String user) {
-    if (issueFilter.isShared() && !hasUserSharingPermission(user)) {
-      throw new ForbiddenException("User cannot own this filter because of insufficient rights");
-    }
-  }
-
   private void validateFilter(final IssueFilterDto issueFilter) {
     List<IssueFilterDto> userFilters = selectUserIssueFilters(issueFilter.getUserLogin());
     IssueFilterDto userFilterSameName = findFilterWithSameName(userFilters, issueFilter.getName());
@@ -261,7 +251,6 @@ public class IssueFilterService {
       if (sharedFilterWithSameName != null && !sharedFilterWithSameName.getId().equals(issueFilter.getId())) {
         throw new BadRequestException("Other users already share filters with the same name");
       }
-      verifyCurrentUserCanShareFilter(issueFilter, issueFilter.getUserLogin());
     }
   }
 
@@ -320,10 +309,6 @@ public class IssueFilterService {
   private static IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
     Paging paging = Paging.forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) issues.getTotal());
     return new IssueFilterResult(issues.getDocs(), paging);
-  }
-
-  private boolean hasUserSharingPermission(String user) {
-    return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermissions.DASHBOARD_SHARING);
   }
 
   private boolean isFilterOwnedByUser(IssueFilterDto filter, String login) {

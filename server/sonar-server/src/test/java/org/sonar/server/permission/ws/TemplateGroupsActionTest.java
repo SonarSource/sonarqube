@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,7 +53,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -374,7 +374,7 @@ public class TemplateGroupsActionTest {
 
     expectedException.expect(BadRequestException.class);
     ws.newRequest()
-      .setParam(PARAM_PERMISSION, DASHBOARD_SHARING)
+      .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .execute();
   }

@@ -39,7 +39,7 @@ import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -83,7 +83,7 @@ public class ServerUserSessionTest {
 
     assertThat(session.hasPermission(QUALITY_PROFILE_ADMIN)).isTrue();
     assertThat(session.hasPermission(SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasPermission(DASHBOARD_SHARING)).isFalse();
+    assertThat(session.hasPermission(QUALITY_GATE_ADMIN)).isFalse();
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ServerUserSessionTest {
     UserSession session = newUserSession(userDto);
 
     expectedException.expect(ForbiddenException.class);
-    session.checkPermission(DASHBOARD_SHARING);
+    session.checkPermission(QUALITY_GATE_ADMIN);
   }
 
   @Test
@@ -216,7 +216,7 @@ public class ServerUserSessionTest {
 
     assertThat(session.hasGlobalPermission(QUALITY_PROFILE_ADMIN)).isTrue();
     assertThat(session.hasGlobalPermission(SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(DASHBOARD_SHARING)).isFalse();
+    assertThat(session.hasGlobalPermission(QUALITY_GATE_ADMIN)).isFalse();
   }
 
   @Test
@@ -251,7 +251,7 @@ public class ServerUserSessionTest {
 
     assertThat(session.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
     assertThat(session.hasPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasPermission(GlobalPermissions.DASHBOARD_SHARING)).isFalse();
+    assertThat(session.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN)).isFalse();
   }
 
   @Test

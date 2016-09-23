@@ -18,7 +18,7 @@
         <label for="description"><%= h message('description') -%></label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @dashboard.description -%>"/>
       </div>
-      <% if has_role?(:shareDashboard) %>
+      <% if logged_in? %>
         <div class="modal-field">
           <label for="shared"><%= h message('shared') -%></label>
           <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @dashboard.shared -%>/>

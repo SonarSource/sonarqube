@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDbTester;
@@ -45,7 +46,6 @@ import org.sonarqube.ws.ServerId.ShowWsResponse;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
@@ -141,7 +141,7 @@ public class ShowActionTest {
 
   @Test
   public void fail_when_not_system_admin() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(DASHBOARD_SHARING);
+    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 

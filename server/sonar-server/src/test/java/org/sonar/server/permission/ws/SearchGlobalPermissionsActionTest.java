@@ -40,7 +40,6 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
@@ -76,7 +75,6 @@ public class SearchGlobalPermissionsActionTest {
     insertGroupRole(newGroupRole(SCAN_EXECUTION, userGroup.getId()));
     insertGroupRole(newGroupRole(SYSTEM_ADMIN, adminGroup.getId()));
     insertGroupRole(newGroupRole(PROVISIONING, userGroup.getId()));
-    insertGroupRole(newGroupRole(DASHBOARD_SHARING, null));
 
     UserDto user = insertUser(newUserDto("user", "user-name"));
     UserDto adminUser = insertUser(newUserDto("admin", "admin-name"));
@@ -127,8 +125,6 @@ public class SearchGlobalPermissionsActionTest {
     i18n.put("global_permissions.profileadmin.desc", "Ability to perform any action on the quality profiles.");
     i18n.put("global_permissions.gateadmin", "Administer Quality Gates");
     i18n.put("global_permissions.gateadmin.desc", "Ability to perform any action on the quality gates.");
-    i18n.put("global_permissions.shareDashboard", "Share Dashboards And Filters");
-    i18n.put("global_permissions.shareDashboard.desc", "Ability to share dashboards, issue filters and measure filters.");
     i18n.put("global_permissions.scan", "Execute Analysis");
     i18n.put("global_permissions.scan.desc", "Ability to execute analyses, and to get all settings required to perform the analysis, " +
       "even the secured ones like the scm account password, the jira account password, and so on.");

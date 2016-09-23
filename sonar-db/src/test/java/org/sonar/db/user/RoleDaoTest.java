@@ -107,8 +107,8 @@ public class RoleDaoTest {
 
     assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN,
       GlobalPermissions.QUALITY_PROFILE_ADMIN,
-      GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
+      GlobalPermissions.QUALITY_GATE_ADMIN);
+    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-users", null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
     assertThat(underTest.selectGroupPermissions(db.getSession(), DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.PROVISIONING,
       GlobalPermissions.SCAN_EXECUTION);
     assertThat(underTest.selectGroupPermissions(db.getSession(), "anyone", null)).containsOnly(GlobalPermissions.PROVISIONING, GlobalPermissions.SCAN_EXECUTION);

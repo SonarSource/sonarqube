@@ -217,7 +217,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
-    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto>emptyList());
+    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.emptyList());
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("henry").setShared(true)));
     IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue").setShared(true);
     try {
@@ -240,33 +240,7 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_have_permission_to_share_filter() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
-
-    IssueFilterDto result = underTest.update(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"), userSession);
-    assertThat(result.isShared()).isTrue();
-
-    verify(issueFilterDao).update(any(IssueFilterDto.class));
-  }
-
-  @Test
-  public void should_not_share_filter_if_no_permission() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
-
-    try {
-      underTest.update(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"), userSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
-    }
-    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
-  }
-
-  @Test
   public void should_not_share_filter_if_filter_owner_is_platform() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false));
 
     try {
@@ -321,9 +295,8 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_update_other_shared_filter_if_admin_and_if_filter_owner_has_sharing_permission() {
+  public void should_update_other_shared_filter_if_admin() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
-    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
     when(issueFilterDao.selectById(1L))
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
@@ -336,9 +309,8 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_not_update_other_shared_filter_if_admin_and_if_filter_owner_has_no_sharing_permission() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
-    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.<String>emptyList());
+  public void should_not_update_other_shared_filter_if_not_admin() {
+    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.emptyList());
     when(issueFilterDao.selectById(1L))
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
@@ -346,7 +318,7 @@ public class IssueFilterServiceTest {
       underTest.update(new IssueFilterDto().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUserLogin("arthur"), userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to modify this filter");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -411,8 +383,6 @@ public class IssueFilterServiceTest {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    // New owner should have sharing perm in order to own the filter
-    when(authorizationDao.selectGlobalPermissions("new.owner")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
 
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
@@ -602,7 +572,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_issue_filter_id() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     boolean result = underTest.toggleFavouriteIssueFilter(1L, userSession);
@@ -618,7 +588,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_on_shared_filter() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     boolean result = underTest.toggleFavouriteIssueFilter(1L, userSession);
@@ -675,16 +645,11 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void user_can_share_filter_if_logged_and_own_sharing_permission() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
+  public void user_can_share_filter_if_logged() {
     UserSession userSession = new MockUserSession("john");
     assertThat(underTest.canShareFilter(userSession)).isTrue();
 
     assertThat(underTest.canShareFilter(new AnonymousMockUserSession())).isFalse();
-
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
-    userSession = new MockUserSession("john");
-    assertThat(underTest.canShareFilter(userSession)).isFalse();
   }
 
   @Test
