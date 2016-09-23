@@ -90,4 +90,16 @@
       #{organization.updatedAt, jdbcType=BIGINT}
     )
   </insert>
+
+  <update id="update" parameterType="Organization">
+    update organizations
+    set
+      name = #{organization.name, jdbcType=VARCHAR},
+      description = #{organization.description, jdbcType=VARCHAR},
+      url = #{organization.url, jdbcType=VARCHAR},
+      avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
+      updated_at = #{organization.updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{organization.uuid}
+  </update>
 </mapper>

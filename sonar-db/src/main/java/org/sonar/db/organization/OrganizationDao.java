@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 public class OrganizationDao implements Dao {
 
   public void insert(DbSession dbSession, OrganizationDto organization) {
-    requireNonNull(organization, "OrganizationDto can't be null");
+    checkDto(organization);
     getMapper(dbSession).insert(organization);
   }
 
@@ -45,6 +45,15 @@ public class OrganizationDao implements Dao {
   public Optional<OrganizationDto> selectByKey(DbSession dbSession, String key) {
     requireNonNull(key, "key can't be null");
     return Optional.ofNullable(getMapper(dbSession).selectByKey(key));
+  }
+
+  public int update(DbSession dbSession, OrganizationDto organization) {
+    checkDto(organization);
+    return getMapper(dbSession).update(organization);
+  }
+
+  private static void checkDto(OrganizationDto organization) {
+    requireNonNull(organization, "OrganizationDto can't be null");
   }
 
   private static OrganizationMapper getMapper(DbSession dbSession) {
