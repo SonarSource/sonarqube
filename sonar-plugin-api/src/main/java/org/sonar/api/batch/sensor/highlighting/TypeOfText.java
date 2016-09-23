@@ -20,8 +20,6 @@
 package org.sonar.api.batch.sensor.highlighting;
 
 /**
- * Experimental, do not use.
- * <br>
  * Possible types for highlighting code. See sonar-colorizer.css
  * @since 5.1
  */

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getEmptyValue } from '../utils';
+import { getEmptyValue, getDefaultValue } from '../utils';
 import { TYPE_PROPERTY_SET, TYPE_STRING, TYPE_SINGLE_SELECT_LIST, TYPE_BOOLEAN } from '../constants';
 
 const fields = [
@@ -40,4 +40,16 @@ describe('#getEmptyValue()', () => {
     const setting = { type: TYPE_BOOLEAN, multiValues: true };
     expect(getEmptyValue(setting)).toEqual([null]);
   });
+});
+
+describe('#getDefaultValue()', () => {
+  const check = (parentValue, expected) => {
+    const setting = { definition: { type: TYPE_BOOLEAN }, parentValue };
+    expect(getDefaultValue(setting)).toEqual(expected);
+  };
+
+  it('should work for boolean field when passing true', () => check(true, 'settings.boolean.true'));
+  it('should work for boolean field when passing "true"', () => check('true', 'settings.boolean.true'));
+  it('should work for boolean field when passing false', () => check(false, 'settings.boolean.false'));
+  it('should work for boolean field when passing "false"', () => check('false', 'settings.boolean.false'));
 });

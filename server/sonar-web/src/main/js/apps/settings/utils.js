@@ -133,7 +133,8 @@ export function getDefaultValue (setting) {
   }
 
   if (setting.definition.type === TYPE_BOOLEAN) {
-    return parentValue ? translate('settings.boolean.true') : translate('settings.boolean.false');
+    const isTrue = parentValue === true || parentValue === 'true';
+    return isTrue ? translate('settings.boolean.true') : translate('settings.boolean.false');
   }
 
   return parentValue;
