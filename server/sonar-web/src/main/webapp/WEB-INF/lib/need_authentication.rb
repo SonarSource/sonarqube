@@ -34,10 +34,6 @@ class DefaultRealm
     end
     result
   end
-
-  def editable_password?
-    true
-  end
 end
 
 #
@@ -213,10 +209,6 @@ class PluginRealm
       end
     end
   end
-
-  def editable_password?
-    false
-  end
 end
 
 #
@@ -266,10 +258,6 @@ module NeedAuthentication
         end
 
         RealmFactory.realm.authenticate?(login, password, servlet_request) if RealmFactory.realm
-      end
-
-      def editable_password?
-        RealmFactory.realm && RealmFactory.realm.editable_password?
       end
     end
   end
