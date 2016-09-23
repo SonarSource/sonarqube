@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import ProjectCard from './ProjectCard';
-import ProjectsSearch from './ProjectsSearch';
 import ListFooter from '../../../components/controls/ListFooter';
 import { projectsListType } from './propTypes';
 import { translate } from '../../../helpers/l10n';
@@ -37,23 +36,15 @@ export default class Projects extends React.Component {
     const { projects } = this.props;
 
     return (
-        <div className="page page-limited account-projects">
-          <header className="page-header">
-            <h1 className="page-title">
-              My Projects
-            </h1>
-            <div className="pull-right">
-              <ProjectsSearch onSearch={this.props.search}/>
-            </div>
-            <div className="page-description">
-              {translate('my_account.projects.description')}
-            </div>
-          </header>
-
-          {projects.length === 0 && (
+        <div id="account-projects">
+          {projects.length === 0 ? (
               <div className="js-no-results">
                 {translate('my_account.projects.no_results')}
               </div>
+          ) : (
+              <p>
+                {translate('my_account.projects.description')}
+              </p>
           )}
 
           {projects.length > 0 && (

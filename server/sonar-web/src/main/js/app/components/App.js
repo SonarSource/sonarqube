@@ -19,39 +19,23 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
-import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { fetchCurrentUser } from '../store/users/actions';
 
-class Security extends React.Component {
+class App extends React.Component {
+  static propTypes = {
+    fetchCurrentUser: React.PropTypes.func.isRequired
+  };
+
+  componentDidMount () {
+    this.props.fetchCurrentUser();
+  }
+
   render () {
-    const { user } = this.props;
-
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
-
-    return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
-
-          <Tokens user={user}/>
-
-          {user.local && (
-              <hr className="account-separator"/>
-          )}
-
-          {user.local && (
-              <Password user={user}/>
-          )}
-        </div>
-    );
+    return this.props.children;
   }
 }
 
 export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Security);
+    () => ({}),
+    { fetchCurrentUser }
+)(App);

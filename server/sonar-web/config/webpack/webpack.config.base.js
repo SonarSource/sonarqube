@@ -23,8 +23,8 @@ module.exports = {
     'sonar': './src/main/js/libs/sonar.js',
 
     'main': './src/main/js/main/app.js',
+    'app': './src/main/js/app/index.js',
 
-    'account': './src/main/js/apps/account/app.js',
     'background-tasks': './src/main/js/apps/background-tasks/app.js',
     'code': './src/main/js/apps/code/app.js',
     'coding-rules': './src/main/js/apps/coding-rules/app.js',

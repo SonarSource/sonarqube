@@ -108,6 +108,10 @@ public class Navigation extends ExternalResource {
     return open("/settings/server_id", ServerIdPage.class);
   }
 
+  public MyActivityPage openMyActivity() {
+    return open("/account", MyActivityPage.class);
+  }
+
   public void open(String relativeUrl) {
     Selenide.open(relativeUrl);
   }

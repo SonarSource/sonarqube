@@ -66,7 +66,7 @@ export default class NotificationsContainer extends React.Component {
         translate('my_account.notifications');
 
     return (
-        <div>
+        <div className="account-body account-container">
           <Helmet
               title={title}
               titleTemplate="SonarQube - %s"/>

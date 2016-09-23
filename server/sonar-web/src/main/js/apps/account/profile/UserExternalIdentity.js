@@ -69,16 +69,15 @@ export default class UserExternalIdentity extends React.Component {
 
     if (!identityProvider) {
       return (
-          <span className="note">
+          <div>
             {user.externalProvider}{': '}{user.externalIdentity}
-          </span>
+          </div>
       );
     }
 
     return (
-        <div
-            className="identity-provider"
-            style={{ backgroundColor: identityProvider.backgroundColor }}>
+        <div className="identity-provider"
+             style={{ backgroundColor: identityProvider.backgroundColor }}>
           <img src={window.baseUrl + identityProvider.iconPath} width="14" height="14"/>
           {' '}
           {user.externalIdentity}

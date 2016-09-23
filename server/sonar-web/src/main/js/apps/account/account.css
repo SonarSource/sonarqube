@@ -1,29 +1,73 @@
+.account-container {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .account-header {
-  position: fixed;
-  top: 30px;
-  left: 0;
-  right: 0;
-  z-index: 420;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e6e6e6;
   background-color: #f3f3f3;
 }
 
-.account-nav { }
+.account-nav {
+  float: right;
+  padding-top: 11px;
+}
 
 .account-nav .nav-tabs {
   width: 100%;
+  border-bottom: none;
+}
+
+.account-nav .navbar-nav > li > a {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .account-user {
-  padding: 10px;
+  float: left;
 }
 
-.account-nav-avatar {
+.account-user > a {
+  display: block;
   float: left;
+  margin: -10px -15px -10px -10px;
+  padding: 10px 15px 10px 10px;
+  border-bottom: none;
+  border-radius: 3px;
+}
+
+.account-user > a:hover,
+.account-user > a:active {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+
+.account-user h1 {
+  line-height: 60px;
+}
+
+.account-user-avatar {
   margin-right: 20px;
 }
 
-.account-page {
-  padding-top: 102px;
+.account-user-avatar > img {
+  border-radius: 60px;
+}
+
+.account-user-avatar:empty {
+  display: none;
+}
+
+.account-body {
+  padding: 40px 0;
+}
+
+.account-separator {
+  height: 0;
+  margin: 40px 0;
+  border-top: 1px solid #e6e6e6;
 }
 
 .account-bar-chart .bar-chart-bar {
@@ -44,12 +88,17 @@
   text-anchor: start;
 }
 
-.account-projects {
-  max-width: 960px;
+.account-projects-list {
+  margin-left: -20px;
+  margin-right: -20px;
+}
+
+.account-projects-list > li {
+  padding: 15px 20px;
 }
 
 .account-projects-list > li + li {
-  margin-top: 10px;
+  border-top: 1px solid #e6e6e6;
 }
 
 .account-project-side {
@@ -67,10 +116,6 @@
 .account-project-card {
   position: relative;
   display: block;
-  padding: 10px 15px;
-  border: 1px solid #e6e6e6;
-  border-radius: 3px;
-  background-color: #fff;
 }
 
 .account-project-name {
@@ -112,4 +157,100 @@
   margin-top: 6px;
   color: #777;
   font-size: 12px;
+}
+
+.my-activity-issues {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 70px;
+}
+
+.my-activity-issues:after {
+  position: absolute;
+  z-index: 5;
+  top: -15px;
+  left: 50%;
+  width: 1px;
+  height: 100px;
+  background-color: #e6e6e6;
+  transform: rotate(30deg);
+  content: "";
+}
+
+.my-activity-issues > a {
+  display: block;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 2px;
+  color: #444;
+}
+
+.my-activity-issues > a:hover {
+  background-color: #f3f3f3;
+}
+
+.my-activity-recent-issues {
+  margin-right: 50px;
+  text-align: right;
+}
+
+.my-activity-recent-issues .my-activity-issues-note {
+  text-align: left;
+}
+
+.my-activity-all-issues {
+  margin-left: 50px;
+}
+
+.my-activity-issues-number {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 36px;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+.my-activity-issues-note {
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 10px;
+  padding-top: 2px;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.my-activity-projects {
+  width: 360px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.my-activity-projects-header {
+  line-height: 24px;
+  margin-bottom: 15px;
+  padding: 0 10px;
+}
+
+.my-activity-projects > ul > li + li {
+  border-top: 1px solid #e6e6e6;
+}
+
+.my-activity-projects > ul > li > a {
+  display: block;
+  padding: 15px 10px;
+  border: none;
+}
+
+.my-activity-projects > ul > li > a:hover {
+  background-color: #f3f3f3;
+}
+
+.my-activity-projects .level {
+  width: 60px;
+}
+
+.my-activity-projects .more {
+  margin-top: 30px;
+  text-align: center;
 }

@@ -1,25 +1,5 @@
 <% content_for :extra_script do %>
   <script>
-    window.sonarqube.user = {
-      favorites: [
-        <% current_user.favourites.each_with_index do |f, index| %>
-        {
-          id: '<%= escape_javascript f.uuid -%>',
-          key: '<%= escape_javascript f.key -%>',
-          name: '<%= escape_javascript f.name -%>',
-          qualifier: '<%= escape_javascript f.qualifier -%>'
-        },
-        <% end %>
-      ],
-      favoriteMeasureFilters: [
-        <% current_user.favourited_measure_filters.each do |filter| %>
-        {
-          id: <%= filter.id -%>,
-          name: '<%= escape_javascript filter.name -%>'
-        },
-        <% end %>
-      ]
-    };
     window.sonarqube.notifications = {
       channels: [
         <% for channel in @channels -%>
@@ -92,5 +72,5 @@
       ]
     };
   </script>
-  <script src="<%= ApplicationController.root_context -%>/js/bundles/account.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/app.js?v=<%= sonar_version -%>"></script>
 <% end %>

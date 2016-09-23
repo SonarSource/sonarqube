@@ -18,40 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../app/store/rootReducer';
 
-class Security extends React.Component {
+export default class UserScmAccounts extends React.Component {
+  static propTypes = {
+    user: React.PropTypes.object.isRequired,
+    scmAccounts: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+  };
+
   render () {
-    const { user } = this.props;
-
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
+    const { user, scmAccounts } = this.props;
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+        <div>
+          <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
+          <ul id="scm-accounts">
+            <li className="little-spacer-bottom text-ellipsis" title={user.login}>
+              {user.login}
+            </li>
 
-          <Tokens user={user}/>
+            {user.email && (
+                <li className="little-spacer-bottom text-ellipsis" title={user.email}>
+                  {user.email}
+                </li>
+            )}
 
-          {user.local && (
-              <hr className="account-separator"/>
-          )}
-
-          {user.local && (
-              <Password user={user}/>
-          )}
+            {scmAccounts.map(scmAccount => (
+                <li key={scmAccount} className="little-spacer-bottom" title={scmAccount}>
+                  {scmAccount}
+                </li>
+            ))}
+          </ul>
         </div>
     );
   }
 }
-
-export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Security);

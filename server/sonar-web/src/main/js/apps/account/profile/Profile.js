@@ -19,34 +19,40 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
-import { translate } from '../../../helpers/l10n';
+import UserExternalIdentity from './UserExternalIdentity';
+import UserGroups from './UserGroups';
+import UserScmAccounts from './UserScmAccounts';
 import { getCurrentUser } from '../../../app/store/rootReducer';
 
-class Security extends React.Component {
+class Profile extends React.Component {
   render () {
     const { user } = this.props;
 
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
-
     return (
         <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+          <div className="spacer-bottom">
+            Login: <strong id="login">{user.login}</strong>
+          </div>
 
-          <Tokens user={user}/>
-
-          {user.local && (
-              <hr className="account-separator"/>
+          {!user.local && user.externalProvider !== 'sonarqube' && (
+              <div id="identity-provider" className="spacer-bottom">
+                <UserExternalIdentity user={user}/>
+              </div>
           )}
 
-          {user.local && (
-              <Password user={user}/>
+          {!!user.email && (
+              <div className="spacer-bottom">
+                Email: <strong id="email">{user.email}</strong>
+              </div>
           )}
+
+          <hr className="account-separator"/>
+
+          <UserGroups groups={user.groups}/>
+
+          <hr className="account-separator"/>
+
+          <UserScmAccounts user={user} scmAccounts={user.scmAccounts}/>
         </div>
     );
   }
@@ -54,4 +60,4 @@ class Security extends React.Component {
 
 export default connect(
     state => ({ user: getCurrentUser(state) })
-)(Security);
+)(Profile);

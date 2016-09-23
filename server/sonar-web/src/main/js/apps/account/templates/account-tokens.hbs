@@ -47,13 +47,12 @@
   </table>
 {{/notNull}}
 
-<h4 class="big-spacer-top spacer-bottom">Generate Tokens</h4>
-
 {{#each errors}}
   <div class="alert alert-danger">{{msg}}</div>
 {{/each}}
 
-<form class="js-generate-token-form">
+<form class="js-generate-token-form spacer-top panel bg-muted">
+  <label>Generate New Token:</label>
   <input type="text" required maxlength="100" placeholder="Enter Token Name">
   <button>Generate</button>
 </form>

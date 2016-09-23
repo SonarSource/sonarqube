@@ -27,6 +27,18 @@ export function getComponentUrl (componentKey) {
 }
 
 /**
+ * Generate URL for a global issues page
+ * @param {object} query
+ * @returns {string}
+ */
+export function getIssuesUrl (query) {
+  const serializedQuery = Object.keys(query).map(criterion => (
+      `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
+  )).join('|');
+  return window.baseUrl + '/issues/search#' + serializedQuery;
+}
+
+/**
  * Generate URL for a component's issues page
  * @param {string} componentKey
  * @param {object} query
@@ -101,3 +113,7 @@ export function getDeprecatedActiveRulesUrl (query = {}) {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery });
 }
+
+export const getProjectsUrl = () => {
+  return window.baseUrl + '/measures/search?qualifiers[]=TRK';
+};

@@ -19,39 +19,42 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
-import { translate } from '../../../helpers/l10n';
+import Nav from './Nav';
+import UserCard from './UserCard';
 import { getCurrentUser } from '../../../app/store/rootReducer';
+import '../account.css';
 
-class Security extends React.Component {
+class Account extends React.Component {
   render () {
-    const { user } = this.props;
+    const { currentUser, children } = this.props;
 
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
+    if (currentUser == null) {
+      return (
+          <div id="account-page">
+            <div className="text-center">
+              <i className="spinner"/>
+            </div>
+          </div>
+      );
+    }
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+        <div id="account-page">
+          <header className="account-header">
+            <div className="account-container clearfix">
+              <UserCard user={currentUser}/>
+              <Nav user={currentUser}/>
+            </div>
+          </header>
 
-          <Tokens user={user}/>
-
-          {user.local && (
-              <hr className="account-separator"/>
-          )}
-
-          {user.local && (
-              <Password user={user}/>
-          )}
+          {children}
         </div>
     );
   }
 }
 
 export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Security);
+    state => ({
+      currentUser: getCurrentUser(state)
+    })
+)(Account);

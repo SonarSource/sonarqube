@@ -18,26 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexLink } from 'react-router';
-import Avatar from '../../../components/ui/Avatar';
+import { Route, IndexRoute } from 'react-router';
+import MyActivityContainer from './home/components/MyActivityContainer';
+import Account from './components/Account';
+import ProjectsContainer from './projects/ProjectsContainer';
+import NotificationsContainer from './notifications/NotificationsContainer';
+import Security from './components/Security';
+import Profile from './profile/Profile';
 
-export default class UserCard extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { user } = this.props;
-
-    return (
-        <div className="account-user">
-          <IndexLink to="/account/">
-            <div id="avatar" className="pull-left account-user-avatar">
-              <Avatar email={user.email} size={60}/>
-            </div>
-            <h1 id="name" className="pull-left">{user.name}</h1>
-          </IndexLink>
-        </div>
-    );
-  }
-}
+export default (
+    <Route path="account" component={Account}>
+      <IndexRoute component={MyActivityContainer}/>
+      <Route path="profile" component={Profile}/>
+      <Route path="security" component={Security}/>
+      <Route path="notifications" component={NotificationsContainer}/>
+      <Route path="projects" component={ProjectsContainer}/>
+    </Route>
+);
