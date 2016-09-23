@@ -215,6 +215,7 @@ public class CeActivityDaoTest {
     assertThat(selectPageOfUuids(1, 1)).containsExactly("TASK_3");
     assertThat(selectPageOfUuids(0, 3)).containsExactly("TASK_4", "TASK_3", "TASK_2");
     assertThat(selectPageOfUuids(0, 4)).containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
+    assertThat(selectPageOfUuids(3, 4)).containsExactly("TASK_1");
     assertThat(selectPageOfUuids(0, 100)).containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
     assertThat(selectPageOfUuids(0, 0)).isEmpty();
     assertThat(selectPageOfUuids(10, 2)).isEmpty();
