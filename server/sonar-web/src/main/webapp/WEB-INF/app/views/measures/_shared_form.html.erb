@@ -17,7 +17,7 @@
       <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
     </div>
   <% end %>
-  <% if has_role?(:shareDashboard) %>
+  <% if logged_in? %>
     <% if @filter.user_id.nil? || @filter.user_id == current_user.id %>
       <div class="modal-field">
         <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
@@ -43,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -92,8 +92,7 @@ public class PendingActionTest {
         "  \"installing\": []," +
         "  \"removing\": []," +
         "  \"updating\": []" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -108,8 +107,7 @@ public class PendingActionTest {
         "  \"installing\": []," +
         "  \"removing\": []," +
         "  \"updating\": []" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -140,8 +138,7 @@ public class PendingActionTest {
         "  ]," +
         "  \"removing\": []," +
         "  \"updating\": []" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -170,8 +167,7 @@ public class PendingActionTest {
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -193,8 +189,7 @@ public class PendingActionTest {
         "      \"key\": \"scmgit\"" +
         "    }" +
         "  ]" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -231,8 +226,7 @@ public class PendingActionTest {
         "      \"key\": \"java\"" +
         "    }" +
         "  ]" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -241,8 +235,7 @@ public class PendingActionTest {
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
-      newPluginInfo(2).setName("Bar")
-    ));
+      newPluginInfo(2).setName("Bar")));
 
     underTest.handle(request, response);
 
@@ -265,8 +258,7 @@ public class PendingActionTest {
         "  ]," +
         "  \"removing\": []," +
         "  \"updating\": []" +
-        "}"
-    );
+        "}");
   }
 
   @Test
@@ -275,8 +267,7 @@ public class PendingActionTest {
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
-      newPluginInfo(2).setName("Bar")
-    ));
+      newPluginInfo(2).setName("Bar")));
 
     underTest.handle(request, response);
 
@@ -299,13 +290,12 @@ public class PendingActionTest {
         "      \"name\": \"Foo\"," +
         "    }" +
         "  ]" +
-        "}"
-    );
+        "}");
   }
 
   @Test
   public void fail_when_user_is_not_sys_admin() throws Exception {
-    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+    userSession.login("user").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     underTest.handle(request, response);

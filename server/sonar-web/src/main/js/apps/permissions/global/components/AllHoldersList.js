@@ -44,7 +44,6 @@ const PERMISSIONS_ORDER = [
   'admin',
   'profileadmin',
   'gateadmin',
-  'shareDashboard',
   'scan',
   'provisioning'
 ];

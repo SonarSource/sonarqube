@@ -168,7 +168,7 @@ public class ReportSubmitterTest {
 
   @Test
   public void fail_with_forbidden_exception_when_no_scan_permission() {
-    userSession.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     thrown.expect(ForbiddenException.class);
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));

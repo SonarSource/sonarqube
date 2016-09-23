@@ -128,7 +128,7 @@ public class RemoveProjectCreatorFromTemplateActionTest {
     expectedException.expect(BadRequestException.class);
 
     call(ws.newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.DASHBOARD_SHARING)
+      .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
   }
 

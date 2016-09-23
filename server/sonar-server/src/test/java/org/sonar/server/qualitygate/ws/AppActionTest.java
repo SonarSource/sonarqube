@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -40,7 +41,6 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -170,7 +170,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_false_when_not_quality_gate_permission() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(DASHBOARD_SHARING);
+    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     AppWsResponse response = executeRequest();
 

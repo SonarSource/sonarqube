@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
@@ -85,29 +84,13 @@ public class MeasureFiltersTest {
   public void share_measure_filters() {
     // SONAR-4099
     String user = "user-measures-filter-with-sharing-perm";
-    createUser(user, "User Measure Filters with sharing permission", "shareDashboard");
+    createUser(user, "User Measure Filters with sharing permission");
 
     try {
       Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("share_measure_filters",
         // SONAR-4469
         "/measureFilter/MeasureFiltersTest/should-unshare-filter-remove-other-filters-favourite.html").build();
       new SeleneseTest(selenese).runOn(orchestrator);
-    } finally {
-      deactivateUser(user);
-    }
-  }
-
-  /**
-   * SONAR-4099
-   */
-  @Test
-  public void should_not_share_filter_when_user_have_no_sharing_permissions() {
-    String user = "user-measures-filter-with-no-share-perm";
-    createUser(user, "User Measure Filters without sharing permission");
-
-    try {
-      new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("should_not_share_filter_when_user_have_no_sharing_permissions",
-        "/measureFilter/MeasureFiltersTest/should-not-share-filter-when-user-have-no-sharing-permissions.html").build()).runOn(orchestrator);
     } finally {
       deactivateUser(user);
     }
@@ -138,19 +121,9 @@ public class MeasureFiltersTest {
   }
 
   private static void createUser(String login, String name) {
-    createUser(login, name, null);
-  }
-
-  private static void createUser(String login, String name, String permission) {
     SonarClient client = orchestrator.getServer().adminWsClient();
     UserParameters userCreationParameters = UserParameters.create().login(login).name(name).password("password").passwordConfirmation("password");
     client.userClient().create(userCreationParameters);
-
-    if (permission != null) {
-      adminWsClient.permissions().addUser(new AddUserWsRequest()
-        .setLogin(login)
-        .setPermission(permission));
-    }
   }
 
   private static void deactivateUser(String user) {

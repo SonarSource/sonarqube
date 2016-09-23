@@ -361,7 +361,7 @@ class MeasureFilter < ActiveRecord::Base
       errors.add_to_base('Other users already share filters with the same name') if count>0
 
       # Verify filter owner has sharing permission
-      if user && !user.has_role?(:shareDashboard)
+      if !user 
         errors.add(:user, "cannot own this filter because of insufficient rights")
       end
     elsif system?

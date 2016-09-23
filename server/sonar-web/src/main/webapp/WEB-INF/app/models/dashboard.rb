@@ -45,7 +45,7 @@ class Dashboard < ActiveRecord::Base
   end
 
   def user_rights_consistency
-    if shared? && user && !user.has_role?(:shareDashboard)
+    if shared? && !user
       errors.add(:user, "cannot own this dashboard because of insufficient rights")
     end
   end
@@ -79,7 +79,7 @@ class Dashboard < ActiveRecord::Base
   end
 
   def can_be_shared_by(user)
-    owner?(user) && user.has_role?(:shareDashboard)
+    owner?(user)
   end
 
   def can_be_reassigned_by(user)

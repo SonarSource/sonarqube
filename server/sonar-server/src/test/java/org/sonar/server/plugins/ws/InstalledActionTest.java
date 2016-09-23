@@ -29,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.ServerPluginRepository;
@@ -46,7 +47,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -270,7 +270,7 @@ public class InstalledActionTest {
 
   @Test
   public void fail_when_user_is_not_sys_admin() throws Exception {
-    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+    userSession.login("user").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     underTest.handle(request, response);

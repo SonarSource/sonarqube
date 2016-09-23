@@ -180,7 +180,7 @@ class DashboardsController < ApplicationController
   def load_dashboard_from_params(dashboard)
     dashboard.name = params[:name]
     dashboard.description = params[:description]
-    dashboard.shared = params[:shared].present? && has_role?(:shareDashboard)
+    dashboard.shared = params[:shared].present?
     dashboard.column_layout = Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
     dashboard.user = User.find_active_by_login(params[:owner]) unless params[:owner].nil?
   end

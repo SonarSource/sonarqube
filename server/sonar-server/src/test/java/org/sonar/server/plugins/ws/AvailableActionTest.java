@@ -20,13 +20,12 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -39,7 +38,6 @@ import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
@@ -147,7 +145,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void fail_when_user_is_not_admin() throws Exception {
-    userSession.login("user").setGlobalPermissions(DASHBOARD_SHARING);
+    userSession.login("user").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     underTest.handle(request, response);

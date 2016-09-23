@@ -92,7 +92,7 @@ class MeasuresController < ApplicationController
     end
     @filter.name=params[:name]
     @filter.description=params[:description]
-    @filter.shared=(params[:shared]=='true') && has_role?(:shareDashboard)
+    @filter.shared=(params[:shared]=='true')
     @filter.data=URI.unescape(params[:data])
     if @filter.save
       current_user.favourited_measure_filters<<@filter if add_to_favourites
@@ -145,7 +145,7 @@ class MeasuresController < ApplicationController
 
     @filter.name=params[:name]
     @filter.description=params[:description]
-    @filter.shared=(params[:shared]=='true') && has_role?(:shareDashboard)
+    @filter.shared=(params[:shared]=='true')
     if has_role?(:admin) && params[:owner]
       @filter.user = User.find_by_login(params[:owner])
     end
@@ -181,7 +181,7 @@ class MeasuresController < ApplicationController
     target.name=params[:name]
     target.description=params[:description]
     target.user_id=current_user.id
-    target.shared=(params[:shared]=='true') && has_role?(:shareDashboard)
+    target.shared=(params[:shared]=='true')
     target.data=source.data
     if target.save
       current_user.favourited_measure_filters << target
