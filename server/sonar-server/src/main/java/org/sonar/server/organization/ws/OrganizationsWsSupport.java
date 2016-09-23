@@ -20,6 +20,7 @@
 package org.sonar.server.organization.ws;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.organization.OrganizationDto;
@@ -43,6 +44,10 @@ public class OrganizationsWsSupport {
   static final int NAME_MAX_LENGTH = 64;
   static final int DESCRIPTION_MAX_LENGTH = 256;
   static final int URL_MAX_LENGTH = 256;
+
+  void checkKeyOrId(@Nullable String uuid, @Nullable String key) {
+    checkArgument(uuid != null ^ key != null, "Either '%s' or '%s' must be provided, not both", PARAM_ID, PARAM_KEY);
+  }
 
   String getAndCheckName(Request request) {
     String name = request.mandatoryParam(PARAM_NAME);

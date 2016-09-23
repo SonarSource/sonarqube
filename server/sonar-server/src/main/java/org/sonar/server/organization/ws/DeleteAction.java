@@ -19,39 +19,30 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ID;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 
-public class UpdateAction implements OrganizationsAction {
-  private static final String ACTION = "update";
+public class DeleteAction implements OrganizationsAction {
+  private static final String ACTION = "delete";
 
-  private final UserSession userSession;
   private final OrganizationsWsSupport wsSupport;
+  private final UserSession userSession;
   private final DbClient dbClient;
-  private final System2 system2;
 
-  public UpdateAction(UserSession userSession, OrganizationsWsSupport wsSupport, DbClient dbClient, System2 system2) {
-    this.userSession = userSession;
+  public DeleteAction(OrganizationsWsSupport wsSupport, UserSession userSession, DbClient dbClient) {
     this.wsSupport = wsSupport;
+    this.userSession = userSession;
     this.dbClient = dbClient;
-    this.system2 = system2;
   }
 
   @Override
@@ -59,10 +50,10 @@ public class UpdateAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription(
-        format("Update an organization.<br/>" +
+        format("Delete an organization.<br/>" +
           "The '%s' or '%s' must be provided.<br/>" +
           "Require 'Administer System' permission.",
-            PARAM_ID, PARAM_KEY))
+          PARAM_ID, PARAM_KEY))
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -76,8 +67,6 @@ public class UpdateAction implements OrganizationsAction {
       .setRequired(false)
       .setDescription("Organization key")
       .setExampleValue("foo-company");
-
-    wsSupport.addOrganizationDetailsParams(action);
   }
 
   @Override
@@ -87,44 +76,16 @@ public class UpdateAction implements OrganizationsAction {
     String uuid = request.param(PARAM_ID);
     String key = request.param(PARAM_KEY);
     wsSupport.checkKeyOrId(uuid, key);
-    String name = wsSupport.getAndCheckName(request);
-    String description = wsSupport.getAndCheckDescription(request);
-    String url = wsSupport.getAndCheckUrl(request);
-    String avatar = wsSupport.getAndCheckAvatar(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto dto = getDto(dbSession, uuid, key);
-      dto.setName(name)
-        .setDescription(description)
-        .setUrl(url)
-        .setAvatarUrl(avatar)
-        .setUpdatedAt(system2.now());
-      dbClient.organizationDao().update(dbSession, dto);
+      if (uuid != null) {
+        dbClient.organizationDao().deleteByUuid(dbSession, uuid);
+      } else {
+        dbClient.organizationDao().deleteByKey(dbSession, key);
+      }
       dbSession.commit();
 
-      writeResponse(request, response, dto);
+      response.noContent();
     }
-  }
-
-  private OrganizationDto getDto(DbSession dbSession, @Nullable String uuid, @Nullable String key) {
-    if (uuid != null) {
-      return failIfEmpty(dbClient.organizationDao().selectByUuid(dbSession, uuid), "Organization not found for uuid '%s'", uuid);
-    } else {
-      return failIfEmpty(dbClient.organizationDao().selectByKey(dbSession, key), "Organization not found for key '%s'", key);
-    }
-  }
-
-  private static OrganizationDto failIfEmpty(Optional<OrganizationDto> organizationDto, String msg, Object argument) {
-    if (!organizationDto.isPresent()) {
-      throw new NotFoundException(format(msg, argument));
-    }
-    return organizationDto.get();
-  }
-
-  private void writeResponse(Request request, Response response, OrganizationDto dto) {
-    writeProtobuf(
-      Organizations.UpdateWsResponse.newBuilder().setOrganization(wsSupport.toOrganization(dto)).build(),
-      request,
-      response);
   }
 }
