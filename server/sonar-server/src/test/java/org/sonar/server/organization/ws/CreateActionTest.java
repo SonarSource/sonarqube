@@ -44,13 +44,13 @@ import org.sonarqube.ws.Organizations.Organization;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
+import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
   private static final String SOME_UUID = "uuid";
   private static final long SOME_DATE = 1_200_000L;
-  private static final String STRING_65_CHARS_LONG = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz1234567890-ab";
-  private static final String STRING_257_CHARS_LONG = String.format("%1$257.257s", "a").replace(" ", "a");
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -401,17 +401,11 @@ public class CreateActionTest {
 
   private static void populateRequest(@Nullable String name, @Nullable String key, @Nullable String description, @Nullable String url, @Nullable String avatar,
     TestRequest request) {
-    setParam(request, "name", name);
-    setParam(request, "key", key);
-    setParam(request, "description", description);
-    setParam(request, "url", url);
-    setParam(request, "avatar", avatar);
-  }
-
-  private static void setParam(TestRequest request, String param, @Nullable String value) {
-    if (value != null) {
-      request.setParam(param, value);
-    }
+    OrganizationsWsTestSupport.setParam(request, "name", name);
+    OrganizationsWsTestSupport.setParam(request, "key", key);
+    OrganizationsWsTestSupport.setParam(request, "description", description);
+    OrganizationsWsTestSupport.setParam(request, "url", url);
+    OrganizationsWsTestSupport.setParam(request, "avatar", avatar);
   }
 
   private void verifyResponseAndDb(CreateWsResponse response,

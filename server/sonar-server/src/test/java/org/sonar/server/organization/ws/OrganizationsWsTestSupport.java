@@ -19,19 +19,17 @@
  */
 package org.sonar.server.organization.ws;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.Nullable;
+import org.sonar.server.ws.TestRequest;
 
-public class OrganizationsWsModule extends Module {
+public class OrganizationsWsTestSupport {
 
-  @Override
-  protected void configureModule() {
-    add(
-      OrganizationsWs.class,
-      OrganizationsWsSupport.class,
-      // actions
-      CreateAction.class,
-      SearchAction.class,
-      UpdateAction.class);
+  static final String STRING_65_CHARS_LONG = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz1234567890-ab";
+  static final String STRING_257_CHARS_LONG = String.format("%1$257.257s", "a").replace(" ", "a");
+
+  static void setParam(TestRequest request, String param, @Nullable String value) {
+    if (value != null) {
+      request.setParam(param, value);
+    }
   }
-
 }

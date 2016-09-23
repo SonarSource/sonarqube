@@ -36,19 +36,16 @@ import org.sonarqube.ws.Organizations.CreateWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.min;
 import static org.sonar.core.util.Slug.slugify;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.KEY_MAX_LENGTH;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.KEY_MIN_LENGTH;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_AVATAR_URL;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_DESCRIPTION;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_URL;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements OrganizationsAction {
   private static final String ACTION = "create";
-  private static final String PARAM_NAME = "name";
-  private static final String PARAM_KEY = "key";
-  private static final String PARAM_DESCRIPTION = "description";
-  private static final String PARAM_URL = "url";
-  private static final String PARAM_AVATAR_URL = "avatar";
-  private static final int NAME_MIN_LENGTH = 2;
-  private static final int NAME_MAX_LENGTH = 64;
-  private static final int KEY_MIN_LENGTH = 2;
-  private static final int KEY_MAX_LENGTH = 32;
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -74,12 +71,6 @@ public class CreateAction implements OrganizationsAction {
       .setSince("6.2")
       .setHandler(this);
 
-    action.createParam(PARAM_NAME)
-      .setRequired(true)
-      .setDescription("Name of the organization. <br />" +
-        "It must be between 2 and 64 chars longs.")
-      .setExampleValue("Foo Company");
-
     action.createParam(PARAM_KEY)
       .setRequired(false)
       .setDescription("Key of the organization. <br />" +
@@ -88,32 +79,19 @@ public class CreateAction implements OrganizationsAction {
         "Otherwise, it must be between 2 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
       .setExampleValue("foo-company");
 
-    action.createParam(PARAM_DESCRIPTION)
-      .setRequired(false)
-      .setDescription("Description of the organization.<br/> It must be less than 256 chars long.")
-      .setExampleValue("The Foo company produces quality software for Bar.");
-
-    action.createParam(PARAM_URL)
-      .setRequired(false)
-      .setDescription("URL of the organization.<br/> It must be less than 256 chars long.")
-      .setExampleValue("https://www.foo.com");
-
-    action.createParam(PARAM_AVATAR_URL)
-      .setRequired(false)
-      .setDescription("URL of the organization avatar.<br/> It must be less than 256 chars long.")
-      .setExampleValue("https://www.foo.com/foo.png");
+    wsSupport.addOrganizationDetailsParams(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    String name = getAndCheckName(request);
+    String name = wsSupport.getAndCheckName(request);
     String requestKey = getAndCheckKey(request);
     String key = useOrGenerateKey(requestKey, name);
-    checkParamMaxLength(request, PARAM_DESCRIPTION, 256);
-    checkParamMaxLength(request, PARAM_URL, 256);
-    checkParamMaxLength(request, PARAM_AVATAR_URL, 256);
+    wsSupport.getAndCheckDescription(request);
+    wsSupport.getAndCheckUrl(request);
+    wsSupport.getAndCheckAvatar(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkKeyIsNotUsed(dbSession, key, requestKey, name);
@@ -124,20 +102,6 @@ public class CreateAction implements OrganizationsAction {
 
       writeResponse(request, response, dto);
     }
-  }
-
-  private static void checkParamMaxLength(Request request, String key, int maxLength) {
-    String value = request.param(key);
-    if (value != null) {
-      checkArgument(value.length() <= maxLength, "%s '%s' must be at most %s chars long", key, value, maxLength);
-    }
-  }
-
-  private static String getAndCheckName(Request request) {
-    String name = request.mandatoryParam(PARAM_NAME);
-    checkArgument(name.length() >= NAME_MIN_LENGTH, "Name '%s' must be at least %s chars long", name, NAME_MIN_LENGTH);
-    checkArgument(name.length() <= NAME_MAX_LENGTH, "Name '%s' must be at most %s chars long", name, NAME_MAX_LENGTH);
-    return name;
   }
 
   @CheckForNull

@@ -19,10 +19,85 @@
  */
 package org.sonar.server.organization.ws;
 
+import javax.annotation.CheckForNull;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.Organizations;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
+/**
+ * Factorizes code and constants between Organization WS's actions.
+ */
 public class OrganizationsWsSupport {
+  static final String PARAM_ID = "id";
+  static final String PARAM_KEY = "key";
+  static final String PARAM_NAME = "name";
+  static final String PARAM_DESCRIPTION = "description";
+  static final String PARAM_URL = "url";
+  static final String PARAM_AVATAR_URL = "avatar";
+  static final int KEY_MIN_LENGTH = 2;
+  static final int KEY_MAX_LENGTH = 32;
+  static final int NAME_MIN_LENGTH = 2;
+  static final int NAME_MAX_LENGTH = 64;
+  static final int DESCRIPTION_MAX_LENGTH = 256;
+  static final int URL_MAX_LENGTH = 256;
+
+  String getAndCheckName(Request request) {
+    String name = request.mandatoryParam(PARAM_NAME);
+    checkArgument(name.length() >= NAME_MIN_LENGTH, "Name '%s' must be at least %s chars long", name, NAME_MIN_LENGTH);
+    checkArgument(name.length() <= NAME_MAX_LENGTH, "Name '%s' must be at most %s chars long", name, NAME_MAX_LENGTH);
+    return name;
+  }
+
+  @CheckForNull
+  String getAndCheckAvatar(Request request) {
+    return getAndCheckParamMaxLength(request, PARAM_AVATAR_URL, URL_MAX_LENGTH);
+  }
+
+  @CheckForNull
+  String getAndCheckUrl(Request request) {
+    return getAndCheckParamMaxLength(request, PARAM_URL, URL_MAX_LENGTH);
+  }
+
+  @CheckForNull
+  String getAndCheckDescription(Request request) {
+    return getAndCheckParamMaxLength(request, PARAM_DESCRIPTION, DESCRIPTION_MAX_LENGTH);
+  }
+
+  @CheckForNull
+  private static String getAndCheckParamMaxLength(Request request, String key, int maxLength) {
+    String value = request.param(key);
+    if (value != null) {
+      checkArgument(value.length() <= maxLength, "%s '%s' must be at most %s chars long", key, value, maxLength);
+    }
+    return value;
+  }
+
+  void addOrganizationDetailsParams(WebService.NewAction action) {
+    action.createParam(PARAM_NAME)
+      .setRequired(true)
+      .setDescription("Name of the organization. <br />" +
+        "It must be between 2 and 64 chars longs.")
+      .setExampleValue("Foo Company");
+
+    action.createParam(PARAM_DESCRIPTION)
+      .setRequired(false)
+      .setDescription("Description of the organization.<br/> It must be less than 256 chars long.")
+      .setExampleValue("The Foo company produces quality software for Bar.");
+
+    action.createParam(PARAM_URL)
+      .setRequired(false)
+      .setDescription("URL of the organization.<br/> It must be less than 256 chars long.")
+      .setExampleValue("https://www.foo.com");
+
+    action.createParam(PARAM_AVATAR_URL)
+      .setRequired(false)
+      .setDescription("URL of the organization avatar.<br/> It must be less than 256 chars long.")
+      .setExampleValue("https://www.foo.com/foo.png");
+  }
+
   Organizations.Organization toOrganization(OrganizationDto dto) {
     return toOrganization(Organizations.Organization.newBuilder(), dto);
   }

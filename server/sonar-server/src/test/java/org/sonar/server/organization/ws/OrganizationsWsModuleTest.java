@@ -34,7 +34,7 @@ public class OrganizationsWsModuleTest {
   public void verify_component_count() {
     ComponentContainer container = new ComponentContainer();
     underTest.configure(container);
-    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(CONTAINER_ITSELF + PROPERTY_DEFINITION + 4);
+    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(CONTAINER_ITSELF + PROPERTY_DEFINITION + 5);
   }
 
 }

@@ -29,6 +29,11 @@ message CreateWsResponse {
   optional Organization organization = 1;
 }
 
+// WS api/organizations/update
+message UpdateWsResponse {
+  optional Organization organization = 1;
+}
+
 // WS api/organizations/search
 message SearchWsResponse {
   repeated Organization organizations = 1;
