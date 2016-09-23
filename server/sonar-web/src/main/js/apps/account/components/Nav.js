@@ -18,47 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexLink } from 'react-router';
-
-import UserCard from './UserCard';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-const Nav = ({ user }) => (
-    <header className="account-header">
-      <UserCard user={user}/>
-
-      <nav className="account-nav clearfix">
-        <ul className="nav navbar-nav nav-tabs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              <i className="icon-home"/>
-            </IndexLink>
-          </li>
-          <li>
-            <a
-                className={window.location.pathname === `${window.baseUrl}/account/issues` && 'active'}
-                href={`${window.baseUrl}/account/issues`}>
-              {translate('issues.page')}
-            </a>
-          </li>
-          <li>
-            <IndexLink to="projects" activeClassName="active">
-              {translate('my_account.projects')}
-            </IndexLink>
-          </li>
-          <li>
-            <IndexLink to="notifications" activeClassName="active">
-              {translate('my_account.notifications')}
-            </IndexLink>
-          </li>
-          <li>
-            <IndexLink to="security" activeClassName="active">
-              {translate('my_account.security')}
-            </IndexLink>
-          </li>
-        </ul>
-      </nav>
-    </header>
+const Nav = () => (
+    <nav className="account-nav clearfix">
+      <ul className="nav navbar-nav nav-tabs">
+        <li>
+          <Link to="/account/profile/" activeClassName="active">
+            {translate('my_account.profile')}
+          </Link>
+        </li>
+        <li>
+          <Link to="/account/security/" activeClassName="active">
+            {translate('my_account.security')}
+          </Link>
+        </li>
+        <li>
+          <Link to="/account/notifications/" activeClassName="active">
+            {translate('my_account.notifications')}
+          </Link>
+        </li>
+        <li>
+          <Link to="/account/projects/" activeClassName="active">
+            {translate('my_account.projects')}
+          </Link>
+        </li>
+      </ul>
+    </nav>
 );
 
 export default Nav;

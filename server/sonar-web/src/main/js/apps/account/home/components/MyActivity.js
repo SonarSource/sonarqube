@@ -18,40 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
-import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import IssuesActivity from './IssuesActivity';
+import FavoriteProjects from './FavoriteProjects';
 
-class Security extends React.Component {
+export default class MyActivity extends React.Component {
+  static propTypes = {
+    currentUser: React.PropTypes.object
+  };
+
   render () {
-    const { user } = this.props;
-
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
+    const { currentUser } = this.props;
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
+        <div id="my-activity-page">
 
-          <Tokens user={user}/>
+          {currentUser == null ? (
 
-          {user.local && (
-              <hr className="account-separator"/>
+              <div className="account-body text-center">
+                <i className="spinner"/>
+              </div>
+
+          ) : (
+
+              <div className="account-body">
+                <IssuesActivity/>
+                <FavoriteProjects/>
+              </div>
+
           )}
 
-          {user.local && (
-              <Password user={user}/>
-          )}
         </div>
     );
   }
 }
-
-export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Security);

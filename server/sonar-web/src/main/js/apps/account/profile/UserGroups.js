@@ -18,40 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import Password from './Password';
-import Tokens from './Tokens';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../app/store/rootReducer';
 
-class Security extends React.Component {
+export default class UserGroups extends React.Component {
+  static propTypes = {
+    groups: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+  };
+
   render () {
-    const { user } = this.props;
-
-    const title = translate('my_account.page') + ' - ' +
-        translate('my_account.security');
+    const { groups } = this.props;
 
     return (
-        <div className="account-body account-container">
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
-
-          <Tokens user={user}/>
-
-          {user.local && (
-              <hr className="account-separator"/>
-          )}
-
-          {user.local && (
-              <Password user={user}/>
-          )}
+        <div>
+          <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+          <ul id="groups">
+            {groups.map(group => (
+                <li key={group} className="little-spacer-bottom" title={group}>
+                  {group}
+                </li>
+            ))}
+          </ul>
         </div>
     );
   }
 }
-
-export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Security);

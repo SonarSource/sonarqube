@@ -17,27 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexLink } from 'react-router';
-import Avatar from '../../../components/ui/Avatar';
+import { RECEIVE_ISSUES_ACTIVITY } from './actions';
 
-export default class UserCard extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { user } = this.props;
-
-    return (
-        <div className="account-user">
-          <IndexLink to="/account/">
-            <div id="avatar" className="pull-left account-user-avatar">
-              <Avatar email={user.email} size={60}/>
-            </div>
-            <h1 id="name" className="pull-left">{user.name}</h1>
-          </IndexLink>
-        </div>
-    );
+const reducer = (state = null, action = {}) => {
+  if (action.type === RECEIVE_ISSUES_ACTIVITY) {
+    return { all: action.all, recent: action.recent };
   }
-}
+
+  return state;
+};
+
+export default reducer;
+
+export const getIssuesActivity = state => state;

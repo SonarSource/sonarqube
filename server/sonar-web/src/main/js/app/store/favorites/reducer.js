@@ -17,35 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { Component } from 'react';
-import Helmet from 'react-helmet';
+import { combineReducers } from 'redux';
+import keyBy from 'lodash/keyBy';
+import { RECEIVE_FAVORITES } from './actions';
 
-import IssuesApp from '../issues-app';
-import { translate } from '../../../helpers/l10n';
-
-export default class Issues extends Component {
-  componentDidMount () {
-    this.issuesApp = IssuesApp;
-    this.issuesApp.start({
-      el: this.refs.container
-    });
+const favoritesByKey = (state = {}, action = {}) => {
+  if (action.type === RECEIVE_FAVORITES) {
+    const byKey = keyBy(action.favorites, 'key');
+    return { ...state, ...byKey };
   }
 
-  componentWillUnmount () {
-    this.issuesApp.stop();
+  return state;
+};
+
+const favoriteKeys = (state = null, action = {}) => {
+  if (action.type === RECEIVE_FAVORITES) {
+    return action.favorites.map(f => f.key);
   }
 
-  render () {
-    const title = translate('my_account.page') + ' - ' +
-        translate('issues.page');
+  return state;
+};
 
-    return (
-        <div>
-          <Helmet
-              title={title}
-              titleTemplate="SonarQube - %s"/>
-          <div ref="container"></div>
-        </div>
-    );
-  }
-}
+export default combineReducers({ favoritesByKey, favoriteKeys });
+
+export const getFavorites = state => (
+    state.favoriteKeys ?
+        state.favoriteKeys.map(key => state.favoritesByKey[key]) :
+        null
+);

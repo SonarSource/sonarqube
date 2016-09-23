@@ -27,11 +27,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import pageobjects.MyActivityPage;
+import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -40,6 +46,9 @@ public class MyAccountPageTest {
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   @BeforeClass
   public static void setUp() {
@@ -58,6 +67,20 @@ public class MyAccountPageTest {
   }
 
   @Test
+  public void should_open_by_default() {
+    nav.logIn().asAdmin().openHomepage();
+    assertThat(url()).contains("/account");
+  }
+
+  @Test
+  public void should_display_activity () {
+    MyActivityPage page = nav.logIn().asAdmin().openMyActivity();
+    page.getAllIssues().shouldBe(visible);
+    page.getRecentIssues().shouldBe(visible);
+    page.assertNoFavoriteProjects();
+  }
+
+  @Test
   public void should_display_user_details() throws Exception {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_user_details",
       "/user/MyAccountPageTest/should_display_user_details.html"
@@ -69,14 +92,6 @@ public class MyAccountPageTest {
   public void should_change_password() throws Exception {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_change_password",
       "/user/MyAccountPageTest/should_change_password.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  @Test
-  public void should_display_issues() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_issues",
-      "/user/MyAccountPageTest/should_display_issues.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

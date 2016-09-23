@@ -33,7 +33,6 @@ export default class ProjectsContainer extends React.Component {
   componentWillMount () {
     this.loadMore = this.loadMore.bind(this);
     this.search = this.search.bind(this);
-    document.querySelector('html').classList.add('dashboard-page');
   }
 
   componentDidMount () {
@@ -43,7 +42,6 @@ export default class ProjectsContainer extends React.Component {
 
   componentWillUnmount () {
     this.mounted = false;
-    document.querySelector('html').classList.remove('dashboard-page');
   }
 
   loadProjects (page = this.state.page, query = this.state.query) {
@@ -89,7 +87,7 @@ export default class ProjectsContainer extends React.Component {
         translate('my_account.projects');
 
     return (
-        <div>
+        <div className="account-body account-container">
           <Helmet
               title={title}
               titleTemplate="SonarQube - %s"/>

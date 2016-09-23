@@ -66,7 +66,7 @@ export default function ProjectNotifications ({ notifications, channels, onAddPr
                 onRemoveProject={onRemoveProject}/>
         ))}
 
-        <div className="huge-spacer-top panel bg-muted">
+        <div className="spacer-top panel bg-muted">
           <span className="text-middle spacer-right">
             Set notifications for:
           </span>

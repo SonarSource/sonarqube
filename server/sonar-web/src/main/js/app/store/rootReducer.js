@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexLink } from 'react-router';
-import Avatar from '../../../components/ui/Avatar';
+import { combineReducers } from 'redux';
+import users, * as fromUsers from './users/reducer';
+import favorites, * as fromFavorites from './favorites/reducer';
+import measures, * as fromMeasures from './measures/reducer';
 
-export default class UserCard extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object.isRequired
-  };
+import issuesActivity, * as fromIssuesActivity from '../../apps/account/home/store/reducer';
 
-  render () {
-    const { user } = this.props;
+export default combineReducers({ users, favorites, issuesActivity, measures });
 
-    return (
-        <div className="account-user">
-          <IndexLink to="/account/">
-            <div id="avatar" className="pull-left account-user-avatar">
-              <Avatar email={user.email} size={60}/>
-            </div>
-            <h1 id="name" className="pull-left">{user.name}</h1>
-          </IndexLink>
-        </div>
-    );
-  }
-}
+export const getCurrentUser = state => (
+    fromUsers.getCurrentUser(state.users)
+);
+
+export const getFavorites = state => (
+    fromFavorites.getFavorites(state.favorites)
+);
+
+export const getIssuesActivity = state => (
+    fromIssuesActivity.getIssuesActivity(state.issuesActivity)
+);
+
+export const getComponentMeasure = (state, componentKey, metricKey) => (
+    fromMeasures.getComponentMeasure(state.measures, componentKey, metricKey)
+);

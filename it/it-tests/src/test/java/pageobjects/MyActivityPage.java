@@ -17,27 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexLink } from 'react-router';
-import Avatar from '../../../components/ui/Avatar';
+package pageobjects;
 
-export default class UserCard extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object.isRequired
-  };
+import com.codeborne.selenide.SelenideElement;
 
-  render () {
-    const { user } = this.props;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 
-    return (
-        <div className="account-user">
-          <IndexLink to="/account/">
-            <div id="avatar" className="pull-left account-user-avatar">
-              <Avatar email={user.email} size={60}/>
-            </div>
-            <h1 id="name" className="pull-left">{user.name}</h1>
-          </IndexLink>
-        </div>
-    );
+public class MyActivityPage {
+
+  public MyActivityPage() {
+    $("#my-activity-page").shouldBe(visible);
+  }
+
+  public SelenideElement getRecentIssues() {
+    return $("#recent-issues");
+  }
+
+  public SelenideElement getAllIssues() {
+    return $("#all-issues");
+  }
+
+  public SelenideElement getFavoriteProjects() {
+    return $("#favorite-projects");
+  }
+
+  public void assertNoFavoriteProjects() {
+    $("#no-favorite-projects").shouldBe(visible);
   }
 }

@@ -17,27 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { IndexLink } from 'react-router';
-import Avatar from '../../../components/ui/Avatar';
+export const RECEIVE_FAVORITES = 'RECEIVE_FAVORITES';
 
-export default class UserCard extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object.isRequired
-  };
-
-  render () {
-    const { user } = this.props;
-
-    return (
-        <div className="account-user">
-          <IndexLink to="/account/">
-            <div id="avatar" className="pull-left account-user-avatar">
-              <Avatar email={user.email} size={60}/>
-            </div>
-            <h1 id="name" className="pull-left">{user.name}</h1>
-          </IndexLink>
-        </div>
-    );
-  }
-}
+export const receiveFavorites = favorites => ({
+  type: RECEIVE_FAVORITES,
+  favorites
+});

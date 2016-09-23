@@ -19,33 +19,31 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect, useRouterHistory } from 'react-router';
+import { Router, Route, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
-import AccountApp from './components/AccountApp';
-import Home from './components/Home';
-import NotificationsContainer from './components/NotificationsContainer';
-import Security from './components/Security';
-import Issues from './components/Issues';
-import ProjectsContainer from './projects/ProjectsContainer';
+import { Provider } from 'react-redux';
+import App from './components/App';
+import accountRoutes from '../apps/account/routes';
+import configureStore from '../components/store/configureStore';
+import rootReducer from './store/rootReducer';
+import './styles.css';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
   const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/account'
+    basename: window.baseUrl + '/'
   });
 
-  render((
-      <Router history={history}>
-        <Route path="/" component={AccountApp}>
-          <IndexRoute component={Home}/>
-          <Route path="issues" component={Issues}/>
-          <Route path="notifications" component={NotificationsContainer}/>
-          <Route path="security" component={Security}/>
-          <Route path="projects" component={ProjectsContainer}/>
+  const store = configureStore(rootReducer);
 
-          <Redirect from="/index" to="/"/>
-        </Route>
-      </Router>
+  render((
+      <Provider store={store}>
+        <Router history={history}>
+          <Route path="/" component={App}>
+            {accountRoutes}
+          </Route>
+        </Router>
+      </Provider>
   ), el);
 });

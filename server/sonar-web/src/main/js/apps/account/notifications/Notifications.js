@@ -27,32 +27,30 @@ const Notifications = ({ globalNotifications, projectNotifications, onAddProject
   const channels = globalNotifications[0].channels.map(c => c.id);
 
   return (
-      <div className="page page-limited">
+      <div>
         <p className="big-spacer-bottom">
           {translate('notification.dispatcher.information')}
         </p>
         <form id="notif_form" method="post" action={`${window.baseUrl}/account/update_notifications`}>
-          <div className="columns columns-overflow-visible">
-            <div className="column-half">
-              <GlobalNotifications
-                  notifications={globalNotifications}
-                  channels={channels}/>
-            </div>
+          <GlobalNotifications
+              notifications={globalNotifications}
+              channels={channels}/>
 
-            <div className="column-half">
-              <ProjectNotifications
-                  notifications={projectNotifications}
-                  channels={channels}
-                  onAddProject={onAddProject}
-                  onRemoveProject={onRemoveProject}/>
-            </div>
-          </div>
+          <hr className="account-separator"/>
 
-          <p className="big-spacer-top panel panel-vertical bordered-top text-right">
+          <ProjectNotifications
+              notifications={projectNotifications}
+              channels={channels}
+              onAddProject={onAddProject}
+              onRemoveProject={onRemoveProject}/>
+
+          <hr className="account-separator"/>
+
+          <div className="text-center">
             <button id="submit-notifications" type="submit">
               {translate('my_profile.notifications.submit')}
             </button>
-          </p>
+          </div>
         </form>
       </div>
   );
