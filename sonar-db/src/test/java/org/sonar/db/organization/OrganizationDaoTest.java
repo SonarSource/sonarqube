@@ -298,6 +298,78 @@ public class OrganizationDaoTest {
     underTest.update(dbSession, copyOf(ORGANIZATION_DTO).setName(null));
   }
 
+  @Test
+  public void deleteByUuid_does_not_fail_on_empty_table() {
+    assertThat(underTest.deleteByUuid(dbSession, "uuid")).isEqualTo(0);
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByUuid_does_not_fail_on_non_existing_row() {
+    insertOrganization(ORGANIZATION_DTO);
+
+    assertThat(underTest.deleteByUuid(dbSession, "uuid")).isEqualTo(0);
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByUuid_deletes_row_with_specified_uuid() {
+    insertOrganization(ORGANIZATION_DTO);
+    String anotherUuid = "uuid";
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid(anotherUuid).setKey("key"));
+
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(2);
+    assertThat(underTest.deleteByUuid(dbSession, anotherUuid)).isEqualTo(1);
+    dbSession.commit();
+
+    assertThat(underTest.selectByUuid(dbSession, anotherUuid)).isEmpty();
+    assertThat(underTest.selectByUuid(dbSession, ORGANIZATION_DTO.getUuid())).isNotEmpty();
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(1);
+
+    assertThat(underTest.deleteByUuid(dbSession, anotherUuid)).isEqualTo(0);
+    assertThat(underTest.deleteByUuid(dbSession, ORGANIZATION_DTO.getUuid())).isEqualTo(1);
+    dbSession.commit();
+
+    assertThat(underTest.selectByUuid(dbSession, ORGANIZATION_DTO.getUuid())).isEmpty();
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteByKey_does_not_fail_on_empty_table() {
+    assertThat(underTest.deleteByKey(dbSession, "key")).isEqualTo(0);
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByKey_does_not_fail_on_non_existing_row() {
+    insertOrganization(ORGANIZATION_DTO);
+
+    assertThat(underTest.deleteByKey(dbSession, "key")).isEqualTo(0);
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByUuid_deletes_row_with_specified_key() {
+    insertOrganization(ORGANIZATION_DTO);
+    String anotherKey = "key";
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid").setKey(anotherKey));
+
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(2);
+    assertThat(underTest.deleteByKey(dbSession, anotherKey)).isEqualTo(1);
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, anotherKey)).isEmpty();
+    assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO.getKey())).isNotEmpty();
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(1);
+
+    assertThat(underTest.deleteByKey(dbSession, anotherKey)).isEqualTo(0);
+    assertThat(underTest.deleteByKey(dbSession, ORGANIZATION_DTO.getKey())).isEqualTo(1);
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO.getKey())).isEmpty();
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(0);
+  }
+
   private void expectDtoCanNotBeNull() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("OrganizationDto can't be null");

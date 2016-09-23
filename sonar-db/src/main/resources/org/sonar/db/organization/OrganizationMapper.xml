@@ -12,7 +12,7 @@
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
   </sql>
-
+  
   <select id="selectByUuid" resultType="Organization">
     select
       <include refid="selectColumns"/>
@@ -102,4 +102,16 @@
     where
       uuid = #{organization.uuid}
   </update>
+
+  <delete id="deleteByUuid">
+    delete from organizations
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByKey">
+    delete from organizations
+    where
+      kee = #{key, jdbcType=VARCHAR}
+  </delete>
 </mapper>
