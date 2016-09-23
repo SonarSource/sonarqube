@@ -26,11 +26,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
 import util.user.UserRule;
-
-import static util.ItUtils.newAdminWsClient;
 
 public class SystemAdminPermissionTest {
 
@@ -44,11 +40,7 @@ public class SystemAdminPermissionTest {
   public static void setUpUsers() {
     orchestrator.resetData();
 
-    PermissionsService permissionsWsClient = newAdminWsClient(orchestrator).permissions();
-
     userRule.createUser("can_share", "password");
-    permissionsWsClient.addUser(new AddUserWsRequest().setLogin("can_share").setPermission("shareDashboard"));
-
     userRule.createUser("cannot_share", "password");
   }
 
@@ -77,8 +69,7 @@ public class SystemAdminPermissionTest {
   @Test
   public void should_change_ownership_of_shared_global_dashboard() throws Exception {
     seleniumSuite("change-global-dashboard-ownership",
-      "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner.html",
-      "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner-failure.html");
+      "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner.html");
   }
 
   private void seleniumSuite(String suiteName, String... tests) {
