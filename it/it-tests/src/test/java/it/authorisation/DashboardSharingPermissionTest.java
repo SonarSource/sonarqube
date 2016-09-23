@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import util.user.UserRule;
 
@@ -43,7 +42,6 @@ public class DashboardSharingPermissionTest {
 
   static String DASHBOARD_USER = "dashboard_user";
   static String CAN_SHARE_DASHBOARDS = "can_share_dashboards";
-  static String CANNOT_SHARE_DASHBOARDS = "cannot_share_dashboards";
 
   static PermissionsService permissionsWsClient;
 
@@ -55,12 +53,6 @@ public class DashboardSharingPermissionTest {
 
     userRule.createUser(DASHBOARD_USER, "password");
     userRule.createUser(CAN_SHARE_DASHBOARDS, "password");
-    userRule.createUser(CANNOT_SHARE_DASHBOARDS, "password");
-
-    permissionsWsClient.addUser(new AddUserWsRequest()
-      .setLogin(CAN_SHARE_DASHBOARDS)
-      .setPermission("shareDashboard")
-      );
   }
 
   @AfterClass
@@ -79,8 +71,7 @@ public class DashboardSharingPermissionTest {
   @Test
   public void share_global_dashboard() throws Exception {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("global-dashboard-sharing-permission",
-      "/authorisation/DashboardSharingPermissionTest/global-dashboard-sharing-allowed.html",
-      "/authorisation/DashboardSharingPermissionTest/global-dashboard-sharing-denied.html")
+      "/authorisation/DashboardSharingPermissionTest/global-dashboard-sharing-allowed.html")
       .build();
     orchestrator.executeSelenese(selenese);
   }
