@@ -34,6 +34,7 @@ import it.analysis.SSLTest;
 import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
+import it.organization.OrganizationIt;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -58,7 +59,9 @@ import static util.ItUtils.xooPlugin;
   ReportDumpTest.class,
   SSLTest.class,
   // measures
-  DecimalScaleMetricTest.class
+  DecimalScaleMetricTest.class,
+  // organization
+  OrganizationIt.class
 })
 public class Category3Suite {
 
