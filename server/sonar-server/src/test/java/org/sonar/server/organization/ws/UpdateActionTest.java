@@ -49,15 +49,16 @@ public class UpdateActionTest {
   private static final String SOME_KEY = "key";
   private static final long SOME_DATE = 1_200_000L;
 
+  private System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = mock(System2.class);
-  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(), dbTester.getDbClient(), system2);
+  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(), dbTester.getDbClient());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -390,15 +391,14 @@ public class UpdateActionTest {
   }
 
   private OrganizationDto insertOrganization(String uuid) {
+    when(system2.now()).thenReturn((long) uuid.hashCode());
     OrganizationDto dto = new OrganizationDto()
       .setUuid(uuid)
       .setKey(uuid + "_key")
       .setName(uuid + "_name")
       .setDescription(uuid + "_description")
       .setUrl(uuid + "_url")
-      .setAvatarUrl(uuid + "_avatar_url")
-      .setCreatedAt((long) uuid.hashCode())
-      .setUpdatedAt((long) uuid.hashCode());
+      .setAvatarUrl(uuid + "_avatar_url");
     dbTester.getDbClient().organizationDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
     return dto;

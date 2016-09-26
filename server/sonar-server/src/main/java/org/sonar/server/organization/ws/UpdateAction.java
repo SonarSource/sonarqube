@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -45,13 +44,11 @@ public class UpdateAction implements OrganizationsAction {
   private final UserSession userSession;
   private final OrganizationsWsSupport wsSupport;
   private final DbClient dbClient;
-  private final System2 system2;
 
-  public UpdateAction(UserSession userSession, OrganizationsWsSupport wsSupport, DbClient dbClient, System2 system2) {
+  public UpdateAction(UserSession userSession, OrganizationsWsSupport wsSupport, DbClient dbClient) {
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.dbClient = dbClient;
-    this.system2 = system2;
   }
 
   @Override
@@ -97,8 +94,7 @@ public class UpdateAction implements OrganizationsAction {
       dto.setName(name)
         .setDescription(description)
         .setUrl(url)
-        .setAvatarUrl(avatar)
-        .setUpdatedAt(system2.now());
+        .setAvatarUrl(avatar);
       dbClient.organizationDao().update(dbSession, dto);
       dbSession.commit();
 

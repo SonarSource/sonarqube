@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -50,14 +49,12 @@ public class CreateAction implements OrganizationsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
-  private final System2 system2;
   private final OrganizationsWsSupport wsSupport;
 
-  public CreateAction(UserSession userSession, DbClient dbClient, UuidFactory uuidFactory, System2 system2, OrganizationsWsSupport wsSupport) {
+  public CreateAction(UserSession userSession, DbClient dbClient, UuidFactory uuidFactory, OrganizationsWsSupport wsSupport) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
-    this.system2 = system2;
     this.wsSupport = wsSupport;
   }
 
@@ -96,7 +93,7 @@ public class CreateAction implements OrganizationsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkKeyIsNotUsed(dbSession, key, requestKey, name);
 
-      OrganizationDto dto = createOrganizationDto(request, name, key, system2.now());
+      OrganizationDto dto = createOrganizationDto(request, name, key);
       dbClient.organizationDao().insert(dbSession, dto);
       dbSession.commit();
 
@@ -132,16 +129,14 @@ public class CreateAction implements OrganizationsAction {
     return dbClient.organizationDao().selectByKey(dbSession, key).isPresent();
   }
 
-  private OrganizationDto createOrganizationDto(Request request, String name, String key, long now) {
+  private OrganizationDto createOrganizationDto(Request request, String name, String key) {
     return new OrganizationDto()
       .setUuid(uuidFactory.create())
       .setName(name)
       .setKey(key)
       .setDescription(request.param(PARAM_DESCRIPTION))
       .setUrl(request.param(PARAM_URL))
-      .setAvatarUrl(request.param(PARAM_AVATAR_URL))
-      .setCreatedAt(now)
-      .setUpdatedAt(now);
+      .setAvatarUrl(request.param(PARAM_AVATAR_URL));
   }
 
   private void writeResponse(Request request, Response response, OrganizationDto dto) {

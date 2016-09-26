@@ -35,20 +35,26 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OrganizationDaoTest {
+  private static final long SOME_DATE = 1_200_999L;
+  private static final long DATE_1 = 1_999_000L;
+  private static final long DATE_2 = 8_999_999L;
+  private static final long DATE_3 = 3_999_000L;
   private static final OrganizationDto ORGANIZATION_DTO = new OrganizationDto()
     .setUuid("a uuid")
     .setKey("the_key")
     .setName("the name")
     .setDescription("the description")
     .setUrl("the url")
-    .setAvatarUrl("the avatar url")
-    .setCreatedAt(1_999_000L)
-    .setUpdatedAt(1_888_000L);
+    .setAvatarUrl("the avatar url");
+
+  private System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(system2);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -62,6 +68,18 @@ public class OrganizationDaoTest {
     expectDtoCanNotBeNull();
 
     underTest.insert(dbSession, null);
+  }
+
+  @Test
+  public void insert_populates_createdAt_and_updateAt_with_same_date_from_System2() {
+    when(system2.now()).thenReturn(DATE_1, DATE_1 + 1_000_000L);
+    insertOrganization(copyOf(ORGANIZATION_DTO)
+      .setCreatedAt(1_000L)
+      .setUpdatedAt(6_000L));
+
+    Map<String, Object> row = selectSingleRow();
+    assertThat(row.get("createdAt")).isEqualTo(DATE_1);
+    assertThat(row.get("updatedAt")).isEqualTo(DATE_1);
   }
 
   @Test
@@ -81,6 +99,7 @@ public class OrganizationDaoTest {
 
   @Test
   public void description_url_and_avatarUrl_are_optional() {
+    when(system2.now()).thenReturn(SOME_DATE);
     insertOrganization(copyOf(ORGANIZATION_DTO).setDescription(null).setUrl(null).setAvatarUrl(null));
 
     Map<String, Object> row = selectSingleRow();
@@ -90,8 +109,8 @@ public class OrganizationDaoTest {
     assertThat(row.get("description")).isNull();
     assertThat(row.get("url")).isNull();
     assertThat(row.get("avatarUrl")).isNull();
-    assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO.getCreatedAt());
-    assertThat(row.get("updatedAt")).isEqualTo(ORGANIZATION_DTO.getUpdatedAt());
+    assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
+    assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
   }
 
   @Test
@@ -196,11 +215,12 @@ public class OrganizationDaoTest {
   @Test
   public void selectByQuery_returns_rows_ordered_by_createdAt_descending_applying_requested_paging() {
     long time = 1_999_999L;
-    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid3").setKey("key-3").setCreatedAt(time));
-    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid1").setKey("key-1").setCreatedAt(time + 1_000));
-    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid2").setKey("key-2").setCreatedAt(time + 2_000));
-    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid5").setKey("key-5").setCreatedAt(time + 3_000));
-    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid4").setKey("key-4").setCreatedAt(time + 5_000));
+    when(system2.now()).thenReturn(time, time + 1_000, time + 2_000, time + 3_000, time + 5_000);
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid3").setKey("key-3"));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid1").setKey("key-1"));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid2").setKey("key-2"));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid5").setKey("key-5"));
+    insertOrganization(copyOf(ORGANIZATION_DTO).setUuid("uuid4").setKey("key-4"));
 
     assertThat(underTest.selectByQuery(dbSession, 0, 1))
       .extracting("uuid", "key")
@@ -264,9 +284,26 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void update_does_not_update_key_nor_createdAt() {
+  public void update_populates_updatedAt_with_date_from_System2() {
+    when(system2.now()).thenReturn(DATE_1);
     insertOrganization(ORGANIZATION_DTO);
 
+    when(system2.now()).thenReturn(DATE_2);
+    underTest.update(dbSession, copyOf(ORGANIZATION_DTO)
+      .setUpdatedAt(2_000L));
+    dbSession.commit();
+
+    Map<String, Object> row = selectSingleRow();
+    assertThat(row.get("createdAt")).isEqualTo(DATE_1);
+    assertThat(row.get("updatedAt")).isEqualTo(DATE_2);
+  }
+
+  @Test
+  public void update_does_not_update_key_nor_createdAt() {
+    when(system2.now()).thenReturn(DATE_1);
+    insertOrganization(ORGANIZATION_DTO);
+
+    when(system2.now()).thenReturn(DATE_3);
     underTest.update(dbSession, new OrganizationDto()
       .setUuid(ORGANIZATION_DTO.getUuid())
       .setKey("new key")
@@ -274,8 +311,8 @@ public class OrganizationDaoTest {
       .setDescription("new description")
       .setUrl("new url")
       .setAvatarUrl("new avatar url")
-      .setCreatedAt(2_999_000L)
-      .setUpdatedAt(3_999_000L));
+      .setCreatedAt(2_000L)
+      .setUpdatedAt(3_000L));
     dbSession.commit();
 
     Map<String, Object> row = selectSingleRow();
@@ -285,8 +322,8 @@ public class OrganizationDaoTest {
     assertThat(row.get("description")).isEqualTo("new description");
     assertThat(row.get("url")).isEqualTo("new url");
     assertThat(row.get("avatarUrl")).isEqualTo("new avatar url");
-    assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO.getCreatedAt());
-    assertThat(row.get("updatedAt")).isEqualTo(3_999_000L);
+    assertThat(row.get("createdAt")).isEqualTo(DATE_1);
+    assertThat(row.get("updatedAt")).isEqualTo(DATE_3);
   }
 
   @Test
@@ -409,8 +446,6 @@ public class OrganizationDaoTest {
       .setName(organizationDto.getName())
       .setDescription(organizationDto.getDescription())
       .setUrl(organizationDto.getUrl())
-      .setAvatarUrl(organizationDto.getAvatarUrl())
-      .setCreatedAt(organizationDto.getCreatedAt())
-      .setUpdatedAt(organizationDto.getUpdatedAt());
+      .setAvatarUrl(organizationDto.getAvatarUrl());
   }
 }

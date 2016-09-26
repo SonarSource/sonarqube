@@ -52,16 +52,17 @@ public class CreateActionTest {
   private static final String SOME_UUID = "uuid";
   private static final long SOME_DATE = 1_200_000L;
 
+  private System2 system2 = mock(System2.class);
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private System2 system2 = mock(System2.class);
-  private CreateAction underTest = new CreateAction(userSession, dbTester.getDbClient(), uuidFactory, system2, new OrganizationsWsSupport());
+  private CreateAction underTest = new CreateAction(userSession, dbTester.getDbClient(), uuidFactory, new OrganizationsWsSupport());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test

@@ -42,6 +42,8 @@ import org.sonarqube.ws.Organizations;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -54,9 +56,13 @@ public class SearchActionTest {
     .setAvatarUrl("the avatar url")
     .setCreatedAt(1_999_000L)
     .setUpdatedAt(1_888_000L);
+  public static final long SOME_DATE = 1_999_999L;
+
+
+  private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -86,24 +92,21 @@ public class SearchActionTest {
 
   @Test
   public void verify_response_example() throws URISyntaxException, IOException {
+    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1000);
     insertOrganization(new OrganizationDto()
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey("bar-company")
       .setName("Bar Company")
       .setDescription("The Bar company produces quality software too.")
       .setUrl("https://www.bar.com")
-      .setAvatarUrl("https://www.bar.com/logo.png")
-      .setCreatedAt(1_999_000L)
-      .setUpdatedAt(1_888_000L));
+      .setAvatarUrl("https://www.bar.com/logo.png"));
     insertOrganization(new OrganizationDto()
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey("foo-company")
       .setName("Foo Company")
       .setDescription("The Foo company produces quality software.")
       .setUrl("https://www.foo.com")
-      .setAvatarUrl("https://www.foo.com/foo.png")
-      .setCreatedAt(1_999_000L)
-      .setUpdatedAt(1_888_000L));
+      .setAvatarUrl("https://www.foo.com/foo.png"));
 
     String response = executeJsonRequest(null, null);
 
@@ -122,6 +125,7 @@ public class SearchActionTest {
 
   @Test
   public void request_returns_empty_on_table_with_single_row_when_not_requesting_the_first_page() {
+    when(system2.now()).thenReturn(SOME_DATE);
     insertOrganization(ORGANIZATION_DTO);
 
     assertThat(executeRequest(2, null)).isEmpty();
@@ -133,12 +137,12 @@ public class SearchActionTest {
 
   @Test
   public void request_returns_rows_ordered_by_createdAt_descending_applying_requested_paging() {
-    long time = 1_999_999L;
-    insertOrganization(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3").setCreatedAt(time));
-    insertOrganization(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1").setCreatedAt(time + 1_000));
-    insertOrganization(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2").setCreatedAt(time + 2_000));
-    insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5").setCreatedAt(time + 3_000));
-    insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4").setCreatedAt(time + 5_000));
+    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
     assertThat(executeRequest(1, 1))
       .extracting("id", "key")

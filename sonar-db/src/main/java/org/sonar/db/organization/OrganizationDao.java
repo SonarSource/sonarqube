@@ -21,6 +21,7 @@ package org.sonar.db.organization;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -28,8 +29,17 @@ import static java.util.Objects.requireNonNull;
 
 public class OrganizationDao implements Dao {
 
+  private final System2 system2;
+
+  public OrganizationDao(System2 system2) {
+    this.system2 = system2;
+  }
+
   public void insert(DbSession dbSession, OrganizationDto organization) {
     checkDto(organization);
+    long now = system2.now();
+    organization.setCreatedAt(now);
+    organization.setUpdatedAt(now);
     getMapper(dbSession).insert(organization);
   }
 
@@ -49,6 +59,7 @@ public class OrganizationDao implements Dao {
 
   public int update(DbSession dbSession, OrganizationDto organization) {
     checkDto(organization);
+    organization.setUpdatedAt(system2.now());
     return getMapper(dbSession).update(organization);
   }
 
