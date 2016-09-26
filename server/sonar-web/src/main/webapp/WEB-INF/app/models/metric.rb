@@ -244,21 +244,6 @@ class Metric < ActiveRecord::Base
     result.compact.uniq
   end
 
-  def self.ids_from_keys(keys_array)
-    keys_array.collect{ |key| Metric.by_name(key).id if Metric.by_name(key) }
-  end
-
-  def self.delete_with_manual_measures(id)
-    ManualMeasure.delete_all(["metric_id = ?", id])
-    self.deactivate(id)
-  end
-
-  def self.deactivate(id)
-    metric = by_id(id)
-    metric.enabled = false
-    metric.save!
-  end
-
   def to_hash_json(options={})
     return {'key' => name, 'name' => short_name, 'description' => description, 'domain' => domain,
       'qualitative' => qualitative, 'user_managed' => self.user_managed,

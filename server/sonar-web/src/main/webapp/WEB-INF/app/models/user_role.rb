@@ -18,21 +18,5 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class UserRole < ActiveRecord::Base
-  belongs_to :user
-  belongs_to :resource, :class_name => 'Project', :foreign_key => "resource_id"
 
-  def self.grant_users(user_ids, role, resource_id)
-    resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    if resource_id
-      UserRole.delete_all(["role=? and resource_id=?", role, resource_id])
-    else
-      UserRole.delete_all(["role=? and resource_id is null", role])
-    end
-
-    if user_ids
-      user_ids.compact.uniq.each do |user_id|
-        UserRole.create(:user_id => user_id, :role=> role, :resource_id => resource_id)
-      end
-    end
-  end  
 end

@@ -18,7 +18,6 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class ProjectRolesController < ApplicationController
-  helper RolesHelper
 
   SECTION=Navigation::SECTION_RESOURCE
 
