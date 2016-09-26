@@ -19,20 +19,4 @@
 #
 class GroupRole < ActiveRecord::Base
 
-  belongs_to :group
-  belongs_to :resource, :class_name => 'Project', :foreign_key => "resource_id"
-  
-  def self.grant_groups(group_ids, role, resource_id=nil)
-    resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    if resource_id
-      GroupRole.delete_all(["role=? and resource_id=?", role, resource_id])
-    else
-      GroupRole.delete_all(["role=? and resource_id is null", role])
-    end
-    if group_ids
-      group_ids.compact.uniq.each  do |group_id|
-        GroupRole.create(:group_id => group_id, :role => role, :resource_id => resource_id)
-      end
-    end
-  end  
 end

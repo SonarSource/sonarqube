@@ -110,7 +110,7 @@ class DefaultAuthorizer
         )
       end
     end
-    global_user_roles=user.user_roles.select{|ur| ur.resource_id.nil?}.map{|ur| ur.role.to_sym}
+    global_user_roles=UserRole.all(:select => 'role', :conditions => ["user_id=? and resource_id is null", user.id]).map{|ur| ur.role.to_sym}
 
     global_roles=(global_group_roles.concat(global_user_roles))
     global_roles

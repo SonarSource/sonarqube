@@ -25,7 +25,6 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :groups
 
-  has_many :user_roles, :dependent => :delete_all
   has_many :properties, :foreign_key => 'user_id', :dependent => :delete_all
   has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
   has_many :dashboards, :dependent => :destroy
@@ -81,15 +80,6 @@ class User < ActiveRecord::Base
 
   def email=(value)
     write_attribute :email, (value && value.downcase)
-  end
-
-  # SCM accounts should also contain login and email
-  def full_scm_accounts
-    new_scm_accounts = self.scm_accounts.split(/\r?\n/).reject { |c| c.empty? } if self.scm_accounts
-    new_scm_accounts = [] unless new_scm_accounts
-    new_scm_accounts << self.login
-    new_scm_accounts << self.email
-    new_scm_accounts
   end
 
   def <=>(other)

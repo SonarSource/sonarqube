@@ -23,8 +23,6 @@ class Project < ActiveRecord::Base
 
   has_many :events, :foreign_key => 'component_uuid', :primary_key => 'uuid', :order => 'event_date DESC'
   has_many :project_links, :foreign_key => 'component_uuid', :primary_key => 'uuid', :dependent => :delete_all, :order => 'link_type'
-  has_many :user_roles, :foreign_key => 'resource_id'
-  has_many :group_roles, :foreign_key => 'resource_id'
   has_many :manual_measures, :foreign_key => 'component_uuid', :primary_key => 'uuid'
   belongs_to :root, :class_name => 'Project', :foreign_key => 'root_uuid', :primary_key => 'uuid'
   belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_component_uuid', :primary_key => 'uuid'
@@ -47,13 +45,6 @@ class Project < ActiveRecord::Base
   def self.by_keys(keys)
     keys.map do |key|
       by_key(key)
-    end
-  end
-
-  def self.delete_resource_tree(project)
-    java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
-    if project && java_facade.getResourceTypeBooleanProperty(project.qualifier, 'deletable')
-      java_facade.deleteResourceTree(project.key)
     end
   end
 
