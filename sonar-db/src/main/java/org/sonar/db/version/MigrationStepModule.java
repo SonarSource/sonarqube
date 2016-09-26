@@ -159,6 +159,7 @@ import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
+import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 
 public class MigrationStepModule extends Module {
@@ -340,6 +341,7 @@ public class MigrationStepModule extends Module {
       CreateTableRuleRepositories.class,
 
       // 6.2
-      CreateTableOrganizations.class);
+      CreateTableOrganizations.class,
+      CreateDefaultOrganization.class);
   }
 }
