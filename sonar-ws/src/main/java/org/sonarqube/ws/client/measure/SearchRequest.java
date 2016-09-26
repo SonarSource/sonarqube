@@ -26,6 +26,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class SearchRequest {
+  public static final int MAX_NB_COMPONENTS = 100;
+
   private final List<String> metricKeys;
   private final List<String> componentIds;
   private final List<String> componentKeys;
@@ -89,7 +91,13 @@ public class SearchRequest {
       checkArgument(
         (componentIds != null && !componentIds.isEmpty())
           ^ (componentKeys != null && !componentKeys.isEmpty()),
-        "Either component ids or component keys must be provided, not both.");
+        "Either component ids or component keys must be provided, not both");
+      int nbComponents = componentIds == null ? componentKeys.size() : componentIds.size();
+      checkArgument((componentIds != null && componentIds.size() < MAX_NB_COMPONENTS)
+        || (componentKeys != null && componentKeys.size() < MAX_NB_COMPONENTS),
+        "%s components provided, more than maximum authorized (%s)",
+        nbComponents,
+        MAX_NB_COMPONENTS);
       return new SearchRequest(this);
     }
   }

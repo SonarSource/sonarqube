@@ -23,9 +23,12 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
@@ -37,11 +40,14 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsMeasures.Component;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -59,6 +65,8 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 
 public class SearchActionTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
@@ -112,6 +120,128 @@ public class SearchActionTest {
 
     assertThat(result.getComponentsCount()).isEqualTo(1);
     assertThat(result.getComponents(0).getId()).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void fail_if_no_metric() {
+    ComponentDto project = componentDb.insertProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'metricKeys' parameter is missing");
+
+    callByComponentUuids(singletonList(project.uuid()), null);
+  }
+
+  @Test
+  public void fail_if_empty_metric() {
+    ComponentDto project = componentDb.insertProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric keys must be provided");
+
+    callByComponentUuids(singletonList(project.uuid()), emptyList());
+  }
+
+  @Test
+  public void fail_if_unknown_metric() {
+    ComponentDto project = componentDb.insertProject();
+    insertComplexityMetric();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The following metrics are not found: ncloc, violations");
+
+    callByComponentUuids(singletonList(project.uuid()), newArrayList("violations", "complexity", "ncloc"));
+  }
+
+  @Test
+  public void fail_if_no_component() {
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
+
+    call(null, null, singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_empty_component_uuid() {
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
+
+    callByComponentUuids(emptyList(), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_empty_component_key() {
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
+
+    callByComponentKeys(emptyList(), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_unknown_component_uuid() {
+    insertComplexityMetric();
+    ComponentDto project = componentDb.insertProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The following component ids are not found: ANOTHER_PROJECT_ID, YOUR_PROJECT_ID");
+
+    callByComponentUuids(newArrayList("YOUR_PROJECT_ID", project.uuid(), "ANOTHER_PROJECT_ID"), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_unknown_component_key() {
+    insertComplexityMetric();
+    ComponentDto project = componentDb.insertProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The following component keys are not found: ANOTHER_PROJECT_KEY, YOUR_PROJECT_KEY");
+
+    callByComponentKeys(newArrayList("YOUR_PROJECT_KEY", project.key(), "ANOTHER_PROJECT_KEY"), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_component_id_and_key() {
+    ComponentDto project = componentDb.insertProject();
+    ComponentDto anotherProject = componentDb.insertProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
+
+    call(singletonList(project.uuid()), singletonList(anotherProject.key()), singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_more_than_100_component_id() {
+    List<String> uuids = IntStream.rangeClosed(1, 101)
+      .mapToObj(i -> componentDb.insertProject())
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toList());
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("101 components provided, more than maximum authorized (100)");
+
+    callByComponentUuids(uuids, singletonList("complexity"));
+  }
+
+  @Test
+  public void fail_if_more_than_100_component_key() {
+    List<String> keys = IntStream.rangeClosed(1, 101)
+      .mapToObj(i -> componentDb.insertProject())
+      .map(ComponentDto::key)
+      .collect(Collectors.toList());
+    insertComplexityMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("101 components provided, more than maximum authorized (100)");
+
+    callByComponentKeys(keys, singletonList("complexity"));
   }
 
   @Test

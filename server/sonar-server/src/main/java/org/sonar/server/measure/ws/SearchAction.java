@@ -21,8 +21,11 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.ImmutableMultimap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
@@ -52,11 +55,11 @@ import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class SearchAction implements MeasuresWsAction {
-  private static final int MAX_NB_COMPONENTS = 100;
   static final String PARAM_COMPONENT_IDS = "componentIds";
   static final String PARAM_COMPONENT_KEYS = "componentKeys";
 
@@ -79,7 +82,7 @@ public class SearchAction implements MeasuresWsAction {
         " <li>'Administer' rights on the provided components</li>" +
         " <li>'Browse' on the provided components</li>" +
         "</ul>",
-        MAX_NB_COMPONENTS, PARAM_COMPONENT_IDS, PARAM_COMPONENT_KEYS)
+        SearchRequest.MAX_NB_COMPONENTS, PARAM_COMPONENT_IDS, PARAM_COMPONENT_KEYS)
       .setSince("6.1")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
@@ -142,18 +145,26 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<MetricDto> searchMetrics() {
       requireNonNull(request);
-      return dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
+      List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
+      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
+      checkRequest(request.getMetricKeys().size() == dbMetrics.size(), "The following metrics are not found: %s",
+        String.join(", ", difference(request.getMetricKeys(), metricKeys)));
+      return dbMetrics;
     }
 
     private List<ComponentDto> searchComponents() {
       requireNonNull(request);
       if (request.hasComponentIds()) {
         List<ComponentDto> componentsByUuid = searchByComponentUuids(dbSession, request.getComponentIds());
-        checkArgument(componentsByUuid.size() == request.getComponentIds().size(), "Some components are not found in: '%s'", String.join(", ", request.getComponentIds()));
+        List<String> componentUuids = componentsByUuid.stream().map(ComponentDto::uuid).collect(Collectors.toList());
+        checkArgument(componentsByUuid.size() == request.getComponentIds().size(), "The following component ids are not found: %s",
+          String.join(", ", difference(request.getComponentIds(), componentUuids)));
         return componentsByUuid;
       } else {
         List<ComponentDto> componentsByKey = searchByComponentKeys(dbSession, request.getComponentKeys());
-        checkArgument(componentsByKey.size() == request.getComponentKeys().size(), "Some components are not found in: '%s'", String.join(", ", request.getComponentKeys()));
+        List<String> componentKeys = componentsByKey.stream().map(ComponentDto::key).collect(Collectors.toList());
+        checkArgument(componentsByKey.size() == request.getComponentKeys().size(), "The following component keys are not found: %s",
+          String.join(", ", difference(request.getComponentKeys(), componentKeys)));
         return componentsByKey;
       }
     }
@@ -174,6 +185,15 @@ public class SearchAction implements MeasuresWsAction {
         .setComponentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()))
         .setMetricIds(metrics.stream().map(MetricDto::getId).collect(Collectors.toList()))
         .build());
+    }
+
+    private List<String> difference(Collection<String> expected, Collection<String> actual) {
+      Set<String> actualSet = new HashSet<>(actual);
+
+      return expected.stream()
+        .filter(value -> !actualSet.contains(value))
+        .sorted(String::compareTo)
+        .collect(Collectors.toList());
     }
 
     private SearchWsResponse buildResponse() {

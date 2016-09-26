@@ -118,6 +118,6 @@ public class SearchRequestTest {
 
   private void expectExceptionOnComponents() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either component ids or component keys must be provided, not both.");
+    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
   }
 }
