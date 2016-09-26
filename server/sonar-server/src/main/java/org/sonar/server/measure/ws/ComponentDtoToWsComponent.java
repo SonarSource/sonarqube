@@ -49,6 +49,10 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
+  static WsMeasures.Component dbToWsComponent(ComponentDto dbComponent, Iterable<WsMeasures.Measure> measures) {
+    return componentDtoToWsComponent(dbComponent).addAllMeasures(measures).build();
+  }
+
   static WsMeasures.Component.Builder componentDtoToWsComponent(ComponentDto component) {
     WsMeasures.Component.Builder wsComponent = WsMeasures.Component.newBuilder()
       .setId(component.uuid())

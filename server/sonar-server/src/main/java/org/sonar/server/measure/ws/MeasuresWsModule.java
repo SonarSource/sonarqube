@@ -29,6 +29,7 @@ public class MeasuresWsModule extends Module {
       ComponentTreeDataLoader.class,
       MeasuresWs.class,
       ComponentTreeAction.class,
-      ComponentAction.class);
+      ComponentAction.class,
+      SearchAction.class);
   }
 }

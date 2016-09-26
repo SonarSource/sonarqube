@@ -1,0 +1,128 @@
+{
+  "components": [
+    {
+      "id": "AVIwDXE-bJbJqrw6wFv5",
+      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
+      "name": "ElementImpl.java",
+      "qualifier": "FIL",
+      "path": "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
+      "language": "java",
+      "measures": [
+        {
+          "metric": "complexity",
+          "value": "12"
+        },
+        {
+          "metric": "ncloc",
+          "value": "114"
+        },
+        {
+          "metric": "new_violations",
+          "periods": [
+            {
+              "index": 1,
+              "value": "25"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "25"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AVIwDXE_bJbJqrw6wFwJ",
+      "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
+      "name": "ElementImplTest.java",
+      "qualifier": "UTS",
+      "path": "src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
+      "language": "java",
+      "measures": []
+    },
+    {
+      "id": "project-id",
+      "key": "MY_PROJECT",
+      "name": "My Project",
+      "description": "My Project Description",
+      "qualifier": "TRK",
+      "measures": [
+        {
+          "metric": "complexity",
+          "value": "42"
+        },
+        {
+          "metric": "ncloc",
+          "value": "1984"
+        },
+        {
+          "metric": "new_violations",
+          "periods": [
+            {
+              "index": 1,
+              "value": "255"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "255"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AVIwDXE-bJbJqrw6wFv8",
+      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
+      "name": "src/main/java/com/sonarsource/markdown/impl",
+      "qualifier": "DIR",
+      "path": "src/main/java/com/sonarsource/markdown/impl",
+      "measures": [
+        {
+          "metric": "complexity",
+          "value": "35",
+          "periods": [
+            {
+              "index": 2,
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "metric": "ncloc",
+          "value": "217",
+          "periods": [
+            {
+              "index": 2,
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "metric": "new_violations",
+          "periods": [
+            {
+              "index": 1,
+              "value": "25"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "25"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

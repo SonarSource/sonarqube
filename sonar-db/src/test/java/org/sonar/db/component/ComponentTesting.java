@@ -100,6 +100,7 @@ public class ComponentTesting {
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
+      .setDescription("DESCRIPTION_" + uuid)
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.PROJECT)
       .setPath(null)

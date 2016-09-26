@@ -42,6 +42,11 @@ message ComponentWsResponse {
   optional Periods periods = 3;
 }
 
+// WS api/measures/search
+message SearchWsResponse {
+  repeated Component components = 1;
+}
+
 message Component {
   optional string id = 1;
   optional string key = 2;
