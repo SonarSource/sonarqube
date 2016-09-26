@@ -92,32 +92,10 @@ class User < ActiveRecord::Base
     new_scm_accounts
   end
 
-  def available_groups
-    Group.all - self.groups
-  end
-
-  def set_groups(new_groups=[])
-    self.groups.clear
-
-    new_groups=(new_groups || []).compact.uniq
-    self.groups = Group.find(new_groups)
-    save
-  end
-
   def <=>(other)
     return -1 if name.nil?
     return 1 if other.name.nil?
     name.downcase<=>other.name.downcase
-  end
-
-  # SONAR-3258
-  def reactivate!(default_group_name)
-    if default_group_name
-      default_group=Group.find_by_name(default_group_name)
-      self.groups<<default_group if default_group
-    end
-    self.active = true
-    save!
   end
 
   def self.find_active_by_login(login)

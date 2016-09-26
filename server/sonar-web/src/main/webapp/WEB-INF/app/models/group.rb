@@ -21,22 +21,10 @@ class Group < ActiveRecord::Base
 
   ANYONE = 'anyone'
 
-  has_and_belongs_to_many :users, :uniq => true
-  has_many :group_roles, :dependent => :delete_all
-  
-  validates_presence_of     :name
-  validates_length_of       :name,    :within => 1..255
-  validates_length_of       :description,    :maximum => 200, :allow_blank => true
-  validates_uniqueness_of   :name
-  validate       :name_cant_be_anyone
-
   def <=>(other)
     return -1 if name.nil?
     return 1 if other.nil? || other.name.nil?
     name.downcase<=>other.name.downcase
   end
 
-  def name_cant_be_anyone
-    errors.add(:name, 'cannot be "Anyone" as this is a reserved group name.') if name && name.downcase == ANYONE
-  end
 end
