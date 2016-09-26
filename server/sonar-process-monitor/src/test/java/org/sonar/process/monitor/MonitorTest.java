@@ -58,7 +58,6 @@ public class MonitorTest {
 
   private static File testJar;
 
-  private int processIndex = 0;
   private FileSystem fileSystem = mock(FileSystem.class);
   private SystemExit exit = mock(SystemExit.class);
 
