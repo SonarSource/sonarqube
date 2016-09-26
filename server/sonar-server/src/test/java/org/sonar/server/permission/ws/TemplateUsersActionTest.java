@@ -326,8 +326,8 @@ public class TemplateUsersActionTest {
     return dbClient.userDao().insert(dbSession, userDto.setActive(true));
   }
 
-  private void addUserToTemplate(PermissionTemplateUserDto userRoleDto) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, userRoleDto);
+  private void addUserToTemplate(PermissionTemplateUserDto dto) {
+    dbClient.permissionTemplateDao().insertUserPermission(dbSession, dto.getTemplateId(), dto.getUserId(), dto.getPermission());
   }
 
   private void commit() {

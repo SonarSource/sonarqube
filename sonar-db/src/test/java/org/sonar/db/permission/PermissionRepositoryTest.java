@@ -187,17 +187,6 @@ public class PermissionRepositoryTest {
   }
 
   @Test
-  public void should_delete_group_name_permission() {
-    dbTester.prepareDbUnit(getClass(), "should_delete_group_permission.xml");
-
-    underTest.deleteGroupPermission(PROJECT_ID, "devs", UserRole.USER, session);
-    session.commit();
-
-    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
-    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "projects", "authorization_updated_at");
-  }
-
-  @Test
   public void would_user_have_permission_with_default_permission_template() {
     UserDto user = userDb.insertUser();
     GroupDto group = groupDb.insertGroup();

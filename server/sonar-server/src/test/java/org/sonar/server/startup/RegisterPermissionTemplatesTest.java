@@ -92,10 +92,10 @@ public class RegisterPermissionTemplatesTest {
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
     verify(permissionTemplateDao).insert(any(DbSession.class), eq(DefaultPermissionTemplates.DEFAULT_TEMPLATE));
-    verify(permissionTemplateDao).insertGroupPermission(1L, 1L, UserRole.ADMIN);
-    verify(permissionTemplateDao).insertGroupPermission(1L, 1L, UserRole.ISSUE_ADMIN);
-    verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.USER);
-    verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.CODEVIEWER);
+    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class),eq(1L), eq(1L), eq(UserRole.ADMIN));
+    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(1L), eq(UserRole.ISSUE_ADMIN));
+    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(null), eq(UserRole.USER));
+    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(null), eq(UserRole.CODEVIEWER));
     verifyNoMoreInteractions(permissionTemplateDao);
     verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
   }

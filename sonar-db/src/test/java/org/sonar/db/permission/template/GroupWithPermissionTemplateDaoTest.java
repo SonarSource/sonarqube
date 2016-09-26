@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
@@ -44,95 +42,13 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupWithPermissionTemplateDaoTest {
 
-  private static final long TEMPLATE_ID = 50L;
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private DbSession session = dbTester.getSession();
+  private GroupDbTester groupDb = new GroupDbTester(dbTester);
+  private PermissionTemplateDbTester permissionTemplateDbTester = new PermissionTemplateDbTester(dbTester);
 
-  DbSession session = dbTester.getSession();
-
-  GroupDbTester groupDb = new GroupDbTester(dbTester);
-  PermissionTemplateDbTester permissionTemplateDbTester = new PermissionTemplateDbTester(dbTester);
-
-  PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
-
-  @Test
-  public void select_groups() {
-    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
-
-    OldPermissionQuery query = OldPermissionQuery.builder().permission("user").build();
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
-    int count = underTest.countGroups(session, query, TEMPLATE_ID);
-
-    assertThat(result).hasSize(4);
-    assertThat(count).isEqualTo(4);
-
-    GroupWithPermissionDto anyone = result.get(0);
-    assertThat(anyone.getName()).isEqualTo("Anyone");
-    assertThat(anyone.getDescription()).isNull();
-    assertThat(anyone.getPermission()).isNotNull();
-
-    GroupWithPermissionDto group1 = result.get(1);
-    assertThat(group1.getName()).isEqualTo("sonar-administrators");
-    assertThat(group1.getDescription()).isEqualTo("System administrators");
-    assertThat(group1.getPermission()).isNotNull();
-
-    GroupWithPermissionDto group2 = result.get(2);
-    assertThat(group2.getName()).isEqualTo("sonar-reviewers");
-    assertThat(group2.getDescription()).isEqualTo("Reviewers");
-    assertThat(group2.getPermission()).isNull();
-
-    GroupWithPermissionDto group3 = result.get(3);
-    assertThat(group3.getName()).isEqualTo("sonar-users");
-    assertThat(group3.getDescription()).isEqualTo("Any new users created will automatically join this group");
-    assertThat(group3.getPermission()).isNotNull();
-  }
-
-  @Test
-  public void anyone_group_is_returned_when_it_has_no_permission() {
-    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
-
-    // Anyone group is returned even if it doesn't have the permission
-    OldPermissionQuery query = OldPermissionQuery.builder().permission(USER).build();
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
-    assertThat(result).hasSize(4);
-
-    GroupWithPermissionDto group1 = result.get(1);
-    assertThat(group1.getName()).isEqualTo("sonar-administrators");
-    assertThat(group1.getPermission()).isNotNull();
-
-    GroupWithPermissionDto group2 = result.get(2);
-    assertThat(group2.getName()).isEqualTo("sonar-reviewers");
-    assertThat(group2.getPermission()).isNull();
-
-    GroupWithPermissionDto group3 = result.get(3);
-    assertThat(group3.getName()).isEqualTo("sonar-users");
-    assertThat(group3.getPermission()).isNotNull();
-  }
-
-  @Test
-  public void search_by_groups_name() {
-    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
-
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
-
-    result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").search("sonar").build(), TEMPLATE_ID);
-    assertThat(result).hasSize(3);
-  }
-
-  @Test
-  public void search_groups_should_be_sorted_by_group_name() {
-    dbTester.prepareDbUnit(getClass(), "groups_with_permissions_should_be_sorted_by_group_name.xml");
-
-    List<GroupWithPermissionDto> result = underTest.selectGroups(session, OldPermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
-    assertThat(result).hasSize(4);
-    assertThat(result.get(0).getName()).isEqualTo("Anyone");
-    assertThat(result.get(1).getName()).isEqualTo("sonar-administrators");
-    assertThat(result.get(2).getName()).isEqualTo("sonar-reviewers");
-    assertThat(result.get(3).getName()).isEqualTo("sonar-users");
-  }
+  private PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_group_names_by_query_and_template() {

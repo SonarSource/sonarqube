@@ -19,8 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -37,10 +35,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
@@ -65,14 +61,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 
 public class ApplyTemplateActionTest {
 
@@ -223,11 +217,11 @@ public class ApplyTemplateActionTest {
   }
 
   private void assertTemplate1AppliedToProject() {
-    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).extracting("name").containsExactly(group1.getName());
-    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).extracting("name").containsExactly(group2.getName());
+    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
+    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).extracting("login").containsExactly(user1.getLogin());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).extracting("login").containsExactly(user2.getLogin());
+    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getLogin());
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
   }
 
   private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
@@ -287,28 +281,17 @@ public class ApplyTemplateActionTest {
       .setGroupId(group.getId()));
   }
 
-  private List<GroupWithPermissionDto> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    return FluentIterable.from(dbClient.permissionDao().selectGroups(dbSession, query(permission), project.getId()))
-      .filter(new PermissionNotNull())
-      .toList();
+  private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
+    return dbClient.permissionDao().selectGroupNamesByPermissionQuery(dbSession, query);
   }
 
-  private List<UserWithPermissionDto> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    return dbClient.permissionDao().selectUsers(dbSession, query(permission), project.getId(), 0, Integer.MAX_VALUE);
+  private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
+    return dbClient.permissionDao().selectLoginsByPermissionQuery(dbSession, query);
   }
 
   private void commit() {
     dbSession.commit();
-  }
-
-  private static OldPermissionQuery query(String permission) {
-    return OldPermissionQuery.builder().membership(IN).permission(permission).build();
-  }
-
-  private static class PermissionNotNull implements Predicate<GroupWithPermissionDto> {
-    @Override
-    public boolean apply(@Nullable GroupWithPermissionDto input) {
-      return input.getPermission() != null;
-    }
   }
 }

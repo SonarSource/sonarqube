@@ -19,24 +19,20 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Predicate;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -108,21 +104,8 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
   }
 
   private boolean isUserAlreadyAdded(DbSession dbSession, long templateId, String userLogin, String permission) {
-    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
-    List<UserWithPermissionDto> usersWithPermission = dbClient.permissionTemplateDao().selectUsers(dbSession, permissionQuery, templateId, 0, Integer.MAX_VALUE);
-    return from(usersWithPermission).anyMatch(new HasUserPredicate(userLogin));
-  }
-
-  private static class HasUserPredicate implements Predicate<UserWithPermissionDto> {
-    private final String userLogin;
-
-    public HasUserPredicate(String userLogin) {
-      this.userLogin = userLogin;
-    }
-
-    @Override
-    public boolean apply(UserWithPermissionDto userWithPermission) {
-      return userLogin.equals(userWithPermission.getLogin());
-    }
+    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+    List<String> usersWithPermission = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, permissionQuery, templateId);
+    return usersWithPermission.stream().anyMatch(s -> s.equals(userLogin));
   }
 }

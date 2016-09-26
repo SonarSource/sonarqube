@@ -35,10 +35,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
-import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.UserWithPermissionDto;
 
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
@@ -58,11 +56,6 @@ public class PermissionTemplateDao implements Dao {
     this.system = system;
   }
 
-  @Deprecated
-  public List<UserWithPermissionDto> selectUsers(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
-    return mapper(session).selectUsers(query, templateId, new RowBounds(offset, limit));
-  }
-
   /**
    * @return a paginated list of user logins.
    */
@@ -78,7 +71,7 @@ public class PermissionTemplateDao implements Dao {
     return executeLargeInputs(logins, l -> mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, l));
   }
 
-  public List<PermissionTemplateUserDto> selectUserPermissionsByTemplateId(DbSession dbSession, long templateId) {
+  private List<PermissionTemplateUserDto> selectUserPermissionsByTemplateId(DbSession dbSession, long templateId) {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
@@ -94,38 +87,8 @@ public class PermissionTemplateDao implements Dao {
     return executeLargeInputs(groups, g -> mapper(dbSession).selectGroupPermissionsByTemplateIdAndGroupNames(templateId, g));
   }
 
-  public List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateId(DbSession dbSession, long templateId) {
+  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateId(DbSession dbSession, long templateId) {
     return mapper(dbSession).selectGroupPermissionsByTemplateIdAndGroupNames(templateId, Collections.emptyList());
-  }
-
-  /**
-   * 'Anyone' group is not returned when it has not the asked permission.
-   * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
-   * @return a non paginated list of groups.
-   */
-  @Deprecated
-  public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId) {
-    return selectGroups(session, query, templateId, 0, Integer.MAX_VALUE);
-  }
-
-  @Deprecated
-  public List<GroupWithPermissionDto> selectGroups(DbSession session, OldPermissionQuery query, Long templateId, int offset, int limit) {
-    return mapper(session).selectGroups(query, templateId, ANYONE, ADMIN, new RowBounds(offset, limit));
-  }
-
-  @Deprecated
-  public List<GroupWithPermissionDto> selectGroups(OldPermissionQuery query, Long templateId) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectGroups(session, query, templateId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @Deprecated
-  public int countGroups(DbSession session, OldPermissionQuery query, long templateId) {
-    return countGroups(session, query, templateId, null);
   }
 
   private static int countGroups(DbSession session, OldPermissionQuery query, long templateId, @Nullable String groupName) {
@@ -139,16 +102,6 @@ public class PermissionTemplateDao implements Dao {
   @CheckForNull
   public PermissionTemplateDto selectByUuid(DbSession session, String templateUuid) {
     return mapper(session).selectByUuid(templateUuid);
-  }
-
-  @CheckForNull
-  public PermissionTemplateDto selectByUuid(String templateUuid) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectByUuid(session, templateUuid);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull
@@ -175,15 +128,6 @@ public class PermissionTemplateDao implements Dao {
 
   public List<PermissionTemplateDto> selectAll(DbSession session) {
     return mapper(session).selectAll(null);
-  }
-
-  public List<PermissionTemplateDto> selectAll() {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return selectAll(session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public int countAll(DbSession dbSession, String nameQuery) {
@@ -244,44 +188,11 @@ public class PermissionTemplateDao implements Dao {
     mapper.delete(templateId);
   }
 
-  /**
-   * @deprecated since 5.2 use {@link #update(DbSession, PermissionTemplateDto)}
-   */
-  @Deprecated
-  public void update(Long templateId, String templateName, @Nullable String description, @Nullable String projectPattern) {
-    PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
-      .setId(templateId)
-      .setName(templateName)
-      .setDescription(description)
-      .setKeyPattern(projectPattern)
-      .setUpdatedAt(now());
-
-    DbSession session = myBatis.openSession(false);
-    try {
-      update(session, permissionTemplate);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public PermissionTemplateDto update(DbSession session, PermissionTemplateDto permissionTemplate) {
     mapper(session).update(permissionTemplate);
     session.commit();
 
     return permissionTemplate;
-  }
-
-  /**
-   * @deprecated since 5.2 {@link #insertUserPermission(DbSession, Long, Long, String)}
-   */
-  @Deprecated
-  public void insertUserPermission(Long templateId, Long userId, String permission) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      insertUserPermission(session, templateId, userId, permission);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void insertUserPermission(DbSession session, Long templateId, Long userId, String permission) {
@@ -296,23 +207,6 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
-  public void insertUserPermission(DbSession session, PermissionTemplateUserDto permissionTemplateUserDto) {
-    mapper(session).insertUserPermission(permissionTemplateUserDto);
-  }
-
-  /**
-   * @deprecated since 5.2 {@link #deleteUserPermission(DbSession, Long, Long, String)}
-   */
-  @Deprecated
-  public void deleteUserPermission(Long templateId, Long userId, String permission) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      deleteUserPermission(session, templateId, userId, permission);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void deleteUserPermission(DbSession session, Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
@@ -320,19 +214,6 @@ public class PermissionTemplateDao implements Dao {
       .setUserId(userId);
     mapper(session).deleteUserPermission(permissionTemplateUser);
     session.commit();
-  }
-
-  /**
-   * @deprecated since 5.2 use {@link #insertGroupPermission(DbSession, Long, Long, String)}
-   */
-  @Deprecated
-  public void insertGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      insertGroupPermission(session, templateId, groupId, permission);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void insertGroupPermission(DbSession session, Long templateId, @Nullable Long groupId, String permission) {
@@ -348,19 +229,6 @@ public class PermissionTemplateDao implements Dao {
 
   public void insertGroupPermission(DbSession session, PermissionTemplateGroupDto permissionTemplateGroup) {
     mapper(session).insertGroupPermission(permissionTemplateGroup);
-  }
-
-  /**
-   * @deprecated since 5.2 use {@link #deleteGroupPermission(DbSession, Long, Long, String)}
-   */
-  @Deprecated
-  public void deleteGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      deleteGroupPermission(session, templateId, groupId, permission);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void deleteGroupPermission(DbSession session, Long templateId, @Nullable Long groupId, String permission) {

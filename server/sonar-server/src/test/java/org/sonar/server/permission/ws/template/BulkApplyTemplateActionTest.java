@@ -21,7 +21,6 @@
 package org.sonar.server.permission.ws.template;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -42,8 +41,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
@@ -214,11 +213,11 @@ public class BulkApplyTemplateActionTest {
   }
 
   private void assertTemplate1AppliedToProject(ComponentDto project) {
-    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).extracting("name").containsExactly(group1.getName());
-    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).extracting("name").containsExactly(group2.getName());
+    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
+    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).extracting("login").containsExactly(user1.getLogin());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).extracting("login").containsExactly(user2.getLogin());
+    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getLogin());
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
   }
 
   private void assertNoPermissionOnProject(ComponentDto project) {
@@ -258,14 +257,14 @@ public class BulkApplyTemplateActionTest {
       .setGroupId(group.getId()));
   }
 
-  private List<GroupWithPermissionDto> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    return FluentIterable.from(dbClient.permissionDao().selectGroups(dbSession, query(permission), project.getId()))
-      .filter(new PermissionNotNull())
-      .toList();
+  private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
+    return dbClient.permissionDao().selectGroupNamesByPermissionQuery(dbSession, query);
   }
 
-  private List<UserWithPermissionDto> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    return dbClient.permissionDao().selectUsers(dbSession, query(permission), project.getId(), 0, Integer.MAX_VALUE);
+  private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
+    return dbClient.permissionDao().selectLoginsByPermissionQuery(dbSession, query);
   }
 
   private void commit() {

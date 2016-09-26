@@ -124,17 +124,6 @@ public class PermissionRepository {
     dbClient.roleDao().deleteGroupRole(groupRole, session);
   }
 
-  public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
-    if (isAnyone(groupName)) {
-      deleteGroupPermission(resourceId, (Long) null, permission, session);
-    } else {
-      GroupDto group = dbClient.groupDao().selectByName(session, groupName);
-      if (group != null) {
-        deleteGroupPermission(resourceId, group.getId(), permission, session);
-      }
-    }
-  }
-
   /**
    * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
    */

@@ -181,7 +181,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private void createDefaultPermissionTemplate(String permission) {
     PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setName("Default"));
     settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
-    dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, permissionTemplateDto.getId(), null, permission);
     dbSession.commit();
   }
 

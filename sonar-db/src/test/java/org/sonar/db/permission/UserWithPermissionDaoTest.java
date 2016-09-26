@@ -57,7 +57,7 @@ public class UserWithPermissionDaoTest {
   ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   DbSession session = dbTester.getSession();
 
-  PermissionDao underTest = new PermissionDao(dbTester.myBatis());
+  PermissionDao underTest = new PermissionDao();
 
   @Test
   public void select_logins_by_query() {

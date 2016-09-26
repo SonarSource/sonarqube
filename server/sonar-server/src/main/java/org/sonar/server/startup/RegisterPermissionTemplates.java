@@ -79,8 +79,7 @@ public class RegisterPermissionTemplates {
   private void insertDefaultTemplate() {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto defaultPermissionTemplate =
-        dbClient.permissionTemplateDao().insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
+      PermissionTemplateDto defaultPermissionTemplate = dbClient.permissionTemplateDao().insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
       addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
       addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
       addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
@@ -91,23 +90,23 @@ public class RegisterPermissionTemplates {
   }
 
   private void addGroupPermission(PermissionTemplateDto template, String permission, String groupName) {
-    Long groupId = null;
-    if (DefaultGroups.isAnyone(groupName)) {
-      groupId = null;
-    } else {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Long groupId = null;
+      if (DefaultGroups.isAnyone(groupName)) {
+        groupId = null;
+      } else {
         GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, groupName);
         if (groupDto != null) {
           groupId = groupDto.getId();
         } else {
           LOG.error("Cannot setup default permission for group: " + groupName);
         }
-      } finally {
-        dbClient.closeSession(dbSession);
       }
+      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId, permission);
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    dbClient.permissionTemplateDao().insertGroupPermission(template.getId(), groupId, permission);
   }
 
   private void registerInitialization() {

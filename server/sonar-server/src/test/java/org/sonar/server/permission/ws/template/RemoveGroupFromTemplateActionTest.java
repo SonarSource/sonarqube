@@ -19,9 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Function;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,8 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
@@ -49,19 +46,16 @@ import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 
 public class RemoveGroupFromTemplateActionTest {
 
@@ -245,20 +239,8 @@ public class RemoveGroupFromTemplateActionTest {
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
-    OldPermissionQuery permissionQuery = OldPermissionQuery.builder().permission(permission).membership(IN).build();
-    return from(dbClient.permissionTemplateDao()
-      .selectGroups(dbSession, permissionQuery, templateId))
-      .transform(GroupWithPermissionToGroupName.INSTANCE)
-      .toList();
-  }
-
-  private enum GroupWithPermissionToGroupName implements Function<GroupWithPermissionDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull GroupWithPermissionDto groupWithPermission) {
-      return groupWithPermission.getName();
-    }
-
+    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
+    return dbClient.permissionTemplateDao()
+      .selectGroupNamesByQueryAndTemplate(dbSession, permissionQuery, templateId);
   }
 }
