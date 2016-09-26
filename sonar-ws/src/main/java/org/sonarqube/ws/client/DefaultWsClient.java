@@ -23,6 +23,7 @@ import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
@@ -42,6 +43,7 @@ import org.sonarqube.ws.client.usertoken.UserTokensService;
 class DefaultWsClient implements WsClient {
 
   private final WsConnector wsConnector;
+  private final OrganizationService organizations;
   private final PermissionsService permissionsService;
   private final ComponentsService componentsService;
   private final QualityProfilesService qualityProfilesService;
@@ -58,6 +60,7 @@ class DefaultWsClient implements WsClient {
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
+    this.organizations = new OrganizationService(wsConnector);
     this.permissionsService = new PermissionsService(wsConnector);
     this.componentsService = new ComponentsService(wsConnector);
     this.qualityProfilesService = new QualityProfilesService(wsConnector);
@@ -76,6 +79,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public WsConnector wsConnector() {
     return wsConnector;
+  }
+
+  @Override
+  public OrganizationService organizations() {
+    return organizations;
   }
 
   @Override

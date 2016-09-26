@@ -23,6 +23,7 @@ import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
@@ -52,6 +53,8 @@ import org.sonarqube.ws.client.usertoken.UserTokensService;
  * @since 5.3
  */
 public interface WsClient {
+  OrganizationService organizations();
+
   ComponentsService components();
 
   IssuesService issues();
