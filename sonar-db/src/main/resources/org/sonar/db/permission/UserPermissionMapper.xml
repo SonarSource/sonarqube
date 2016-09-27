@@ -11,7 +11,7 @@
       u.login as userLogin,
       p.uuid as componentUuid
     <include refid="sqlQuery" />
-    order by lower(u.name), u.name, u.id
+    order by lower(u.name), u.name, ur.role
   </select>
 
   <select id="countUsersByQuery" parameterType="map" resultType="int">
@@ -49,24 +49,38 @@
     </where>
   </sql>
 
-  <select id="countUsersPerProjectPermission" resultType="org.sonar.db.permission.UserCountPerProjectPermission">
+  <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.UserCountPerProjectPermission">
     select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_id = u.id
     inner join projects p on p.id = ur.resource_id
     where u.active = ${_true}
-    and p.id in (<foreach collection="componentIds" open="(" close=")" item="projectId" separator=",">#{projectId}</foreach>)
+    and p.id in <foreach collection="projectIds" open="(" close=")" item="projectId" separator=",">#{projectId}</foreach>
     group by ur.resource_id, ur.role
   </select>
-
-  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO group_roles (group_id, resource_id, role)
-    VALUES (#{groupId}, #{resourceId}, #{role})
-  </insert>
 
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
     insert into user_roles (user_id, resource_id, role)
     values (#{userId,jdbcType=BIGINT}, #{componentId,jdbcType=BIGINT}, #{permission,jdbcType=VARCHAR})
   </insert>
 
+  <delete id="delete" parameterType="map">
+    delete from user_roles
+    <where>
+      <choose>
+        <when test="projectUuid != null">
+          and resource_id = (select id from projects where uuid = #{projectUuid})
+        </when>
+        <otherwise>
+          and resource_id is null
+        </otherwise>
+      </choose>
+      <if test="login != null">
+        and user_id = (select id from users where login = #{login})
+      </if>
+      <if test="permission != null">
+        and role = #{permission}
+      </if>
+    </where>
+  </delete>
 </mapper>

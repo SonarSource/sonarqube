@@ -44,7 +44,5 @@ public interface PermissionMapper {
 
   List<GroupRoleDto> selectGroupPermissionByGroupNames(@Param("groupNames") List<String> groupNames, @Nullable @Param("projectId") Long projectId);
 
-  void usersCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
-
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 }

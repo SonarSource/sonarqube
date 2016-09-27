@@ -48,7 +48,12 @@ public interface UserPermissionMapper {
    * Count the number of users per permission for a given list of projects.
    * @param projectIds a non-null and non-empty list of project ids
    */
-  List<UserCountPerProjectPermission> countUsersByProjectPermission(List<Long> projectIds);
+  List<UserCountPerProjectPermission> countUsersByProjectPermission(@Param("projectIds") List<Long> projectIds);
 
   void insert(UserPermissionDto dto);
+
+  /**
+   * Delete permissions by user and/or by project. In both cases scope can be restricted to a specified permission
+   */
+  void delete(@Nullable @Param("login") String login, @Nullable @Param("projectUuid") String projectUuid, @Nullable @Param("permission") String permission);
 }

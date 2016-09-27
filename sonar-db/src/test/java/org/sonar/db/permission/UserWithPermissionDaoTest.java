@@ -19,7 +19,6 @@
  */
 package org.sonar.db.permission;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +39,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -250,42 +248,12 @@ public class UserWithPermissionDaoTest {
     assertThat(underTest.selectUserPermissionsByLoginsAnProject(session, Collections.emptyList(), project.getId())).isEmpty();
   }
 
-  @Test
-  public void user_count_by_component_and_permission() {
-    UserDto user1 = userDb.insertUser();
-    UserDto user2 = userDb.insertUser();
-    UserDto user3 = userDb.insertUser();
-
-    addPermissionToUser(ISSUE_ADMIN, user1.getId(), 42L);
-    addPermissionToUser(ADMIN, user1.getId(), 123L);
-    addPermissionToUser(ADMIN, user2.getId(), 123L);
-    addPermissionToUser(ADMIN, user3.getId(), 123L);
-    addPermissionToUser(USER, user1.getId(), 123L);
-    addPermissionToUser(USER, user1.getId(), 456L);
-
-    final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
-    underTest.usersCountByComponentIdAndPermission(dbTester.getSession(), asList(123L, 456L, 789L),
-      context -> result.add((CountByProjectAndPermissionDto) context.getResultObject()));
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
-    assertThat(result).extracting("componentId").containsOnly(123L, 456L);
-    assertThat(result).extracting("count").containsOnly(3, 1);
-  }
-
   private List<String> selectLoginsByQuery(PermissionQuery query) {
     return underTest.selectLoginsByPermissionQuery(session, query);
   }
 
   private int countUsersByQuery(PermissionQuery query) {
     return underTest.countUsersByQuery(session, query);
-  }
-
-  private void addPermissionToUser(String permission, long userId, long resourceId) {
-    dbTester.getDbClient().roleDao().insertUserRole(dbTester.getSession(), new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(resourceId));
-    dbTester.commit();
   }
 
 }

@@ -92,21 +92,6 @@
     </where>
   </select>
 
-  <select id="usersCountByProjectIdAndPermission" parameterType="map"
-          resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
-    SELECT user_role.resource_id as componentId, user_role.role as permission, count(u.login) as count
-    FROM users u
-    INNER JOIN user_roles user_role ON user_role.user_id=u.id
-    AND user_role.resource_id in
-    <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
-      #{id}
-    </foreach>
-    <where>
-      u.active = ${_true}
-    </where>
-    GROUP BY user_role.resource_id, user_role.role
-  </select>
-
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
     SELECT count(1) as count, permission, componentId

@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
@@ -28,7 +29,9 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserPermissionDao implements Dao {
@@ -66,6 +69,27 @@ public class UserPermissionDao implements Dao {
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {
     mapper(dbSession).insert(dto);
+  }
+
+  /**
+   * Delete permissions for a user, permissions for a project, or a mix of them. In all cases
+   * scope can be restricted to a specified permission.
+   * @see UserPermissionMapper#delete(String, String, String)
+   */
+  public void delete(DbSession dbSession, @Nullable String login, @Nullable String projectUuid, @Nullable String permission) {
+    checkArgument(isNotEmpty(login) || isNotEmpty(projectUuid), "At least one of login or project must be set");
+    mapper(dbSession).delete(login, projectUuid, permission);
+  }
+
+  // shortcuts for migration
+  public List<String> selectUserPermissions(DbSession dbSession, String userLogin, @Nullable String projectUuid) {
+    PermissionQuery query = PermissionQuery.builder()
+      .withAtLeastOnePermission()
+      .setComponentUuid(projectUuid)
+      .build();
+    return select(dbSession, query, asList(userLogin)).stream()
+      .map(p -> p.getPermission())
+      .collect(Collectors.toList());
   }
 
   private static UserPermissionMapper mapper(DbSession dbSession) {

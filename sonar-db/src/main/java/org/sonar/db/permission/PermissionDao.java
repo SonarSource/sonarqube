@@ -81,21 +81,6 @@ public class PermissionDao implements Dao {
   /**
    * Each row returns a CountByProjectAndPermissionDto
    */
-  public void usersCountByComponentIdAndPermission(DbSession dbSession, List<Long> componentIds, ResultHandler resultHandler) {
-    Map<String, Object> parameters = new HashMap<>(1);
-
-    executeLargeInputsWithoutOutput(
-      componentIds,
-      partitionedComponentIds -> {
-        parameters.put("componentIds", partitionedComponentIds);
-        mapper(dbSession).usersCountByProjectIdAndPermission(parameters, resultHandler);
-        return null;
-      });
-  }
-
-  /**
-   * Each row returns a CountByProjectAndPermissionDto
-   */
   public void groupsCountByComponentIdAndPermission(DbSession dbSession, List<Long> componentIds, ResultHandler resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);
     parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);

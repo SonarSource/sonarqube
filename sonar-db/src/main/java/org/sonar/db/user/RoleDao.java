@@ -27,10 +27,15 @@ import org.sonar.db.DbSession;
 
 public class RoleDao implements Dao {
 
+  /**
+   * @deprecated replaced by {@link org.sonar.db.permission.UserPermissionDao#selectUserPermissions(DbSession, String, String)}
+   */
+  @Deprecated
   public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
     return mapper(session).selectUserPermissions(userLogin, resourceId);
   }
 
+  // TODO to be moved to PermissionVerifierDao
   public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
@@ -43,10 +48,18 @@ public class RoleDao implements Dao {
     mapper(session).insertGroupRole(groupRole);
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonar.db.permission.UserPermissionDao#insert(DbSession, org.sonar.db.permission.UserPermissionDto)}
+   */
+  @Deprecated
   public void insertUserRole(DbSession session, UserPermissionDto userRole) {
     mapper(session).insertUserRole(userRole);
   }
 
+  /**
+   * @deprecated  replaced by {@link org.sonar.db.permission.UserPermissionDao#delete(DbSession, String, String, String)}
+   */
+  @Deprecated
   public void deleteUserRole(UserPermissionDto userRole, DbSession session) {
     mapper(session).deleteUserRole(userRole);
   }

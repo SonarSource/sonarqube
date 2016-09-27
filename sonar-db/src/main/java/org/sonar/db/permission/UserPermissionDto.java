@@ -45,6 +45,9 @@ public class UserPermissionDto {
     return userId;
   }
 
+  /**
+   * @return {@code null} if it's a global permission, else return the project id.
+   */
   @CheckForNull
   public Long getComponentId() {
     return componentId;

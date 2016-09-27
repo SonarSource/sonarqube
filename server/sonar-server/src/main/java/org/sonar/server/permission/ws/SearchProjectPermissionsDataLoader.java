@@ -107,10 +107,8 @@ public class SearchProjectPermissionsDataLoader {
   private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
     final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionDao().usersCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
-      CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
-      userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
-    });
+    dbClient.userPermissionDao().countUsersByProjectPermission(dbSession, rootComponentIds).forEach(
+      row -> userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount()));
 
     return userCountByRootComponentIdAndPermission;
   }
