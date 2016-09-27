@@ -29,6 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -36,6 +37,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
+import static org.sonar.server.organization.DefaultOrganizationProviderRule.someDefaultOrganization;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.setParam;
 
 public class DeleteActionTest {
@@ -50,8 +52,10 @@ public class DeleteActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DefaultOrganizationProviderRule defaultOrganizationProvider = someDefaultOrganization();
 
-  private DeleteAction underTest = new DeleteAction(new OrganizationsWsSupport(), userSession, dbTester.getDbClient());
+  private DeleteAction underTest = new DeleteAction(new OrganizationsWsSupport(), userSession, dbTester.getDbClient(), defaultOrganizationProvider);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -165,6 +169,26 @@ public class DeleteActionTest {
 
     assertThat(executeKeyRequest(key)).isEqualTo(HTTP_CODE_NO_CONTENT);
     assertThat(dbTester.countRowsOfTable(ORGANIZATIONS_TABLE)).isEqualTo(1);
+  }
+
+  @Test
+  public void request_fails_when_attempting_to_delete_Default_Organization_by_uuid() {
+    giveUserSystemAdminPermission();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default Organization can't be deleted");
+
+    executeIdRequest(defaultOrganizationProvider.get().getUuid());
+  }
+
+  @Test
+  public void request_fails_when_attempting_to_delete_Default_Organization_by_key() {
+    giveUserSystemAdminPermission();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default Organization can't be deleted");
+
+    executeKeyRequest(defaultOrganizationProvider.get().getKey());
   }
 
   private OrganizationDto insertOrganization(String uuid) {

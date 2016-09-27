@@ -19,14 +19,18 @@
  */
 package org.sonar.server.organization.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.organization.DefaultOrganization;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ID;
@@ -38,11 +42,13 @@ public class DeleteAction implements OrganizationsAction {
   private final OrganizationsWsSupport wsSupport;
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DeleteAction(OrganizationsWsSupport wsSupport, UserSession userSession, DbClient dbClient) {
+  public DeleteAction(OrganizationsWsSupport wsSupport, UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.wsSupport = wsSupport;
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -76,6 +82,7 @@ public class DeleteAction implements OrganizationsAction {
     String uuid = request.param(PARAM_ID);
     String key = request.param(PARAM_KEY);
     wsSupport.checkKeyOrId(uuid, key);
+    preventDeletionOfDefaultOrganization(uuid, key, defaultOrganizationProvider.get());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (uuid != null) {
@@ -87,5 +94,10 @@ public class DeleteAction implements OrganizationsAction {
 
       response.noContent();
     }
+  }
+
+  private static void preventDeletionOfDefaultOrganization(@Nullable String uuid, @Nullable String key, DefaultOrganization defaultOrganization) {
+    checkArgument(uuid == null || !defaultOrganization.getUuid().equals(uuid), "Default Organization can't be deleted");
+    checkArgument(key == null || !defaultOrganization.getKey().equals(key), "Default Organization can't be deleted");
   }
 }
