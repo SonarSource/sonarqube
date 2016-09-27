@@ -243,8 +243,6 @@ import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.DeprecatedUserFinder;
-import org.sonar.server.user.GroupMembershipFinder;
-import org.sonar.server.user.GroupMembershipService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
@@ -428,8 +426,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UserTokenModule.class,
 
       // groups
-      GroupMembershipService.class,
-      GroupMembershipFinder.class,
       UserGroupsModule.class,
 
       // permissions

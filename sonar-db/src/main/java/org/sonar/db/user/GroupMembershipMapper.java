@@ -26,8 +26,6 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface GroupMembershipMapper {
 
-  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
-
   List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
 
   int countGroups(Map<String, Object> params);

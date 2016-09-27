@@ -76,7 +76,7 @@ public class DeactivateActionTest {
   public void setUp() {
     System2 system2 = new System2();
     UserDao userDao = new UserDao(db.myBatis(), system2);
-    dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(db.myBatis()), new UserTokenDao());
+    dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(), new UserTokenDao());
     dbSession = db.getSession();
     dbSession.commit();
 

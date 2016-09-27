@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
@@ -36,7 +37,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -49,6 +49,7 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
@@ -83,7 +84,6 @@ public class UserUpdaterTest {
   Settings settings = new MapSettings();
   UserDao userDao = dbClient.userDao();
   GroupDao groupDao = dbClient.groupDao();
-  GroupMembershipFinder groupMembershipFinder = new GroupMembershipFinder(userDao, dbClient.groupMembershipDao());
   DbSession session = db.getSession();
   UserIndexer userIndexer;
 
@@ -442,10 +442,8 @@ public class UserUpdaterTest {
       .setPassword("password")
       .setScmAccounts(newArrayList("u1", "u_1")));
 
-    GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("user").build());
-    assertThat(membership.groups()).hasSize(1);
-    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isTrue();
+    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
+    assertThat(groups.get("user")).containsOnly("sonar-users");
   }
 
   @Test
@@ -486,8 +484,7 @@ public class UserUpdaterTest {
     addUser(newDisabledUser(DEFAULT_LOGIN)
       .setLocal(false)
       .setCreatedAt(PAST)
-      .setUpdatedAt(PAST)
-    );
+      .setUpdatedAt(PAST));
     createDefaultGroup();
 
     boolean result = userUpdater.create(NewUser.create()
@@ -543,8 +540,7 @@ public class UserUpdaterTest {
     addUser(newDisabledUser(DEFAULT_LOGIN)
       .setLocal(true)
       .setCreatedAt(PAST)
-      .setUpdatedAt(PAST)
-    );
+      .setUpdatedAt(PAST));
     createDefaultGroup();
 
     userUpdater.create(NewUser.create()
@@ -589,10 +585,8 @@ public class UserUpdaterTest {
       .setPassword("password2"));
     session.commit();
 
-    GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login(DEFAULT_LOGIN).groupSearch("sonar-users").build());
-    assertThat(membership.groups()).hasSize(1);
-    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isTrue();
+    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isTrue();
   }
 
   @Test
@@ -633,8 +627,7 @@ public class UserUpdaterTest {
   public void update_user_external_identity_when_user_was_not_local() {
     addUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setCreatedAt(PAST)
-      .setUpdatedAt(PAST)
-    );
+      .setUpdatedAt(PAST));
     createDefaultGroup();
 
     userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
@@ -655,8 +648,7 @@ public class UserUpdaterTest {
   public void update_user_external_identity_when_user_was_local() {
     addUser(UserTesting.newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setCreatedAt(PAST)
-      .setUpdatedAt(PAST)
-    );
+      .setUpdatedAt(PAST));
     createDefaultGroup();
 
     userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
@@ -878,10 +870,8 @@ public class UserUpdaterTest {
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
 
-    GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login(DEFAULT_LOGIN).groupSearch("sonar-users").build());
-    assertThat(membership.groups()).hasSize(1);
-    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isFalse();
+    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isFalse();
   }
 
   @Test
@@ -891,10 +881,8 @@ public class UserUpdaterTest {
     session.commit();
 
     // User is already associate to the default group
-    GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login(DEFAULT_LOGIN).groupSearch("sonar-users").build());
-    assertThat(membership.groups()).hasSize(1);
-    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isTrue();
+    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isTrue();
 
     userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
@@ -904,10 +892,8 @@ public class UserUpdaterTest {
     session.commit();
 
     // Nothing as changed
-    membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login(DEFAULT_LOGIN).groupSearch("sonar-users").build());
-    assertThat(membership.groups()).hasSize(1);
-    assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isTrue();
+    groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isTrue();
   }
 
   @Test

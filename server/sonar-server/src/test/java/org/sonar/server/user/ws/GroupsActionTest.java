@@ -61,7 +61,7 @@ public class GroupsActionTest {
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     GroupDao groupDao = new GroupDao(system2);
     UserGroupDao userGroupDao = new UserGroupDao();
-    GroupMembershipDao groupMembershipDao = new GroupMembershipDao(dbTester.myBatis());
+    GroupMembershipDao groupMembershipDao = new GroupMembershipDao();
 
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, groupDao, userGroupDao, groupMembershipDao);
     session = dbClient.openSession(false);
