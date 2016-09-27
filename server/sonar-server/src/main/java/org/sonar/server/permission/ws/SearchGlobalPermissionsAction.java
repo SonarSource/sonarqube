@@ -113,7 +113,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   private static PermissionQuery permissionQuery(String permissionKey) {
     return PermissionQuery.builder()
       .setPermission(permissionKey)
-      .withPermissionOnly()
+      .withAtLeastOnePermission()
       .build();
   }
 }

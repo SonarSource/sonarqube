@@ -165,7 +165,7 @@ public class UsersAction implements PermissionsWsAction {
       dbQuery.setComponentUuid(project.get().uuid());
     }
     if (request.getQuery() == null) {
-      dbQuery.withPermissionOnly();
+      dbQuery.withAtLeastOnePermission();
     }
 
     return dbQuery.build();

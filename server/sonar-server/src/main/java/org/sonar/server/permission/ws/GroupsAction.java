@@ -135,7 +135,7 @@ public class GroupsAction implements PermissionsWsAction {
       permissionQuery.setComponentUuid(project.get().uuid());
     }
     if (request.getQuery() == null) {
-      permissionQuery.withPermissionOnly();
+      permissionQuery.withAtLeastOnePermission();
     }
     return permissionQuery.build();
   }

@@ -120,7 +120,7 @@ public class GroupWithPermissionDaoTest {
     assertThat(underTest.countGroupsByPermissionQuery(dbSession,
       PermissionQuery.builder().setPermission(PROVISIONING).build())).isEqualTo(1);
     assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().withPermissionOnly().build())).isEqualTo(2);
+      PermissionQuery.builder().withAtLeastOnePermission().build())).isEqualTo(2);
     assertThat(underTest.countGroupsByPermissionQuery(dbSession,
       PermissionQuery.builder().setSearchQuery("Group-").build())).isEqualTo(3);
     assertThat(underTest.countGroupsByPermissionQuery(dbSession,
@@ -172,7 +172,7 @@ public class GroupWithPermissionDaoTest {
 
     PermissionQuery.Builder builderOnComponent = PermissionQuery.builder().setComponentUuid(project.uuid());
     assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      builderOnComponent.withPermissionOnly().build())).containsOnlyOnce(group1.getName());
+      builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
       builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,

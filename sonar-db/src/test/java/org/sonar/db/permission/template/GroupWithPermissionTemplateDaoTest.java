@@ -66,14 +66,14 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
 
     assertThat(selectGroupNamesByQueryAndTemplate(builder().build(), template.getId())).containsOnly("Group-1", "Group-2", "Group-3", "Anyone");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().withPermissionOnly().build(), template.getId())).containsOnly("Group-1", "Group-2");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), template.getId())).containsOnly("Group-1", "Group-2");
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), template.getId())).containsOnly("Group-1");
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), anotherTemplate.getId())).containsOnly("Anyone");
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU").build(), template.getId())).containsOnly("Group-1", "Group-2", "Group-3");
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo").build(), template.getId())).containsOnly("Anyone");
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2").build(), template.getId())).containsOnly("Group-2");
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().withPermissionOnly().build(), 123L)).isEmpty();
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), 123L)).isEmpty();
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown").build(), template.getId())).isEmpty();
   }
 
@@ -126,14 +126,14 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
 
     assertThat(countGroupNamesByQueryAndTemplate(builder().build(), template.getId())).isEqualTo(4);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withPermissionOnly().build(), template.getId())).isEqualTo(2);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), template.getId())).isEqualTo(2);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), template.getId())).isEqualTo(1);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), anotherTemplate.getId())).isEqualTo(1);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU").build(), template.getId())).isEqualTo(3);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo").build(), template.getId())).isEqualTo(1);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2").build(), template.getId())).isEqualTo(1);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withPermissionOnly().build(), 123L)).isZero();
+    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), 123L)).isZero();
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown").build(), template.getId())).isZero();
   }
 

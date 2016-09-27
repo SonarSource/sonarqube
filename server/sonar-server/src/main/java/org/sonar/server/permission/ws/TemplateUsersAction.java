@@ -116,7 +116,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
       .setSearchQuery(textQuery);
     if (textQuery == null) {
-      query.withPermissionOnly();
+      query.withAtLeastOnePermission();
     }
     return query.build();
   }

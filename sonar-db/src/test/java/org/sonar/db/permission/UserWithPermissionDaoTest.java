@@ -77,7 +77,7 @@ public class UserWithPermissionDaoTest {
       .containsOnly(user1.getLogin(), user2.getLogin(), user3.getLogin(), user4.getLogin());
     assertThat(selectLoginsByQuery(PermissionQuery.builder().setPermission(PROVISIONING).build()))
       .containsOnly(user3.getLogin());
-    assertThat(selectLoginsByQuery(PermissionQuery.builder().withPermissionOnly().setComponentUuid(project.uuid()).build()))
+    assertThat(selectLoginsByQuery(PermissionQuery.builder().withAtLeastOnePermission().setComponentUuid(project.uuid()).build()))
       .containsOnly(user4.getLogin());
   }
 
@@ -97,7 +97,7 @@ public class UserWithPermissionDaoTest {
 
     assertThat(countUsersByQuery(PermissionQuery.builder().build())).isEqualTo(4);
     assertThat(countUsersByQuery(PermissionQuery.builder().setPermission(PROVISIONING).build())).isEqualTo(1);
-    assertThat(countUsersByQuery(PermissionQuery.builder().withPermissionOnly().setComponentUuid(project.uuid()).build())).isEqualTo(1);
+    assertThat(countUsersByQuery(PermissionQuery.builder().withAtLeastOnePermission().setComponentUuid(project.uuid()).build())).isEqualTo(1);
   }
 
   @Test
@@ -162,7 +162,7 @@ public class UserWithPermissionDaoTest {
     PermissionQuery.Builder dbQuery = PermissionQuery.builder()
       .setComponentUuid(null)
       .setPermission(SCAN_EXECUTION)
-      .withPermissionOnly();
+      .withAtLeastOnePermission();
     List<String> result = selectLoginsByQuery(dbQuery.build());
     int count = countUsersByQuery(dbQuery.build());
 
@@ -189,7 +189,7 @@ public class UserWithPermissionDaoTest {
     PermissionQuery.Builder dbQuery = PermissionQuery.builder()
       .setComponentUuid(null)
       .setPermission(SCAN_EXECUTION)
-      .withPermissionOnly()
+      .withAtLeastOnePermission()
       .setComponentUuid(project.uuid());
     List<String> result = selectLoginsByQuery(dbQuery.build());
     int count = countUsersByQuery(dbQuery.build());

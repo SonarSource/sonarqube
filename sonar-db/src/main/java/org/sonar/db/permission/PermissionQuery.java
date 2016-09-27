@@ -41,19 +41,26 @@ public class PermissionQuery {
   public static final int DEFAULT_PAGE_SIZE = 20;
   public static final int DEFAULT_PAGE_INDEX = 1;
 
+  // filter: return only the users or groups who have this permission
   private final String permission;
+  // filter on project, else filter global permissions
   private final String componentUuid;
   private final String template;
+
+  // filter on name of users or groups
   private final String searchQuery;
   private final String searchQueryToSql;
-  private final boolean withPermissionOnly;
+
+  // filter users or groups that have at least one permission. It does make
+  // sense when the filter "permission" is set.
+  private final boolean withAtLeastOnePermission;
 
   private final int pageSize;
   private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
     this.permission = builder.permission;
-    this.withPermissionOnly = builder.withPermissionOnly;
+    this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
     this.componentUuid = builder.componentUuid;
     this.template = builder.template;
     this.searchQuery = builder.searchQuery;
@@ -67,8 +74,8 @@ public class PermissionQuery {
     return permission;
   }
 
-  public boolean withPermissionOnly() {
-    return withPermissionOnly;
+  public boolean withAtLeastOnePermission() {
+    return withAtLeastOnePermission;
   }
 
   // TODO remove it, it should not be in the query, but set as a separate parameter
@@ -109,7 +116,7 @@ public class PermissionQuery {
     private String componentUuid;
     private String template;
     private String searchQuery;
-    private boolean withPermissionOnly;
+    private boolean withAtLeastOnePermission;
 
     private Integer pageIndex = DEFAULT_PAGE_INDEX;
     private Integer pageSize = DEFAULT_PAGE_SIZE;
@@ -119,7 +126,7 @@ public class PermissionQuery {
     }
 
     public Builder setPermission(@Nullable String permission) {
-      this.withPermissionOnly = permission != null;
+      this.withAtLeastOnePermission = permission != null;
       this.permission = permission;
       return this;
     }
@@ -149,8 +156,8 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder withPermissionOnly() {
-      this.withPermissionOnly = true;
+    public Builder withAtLeastOnePermission() {
+      this.withAtLeastOnePermission = true;
       return this;
     }
 

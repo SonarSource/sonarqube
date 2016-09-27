@@ -104,7 +104,7 @@ public class DeleteAction implements UserGroupsWsAction {
       .contains(GlobalPermissions.SYSTEM_ADMIN);
     boolean isOneRemainingAdminGroup = dbClient.permissionDao().countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null) == 1;
     boolean hasNoStandaloneAdminUser = dbClient.permissionDao().countUsersByQuery(dbSession,
-      PermissionQuery.builder().setPermission(GlobalPermissions.SYSTEM_ADMIN).withPermissionOnly().build()) == 0;
+      PermissionQuery.builder().setPermission(GlobalPermissions.SYSTEM_ADMIN).withAtLeastOnePermission().build()) == 0;
     boolean isLastAdminGroup = hasAdminPermission && isOneRemainingAdminGroup && hasNoStandaloneAdminUser;
 
     checkArgument(!isLastAdminGroup, "The last system admin group '%s' cannot be deleted", groupName);
