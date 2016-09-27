@@ -20,9 +20,7 @@
 
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Predicate;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,8 +37,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.GroupWithPermissionDto;
-import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -68,7 +64,6 @@ import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -269,16 +264,5 @@ public class BulkApplyTemplateActionTest {
 
   private void commit() {
     dbSession.commit();
-  }
-
-  private static OldPermissionQuery query(String permission) {
-    return OldPermissionQuery.builder().membership(IN).permission(permission).build();
-  }
-
-  private static class PermissionNotNull implements Predicate<GroupWithPermissionDto> {
-    @Override
-    public boolean apply(@Nullable GroupWithPermissionDto input) {
-      return input.getPermission() != null;
-    }
   }
 }

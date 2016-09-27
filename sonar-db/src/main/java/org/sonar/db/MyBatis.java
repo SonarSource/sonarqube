@@ -84,9 +84,7 @@ import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMapper;
-import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.UserPermissionMapper;
-import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -181,7 +179,6 @@ public class MyBatis {
     confBuilder.loadAlias("Group", GroupDto.class);
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
     confBuilder.loadAlias("GroupRole", GroupRoleDto.class);
-    confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
     confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
@@ -216,7 +213,6 @@ public class MyBatis {
     confBuilder.loadAlias("UserTokenCount", UserTokenCount.class);
     confBuilder.loadAlias("UserToken", UserTokenDto.class);
     confBuilder.loadAlias("User", UserDto.class);
-    confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
     confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
