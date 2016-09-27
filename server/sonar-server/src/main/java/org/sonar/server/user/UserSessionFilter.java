@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -30,11 +31,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.server.authentication.UserSessionInitializer;
+import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 public class UserSessionFilter implements Filter {
-
   private final Platform platform;
 
   public UserSessionFilter() {
@@ -52,18 +53,32 @@ public class UserSessionFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
     ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);
+    DefaultOrganizationCache defaultOrganizationCache = platform.getContainer().getComponentByType(DefaultOrganizationCache.class);
     UserSessionInitializer userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
 
-    settings.load();
+    defaultOrganizationCache.load();
+    try {
+      settings.load();
+      try {
+        doFilter(request, response, chain, userSessionInitializer);
+      } finally {
+        settings.unload();
+      }
+    } finally {
+      defaultOrganizationCache.unload();
+    }
+  }
+
+  private static void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+    @Nullable UserSessionInitializer userSessionInitializer) throws IOException, ServletException {
     try {
       if (userSessionInitializer == null || userSessionInitializer.initUserSession(request, response)) {
-        chain.doFilter(servletRequest, servletResponse);
+        chain.doFilter(request, response);
       }
     } finally {
       if (userSessionInitializer != null) {
         userSessionInitializer.removeUserSession();
       }
-      settings.unload();
     }
   }
 

@@ -22,19 +22,21 @@ package org.sonar.server.computation.task.projectanalysis.container;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.ce.organization.DefaultOrganizationLoader;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
+import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
-import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
@@ -84,7 +86,6 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricModule;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderImpl;
-import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateServiceImpl;
@@ -97,9 +98,9 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryIm
 import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
-import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.server.view.index.ViewIndex;
 
@@ -118,6 +119,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
   public void populateContainer(TaskContainer container) {
     ComputationSteps steps = new ReportComputationSteps(container);
     container.add(SettingsLoader.class);
+    container.add(DefaultOrganizationLoader.class);
     container.add(task);
     container.add(steps);
     container.addSingletons(componentClasses());

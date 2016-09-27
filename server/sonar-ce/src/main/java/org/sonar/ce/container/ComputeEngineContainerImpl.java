@@ -95,6 +95,7 @@ import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -270,7 +271,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       new StartupMetadataProvider(),
       ServerIdManager.class,
       UriReader.class,
-      ServerImpl.class
+      ServerImpl.class,
+      DefaultOrganizationProviderImpl.class
     };
   }
 

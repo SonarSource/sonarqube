@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
+import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerIdManager;
@@ -47,6 +48,7 @@ public class PlatformLevel3 extends PlatformLevel {
       ServerIdLoader.class,
       ServerIdGenerator.class,
       LogServerId.class,
-      DefaultHttpDownloader.class);
+      DefaultHttpDownloader.class,
+      DefaultOrganizationProviderImpl.class);
   }
 }
