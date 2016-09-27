@@ -24,6 +24,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static util.ItUtils.runProjectAnalysis;
@@ -50,6 +51,7 @@ public class DashboardTest {
   }
 
   @Test
+  @Ignore
   public void global_dashboard() {
     seleniumSuite("global_dashboard",
       // SONAR-3462
