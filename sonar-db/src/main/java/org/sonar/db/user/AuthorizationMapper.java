@@ -29,10 +29,4 @@ public interface AuthorizationMapper {
 
   List<Long> keepAuthorizedProjectIdsForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
-  List<String> keepAuthorizedComponentKeysForAnonymous(@Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
-
-  List<String> keepAuthorizedComponentKeysForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
-
-  List<Long> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Long> userIds);
-
 }
