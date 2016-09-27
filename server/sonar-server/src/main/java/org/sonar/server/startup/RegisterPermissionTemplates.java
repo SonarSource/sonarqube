@@ -93,9 +93,7 @@ public class RegisterPermissionTemplates {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Long groupId = null;
-      if (DefaultGroups.isAnyone(groupName)) {
-        groupId = null;
-      } else {
+      if (!DefaultGroups.isAnyone(groupName)) {
         GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, groupName);
         if (groupDto != null) {
           groupId = groupDto.getId();

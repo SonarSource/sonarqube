@@ -65,7 +65,7 @@ public class PermissionDependenciesFinder {
     return componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key(), resourceTypes);
   }
 
-  public String getGroupName(DbSession dbSession, WsGroupRef groupRef) {
+  String getGroupName(DbSession dbSession, WsGroupRef groupRef) {
     GroupDto group = getGroup(dbSession, groupRef);
 
     return group == null ? ANYONE : group.getName();

@@ -37,7 +37,7 @@ public class UserGroupDao implements Dao {
     mapper(session).deleteMembersByGroup(groupId);
   }
 
-  protected UserGroupMapper mapper(DbSession session) {
+  private static UserGroupMapper mapper(DbSession session) {
     return session.getMapper(UserGroupMapper.class);
   }
 }
