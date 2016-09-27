@@ -51,6 +51,7 @@ import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.permission.PermissionDao;
+import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.property.InternalPropertiesDao;
@@ -129,6 +130,7 @@ public class DbClient {
   private final RuleRepositoryDao ruleRepositoryDao;
   private final ActiveRuleDao activeRuleDao;
   private final QProfileChangeDao qProfileChangeDao;
+  private final UserPermissionDao userPermissionDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -189,6 +191,7 @@ public class DbClient {
     ruleRepositoryDao = getDao(map, RuleRepositoryDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
+    userPermissionDao = getDao(map, UserPermissionDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -405,6 +408,10 @@ public class DbClient {
 
   public QProfileChangeDao qProfileChangeDao() {
     return qProfileChangeDao;
+  }
+
+  public UserPermissionDao userPermissionDao() {
+    return userPermissionDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {
