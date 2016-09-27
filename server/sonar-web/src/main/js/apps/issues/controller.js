@@ -95,7 +95,10 @@ export default Controller.extend({
           maxResultsReached: r.p * r.ps >= r.total
         });
       } else {
-        that.options.app.state.set({ page: r.p });
+        that.options.app.state.set({
+          page: r.p,
+          maxResultsReached: r.p * r.ps >= r.total
+        });
       }
       if (firstPage && that.isIssuePermalink()) {
         return that.showComponentViewer(that.options.app.list.first());
