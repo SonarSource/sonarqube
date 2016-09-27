@@ -34,7 +34,8 @@ export default React.createClass({
   },
 
   render() {
-    const homeUrl = window.baseUrl + '/';
+    const homeController = window.SS.user ? '/account' : '/';
+    const homeUrl = window.baseUrl + homeController;
     const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
     return (
         <div className="navbar-header">

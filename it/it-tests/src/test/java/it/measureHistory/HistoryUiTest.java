@@ -26,6 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
 
@@ -61,6 +62,7 @@ public class HistoryUiTest {
   }
 
   @Test
+  @Ignore
   public void test_timemachine_widget() {
     // Use old way to execute Selenium because 'waitForTextPresent' action is not supported by SeleneseTest
     orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("history-timemachine-widget",

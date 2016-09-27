@@ -49,6 +49,11 @@ export default React.createClass({
   },
 
   renderDashboards () {
+    if (window.SS.user) {
+      // do not render dashboards menu for authenticated users
+      return null;
+    }
+
     const dashboards = this.props.globalDashboards.map(this.renderDashboardLink);
     const canManageDashboards = !!window.SS.user;
     return (
