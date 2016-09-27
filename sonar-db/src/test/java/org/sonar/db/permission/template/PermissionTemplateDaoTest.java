@@ -56,19 +56,18 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class PermissionTemplateDaoTest {
 
-  System2 system = mock(System2.class);
-
+  private System2 system = mock(System2.class);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  GroupDbTester groupDb = new GroupDbTester(db);
-  UserDbTester userDb = new UserDbTester(db);
-  PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private GroupDbTester groupDb = new GroupDbTester(db);
+  private UserDbTester userDb = new UserDbTester(db);
+  private PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(db);
 
-  PermissionTemplateDao underTest = new PermissionTemplateDao(db.myBatis(), system);
+  private PermissionTemplateDao underTest = new PermissionTemplateDao(system);
 
   @Test
   public void should_create_permission_template() throws ParseException {

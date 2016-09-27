@@ -32,7 +32,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
@@ -47,11 +46,9 @@ public class PermissionTemplateDao implements Dao {
 
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
-  private final MyBatis myBatis;
   private final System2 system;
 
-  public PermissionTemplateDao(MyBatis myBatis, System2 system) {
-    this.myBatis = myBatis;
+  public PermissionTemplateDao(System2 system) {
     this.system = system;
   }
 
