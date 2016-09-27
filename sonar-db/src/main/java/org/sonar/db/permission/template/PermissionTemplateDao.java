@@ -29,7 +29,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -266,7 +265,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Remove a group from all templates (used when removing a group)
    */
-  public void deleteByGroup(SqlSession session, Long groupId) {
+  public void deleteByGroup(DbSession session, Long groupId) {
     session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 
@@ -274,7 +273,7 @@ public class PermissionTemplateDao implements Dao {
     return new Date(system.now());
   }
 
-  private static PermissionTemplateMapper mapper(SqlSession session) {
+  private static PermissionTemplateMapper mapper(DbSession session) {
     return session.getMapper(PermissionTemplateMapper.class);
   }
 }

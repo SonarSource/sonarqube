@@ -21,7 +21,6 @@ package org.sonar.db.user;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -48,11 +47,11 @@ public class RoleDao implements Dao {
     mapper(session).insertUserRole(userRole);
   }
 
-  public void deleteUserRole(UserPermissionDto userRole, SqlSession session) {
+  public void deleteUserRole(UserPermissionDto userRole, DbSession session) {
     mapper(session).deleteUserRole(userRole);
   }
 
-  public void deleteGroupRole(GroupRoleDto groupRole, SqlSession session) {
+  public void deleteGroupRole(GroupRoleDto groupRole, DbSession session) {
     mapper(session).deleteGroupRole(groupRole);
   }
 
@@ -89,7 +88,7 @@ public class RoleDao implements Dao {
     deleteUserRolesByResourceId(session, resourceId);
   }
 
-  private static RoleMapper mapper(SqlSession session) {
+  private static RoleMapper mapper(DbSession session) {
     return session.getMapper(RoleMapper.class);
   }
 }

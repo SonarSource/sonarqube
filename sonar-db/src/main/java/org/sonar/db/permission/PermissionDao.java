@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -110,7 +109,7 @@ public class PermissionDao implements Dao {
       });
   }
 
-  private static PermissionMapper mapper(SqlSession session) {
+  private static PermissionMapper mapper(DbSession session) {
     return session.getMapper(PermissionMapper.class);
   }
 

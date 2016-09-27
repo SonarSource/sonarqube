@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -35,22 +34,22 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupMembershipDao implements Dao {
 
-  public List<GroupMembershipDto> selectGroups(SqlSession session, GroupMembershipQuery query, Long userId, int offset, int limit) {
+  public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, Long userId, int offset, int limit) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
     return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
-  public int countGroups(SqlSession session, GroupMembershipQuery query, Long userId) {
+  public int countGroups(DbSession session, GroupMembershipQuery query, Long userId) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
     return mapper(session).countGroups(params);
   }
 
-  public List<UserMembershipDto> selectMembers(SqlSession session, UserMembershipQuery query, int offset, int limit) {
+  public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query, int offset, int limit) {
     Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
     return mapper(session).selectMembers(params, new RowBounds(offset, limit));
   }
 
-  public int countMembers(SqlSession session, UserMembershipQuery query) {
+  public int countMembers(DbSession session, UserMembershipQuery query) {
     Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
     return mapper(session).countMembers(params);
   }
@@ -85,7 +84,7 @@ public class GroupMembershipDao implements Dao {
     return result;
   }
 
-  private static GroupMembershipMapper mapper(SqlSession session) {
+  private static GroupMembershipMapper mapper(DbSession session) {
     return session.getMapper(GroupMembershipMapper.class);
   }
 }

@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -57,7 +56,7 @@ public class AuthorizationDao implements Dao {
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectAuthorizedRootProjectsKeys(userId, role, session);
 
@@ -67,7 +66,7 @@ public class AuthorizationDao implements Dao {
   }
 
   public Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectAuthorizedRootProjectsUuids(userId, role, session);
 
@@ -76,7 +75,7 @@ public class AuthorizationDao implements Dao {
     }
   }
 
-  private static Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role, SqlSession session) {
+  private static Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role, DbSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsKeys";
@@ -86,7 +85,7 @@ public class AuthorizationDao implements Dao {
     return session.selectList(sql, params);
   }
 
-  private static Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role, SqlSession session) {
+  private static Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role, DbSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsUuids";
@@ -97,7 +96,7 @@ public class AuthorizationDao implements Dao {
   }
 
   public List<String> selectGlobalPermissions(@Nullable String userLogin) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put("userLogin", userLogin);

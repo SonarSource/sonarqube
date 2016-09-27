@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -51,7 +50,7 @@ public class UserDao implements Dao {
   }
 
   public UserDto selectUserById(long userId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectUserById(session, userId);
     } finally {
@@ -59,7 +58,7 @@ public class UserDao implements Dao {
     }
   }
 
-  public UserDto selectUserById(SqlSession session, long userId) {
+  public UserDto selectUserById(DbSession session, long userId) {
     return session.getMapper(UserMapper.class).selectUser(userId);
   }
 
@@ -140,12 +139,12 @@ public class UserDao implements Dao {
     return mapper.selectUsers(query);
   }
 
-  public UserDto insert(SqlSession session, UserDto dto) {
+  public UserDto insert(DbSession session, UserDto dto) {
     session.getMapper(UserMapper.class).insert(dto);
     return dto;
   }
 
-  public UserDto update(SqlSession session, UserDto dto) {
+  public UserDto update(DbSession session, UserDto dto) {
     session.getMapper(UserMapper.class).update(dto);
     return dto;
   }
