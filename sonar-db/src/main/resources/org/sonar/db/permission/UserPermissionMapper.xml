@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.permission.UserPermissionMapper">
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.permission.ExtendedUserPermissionDto">
+    select
+      u.id as userId,
+      ur.resource_id as componentId,
+      ur.role as permission,
+      u.login as userLogin,
+      p.uuid as componentUuid
+    <include refid="sqlQuery" />
+    order by lower(u.name), u.name, u.id
+  </select>
+
+  <select id="countUsersByQuery" parameterType="map" resultType="int">
+    select count(distinct(u.id))
+    <include refid="sqlQuery" />
+  </select>
+
+  <sql id="sqlQuery">
+    from users u
+    left join user_roles ur on ur.user_id = u.id
+    left join projects p on ur.resource_id = p.id
+    <where>
+      <if test="userLogins == null">
+        and u.active = ${_true}
+      </if>
+      <if test="userLogins != null">
+        and u.login in <foreach collection="userLogins" open="(" close=")" item="userLogin" separator=",">#{userLogin}</foreach>
+      </if>
+      <if test="query.searchQueryToSql != null">
+        and lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
+      </if>
+      <if test="query.componentUuid!=null">
+        and p.uuid = #{query.componentUuid}
+      </if>
+      <!-- filter rows with user permissions -->
+      <if test="query.withAtLeastOnePermission()">
+        and ur.role is not null
+        <if test="query.componentUuid==null">
+          and ur.resource_id is null
+        </if>
+        <if test="query.permission!=null">
+          and ur.role = #{query.permission}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="countUsersPerProjectPermission" resultType="org.sonar.db.permission.UserCountPerProjectPermission">
+    select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
+    from users u
+    inner join user_roles ur on ur.user_id = u.id
+    inner join projects p on p.id = ur.resource_id
+    where u.active = ${_true}
+    and p.id in (<foreach collection="componentIds" open="(" close=")" item="projectId" separator=",">#{projectId}</foreach>)
+    group by ur.resource_id, ur.role
+  </select>
+
+  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO group_roles (group_id, resource_id, role)
+    VALUES (#{groupId}, #{resourceId}, #{role})
+  </insert>
+
+  <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
+    insert into user_roles (user_id, resource_id, role)
+    values (#{userId,jdbcType=BIGINT}, #{componentId,jdbcType=BIGINT}, #{permission,jdbcType=VARCHAR})
+  </insert>
+
+</mapper>

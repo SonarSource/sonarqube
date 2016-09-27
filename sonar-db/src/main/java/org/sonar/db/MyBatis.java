@@ -85,6 +85,7 @@ import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMapper;
 import org.sonar.db.permission.GroupWithPermissionDto;
+import org.sonar.db.permission.UserPermissionMapper;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
@@ -279,6 +280,7 @@ public class MyBatis {
       SnapshotMapper.class,
       UserGroupMapper.class,
       UserMapper.class,
+      UserPermissionMapper.class,
       UserTokenMapper.class,
       WidgetMapper.class,
       WidgetPropertyMapper.class

@@ -51,7 +51,7 @@ public class PermissionQuery {
   private final String searchQuery;
   private final String searchQueryToSql;
 
-  // filter users or groups that have at least one permission. It does make
+  // filter users or groups who have at least one permission. It does make
   // sense when the filter "permission" is set.
   private final boolean withAtLeastOnePermission;
 
