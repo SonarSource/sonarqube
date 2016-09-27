@@ -34,6 +34,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrganizationIt {
+  private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
   private static final String NAME = "Foo Company";
   private static final String KEY = "foo-company";
   private static final String DESCRIPTION = "the description of Foo company";
@@ -47,8 +48,8 @@ public class OrganizationIt {
   private OrganizationService adminOrganizationService = ItUtils.newAdminWsClient(orchestrator).organizations();
 
   @Test
-  public void create_update_delete_an_organization() {;
-    verifyNoSearchResult();
+  public void create_update_delete_an_organization() {
+    verifyNoExtraOrganization();
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(NAME)
@@ -96,7 +97,7 @@ public class OrganizationIt {
 
     // delete by uuid
     adminOrganizationService.delete(createdOrganization.getId(), null);
-    verifyNoSearchResult();
+    verifyNoExtraOrganization();
   }
 
   @Test
@@ -104,27 +105,32 @@ public class OrganizationIt {
     // create organization without key
     String name = "Foo  Company to keyize";
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-        .setName(name)
-        .build())
-        .getOrganization();
+      .setName(name)
+      .build())
+      .getOrganization();
     assertThat(createdOrganization.getKey()).isEqualTo("foo-company-to-keyize");
     verifySingleSearchResult(createdOrganization, name, null, null, null);
 
     // delete by key
     adminOrganizationService.delete(null, createdOrganization.getKey());
-    verifyNoSearchResult();
+    verifyNoExtraOrganization();
   }
 
-  private void verifyNoSearchResult() {
+  private void verifyNoExtraOrganization() {
     Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().build());
-    assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
+    List<Organizations.Organization> organizationsList = searchWsResponse.getOrganizationsList();
+    assertThat(organizationsList).hasSize(1);
+    assertThat(organizationsList.iterator().next().getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
   }
 
   private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
-                                        String avatarUrl) {
+    String avatarUrl) {
     List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder().build()).getOrganizationsList();
-    assertThat(organizations).hasSize(1);
-    Organizations.Organization searchedOrganization = organizations.get(0);
+    assertThat(organizations).hasSize(2);
+    Organizations.Organization searchedOrganization = organizations.stream()
+      .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
+      .findFirst()
+      .get();
     assertThat(searchedOrganization.getId()).isEqualTo(createdOrganization.getId());
     assertThat(searchedOrganization.getKey()).isEqualTo(createdOrganization.getKey());
     assertThat(searchedOrganization.getName()).isEqualTo(name);
