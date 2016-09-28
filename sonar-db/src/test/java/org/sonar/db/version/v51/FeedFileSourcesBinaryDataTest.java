@@ -68,15 +68,18 @@ public class FeedFileSourcesBinaryDataTest {
   }
 
   @Test
-  public void fail_to_parse_csv() throws Exception {
+  public void execute_does_not_fail_when_data_can_not_be_parsed_and_row_is_ignored() throws Exception {
     db.prepareDbUnit(getClass(), "bad_data.xml");
 
     MigrationStep migration = new FeedFileSourcesBinaryData(db.database());
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=1,data=");
-
     migration.execute();
+
+    try (Connection connection = db.openConnection()) {
+      DbFileSources.Data data = selectData(connection, 1L);
+
+      assertThat(data.getLinesList()).isEmpty();
+    }
   }
 
   private DbFileSources.Data selectData(Connection connection, long fileSourceId) throws SQLException {
