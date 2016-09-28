@@ -19,13 +19,25 @@
  */
 package org.sonar.db.permission;
 
-public class CountByProjectAndPermissionDto {
+import com.google.common.annotations.VisibleForTesting;
+
+/**
+ * Count the number of users or groups for a given project and permission
+ */
+public class CountPerProjectPermission {
   private long componentId;
   private String permission;
   private int count;
 
-  public CountByProjectAndPermissionDto() {
+  public CountPerProjectPermission() {
     // used by MyBatis
+  }
+
+  @VisibleForTesting
+  CountPerProjectPermission(long componentId, String permission, int count) {
+    this.componentId = componentId;
+    this.permission = permission;
+    this.count = count;
   }
 
   public long getComponentId() {
@@ -39,5 +51,4 @@ public class CountByProjectAndPermissionDto {
   public int getCount() {
     return count;
   }
-
 }

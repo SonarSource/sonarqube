@@ -90,7 +90,7 @@ public class UserPermissionDao implements Dao {
    *
    * @param projectIds a non-null list of project ids to filter on. If empty then an empty list is returned.
    */
-  public List<UserCountPerProjectPermission> countUsersByProjectPermission(DbSession dbSession, Collection<Long> projectIds) {
+  public List<CountPerProjectPermission> countUsersByProjectPermission(DbSession dbSession, Collection<Long> projectIds) {
     return executeLargeInputs(projectIds, mapper(dbSession)::countUsersByProjectPermission);
   }
 

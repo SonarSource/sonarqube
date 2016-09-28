@@ -49,7 +49,7 @@
     </where>
   </sql>
 
-  <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.UserCountPerProjectPermission">
+  <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.CountPerProjectPermission">
     select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_id = u.id

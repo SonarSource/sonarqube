@@ -75,8 +75,8 @@ public class GroupPermissionDaoTest {
     permissionDb.addProjectPermissionToGroup(USER, group1.getId(), 123L);
     permissionDb.addProjectPermissionToGroup(USER, group1.getId(), 456L);
 
-    final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
-    underTest.groupsCountByComponentIdAndPermission(dbSession, asList(123L, 456L, 789L), context -> result.add((CountByProjectAndPermissionDto) context.getResultObject()));
+    final List<CountPerProjectPermission> result = new ArrayList<>();
+    underTest.groupsCountByComponentIdAndPermission(dbSession, asList(123L, 456L, 789L), context -> result.add((CountPerProjectPermission) context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);

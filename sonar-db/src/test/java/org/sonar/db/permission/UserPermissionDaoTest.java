@@ -192,14 +192,14 @@ public class UserPermissionDaoTest {
 
     // one project
     expectCount(asList(project1.getId()),
-      new UserCountPerProjectPermission(project1.getId(), USER, 1),
-      new UserCountPerProjectPermission(project1.getId(), ISSUE_ADMIN, 2));
+      new CountPerProjectPermission(project1.getId(), USER, 1),
+      new CountPerProjectPermission(project1.getId(), ISSUE_ADMIN, 2));
 
     // multiple projects
     expectCount(asList(project1.getId(), project2.getId(), -1L),
-      new UserCountPerProjectPermission(project1.getId(), USER, 1),
-      new UserCountPerProjectPermission(project1.getId(), ISSUE_ADMIN, 2),
-      new UserCountPerProjectPermission(project2.getId(), ISSUE_ADMIN, 1));
+      new CountPerProjectPermission(project1.getId(), USER, 1),
+      new CountPerProjectPermission(project1.getId(), ISSUE_ADMIN, 2),
+      new CountPerProjectPermission(project2.getId(), ISSUE_ADMIN, 1));
   }
 
   @Test
@@ -284,11 +284,11 @@ public class UserPermissionDaoTest {
     assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where role='" + SYSTEM_ADMIN + "' and user_id=" + user1.getId())).isEqualTo(1);
   }
 
-  private void expectCount(List<Long> projectIds, UserCountPerProjectPermission... expected) {
-    List<UserCountPerProjectPermission> got = underTest.countUsersByProjectPermission(dbTester.getSession(), projectIds);
+  private void expectCount(List<Long> projectIds, CountPerProjectPermission... expected) {
+    List<CountPerProjectPermission> got = underTest.countUsersByProjectPermission(dbTester.getSession(), projectIds);
     assertThat(got).hasSize(expected.length);
 
-    for (UserCountPerProjectPermission expect : expected) {
+    for (CountPerProjectPermission expect : expected) {
       boolean found = got.stream().anyMatch(b -> b.getPermission().equals(expect.getPermission()) &&
         b.getCount() == expect.getCount() &&
         b.getComponentId() == expect.getComponentId());

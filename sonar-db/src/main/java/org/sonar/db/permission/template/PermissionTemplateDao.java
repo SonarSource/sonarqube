@@ -32,7 +32,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.CountByProjectAndPermissionDto;
+import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 
@@ -140,7 +140,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountByProjectAndPermissionDto}
+   * Each row returns a #{@link CountPerProjectPermission}
    */
   public void usersCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
     Map<String, Object> parameters = new HashMap<>(1);
@@ -155,7 +155,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Each row returns a #{@link CountByProjectAndPermissionDto}
+   * Each row returns a #{@link CountPerProjectPermission}
    */
   public void groupsCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);

@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.db.permission.CountByProjectAndPermissionDto;
+import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -117,7 +117,7 @@ public class SearchProjectPermissionsDataLoader {
     final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
 
     dbClient.groupPermissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
-      CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
+      CountPerProjectPermission row = (CountPerProjectPermission) context.getResultObject();
       userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
     });
 
