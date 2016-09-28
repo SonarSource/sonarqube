@@ -127,7 +127,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   @CheckForNull
   private static String getStackTraceForPersistence(Throwable error) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-         LineReturnEnforcedPrintStream printStream = new LineReturnEnforcedPrintStream(out);) {
+         LineReturnEnforcedPrintStream printStream = new LineReturnEnforcedPrintStream(out)) {
       error.printStackTrace(printStream);
       printStream.flush();
       return out.toString();

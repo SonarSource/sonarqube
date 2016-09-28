@@ -69,7 +69,7 @@ public final class FileUtils {
     requireNonNull(directory, DIRECTORY_CAN_NOT_BE_NULL);
 
     Path path = directory.toPath();
-    if (!Files.exists(path)) {
+    if (!path.toFile().exists()) {
       return;
     }
 
@@ -112,23 +112,24 @@ public final class FileUtils {
   }
 
   private static void cleanDirectoryImpl(Path path) throws IOException {
-    checkArgument(Files.isDirectory(path), "'%s' is not a directory", path);
+    checkArgument(path.toFile().isDirectory(), "'%s' is not a directory", path);
 
     Files.walkFileTree(path, FOLLOW_LINKS, CleanDirectoryFileVisitor.VISIT_MAX_DEPTH, new CleanDirectoryFileVisitor(path));
   }
 
   private static void deleteDirectoryImpl(Path path) throws IOException {
     requireNonNull(path, DIRECTORY_CAN_NOT_BE_NULL);
-    if (!Files.exists(path)) {
+    File file = path.toFile();
+    if (!file.exists()) {
       return;
     }
 
     checkIO(!Files.isSymbolicLink(path), "Directory '%s' is a symbolic link", path);
-    checkIO(!Files.isRegularFile(path), "Directory '%s' is a file", path);
+    checkIO(!file.isFile(), "Directory '%s' is a file", path);
 
     Files.walkFileTree(path, DeleteRecursivelyFileVisitor.INSTANCE);
 
-    checkIO(!Files.exists(path), "Unable to delete directory '%s'", path);
+    checkIO(!file.exists(), "Unable to delete directory '%s'", path);
   }
 
   /**
@@ -149,7 +150,7 @@ public final class FileUtils {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      if (Files.isDirectory(file)) {
+      if (file.toFile().isDirectory()) {
         deleteDirectoryImpl(file);
       } else if (!symLink || !file.equals(path)) {
         Files.delete(file);

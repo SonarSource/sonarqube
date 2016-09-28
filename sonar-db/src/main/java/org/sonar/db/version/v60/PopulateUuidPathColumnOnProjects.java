@@ -147,7 +147,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     }
 
     // inputs: null (on Oracle), "", "1." or "1.2.3."
-    private long[] parsePath(@Nullable String snapshotPath) {
+    private static long[] parsePath(@Nullable String snapshotPath) {
       if (snapshotPath == null) {
         return EMPTY_PATH;
       }

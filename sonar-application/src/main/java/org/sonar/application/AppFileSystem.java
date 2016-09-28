@@ -145,13 +145,14 @@ public class AppFileSystem implements FileSystem {
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      if (Files.isDirectory(file)) {
-        deleteDirectory(file.toFile());
-      } else if (file.getFileName().equals(SHAREDMEMORY_FILE)) {
+    public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+      File file = filePath.toFile();
+      if (file.isDirectory()) {
+        deleteDirectory(file);
+      } else if (filePath.getFileName().equals(SHAREDMEMORY_FILE)) {
         return CONTINUE;
-      } else if (!symLink || !file.equals(path)) {
-        Files.delete(file);
+      } else if (!symLink || !filePath.equals(path)) {
+        Files.delete(filePath);
       }
       return CONTINUE;
     }
