@@ -3,61 +3,6 @@
 
 <mapper namespace="org.sonar.db.permission.GroupPermissionMapper">
 
-  <sql id="usersSelection">
-    FROM users u
-    LEFT JOIN user_roles user_role ON user_role.user_id=u.id
-    AND user_role.role=#{query.permission}
-    <if test="componentId != null">
-      AND user_role.resource_id=#{componentId}
-    </if>
-    <if test="componentId == null">
-      AND user_role.resource_id IS NULL
-    </if>
-    <where>
-      u.active = ${_true}
-      <choose>
-        <when test="query.membership() == 'IN'">
-          AND user_role.role IS NOT NULL
-        </when>
-        <when test="query.membership() == 'OUT'">
-          AND user_role.role IS NULL
-        </when>
-      </choose>
-      <if test="query.search() != null">
-        AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
-      </if>
-    </where>
-  </sql>
-
-  <sql id="userColumns">
-    <!-- u.name and u.id are present to order by with select distinct -->
-    u.login as login, u.name as name, u.id
-  </sql>
-
-  <sql id="usersByQuery">
-    from users u
-      left join user_roles ur ON ur.user_id=u.id
-        left join projects p on ur.resource_id = p.id
-    where
-      u.active = ${_true}
-      <if test="query.searchQueryToSql != null">
-        and lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
-      </if>
-      <!-- filter rows with user permissions -->
-      <if test="query.withAtLeastOnePermission()">
-        and ur.role is not null
-        <if test="query.componentUuid==null">
-          and ur.resource_id is null
-        </if>
-        <if test="query.componentUuid!=null">
-          and p.uuid=#{query.componentUuid}
-        </if>
-        <if test="query.permission!=null">
-          and ur.role=#{query.permission}
-        </if>
-      </if>
-  </sql>
-
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
     SELECT count(1) as count, permission, componentId
