@@ -19,15 +19,26 @@
  */
 package org.sonar.db.user;
 
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.Dto;
 
-public class GroupDto extends Dto<String> {
+public class GroupDto {
 
   private Long id;
   private String name;
   private String description;
+  private String organizationUuid;
+  private Date createdAt;
+  private Date updatedAt;
+
+  public final Date getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public final Date getUpdatedAt() {
+    return this.updatedAt;
+  }
 
   public Long getId() {
     return id;
@@ -57,9 +68,36 @@ public class GroupDto extends Dto<String> {
     return this;
   }
 
-  @Override
-  public String getKey() {
-    return name;
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
+  public GroupDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
+    return this;
+  }
+
+  public GroupDto setCreatedAt(Date d) {
+    this.createdAt = d;
+    return this;
+  }
+
+  public GroupDto setUpdatedAt(Date d) {
+    this.updatedAt = d;
+    return this;
+  }
+
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("GroupDto{");
+    sb.append("id=").append(id);
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", description='").append(description).append('\'');
+    sb.append(", organizationUuid='").append(organizationUuid).append('\'');
+    sb.append(", createdAt=").append(createdAt);
+    sb.append(", updatedAt=").append(updatedAt);
+    sb.append('}');
+    return sb.toString();
+  }
 }
