@@ -238,21 +238,6 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(DbSession session, String childKey) {
-    return mapper(session).selectParent(childKey);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectParent(String childKey) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectParent(session, childKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public QualityProfileDto selectParentById(DbSession session, int childId) {
     return mapper(session).selectParentById(childId);
   }
@@ -303,15 +288,6 @@ public class QualityProfileDao implements Dao {
 
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
     return mapper(session).selectProjects(profileName, language);
-  }
-
-  public int countProjects(String profileName, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).countProjects(profileName, language);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public Map<String, Long> countProjectsByProfileKey() {

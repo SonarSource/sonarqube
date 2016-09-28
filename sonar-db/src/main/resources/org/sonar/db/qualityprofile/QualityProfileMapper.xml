@@ -108,13 +108,6 @@
     WHERE p.id=#{id}
   </select>
 
-  <select id="selectParent" parameterType="string" resultType="QualityProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    INNER JOIN rules_profiles child ON child.parent_kee=p.kee AND child.kee=#{id}
-  </select>
-
   <select id="selectParentById" parameterType="int" resultType="QualityProfile">
     SELECT
     <include refid="profilesColumns"/>
@@ -199,17 +192,6 @@
       AND UPPER(pj.name) LIKE #{nameQuery}
     </where>
     ORDER BY pj.name ASC
-  </select>
-
-  <select id="countProjects" parameterType="Integer" resultType="Integer">
-    SELECT count(projects.id)
-    FROM projects projects
-    JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
-    JOIN rules_profiles prof ON pp.profile_key=prof.kee
-    <where>
-      AND prof.language=#{language}
-      AND prof.name=#{profileName}
-    </where>
   </select>
 
   <select id="countProjectsByProfile" resultType="org.sonar.db.qualityprofile.QualityProfileProjectCount">

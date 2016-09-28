@@ -246,13 +246,6 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void count_projects() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
-
-    assertThat(underTest.countProjects("Sonar Way", "java")).isEqualTo(2);
-  }
-
-  @Test
   public void count_projects_by_profile() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
