@@ -35,9 +35,9 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionDbTester;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -120,12 +120,12 @@ public class UsersActionTest {
     // User have permission on project
     ComponentDto project = componentDbTester.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     UserDto user = userDb.insertUser(newUserDto());
-    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+    insertUserPermission(new UserPermissionDto(ISSUE_ADMIN, user.getId(), project.getId()));
 
     // User have permission on another project
     ComponentDto anotherProject = componentDbTester.insertComponent(newProjectDto());
     UserDto userHavePermissionOnAnotherProject = userDb.insertUser(newUserDto());
-    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(userHavePermissionOnAnotherProject.getId()).setComponentId(anotherProject.getId()));
+    insertUserPermission(new UserPermissionDto(ISSUE_ADMIN, userHavePermissionOnAnotherProject.getId(), anotherProject.getId()));
 
     // User has no permission
     UserDto withoutPermission = userDb.insertUser(newUserDto());
@@ -149,7 +149,7 @@ public class UsersActionTest {
     // User have permission on project
     ComponentDto project = componentDbTester.insertComponent(newProjectDto());
     UserDto user = userDb.insertUser(newUserDto());
-    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+    insertUserPermission(new UserPermissionDto(ISSUE_ADMIN, user.getId(), project.getId()));
 
     // User has no permission
     UserDto withoutPermission = userDb.insertUser(newUserDto());
@@ -168,12 +168,12 @@ public class UsersActionTest {
   public void search_also_for_users_without_permission_when_search_query() {
     userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
 
-    // User have permission on project
+    // User with permission on project
     ComponentDto project = componentDbTester.insertComponent(newProjectDto());
     UserDto user = userDb.insertUser(newUserDto("with-permission", "with-permission", null));
-    insertUserRole(new UserPermissionDto().setPermission(ISSUE_ADMIN).setUserId(user.getId()).setComponentId(project.getId()));
+    insertUserPermission(new UserPermissionDto(ISSUE_ADMIN, user.getId(), project.getId()));
 
-    // User has no permission
+    // User without permission
     UserDto withoutPermission = userDb.insertUser(newUserDto("without-permission", "without-permission", null));
     UserDto anotherUser = userDb.insertUser(newUserDto("another-user", "another-user", null));
 
@@ -269,8 +269,8 @@ public class UsersActionTest {
     return user;
   }
 
-  private void insertUserRole(UserPermissionDto userPermissionDto) {
-    dbClient.roleDao().insertUserRole(dbSession, userPermissionDto);
+  private void insertUserPermission(UserPermissionDto userPermissionDto) {
+    dbClient.userPermissionDao().insert(dbSession, userPermissionDto);
     dbSession.commit();
   }
 
@@ -278,9 +278,9 @@ public class UsersActionTest {
     UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
     UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
-    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserPermissionDto().setPermission(SYSTEM_ADMIN).setUserId(user3.getId()));
-    insertUserRole(new UserPermissionDto().setPermission(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserPermission(new UserPermissionDto(SCAN_EXECUTION, user1.getId(), null));
+    insertUserPermission(new UserPermissionDto(SYSTEM_ADMIN, user3.getId(), null));
+    insertUserPermission(new UserPermissionDto(SCAN_EXECUTION, user2.getId(), null));
     dbSession.commit();
   }
 }

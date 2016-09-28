@@ -26,7 +26,6 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class RoleMapperTest {
 
   @Rule
@@ -47,10 +46,9 @@ public class RoleMapperTest {
 
     RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     mapper.deleteGroupRolesByResourceId(123L);
-    mapper.deleteUserRolesByResourceId(123L);
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles", "user_roles");
+    dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles");
   }
 
   @Test
@@ -60,9 +58,8 @@ public class RoleMapperTest {
     RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     mapper.insertGroupRole(new GroupRoleDto().setRole("admin").setGroupId(100L).setResourceId(123L));
     mapper.insertGroupRole(new GroupRoleDto().setRole("user").setResourceId(123L));// Anyone
-    mapper.insertUserRole(new UserPermissionDto().setPermission("codeviewer").setUserId(200L).setComponentId(123L));// Anyone
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insertRoles-result.xml", "group_roles", "user_roles");
+    dbTester.assertDbUnit(getClass(), "insertRoles-result.xml", "group_roles");
   }
 }

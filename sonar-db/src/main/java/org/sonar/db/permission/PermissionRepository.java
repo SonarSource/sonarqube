@@ -133,20 +133,21 @@ public class PermissionRepository {
     }
   }
 
-  public void applyPermissionTemplate(DbSession session, String templateUuid, long resourceId) {
-    applyPermissionTemplate(session, templateUuid, resourceId, null);
+  public void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project) {
+    applyPermissionTemplate(session, templateUuid, project, null);
   }
 
-  private void applyPermissionTemplate(DbSession session, String templateUuid, long componentId, @Nullable Long currentUserId) {
+  private void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project, @Nullable Long currentUserId) {
     PermissionTemplate permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
-    updateProjectAuthorizationDate(session, componentId);
-    dbClient.roleDao().removeAllPermissions(session, componentId);
+    updateProjectAuthorizationDate(session, project.getId());
+    dbClient.roleDao().deleteGroupRolesByResourceId(session, project.getId());
+    dbClient.userPermissionDao().delete(session, null, project.uuid(), null);
 
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUserPermissions();
-    usersPermissions.forEach(userPermission -> insertUserPermission(componentId, userPermission.getUserId(), userPermission.getPermission(), false, session));
+    usersPermissions.forEach(userPermission -> insertUserPermission(project.getId(), userPermission.getUserId(), userPermission.getPermission(), false, session));
 
     List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupPermissions();
-    groupsPermissions.forEach(groupPermission -> insertGroupPermission(componentId, isAnyone(groupPermission.getGroupName()) ? null : groupPermission.getGroupId(),
+    groupsPermissions.forEach(groupPermission -> insertGroupPermission(project.getId(), isAnyone(groupPermission.getGroupName()) ? null : groupPermission.getGroupId(),
       groupPermission.getPermission(), false, session));
 
     List<PermissionTemplateCharacteristicDto> characteristics = permissionTemplate.getCharacteristics();
@@ -158,7 +159,7 @@ public class PermissionRepository {
       characteristics.stream()
         .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
-        .forEach(characteristic -> insertUserPermission(componentId, currentUserId, characteristic.getPermission(), false, session));
+        .forEach(characteristic -> insertUserPermission(project.getId(), currentUserId, characteristic.getPermission(), false, session));
     }
   }
 
@@ -172,7 +173,7 @@ public class PermissionRepository {
 
   public void applyDefaultPermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable Long userId) {
     String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(dbSession, componentDto.getKey(), componentDto.qualifier());
-    applyPermissionTemplate(dbSession, applicablePermissionTemplateKey, componentDto.getId(), userId);
+    applyPermissionTemplate(dbSession, applicablePermissionTemplateKey, componentDto, userId);
   }
 
   /**

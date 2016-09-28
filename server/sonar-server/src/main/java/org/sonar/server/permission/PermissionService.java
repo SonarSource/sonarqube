@@ -117,7 +117,7 @@ public class PermissionService {
     // TODO apply permission templates in on query instead of on on each project
     for (String componentKey : query.getComponentKeys()) {
       ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
-      permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component.getId());
+      permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component);
     }
     dbSession.commit();
 

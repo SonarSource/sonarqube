@@ -28,11 +28,6 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface RoleMapper {
 
-  /**
-   * @return permissions from a user
-   */
-  List<String> selectUserPermissions(@Param("userLogin") String userLogin, @Nullable @Param("resourceId") Long resourceId);
-
   List<Long> selectComponentIdsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") long userId);
 
   /**
@@ -49,8 +44,6 @@ public interface RoleMapper {
   void deleteGroupRole(GroupRoleDto groupRole);
 
   void deleteGroupRolesByResourceId(Long resourceId);
-
-  void deleteUserRolesByResourceId(Long resourceId);
 
   int countResourceGroupRoles(Long resourceId);
 

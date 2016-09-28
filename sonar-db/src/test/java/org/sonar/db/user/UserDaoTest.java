@@ -318,7 +318,7 @@ public class UserDaoTest {
     assertThat(dbClient.measureFilterDao().selectById(session, measureFilter.getId())).isNull();
     assertThat(dbClient.measureFilterFavouriteDao().selectById(session, measureFilterFavourite.getId())).isNull();
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
-    assertThat(dbClient.roleDao().selectUserPermissions(session, user.getLogin(), null)).isEmpty();
+    assertThat(dbClient.userPermissionDao().selectPermissionsByLogin(session, user.getLogin(), null)).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().login(user.getLogin()).membership(IN).build(), user.getId())).isZero();
   }
 

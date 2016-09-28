@@ -39,13 +39,6 @@ public class PermissionDao implements Dao {
   private static final String COMPONENT_ID_PARAMETER = "componentId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
-  /**
-   * Ordered by user names
-   */
-  public List<String> selectLoginsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectLoginsByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
-  }
-
   public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
     return mapper(dbSession).countUsersByPermissionQuery(query);
   }

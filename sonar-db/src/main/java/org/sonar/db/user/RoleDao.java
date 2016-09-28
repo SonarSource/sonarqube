@@ -27,14 +27,6 @@ import org.sonar.db.DbSession;
 
 public class RoleDao implements Dao {
 
-  /**
-   * @deprecated replaced by {@link org.sonar.db.permission.UserPermissionDao#selectUserPermissions(DbSession, String, String)}
-   */
-  @Deprecated
-  public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
-    return mapper(session).selectUserPermissions(userLogin, resourceId);
-  }
-
   // TODO to be moved to PermissionVerifierDao
   public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
@@ -68,12 +60,8 @@ public class RoleDao implements Dao {
     mapper(session).deleteGroupRole(groupRole);
   }
 
-  private void deleteGroupRolesByResourceId(DbSession session, Long resourceId) {
+  public void deleteGroupRolesByResourceId(DbSession session, Long resourceId) {
     mapper(session).deleteGroupRolesByResourceId(resourceId);
-  }
-
-  private void deleteUserRolesByResourceId(DbSession session, Long resourceId) {
-    mapper(session).deleteUserRolesByResourceId(resourceId);
   }
 
   private int countResourceGroupRoles(DbSession session, Long resourceId) {
@@ -94,11 +82,6 @@ public class RoleDao implements Dao {
 
   public int countUserPermissions(DbSession session, String permission, @Nullable Long allGroupsExceptThisGroupId) {
     return mapper(session).countUsersWithPermission(permission, allGroupsExceptThisGroupId);
-  }
-
-  public void removeAllPermissions(DbSession session, Long resourceId) {
-    deleteGroupRolesByResourceId(session, resourceId);
-    deleteUserRolesByResourceId(session, resourceId);
   }
 
   private static RoleMapper mapper(DbSession session) {

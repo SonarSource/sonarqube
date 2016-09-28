@@ -138,10 +138,6 @@ public class UserPermissionDaoTest {
     PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().setComponentUuid(project1.uuid()).build();
     expectPermissions(query, null, perm3, perm2, perm1);
 
-    // default query on the project returns all permissions
-    query = PermissionQuery.builder().setComponentUuid(project1.uuid()).build();
-    expectPermissions(query, null, perm3, perm2, perm1);
-
     // project permissions of user1
     query = PermissionQuery.builder().withAtLeastOnePermission().setComponentUuid(project1.uuid()).build();
     expectPermissions(query, asList(user1.getLogin()), perm2, perm1);
@@ -166,8 +162,8 @@ public class UserPermissionDaoTest {
     query = PermissionQuery.builder().setPermission("missing").setComponentUuid(project1.uuid()).build();
     expectPermissions(query, null);
 
-    // search by user name (matches 2 users)
-    query = PermissionQuery.builder().setSearchQuery("Mari").setComponentUuid(project1.uuid()).build();
+    // search by user name (matches 2 users), users with at least one permission
+    query = PermissionQuery.builder().setSearchQuery("Mari").withAtLeastOnePermission().setComponentUuid(project1.uuid()).build();
     expectPermissions(query, null, perm3, perm2, perm1);
 
     // search by user name (matches 2 users) and project permission
@@ -179,7 +175,7 @@ public class UserPermissionDaoTest {
     expectPermissions(query, null);
 
     // permissions of unknown project
-    query = PermissionQuery.builder().setComponentUuid("missing").build();
+    query = PermissionQuery.builder().setComponentUuid("missing").withAtLeastOnePermission().build();
     expectPermissions(query, null);
   }
 

@@ -172,7 +172,7 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery dbQuery) {
-    List<String> orderedLogins = dbClient.permissionDao().selectLoginsByPermissionQuery(dbSession, dbQuery);
+    List<String> orderedLogins = dbClient.userPermissionDao().selectLogins(dbSession, dbQuery);
     return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }
 

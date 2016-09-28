@@ -1,8 +1,8 @@
 <dataset>
 
-  <projects uuid="A"
+  <projects uuid="THE_PROJECT_UUID"
             uuid_path="NOT_USED"
-            root_uuid="A"
+            root_uuid="THE_PROJECT_UUID"
             scope="PRJ"
             qualifier="TRK"
             kee="org.struts:struts"

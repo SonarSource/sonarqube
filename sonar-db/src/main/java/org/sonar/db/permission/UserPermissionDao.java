@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
@@ -52,6 +53,32 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
+   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)} to return only logins, in the same order.
+   */
+  public List<String> selectLogins(DbSession dbSession, PermissionQuery query) {
+    return select(dbSession, query, null).stream()
+      .map(p -> p.getUserLogin())
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  /**
+   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)}
+   * @param userLogin the non-null user login
+   * @param projectUuid if null, then return global permissions, else return permissions of user on this project
+   */
+  public Set<String> selectPermissionsByLogin(DbSession dbSession, String userLogin, @Nullable String projectUuid) {
+    PermissionQuery query = PermissionQuery.builder()
+      .withAtLeastOnePermission()
+      .setComponentUuid(projectUuid)
+      .build();
+    return select(dbSession, query, asList(userLogin)).stream()
+      .map(p -> p.getPermission())
+      .collect(Collectors.toSet());
+  }
+
+
+  /**
    * @see UserPermissionMapper#countUsersByQuery(PermissionQuery, Collection)
    */
   public int countUsers(DbSession dbSession, PermissionQuery query) {
@@ -79,17 +106,6 @@ public class UserPermissionDao implements Dao {
   public void delete(DbSession dbSession, @Nullable String login, @Nullable String projectUuid, @Nullable String permission) {
     checkArgument(isNotEmpty(login) || isNotEmpty(projectUuid), "At least one of login or project must be set");
     mapper(dbSession).delete(login, projectUuid, permission);
-  }
-
-  // shortcuts for migration
-  public List<String> selectUserPermissions(DbSession dbSession, String userLogin, @Nullable String projectUuid) {
-    PermissionQuery query = PermissionQuery.builder()
-      .withAtLeastOnePermission()
-      .setComponentUuid(projectUuid)
-      .build();
-    return select(dbSession, query, asList(userLogin)).stream()
-      .map(p -> p.getPermission())
-      .collect(Collectors.toList());
   }
 
   private static UserPermissionMapper mapper(DbSession dbSession) {

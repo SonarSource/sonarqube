@@ -42,22 +42,6 @@ public class RoleDaoTest {
   RoleDao underTest = db.getDbClient().roleDao();
 
   @Test
-  public void retrieve_global_user_permissions() {
-    db.prepareDbUnit(getClass(), "globalUserPermissions.xml");
-
-    assertThat(underTest.selectUserPermissions(db.getSession(), "admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    assertThat(underTest.selectUserPermissions(db.getSession(), "profile_admin_user", null)).containsOnly(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
-
-  @Test
-  public void retrieve_resource_user_permissions() {
-    db.prepareDbUnit(getClass(), "resourceUserPermissions.xml");
-
-    assertThat(underTest.selectUserPermissions(db.getSession(), "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
-    assertThat(underTest.selectUserPermissions(db.getSession(), "browse_admin_user", 1L)).containsOnly(UserRole.USER);
-  }
-
-  @Test
   public void select_user_permissions_by_permission_and_user_id() {
     underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(2L));
     underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(3L));
@@ -189,22 +173,18 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void should_remove_all_permissions() {
+  public void should_remove_group_permissions_on_project() {
     db.prepareDbUnit(getClass(), "should_remove_all_permissions.xml");
 
     assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).hasSize(1);
     assertThat(underTest.selectGroupPermissions(db.getSession(), "other", 123L)).isEmpty();
-    assertThat(underTest.selectUserPermissions(db.getSession(), "dave.loper", 123L)).hasSize(1);
-    assertThat(underTest.selectUserPermissions(db.getSession(), "other.user", 123L)).isEmpty();
 
-    underTest.removeAllPermissions(db.getSession(), 123L);
+    underTest.deleteGroupRolesByResourceId(db.getSession(), 123L);
     db.getSession().commit();
 
     db.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "group_roles", "group_id", "resource_id", "role");
-    db.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "user_roles", "user_id", "resource_id", "role");
 
     assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).isEmpty();
-    assertThat(underTest.selectUserPermissions(db.getSession(), "dave.loper", 123L)).isEmpty();
   }
 
   @Test

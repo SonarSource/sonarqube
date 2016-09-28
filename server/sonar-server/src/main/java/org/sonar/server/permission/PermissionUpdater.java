@@ -19,7 +19,9 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
@@ -103,10 +105,11 @@ public class PermissionUpdater {
   }
 
   private boolean applyChangeOnGroup(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.componentKey());
+    ComponentDto project = getComponent(session, permissionChange.componentKey());
+    Long projectId = project != null ? project.getId() : null;
     checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
 
-    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), componentId);
+    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), projectId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
@@ -115,29 +118,31 @@ public class PermissionUpdater {
     String permission = permissionChange.permission();
     if (Operation.ADD == operation) {
       validateNotAnyoneAndAdminPermission(permission, permissionChange.groupName());
-      permissionRepository.insertGroupPermission(componentId, targetedGroup, permission, session);
+      permissionRepository.insertGroupPermission(projectId, targetedGroup, permission, session);
     } else {
       checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
-      permissionRepository.deleteGroupPermission(componentId, targetedGroup, permission, session);
+      permissionRepository.deleteGroupPermission(projectId, targetedGroup, permission, session);
     }
     return true;
   }
 
   private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.componentKey());
+    ComponentDto project = getComponent(session, permissionChange.componentKey());
+    Long projectId = project != null ? project.getId() : null;
+    String projectUuid = project != null ? project.uuid() : null;
     checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
 
-    List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.userLogin(), componentId);
+    Set<String> existingPermissions = dbClient.userPermissionDao().selectPermissionsByLogin(session, permissionChange.userLogin(), projectUuid);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
 
     Long targetedUser = getTargetedUser(session, permissionChange.userLogin());
     if (Operation.ADD == operation) {
-      permissionRepository.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.insertUserPermission(projectId, targetedUser, permissionChange.permission(), session);
     } else {
       checkOtherAdminUsersExist(session, permissionChange);
-      permissionRepository.deleteUserPermission(componentId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.deleteUserPermission(projectId, targetedUser, permissionChange.permission(), session);
     }
     return true;
 
@@ -177,18 +182,18 @@ public class PermissionUpdater {
     }
   }
 
-  private static boolean shouldSkipPermissionChange(Operation operation, List<String> existingPermissions, PermissionChange permissionChange) {
+  private static boolean shouldSkipPermissionChange(Operation operation, Collection<String> existingPermissions, PermissionChange permissionChange) {
     return (Operation.ADD == operation && existingPermissions.contains(permissionChange.permission())) ||
       (Operation.REMOVE == operation && !existingPermissions.contains(permissionChange.permission()));
   }
 
   @CheckForNull
-  private Long getComponentId(DbSession session, @Nullable String componentKey) {
+  private ComponentDto getComponent(DbSession session, @Nullable String componentKey) {
     if (componentKey == null) {
       return null;
     } else {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
-      return component.getId();
+      return component;
     }
   }
 

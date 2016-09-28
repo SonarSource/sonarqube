@@ -33,14 +33,14 @@
       <if test="query.searchQueryToSql != null">
         and lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
       </if>
-      <if test="query.componentUuid!=null">
-        and p.uuid = #{query.componentUuid}
-      </if>
       <!-- filter rows with user permissions -->
       <if test="query.withAtLeastOnePermission()">
         and ur.role is not null
         <if test="query.componentUuid==null">
           and ur.resource_id is null
+        </if>
+        <if test="query.componentUuid!=null">
+          and p.uuid = #{query.componentUuid}
         </if>
         <if test="query.permission!=null">
           and ur.role = #{query.permission}

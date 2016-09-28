@@ -288,7 +288,7 @@ public class ApplyTemplateActionTest {
 
   private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return dbClient.permissionDao().selectLoginsByPermissionQuery(dbSession, query);
+    return dbClient.userPermissionDao().selectLogins(dbSession, query);
   }
 
   private void commit() {

@@ -30,8 +30,6 @@ import org.sonar.db.user.UserPermissionDto;
 
 public interface PermissionMapper {
 
-  List<String> selectLoginsByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
-
   int countUsersByPermissionQuery(@Param("query") PermissionQuery query);
 
   List<UserPermissionDto> selectUserPermissionsByLogins(@Param("logins") List<String> logins, @Nullable @Param("projectId") Long projectId);

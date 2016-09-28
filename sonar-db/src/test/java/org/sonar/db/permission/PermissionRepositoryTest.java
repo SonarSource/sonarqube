@@ -24,14 +24,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDbTester;
@@ -47,21 +47,21 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class PermissionRepositoryTest {
 
-  static final String DEFAULT_TEMPLATE = "default_20130101_010203";
-  static final long PROJECT_ID = 123L;
-  static final long NOW = 123456789L;
+  private static final String DEFAULT_TEMPLATE = "default_20130101_010203";
+  private static final ComponentDto PROJECT = new ComponentDto().setId(123L).setUuid("THE_PROJECT_UUID");
+  private static final long NOW = 123456789L;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+
   GroupDbTester groupDb = new GroupDbTester(dbTester);
   UserDbTester userDb = new UserDbTester(dbTester);
   PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(dbTester);
-  DbClient dbClient = dbTester.getDbClient();
   DbSession session = dbTester.getSession();
 
   Settings settings = new MapSettings();
@@ -77,18 +77,17 @@ public class PermissionRepositoryTest {
     dbTester.prepareDbUnit(getClass(), "should_apply_permission_template.xml");
 
     RoleDao roleDao = dbTester.getDbClient().roleDao();
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).isEmpty();
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).isEmpty();
-    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT_ID)).isEmpty();
-    assertThat(roleDao.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
+    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT.getId())).isEmpty();
+    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT.getId())).isEmpty();
+    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT.getId())).isEmpty();
+    assertThat(dbTester.getDbClient().userPermissionDao().selectPermissionsByLogin(session, "marius", PROJECT.uuid())).isEmpty();
 
-    underTest.applyPermissionTemplate(session, "default_20130101_010203", PROJECT_ID);
+    underTest.applyPermissionTemplate(session, "default_20130101_010203", PROJECT);
 
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).containsOnly("admin", "issueadmin");
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).containsOnly("user", "codeviewer");
-    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT_ID)).containsOnly("user", "codeviewer");
-
-    assertThat(roleDao.selectUserPermissions(session, "marius", PROJECT_ID)).containsOnly("admin");
+    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT.getId())).containsOnly("admin", "issueadmin");
+    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT.getId())).containsOnly("user", "codeviewer");
+    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT.getId())).containsOnly("user", "codeviewer");
+    assertThat(dbTester.getDbClient().userPermissionDao().selectPermissionsByLogin(session, "marius", PROJECT.uuid())).containsOnly("admin");
 
     checkAuthorizationUpdatedAtIsUpdated();
   }
@@ -98,7 +97,7 @@ public class PermissionRepositoryTest {
     dbTester.prepareDbUnit(getClass(), "apply_default_permission_template_by_component_id.xml");
     settings.setProperty("sonar.permission.template.default", DEFAULT_TEMPLATE);
 
-    underTest.applyDefaultPermissionTemplate(session, PROJECT_ID);
+    underTest.applyDefaultPermissionTemplate(session, PROJECT.getId());
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "apply_default_permission_template_by_component_id-result.xml", "user_roles", "user_id", "resource_id", "role");
@@ -119,7 +118,7 @@ public class PermissionRepositoryTest {
   public void should_add_user_permission() {
     dbTester.prepareDbUnit(getClass(), "should_add_user_permission.xml");
 
-    underTest.insertUserPermission(PROJECT_ID, 200L, UserRole.ADMIN, session);
+    underTest.insertUserPermission(PROJECT.getId(), 200L, UserRole.ADMIN, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_add_user_permission-result.xml", "user_roles", "user_id", "resource_id", "role");
@@ -132,7 +131,7 @@ public class PermissionRepositoryTest {
   public void should_delete_user_permission() {
     dbTester.prepareDbUnit(getClass(), "should_delete_user_permission.xml");
 
-    underTest.deleteUserPermission(PROJECT_ID, 200L, UserRole.ADMIN, session);
+    underTest.deleteUserPermission(PROJECT.getId(), 200L, UserRole.ADMIN, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_delete_user_permission-result.xml", "user_roles", "user_id", "resource_id", "role");
@@ -144,7 +143,7 @@ public class PermissionRepositoryTest {
   public void should_insert_group_permission() {
     dbTester.prepareDbUnit(getClass(), "should_insert_group_permission.xml");
 
-    underTest.insertGroupPermission(PROJECT_ID, 100L, UserRole.USER, session);
+    underTest.insertGroupPermission(PROJECT.getId(), 100L, UserRole.USER, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
@@ -156,7 +155,7 @@ public class PermissionRepositoryTest {
   public void should_insert_group_name_permission() {
     dbTester.prepareDbUnit(getClass(), "should_insert_group_permission.xml");
 
-    underTest.insertGroupPermission(PROJECT_ID, "devs", UserRole.USER, session);
+    underTest.insertGroupPermission(PROJECT.getId(), "devs", UserRole.USER, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
@@ -167,7 +166,7 @@ public class PermissionRepositoryTest {
   public void should_insert_anyone_group_permission() {
     dbTester.prepareDbUnit(getClass(), "should_insert_anyone_group_permission.xml");
 
-    underTest.insertGroupPermission(PROJECT_ID, "Anyone", UserRole.USER, session);
+    underTest.insertGroupPermission(PROJECT.getId(), "Anyone", UserRole.USER, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_insert_anyone_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
@@ -178,7 +177,7 @@ public class PermissionRepositoryTest {
   public void should_delete_group_permission() {
     dbTester.prepareDbUnit(getClass(), "should_delete_group_permission.xml");
 
-    underTest.deleteGroupPermission(PROJECT_ID, 100L, UserRole.USER, session);
+    underTest.deleteGroupPermission(PROJECT.getId(), 100L, UserRole.USER, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
@@ -233,7 +232,7 @@ public class PermissionRepositoryTest {
   }
 
   private void checkAuthorizationUpdatedAtIsUpdated() {
-    assertThat(dbTester.getDbClient().resourceDao().selectResource(PROJECT_ID, session).getAuthorizationUpdatedAt()).isEqualTo(NOW);
+    assertThat(dbTester.getDbClient().resourceDao().selectResource(PROJECT.getId(), session).getAuthorizationUpdatedAt()).isEqualTo(NOW);
   }
 
   private void setDefaultTemplateUuid(String templateUuid) {

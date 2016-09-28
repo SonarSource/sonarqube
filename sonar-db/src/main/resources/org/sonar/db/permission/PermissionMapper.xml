@@ -34,15 +34,6 @@
     u.login as login, u.name as name, u.id
   </sql>
 
-  <select id="selectLoginsByPermissionQuery" parameterType="map" resultType="string">
-    select u.login
-    from (
-      select distinct <include refid="userColumns" />
-      <include refid="usersByQuery"/>
-    ) u
-    order by lower(u.name), u.name, u.id
-  </select>
-
   <select id="countUsersByPermissionQuery" parameterType="map" resultType="int">
     select count(1)
     from (
