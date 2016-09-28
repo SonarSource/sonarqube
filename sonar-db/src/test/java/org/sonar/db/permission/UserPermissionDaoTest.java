@@ -202,6 +202,48 @@ public class UserPermissionDaoTest {
       new UserCountPerProjectPermission(project2.getId(), ISSUE_ADMIN, 1));
   }
 
+  @Test
+  public void delete_by_project() {
+    insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
+
+    underTest.delete(dbTester.getSession(), null, project1.uuid(), null);
+
+    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where resource_id=" + project1.getId())).isEqualTo(0);
+    // remains global permission and project2 permission
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(2);
+  }
+
+  @Test
+  public void delete_by_user() {
+    insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
+
+    underTest.delete(dbTester.getSession(), user1.getLogin(), null, null);
+
+    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(0);
+    // remains user2 permissions
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(2);
+  }
+
+  @Test
+  public void delete_specific_permission() {
+    insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
+
+    underTest.delete(dbTester.getSession(), user1.getLogin(), project1.uuid(), USER);
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(3);
+    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(1);
+    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where role='" + SYSTEM_ADMIN + "' and user_id=" + user1.getId())).isEqualTo(1);
+  }
+
   private void expectCount(List<Long> projectIds, UserCountPerProjectPermission... expected) {
     List<UserCountPerProjectPermission> got = underTest.countUsersByProjectPermission(dbTester.getSession(), projectIds);
     assertThat(got).hasSize(expected.length);

@@ -68,16 +68,16 @@
     delete from user_roles
     <where>
       <choose>
-        <when test="projectUuid != null">
+        <when test="login != null">
+          and user_id = (select id from users where login = #{login})
+          <if test="projectUuid != null">
           and resource_id = (select id from projects where uuid = #{projectUuid})
+          </if>
         </when>
         <otherwise>
-          and resource_id is null
+          and resource_id = (select id from projects where uuid = #{projectUuid})
         </otherwise>
       </choose>
-      <if test="login != null">
-        and user_id = (select id from users where login = #{login})
-      </if>
       <if test="permission != null">
         and role = #{permission}
       </if>

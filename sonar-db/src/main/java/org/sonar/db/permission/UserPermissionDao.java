@@ -101,6 +101,14 @@ public class UserPermissionDao implements Dao {
   /**
    * Delete permissions for a user, permissions for a project, or a mix of them. In all cases
    * scope can be restricted to a specified permission.
+   *
+   * Examples:
+   * <ul>
+   *   <li>{@code delete(dbSession, "marius", null, null)} deletes all permissions of Marius, including global and project permissions</li>
+   *   <li>{@code delete(dbSession, null, "ABC", null)} deletes all permissions of project ABC</li>
+   *   <li>{@code delete(dbSession, "marius", "ABC", null)} deletes the permissions of Marius on project "ABC"</li>
+   * </ul>
+   * 
    * @see UserPermissionMapper#delete(String, String, String)
    */
   public void delete(DbSession dbSession, @Nullable String login, @Nullable String projectUuid, @Nullable String permission) {
