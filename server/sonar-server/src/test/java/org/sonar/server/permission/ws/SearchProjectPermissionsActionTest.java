@@ -35,10 +35,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -63,7 +63,6 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-
 
 public class SearchProjectPermissionsActionTest {
   @Rule
@@ -110,15 +109,15 @@ public class SearchProjectPermissionsActionTest {
     ComponentDto view = insertView();
     insertProjectInView(jdk7, view);
 
-    insertUserRole(UserRole.ISSUE_ADMIN, user1.getId(), jdk7.getId());
-    insertUserRole(UserRole.ADMIN, user1.getId(), jdk7.getId());
-    insertUserRole(UserRole.ADMIN, user2.getId(), jdk7.getId());
-    insertUserRole(UserRole.ADMIN, user3.getId(), jdk7.getId());
-    insertUserRole(UserRole.ISSUE_ADMIN, user1.getId(), project2.getId());
-    insertUserRole(UserRole.ISSUE_ADMIN, user1.getId(), dev.getId());
-    insertUserRole(UserRole.ISSUE_ADMIN, user1.getId(), view.getId());
+    insertUserPermission(UserRole.ISSUE_ADMIN, user1.getId(), jdk7.getId());
+    insertUserPermission(UserRole.ADMIN, user1.getId(), jdk7.getId());
+    insertUserPermission(UserRole.ADMIN, user2.getId(), jdk7.getId());
+    insertUserPermission(UserRole.ADMIN, user3.getId(), jdk7.getId());
+    insertUserPermission(UserRole.ISSUE_ADMIN, user1.getId(), project2.getId());
+    insertUserPermission(UserRole.ISSUE_ADMIN, user1.getId(), dev.getId());
+    insertUserPermission(UserRole.ISSUE_ADMIN, user1.getId(), view.getId());
     // global permission
-    insertUserRole(GlobalPermissions.SYSTEM_ADMIN, user1.getId(), null);
+    insertUserPermission(GlobalPermissions.SYSTEM_ADMIN, user1.getId(), null);
 
     GroupDto group1 = insertGroup(newGroupDto());
     GroupDto group2 = insertGroup(newGroupDto());
@@ -323,11 +322,8 @@ public class SearchProjectPermissionsActionTest {
     return dbClient.userDao().insert(dbSession, user.setActive(true));
   }
 
-  private void insertUserRole(String permission, long userId, @Nullable Long resourceId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(resourceId));
+  private void insertUserPermission(String permission, long userId, @Nullable Long resourceId) {
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userId, resourceId));
   }
 
   private GroupDto insertGroup(GroupDto group) {

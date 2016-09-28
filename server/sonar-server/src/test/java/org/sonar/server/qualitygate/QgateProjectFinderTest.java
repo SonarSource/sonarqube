@@ -35,12 +35,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.tester.UserSessionRule;
@@ -157,7 +157,7 @@ public class QgateProjectFinderTest {
     componentDbTester.insertComponent(newProjectDto());
 
     // User can only see project 1
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto().setUserId(userDto.getId()).setComponentId(project1.getId()).setPermission(UserRole.USER));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(UserRole.USER, userDto.getId(), project1.getId()));
     dbTester.commit();
 
     Association result = underTest.find(

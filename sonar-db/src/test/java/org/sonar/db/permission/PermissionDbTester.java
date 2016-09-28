@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserPermissionDto;
 
 public class PermissionDbTester {
   private final DbTester db;
@@ -38,9 +37,7 @@ public class PermissionDbTester {
   }
 
   public void addGlobalPermissionToUser(String permission, long userId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userId, null));
     db.commit();
   }
 

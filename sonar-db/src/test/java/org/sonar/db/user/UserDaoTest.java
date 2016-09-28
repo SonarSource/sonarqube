@@ -289,7 +289,7 @@ public class UserDaoTest {
     MeasureFilterDto measureFilter = insertMeasureFilter(user, false);
     MeasureFilterFavouriteDto measureFilterFavourite = insertMeasureFilterFavourite(measureFilter, user);
     PropertyDto property = insertProperty(user);
-    insertUserRole(user);
+    insertUserPermission(user);
     insertUserGroup(user);
 
     UserDto otherUser = newActiveUser();
@@ -535,9 +535,10 @@ public class UserDaoTest {
     return dto;
   }
 
-  private UserPermissionDto insertUserRole(UserDto user) {
-    UserPermissionDto dto = new UserPermissionDto().setUserId(user.getId()).setPermission(randomAlphanumeric(64));
-    dbClient.roleDao().insertUserRole(session, dto);
+  private org.sonar.db.permission.UserPermissionDto insertUserPermission(UserDto user) {
+    String permission = randomAlphanumeric(64);
+    org.sonar.db.permission.UserPermissionDto dto = new org.sonar.db.permission.UserPermissionDto(permission, user.getId(), null);
+    dbClient.userPermissionDao().insert(session, dto);
     return dto;
   }
 

@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
@@ -44,14 +45,14 @@ public class RoleDaoTest {
 
   @Test
   public void select_user_permissions_by_permission_and_user_id() {
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(2L));
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(3L));
+    insertUserPermission(UserRole.ADMIN, 1L, 2L);
+    insertUserPermission(UserRole.ADMIN, 1L, 3L);
     // global permission - not returned
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(1L).setComponentId(null));
+    insertUserPermission(UserRole.ADMIN, 1L, null);
     // project permission on another user id - not returned
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(42L).setComponentId(2L));
+    insertUserPermission(UserRole.ADMIN, 42L, 2L);
     // project permission on another permission - not returned
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(GlobalPermissions.SCAN_EXECUTION).setUserId(1L).setComponentId(2L));
+    insertUserPermission(GlobalPermissions.SCAN_EXECUTION, 1L, 2L);
     db.commit();
 
     List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, 1L);
@@ -77,7 +78,7 @@ public class RoleDaoTest {
     underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(5L).setResourceId(5L));
     groupDb.addUserToGroup(userId, 5L);
     // duplicates on resource id - should be returned once
-    underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(userId).setComponentId(2L));
+    insertUserPermission(UserRole.ADMIN, userId, 2L);
     underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(3L));
     db.commit();
 
@@ -168,16 +169,9 @@ public class RoleDaoTest {
   public void count_users_with_one_specific_permission() {
     DbClient dbClient = db.getDbClient();
     UserDto user = dbClient.userDao().insert(db.getSession(), new UserDto().setActive(true));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
-      .setUserId(user.getId())
-      .setComponentId(123L)
-      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
-      .setUserId(user.getId())
-      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
-      .setUserId(user.getId())
-      .setPermission(GlobalPermissions.SCAN_EXECUTION));
+    insertUserPermission(GlobalPermissions.SYSTEM_ADMIN, user.getId(), 123L);
+    insertUserPermission(GlobalPermissions.SYSTEM_ADMIN, user.getId(), null);
+    insertUserPermission(GlobalPermissions.SCAN_EXECUTION, user.getId(), null);
 
     int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
 
@@ -216,12 +210,14 @@ public class RoleDaoTest {
     dbClient.roleDao().insertGroupRole(db.getSession(), new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(GlobalPermissions.SYSTEM_ADMIN));
-    dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()
-      .setUserId(user.getId())
-      .setPermission(GlobalPermissions.SYSTEM_ADMIN));
+    insertUserPermission(GlobalPermissions.SYSTEM_ADMIN, user.getId(), null);
 
     int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
 
     assertThat(result).isEqualTo(2);
+  }
+
+  private void insertUserPermission(String permission, long userId, @Nullable Long projectId) {
+    db.getDbClient().userPermissionDao().insert(dbSession, new org.sonar.db.permission.UserPermissionDto(permission, userId, projectId));
   }
 }

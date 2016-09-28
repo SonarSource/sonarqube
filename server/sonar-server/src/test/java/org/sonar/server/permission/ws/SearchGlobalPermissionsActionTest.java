@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
@@ -47,7 +47,6 @@ import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
-
 
 public class SearchGlobalPermissionsActionTest {
 
@@ -80,11 +79,11 @@ public class SearchGlobalPermissionsActionTest {
 
     UserDto user = insertUser(newUserDto("user", "user-name"));
     UserDto adminUser = insertUser(newUserDto("admin", "admin-name"));
-    insertUserRole(newUserRoleDto(PROVISIONING, user.getId()));
-    insertUserRole(newUserRoleDto(QUALITY_PROFILE_ADMIN, user.getId()));
-    insertUserRole(newUserRoleDto(QUALITY_PROFILE_ADMIN, adminUser.getId()));
-    insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, user.getId()));
-    insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, adminUser.getId()));
+    insertUserPermission(newUserPermission(PROVISIONING, user.getId()));
+    insertUserPermission(newUserPermission(QUALITY_PROFILE_ADMIN, user.getId()));
+    insertUserPermission(newUserPermission(QUALITY_PROFILE_ADMIN, adminUser.getId()));
+    insertUserPermission(newUserPermission(QUALITY_GATE_ADMIN, user.getId()));
+    insertUserPermission(newUserPermission(QUALITY_GATE_ADMIN, adminUser.getId()));
 
     db.getSession().commit();
 
@@ -140,8 +139,8 @@ public class SearchGlobalPermissionsActionTest {
     return db.getDbClient().userDao().insert(db.getSession(), user);
   }
 
-  private void insertUserRole(UserPermissionDto userRole) {
-    db.getDbClient().roleDao().insertUserRole(db.getSession(), userRole);
+  private void insertUserPermission(UserPermissionDto dto) {
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
   }
 
   private GroupDto insertGroup(GroupDto groupDto) {
@@ -169,9 +168,7 @@ public class SearchGlobalPermissionsActionTest {
     return groupRole;
   }
 
-  private static UserPermissionDto newUserRoleDto(String role, long userId) {
-    return new UserPermissionDto()
-      .setPermission(role)
-      .setUserId(userId);
+  private static UserPermissionDto newUserPermission(String permission, long userId) {
+    return new UserPermissionDto(permission, userId, null);
   }
 }

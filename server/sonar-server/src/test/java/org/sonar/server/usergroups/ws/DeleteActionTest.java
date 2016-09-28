@@ -33,17 +33,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GroupPermissionDao;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -210,7 +210,7 @@ public class DeleteActionTest {
     GroupDto lastGroup = groupDb.insertGroup(newGroupDto().setName("last-group"));
     roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(lastGroup.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     UserDto bigBoss = userDb.insertUser(newUserDto("big.boss", "Big Boss", "big@boss.com"));
-    roleDao.insertUserRole(dbSession, new UserPermissionDto().setUserId(bigBoss.getId()).setPermission(GlobalPermissions.SYSTEM_ADMIN));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(GlobalPermissions.SYSTEM_ADMIN, bigBoss.getId(), null));
     dbSession.commit();
 
     loginAsAdmin();

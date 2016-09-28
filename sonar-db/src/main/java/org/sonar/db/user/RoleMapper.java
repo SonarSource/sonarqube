@@ -38,8 +38,6 @@ public interface RoleMapper {
 
   void insertGroupRole(GroupPermissionDto dto);
 
-  void insertUserRole(UserPermissionDto dto);
-
   void deleteGroupRole(GroupPermissionDto dto);
 
   void deleteGroupRolesByResourceId(long projectId);

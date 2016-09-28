@@ -39,8 +39,8 @@ import org.sonar.server.permission.DefaultPermissionTemplates;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,6 +58,7 @@ public class RegisterPermissionTemplatesTest {
   private DbClient dbClient;
   private UserDao userDao;
   private GroupDao groupDao;
+  private DbSession dbSession = mock(DbSession.class);
 
   @Before
   public void setUp() {
@@ -72,6 +73,7 @@ public class RegisterPermissionTemplatesTest {
     when(dbClient.loadedTemplateDao()).thenReturn(loadedTemplateDao);
     when(dbClient.userDao()).thenReturn(userDao);
     when(dbClient.groupDao()).thenReturn(groupDao);
+    when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
   }
 
   @Test
@@ -82,20 +84,20 @@ public class RegisterPermissionTemplatesTest {
 
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()))
       .thenReturn(0);
-    when(permissionTemplateDao.insert(any(DbSession.class), eq(DefaultPermissionTemplates.DEFAULT_TEMPLATE)))
+    when(permissionTemplateDao.insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE))
       .thenReturn(permissionTemplate);
-    when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.ADMINISTRATORS))).thenReturn(new GroupDto().setId(1L));
-    when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.USERS))).thenReturn(new GroupDto().setId(2L));
+    when(groupDao.selectByName(dbSession, DefaultGroups.ADMINISTRATORS)).thenReturn(new GroupDto().setId(1L));
+    when(groupDao.selectByName(dbSession, DefaultGroups.USERS)).thenReturn(new GroupDto().setId(2L));
 
     RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(permissionTemplateDao).insert(any(DbSession.class), eq(DefaultPermissionTemplates.DEFAULT_TEMPLATE));
-    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class),eq(1L), eq(1L), eq(UserRole.ADMIN));
-    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(1L), eq(UserRole.ISSUE_ADMIN));
-    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(null), eq(UserRole.USER));
-    verify(permissionTemplateDao).insertGroupPermission(any(DbSession.class), eq(1L), eq(null), eq(UserRole.CODEVIEWER));
+    verify(permissionTemplateDao).insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
+    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, 1L, UserRole.ADMIN);
+    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, 1L, UserRole.ISSUE_ADMIN);
+    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, null, UserRole.USER);
+    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, null, UserRole.CODEVIEWER);
     verifyNoMoreInteractions(permissionTemplateDao);
     verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
   }

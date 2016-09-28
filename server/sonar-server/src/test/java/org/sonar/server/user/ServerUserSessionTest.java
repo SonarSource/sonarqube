@@ -34,8 +34,8 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -282,10 +282,7 @@ public class ServerUserSessionTest {
 
   private void addPermissions( @Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
-      dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-        .setPermission(permission)
-        .setComponentId(component == null ? null : component.getId())
-        .setUserId(userDto.getId()));
+      dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userDto.getId(), component == null ? null : component.getId()));
     }
     dbSession.commit();
   }

@@ -41,12 +41,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -324,10 +324,7 @@ public class SearchMyProjectsActionTest {
   }
 
   private void insertUserPermission(String permission, long userId, long componentId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(componentId));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userId, componentId));
     db.commit();
   }
 

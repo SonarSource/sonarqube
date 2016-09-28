@@ -28,7 +28,6 @@ import org.sonar.db.permission.GroupPermissionDto;
 
 public class RoleDao implements Dao {
 
-  // TODO to be moved to PermissionVerifierDao
   public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
@@ -39,14 +38,6 @@ public class RoleDao implements Dao {
 
   public void insertGroupRole(DbSession session, GroupPermissionDto dto) {
     mapper(session).insertGroupRole(dto);
-  }
-
-  /**
-   * @deprecated replaced by {@link org.sonar.db.permission.UserPermissionDao#insert(DbSession, org.sonar.db.permission.UserPermissionDto)}
-   */
-  @Deprecated
-  public void insertUserRole(DbSession session, UserPermissionDto dto) {
-    mapper(session).insertUserRole(dto);
   }
 
   public void deleteGroupRole(GroupPermissionDto groupRole, DbSession session) {

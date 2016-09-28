@@ -29,11 +29,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -91,7 +91,7 @@ public class ProjectsActionTest {
     dbClient.componentDao().insert(session, project1, project2);
 
     // user only sees project1
-    roleDao.insertUserRole(session, new UserPermissionDto().setUserId(userId).setComponentId(project1.getId()).setPermission(UserRole.USER));
+    dbClient.userPermissionDao().insert(session, new UserPermissionDto(UserRole.USER, userId, project1.getId()));
 
     associateProjectsWithProfile(session, xooP1, project1, project2);
 

@@ -54,11 +54,6 @@
     VALUES (#{groupId}, #{resourceId}, #{role})
   </insert>
 
-  <insert id="insertUserRole" parameterType="UserPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO user_roles (user_id, resource_id, role)
-    VALUES (#{userId}, #{componentId}, #{permission})
-  </insert>
-
   <delete id="deleteGroupRole" parameterType="map">
     DELETE FROM group_roles
     WHERE role=#{role}

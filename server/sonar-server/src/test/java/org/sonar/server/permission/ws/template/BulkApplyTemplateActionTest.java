@@ -37,15 +37,15 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -239,10 +239,7 @@ public class BulkApplyTemplateActionTest {
   }
 
   private void addUserPermissionToProject(UserDto user, ComponentDto project, String permission) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(user.getId())
-      .setComponentId(project.getId()));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, user.getId(), project.getId()));
   }
 
   private void addGroupPermissionToProject(GroupDto group, ComponentDto project, String permission) {
