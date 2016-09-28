@@ -19,125 +19,54 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.qualityprofile.QualityProfileDao;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
+
+  private static final String PROJECT_UUID = "P1";
+
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Mock
-  QProfileProjectOperations projectOperations;
-
-  @Mock
-  QProfileProjectLookup projectLookup;
-
-  @Mock
-  QProfileLookup profileLookup;
-
-  QProfiles qProfiles;
-
-  @Before
-  public void setUp() {
-    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, userSessionRule);
-  }
-
-  @Test
-  public void search_profile_by_id() {
-    qProfiles.profile(1);
-    verify(profileLookup).profile(1);
-  }
-
-  @Test
-  public void search_profile_by_name_and_language() {
-    qProfiles.profile("Default", "java");
-    verify(profileLookup).profile("Default", "java");
-  }
+  private QProfileLookup profileLookup = mock(QProfileLookup.class);
+  private QProfiles underTest = new QProfiles(profileLookup, dbTester.getDbClient());
 
   @Test
   public void search_profiles() {
-    qProfiles.allProfiles();
+    underTest.allProfiles();
     verify(profileLookup).allProfiles();
   }
 
   @Test
   public void search_profiles_by_language() {
-    qProfiles.profilesByLanguage("java");
+    underTest.profilesByLanguage("java");
     verify(profileLookup).profiles("java");
   }
 
   @Test
-  public void search_parent_profile() {
-    QProfile profile = new QProfile().setId(1).setParent("Parent").setLanguage("java");
-    qProfiles.parent(profile);
-    verify(profileLookup).parent(profile);
-  }
+  public void findProfileByProjectAndLanguage() {
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
+    QualityProfileDao qProfileDao = dbTester.getDbClient().qualityProfileDao();
+    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto().setLanguage("js");
+    qProfileDao.insert(dbTester.getSession(), profile);
+    qProfileDao.insertProjectProfileAssociation(PROJECT_UUID, profile.getKey(), dbTester.getSession());
+    dbTester.commit();
 
-  @Test
-  public void search_children() {
-    QProfile profile = new QProfile();
-    qProfiles.children(profile);
-    verify(profileLookup).children(profile);
-  }
-
-  @Test
-  public void search_ancestors() {
-    QProfile profile = new QProfile();
-    qProfiles.ancestors(profile);
-    verify(profileLookup).ancestors(profile);
-  }
-
-  @Test
-  public void projects() {
-    qProfiles.projects(1);
-    verify(projectLookup).projects(1);
-  }
-
-  @Test
-  public void count_projects() {
-    QProfile profile = new QProfile();
-    qProfiles.countProjects(profile);
-    verify(projectLookup).countProjects(profile);
-  }
-
-  @Test
-  public void get_profiles_from_project_and_language() {
-    qProfiles.findProfileByProjectAndLanguage(1, "java");
-    verify(projectLookup).findProfileByProjectAndLanguage(1, "java");
-  }
-
-  @Test
-  public void add_project() {
-    qProfiles.addProject("sonar-way-java", "ABCD");
-    verify(projectOperations).addProject(eq("sonar-way-java"), eq("ABCD"), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void remove_project_by_quality_profile_key() {
-    qProfiles.removeProject("sonar-way-java", "ABCD");
-    verify(projectOperations).removeProject(eq("sonar-way-java"), eq("ABCD"), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void remove_project_by_language() {
-    qProfiles.removeProjectByLanguage("java", 10L);
-    verify(projectOperations).removeProject(eq("java"), eq(10L), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void remove_all_projects() {
-    qProfiles.removeAllProjects("sonar-way-java");
-    verify(projectOperations).removeAllProjects(eq("sonar-way-java"), any(ThreadLocalUserSession.class));
+    assertThat(underTest.findProfileByProjectAndLanguage(1, "java")).isNull();
+    assertThat(underTest.findProfileByProjectAndLanguage(project.getId(), "java")).isNull();
+    assertThat(underTest.findProfileByProjectAndLanguage(project.getId(), "js").key()).isEqualTo(profile.getKey());
   }
 }

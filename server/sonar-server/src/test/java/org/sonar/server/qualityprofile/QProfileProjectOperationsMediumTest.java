@@ -141,9 +141,12 @@ public class QProfileProjectOperationsMediumTest {
 
     projectOperations.addProject(profile.getKey(), project1.uuid(), userSession);
     projectOperations.addProject(profile.getKey(), project2.uuid(), userSession);
-    assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).hasSize(2);
+
+    assertThat(db.qualityProfileDao().selectProjects(profile.getName(), profile.getLanguage()))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid(), project2.uuid());
 
     projectOperations.removeAllProjects(profile.getKey(), userSession);
-    assertThat(tester.get(QProfileProjectLookup.class).projects(profile.getId())).isEmpty();
+    assertThat(db.qualityProfileDao().selectProjects(profile.getName(), profile.getLanguage())).isEmpty();
   }
 }
