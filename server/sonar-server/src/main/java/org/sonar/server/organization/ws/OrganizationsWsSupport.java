@@ -20,7 +20,6 @@
 package org.sonar.server.organization.ws;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.organization.OrganizationDto;
@@ -32,7 +31,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Factorizes code and constants between Organization WS's actions.
  */
 public class OrganizationsWsSupport {
-  static final String PARAM_ID = "id";
   static final String PARAM_KEY = "key";
   static final String PARAM_NAME = "name";
   static final String PARAM_DESCRIPTION = "description";
@@ -44,10 +42,6 @@ public class OrganizationsWsSupport {
   static final int NAME_MAX_LENGTH = 64;
   static final int DESCRIPTION_MAX_LENGTH = 256;
   static final int URL_MAX_LENGTH = 256;
-
-  void checkKeyOrId(@Nullable String uuid, @Nullable String key) {
-    checkArgument(uuid != null ^ key != null, "Either '%s' or '%s' must be provided, not both", PARAM_ID, PARAM_KEY);
-  }
 
   String getAndCheckName(Request request) {
     String name = request.mandatoryParam(PARAM_NAME);
@@ -109,7 +103,6 @@ public class OrganizationsWsSupport {
 
   Organizations.Organization toOrganization(Organizations.Organization.Builder builder, OrganizationDto dto) {
     builder
-      .setId(dto.getUuid())
       .setName(dto.getName())
       .setKey(dto.getKey());
     if (dto.getDescription() != null) {

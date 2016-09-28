@@ -20,7 +20,6 @@
 package org.sonarqube.ws.client.organization;
 
 public class UpdateWsRequest {
-  private final String id;
   private final String key;
   private final String name;
   private final String description;
@@ -28,16 +27,11 @@ public class UpdateWsRequest {
   private final String avatar;
 
   public UpdateWsRequest(Builder builder) {
-    this.id = builder.id;
     this.name = builder.name;
     this.key = builder.key;
     this.description = builder.description;
     this.url = builder.url;
     this.avatar = builder.avatar;
-  }
-
-  public String getId() {
-    return id;
   }
 
   public String getName() {
@@ -61,17 +55,11 @@ public class UpdateWsRequest {
   }
 
   public static class Builder {
-    private String id;
     private String key;
     private String name;
     private String description;
     private String url;
     private String avatar;
-
-    public Builder setId(String id) {
-      this.id = id;
-      return this;
-    }
 
     public Builder setKey(String key) {
       this.key = key;

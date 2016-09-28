@@ -59,7 +59,6 @@ public class OrganizationIt {
       .setAvatar(AVATAR_URL)
       .build())
       .getOrganization();
-    assertThat(createdOrganization.getId()).isNotNull();
     assertThat(createdOrganization.getName()).isEqualTo(NAME);
     assertThat(createdOrganization.getKey()).isEqualTo(KEY);
     assertThat(createdOrganization.getDescription()).isEqualTo(DESCRIPTION);
@@ -70,7 +69,7 @@ public class OrganizationIt {
 
     // update by id
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setId(createdOrganization.getId())
+      .setKey(createdOrganization.getKey())
       .setName("new name")
       .setDescription("new description")
       .setUrl("new url")
@@ -80,7 +79,7 @@ public class OrganizationIt {
 
     // update by key
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setId(createdOrganization.getId())
+      .setKey(createdOrganization.getKey())
       .setName("new name 2")
       .setDescription("new description 2")
       .setUrl("new url 2")
@@ -90,13 +89,13 @@ public class OrganizationIt {
 
     // remove optional fields
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setId(createdOrganization.getId())
+      .setKey(createdOrganization.getKey())
       .setName("new name 3")
       .build());
     verifySingleSearchResult(createdOrganization, "new name 3", null, null, null);
 
-    // delete by uuid
-    adminOrganizationService.delete(createdOrganization.getId(), null);
+    // delete organization
+    adminOrganizationService.delete(createdOrganization.getKey());
     verifyNoExtraOrganization();
   }
 
@@ -110,10 +109,6 @@ public class OrganizationIt {
       .getOrganization();
     assertThat(createdOrganization.getKey()).isEqualTo("foo-company-to-keyize");
     verifySingleSearchResult(createdOrganization, name, null, null, null);
-
-    // delete by key
-    adminOrganizationService.delete(null, createdOrganization.getKey());
-    verifyNoExtraOrganization();
   }
 
   private void verifyNoExtraOrganization() {
@@ -131,7 +126,6 @@ public class OrganizationIt {
       .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
       .findFirst()
       .get();
-    assertThat(searchedOrganization.getId()).isEqualTo(createdOrganization.getId());
     assertThat(searchedOrganization.getKey()).isEqualTo(createdOrganization.getKey());
     assertThat(searchedOrganization.getName()).isEqualTo(name);
     if (description == null) {

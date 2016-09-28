@@ -56,7 +56,6 @@ public class OrganizationService extends BaseService {
 
   public UpdateWsResponse update(UpdateWsRequest request) {
     PostRequest post = new PostRequest(path("update"))
-      .setParam("id", request.getId())
       .setParam("key", request.getKey())
       .setParam("name", request.getName())
       .setParam("description", request.getDescription())
@@ -66,9 +65,8 @@ public class OrganizationService extends BaseService {
     return call(post, UpdateWsResponse.parser());
   }
 
-  public void delete(@Nullable String id, @Nullable String key) {
+  public void delete(@Nullable String key) {
     PostRequest post = new PostRequest(path("delete"))
-      .setParam("id", id)
       .setParam("key", key);
 
     call(post);

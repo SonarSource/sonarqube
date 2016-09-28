@@ -41,7 +41,6 @@ import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -56,7 +55,7 @@ public class SearchActionTest {
     .setAvatarUrl("the avatar url")
     .setCreatedAt(1_999_000L)
     .setUpdatedAt(1_888_000L);
-  public static final long SOME_DATE = 1_999_999L;
+  private static final long SOME_DATE = 1_999_999L;
 
 
   private System2 system2 = mock(System2.class);
@@ -145,34 +144,34 @@ public class SearchActionTest {
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
     assertThat(executeRequest(1, 1))
-      .extracting("id", "key")
-      .containsExactly(tuple("uuid4", "key-4"));
+      .extracting("key")
+      .containsExactly("key-4");
     assertThat(executeRequest(2, 1))
-      .extracting("id", "key")
-      .containsExactly(tuple("uuid5", "key-5"));
+      .extracting("key")
+      .containsExactly("key-5");
     assertThat(executeRequest(3, 1))
-      .extracting("id", "key")
-      .containsExactly(tuple("uuid2", "key-2"));
+      .extracting("key")
+      .containsExactly("key-2");
     assertThat(executeRequest(4, 1))
-      .extracting("id", "key")
-      .containsExactly(tuple("uuid1", "key-1"));
+      .extracting("key")
+      .containsExactly("key-1");
     assertThat(executeRequest(5, 1))
-      .extracting("id", "key")
-      .containsExactly(tuple("uuid3", "key-3"));
+      .extracting("key")
+      .containsExactly("key-3");
     assertThat(executeRequest(6, 1))
       .isEmpty();
 
     assertThat(executeRequest(1, 5))
-      .extracting("id")
-      .containsExactly("uuid4", "uuid5", "uuid2", "uuid1", "uuid3");
+      .extracting("key")
+      .containsExactly("key-4", "key-5", "key-2", "key-1", "key-3");
     assertThat(executeRequest(2, 5))
       .isEmpty();
     assertThat(executeRequest(1, 3))
-      .extracting("id")
-      .containsExactly("uuid4", "uuid5", "uuid2");
+      .extracting("key")
+      .containsExactly("key-4", "key-5", "key-2");
     assertThat(executeRequest(2, 3))
-      .extracting("id")
-      .containsExactly("uuid1", "uuid3");
+      .extracting("key")
+      .containsExactly("key-1", "key-3");
   }
 
   private void insertOrganization(OrganizationDto dto) {

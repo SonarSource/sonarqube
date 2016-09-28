@@ -1,7 +1,6 @@
 {
   "organizations": [
     {
-      "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "foo-company",
       "name": "Foo Company",
       "description": "The Foo company produces quality software.",
@@ -9,7 +8,6 @@
       "avatar": "https://www.foo.com/foo.png"
     },
     {
-      "id": "AU-TpxcA-iU5OvuD2FLz",
       "key": "bar-company",
       "name": "Bar Company",
       "description": "The Bar company produces quality software too.",

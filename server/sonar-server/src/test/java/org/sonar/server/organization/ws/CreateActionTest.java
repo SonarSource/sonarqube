@@ -420,7 +420,6 @@ public class CreateActionTest {
     @Nullable String description, @Nullable String url, @Nullable String avatar,
     long createdAt) {
     Organization organization = response.getOrganization();
-    assertThat(organization.getId()).isEqualTo(id);
     assertThat(organization.getName()).isEqualTo(name);
     assertThat(organization.getKey()).isEqualTo(key);
     if (description == null) {

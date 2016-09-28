@@ -20,7 +20,6 @@
 package org.sonar.server.organization.ws;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,9 +32,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ID;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements OrganizationsAction {
@@ -55,22 +52,14 @@ public class UpdateAction implements OrganizationsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription(
-        format("Update an organization.<br/>" +
-          "The '%s' or '%s' must be provided.<br/>" +
-          "Require 'Administer System' permission.",
-            PARAM_ID, PARAM_KEY))
+      .setDescription("Update an organization.<br/>" +
+        "Require 'Administer System' permission.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setRequired(false)
-      .setDescription("Organization id")
-      .setExampleValue(UUID_EXAMPLE_03);
-
     action.createParam(PARAM_KEY)
-      .setRequired(false)
+      .setRequired(true)
       .setDescription("Organization key")
       .setExampleValue("foo-company");
 
@@ -81,16 +70,14 @@ public class UpdateAction implements OrganizationsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    String uuid = request.param(PARAM_ID);
-    String key = request.param(PARAM_KEY);
-    wsSupport.checkKeyOrId(uuid, key);
+    String key = request.mandatoryParam(PARAM_KEY);
     String name = wsSupport.getAndCheckName(request);
     String description = wsSupport.getAndCheckDescription(request);
     String url = wsSupport.getAndCheckUrl(request);
     String avatar = wsSupport.getAndCheckAvatar(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto dto = getDto(dbSession, uuid, key);
+      OrganizationDto dto = getDto(dbSession, key);
       dto.setName(name)
         .setDescription(description)
         .setUrl(url)
@@ -102,17 +89,10 @@ public class UpdateAction implements OrganizationsAction {
     }
   }
 
-  private OrganizationDto getDto(DbSession dbSession, @Nullable String uuid, @Nullable String key) {
-    if (uuid != null) {
-      return failIfEmpty(dbClient.organizationDao().selectByUuid(dbSession, uuid), "Organization not found for uuid '%s'", uuid);
-    } else {
-      return failIfEmpty(dbClient.organizationDao().selectByKey(dbSession, key), "Organization not found for key '%s'", key);
-    }
-  }
-
-  private static OrganizationDto failIfEmpty(Optional<OrganizationDto> organizationDto, String msg, Object argument) {
+  private OrganizationDto getDto(DbSession dbSession, String key) {
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, key);
     if (!organizationDto.isPresent()) {
-      throw new NotFoundException(format(msg, argument));
+      throw new NotFoundException(format("Organization not found for key '%s'", (Object) key));
     }
     return organizationDto.get();
   }

@@ -31,21 +31,16 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ID;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 
 public class DeleteAction implements OrganizationsAction {
   private static final String ACTION = "delete";
 
-  private final OrganizationsWsSupport wsSupport;
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DeleteAction(OrganizationsWsSupport wsSupport, UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
-    this.wsSupport = wsSupport;
+  public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -55,22 +50,14 @@ public class DeleteAction implements OrganizationsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription(
-        format("Delete an organization.<br/>" +
-          "The '%s' or '%s' must be provided.<br/>" +
-          "Require 'Administer System' permission.",
-          PARAM_ID, PARAM_KEY))
+      .setDescription("Delete an organization.<br/>" +
+        "Require 'Administer System' permission.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setRequired(false)
-      .setDescription("Organization id")
-      .setExampleValue(UUID_EXAMPLE_03);
-
     action.createParam(PARAM_KEY)
-      .setRequired(false)
+      .setRequired(true)
       .setDescription("Organization key")
       .setExampleValue("foo-company");
   }
@@ -79,25 +66,18 @@ public class DeleteAction implements OrganizationsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    String uuid = request.param(PARAM_ID);
-    String key = request.param(PARAM_KEY);
-    wsSupport.checkKeyOrId(uuid, key);
-    preventDeletionOfDefaultOrganization(uuid, key, defaultOrganizationProvider.get());
+    String key = request.mandatoryParam(PARAM_KEY);
+    preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (uuid != null) {
-        dbClient.organizationDao().deleteByUuid(dbSession, uuid);
-      } else {
-        dbClient.organizationDao().deleteByKey(dbSession, key);
-      }
+      dbClient.organizationDao().deleteByKey(dbSession, key);
       dbSession.commit();
 
       response.noContent();
     }
   }
 
-  private static void preventDeletionOfDefaultOrganization(@Nullable String uuid, @Nullable String key, DefaultOrganization defaultOrganization) {
-    checkArgument(uuid == null || !defaultOrganization.getUuid().equals(uuid), "Default Organization can't be deleted");
+  private static void preventDeletionOfDefaultOrganization(@Nullable String key, DefaultOrganization defaultOrganization) {
     checkArgument(key == null || !defaultOrganization.getKey().equals(key), "Default Organization can't be deleted");
   }
 }
