@@ -105,7 +105,7 @@
     </where>
   </sql>
 
-  <select id="selectGroupPermissionByGroupNames" parameterType="map" resultType="GroupRole">
+  <select id="selectGroupPermissionByGroupNames" parameterType="map" resultType="GroupPermission">
     SELECT sub.id, sub.groupId, sub.resourceId, sub.role
     FROM
       (

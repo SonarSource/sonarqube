@@ -37,7 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
@@ -104,7 +104,7 @@ public class GroupsAction implements PermissionsWsAction {
       PermissionQuery dbQuery = buildPermissionQuery(request, project);
       List<GroupDto> groups = findGroups(dbSession, dbQuery);
       int total = dbClient.groupPermissionDao().countGroupsByPermissionQuery(dbSession, dbQuery);
-      List<GroupRoleDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project);
+      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project);
       return buildResponse(groups, groupsWithPermission, Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(total));
     } finally {
       dbClient.closeSession(dbSession);
@@ -140,7 +140,7 @@ public class GroupsAction implements PermissionsWsAction {
     return permissionQuery.build();
   }
 
-  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupRoleDto> groupPermissions, Paging paging) {
+  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions, Paging paging) {
     Multimap<Long, String> permissionsByGroupId = TreeMultimap.create();
     groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getRole()));
     WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
@@ -174,7 +174,7 @@ public class GroupsAction implements PermissionsWsAction {
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private List<GroupRoleDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, Optional<ComponentDto> project) {
+  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, Optional<ComponentDto> project) {
     if (groups.isEmpty()) {
       return emptyList();
     }

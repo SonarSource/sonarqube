@@ -37,7 +37,7 @@ import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
@@ -131,7 +131,7 @@ public class DeleteActionTest {
   @Test
   public void delete_with_permissions() throws Exception {
     GroupDto group = groupDao.insert(dbSession, new GroupDto().setName("to-delete"));
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setResourceId(42L).setRole(UserRole.ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(group.getId()).setResourceId(42L).setRole(UserRole.ADMIN));
     dbSession.commit();
 
     loginAsAdmin();
@@ -175,7 +175,7 @@ public class DeleteActionTest {
   @Test
   public void cannot_delete_last_system_admin_group() throws Exception {
     GroupDto group = groupDb.insertGroup(newGroupDto().setName("system-admins"));
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(group.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     assertThat(groupPermissionDao.countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null)).isEqualTo(1);
     dbSession.commit();
     loginAsAdmin();
@@ -191,9 +191,9 @@ public class DeleteActionTest {
   @Test
   public void can_delete_system_admin_group_if_not_last() throws Exception {
     GroupDto funkyAdmins = groupDb.insertGroup(newGroupDto().setName("funky-admins"));
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(funkyAdmins.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(funkyAdmins.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     GroupDto boringAdmins = groupDb.insertGroup(newGroupDto().setName("boring-admins"));
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(boringAdmins.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(boringAdmins.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     dbSession.commit();
 
     loginAsAdmin();
@@ -208,7 +208,7 @@ public class DeleteActionTest {
   @Test
   public void can_delete_last_system_admin_group_if_admin_user_left() throws Exception {
     GroupDto lastGroup = groupDb.insertGroup(newGroupDto().setName("last-group"));
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(lastGroup.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(lastGroup.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     UserDto bigBoss = userDb.insertUser(newUserDto("big.boss", "Big Boss", "big@boss.com"));
     roleDao.insertUserRole(dbSession, new UserPermissionDto().setUserId(bigBoss.getId()).setPermission(GlobalPermissions.SYSTEM_ADMIN));
     dbSession.commit();

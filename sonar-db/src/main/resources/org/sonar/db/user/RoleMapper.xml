@@ -49,7 +49,7 @@
     </where>
   </select>
 
-  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertGroupRole" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO group_roles (group_id, resource_id, role)
     VALUES (#{groupId}, #{resourceId}, #{role})
   </insert>

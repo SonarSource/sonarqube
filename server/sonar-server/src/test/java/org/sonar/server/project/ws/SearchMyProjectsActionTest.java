@@ -43,7 +43,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
@@ -332,7 +332,7 @@ public class SearchMyProjectsActionTest {
   }
 
   private void insertGroupPermission(String permission, long groupId, long componentId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(componentId));

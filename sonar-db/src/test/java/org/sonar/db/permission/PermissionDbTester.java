@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserPermissionDto;
 
 public class PermissionDbTester {
@@ -46,7 +45,7 @@ public class PermissionDbTester {
   }
 
   public void addProjectPermissionToGroup(String permission, @Nullable Long groupId, long componentId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(componentId));
@@ -54,7 +53,7 @@ public class PermissionDbTester {
   }
 
   public void addGlobalPermissionToGroup(String permission, @Nullable Long groupId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId));
     db.commit();

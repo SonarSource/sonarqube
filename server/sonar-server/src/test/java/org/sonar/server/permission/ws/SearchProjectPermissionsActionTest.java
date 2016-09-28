@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -335,7 +335,7 @@ public class SearchProjectPermissionsActionTest {
   }
 
   private void insertGroupRole(String permission, @Nullable Long resourceId, @Nullable Long groupId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(permission).setResourceId(resourceId).setGroupId(groupId));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(permission).setResourceId(resourceId).setGroupId(groupId));
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

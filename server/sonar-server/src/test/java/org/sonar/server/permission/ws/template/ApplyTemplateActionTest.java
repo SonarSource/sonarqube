@@ -39,7 +39,7 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -275,7 +275,7 @@ public class ApplyTemplateActionTest {
   }
 
   private void addGroupPermissionToProject(GroupDto group, ComponentDto project, String permission) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setResourceId(project.getId())
       .setGroupId(group.getId()));

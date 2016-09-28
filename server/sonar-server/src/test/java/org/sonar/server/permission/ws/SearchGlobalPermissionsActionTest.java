@@ -28,7 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -148,7 +148,7 @@ public class SearchGlobalPermissionsActionTest {
     return db.getDbClient().groupDao().insert(db.getSession(), groupDto);
   }
 
-  private void insertGroupRole(GroupRoleDto group) {
+  private void insertGroupRole(GroupPermissionDto group) {
     db.getDbClient().roleDao().insertGroupRole(db.getSession(), group);
   }
 
@@ -160,8 +160,8 @@ public class SearchGlobalPermissionsActionTest {
     return new GroupDto().setName(name).setDescription(description);
   }
 
-  private static GroupRoleDto newGroupRole(String role, @Nullable Long groupId) {
-    GroupRoleDto groupRole = new GroupRoleDto().setRole(role);
+  private static GroupPermissionDto newGroupRole(String role, @Nullable Long groupId) {
+    GroupPermissionDto groupRole = new GroupPermissionDto().setRole(role);
     if (groupId != null) {
       groupRole.setGroupId(groupId);
     }

@@ -29,6 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.GroupPermissionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,22 +63,22 @@ public class RoleDaoTest {
   public void select_group_permissions_by_permission_and_user_id() {
     long userId = 11L;
 
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(1L).setResourceId(2L));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(1L).setResourceId(2L));
     groupDb.addUserToGroup(userId, 1L);
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(2L).setResourceId(3L));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(2L).setResourceId(3L));
     groupDb.addUserToGroup(userId, 2L);
     // global permission - not returned
     groupDb.addUserToGroup(userId, 3L);
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(null));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(null));
     // project permission on another user id - not returned
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(4L).setResourceId(4L));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(4L).setResourceId(4L));
     groupDb.addUserToGroup(12L, 4L);
     // project permission on another permission - not returned
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(5L).setResourceId(5L));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(5L).setResourceId(5L));
     groupDb.addUserToGroup(userId, 5L);
     // duplicates on resource id - should be returned once
     underTest.insertUserRole(dbSession, new UserPermissionDto().setPermission(UserRole.ADMIN).setUserId(userId).setComponentId(2L));
-    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(3L));
+    underTest.insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(3L));
     db.commit();
 
     List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
@@ -111,7 +112,7 @@ public class RoleDaoTest {
   public void delete_global_group_permission() {
     db.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
 
-    GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
     db.getSession().commit();
@@ -123,7 +124,7 @@ public class RoleDaoTest {
   public void delete_resource_group_permission() {
     db.prepareDbUnit(getClass(), "resourceGroupPermissions.xml");
 
-    GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
+    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
 
     underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
     db.getSession().commit();
@@ -192,7 +193,7 @@ public class RoleDaoTest {
     dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
       .setGroupId(group.getId())
       .setUserId(user.getId()));
-    dbClient.roleDao().insertGroupRole(db.getSession(), new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(db.getSession(), new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(GlobalPermissions.SYSTEM_ADMIN));
 
@@ -212,7 +213,7 @@ public class RoleDaoTest {
     dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
       .setGroupId(group.getId())
       .setUserId(user.getId()));
-    dbClient.roleDao().insertGroupRole(db.getSession(), new GroupRoleDto()
+    dbClient.roleDao().insertGroupRole(db.getSession(), new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(GlobalPermissions.SYSTEM_ADMIN));
     dbClient.roleDao().insertUserRole(db.getSession(), new UserPermissionDto()

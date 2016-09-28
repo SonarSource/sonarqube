@@ -33,7 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -292,7 +292,7 @@ public class ServerUserSessionTest {
 
   private void addAnonymousPermissions(@Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
-      dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
+      dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
         .setRole(permission)
         .setResourceId(component == null ? null : component.getId()));
     }

@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission;
 
 import javax.annotation.Nullable;
 
 /**
  * @since 3.2
  */
-public class GroupRoleDto {
-  private Long id;
+public class GroupPermissionDto {
   private Long groupId;
   private Long resourceId;
   private String role;
-
-  public Long getId() {
-    return id;
-  }
-
-  public GroupRoleDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   public Long getGroupId() {
     return groupId;
@@ -46,7 +36,7 @@ public class GroupRoleDto {
   /**
    * Null when Anyone
    */
-  public GroupRoleDto setGroupId(@Nullable Long groupId) {
+  public GroupPermissionDto setGroupId(@Nullable Long groupId) {
     this.groupId = groupId;
     return this;
   }
@@ -56,7 +46,7 @@ public class GroupRoleDto {
     return resourceId;
   }
 
-  public GroupRoleDto setResourceId(@Nullable Long resourceId) {
+  public GroupPermissionDto setResourceId(@Nullable Long resourceId) {
     this.resourceId = resourceId;
     return this;
   }
@@ -65,7 +55,7 @@ public class GroupRoleDto {
     return role;
   }
 
-  public GroupRoleDto setRole(String role) {
+  public GroupPermissionDto setRole(String role) {
     this.role = role;
     return this;
   }

@@ -37,7 +37,6 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
 
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 
@@ -86,7 +85,7 @@ public class PermissionRepository {
    * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
    */
   private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
-    GroupRoleDto groupRole = new GroupRoleDto()
+    GroupPermissionDto groupRole = new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
@@ -112,7 +111,7 @@ public class PermissionRepository {
   }
 
   public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
-    GroupRoleDto groupRole = new GroupRoleDto()
+    GroupPermissionDto groupRole = new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);

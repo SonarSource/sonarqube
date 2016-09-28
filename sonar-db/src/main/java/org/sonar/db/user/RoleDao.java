@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.GroupPermissionDto;
 
 public class RoleDao implements Dao {
 
@@ -36,24 +37,24 @@ public class RoleDao implements Dao {
     return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
   }
 
-  public void insertGroupRole(DbSession session, GroupRoleDto groupRole) {
-    mapper(session).insertGroupRole(groupRole);
+  public void insertGroupRole(DbSession session, GroupPermissionDto dto) {
+    mapper(session).insertGroupRole(dto);
   }
 
   /**
    * @deprecated replaced by {@link org.sonar.db.permission.UserPermissionDao#insert(DbSession, org.sonar.db.permission.UserPermissionDto)}
    */
   @Deprecated
-  public void insertUserRole(DbSession session, UserPermissionDto userRole) {
-    mapper(session).insertUserRole(userRole);
+  public void insertUserRole(DbSession session, UserPermissionDto dto) {
+    mapper(session).insertUserRole(dto);
   }
 
-  public void deleteGroupRole(GroupRoleDto groupRole, DbSession session) {
+  public void deleteGroupRole(GroupPermissionDto groupRole, DbSession session) {
     mapper(session).deleteGroupRole(groupRole);
   }
 
-  public void deleteGroupRolesByResourceId(DbSession session, Long resourceId) {
-    mapper(session).deleteGroupRolesByResourceId(resourceId);
+  public void deleteGroupRolesByResourceId(DbSession session, long projectId) {
+    mapper(session).deleteGroupRolesByResourceId(projectId);
   }
 
   private int countResourceGroupRoles(DbSession session, Long resourceId) {

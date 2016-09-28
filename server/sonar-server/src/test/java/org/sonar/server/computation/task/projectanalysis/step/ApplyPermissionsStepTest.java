@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -123,7 +123,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, projectDto);
     // Permissions are already set on the project
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
 
     dbSession.commit();
 
@@ -163,7 +163,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, viewDto);
     // Permissions are already set on the view
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
 
     dbSession.commit();
 

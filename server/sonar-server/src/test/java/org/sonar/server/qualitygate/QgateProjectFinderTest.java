@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -246,14 +246,14 @@ public class QgateProjectFinderTest {
 
   private ComponentDto insertProjectAuthorizedToAnyone(ComponentDto project) {
     componentDbTester.insertComponent(project);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
     dbSession.commit();
     return project;
   }
 
   private ComponentDto insertProjectAuthorizedToUser(ComponentDto project, UserDto userDto) {
     componentDbTester.insertComponent(project);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
     dbSession.commit();
     return project;
   }

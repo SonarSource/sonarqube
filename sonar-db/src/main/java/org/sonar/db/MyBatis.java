@@ -121,7 +121,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipMapper;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.RoleMapper;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
@@ -178,7 +178,7 @@ public class MyBatis {
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("Group", GroupDto.class);
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
-    confBuilder.loadAlias("GroupRole", GroupRoleDto.class);
+    confBuilder.loadAlias("GroupPermission", GroupPermissionDto.class);
     confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);

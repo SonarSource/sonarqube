@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -91,10 +91,10 @@ public class GroupsActionTest {
     GroupDto group1 = insertGroup(new GroupDto().setName("group-1-name").setDescription("group-1-description"));
     GroupDto group2 = insertGroup(new GroupDto().setName("group-2-name").setDescription("group-2-description"));
     GroupDto group3 = insertGroup(new GroupDto().setName("group-3-name").setDescription("group-3-description"));
-    insertGroupRole(new GroupRoleDto().setGroupId(group1.getId()).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupRoleDto().setGroupId(group2.getId()).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupRoleDto().setGroupId(null).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupRoleDto().setGroupId(group3.getId()).setRole(SYSTEM_ADMIN));
+    insertGroupRole(new GroupPermissionDto().setGroupId(group1.getId()).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupPermissionDto().setGroupId(group2.getId()).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupPermissionDto().setGroupId(null).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupPermissionDto().setGroupId(group3.getId()).setRole(SYSTEM_ADMIN));
   }
 
   @Test
@@ -146,14 +146,14 @@ public class GroupsActionTest {
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(project.getId()));
 
     ComponentDto anotherProject = componentDb.insertComponent(newProjectDto());
     GroupDto anotherGroup = insertGroup(new GroupDto().setName("another-project-group-name"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(anotherGroup.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(anotherProject.getId()));
@@ -176,7 +176,7 @@ public class GroupsActionTest {
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(project.getId()));
@@ -201,7 +201,7 @@ public class GroupsActionTest {
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(project.getId()));
@@ -223,7 +223,7 @@ public class GroupsActionTest {
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(project.getId()));
@@ -240,7 +240,7 @@ public class GroupsActionTest {
   public void search_groups_on_views() {
     ComponentDto view = componentDb.insertComponent(newView("view-uuid").setKey("view-key"));
     GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupRoleDto()
+    insertGroupRole(new GroupPermissionDto()
       .setGroupId(group.getId())
       .setRole(ISSUE_ADMIN)
       .setResourceId(view.getId()));
@@ -304,7 +304,7 @@ public class GroupsActionTest {
     return result;
   }
 
-  private void insertGroupRole(GroupRoleDto groupRole) {
+  private void insertGroupRole(GroupPermissionDto groupRole) {
     dbClient.roleDao().insertGroupRole(dbSession, groupRole);
     commit();
   }

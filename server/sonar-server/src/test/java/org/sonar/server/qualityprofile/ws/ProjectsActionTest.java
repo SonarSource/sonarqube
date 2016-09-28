@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserPermissionDto;
@@ -224,7 +224,7 @@ public class ProjectsActionTest {
 
   private void addBrowsePermissionToAnyone(DbSession session, ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      roleDao.insertGroupRole(session, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+      roleDao.insertGroupRole(session, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
     }
   }
 

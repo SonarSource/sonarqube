@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -187,7 +187,7 @@ public class ViewIndexerTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbClient.componentDao().insert(dbSession, project, file);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(project.getId()));
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(project.getId()));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);

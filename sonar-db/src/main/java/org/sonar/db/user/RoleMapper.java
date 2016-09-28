@@ -22,6 +22,7 @@ package org.sonar.db.user;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.permission.GroupPermissionDto;
 
 /**
  * @since 3.2
@@ -35,13 +36,13 @@ public interface RoleMapper {
    */
   List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("isAnyOneGroup") Boolean isAnyOneGroup);
 
-  void insertGroupRole(GroupRoleDto groupRole);
+  void insertGroupRole(GroupPermissionDto dto);
 
-  void insertUserRole(UserPermissionDto userRole);
+  void insertUserRole(UserPermissionDto dto);
 
-  void deleteGroupRole(GroupRoleDto groupRole);
+  void deleteGroupRole(GroupPermissionDto dto);
 
-  void deleteGroupRolesByResourceId(Long resourceId);
+  void deleteGroupRolesByResourceId(long projectId);
 
   int countResourceGroupRoles(Long resourceId);
 

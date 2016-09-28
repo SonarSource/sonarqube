@@ -33,7 +33,6 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupRoleDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -224,17 +223,17 @@ public class GroupPermissionDaoTest {
     permissionDb.addGlobalPermissionToGroup(PROVISIONING, null);
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1"), null))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group1.getId(), SCAN_EXECUTION, null));
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-2"), null)).isEmpty();
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-3"), null))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group3.getId(), SYSTEM_ADMIN, null));
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Anyone"), null))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(
         tuple(0L, SCAN_EXECUTION, null),
         tuple(0L, PROVISIONING, null));
@@ -263,15 +262,15 @@ public class GroupPermissionDaoTest {
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1"), project.getId())).isEmpty();
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-2"), project.getId()))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group2.getId(), USER, project.getId()));
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-3"), project.getId()))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group3.getId(), USER, project.getId()));
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Anyone"), project.getId()))
-      .extracting(GroupRoleDto::getGroupId, GroupRoleDto::getRole, GroupRoleDto::getResourceId)
+      .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(0L, PROVISIONING, project.getId()));
 
     assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1", "Group-2", "Anyone"), project.getId())).hasSize(2);

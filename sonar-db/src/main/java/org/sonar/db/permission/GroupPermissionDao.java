@@ -28,7 +28,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupRoleDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -58,7 +57,7 @@ public class GroupPermissionDao implements Dao {
     return mapper(dbSession).countGroupsByPermissionQuery(query);
   }
 
-  public List<GroupRoleDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
+  public List<GroupPermissionDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
     return executeLargeInputs(groupNames, groups -> mapper(dbSession).selectGroupPermissionByGroupNames(groups, projectId));
   }
 
