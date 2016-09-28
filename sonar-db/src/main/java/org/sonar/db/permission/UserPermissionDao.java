@@ -57,7 +57,7 @@ public class UserPermissionDao implements Dao {
    */
   public List<String> selectLogins(DbSession dbSession, PermissionQuery query) {
     return select(dbSession, query, null).stream()
-      .map(p -> p.getUserLogin())
+      .map(ExtendedUserPermissionDto::getUserLogin)
       .distinct()
       .collect(Collectors.toList());
   }
@@ -73,7 +73,7 @@ public class UserPermissionDao implements Dao {
       .setComponentUuid(projectUuid)
       .build();
     return select(dbSession, query, asList(userLogin)).stream()
-      .map(p -> p.getPermission())
+      .map(ExtendedUserPermissionDto::getPermission)
       .collect(Collectors.toSet());
   }
 

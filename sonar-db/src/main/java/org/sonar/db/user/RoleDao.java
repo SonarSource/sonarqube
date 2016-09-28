@@ -48,11 +48,11 @@ public class RoleDao implements Dao {
     mapper(session).deleteGroupRolesByResourceId(projectId);
   }
 
-  private int countResourceGroupRoles(DbSession session, Long resourceId) {
+  private static int countResourceGroupRoles(DbSession session, Long resourceId) {
     return mapper(session).countResourceGroupRoles(resourceId);
   }
 
-  private int countResourceUserRoles(DbSession session, Long resourceId) {
+  private static int countResourceUserRoles(DbSession session, Long resourceId) {
     return mapper(session).countResourceUserRoles(resourceId);
   }
 

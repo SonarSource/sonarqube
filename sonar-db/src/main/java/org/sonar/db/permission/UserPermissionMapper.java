@@ -32,7 +32,7 @@ public interface UserPermissionMapper {
    *
    * @param query non-null query including optional filters.
    * @param userLogins if null, then filter on all active users. If not null, then filter on logins, including disabled users.
-   *                   Must not be empty. If not null then maximum size is 1'000.
+   *                   Must not be empty. If not null then maximum size is {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
    */
   List<ExtendedUserPermissionDto> selectByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
 

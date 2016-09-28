@@ -191,10 +191,8 @@ public class PermissionUpdater {
   private ComponentDto getComponent(DbSession session, @Nullable String componentKey) {
     if (componentKey == null) {
       return null;
-    } else {
-      ComponentDto component = componentFinder.getByKey(session, componentKey);
-      return component;
     }
+    return componentFinder.getByKey(session, componentKey);
   }
 
   private static Object badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {

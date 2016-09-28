@@ -141,11 +141,11 @@ public class PermissionTemplateDaoTest {
   public void should_update_permission_template() {
     db.prepareDbUnit(getClass(), "updatePermissionTemplate.xml");
 
-    PermissionTemplateDto dto = new PermissionTemplateDto();
-    dto.setId(1L);
-    dto.setName("new_name");
-    dto.setDescription("new_description");
-    dto.setKeyPattern("new_regexp");
+    PermissionTemplateDto dto = new PermissionTemplateDto()
+      .setId(1L)
+      .setName("new_name")
+      .setDescription("new_description")
+      .setKeyPattern("new_regexp");
     underTest.update(dbSession, dto);
 
     db.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
