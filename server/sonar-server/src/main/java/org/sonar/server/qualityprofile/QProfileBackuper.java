@@ -201,7 +201,7 @@ public class QProfileBackuper {
     }
   }
 
-  private SMInputFactory initStax() {
+  private static SMInputFactory initStax() {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
