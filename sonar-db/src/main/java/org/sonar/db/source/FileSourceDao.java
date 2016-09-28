@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
@@ -70,7 +71,11 @@ public class FileSourceDao implements Dao {
       pstmt.setString(2, Type.SOURCE);
       rs = pstmt.executeQuery();
       if (rs.next()) {
-        return END_OF_LINE_SPLITTER.splitToList(rs.getString(1));
+        String string = rs.getString(1);
+        if (string == null) {
+          return Collections.emptyList();
+        }
+        return END_OF_LINE_SPLITTER.splitToList(string);
       }
       return null;
     } catch (SQLException e) {

@@ -109,6 +109,25 @@ public class FileSourceDaoTest {
   }
 
   @Test
+  public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.insert(new FileSourceDto()
+        .setProjectUuid("PRJ_UUID")
+        .setFileUuid("FILE2_UUID")
+        .setBinaryData("FILE2_BINARY_DATA".getBytes())
+        .setDataHash("FILE2_DATA_HASH")
+        .setSrcHash("FILE2_HASH")
+        .setDataType(Type.SOURCE)
+        .setCreatedAt(1500000000000L)
+        .setUpdatedAt(1500000000001L)
+        .setRevision("123456789"));
+
+    assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
+  }
+
+  @Test
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
