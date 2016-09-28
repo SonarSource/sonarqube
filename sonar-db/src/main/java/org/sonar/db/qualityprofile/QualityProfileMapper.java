@@ -57,9 +57,6 @@ public interface QualityProfileMapper {
   // INHERITANCE
 
   @CheckForNull
-  QualityProfileDto selectParent(String childKey);
-
-  @CheckForNull
   QualityProfileDto selectParentById(int childId);
 
   List<QualityProfileDto> selectChildren(String key);
@@ -67,8 +64,6 @@ public interface QualityProfileMapper {
   // PROJECTS
 
   List<ComponentDto> selectProjects(@Param("profileName") String profileName, @Param("language") String language);
-
-  int countProjects(@Param("profileName") String profileName, @Param("language") String language);
 
   List<QualityProfileProjectCount> countProjectsByProfile();
 
