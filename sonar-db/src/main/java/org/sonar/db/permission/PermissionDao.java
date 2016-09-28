@@ -29,7 +29,6 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.UserPermissionDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -38,14 +37,6 @@ public class PermissionDao implements Dao {
 
   private static final String COMPONENT_ID_PARAMETER = "componentId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
-
-  public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countUsersByPermissionQuery(query);
-  }
-
-  public List<UserPermissionDto> selectUserPermissionsByLoginsAnProject(DbSession dbSession, List<String> logins, @Nullable Long projectId) {
-    return executeLargeInputs(logins, l -> mapper(dbSession).selectUserPermissionsByLogins(l, projectId));
-  }
 
   public int countGroups(DbSession session, String permission, @Nullable Long componentId) {
     Map<String, Object> parameters = new HashMap<>();

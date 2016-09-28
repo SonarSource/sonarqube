@@ -26,13 +26,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.UserPermissionDto;
 
 public interface PermissionMapper {
-
-  int countUsersByPermissionQuery(@Param("query") PermissionQuery query);
-
-  List<UserPermissionDto> selectUserPermissionsByLogins(@Param("logins") List<String> logins, @Nullable @Param("projectId") Long projectId);
 
   int countGroups(Map<String, Object> parameters);
 

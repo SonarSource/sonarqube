@@ -37,7 +37,7 @@ public interface UserPermissionMapper {
   List<ExtendedUserPermissionDto> selectByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
 
   /**
-   * Count the number of results returned by {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
+   * Count the number of distinct users returned by {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    *
    * @param useNull must always be null. It is needed for using the sql of {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}

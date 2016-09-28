@@ -34,13 +34,6 @@
     u.login as login, u.name as name, u.id
   </sql>
 
-  <select id="countUsersByPermissionQuery" parameterType="map" resultType="int">
-    select count(1)
-    from (
-      select distinct <include refid="userColumns" />
-      <include refid="usersByQuery"/>) u
-  </select>
-
   <sql id="usersByQuery">
     from users u
       left join user_roles ur ON ur.user_id=u.id
@@ -64,24 +57,6 @@
         </if>
       </if>
   </sql>
-
-  <select id="selectUserPermissionsByLogins" parameterType="map" resultType="UserRole">
-    SELECT ur.user_id AS userId, ur.resource_id AS componentId, ur.role AS permission
-    FROM user_roles ur
-    INNER JOIN users u ON u.id = ur.user_id AND u.active = ${_true}
-    <where>
-      u.login IN
-      <foreach collection="logins" open="(" close=")" item="login" separator=",">
-        #{login}
-      </foreach>
-      <if test="projectId!=null">
-        AND ur.resource_id=#{projectId}
-      </if>
-      <if test="projectId==null">
-        AND ur.resource_id IS NULL
-      </if>
-    </where>
-  </select>
 
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
