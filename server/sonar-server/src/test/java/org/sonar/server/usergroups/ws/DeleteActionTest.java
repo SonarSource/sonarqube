@@ -32,7 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.PermissionDao;
+import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDbTester;
@@ -69,7 +69,7 @@ public class DeleteActionTest {
   UserGroupDao userGroupDao = dbClient.userGroupDao();
   RoleDao roleDao = dbClient.roleDao();
   PermissionTemplateDao permissionTemplateDao = dbClient.permissionTemplateDao();
-  PermissionDao permissionDao = dbClient.permissionDao();
+  GroupPermissionDao groupPermissionDao = dbClient.groupPermissionDao();
 
   private WsTester ws;
   private Long defaultGroupId;
@@ -176,7 +176,7 @@ public class DeleteActionTest {
   public void cannot_delete_last_system_admin_group() throws Exception {
     GroupDto group = groupDb.insertGroup(newGroupDto().setName("system-admins"));
     roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
-    assertThat(permissionDao.countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null)).isEqualTo(1);
+    assertThat(groupPermissionDao.countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null)).isEqualTo(1);
     dbSession.commit();
     loginAsAdmin();
 
@@ -202,7 +202,7 @@ public class DeleteActionTest {
       .setParam(PARAM_GROUP_NAME, boringAdmins.getName())
       .execute();
 
-    assertThat(permissionDao.countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null)).isEqualTo(1);
+    assertThat(groupPermissionDao.countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null)).isEqualTo(1);
   }
 
   @Test

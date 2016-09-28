@@ -33,7 +33,7 @@ import org.sonar.db.user.GroupRoleDto;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
-public class PermissionDao implements Dao {
+public class GroupPermissionDao implements Dao {
 
   private static final String COMPONENT_ID_PARAMETER = "componentId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
@@ -78,8 +78,8 @@ public class PermissionDao implements Dao {
       });
   }
 
-  private static PermissionMapper mapper(DbSession session) {
-    return session.getMapper(PermissionMapper.class);
+  private static GroupPermissionMapper mapper(DbSession session) {
+    return session.getMapper(GroupPermissionMapper.class);
   }
 
 }

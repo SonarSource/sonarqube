@@ -48,7 +48,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
-public class GroupWithPermissionDaoTest {
+public class GroupPermissionDaoTest {
 
   private static final long COMPONENT_ID = 100L;
 
@@ -59,7 +59,7 @@ public class GroupWithPermissionDaoTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbSession dbSession = db.getSession();
 
-  private PermissionDao underTest = new PermissionDao();
+  private GroupPermissionDao underTest = new GroupPermissionDao();
 
   @Test
   public void group_count_by_permission_and_component_id() {

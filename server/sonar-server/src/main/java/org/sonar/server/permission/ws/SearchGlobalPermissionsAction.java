@@ -102,7 +102,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   }
 
   private int countGroups(DbSession dbSession, String permissionKey) {
-    return dbClient.permissionDao().countGroups(dbSession, permissionKey, null);
+    return dbClient.groupPermissionDao().countGroups(dbSession, permissionKey, null);
   }
 
   private int countUsers(DbSession dbSession, PermissionQuery permissionQuery) {

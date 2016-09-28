@@ -27,7 +27,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.user.GroupRoleDto;
 
-public interface PermissionMapper {
+public interface GroupPermissionMapper {
 
   int countGroups(Map<String, Object> parameters);
 

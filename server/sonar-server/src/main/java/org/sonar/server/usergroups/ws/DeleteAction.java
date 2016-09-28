@@ -102,7 +102,7 @@ public class DeleteAction implements UserGroupsWsAction {
     boolean hasAdminPermission = dbClient.roleDao()
       .selectGroupPermissions(dbSession, groupName, null)
       .contains(GlobalPermissions.SYSTEM_ADMIN);
-    boolean isOneRemainingAdminGroup = dbClient.permissionDao().countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null) == 1;
+    boolean isOneRemainingAdminGroup = dbClient.groupPermissionDao().countGroups(dbSession, GlobalPermissions.SYSTEM_ADMIN, null) == 1;
     boolean hasNoStandaloneAdminUser = dbClient.userPermissionDao().countUsers(dbSession,
       PermissionQuery.builder().setPermission(GlobalPermissions.SYSTEM_ADMIN).withAtLeastOnePermission().build()) == 0;
     boolean isLastAdminGroup = hasAdminPermission && isOneRemainingAdminGroup && hasNoStandaloneAdminUser;

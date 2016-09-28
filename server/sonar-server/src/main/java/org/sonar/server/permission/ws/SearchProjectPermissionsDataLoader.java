@@ -116,7 +116,7 @@ public class SearchProjectPermissionsDataLoader {
   private Table<Long, String, Integer> groupCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
     final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
+    dbClient.groupPermissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
       CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
       userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
     });

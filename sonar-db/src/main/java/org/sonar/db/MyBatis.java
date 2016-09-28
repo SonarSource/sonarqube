@@ -223,7 +223,7 @@ public class MyBatis {
     // ResourceMapper has to be loaded before IssueMapper because this last one used it
     confBuilder.loadMapper(ResourceMapper.class);
 
-    confBuilder.loadMapper("org.sonar.db.permission.PermissionMapper");
+    confBuilder.loadMapper("org.sonar.db.permission.GroupPermissionMapper");
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveDashboardMapper.class,

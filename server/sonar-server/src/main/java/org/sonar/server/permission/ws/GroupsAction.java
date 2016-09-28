@@ -103,7 +103,7 @@ public class GroupsAction implements PermissionsWsAction {
 
       PermissionQuery dbQuery = buildPermissionQuery(request, project);
       List<GroupDto> groups = findGroups(dbSession, dbQuery);
-      int total = dbClient.permissionDao().countGroupsByPermissionQuery(dbSession, dbQuery);
+      int total = dbClient.groupPermissionDao().countGroupsByPermissionQuery(dbSession, dbQuery);
       List<GroupRoleDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project);
       return buildResponse(groups, groupsWithPermission, Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(total));
     } finally {
@@ -166,7 +166,7 @@ public class GroupsAction implements PermissionsWsAction {
   }
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery) {
-    List<String> orderedNames = dbClient.permissionDao().selectGroupNamesByPermissionQuery(dbSession, dbQuery);
+    List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByPermissionQuery(dbSession, dbQuery);
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));
@@ -179,6 +179,6 @@ public class GroupsAction implements PermissionsWsAction {
       return emptyList();
     }
     List<String> names = groups.stream().map(GroupDto::getName).collect(Collectors.toList());
-    return dbClient.permissionDao().selectGroupPermissionsByGroupNamesAndProject(dbSession, names, project.isPresent() ? project.get().getId() : null);
+    return dbClient.groupPermissionDao().selectGroupPermissionsByGroupNamesAndProject(dbSession, names, project.isPresent() ? project.get().getId() : null);
   }
 }

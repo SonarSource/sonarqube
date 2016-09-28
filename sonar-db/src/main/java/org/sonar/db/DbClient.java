@@ -50,7 +50,7 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
-import org.sonar.db.permission.PermissionDao;
+import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
@@ -97,7 +97,7 @@ public class DbClient {
   private final UserTokenDao userTokenDao;
   private final GroupMembershipDao groupMembershipDao;
   private final RoleDao roleDao;
-  private final PermissionDao permissionDao;
+  private final GroupPermissionDao groupPermissionDao;
   private final PermissionTemplateDao permissionTemplateDao;
   private final PermissionTemplateCharacteristicDao permissionTemplateCharacteristicDao;
   private final IssueDao issueDao;
@@ -158,7 +158,7 @@ public class DbClient {
     userTokenDao = getDao(map, UserTokenDao.class);
     groupMembershipDao = getDao(map, GroupMembershipDao.class);
     roleDao = getDao(map, RoleDao.class);
-    permissionDao = getDao(map, PermissionDao.class);
+    groupPermissionDao = getDao(map, GroupPermissionDao.class);
     permissionTemplateDao = getDao(map, PermissionTemplateDao.class);
     permissionTemplateCharacteristicDao = getDao(map, PermissionTemplateCharacteristicDao.class);
     issueDao = getDao(map, IssueDao.class);
@@ -294,8 +294,8 @@ public class DbClient {
     return roleDao;
   }
 
-  public PermissionDao permissionDao() {
-    return permissionDao;
+  public GroupPermissionDao groupPermissionDao() {
+    return groupPermissionDao;
   }
 
   public PermissionTemplateDao permissionTemplateDao() {
