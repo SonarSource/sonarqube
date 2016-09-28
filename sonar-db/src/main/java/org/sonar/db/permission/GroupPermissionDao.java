@@ -62,7 +62,7 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Each row returns a CountByProjectAndPermissionDto
+   * Each row returns a {@link CountPerProjectPermission}
    */
   public void groupsCountByComponentIdAndPermission(DbSession dbSession, List<Long> componentIds, ResultHandler resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);
