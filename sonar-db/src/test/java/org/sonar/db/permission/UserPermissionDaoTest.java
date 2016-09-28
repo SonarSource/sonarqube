@@ -203,6 +203,46 @@ public class UserPermissionDaoTest {
   }
 
   @Test
+  public void selectLogins() {
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+    insertProjectPermission(USER, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
+
+    // logins are ordered by user name: user2 ("Marie") then user1 ("Marius")
+    PermissionQuery query = PermissionQuery.builder().setComponentUuid(project1.uuid()).withAtLeastOnePermission().build();
+    List<String> logins = underTest.selectLogins(dbTester.getSession(), query);
+    assertThat(logins).containsExactly(user2.getLogin(), user1.getLogin());
+
+    // on a project without permissions
+    query = PermissionQuery.builder().setComponentUuid("missing").withAtLeastOnePermission().build();
+    assertThat(underTest.selectLogins(dbTester.getSession(), query)).isEmpty();
+  }
+
+  @Test
+  public void selectPermissionsByLogin() {
+    insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+    insertProjectPermission(USER, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
+    insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
+
+    // user1 has one global permission and user2 has no global permissions
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), null)).hasSize(1);
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user2.getLogin(), null)).hasSize(0);
+
+    // user1 has one permission on project1, user2 has 2
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), project1.uuid())).hasSize(1);
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user2.getLogin(), project1.uuid())).hasSize(2);
+
+    // nobody has permissions on a project that does not exist!
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), "missing")).hasSize(0);
+
+    // users who do not exist don't have permissions!
+    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), "missing", null)).hasSize(0);
+  }
+
+  @Test
   public void delete_by_project() {
     insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
     insertProjectPermission(USER, user1.getId(), project1.getId());

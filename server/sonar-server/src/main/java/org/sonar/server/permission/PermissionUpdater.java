@@ -137,12 +137,12 @@ public class PermissionUpdater {
       return false;
     }
 
-    Long targetedUser = getTargetedUser(session, permissionChange.userLogin());
+    UserDto targetedUser = getTargetedUser(session, permissionChange.userLogin());
     if (Operation.ADD == operation) {
-      permissionRepository.insertUserPermission(projectId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.insertUserPermission(projectId, targetedUser.getId(), permissionChange.permission(), session);
     } else {
       checkOtherAdminUsersExist(session, permissionChange);
-      permissionRepository.deleteUserPermission(projectId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.deleteUserPermission(project, targetedUser.getLogin(), permissionChange.permission(), session);
     }
     return true;
 
@@ -165,10 +165,10 @@ public class PermissionUpdater {
     }
   }
 
-  private Long getTargetedUser(DbSession session, String userLogin) {
+  private UserDto getTargetedUser(DbSession session, String userLogin) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(session, userLogin);
     badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin);
-    return user.getId();
+    return user;
   }
 
   @Nullable

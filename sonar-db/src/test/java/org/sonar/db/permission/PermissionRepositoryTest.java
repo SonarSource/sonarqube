@@ -131,7 +131,7 @@ public class PermissionRepositoryTest {
   public void should_delete_user_permission() {
     dbTester.prepareDbUnit(getClass(), "should_delete_user_permission.xml");
 
-    underTest.deleteUserPermission(PROJECT.getId(), 200L, UserRole.ADMIN, session);
+    underTest.deleteUserPermission(PROJECT, "dave.loper", UserRole.ADMIN, session);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "should_delete_user_permission-result.xml", "user_roles", "user_id", "resource_id", "role");

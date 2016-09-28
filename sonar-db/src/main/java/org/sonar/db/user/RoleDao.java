@@ -48,14 +48,6 @@ public class RoleDao implements Dao {
     mapper(session).insertUserRole(userRole);
   }
 
-  /**
-   * @deprecated  replaced by {@link org.sonar.db.permission.UserPermissionDao#delete(DbSession, String, String, String)}
-   */
-  @Deprecated
-  public void deleteUserRole(UserPermissionDto userRole, DbSession session) {
-    mapper(session).deleteUserRole(userRole);
-  }
-
   public void deleteGroupRole(GroupRoleDto groupRole, DbSession session) {
     mapper(session).deleteGroupRole(groupRole);
   }

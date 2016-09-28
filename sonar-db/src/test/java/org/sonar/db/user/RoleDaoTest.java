@@ -108,30 +108,6 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void delete_global_user_permission() {
-    db.prepareDbUnit(getClass(), "globalUserPermissions.xml");
-
-    UserPermissionDto userRoleToDelete = new UserPermissionDto().setUserId(200L).setPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    underTest.deleteUserRole(userRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "globalUserPermissions-result.xml", "user_roles");
-  }
-
-  @Test
-  public void delete_resource_user_permission() {
-    db.prepareDbUnit(getClass(), "resourceUserPermissions.xml");
-
-    UserPermissionDto userRoleToDelete = new UserPermissionDto().setUserId(200L).setPermission(UserRole.USER).setComponentId(1L);
-
-    underTest.deleteUserRole(userRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "resourceUserPermissions-result.xml", "user_roles");
-  }
-
-  @Test
   public void delete_global_group_permission() {
     db.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
 

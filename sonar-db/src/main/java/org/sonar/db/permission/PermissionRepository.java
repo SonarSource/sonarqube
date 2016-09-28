@@ -38,7 +38,6 @@ import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.UserPermissionDto;
 
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 
@@ -63,27 +62,24 @@ public class PermissionRepository {
    * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
    */
   private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
-    UserPermissionDto userPermissionDto = new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(resourceId);
+    UserPermissionDto userPermissionDto = new UserPermissionDto(permission, userId, resourceId);
     if (updateProjectAuthorizationDate) {
       updateProjectAuthorizationDate(session, resourceId);
     }
-    dbClient.roleDao().insertUserRole(session, userPermissionDto);
+    dbClient.userPermissionDao().insert(session, userPermissionDto);
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
     insertUserPermission(resourceId, userId, permission, true, session);
   }
 
-  public void deleteUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
-    UserPermissionDto userPermissionDto = new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(resourceId);
-    updateProjectAuthorizationDate(session, resourceId);
-    dbClient.roleDao().deleteUserRole(userPermissionDto, session);
+  public void deleteUserPermission(@Nullable ComponentDto project, String login, String permission, DbSession session) {
+    if (project != null) {
+      dbClient.userPermissionDao().delete(session, login, project.uuid(), permission);
+      updateProjectAuthorizationDate(session, project.getId());
+    } else {
+      dbClient.userPermissionDao().delete(session, login, null, permission);
+    }
   }
 
   /**

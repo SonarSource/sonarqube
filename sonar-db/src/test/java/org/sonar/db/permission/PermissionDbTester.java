@@ -38,14 +38,6 @@ public class PermissionDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void addProjectPermissionToUser(String permission, long userId, long componentId) {
-    dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
-      .setPermission(permission)
-      .setUserId(userId)
-      .setComponentId(componentId));
-    db.commit();
-  }
-
   public void addGlobalPermissionToUser(String permission, long userId) {
     dbClient.roleDao().insertUserRole(dbSession, new UserPermissionDto()
       .setPermission(permission)

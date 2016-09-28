@@ -39,8 +39,6 @@ public interface RoleMapper {
 
   void insertUserRole(UserPermissionDto userRole);
 
-  void deleteUserRole(UserPermissionDto userRole);
-
   void deleteGroupRole(GroupRoleDto groupRole);
 
   void deleteGroupRolesByResourceId(Long resourceId);

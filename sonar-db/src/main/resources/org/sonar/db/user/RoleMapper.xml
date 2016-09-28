@@ -82,21 +82,6 @@
     </choose>
   </delete>
 
-  <delete id="deleteUserRole" parameterType="map">
-    DELETE FROM user_roles
-    WHERE user_id=#{userId}
-    AND role=#{permission}
-    AND
-    <choose>
-      <when test="componentId != null">
-        resource_id=#{componentId}
-      </when>
-      <otherwise>
-        resource_id IS NULL
-      </otherwise>
-    </choose>
-  </delete>
-
   <delete id="deleteGroupRolesByResourceId" parameterType="long">
     delete from group_roles where resource_id=#{id}
   </delete>
