@@ -33,6 +33,6 @@ public interface PermissionMapper {
 
   List<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
-  List<Long> keepAuthorizedProjectIdsForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  List<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
 }

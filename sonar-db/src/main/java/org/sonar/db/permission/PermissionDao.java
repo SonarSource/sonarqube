@@ -20,7 +20,7 @@
 package org.sonar.db.permission;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -28,7 +28,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 /**
@@ -46,65 +45,41 @@ public class PermissionDao implements Dao {
     this.mybatis = mybatis;
   }
 
-  public Collection<Long> keepAuthorizedProjectIds(final DbSession session, final Collection<Long> componentIds, @Nullable final Integer userId, final String role) {
-    if (componentIds.isEmpty()) {
-      return Collections.emptySet();
-    }
+  public Collection<Long> keepAuthorizedProjectIds(DbSession session, Collection<Long> componentIds, @Nullable Integer userId, String role) {
     return executeLargeInputs(
       componentIds,
       partition -> {
         if (userId == null) {
           return session.getMapper(PermissionMapper.class).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
-        } else {
-          return session.getMapper(PermissionMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
         }
+        return session.getMapper(PermissionMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
       });
   }
 
-  public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectAuthorizedRootProjectsKeys(userId, role, session);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectAuthorizedRootProjectsUuids(userId, role, session);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private static Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role, DbSession session) {
+  public Collection<String> selectAuthorizedRootProjectsKeys(DbSession dbSession, @Nullable Integer userId, String role) {
     String sql;
-    Map<String, Object> params = newHashMap();
+    Map<String, Object> params = new HashMap<>(2);
     sql = "selectAuthorizedRootProjectsKeys";
     params.put(USER_ID_PARAM, userId);
     params.put("role", role);
 
-    return session.selectList(sql, params);
+    return dbSession.selectList(sql, params);
   }
 
-  private static Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role, DbSession session) {
+  public Collection<String> selectAuthorizedRootProjectsUuids(DbSession dbSession, @Nullable Integer userId, String role) {
     String sql;
-    Map<String, Object> params = newHashMap();
+    Map<String, Object> params = new HashMap<>(2);
     sql = "selectAuthorizedRootProjectsUuids";
     params.put(USER_ID_PARAM, userId);
     params.put("role", role);
 
-    return session.selectList(sql, params);
+    return dbSession.selectList(sql, params);
   }
 
   public List<String> selectGlobalPermissions(@Nullable String userLogin) {
     DbSession session = mybatis.openSession(false);
     try {
-      Map<String, Object> params = newHashMap();
+      Map<String, Object> params = new HashMap<>(1);
       params.put("userLogin", userLogin);
       return session.selectList("selectGlobalPermissions", params);
     } finally {

@@ -25,13 +25,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.component.Component;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.component.Component;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.user.UserSession;
 
@@ -48,17 +47,17 @@ public class QProfileProjectLookup {
   }
 
   public List<Component> projects(int profileId) {
-    DbSession session = db.openSession(false);
+    DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto qualityProfile = db.qualityProfileDao().selectById(session, profileId);
+      QualityProfileDto qualityProfile = db.qualityProfileDao().selectById(dbSession, profileId);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
       Map<String, Component> componentsByKeys = Maps.newHashMap();
-      for (Component component : db.qualityProfileDao().selectProjects(qualityProfile.getName(), qualityProfile.getLanguage(), session)) {
+      for (Component component : db.qualityProfileDao().selectProjects(qualityProfile.getName(), qualityProfile.getLanguage(), dbSession)) {
         componentsByKeys.put(component.key(), component);
       }
 
       List<Component> result = Lists.newArrayList();
-      Collection<String> authorizedProjectKeys = db.permissionDao().selectAuthorizedRootProjectsKeys(userSession.getUserId(), UserRole.USER);
+      Collection<String> authorizedProjectKeys = db.permissionDao().selectAuthorizedRootProjectsKeys(dbSession, userSession.getUserId(), UserRole.USER);
       for (Map.Entry<String, Component> entry : componentsByKeys.entrySet()) {
         if (authorizedProjectKeys.contains(entry.getKey())) {
           result.add(entry.getValue());
@@ -67,7 +66,7 @@ public class QProfileProjectLookup {
 
       return result;
     } finally {
-      MyBatis.closeQuietly(session);
+      db.closeSession(dbSession);
     }
   }
 

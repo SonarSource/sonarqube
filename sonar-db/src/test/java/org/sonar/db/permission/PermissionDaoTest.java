@@ -141,12 +141,12 @@ public class PermissionDaoTest {
   public void should_return_root_project_keys_for_user() {
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_user.xml");
 
-    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // user does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 
@@ -155,12 +155,12 @@ public class PermissionDaoTest {
     // but user is not in an authorized group
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_group.xml");
 
-    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // user does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 
@@ -168,12 +168,12 @@ public class PermissionDaoTest {
   public void should_return_root_project_keys_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_anonymous.xml");
 
-    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(null, "user");
+    Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), null, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
     // group does not have the role "admin"
-    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(null, "admin");
+    rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), null, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
 
@@ -181,12 +181,12 @@ public class PermissionDaoTest {
   public void should_return_root_project_uuids_for_user() {
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_user.xml");
 
-    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(dbTester.getSession(), USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
 
     // user does not have the role "admin"
-    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "admin");
     assertThat(rootProjectUuids).isEmpty();
   }
 
@@ -195,12 +195,12 @@ public class PermissionDaoTest {
     // but user is not in an authorized group
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_group.xml");
 
-    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(dbTester.getSession(), USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
 
     // user does not have the role "admin"
-    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), USER, "admin");
     assertThat(rootProjectUuids).isEmpty();
   }
 
@@ -208,12 +208,12 @@ public class PermissionDaoTest {
   public void should_return_root_project_uuids_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "should_return_root_project_keys_for_anonymous.xml");
 
-    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(null, "user");
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(dbTester.getSession(), null, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
 
     // group does not have the role "admin"
-    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(null, "admin");
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(dbTester.getSession(), null, "admin");
     assertThat(rootProjectUuids).isEmpty();
   }
 

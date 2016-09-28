@@ -19,9 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Objects.requireNonNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,6 +34,9 @@ import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Part of the current HTTP session
@@ -54,7 +54,7 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
     this.permissionDao = dbClient.permissionDao();
     this.resourceDao = dbClient.resourceDao();
     this.globalPermissions = null;
-    if(userDto != null){
+    if (userDto != null) {
       this.setLogin(userDto.getLogin());
       this.setName(userDto.getName());
       this.setUserId(userDto.getId().intValue());
@@ -62,12 +62,12 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
     }
   }
 
-  public static ServerUserSession createForUser(DbClient dbClient, UserDto userDto){
+  public static ServerUserSession createForUser(DbClient dbClient, UserDto userDto) {
     requireNonNull(userDto, "UserDto must not be null");
     return new ServerUserSession(dbClient, userDto);
   }
 
-  public static ServerUserSession createForAnonymous(DbClient dbClient){
+  public static ServerUserSession createForAnonymous(DbClient dbClient) {
     return new ServerUserSession(dbClient, null);
   }
 
@@ -94,11 +94,16 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
 
   private boolean hasProjectPermission(String permission, String projectKey) {
     if (!projectPermissionsCheckedByKey.contains(permission)) {
-      Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(userId, permission);
-      for (String key : projectKeys) {
-        projectKeyByPermission.put(permission, key);
+      DbSession dbSession = dbClient.openSession(false);
+      try {
+        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, userId, permission);
+        for (String key : projectKeys) {
+          projectKeyByPermission.put(permission, key);
+        }
+        projectPermissionsCheckedByKey.add(permission);
+      } finally {
+        dbClient.closeSession(dbSession);
       }
-      projectPermissionsCheckedByKey.add(permission);
     }
     return projectKeyByPermission.get(permission).contains(projectKey);
   }
@@ -106,8 +111,13 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
   // To keep private
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
     if (!projectPermissionsCheckedByUuid.contains(permission)) {
-      Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(userId, permission);
-      addProjectPermission(permission, projectUuids);
+      DbSession dbSession = dbClient.openSession(false);
+      try {
+        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, userId, permission);
+        addProjectPermission(permission, projectUuids);
+      } finally {
+        dbClient.closeSession(dbSession);
+      }
     }
     return projectUuidByPermission.get(permission).contains(projectUuid);
   }
