@@ -97,7 +97,9 @@ public class FileSourceDao implements Dao {
       rs = pstmt.executeQuery();
       if (rs.next()) {
         reader = rs.getCharacterStream(1);
-        function.apply(reader);
+        if (reader != null) {
+          function.apply(reader);
+        }
       }
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);

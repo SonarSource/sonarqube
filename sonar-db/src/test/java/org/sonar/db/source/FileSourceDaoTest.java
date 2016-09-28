@@ -20,8 +20,11 @@
 package org.sonar.db.source;
 
 import com.google.common.base.Function;
+import com.google.common.base.Throwables;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.in;
 
 
 public class FileSourceDaoTest {
@@ -110,7 +115,6 @@ public class FileSourceDaoTest {
 
   @Test
   public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
-
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.insert(new FileSourceDto()
@@ -125,6 +129,34 @@ public class FileSourceDaoTest {
         .setRevision("123456789"));
 
     assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
+  }
+
+  @Test
+  public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.insert(new FileSourceDto()
+        .setProjectUuid("PRJ_UUID")
+        .setFileUuid("FILE2_UUID")
+        .setBinaryData("FILE2_BINARY_DATA".getBytes())
+        .setDataHash("FILE2_DATA_HASH")
+        .setSrcHash("FILE2_HASH")
+        .setDataType(Type.SOURCE)
+        .setCreatedAt(1500000000000L)
+        .setUpdatedAt(1500000000001L)
+        .setRevision("123456789"));
+
+    boolean[] flag = {false};
+    underTest.readLineHashesStream(dbTester.getSession(), "FILE2_UUID", new Function<Reader, Void>() {
+      @Nullable
+      @Override
+      public Void apply(@Nullable Reader input) {
+        fail("function must never been called since there is no data to read");
+        flag[0] = true;
+        return null;
+      }
+    });
+    assertThat(flag[0]).isFalse();
   }
 
   @Test
