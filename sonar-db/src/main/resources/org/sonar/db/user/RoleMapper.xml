@@ -54,7 +54,7 @@
     VALUES (#{groupId}, #{resourceId}, #{role})
   </insert>
 
-  <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertUserRole" parameterType="UserPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO user_roles (user_id, resource_id, role)
     VALUES (#{userId}, #{componentId}, #{permission})
   </insert>

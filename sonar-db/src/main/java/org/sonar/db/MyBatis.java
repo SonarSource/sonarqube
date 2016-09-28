@@ -209,7 +209,7 @@ public class MyBatis {
     confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
     confBuilder.loadAlias("Snapshot", SnapshotDto.class);
     confBuilder.loadAlias("UserGroup", UserGroupDto.class);
-    confBuilder.loadAlias("UserRole", UserPermissionDto.class);
+    confBuilder.loadAlias("UserPermission", UserPermissionDto.class);
     confBuilder.loadAlias("UserTokenCount", UserTokenCount.class);
     confBuilder.loadAlias("UserToken", UserTokenDto.class);
     confBuilder.loadAlias("User", UserDto.class);
