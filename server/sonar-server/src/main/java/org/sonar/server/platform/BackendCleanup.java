@@ -170,6 +170,7 @@ public class BackendCleanup {
     BulkIndexer.delete(esClient, indexName, esClient.prepareSearch(indexName).setQuery(matchAllQuery()));
   }
 
+  @FunctionalInterface
   private interface TableCleaner {
     void clean(String tableName, Statement ddlStatement, Connection connection) throws SQLException;
   }
