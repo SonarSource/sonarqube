@@ -42,7 +42,25 @@
       "qualifier": "UTS",
       "path": "src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
       "language": "java",
-      "measures": []
+      "measures": [
+        {
+          "metric": "new_violations",
+          "periods": [
+            {
+              "index": 1,
+              "value": "0"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "0"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "project-id",

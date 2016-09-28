@@ -39,7 +39,7 @@ class SnapshotDtoToWsPeriods {
     }
 
     List<WsMeasures.Period> periods = new ArrayList<>();
-    for (int periodIndex = 1; periodIndex <= 5; periodIndex++) {
+    for (int periodIndex = 1; periodIndex <= 3; periodIndex++) {
       if (snapshot.getPeriodDate(periodIndex) != null) {
         periods.add(snapshotDtoToWsPeriod(snapshot, periodIndex));
       }

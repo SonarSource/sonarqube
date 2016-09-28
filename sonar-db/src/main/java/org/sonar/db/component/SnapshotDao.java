@@ -33,7 +33,6 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
-import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class SnapshotDao implements Dao {
@@ -88,9 +87,6 @@ public class SnapshotDao implements Dao {
   }
 
   public List<SnapshotDto> selectLastAnalysesByRootComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
-    if (componentUuids.isEmpty()) {
-      return emptyList();
-    }
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectLastSnapshotsByRootComponentUuids);
   }
 

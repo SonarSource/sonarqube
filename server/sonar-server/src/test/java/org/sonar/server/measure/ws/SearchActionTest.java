@@ -43,6 +43,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Component;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
@@ -120,6 +121,41 @@ public class SearchActionTest {
 
     assertThat(result.getComponentsCount()).isEqualTo(1);
     assertThat(result.getComponents(0).getId()).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void add_best_values_when_no_value() {
+    ComponentDto projectDto = newProjectDto("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
+    ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
+    componentDb.insertComponent(directoryDto);
+    ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
+    componentDb.insertComponent(file);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("ncloc")
+      .setValueType(Metric.ValueType.INT.name())
+      .setOptimizedBestValue(true)
+      .setBestValue(100d)
+      .setWorstValue(1000d));
+    dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+      .setKey("new_violations")
+      .setOptimizedBestValue(true)
+      .setBestValue(1984.0d)
+      .setValueType(Metric.ValueType.INT.name()));
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d),
+      newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(42.0d));
+    db.commit();
+
+    SearchWsResponse result = callByComponentUuids(newArrayList(directoryDto.uuid(), file.uuid()), newArrayList("ncloc", "coverage", "new_violations"));
+
+    // directory is not eligible for best value
+    assertThat(result.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
+    // file measures
+    List<WsMeasures.Measure> fileMeasures = result.getComponentsList().get(1).getMeasuresList();
+    assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
+    assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
   }
 
   @Test

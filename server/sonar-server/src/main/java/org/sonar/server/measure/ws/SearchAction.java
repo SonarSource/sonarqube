@@ -21,19 +21,26 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.metric.MetricDto;
@@ -51,6 +58,9 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.dbToWsComponent;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.measureDtoToWsMeasure;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
+import static org.sonar.server.measure.ws.MetricDtoWithBestValue.buildBestMeasure;
+import static org.sonar.server.measure.ws.MetricDtoWithBestValue.isEligibleForBestValue;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -115,6 +125,7 @@ public class SearchAction implements MeasuresWsAction {
     private List<ComponentDto> components;
     private List<MetricDto> metrics;
     private List<MeasureDto> measures;
+    private List<SnapshotDto> snapshots;
 
     ResponseBuilder(Request httpRequest, DbSession dbSession) {
       this.dbSession = dbSession;
@@ -126,8 +137,16 @@ public class SearchAction implements MeasuresWsAction {
       this.components = searchComponents();
       this.metrics = searchMetrics();
       this.measures = searchMeasures();
+      this.snapshots = searchSnapshots();
 
       return buildResponse();
+    }
+
+    private List<SnapshotDto> searchSnapshots() {
+      requireNonNull(components);
+
+      Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+      return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
     }
 
     private SearchRequest setRequest() {
@@ -181,6 +200,11 @@ public class SearchAction implements MeasuresWsAction {
       requireNonNull(components);
       requireNonNull(metrics);
 
+      Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+
+      dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
+        .map(SnapshotDtoToWsPeriods::snapshotToWsPeriods);
+
       return dbClient.measureDao().selectByQuery(dbSession, MeasureQuery.builder()
         .setComponentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()))
         .setMetricIds(metrics.stream().map(MetricDto::getId).collect(Collectors.toList()))
@@ -200,21 +224,23 @@ public class SearchAction implements MeasuresWsAction {
       requireNonNull(metrics);
       requireNonNull(measures);
       requireNonNull(components);
+      requireNonNull(snapshots);
 
-      Map<Integer, MetricDto> metricById = metrics.stream().collect(Collectors.toMap(MetricDto::getId, identity()));
+      Map<Integer, MetricDto> metricsById = metrics.stream().collect(Collectors.toMap(MetricDto::getId, identity()));
 
-      ImmutableMultimap<String, WsMeasures.Measure> wsMeasuresByComponentUuid = measures.stream()
+      ImmutableMultimap<String, WsMeasures.Measure> wsMeasuresByComponentUuid = Stream
+        .concat(measures.stream(), buildBestMeasures().stream())
         .collect(Collectors.toMap(identity(), MeasureDto::getComponentUuid))
         .entrySet().stream()
         .map(entry -> immutableEntry(
-          measureDtoToWsMeasure(metricById.get(entry.getKey().getMetricId()), entry.getKey()),
+          measureDtoToWsMeasure(metricsById.get(entry.getKey().getMetricId()), entry.getKey()),
           entry.getValue()))
         .sorted((e1, e2) -> e1.getKey().getMetric().compareTo(e2.getKey().getMetric()))
         .collect(Collector.of(
           ImmutableMultimap::<String, WsMeasures.Measure>builder,
           (result, entry) -> result.put(entry.getValue(), entry.getKey()),
           (result1, result2) -> {
-            throw new IllegalStateException("Parallel execution forbidden during WS measures");
+            throw new IllegalStateException("Parallel execution forbidden while building WS measures");
           },
           ImmutableMultimap.Builder::build));
 
@@ -225,10 +251,39 @@ public class SearchAction implements MeasuresWsAction {
           SearchWsResponse::newBuilder,
           SearchWsResponse.Builder::addComponents,
           (result1, result2) -> {
-            throw new IllegalStateException("Parallel execution forbidden while build SearchWsResponse");
+            throw new IllegalStateException("Parallel execution forbidden while building SearchWsResponse");
           },
           SearchWsResponse.Builder::build));
     }
 
+    private List<MeasureDto> buildBestMeasures() {
+      Set<MetricDto> metricsWithBestValue = metrics.stream()
+        .filter(metric -> metric.isOptimizedBestValue() && metric.getBestValue() != null)
+        .collect(Collectors.toSet());
+
+      Multimap<String, WsMeasures.Period> wsPeriodsByProjectUuid = snapshots.stream().collect(Collector.of(
+        ImmutableMultimap::<String, WsMeasures.Period>builder,
+        (result, snapshot) -> result.putAll(snapshot.getComponentUuid(), snapshotToWsPeriods(snapshot)),
+        (result1, result2) -> {
+          throw new IllegalStateException("Parallel execution forbidden");
+        },
+        ImmutableMultimap.Builder::build));
+
+      Table<String, Integer, MeasureDto> measuresByComponentUuidAndMetricId = measures.stream().collect(Collector.of(
+        ImmutableTable::<String, Integer, MeasureDto>builder,
+        (result, measure) -> result.put(measure.getComponentUuid(), measure.getMetricId(), measure),
+        (result1, result2) -> {
+          throw new IllegalStateException("Parallel execution forbidden");
+        },
+        ImmutableTable.Builder::build));
+
+      Function<ComponentDto, Predicate<MetricDto>> doesNotHaveAMeasureInDb = component -> metric -> !measuresByComponentUuidAndMetricId.contains(component.uuid(), metric.getId());
+      return components.stream()
+        .filter(isEligibleForBestValue())
+        .flatMap(component -> metricsWithBestValue.stream()
+          .filter(doesNotHaveAMeasureInDb.apply(component))
+          .map(buildBestMeasure(component, wsPeriodsByProjectUuid.get(component.projectUuid()))))
+        .collect(Collectors.toList());
+    }
   }
 }
