@@ -22,6 +22,7 @@ package org.sonar.server.platform.platformlevel;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
+import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.qualitygate.RegisterQualityGates;
@@ -49,7 +50,8 @@ public class PlatformLevelStartup extends PlatformLevel {
   protected void configureLevel() {
     add(GeneratePluginIndex.class,
       RegisterServletFilters.class,
-      ServerLifecycleNotifier.class);
+      ServerLifecycleNotifier.class,
+      DefaultOrganizationEnforcer.class);
 
     addIfStartupLeader(
       IndexerStartupTask.class,

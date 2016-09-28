@@ -19,10 +19,14 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.ImmutableMap;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
@@ -32,6 +36,7 @@ import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.property.InternalProperties;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -47,6 +52,12 @@ public class BackendCleanup {
   private static final String[] RESOURCE_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"
   };
+  private static final Map<String, TableCleaner> TABLE_CLEANERS = ImmutableMap.of(
+    "organizations", BackendCleanup::truncateOrganizations,
+    "users", BackendCleanup::truncateUsers,
+    "internal_properties", BackendCleanup::truncateInternalProperties,
+      "schema_migrations", BackendCleanup::truncateSchemaMigrations);
+
   private final EsClient esClient;
   private final MyBatis myBatis;
 
@@ -61,22 +72,16 @@ public class BackendCleanup {
   }
 
   public void clearDb() {
-    DbSession dbSession = myBatis.openSession(false);
-    Connection connection = dbSession.getConnection();
-    Statement statement = null;
-    try {
-      statement = connection.createStatement();
-      for (String table : DatabaseVersion.TABLES) {
-        statement.execute("TRUNCATE TABLE " + table.toLowerCase());
-        // commit is useless on some databases
-        connection.commit();
+    try (DbSession dbSession = myBatis.openSession(false);
+      Connection connection = dbSession.getConnection();
+      Statement ddlStatement = connection.createStatement()) {
+      for (String tableName : DatabaseVersion.TABLES) {
+        Optional.ofNullable(TABLE_CLEANERS.get(tableName))
+          .orElse(BackendCleanup::truncateDefault)
+          .clean(tableName, ddlStatement, connection);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to clear db", e);
-    } finally {
-      DbUtils.closeQuietly(statement);
-      DbUtils.closeQuietly(connection);
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
@@ -163,6 +168,59 @@ public class BackendCleanup {
    */
   public void clearIndex(String indexName) {
     BulkIndexer.delete(esClient, indexName, esClient.prepareSearch(indexName).setQuery(matchAllQuery()));
+  }
+
+  private interface TableCleaner {
+    void clean(String tableName, Statement ddlStatement, Connection connection) throws SQLException;
+  }
+
+  private static void truncateDefault(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    ddlStatement.execute("TRUNCATE TABLE " + tableName.toLowerCase(Locale.ENGLISH));
+    // commit is useless on some databases
+    connection.commit();
+  }
+
+  /**
+   * Default organization must never be deleted
+   */
+  private static void truncateOrganizations(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from organizations where kee <> ?")) {
+      preparedStatement.setString(1, "default-organization");
+      preparedStatement.execute();
+      // commit is useless on some databases
+      connection.commit();
+    }
+  }
+
+  /**
+   * User admin must never be deleted.
+   */
+  private static void truncateUsers(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from users where login <> ?")) {
+      preparedStatement.setString(1, "admin");
+      preparedStatement.execute();
+      // commit is useless on some databases
+      connection.commit();
+    }
+  }
+
+  /**
+   * Internal property {@link InternalProperties#DEFAULT_ORGANIZATION} must never be deleted.
+   */
+  private static void truncateInternalProperties(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from internal_properties where kee <> ?")) {
+      preparedStatement.setString(1, InternalProperties.DEFAULT_ORGANIZATION);
+      preparedStatement.execute();
+      // commit is useless on some databases
+      connection.commit();
+    }
+  }
+
+  /**
+   * Data in SCHEMA_MIGRATIONS table is inserted when DB is created and should not be altered afterwards.
+   */
+  private static void truncateSchemaMigrations(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    // do nothing
   }
 
 }
