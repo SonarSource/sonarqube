@@ -14,16 +14,13 @@
     -- Add Anyone group permission
     SELECT #{anyoneGroup} as name, group_role.role as permission, group_role.resource_id as componentId
     FROM group_roles group_role
-    <where>
-      AND group_role.group_id IS NULL
-    </where>
+    where group_role.group_id IS NULL
     ) groups
-    <where>
+    where
       groups.componentId in
       <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
         #{id}
       </foreach>
-    </where>
     GROUP BY groups.permission, groups.componentId
   </select>
 
@@ -44,8 +41,8 @@
     -- Add Anyone group permission
     SELECT #{anyoneGroup} as name
     FROM group_roles group_role
-    <where>
-      AND group_role.role=#{permission}
+    where
+      group_role.role=#{permission}
       AND group_role.group_id IS NULL
       <if test="componentId != null">
         AND group_role.resource_id=#{componentId}
@@ -53,7 +50,6 @@
       <if test="componentId == null">
         AND group_role.resource_id IS NULL
       </if>
-    </where>
     ) groups
   </select>
 
@@ -78,11 +74,9 @@
     UNION ALL
     select 0 as group_id, 'Anyone' as name, gr.role as permission, gr.resource_id as resource_id, gr.id as id
     from group_roles gr
-    <where>
-      <if test="query.withAtLeastOnePermission()">
-        and gr.group_id is null
-      </if>
-    </where>
+    <if test="query.withAtLeastOnePermission()">
+      where gr.group_id is null
+    </if>
     ) gr
     left join projects p on gr.resource_id = p.id
     <where>
@@ -117,7 +111,7 @@
       FROM group_roles gr
       WHERE gr.group_id is null
       ) sub
-    <where>
+    where
       sub.name IN
       <foreach collection="groupNames" open="(" close=")" item="name" separator=",">
         #{name}
@@ -128,7 +122,6 @@
       <if test="projectId==null">
         AND sub.resourceId IS NULL
       </if>
-    </where>
   </select>
 
 </mapper>

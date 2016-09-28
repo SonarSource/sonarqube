@@ -47,28 +47,25 @@
         SELECT p.kee as root_project_kee
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
+        where
+          gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
           gu.user_id=#{userId}))
-        </where>
         UNION
         SELECT p.kee as root_project_kee
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
-        <where>
-          and ur.role=#{role}
+        where
+          ur.role=#{role}
           and ur.user_id = #{userId}
-        </where>
       </when>
       <otherwise>
         SELECT p.kee as root_project_kee
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
+        where
+          gr.role=#{role}
           and gr.group_id is null
-        </where>
       </otherwise>
     </choose>
   </sql>
@@ -79,28 +76,25 @@
         SELECT p.uuid as root_project_uuid
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
+        where
+          gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
           gu.user_id=#{userId}))
-        </where>
         UNION
         SELECT p.uuid as root_project_uuid
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
-        <where>
-          and ur.role=#{role}
+        where
+          ur.role=#{role}
           and ur.user_id = #{userId}
-        </where>
       </when>
       <otherwise>
         SELECT p.uuid as root_project_uuid
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
+        where
+          gr.role=#{role}
           and gr.group_id is null
-        </where>
       </otherwise>
     </choose>
   </select>
@@ -112,28 +106,21 @@
         SELECT p.id as root_project_id
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
+        where
+          gr.role=#{role}
           and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
           gu.user_id=#{userId}))
-        </where>
         UNION
         SELECT p.id as root_project_id
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
-        <where>
-          and ur.role=#{role}
-          and ur.user_id = #{userId}
-        </where>
+        where ur.role=#{role} and ur.user_id = #{userId}
       </when>
       <otherwise>
         SELECT p.id as root_project_id
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        <where>
-          and gr.role=#{role}
-          and gr.group_id is null
-        </where>
+        where gr.role=#{role} and gr.group_id is null
       </otherwise>
     </choose>
   </sql>
@@ -145,10 +132,7 @@
         FROM group_roles gr
         INNER JOIN groups_users gu on gu.group_id=gr.group_id
         INNER JOIN users u on u.id=gu.user_id
-        <where>
-          and u.login=#{userLogin}
-          and gr.resource_id is null
-        </where>
+        where u.login=#{userLogin} and gr.resource_id is null
         UNION
         SELECT gr.role
         FROM group_roles gr
@@ -157,18 +141,12 @@
         SELECT ur.role
         FROM user_roles ur
         INNER JOIN users u on u.id=ur.user_id
-        <where>
-          and u.login=#{userLogin}
-          and ur.resource_id is null
-        </where>
+        where u.login=#{userLogin} and ur.resource_id is null
       </when>
       <otherwise>
         SELECT gr.role
         FROM group_roles gr
-        <where>
-          and gr.resource_id is null
-          and gr.group_id is null
-        </where>
+        where gr.resource_id is null and gr.group_id is null
       </otherwise>
     </choose>
   </select>
