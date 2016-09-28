@@ -19,14 +19,11 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Strings;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.component.Component;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.UserSession;
-import org.sonar.server.util.Validation;
+import org.sonar.db.DbClient;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 /**
  * Use {@link org.sonar.server.qualityprofile.QProfileService} instead
@@ -35,19 +32,12 @@ import org.sonar.server.util.Validation;
 @ServerSide
 public class QProfiles {
 
-  private static final String LANGUAGE_PARAM = "language";
-
-  private final QProfileProjectOperations projectOperations;
-  private final QProfileProjectLookup projectLookup;
   private final QProfileLookup profileLookup;
-  private final UserSession userSession;
+  private final DbClient dbClient;
 
-  public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
-    QProfileLookup profileLookup, UserSession userSession) {
-    this.projectOperations = projectOperations;
-    this.projectLookup = projectLookup;
+  public QProfiles(QProfileLookup profileLookup, DbClient dbClient) {
     this.profileLookup = profileLookup;
-    this.userSession = userSession;
+    this.dbClient = dbClient;
   }
 
   public List<QProfile> allProfiles() {
@@ -58,69 +48,16 @@ public class QProfiles {
     return profileLookup.profiles(language);
   }
 
-  @CheckForNull
-  public QProfile profile(int id) {
-    return profileLookup.profile(id);
-  }
-
-  @CheckForNull
-  public QProfile profile(String name, String language) {
-    checkProfileNameParam(name);
-    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
-    return profileLookup.profile(name, language);
-  }
-
-  @CheckForNull
-  public QProfile parent(QProfile profile) {
-    return profileLookup.parent(profile);
-  }
-
-  public List<QProfile> children(QProfile profile) {
-    return profileLookup.children(profile);
-  }
-
-  public List<QProfile> ancestors(QProfile profile) {
-    return profileLookup.ancestors(profile);
-  }
-
-  // PROJECTS
-
-  public List<Component> projects(int profileId) {
-    return projectLookup.projects(profileId);
-  }
-
-  public int countProjects(QProfile profile) {
-    return projectLookup.countProjects(profile);
-  }
-
   /**
    * Used in /project/profile and in /api/profiles
    */
   @CheckForNull
   public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
-    return projectLookup.findProfileByProjectAndLanguage(projectId, language);
-  }
-
-  public void addProject(String profileKey, String projectUuid) {
-    projectOperations.addProject(profileKey, projectUuid, userSession);
-  }
-
-  public void removeProject(String profileKey, String projectUuid) {
-    projectOperations.removeProject(profileKey, projectUuid, userSession);
-  }
-
-  public void removeProjectByLanguage(String language, long projectId) {
-    projectOperations.removeProject(language, projectId, userSession);
-  }
-
-  public void removeAllProjects(String profileKey) {
-    projectOperations.removeAllProjects(profileKey, userSession);
-  }
-
-  private static void checkProfileNameParam(String name) {
-    if (Strings.isNullOrEmpty(name)) {
-      throw new BadRequestException("quality_profiles.please_type_profile_name");
+    QualityProfileDto dto = dbClient.qualityProfileDao().selectByProjectAndLanguage(projectId, language);
+    if (dto != null) {
+      return QProfile.from(dto);
     }
+    return null;
   }
 
 }
