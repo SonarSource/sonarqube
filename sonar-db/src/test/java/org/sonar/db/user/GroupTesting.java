@@ -26,12 +26,17 @@ import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class GroupTesting {
 
+  private GroupTesting() {
+    // only statics
+  }
+
   public static GroupDto newGroupDto() {
     GroupDto group = new GroupDto()
+      .setOrganizationUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(255))
-      .setDescription(randomAlphanumeric(200));
-    group.setCreatedAt(new Date(nextLong()));
-    group.setUpdatedAt(new Date(nextLong()));
+      .setDescription(randomAlphanumeric(200))
+      .setCreatedAt(new Date(nextLong()))
+      .setUpdatedAt(new Date(nextLong()));
     return group;
   }
 }

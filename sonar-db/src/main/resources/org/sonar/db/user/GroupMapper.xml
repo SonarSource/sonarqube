@@ -8,6 +8,7 @@
     g.id as id,
     g.name as name,
     g.description as description,
+    g.organization_uuid as organizationUuid,
     g.created_at as "createdAt",
     g.updated_at as "updatedAt"
   </sql>
@@ -38,14 +39,12 @@
   </delete>
 
   <select id="selectByUserLogin" parameterType="string" resultType="Group">
-    SELECT
+    select
     <include refid="groupColumns"/>
-    FROM groups g
-    INNER JOIN groups_users gu on gu.group_id=g.id
-    INNER JOIN users u on u.id=gu.user_id
-    <where>
-      u.login=#{login}
-    </where>
+    from groups g
+    inner join groups_users gu on gu.group_id = g.id
+    inner join users u on u.id = gu.user_id
+    where  u.login=#{login}
   </select>
 
   <select id="selectByNames" parameterType="map" resultType="Group">
@@ -61,8 +60,14 @@
   </select>
 
   <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO groups (name, description, created_at, updated_at)
-    VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
+    insert into groups (organization_uuid, name, description, created_at, updated_at)
+    values (
+      #{organizationUuid,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR},
+      #{description,jdbcType=VARCHAR},
+      #{createdAt},
+      #{updatedAt}
+    )
   </insert>
 
   <update id="update" parameterType="Group">

@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.version.v62;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.VarcharColumnDef;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class GroupDtoTest {
+public class AddOrganizationUuidToGroups extends DdlChange {
 
-  @Test
-  public void getter_and_setter() {
-    GroupDto dto = new GroupDto()
-      .setId(1L)
-      .setName("sonar-users")
-      .setDescription("Sonar users");
-
-    assertThat(dto.getKey()).isEqualTo("sonar-users");
-    assertThat(dto.getName()).isEqualTo("sonar-users");
-    assertThat(dto.getId()).isEqualTo(1L);
-    assertThat(dto.getDescription()).isEqualTo("Sonar users");
+  public AddOrganizationUuidToGroups(Database db) {
+    super(db);
   }
 
+  @Override
+  public void execute(Context context) throws SQLException {
+    VarcharColumnDef column = newVarcharColumnDefBuilder()
+      .setColumnName("organization_uuid")
+      .setIsNullable(true)
+      .setLimit(40)
+      .build();
+    context.execute(new AddColumnsBuilder(getDialect(), "groups").addColumn(column).build());
+  }
 }

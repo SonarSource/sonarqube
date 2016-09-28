@@ -44,19 +44,31 @@ public class GroupDao implements Dao {
     this.system = system;
   }
 
-  public GroupDto selectOrFailByName(DbSession session, String key) {
-    GroupDto group = selectByName(session, key);
+  /**
+   * @deprecated organization should be added as a parameter
+   */
+  @Deprecated
+  public GroupDto selectOrFailByName(DbSession session, String name) {
+    GroupDto group = selectByName(session, name);
     if (group == null) {
-      throw new RowNotFoundException(String.format("Could not find a group with name '%s'", key));
+      throw new RowNotFoundException(String.format("Could not find a group with name '%s'", name));
     }
     return group;
   }
 
+  /**
+   * @deprecated organization should be added as a parameter
+   */
+  @Deprecated
   @CheckForNull
   public GroupDto selectByName(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
+  /**
+   * @deprecated organization should be added as a parameter
+   */
+  @Deprecated
   public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
     return executeLargeInputs(names, mapper(session)::selectByNames);
   }

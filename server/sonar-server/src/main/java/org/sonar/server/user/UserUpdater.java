@@ -419,7 +419,7 @@ public class UserUpdater {
 
     @Override
     public boolean apply(@Nullable GroupDto input) {
-      return input != null && input.getKey().equals(key);
+      return input != null && input.getName().equals(key);
     }
   }
 }

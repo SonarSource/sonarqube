@@ -20,13 +20,15 @@
 package org.sonar.db.user;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -38,44 +40,56 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupDaoTest {
 
+  private static final long NOW = 1_500_000L;
+
+  private System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
+  private final DbSession dbSession = db.getSession();
+  private GroupDao underTest = new GroupDao(system2);
 
-  final DbSession dbSession = db.getSession();
-  System2 system2 = mock(System2.class);
+  // not static as group id is changed in each test
+  private final GroupDto aGroup = new GroupDto()
+    .setName("the-name")
+    .setDescription("the description")
+    .setOrganizationUuid("org1");
 
-  GroupDao underTest = new GroupDao(system2);
-
-  @Test
-  public void select_by_key() {
-    db.prepareDbUnit(getClass(), "select_by_key.xml");
-
-    GroupDto group = underTest.selectOrFailByName(dbSession, "sonar-users");
-
-    assertThat(group).isNotNull();
-    assertThat(group.getId()).isEqualTo(1L);
-    assertThat(group.getName()).isEqualTo("sonar-users");
-    assertThat(group.getDescription()).isEqualTo("Sonar Users");
-    assertThat(group.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-07"));
-    assertThat(group.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-08"));
+  @Before
+  public void setUp() {
+    when(system2.now()).thenReturn(NOW);
   }
 
   @Test
-  public void select_by_id() {
-    db.prepareDbUnit(getClass(), "select_by_key.xml");
+  public void test_insert_and_selectOrFailByName() {
+    db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    GroupDto group = underTest.selectOrFailById(dbSession, 1L);
+    GroupDto group = underTest.selectOrFailByName(dbSession, aGroup.getName());
 
-    assertThat(group).isNotNull();
-    assertThat(group.getId()).isEqualTo(1L);
-    assertThat(group.getName()).isEqualTo("sonar-users");
-    assertThat(group.getDescription()).isEqualTo("Sonar Users");
-    assertThat(group.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-07"));
-    assertThat(group.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-08"));
+    assertThat(group.getId()).isNotNull();
+    assertThat(group.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
+    assertThat(group.getName()).isEqualTo(aGroup.getName());
+    assertThat(group.getDescription()).isEqualTo(aGroup.getDescription());
+    assertThat(group.getCreatedAt()).isEqualTo(new Date(NOW));
+    assertThat(group.getUpdatedAt()).isEqualTo(new Date(NOW));
+  }
+
+  @Test(expected = RowNotFoundException.class)
+  public void selectOrFailByName_throws_NFE_if_not_found() {
+    underTest.selectOrFailByName(dbSession, "missing");
   }
 
   @Test
-  public void find_by_user_login() {
+  public void selectOrFailById() {
+    db.getDbClient().groupDao().insert(dbSession, aGroup);
+
+    GroupDto group = underTest.selectOrFailById(dbSession, aGroup.getId());
+
+    assertThat(group.getName()).isEqualTo(aGroup.getName());
+  }
+
+  @Test
+  public void selectByUserLogin() {
     db.prepareDbUnit(getClass(), "find_by_user_login.xml");
 
     assertThat(underTest.selectByUserLogin(dbSession, "john")).hasSize(2);
@@ -83,50 +97,43 @@ public class GroupDaoTest {
   }
 
   @Test
-  public void select_by_names() {
-    underTest.insert(dbSession, new GroupDto().setName("group1"));
-    underTest.insert(dbSession, new GroupDto().setName("group2"));
-    underTest.insert(dbSession, new GroupDto().setName("group3"));
+  public void selectByNames() {
+    underTest.insert(dbSession, newGroupDto().setName("group1"));
+    underTest.insert(dbSession, newGroupDto().setName("group2"));
+    underTest.insert(dbSession, newGroupDto().setName("group3"));
     dbSession.commit();
 
     assertThat(underTest.selectByNames(dbSession, asList("group1", "group2", "group3"))).hasSize(3);
     assertThat(underTest.selectByNames(dbSession, singletonList("group1"))).hasSize(1);
     assertThat(underTest.selectByNames(dbSession, asList("group1", "unknown"))).hasSize(1);
-    assertThat(underTest.selectByNames(dbSession, Collections.<String>emptyList())).isEmpty();
-  }
-
-  @Test
-  public void insert() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-08").getTime());
-    db.prepareDbUnit(getClass(), "empty.xml");
-    GroupDto dto = new GroupDto()
-      .setId(1L)
-      .setName("sonar-users")
-      .setDescription("Sonar Users");
-
-    underTest.insert(dbSession, dto);
-    dbSession.commit();
-
-    db.assertDbUnit(getClass(), "insert-result.xml", "groups");
+    assertThat(underTest.selectByNames(dbSession, Collections.emptyList())).isEmpty();
   }
 
   @Test
   public void update() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2013-07-25").getTime());
-    db.prepareDbUnit(getClass(), "update.xml");
+    db.getDbClient().groupDao().insert(dbSession, aGroup);
     GroupDto dto = new GroupDto()
-      .setId(1L)
+      .setId(aGroup.getId())
       .setName("new-name")
-      .setDescription("New Description");
+      .setDescription("New description")
+      .setOrganizationUuid("another-org")
+      .setCreatedAt(new Date(NOW + 1_000L));
 
     underTest.update(dbSession, dto);
-    dbSession.commit();
 
-    db.assertDbUnit(getClass(), "update-result.xml", "groups");
+    GroupDto reloaded = underTest.selectById(dbSession, aGroup.getId());
+
+    // verify mutable fields
+    assertThat(reloaded.getName()).isEqualTo("new-name");
+    assertThat(reloaded.getDescription()).isEqualTo("New description");
+
+    // immutable fields --> to be ignored
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
+    assertThat(reloaded.getCreatedAt()).isEqualTo(aGroup.getCreatedAt());
   }
 
   @Test
-  public void select_by_query() {
+  public void selectByQuery() {
     db.prepareDbUnit(getClass(), "select_by_query.xml");
 
     /*
@@ -174,7 +181,7 @@ public class GroupDaoTest {
   }
 
   @Test
-  public void count_by_query() {
+  public void countByQuery() {
     db.prepareDbUnit(getClass(), "select_by_query.xml");
 
     // Null query
@@ -188,14 +195,12 @@ public class GroupDaoTest {
   }
 
   @Test
-  public void delete_by_id() {
-    db.prepareDbUnit(getClass(), "select_by_key.xml");
+  public void deleteById() {
+    db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    GroupDao groupDao = underTest;
-    groupDao.deleteById(dbSession, 1L);
-    dbSession.commit();
+    underTest.deleteById(dbSession, aGroup.getId());
 
-    assertThat(groupDao.countByQuery(dbSession, null)).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "groups")).isEqualTo(0);
   }
 
 }
