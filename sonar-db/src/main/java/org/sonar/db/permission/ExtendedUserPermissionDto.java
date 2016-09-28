@@ -21,6 +21,10 @@ package org.sonar.db.permission;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * Temporary replacement of {@link UserPermissionDto} as long as tables group_roles
+ * and user_roles do not have project UUID/user login but project ID/user ID.
+ */
 public class ExtendedUserPermissionDto {
 
   private long userId;
