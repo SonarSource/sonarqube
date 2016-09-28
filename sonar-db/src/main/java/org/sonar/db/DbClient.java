@@ -67,7 +67,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
-import org.sonar.db.user.AuthorizationDao;
+import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -91,7 +91,7 @@ public class DbClient {
   private final MeasureDao measureDao;
   private final MeasureFilterDao measureFilterDao;
   private final MeasureFilterFavouriteDao measureFilterFavouriteDao;
-  private final AuthorizationDao authorizationDao;
+  private final PermissionDao permissionDao;
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
   private final UserTokenDao userTokenDao;
@@ -152,7 +152,7 @@ public class DbClient {
     measureDao = getDao(map, MeasureDao.class);
     measureFilterDao = getDao(map, MeasureFilterDao.class);
     measureFilterFavouriteDao = getDao(map, MeasureFilterFavouriteDao.class);
-    authorizationDao = getDao(map, AuthorizationDao.class);
+    permissionDao = getDao(map, PermissionDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
     userTokenDao = getDao(map, UserTokenDao.class);
@@ -270,8 +270,8 @@ public class DbClient {
     return measureFilterFavouriteDao;
   }
 
-  public AuthorizationDao authorizationDao() {
-    return authorizationDao;
+  public PermissionDao permissionDao() {
+    return permissionDao;
   }
 
   public UserDao userDao() {

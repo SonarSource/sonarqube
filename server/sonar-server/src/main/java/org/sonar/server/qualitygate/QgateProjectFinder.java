@@ -88,7 +88,7 @@ public class QgateProjectFinder {
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
     List<Long> projectIds = from(projects).transform(ToProjectId.INSTANCE).toList();
-    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
+    Collection<Long> authorizedProjectIds = dbClient.permissionDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
     return from(projects).filter(new MatchProjectId(authorizedProjectIds)).toList();
   }
 

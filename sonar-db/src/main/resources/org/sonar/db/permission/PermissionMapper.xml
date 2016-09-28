@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.db.user.AuthorizationMapper">
+<mapper namespace="org.sonar.db.permission.PermissionMapper">
 
   <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
     SELECT gr.resource_id

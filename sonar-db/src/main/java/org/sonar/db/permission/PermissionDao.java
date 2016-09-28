@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,12 +31,18 @@ import org.sonar.db.MyBatis;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class AuthorizationDao implements Dao {
+/**
+ * Only the operations involving both user and group permissions.
+ *
+ * @see GroupPermissionDao
+ * @see UserPermissionDao
+ */
+public class PermissionDao implements Dao {
 
   private static final String USER_ID_PARAM = "userId";
   private final MyBatis mybatis;
 
-  public AuthorizationDao(MyBatis mybatis) {
+  public PermissionDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
@@ -48,9 +54,9 @@ public class AuthorizationDao implements Dao {
       componentIds,
       partition -> {
         if (userId == null) {
-          return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
+          return session.getMapper(PermissionMapper.class).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
         } else {
-          return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
+          return session.getMapper(PermissionMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
         }
       });
   }

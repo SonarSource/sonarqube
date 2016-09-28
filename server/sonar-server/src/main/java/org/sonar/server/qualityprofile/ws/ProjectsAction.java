@@ -116,7 +116,7 @@ public class ProjectsAction implements QProfileWsAction {
         }
       });
 
-      final Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.getUserId(), UserRole.USER);
+      final Collection<Long> authorizedProjectIds = dbClient.permissionDao().keepAuthorizedProjectIds(session, projectIds, userSession.getUserId(), UserRole.USER);
       Iterable<ProjectQprofileAssociationDto> authorizedProjects = Iterables.filter(projects, new Predicate<ProjectQprofileAssociationDto>() {
         @Override
         public boolean apply(ProjectQprofileAssociationDto input) {

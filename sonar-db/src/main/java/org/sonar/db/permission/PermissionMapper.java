@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-public interface AuthorizationMapper {
+/**
+ * Only the requests involving both user and group permissions.
+ *
+ * @see GroupPermissionMapper
+ * @see UserPermissionMapper
+ */
+public interface PermissionMapper {
 
   List<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 

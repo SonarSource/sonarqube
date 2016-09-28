@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import org.sonar.db.DbTester;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuthorizationDaoTest {
+public class PermissionDaoTest {
 
   private static final int USER = 100;
   private static final Long PROJECT_ID = 300L;
@@ -39,7 +39,7 @@ public class AuthorizationDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private AuthorizationDao authorization = dbTester.getDbClient().authorizationDao();
+  private PermissionDao authorization = dbTester.getDbClient().permissionDao();
 
   @Test
   public void user_should_be_authorized() {

@@ -58,7 +58,7 @@ public class QProfileProjectLookup {
       }
 
       List<Component> result = Lists.newArrayList();
-      Collection<String> authorizedProjectKeys = db.authorizationDao().selectAuthorizedRootProjectsKeys(userSession.getUserId(), UserRole.USER);
+      Collection<String> authorizedProjectKeys = db.permissionDao().selectAuthorizedRootProjectsKeys(userSession.getUserId(), UserRole.USER);
       for (Map.Entry<String, Component> entry : componentsByKeys.entrySet()) {
         if (authorizedProjectKeys.contains(entry.getKey())) {
           result.add(entry.getValue());

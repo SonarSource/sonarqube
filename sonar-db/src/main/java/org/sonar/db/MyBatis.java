@@ -84,6 +84,9 @@ import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMapper;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.GroupPermissionMapper;
+import org.sonar.db.permission.PermissionMapper;
 import org.sonar.db.permission.UserPermissionMapper;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
@@ -121,7 +124,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipMapper;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.RoleMapper;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
@@ -218,12 +220,9 @@ public class MyBatis {
     confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
     confBuilder.loadAlias("Widget", WidgetDto.class);
 
-    // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
-    confBuilder.loadMapper("org.sonar.db.user.AuthorizationMapper");
     // ResourceMapper has to be loaded before IssueMapper because this last one used it
     confBuilder.loadMapper(ResourceMapper.class);
 
-    confBuilder.loadMapper("org.sonar.db.permission.GroupPermissionMapper");
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveDashboardMapper.class,
@@ -243,6 +242,7 @@ public class MyBatis {
       FileSourceMapper.class,
       GroupMapper.class,
       GroupMembershipMapper.class,
+      GroupPermissionMapper.class,
       InternalPropertiesMapper.class,
       IsAliveMapper.class,
       IssueChangeMapper.class,
@@ -259,6 +259,7 @@ public class MyBatis {
       Migration53Mapper.class,
       NotificationQueueMapper.class,
       OrganizationMapper.class,
+      PermissionMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       ProjectQgateAssociationMapper.class,
