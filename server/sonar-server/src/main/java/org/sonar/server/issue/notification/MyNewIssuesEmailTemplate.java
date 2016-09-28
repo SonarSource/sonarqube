@@ -60,9 +60,10 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
     String assignee = notification.getFieldValue(FIELD_ASSIGNEE);
     if (projectUuid != null && dateString != null && assignee != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/account/issues#projectUuids=%s|createdAt=%s",
+      String url = String.format("%s/issues/search#projectUuids=%s|assignees=%s|createdAt=%s",
         settings.getServerBaseURL(),
         encode(projectUuid),
+        encode(assignee),
         encode(DateUtils.formatDateTime(date)));
       message.append("See it in SonarQube: ").append(url).append(NEW_LINE);
     }
