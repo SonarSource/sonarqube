@@ -137,7 +137,7 @@ public class QualityGateConditionsUpdater {
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
-    checkRatingMetric(metric, operator, warningThreshold, errorThreshold, errors);
+    checkRatingMetric(metric, operator, warningThreshold, errorThreshold, period, errors);
     if (!errors.isEmpty()) {
       throw new BadRequestException(errors);
     }
@@ -186,9 +186,13 @@ public class QualityGateConditionsUpdater {
     }
   }
 
-  private static void checkRatingMetric(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
+  private static void checkRatingMetric(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period,
+    Errors errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
+    }
+    if (period != null && !metric.getKey().startsWith("new_")) {
+      errors.add(Message.of(format("The metric '%s' cannot be used on the leak period", metric.getShortName())));
     }
     if (!isValidRating(warningThreshold)) {
       addInvalidRatingError(warningThreshold, errors);

@@ -71,6 +71,7 @@ public class QualityGateConditionsUpdaterTest {
 
   MetricDto ratingMetricDto = newMetricDto()
     .setKey("rating_metric")
+    .setShortName("Rating")
     .setValueType(RATING.name())
     .setHidden(false);
 
@@ -101,13 +102,6 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "new_coverage", "LT", null, "80", 1);
 
     verifyCondition(result, metricDto.getId(), "LT", null, "80", 1);
-  }
-
-  @Test
-  public void create_condition_on_rating_metric() {
-    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "GT", null, "3", 1);
-
-    verifyCondition(result, ratingMetricDto.getId(), "GT", null, "3", 1);
   }
 
   @Test
@@ -185,6 +179,20 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
+  public void create_condition_on_rating_metric() {
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "GT", null, "3", null);
+
+    verifyCondition(result, ratingMetricDto.getId(), "GT", null, "3", null);
+  }
+
+  @Test
+  public void fail_to_create_condition_on_rating_metric_on_leak_period() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The metric 'Rating' cannot be used on the leak period");
+    underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "GT", null, "3", 1);
+  }
+
+  @Test
   public void fail_to_create_warning_condition_on_invalid_rating_metric() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'6' is not a valid rating");
@@ -227,9 +235,18 @@ public class QualityGateConditionsUpdaterTest {
   public void update_condition_on_rating_metric() {
     QualityGateConditionDto condition = insertCondition(ratingMetricDto.getId(), "LT", null, "3", null);
 
-    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "rating_metric", "GT", "4", null, 1);
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "rating_metric", "GT", "4", null, null);
 
-    verifyCondition(result, ratingMetricDto.getId(), "GT", "4", null, 1);
+    verifyCondition(result, ratingMetricDto.getId(), "GT", "4", null, null);
+  }
+
+  @Test
+  public void fail_to_update_condition_on_rating_metric_on_leak_period() {
+    QualityGateConditionDto condition = insertCondition(ratingMetricDto.getId(), "LT", null, "3", null);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The metric 'Rating' cannot be used on the leak period");
+    underTest.updateCondition(dbSession, condition.getId(), "rating_metric", "GT", "4", null, 1);
   }
 
   @Test

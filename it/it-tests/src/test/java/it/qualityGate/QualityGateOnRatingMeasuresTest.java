@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.services.Measure;
@@ -92,6 +93,7 @@ public class QualityGateOnRatingMeasuresTest {
   }
 
   @Test
+  @Ignore("Wait for SONAR-7782 to be implemented => then use new metric new_security_rating")
   public void generate_error_qgate_on_rating_metric_on_leak_period() throws Exception {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
     QUALITY_GATES.createCondition(CreateConditionRequest.builder()
