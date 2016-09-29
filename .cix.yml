@@ -23,10 +23,10 @@ RUN_ACTIVITY:
   - run-db-integration-tests-postgresql93-Category3
   - run-db-integration-tests-postgresql93-Category4
   - run-db-integration-tests-postgresql93-Category5
-  - run-upgrade-tests-mssql2014
-  - run-upgrade-tests-mysql56
-  - run-upgrade-tests-oracle12c
-  - run-upgrade-tests-postgresql93
+#  - run-upgrade-tests-mssql2014
+#  - run-upgrade-tests-mysql56
+#  - run-upgrade-tests-oracle12c
+#  - run-upgrade-tests-postgresql93
   - run-it-released-plugins
   - run-perf-tests
 
