@@ -19,6 +19,7 @@
  */
 package org.sonar.db.permission;
 
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -84,6 +85,33 @@ public class PermissionDao implements Dao {
       return session.selectList("selectGlobalPermissions", params);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Keep only authorized user that have the given permission on a given project.
+   * Please Note that if the permission is 'Anyone' is NOT taking into account by thie method.
+   */
+  public Collection<Long> keepAuthorizedUsersForRoleAndProject(final DbSession session, Collection<Long> userIds, String role, final long projectId) {
+    return executeLargeInputs(
+      userIds,
+      partitionOfIds -> session.getMapper(PermissionMapper.class).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds));
+  }
+
+  public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      return keepAuthorizedComponentKeys(session, componentKey, userId, role).size() == 1;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private static List<String> keepAuthorizedComponentKeys(final DbSession session, final String componentKey, @Nullable final Integer userId, final String role) {
+    if (userId == null) {
+      return session.getMapper(PermissionMapper.class).keepAuthorizedComponentKeysForAnonymous(role, Sets.newHashSet(componentKey));
+    } else {
+      return session.getMapper(PermissionMapper.class).keepAuthorizedComponentKeysForUser(userId, role, Sets.newHashSet(componentKey));
     }
   }
 
