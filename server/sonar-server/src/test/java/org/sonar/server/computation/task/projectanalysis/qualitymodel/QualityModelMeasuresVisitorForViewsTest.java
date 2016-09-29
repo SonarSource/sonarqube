@@ -19,20 +19,18 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
-import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
-import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,9 +40,7 @@ import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
@@ -60,7 +56,6 @@ import static org.sonar.server.computation.task.projectanalysis.measure.MeasureR
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
@@ -110,9 +105,6 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  @Rule
-  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
-
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
   private VisitorsCrawler underTest;
@@ -120,8 +112,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
-    underTest = new VisitorsCrawler(
-      Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, componentIssuesRepositoryRule)));
+    underTest = new VisitorsCrawler(singletonList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
   }
 
   @Test
@@ -136,9 +127,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
         entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
-        entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)));
+        entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)));
   }
 
   @Test
@@ -169,33 +158,6 @@ public class QualityModelMeasuresVisitorForViewsTest {
     assertNewRawMeasures(SUB_SUBVIEW_2_REF, debtSubSubView2, 50, E);
     assertNewRawMeasures(SUBVIEW_REF, debtSubView, 160, D);
     assertNewRawMeasures(ROOT_REF, debtRoot, 260, B);
-  }
-
-  @Test
-  public void compute_reliability_and_security_rating() throws Exception {
-    treeRootHolder.setRoot(treeRootHolder.getRoot());
-
-    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_1_REF, B);
-    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_2_REF, C);
-    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_3_REF, D);
-    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_4_REF, E);
-
-    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_2_REF, B);
-    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_1_REF, C);
-    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_3_REF, D);
-    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_4_REF, E);
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    verifyRawMeasure(SUB_SUBVIEW_1_REF, RELIABILITY_RATING_KEY, C);
-    verifyRawMeasure(SUB_SUBVIEW_2_REF, RELIABILITY_RATING_KEY, D);
-    verifyRawMeasure(SUBVIEW_REF, RELIABILITY_RATING_KEY, D);
-    verifyRawMeasure(ROOT_REF, RELIABILITY_RATING_KEY, E);
-
-    verifyRawMeasure(SUB_SUBVIEW_1_REF, SECURITY_RATING_KEY, C);
-    verifyRawMeasure(SUB_SUBVIEW_2_REF, SECURITY_RATING_KEY, D);
-    verifyRawMeasure(SUBVIEW_REF, SECURITY_RATING_KEY, D);
-    verifyRawMeasure(ROOT_REF, SECURITY_RATING_KEY, E);
   }
 
   @Test
@@ -258,16 +220,8 @@ public class QualityModelMeasuresVisitorForViewsTest {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 
-  private void addRawMeasure(String metricKey, int componentRef, Rating value) {
-    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value.getIndex(), value.name()));
-  }
-
   private void assertNoNewRawMeasure(int componentRef) {
     assertThat(measureRepository.getAddedRawMeasures(componentRef).isEmpty()).isTrue();
-  }
-
-  private void verifyRawMeasure(int componentRef, String metricKey, Rating rating) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(rating.getIndex(), rating.name())));
   }
 
   private void verifyRawMeasure(int componentRef, String metricKey, long value) {
