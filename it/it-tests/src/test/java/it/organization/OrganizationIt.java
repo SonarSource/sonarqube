@@ -205,6 +205,16 @@ public class OrganizationIt {
     adminOrganizationService.delete(expectedKey);
   }
 
+  @Test
+  public void default_organization_can_not_be_deleted() {
+    try {
+      adminOrganizationService.delete(DEFAULT_ORGANIZATION_KEY);
+      fail("a HttpException should have been raised");
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(400);
+    }
+  }
+
   private void verifyNoExtraOrganization() {
     Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().build());
     List<Organizations.Organization> organizationsList = searchWsResponse.getOrganizationsList();
