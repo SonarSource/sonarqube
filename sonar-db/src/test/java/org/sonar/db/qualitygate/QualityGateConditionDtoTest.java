@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.measures.Metric.ValueType;
 
@@ -37,25 +38,42 @@ import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed
 public class QualityGateConditionDtoTest {
 
   @Test
-  public void should_validate_operators_for_metric_type() {
-    assertThat(isOperatorAllowed("WHATEVER", null)).isFalse();
+  public void validate_operators_for_DATA() {
     assertThat(isOperatorAllowed("WHATEVER", DATA)).isFalse();
+  }
 
+  @Test
+  public void validate_operators_for_BOOL() throws Exception {
     assertThat(isOperatorAllowed("EQ", BOOL)).isTrue();
     assertThat(isOperatorAllowed("NE", BOOL)).isFalse();
     assertThat(isOperatorAllowed("LT", BOOL)).isFalse();
     assertThat(isOperatorAllowed("GT", BOOL)).isFalse();
+  }
 
+  @Test
+  public void validate_operators_for_LEVEL() throws Exception {
     assertThat(isOperatorAllowed("EQ", LEVEL)).isTrue();
     assertThat(isOperatorAllowed("NE", LEVEL)).isTrue();
     assertThat(isOperatorAllowed("LT", LEVEL)).isFalse();
     assertThat(isOperatorAllowed("GT", LEVEL)).isFalse();
+  }
 
-    for (ValueType type : new ValueType[] {STRING, INT, FLOAT, PERCENT, MILLISEC, RATING}) {
+  @Test
+  public void validate_operators_for_RATING() throws Exception {
+    assertThat(isOperatorAllowed("EQ", RATING)).isFalse();
+    assertThat(isOperatorAllowed("NE", RATING)).isFalse();
+    assertThat(isOperatorAllowed("LT", RATING)).isFalse();
+    assertThat(isOperatorAllowed("GT", RATING)).isTrue();
+  }
+
+  @Test
+  public void validate_operators_for_other_types() throws Exception {
+    Arrays.stream(new ValueType[] {STRING, INT, FLOAT, PERCENT, MILLISEC}).forEach(type -> {
       assertThat(isOperatorAllowed("EQ", type)).isTrue();
       assertThat(isOperatorAllowed("NE", type)).isTrue();
       assertThat(isOperatorAllowed("LT", type)).isTrue();
       assertThat(isOperatorAllowed("GT", type)).isTrue();
-    }
+    });
   }
+
 }

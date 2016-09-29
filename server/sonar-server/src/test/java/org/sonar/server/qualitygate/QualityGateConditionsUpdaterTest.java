@@ -105,9 +105,9 @@ public class QualityGateConditionsUpdaterTest {
 
   @Test
   public void create_condition_on_rating_metric() {
-    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "LT", null, "3", 1);
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "rating_metric", "GT", null, "3", 1);
 
-    verifyCondition(result, ratingMetricDto.getId(), "LT", null, "3", 1);
+    verifyCondition(result, ratingMetricDto.getId(), "GT", null, "3", 1);
   }
 
   @Test
@@ -188,14 +188,14 @@ public class QualityGateConditionsUpdaterTest {
   public void fail_to_create_warning_condition_on_invalid_rating_metric() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'6' is not a valid rating");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "LT", "6", null, null);
+    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", "6", null, null);
   }
 
   @Test
   public void fail_to_create_error_condition_on_invalid_rating_metric() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'80' is not a valid rating");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "LT", null, "80", null);
+    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", null, "80", null);
   }
 
   @Test
@@ -203,13 +203,6 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("There's no worse rating than E (5)");
     underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", "5", null, null);
-  }
-
-  @Test
-  public void fail_to_create_condition_on_lesser_than_A() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("There's no better rating than A (1)");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "LT", null, "1", null);
   }
 
   @Test

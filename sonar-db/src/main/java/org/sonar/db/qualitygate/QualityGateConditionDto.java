@@ -47,28 +47,29 @@ public class QualityGateConditionDto {
     OPERATOR_LESS_THAN,
     OPERATOR_GREATER_THAN,
     OPERATOR_EQUALS,
-    OPERATOR_NOT_EQUALS
-    );
+    OPERATOR_NOT_EQUALS);
 
   private static final List<String> NUMERIC_OPERATORS = ImmutableList.of(
     OPERATOR_LESS_THAN,
     OPERATOR_GREATER_THAN,
     OPERATOR_EQUALS,
-    OPERATOR_NOT_EQUALS
-    );
+    OPERATOR_NOT_EQUALS);
+
   private static final List<String> STRING_OPERATORS = ImmutableList.of(
     OPERATOR_EQUALS,
     OPERATOR_NOT_EQUALS,
     OPERATOR_LESS_THAN,
-    OPERATOR_GREATER_THAN
-    );
+    OPERATOR_GREATER_THAN);
+
   private static final List<String> LEVEL_OPERATORS = ImmutableList.of(
     OPERATOR_EQUALS,
-    OPERATOR_NOT_EQUALS
-    );
+    OPERATOR_NOT_EQUALS);
+
   private static final List<String> BOOLEAN_OPERATORS = ImmutableList.of(
-    OPERATOR_EQUALS
-    );
+    OPERATOR_EQUALS);
+
+  private static final List<String> RATING_OPERATORS = ImmutableList.of(
+    OPERATOR_GREATER_THAN);
 
   private static final Map<ValueType, List<String>> OPERATORS_BY_TYPE = ImmutableMap.<ValueType, List<String>>builder()
     .put(ValueType.BOOL, BOOLEAN_OPERATORS)
@@ -78,7 +79,7 @@ public class QualityGateConditionDto {
     .put(ValueType.FLOAT, NUMERIC_OPERATORS)
     .put(ValueType.PERCENT, NUMERIC_OPERATORS)
     .put(ValueType.MILLISEC, NUMERIC_OPERATORS)
-    .put(ValueType.RATING, NUMERIC_OPERATORS)
+    .put(ValueType.RATING, RATING_OPERATORS)
     .put(ValueType.WORK_DUR, NUMERIC_OPERATORS)
     .build();
 
