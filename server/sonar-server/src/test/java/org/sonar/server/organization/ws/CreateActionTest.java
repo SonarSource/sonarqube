@@ -26,6 +26,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -34,6 +36,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -44,6 +47,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -61,8 +65,10 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private Settings settings = new MapSettings()
+    .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private CreateAction underTest = new CreateAction(userSession, dbTester.getDbClient(), uuidFactory, new OrganizationsWsSupport());
+  private CreateAction underTest = new CreateAction(settings, userSession, dbTester.getDbClient(), uuidFactory, new OrganizationsWsSupport());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -70,7 +76,8 @@ public class CreateActionTest {
     WebService.Action action = wsTester.getDef();
     assertThat(action.key()).isEqualTo("create");
     assertThat(action.isPost()).isTrue();
-    assertThat(action.description()).isEqualTo("Create an organization.<br /> Requires 'Administer System' permission.");
+    assertThat(action.description()).isEqualTo("Create an organization.<br />" +
+        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting).");
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
@@ -109,11 +116,38 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_fails_if_user_does_not_have_SYSTEM_ADMIN_permission() {
+  public void request_fails_if_user_does_not_have_SYSTEM_ADMIN_permission_and_logged_in_user_can_not_create_organizations() {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
     executeRequest("name");
+  }
+
+  @Test
+  public void request_succeeds_if_user_has_SYSTEM_ADMIN_permission_and_logged_in_user_can_not_create_organizations() {
+    giveUserSystemAdminPermission();
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+
+    verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
+  }
+
+  @Test
+  public void request_fails_if_user_is_not_logged_in_and_logged_in_user_can_create_organizations() {
+    settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    executeRequest("name");
+  }
+
+  @Test
+  public void request_succeeds_if_user_is_logged_in_and_logged_in_user_can_create_organizations() {
+    settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
+    userSession.login();
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+
+    verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
   }
 
   @Test

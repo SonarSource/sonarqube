@@ -21,9 +21,11 @@ package org.sonar.server.organization.ws;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -46,12 +48,14 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class CreateAction implements OrganizationsAction {
   private static final String ACTION = "create";
 
+  private final Settings settings;
   private final UserSession userSession;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final OrganizationsWsSupport wsSupport;
 
-  public CreateAction(UserSession userSession, DbClient dbClient, UuidFactory uuidFactory, OrganizationsWsSupport wsSupport) {
+  public CreateAction(Settings settings, UserSession userSession, DbClient dbClient, UuidFactory uuidFactory, OrganizationsWsSupport wsSupport) {
+    this.settings = settings;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
@@ -62,7 +66,8 @@ public class CreateAction implements OrganizationsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription("Create an organization.<br /> Requires 'Administer System' permission.")
+      .setDescription("Create an organization.<br />" +
+        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting).")
       .setResponseExample(getClass().getResource("example-create.json"))
       .setInternal(true)
       .setSince("6.2")
@@ -81,7 +86,11 @@ public class CreateAction implements OrganizationsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    if (settings.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE)) {
+      userSession.checkLoggedIn();
+    } else {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    }
 
     String name = wsSupport.getAndCheckName(request);
     String requestKey = getAndCheckKey(request);

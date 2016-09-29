@@ -48,8 +48,7 @@ public class CorePropertyDefinitions {
   private static final String TIMEMACHINE_DEFAULT_PERIOD_5 = "";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
-  private static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
-  private static final boolean ORGANIZATIONS_ANYONE_CAN_CREATE_DEFAULT_VALUE = false;
+  public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -290,7 +289,7 @@ public class CorePropertyDefinitions {
       // ORGANIZATIONS
       PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
         .name("Allow any authenticated user to create organizations")
-        .defaultValue(Boolean.toString(ORGANIZATIONS_ANYONE_CAN_CREATE_DEFAULT_VALUE))
+        .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
         .type(PropertyType.BOOLEAN)
         .build()));
