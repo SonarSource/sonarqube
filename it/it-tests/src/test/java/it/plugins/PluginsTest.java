@@ -74,6 +74,9 @@ public class PluginsTest {
     // temporary incompatibility with cobol 3.1 java.lang.NoClassDefFoundError: com/sonarsource/cobol/api/pp/EnterPreprocessorEvent
     "maifcobolplugin",
 
+    // Waiting for new release of C# and VB.NET plugins, since fxcop was previously part of those plugins => fail with duplicate props
+    "fxcop",
+
     // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
     "crowd","ldap","pam"
   );
