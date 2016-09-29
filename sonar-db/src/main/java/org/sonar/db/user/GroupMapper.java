@@ -45,4 +45,7 @@ public interface GroupMapper {
   int countByQuery(@Param("query") String query);
 
   void deleteById(long groupId);
+
+  @CheckForNull
+  GroupDto selectByName(@Param("organizationKey") String organizationKey, @Param("name")String name);
 }

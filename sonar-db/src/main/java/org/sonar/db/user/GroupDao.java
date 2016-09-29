@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +46,7 @@ public class GroupDao implements Dao {
   }
 
   /**
-   * @deprecated organization should be added as a parameter
+   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
    */
   @Deprecated
   public GroupDto selectOrFailByName(DbSession session, String name) {
@@ -57,12 +58,22 @@ public class GroupDao implements Dao {
   }
 
   /**
-   * @deprecated organization should be added as a parameter
+   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
    */
   @Deprecated
   @CheckForNull
   public GroupDto selectByName(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  /**
+   * @param dbSession
+   * @param organizationKey non-null key of organization (no support of "default" organization)
+   * @param name non-null group name
+   * @return the group with the given organization key and name
+   */
+  public Optional<GroupDto> selectByName(DbSession dbSession, String organizationKey, String name) {
+    return Optional.ofNullable(mapper(dbSession).selectByName(organizationKey,name));
   }
 
   /**

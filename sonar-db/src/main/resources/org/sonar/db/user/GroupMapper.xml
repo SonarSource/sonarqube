@@ -13,6 +13,14 @@
     g.updated_at as "updatedAt"
   </sql>
 
+  <select id="selectByName" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    inner join organizations o on o.uuid = g.organization_uuid
+    where o.kee = #{organizationKey} and g.name = #{name}
+  </select>
+
   <select id="selectByKey" parameterType="string" resultType="Group">
     SELECT
     <include refid="groupColumns"/>
