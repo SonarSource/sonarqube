@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -77,7 +76,7 @@ public class DeleteAction implements OrganizationsAction {
     }
   }
 
-  private static void preventDeletionOfDefaultOrganization(@Nullable String key, DefaultOrganization defaultOrganization) {
-    checkArgument(key == null || !defaultOrganization.getKey().equals(key), "Default Organization can't be deleted");
+  private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {
+    checkArgument(!defaultOrganization.getKey().equals(key), "Default Organization can't be deleted");
   }
 }
