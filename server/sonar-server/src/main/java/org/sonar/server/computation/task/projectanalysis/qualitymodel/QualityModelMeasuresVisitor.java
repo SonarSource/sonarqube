@@ -27,6 +27,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingVariationValue;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
@@ -148,11 +149,11 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     }
     Optional<Measure> reliabilityRatingMeasure = measureRepository.getRawMeasure(projectView, reliabilityRatingMetric);
     if (reliabilityRatingMeasure.isPresent()) {
-      path.parent().addReliabilityRating(Rating.valueOf(reliabilityRatingMeasure.get().getData()));
+      path.parent().reliabilityRating.increment(Rating.valueOf(reliabilityRatingMeasure.get().getData()));
     }
     Optional<Measure> securityRatingMeasure = measureRepository.getRawMeasure(projectView, securityRatingMetric);
     if (securityRatingMeasure.isPresent()) {
-      path.parent().addSecurityRating(Rating.valueOf(securityRatingMeasure.get().getData()));
+      path.parent().securityRating.increment(Rating.valueOf(securityRatingMeasure.get().getData()));
     }
   }
 
@@ -202,12 +203,12 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   }
 
   private void addReliabilityRatingMeasure(Component component, Path<QualityModelCounter> path) {
-    Rating rating = path.current().reliabilityRating;
+    Rating rating = path.current().reliabilityRating.getValue();
     measureRepository.add(component, reliabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
   private void addSecurityRatingMeasure(Component component, Path<QualityModelCounter> path) {
-    Rating rating = path.current().securityRating;
+    Rating rating = path.current().securityRating.getValue();
     measureRepository.add(component, securityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
@@ -228,8 +229,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
 
   public static final class QualityModelCounter {
     private long devCosts = 0;
-    private Rating reliabilityRating = Rating.A;
-    private Rating securityRating = Rating.A;
+    private RatingVariationValue reliabilityRating = new RatingVariationValue();
+    private RatingVariationValue securityRating = new RatingVariationValue();
 
     private QualityModelCounter() {
       // prevents instantiation
@@ -237,8 +238,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
 
     public void add(QualityModelCounter otherCounter) {
       addDevCosts(otherCounter.devCosts);
-      addReliabilityRating(otherCounter.reliabilityRating);
-      addSecurityRating(otherCounter.securityRating);
+      reliabilityRating.increment(otherCounter.reliabilityRating);
+      securityRating.increment(otherCounter.securityRating);
     }
 
     public void addDevCosts(long developmentCosts) {
@@ -248,21 +249,9 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     public void addIssue(Issue issue) {
       Rating rating = getRatingFromSeverity(issue.severity());
       if (issue.type().equals(BUG)) {
-        addReliabilityRating(rating);
+        reliabilityRating.increment(rating);
       } else if (issue.type().equals(VULNERABILITY)) {
-        addSecurityRating(rating);
-      }
-    }
-
-    private void addReliabilityRating(Rating rating) {
-      if (reliabilityRating.compareTo(rating) > 0) {
-        reliabilityRating = rating;
-      }
-    }
-
-    private void addSecurityRating(Rating rating) {
-      if (securityRating.compareTo(rating) > 0) {
-        securityRating = rating;
+        securityRating.increment(rating);
       }
     }
 
