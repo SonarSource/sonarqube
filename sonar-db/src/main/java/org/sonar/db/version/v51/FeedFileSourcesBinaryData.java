@@ -33,6 +33,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
@@ -147,7 +148,9 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
       }
       return FileSourceDto.encodeSourceData(dataBuilder.build());
     } catch (Exception e) {
-      throw new IllegalStateException("Invalid FILE_SOURCES.DATA on row with ID " + fileSourceId + ": " + data, e);
+      Loggers.get(FeedFileSourcesBinaryData.class).error(
+        String.format("Invalid FILE_SOURCES.DATA on row with ID %s, data will be ignored: %s", fileSourceId, data), e);
+      return FileSourceDto.encodeSourceData(dataBuilder.clear().build());
     } finally {
       IOUtils.closeQuietly(parser);
     }
