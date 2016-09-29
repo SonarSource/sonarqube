@@ -70,6 +70,9 @@ public class PluginsTest {
     // https://jira.sonarsource.com/browse/MAIF-213
     "maifcobolplugin",
 
+    // Waiting for new release of C# and VB.NET plugins, since fxcop was previously part of those plugins => fail with duplicate props
+    "fxcop",
+
     // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
     "crowd", "ldap", "pam");
 
