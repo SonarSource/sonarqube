@@ -61,7 +61,7 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
-public class QualityModelMeasuresVisitorForReportTest {
+public class MaintainabilityMeasuresVisitorForReportTest {
 
   static final String LANGUAGE_KEY_1 = "lKey1";
   static final String LANGUAGE_KEY_2 = "lKey2";
@@ -118,7 +118,7 @@ public class QualityModelMeasuresVisitorForReportTest {
     when(ratingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
     when(ratingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
 
-    underTest = new VisitorsCrawler(singletonList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
+    underTest = new VisitorsCrawler(singletonList(new MaintainabilityMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
   }
 
   @Test

@@ -28,11 +28,11 @@ import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -59,7 +59,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert.assertThat;
 
-public class NewQualityModelMeasuresVisitorTest {
+public class NewMaintainabilityMeasuresVisitorTest {
   private static final String LANGUAGE_1_KEY = "language 1 key";
   private static final long LANGUAGE_1_DEV_COST = 30l;
   private static final long PERIOD_2_SNAPSHOT_DATE = 12323l;
@@ -86,7 +86,7 @@ public class NewQualityModelMeasuresVisitorTest {
 
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new NewQualityModelMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
     periodsHolder, ratingSettings)));
 
   @Test

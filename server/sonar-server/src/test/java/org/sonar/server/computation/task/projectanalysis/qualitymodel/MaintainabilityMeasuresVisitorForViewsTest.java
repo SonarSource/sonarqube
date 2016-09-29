@@ -59,7 +59,7 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
-public class QualityModelMeasuresVisitorForViewsTest {
+public class MaintainabilityMeasuresVisitorForViewsTest {
 
   private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
 
@@ -112,7 +112,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
-    underTest = new VisitorsCrawler(singletonList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
+    underTest = new VisitorsCrawler(singletonList(new MaintainabilityMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
   }
 
   @Test

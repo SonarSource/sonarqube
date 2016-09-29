@@ -90,8 +90,8 @@ import org.sonar.server.computation.task.projectanalysis.qualitygate.EvaluationR
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateStatusHolderImpl;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.NewQualityModelMeasuresVisitor;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.QualityModelMeasuresVisitor;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.MaintainabilityMeasuresVisitor;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.NewMaintainabilityMeasuresVisitor;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
@@ -210,9 +210,9 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,
-      QualityModelMeasuresVisitor.class,
+      MaintainabilityMeasuresVisitor.class,
       ReliabilityAndSecurityRatingMeasuresVisitor.class,
-      NewQualityModelMeasuresVisitor.class,
+      NewMaintainabilityMeasuresVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 

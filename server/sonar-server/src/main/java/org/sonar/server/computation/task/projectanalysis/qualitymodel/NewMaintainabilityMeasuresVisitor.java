@@ -19,12 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
@@ -33,6 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.LongVariationValue;
+import org.sonar.server.computation.task.projectanalysis.issue.IntegrateIssuesVisitor;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
@@ -44,21 +42,20 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 /**
- * This visitor depends on {@link org.sonar.server.computation.task.projectanalysis.issue.IntegrateIssuesVisitor} for the computation of
+ * This visitor depends on {@link IntegrateIssuesVisitor} for the computation of
  * metric {@link CoreMetrics#NEW_TECHNICAL_DEBT}.
  *
  * Compute following measure :
  * {@link CoreMetrics#NEW_SQALE_DEBT_RATIO_KEY}
  */
-public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQualityModelMeasuresVisitor.NewTechDebtRatioCounter> {
-  private static final Logger LOG = Loggers.get(NewQualityModelMeasuresVisitor.class);
+public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<NewMaintainabilityMeasuresVisitor.Counter> {
+  private static final Logger LOG = Loggers.get(NewMaintainabilityMeasuresVisitor.class);
 
   private final ScmInfoRepository scmInfoRepository;
   private final MeasureRepository measureRepository;
@@ -69,9 +66,9 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
   private final Metric nclocDataMetric;
   private final Metric newDebtRatioMetric;
 
-  public NewQualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository, PeriodsHolder periodsHolder,
-                                        RatingSettings ratingSettings) {
-    super(CrawlerDepthLimit.FILE, POST_ORDER, NewDevelopmentCostCounterFactory.INSTANCE);
+  public NewMaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository,
+                                           PeriodsHolder periodsHolder, RatingSettings ratingSettings) {
+    super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.periodsHolder = periodsHolder;
@@ -86,30 +83,30 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
   }
 
   @Override
-  public void visitProject(Component project, Path<NewTechDebtRatioCounter> path) {
+  public void visitProject(Component project, Path<Counter> path) {
     computeAndSaveNewDebtRatioMeasure(project, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<NewTechDebtRatioCounter> path) {
+  public void visitModule(Component module, Path<Counter> path) {
     computeAndSaveNewDebtRatioMeasure(module, path);
     increaseNewDebtAndDevCostOfParent(path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<NewTechDebtRatioCounter> path) {
+  public void visitDirectory(Component directory, Path<Counter> path) {
     computeAndSaveNewDebtRatioMeasure(directory, path);
     increaseNewDebtAndDevCostOfParent(path);
   }
 
   @Override
-  public void visitFile(Component file, Path<NewTechDebtRatioCounter> path) {
+  public void visitFile(Component file, Path<Counter> path) {
     initNewDebtRatioCounter(file, path);
     computeAndSaveNewDebtRatioMeasure(file, path);
     increaseNewDebtAndDevCostOfParent(path);
   }
 
-  private void computeAndSaveNewDebtRatioMeasure(Component component, Path<NewTechDebtRatioCounter> path) {
+  private void computeAndSaveNewDebtRatioMeasure(Component component, Path<Counter> path) {
     MeasureVariations.Builder builder = newMeasureVariationsBuilder();
     for (Period period : periodsHolder.getPeriods()) {
       double density = computeDensity(path.current(), period);
@@ -121,7 +118,7 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
     }
   }
 
-  private static double computeDensity(NewTechDebtRatioCounter counter, Period period) {
+  private static double computeDensity(Counter counter, Period period) {
     LongVariationValue newDebt = counter.getNewDebt(period);
     if (newDebt.isSet()) {
       long developmentCost = counter.getDevCost(period).getValue();
@@ -146,7 +143,7 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
     return 0L;
   }
 
-  private void initNewDebtRatioCounter(Component file, Path<NewTechDebtRatioCounter> path) {
+  private void initNewDebtRatioCounter(Component file, Path<Counter> path) {
     // first analysis, no period, no differential value to compute, save processing time and return now
     if (periodsHolder.getPeriods().isEmpty()) {
       return;
@@ -167,7 +164,7 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
     initNewDebtRatioCounter(path.current(), file, nclocDataMeasure.get(), scmInfo);
   }
 
-  private void initNewDebtRatioCounter(NewTechDebtRatioCounter devCostCounter, Component file, Measure nclocDataMeasure, ScmInfo scmInfo) {
+  private void initNewDebtRatioCounter(Counter devCostCounter, Component file, Measure nclocDataMeasure, ScmInfo scmInfo) {
     boolean[] hasDevCost = new boolean[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
 
     long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
@@ -188,7 +185,7 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
     }
   }
 
-  private static void increaseNewDebtAndDevCostOfParent(Path<NewTechDebtRatioCounter> path) {
+  private static void increaseNewDebtAndDevCostOfParent(Path<Counter> path) {
     path.parent().add(path.current());
   }
 
@@ -207,63 +204,46 @@ public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQ
    */
   private static Iterable<Integer> nclocLineIndexes(Measure nclocDataMeasure) {
     Map<Integer, Integer> parsedNclocData = KeyValueFormat.parse(nclocDataMeasure.getData(), newIntegerConverter(), newIntegerConverter());
-    return from(parsedNclocData.entrySet())
-      .filter(NclocEntryNclocLine.INSTANCE)
-      .transform(MapEntryToKey.INSTANCE);
+    return parsedNclocData.entrySet()
+      .stream()
+      .filter(entry -> entry.getValue() == 1)
+      .map(Map.Entry::getKey)
+      .collect(Collectors.toList());
   }
 
-  public static final class NewTechDebtRatioCounter {
+  public static final class Counter {
     private final LongVariationValue.Array newDebt = LongVariationValue.newArray();
     private final LongVariationValue.Array devCost = LongVariationValue.newArray();
 
-    public void add(NewTechDebtRatioCounter counter) {
+    public void add(Counter counter) {
       this.newDebt.incrementAll(counter.newDebt);
       this.devCost.incrementAll(counter.devCost);
     }
 
-    public LongVariationValue.Array incrementNewDebt(Period period, long value) {
+    LongVariationValue.Array incrementNewDebt(Period period, long value) {
       return newDebt.increment(period, value);
     }
 
-    public LongVariationValue.Array incrementDevCost(Period period, long value) {
+    LongVariationValue.Array incrementDevCost(Period period, long value) {
       return devCost.increment(period, value);
     }
 
-    public LongVariationValue getNewDebt(Period period) {
+    LongVariationValue getNewDebt(Period period) {
       return this.newDebt.get(period);
     }
 
-    public LongVariationValue getDevCost(Period period) {
+    LongVariationValue getDevCost(Period period) {
       return this.devCost.get(period);
     }
 
   }
 
-  private enum NclocEntryNclocLine implements Predicate<Map.Entry<Integer, Integer>> {
-    INSTANCE;
+  private static class CounterFactory extends SimpleStackElementFactory<Counter> {
+    public static final CounterFactory INSTANCE = new CounterFactory();
 
     @Override
-    public boolean apply(@Nonnull Map.Entry<Integer, Integer> input) {
-      return input.getValue() == 1;
-    }
-  }
-
-  private enum MapEntryToKey implements Function<Map.Entry<Integer, Integer>, Integer> {
-    INSTANCE;
-
-    @Override
-    @Nullable
-    public Integer apply(@Nonnull Map.Entry<Integer, Integer> input) {
-      return input.getKey();
-    }
-  }
-
-  private static class NewDevelopmentCostCounterFactory extends SimpleStackElementFactory<NewTechDebtRatioCounter> {
-    public static final NewDevelopmentCostCounterFactory INSTANCE = new NewDevelopmentCostCounterFactory();
-
-    @Override
-    public NewTechDebtRatioCounter createForAny(Component component) {
-      return new NewTechDebtRatioCounter();
+    public Counter createForAny(Component component) {
+      return new Counter();
     }
   }
 }

@@ -43,14 +43,14 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 /**
- * Compute following measures :
+ * Compute measures related to maintainability :
  * {@link CoreMetrics#DEVELOPMENT_COST_KEY}
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
  * {@link CoreMetrics#EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY}
  */
-public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.QualityModelCounter> {
-  private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
+public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<MaintainabilityMeasuresVisitor.Counter> {
+  private static final Logger LOG = Loggers.get(MaintainabilityMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
   private final RatingSettings ratingSettings;
@@ -64,8 +64,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   private final Metric maintainabilityRatingMetric;
   private final Metric effortToMaintainabilityRatingAMetric;
 
-  public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
-    super(CrawlerDepthLimit.LEAVES, POST_ORDER, QualityMododelCounterFactory.INSTANCE);
+  public MaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
+    super(CrawlerDepthLimit.LEAVES, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.ratingSettings = ratingSettings;
     this.ratingGrid = ratingSettings.getRatingGrid();
@@ -82,22 +82,22 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   }
 
   @Override
-  public void visitProject(Component project, Path<QualityModelCounter> path) {
+  public void visitProject(Component project, Path<Counter> path) {
     computeAndSaveMeasures(project, path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<QualityModelCounter> path) {
+  public void visitDirectory(Component directory, Path<Counter> path) {
     computeAndSaveMeasures(directory, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<QualityModelCounter> path) {
+  public void visitModule(Component module, Path<Counter> path) {
     computeAndSaveMeasures(module, path);
   }
 
   @Override
-  public void visitFile(Component file, Path<QualityModelCounter> path) {
+  public void visitFile(Component file, Path<Counter> path) {
     path.current().addDevCosts(computeDevelopmentCost(file));
     computeAndSaveMeasures(file, path);
   }
@@ -109,17 +109,17 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   }
 
   @Override
-  public void visitView(Component view, Path<QualityModelCounter> path) {
+  public void visitView(Component view, Path<Counter> path) {
     computeAndSaveMeasures(view, path);
   }
 
   @Override
-  public void visitSubView(Component subView, Path<QualityModelCounter> path) {
+  public void visitSubView(Component subView, Path<Counter> path) {
     computeAndSaveMeasures(subView, path);
   }
 
   @Override
-  public void visitProjectView(Component projectView, Path<QualityModelCounter> path) {
+  public void visitProjectView(Component projectView, Path<Counter> path) {
     Optional<Measure> developmentCostMeasure = measureRepository.getRawMeasure(projectView, developmentCostMetric);
     if (developmentCostMeasure.isPresent()) {
       try {
@@ -130,7 +130,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     }
   }
 
-  private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
+  private void computeAndSaveMeasures(Component component, Path<Counter> path) {
     addDevelopmentCostMeasure(component, path.current());
 
     double density = computeDensity(component, path.current());
@@ -141,7 +141,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     addToParent(path);
   }
 
-  private double computeDensity(Component component, QualityModelCounter developmentCost) {
+  private double computeDensity(Component component, Counter developmentCost) {
     Optional<Measure> measure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
     double maintainabilityRemediationEffort = measure.isPresent() ? measure.get().getLongValue() : 0L;
     if (Double.doubleToRawLongBits(developmentCost.devCosts) != 0L) {
@@ -150,7 +150,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     return 0d;
   }
 
-  private void addDevelopmentCostMeasure(Component component, QualityModelCounter developmentCost) {
+  private void addDevelopmentCostMeasure(Component component, Counter developmentCost) {
     // the value of this measure is stored as a string because it can exceed the size limit of number storage on some DB
     measureRepository.add(component, developmentCostMetric, newMeasureBuilder().create(Long.toString(developmentCost.devCosts)));
   }
@@ -164,7 +164,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     measureRepository.add(component, maintainabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
-  private void addEffortToMaintainabilityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
+  private void addEffortToMaintainabilityRatingAMeasure(Component component, Path<Counter> path) {
     long developmentCostValue = path.current().devCosts;
     Optional<Measure> effortMeasure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
     long effort = effortMeasure.isPresent() ? effortMeasure.get().getLongValue() : 0L;
@@ -173,47 +173,47 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     measureRepository.add(component, effortToMaintainabilityRatingAMetric, Measure.newMeasureBuilder().create(effortToRatingA));
   }
 
-  private static void addToParent(Path<QualityModelCounter> path) {
+  private static void addToParent(Path<Counter> path) {
     if (!path.isRoot()) {
       path.parent().add(path.current());
     }
   }
 
-  public static final class QualityModelCounter {
+  public static final class Counter {
     private long devCosts = 0;
     private RatingVariationValue reliabilityRating = new RatingVariationValue();
     private RatingVariationValue securityRating = new RatingVariationValue();
 
-    private QualityModelCounter() {
+    private Counter() {
       // prevents instantiation
     }
 
-    public void add(QualityModelCounter otherCounter) {
+    void add(Counter otherCounter) {
       addDevCosts(otherCounter.devCosts);
       reliabilityRating.increment(otherCounter.reliabilityRating);
       securityRating.increment(otherCounter.securityRating);
     }
 
-    public void addDevCosts(long developmentCosts) {
+    void addDevCosts(long developmentCosts) {
       this.devCosts += developmentCosts;
     }
   }
 
-  private static final class QualityMododelCounterFactory extends SimpleStackElementFactory<QualityModelCounter> {
-    public static final QualityMododelCounterFactory INSTANCE = new QualityMododelCounterFactory();
+  private static final class CounterFactory extends SimpleStackElementFactory<Counter> {
+    public static final CounterFactory INSTANCE = new CounterFactory();
 
-    private QualityMododelCounterFactory() {
+    private CounterFactory() {
       // prevents instantiation
     }
 
     @Override
-    public QualityModelCounter createForAny(Component component) {
-      return new QualityModelCounter();
+    public Counter createForAny(Component component) {
+      return new Counter();
     }
 
     /** Counter is not used at ProjectView level, saves on instantiating useless objects */
     @Override
-    public QualityModelCounter createForProjectView(Component projectView) {
+    public Counter createForProjectView(Component projectView) {
       return null;
     }
   }
