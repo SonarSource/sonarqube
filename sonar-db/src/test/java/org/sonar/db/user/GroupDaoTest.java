@@ -22,6 +22,7 @@ package org.sonar.db.user;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -37,10 +39,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
-
 public class GroupDaoTest {
 
   private static final long NOW = 1_500_000L;
+  private static final OrganizationDto AN_ORGANIZATION = new OrganizationDto()
+    .setKey("an-org")
+    .setName("An Org")
+    .setUuid("abcde");
 
   private System2 system2 = mock(System2.class);
 
@@ -53,11 +58,33 @@ public class GroupDaoTest {
   private final GroupDto aGroup = new GroupDto()
     .setName("the-name")
     .setDescription("the description")
-    .setOrganizationUuid("org1");
+    .setOrganizationUuid(AN_ORGANIZATION.getUuid());
 
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
+    db.getDbClient().organizationDao().insert(dbSession, AN_ORGANIZATION);
+  }
+
+  @Test
+  public void selectByName() {
+    db.getDbClient().groupDao().insert(dbSession, aGroup);
+
+    GroupDto group = underTest.selectByName(dbSession, AN_ORGANIZATION.getKey(), aGroup.getName()).get();
+
+    assertThat(group.getId()).isNotNull();
+    assertThat(group.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
+    assertThat(group.getName()).isEqualTo(aGroup.getName());
+    assertThat(group.getDescription()).isEqualTo(aGroup.getDescription());
+    assertThat(group.getCreatedAt()).isEqualTo(new Date(NOW));
+    assertThat(group.getUpdatedAt()).isEqualTo(new Date(NOW));
+  }
+
+  @Test
+  public void selectByName_returns_absent() {
+    Optional<GroupDto> group = underTest.selectByName(dbSession, AN_ORGANIZATION.getKey(), "missing");
+
+    assertThat(group).isNotPresent();
   }
 
   @Test

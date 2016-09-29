@@ -306,6 +306,10 @@ public class UserPermissionDaoTest {
       assertThat(got.getUserId()).isEqualTo(expect.getUserId());
       assertThat(got.getPermission()).isEqualTo(expect.getPermission());
       assertThat(got.getComponentId()).isEqualTo(expect.getComponentId());
+      assertThat(got.getUserLogin()).isNotNull();
+      if (got.getComponentId() != null) {
+        assertThat(got.getComponentUuid()).isNotNull();
+      }
     }
 
     if (logins == null) {
