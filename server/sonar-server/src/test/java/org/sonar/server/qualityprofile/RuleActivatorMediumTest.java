@@ -222,7 +222,7 @@ public class RuleActivatorMediumTest {
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
     verifyHasActiveRuleInDb(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1), MINOR, null,
-      // Max should be set to default value, min has not value it should be ignored
+      // Max should be set to default value, min has no value it should be ignored
       ImmutableMap.of("max", "10"));
   }
 
@@ -303,6 +303,28 @@ public class RuleActivatorMediumTest {
       ImmutableMap.of("min", "3", "max", "10"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
+  }
+
+  @Test
+  public void update_activation_remove_parameter_value_having_default_value() {
+    // initial activation
+    activate(new RuleActivation(XOO_X1).setSeverity(BLOCKER).setParameter("max", "20"), XOO_P1_KEY);
+
+    // update
+    activate(new RuleActivation(XOO_X1).setParameter("max", null), XOO_P1_KEY);
+
+    verifyHasActiveRuleInDb(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1), BLOCKER, null, ImmutableMap.of("max", "10"));
+  }
+
+  @Test
+  public void update_activation_remove_parameter_value_without_default_value() {
+    // initial activation -> param "min" has a no default value
+    activate(new RuleActivation(XOO_X1).setSeverity(BLOCKER).setParameter("min", "5"), XOO_P1_KEY);
+
+    // update param "min" with empty value
+    activate(new RuleActivation(XOO_X1).setParameter("min", null), XOO_P1_KEY);
+
+    verifyHasActiveRuleInDb(ActiveRuleKey.of(XOO_P1_KEY, XOO_X1), BLOCKER, null, ImmutableMap.of("max", "10"));
   }
 
   @Test

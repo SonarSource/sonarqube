@@ -187,11 +187,18 @@ public class RuleActivator {
         context.defaultSeverity()));
       for (RuleParamDto ruleParamDto : context.ruleParams()) {
         String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
-          context.requestParamValue(request, paramKey),
-          context.currentParamValue(paramKey),
-          context.parentParamValue(paramKey),
-          context.defaultParamValue(paramKey))));
+        String paramValue = context.hasRequestParamValue(request, paramKey) ?
+        // If the request contains the parameter then we're using either value from request, or parent value, or default value
+          firstNonNull(
+            context.requestParamValue(request, paramKey),
+            context.parentParamValue(paramKey),
+            context.defaultParamValue(paramKey))
+          // If the request doesn't contain the parameter, then we're using either value in DB, or parent value, or default value
+          : firstNonNull(
+            context.currentParamValue(paramKey),
+            context.parentParamValue(paramKey),
+            context.defaultParamValue(paramKey));
+        change.setParameter(paramKey, validateParam(ruleParamDto, paramValue));
       }
 
     } else if (context.activeRule() == null) {
