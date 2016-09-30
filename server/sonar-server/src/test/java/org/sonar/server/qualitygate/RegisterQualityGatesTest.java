@@ -37,10 +37,10 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -64,9 +64,9 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void register_default_gate() {
-    MetricDto newBugs = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_BUGS_KEY).setValueType(INT.name()).setHidden(false));
-    MetricDto newVulnerabilities = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_VULNERABILITIES_KEY).setValueType(INT.name()).setHidden(false));
-    MetricDto newSqaleDebtRatio = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SQALE_DEBT_RATIO_KEY).setValueType(PERCENT.name()).setHidden(false));
+    MetricDto newReliability = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_RELIABILITY_RATING_KEY).setValueType(INT.name()).setHidden(false));
+    MetricDto newSecurity = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_RATING_KEY).setValueType(INT.name()).setHidden(false));
+    MetricDto newMaintainability = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_MAINTAINABILITY_RATING_KEY).setValueType(PERCENT.name()).setHidden(false));
     MetricDto newCoverage = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_COVERAGE_KEY).setValueType(PERCENT.name()).setHidden(false));
     dbSession.commit();
 
@@ -79,9 +79,9 @@ public class RegisterQualityGatesTest {
       .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator, QualityGateConditionDto::getWarningThreshold,
         QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
       .containsOnly(
-        tuple(newBugs.getId().longValue(), OPERATOR_GREATER_THAN, null, "0", 1),
-        tuple(newVulnerabilities.getId().longValue(), OPERATOR_GREATER_THAN, null, "0", 1),
-        tuple(newSqaleDebtRatio.getId().longValue(), OPERATOR_GREATER_THAN, null, "5", 1),
+        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
+        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
+        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
         tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80", 1));
     verify(qualityGates).setDefault(any(DbSession.class), anyLong());
 
