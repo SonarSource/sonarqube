@@ -21,6 +21,7 @@ package org.sonar.db.version.v51;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import java.sql.SQLException;
 import java.util.Date;
@@ -148,8 +149,8 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
       }
       return FileSourceDto.encodeSourceData(dataBuilder.build());
     } catch (Exception e) {
-      Loggers.get(FeedFileSourcesBinaryData.class).error(
-        String.format("Invalid FILE_SOURCES.DATA on row with ID %s, data will be ignored: %s", fileSourceId, data), e);
+      Loggers.get(FeedFileSourcesBinaryData.class).debug(
+        "Invalid FILE_SOURCES.DATA on row with ID {}, data will be ignored. {}", fileSourceId, Throwables.getStackTraceAsString(e));
       return FileSourceDto.encodeSourceData(dataBuilder.clear().build());
     } finally {
       IOUtils.closeQuietly(parser);
