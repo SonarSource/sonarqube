@@ -28,13 +28,14 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
@@ -51,6 +52,9 @@ public class TestResultSetIteratorTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   TestResultSetIterator underTest;
 
@@ -183,19 +187,18 @@ public class TestResultSetIteratorTest {
   }
 
   @Test
-  public void fail_on_bad_data_format() throws Exception {
+  public void read_does_not_fail_if_corrupted_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
     underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
-    try {
-      assertThat(underTest.hasNext()).isTrue();
-      underTest.next();
-      fail("it should not be possible to go through not compliant data");
-    } catch (IllegalStateException e) {
-      // ok
-    }
+    FileSourcesUpdaterHelper.Row row = underTest.next();
+    assertThat(row.getFileUuid()).isEqualTo("F1");
+    assertThat(row.getUpdateRequests()).isEmpty();
+    assertThat(underTest.hasNext()).isFalse();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Invalid file_sources.binary_data on row with file_uuid='F1', test file will be ignored");
   }
 
   @Test
