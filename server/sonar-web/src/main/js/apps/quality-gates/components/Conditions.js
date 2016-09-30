@@ -141,7 +141,7 @@ export default class Conditions extends React.Component {
                         key={getKey(condition, index)}
                         qualityGate={qualityGate}
                         condition={condition}
-                        metrics={metrics}
+                        metric={metrics.find(metric => metric.key === condition.metric)}
                         edit={edit}
                         onSaveCondition={onSaveCondition}
                         onDeleteCondition={onDeleteCondition}
