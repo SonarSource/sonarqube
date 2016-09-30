@@ -21,6 +21,7 @@
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
 import java.util.Arrays;
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
@@ -35,11 +36,16 @@ import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawl
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.issue.FillComponentIssuesVisitorRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.period.Period;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
@@ -60,6 +66,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
@@ -68,8 +75,12 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 
 public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
 
+  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323l;
+  private static final Date DEFAULT_ISSUE_CREATION_DATE = new Date(1000l);
+  private static final Date BEFORE_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC - 5000L);
+  private static final Date AFTER_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC + 5000L);
+
   static final String LANGUAGE_KEY_1 = "lKey1";
-  static final String LANGUAGE_KEY_2 = "lKey2";
 
   static final int PROJECT_REF = 1;
   static final int MODULE_REF = 12;
@@ -95,10 +106,14 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(RELIABILITY_RATING)
-    .add(SECURITY_RATING);
+    .add(SECURITY_RATING)
+    .add(NEW_SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  @Rule
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriods(new Period(1, "mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC, "UUID"));
 
   @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
@@ -107,7 +122,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
   VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
-    new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule)));
+    new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, periodsHolder)));
 
   @Test
   public void measures_created_for_project_are_all_zero_when_they_have_no_FILE_child() {
@@ -118,8 +133,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
 
     assertThat(toEntries(measureRepository.getRawMeasures(root)))
       .containsOnly(
-        entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)));
+        entryOf(RELIABILITY_RATING_KEY, createRatingMeasure(A)),
+        entryOf(SECURITY_RATING_KEY, createRatingMeasure(A)));
   }
 
   @Test
@@ -227,11 +242,41 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
   }
 
-  private void verifyAddedRawMeasure(int componentRef, String metricKey, RatingGrid.Rating rating) {
+  @Test
+  public void compute_new_security_rating() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newVulnerabilityIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      // Should not be taken into account
+      newVulnerabilityIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      newBugIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newVulnerabilityIssue(2L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newVulnerabilityIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      // Should not be taken into account
+      newVulnerabilityIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
+    fillComponentIssuesVisitorRule.setIssues(MODULE_REF,
+      newVulnerabilityIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SECURITY_RATING_KEY, C);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(MODULE_REF, NEW_SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, E);
+  }
+
+  private void verifyAddedRawMeasure(int componentRef, String metricKey, Rating rating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(rating.getIndex(), rating.name())));
   }
 
-  private static Measure createMaintainabilityRatingMeasure(RatingGrid.Rating rating) {
+  private void verifyAddedRawMeasureOnLeakPeriod(int componentRef, String metricKey, Rating rating) {
+    MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey))
+      .hasVariation1(rating.getIndex());
+  }
+
+  private static Measure createRatingMeasure(Rating rating) {
     return newMeasureBuilder().create(rating.getIndex(), rating.name());
   }
 
@@ -256,7 +301,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
     return new DefaultIssue()
       .setKey(Uuids.create())
       .setSeverity(severity)
-      .setType(type);
+      .setType(type)
+      .setCreationDate(DEFAULT_ISSUE_CREATION_DATE);
   }
 
 }

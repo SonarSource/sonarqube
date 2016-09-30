@@ -235,7 +235,6 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     LongVariationValue getDevCost(Period period) {
       return this.devCost.get(period);
     }
-
   }
 
   private static class CounterFactory extends SimpleStackElementFactory<Counter> {
