@@ -20,15 +20,18 @@
 package org.sonar.server.test.index;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -77,8 +80,20 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    List<DbFileSources.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
-    return toRow(projectUuid, fileUuid, updatedAt, data);
+    List<DbFileSources.Test> tests = parseData(fileUuid, rs.getBinaryStream(4));
+    return toRow(projectUuid, fileUuid, updatedAt, tests);
+  }
+
+  private static List<DbFileSources.Test> parseData(String fileUuid, @Nullable InputStream dataInput) {
+    List<DbFileSources.Test> tests = Collections.emptyList();
+    if (dataInput != null) {
+      try {
+        tests = FileSourceDto.decodeTestData(dataInput);
+      } catch (Exception e) {
+        Loggers.get(TestResultSetIterator.class).warn(String.format("Invalid file_sources.binary_data on row with file_uuid='%s', test file will be ignored", fileUuid), e);
+      }
+    }
+    return tests;
   }
 
   /**
