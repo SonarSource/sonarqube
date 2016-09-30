@@ -2169,6 +2169,25 @@ public final class CoreMetrics {
     .create();
 
   /**
+   * @since 6.2
+   */
+  public static final String NEW_MAINTAINABILITY_RATING_KEY = "new_maintainability_rating";
+
+  /**
+   * @since 6.2
+   */
+  public static final Metric<Integer> NEW_MAINTAINABILITY_RATING = new Metric.Builder(NEW_MAINTAINABILITY_RATING_KEY, "Maintainability Rating on New Code", Metric.ValueType.RATING)
+    .setDescription("Maintainability rating on new code")
+    .setDomain(DOMAIN_MAINTAINABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDeleteHistoricalData(true)
+    .setOptimizedBestValue(true)
+    .setQualitative(true)
+    .setBestValue(1.0)
+    .setWorstValue(5.0)
+    .create();
+
+  /**
    * @since 4.5
    */
   public static final String DEVELOPMENT_COST_KEY = "development_cost";

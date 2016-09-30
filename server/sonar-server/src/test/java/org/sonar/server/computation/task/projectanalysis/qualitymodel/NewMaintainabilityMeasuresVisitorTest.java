@@ -25,11 +25,11 @@ import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.Set;
 import org.assertj.core.data.Offset;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -40,6 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariatio
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
 
@@ -48,6 +49,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO;
 import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT;
@@ -58,8 +61,13 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert.assertThat;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
 
 public class NewMaintainabilityMeasuresVisitorTest {
+
+  private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
+
   private static final String LANGUAGE_1_KEY = "language 1 key";
   private static final long LANGUAGE_1_DEV_COST = 30l;
   private static final long PERIOD_2_SNAPSHOT_DATE = 12323l;
@@ -78,7 +86,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_TECHNICAL_DEBT)
     .add(NCLOC_DATA)
-    .add(NEW_SQALE_DEBT_RATIO);
+    .add(NEW_SQALE_DEBT_RATIO)
+    .add(NEW_MAINTAINABILITY_RATING);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
@@ -86,8 +95,14 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
-    periodsHolder, ratingSettings)));
+  private VisitorsCrawler underTest;
+
+  @Before
+  public void setUp() throws Exception {
+    when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
+    underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
+      periodsHolder, ratingSettings)));
+  }
 
   @Test
   public void project_has_new_debt_ratio_variation_for_each_defined_period() {
@@ -128,10 +143,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build()
-        )
-        .build()
-    );
+          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+        .build());
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 4));
@@ -283,11 +296,10 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .addChildren(
               builder(DIRECTORY, 111)
                 .addChildren(
-                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build()
-                ).build()
-            ).build()
-        ).build()
-    );
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                .build())
+            .build())
+        .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(50, 12);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
@@ -327,8 +339,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
-        .build()
-    );
+        .build());
 
     Measure newDebtMeasure = newMeasureBuilder().setVariations(new MeasureVariations(500d, 500d, 500d, 120d, 120d)).createNoValue();
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
@@ -350,6 +361,40 @@ public class NewMaintainabilityMeasuresVisitorTest {
       .hasVariation5(0d, VARIATION_COMPARISON_OFFSET);
   }
 
+  @Test
+  public void compute_new_maintainability_rating() throws Exception {
+    setTwoPeriods();
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    treeRootHolder.setRoot(
+      builder(PROJECT, ROOT_REF)
+        .addChildren(
+          builder(MODULE, 11)
+            .addChildren(
+              builder(DIRECTORY, 111)
+                .addChildren(
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                .build())
+            .build())
+        .build());
+
+    Measure newDebtMeasure = createNewDebtMeasure(50, 12);
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
+    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150, 112));
+    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 112));
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250, 212));
+    // 4 lines file, only first one is not ncloc
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
+    // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    assertNewMaintainability(LANGUAGE_1_FILE_REF, D, A);
+    assertNewMaintainability(111, D, A);
+    assertNewMaintainability(11, D, A);
+    assertNewMaintainability(ROOT_REF, D, A);
+  }
+
   private void setupOneFileAloneInAProject(int newDebtPeriod2, int newDebtPeriod4, Flag isUnitTest, Flag withNclocLines, Flag withChangeSets) {
     checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
     checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
@@ -358,10 +403,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY)).build()
-        )
-        .build()
-    );
+          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY)).build())
+        .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(newDebtPeriod2, newDebtPeriod4);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
@@ -446,6 +489,12 @@ public class NewMaintainabilityMeasuresVisitorTest {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY))
       .hasVariation2(expectedPeriod2Value, VARIATION_COMPARISON_OFFSET)
       .hasVariation4(expectedPeriod4Value, VARIATION_COMPARISON_OFFSET);
+  }
+
+  private void assertNewMaintainability(int componentRef, Rating expectedPeriod2Value, Rating expectedPeriod4Value) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY))
+      .hasVariation2(expectedPeriod2Value.getIndex())
+      .hasVariation4(expectedPeriod4Value.getIndex());
   }
 
   private void setTwoPeriods() {

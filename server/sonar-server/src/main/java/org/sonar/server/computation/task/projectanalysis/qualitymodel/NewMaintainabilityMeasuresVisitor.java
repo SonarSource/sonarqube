@@ -42,6 +42,10 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -53,6 +57,7 @@ import static org.sonar.server.computation.task.projectanalysis.measure.MeasureV
  *
  * Compute following measure :
  * {@link CoreMetrics#NEW_SQALE_DEBT_RATIO_KEY}
+ * {@link CoreMetrics#NEW_MAINTAINABILITY_RATING_KEY}
  */
 public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<NewMaintainabilityMeasuresVisitor.Counter> {
   private static final Logger LOG = Loggers.get(NewMaintainabilityMeasuresVisitor.class);
@@ -61,25 +66,31 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final MeasureRepository measureRepository;
   private final PeriodsHolder periodsHolder;
   private final RatingSettings ratingSettings;
+  private final RatingGrid ratingGrid;
 
   private final Metric newDebtMetric;
   private final Metric nclocDataMetric;
+
   private final Metric newDebtRatioMetric;
+  private final Metric newMaintainabilityRatingMetric;
 
   public NewMaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository,
-                                           PeriodsHolder periodsHolder, RatingSettings ratingSettings) {
+    PeriodsHolder periodsHolder, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.periodsHolder = periodsHolder;
     this.ratingSettings = ratingSettings;
+    this.ratingGrid = ratingSettings.getRatingGrid();
 
     // computed by NewDebtAggregator which is executed by IntegrateIssuesVisitor
-    this.newDebtMetric = metricRepository.getByKey(CoreMetrics.NEW_TECHNICAL_DEBT_KEY);
+    this.newDebtMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
     // which line is ncloc and which isn't
-    this.nclocDataMetric = metricRepository.getByKey(CoreMetrics.NCLOC_DATA_KEY);
-    // output metric
-    this.newDebtRatioMetric = metricRepository.getByKey(CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY);
+    this.nclocDataMetric = metricRepository.getByKey(NCLOC_DATA_KEY);
+
+    // output metrics
+    this.newDebtRatioMetric = metricRepository.getByKey(NEW_SQALE_DEBT_RATIO_KEY);
+    this.newMaintainabilityRatingMetric = metricRepository.getByKey(NEW_MAINTAINABILITY_RATING_KEY);
   }
 
   @Override
@@ -107,14 +118,18 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   private void computeAndSaveNewDebtRatioMeasure(Component component, Path<Counter> path) {
-    MeasureVariations.Builder builder = newMeasureVariationsBuilder();
+    MeasureVariations.Builder newDebtRatio = newMeasureVariationsBuilder();
+    MeasureVariations.Builder newMaintainability = newMeasureVariationsBuilder();
     for (Period period : periodsHolder.getPeriods()) {
       double density = computeDensity(path.current(), period);
-      builder.setVariation(period, 100.0 * density);
+      newDebtRatio.setVariation(period, 100.0 * density);
+      newMaintainability.setVariation(period, ratingGrid.getRatingForDensity(density).getIndex());
     }
-    if (!builder.isEmpty()) {
-      Measure measure = newMeasureBuilder().setVariations(builder.build()).createNoValue();
-      measureRepository.add(component, this.newDebtRatioMetric, measure);
+    if (!newDebtRatio.isEmpty()) {
+      measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().setVariations(newDebtRatio.build()).createNoValue());
+    }
+    if (!newMaintainability.isEmpty()) {
+      measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().setVariations(newMaintainability.build()).createNoValue());
     }
   }
 
