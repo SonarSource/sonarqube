@@ -83,11 +83,7 @@ public class RuleActivation {
 
   public RuleActivation setParameter(String key, @Nullable String value) {
     String sanitizedValue = Strings.emptyToNull(value);
-    if (value == null) {
-      parameters.remove(key);
-    } else {
-      parameters.put(key, sanitizedValue);
-    }
+    parameters.put(key, sanitizedValue);
     return this;
   }
 

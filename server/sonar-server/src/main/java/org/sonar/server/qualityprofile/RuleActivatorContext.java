@@ -119,6 +119,10 @@ class RuleActivatorContext {
     return request.getParameters().get(key);
   }
 
+  boolean hasRequestParamValue(RuleActivation request, String key) {
+    return request.getParameters().containsKey(key);
+  }
+
   @CheckForNull
   String currentParamValue(String key) {
     ActiveRuleParamDto param = activeRuleParams.get(key);
