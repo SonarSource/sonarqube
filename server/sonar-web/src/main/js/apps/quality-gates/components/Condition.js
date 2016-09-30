@@ -71,20 +71,20 @@ export default class Condition extends Component {
   }
 
   handleSaveClick (e) {
-    const { qualityGate, condition, onSaveCondition, onError, onResetError } = this.props;
+    const { qualityGate, condition, metric, onSaveCondition, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
       metric: condition.metric,
-      op: this.state.op,
+      op: metric.type === 'RATING' ? 'GT' : this.state.op,
       warning: this.state.warning,
       error: this.state.error
     };
 
-    if (period) {
+    if (period && metric.type !== 'RATING') {
       data.period = period;
     }
 
-    if (condition.metric.indexOf('new_') === 0) {
+    if (metric.key.indexOf('new_') === 0) {
       data.period = '1';
     }
 
@@ -97,18 +97,22 @@ export default class Condition extends Component {
   }
 
   handleUpdateClick (e) {
-    const { condition, onSaveCondition, onError, onResetError } = this.props;
+    const { condition, onSaveCondition, metric, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
       id: condition.id,
       metric: condition.metric,
-      op: this.state.op,
+      op: metric.type === 'RATING' ? 'GT' : this.state.op,
       warning: this.state.warning,
       error: this.state.error
     };
 
-    if (period) {
+    if (period && metric.type !== 'RATING') {
       data.period = period;
+    }
+
+    if (metric.key.indexOf('new_') === 0) {
+      data.period = '1';
     }
 
     e.preventDefault();
@@ -120,8 +124,7 @@ export default class Condition extends Component {
   }
 
   handleDeleteClick (e) {
-    const { qualityGate, condition, metrics, onDeleteCondition } = this.props;
-    const metric = metrics.find(metric => metric.key === condition.metric);
+    const { qualityGate, condition, metric, onDeleteCondition } = this.props;
 
     e.preventDefault();
     new DeleteConditionView({
@@ -140,9 +143,10 @@ export default class Condition extends Component {
   }
 
   renderPeriodValue () {
-    const { condition } = this.props;
+    const { condition, metric } = this.props;
     const isLeakSelected = !!this.state.period;
     const isDiffMetric = condition.metric.indexOf('new_') === 0;
+    const isRating = metric.type === 'RATING';
 
     if (isDiffMetric) {
       return (
@@ -150,26 +154,75 @@ export default class Condition extends Component {
             {translate('quality_gates.condition.leak.unconditional')}
           </span>
       );
-    } else {
-      return isLeakSelected ?
-          translate('quality_gates.condition.leak.yes') :
-          translate('quality_gates.condition.leak.no');
     }
+
+    if (isRating) {
+      return (
+          <span className="note">
+            {translate('quality_gates.condition.leak.never')}
+          </span>
+      );
+    }
+
+    return isLeakSelected ?
+        translate('quality_gates.condition.leak.yes') :
+        translate('quality_gates.condition.leak.no');
   }
 
-  render () {
-    const { condition, edit, metrics } = this.props;
-    const metric = metrics.find(metric => metric.key === condition.metric);
+  renderPeriod () {
+    const { condition, metric, edit } = this.props;
+
     const isDiffMetric = condition.metric.indexOf('new_') === 0;
+    const isRating = metric.type === 'RATING';
     const isLeakSelected = !!this.state.period;
+
+    if (isRating || (isDiffMetric && !edit)) {
+      return this.renderPeriodValue();
+    }
+
+    return (
+        <Checkbox
+            checked={isLeakSelected}
+            onCheck={this.handlePeriodChange.bind(this)}/>
+    );
+  }
+
+  renderOperator () {
+    const { condition, edit, metric } = this.props;
+
+    if (!edit) {
+      return metric.type === 'RATING' ?
+          translate('quality_gates.operator', condition.op, 'rating') :
+          translate('quality_gates.operator', condition.op);
+    }
+
+    if (metric.type === 'RATING') {
+      return (
+          <span className="note">{translate('quality_gates.operator.GT.rating')}</span>
+      );
+    }
+
     const operators = ['LT', 'GT', 'EQ', 'NE'];
     const operatorOptions = operators.map(op => {
-      const label = metric.type === 'RATING' ?
-          translate('quality_gates.operator', op, 'rating') :
-          translate('quality_gates.operator', op);
+      const label = translate('quality_gates.operator', op);
       return { label, value: op };
     });
 
+    return (
+        <Select
+            ref="operator"
+            className="input-medium"
+            name="operator"
+            value={this.state.op}
+            clearable={false}
+            searchable={false}
+            options={operatorOptions}
+            onChange={this.handleOperatorChange.bind(this)}/>
+    );
+  }
+
+  render () {
+    const { condition, edit, metric } = this.props;
     return (
         <tr>
           <td className="text-middle nowrap">
@@ -182,25 +235,11 @@ export default class Condition extends Component {
           </td>
 
           <td className="thin text-middle nowrap">
-            {(edit && !isDiffMetric) ? (
-                <Checkbox
-                    checked={isLeakSelected}
-                    onCheck={this.handlePeriodChange.bind(this)}/>
-            ) : this.renderPeriodValue()}
+            {this.renderPeriod()}
           </td>
 
           <td className="thin text-middle nowrap">
-            {edit ? (
-                <Select
-                    ref="operator"
-                    className="input-medium"
-                    name="operator"
-                    value={this.state.op}
-                    clearable={false}
-                    searchable={false}
-                    options={operatorOptions}
-                    onChange={this.handleOperatorChange.bind(this)}/>
-            ) : translate('quality_gates.operator', condition.op)}
+            {this.renderOperator()}
           </td>
 
           <td className="thin text-middle nowrap">
