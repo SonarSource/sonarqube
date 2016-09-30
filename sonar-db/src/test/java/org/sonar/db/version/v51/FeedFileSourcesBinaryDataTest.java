@@ -23,11 +23,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
@@ -42,6 +45,9 @@ public class FeedFileSourcesBinaryDataTest {
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesBinaryDataTest.class, "schema.sql");
+
+  @Rule
+  public LogTester logTester = new LogTester().setLevel(LoggerLevel.DEBUG);
 
   @Test
   public void convert_csv_to_protobuf() throws Exception {
@@ -79,6 +85,9 @@ public class FeedFileSourcesBinaryDataTest {
       DbFileSources.Data data = selectData(connection, 1L);
 
       assertThat(data.getLinesList()).isEmpty();
+      List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
+      assertThat(debugLogs.stream()
+        .anyMatch(s -> s.startsWith("Invalid FILE_SOURCES.DATA on row with ID 1, data will be ignored"))).isTrue();
     }
   }
 
