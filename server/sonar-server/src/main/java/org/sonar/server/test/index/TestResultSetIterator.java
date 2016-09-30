@@ -20,11 +20,13 @@
 package org.sonar.server.test.index;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -77,7 +79,13 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    List<DbFileSources.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
+    InputStream dataInput = rs.getBinaryStream(4);
+    List<DbFileSources.Test> data;
+    if (dataInput != null) {
+      data = FileSourceDto.decodeTestData(dataInput);
+    } else {
+      data = Collections.emptyList();
+    }
     return toRow(projectUuid, fileUuid, updatedAt, data);
   }
 

@@ -198,4 +198,16 @@ public class TestResultSetIteratorTest {
     }
   }
 
+  @Test
+  public void read_does_not_fail_if_null_data() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", (byte[])null);
+
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+
+    FileSourcesUpdaterHelper.Row row = underTest.next();
+    assertThat(row.getFileUuid()).isEqualTo("F1");
+    assertThat(row.getUpdateRequests()).isEmpty();
+    assertThat(underTest.hasNext()).isFalse();
+  }
 }
