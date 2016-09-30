@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.app;
+@ParametersAreNonnullByDefault
+package org.sonar.server.organization;
 
-interface StartupBarrier {
-  /**
-   * This blocking call, waits for a process (or anything) to be operational until either it is actually operational, or
-   * the calling thread is interrupted.
-   *
-   * @return true if what's awaited for is operational, false otherwise
-   */
-  boolean waitForOperational();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

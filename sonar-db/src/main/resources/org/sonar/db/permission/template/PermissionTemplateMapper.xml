@@ -201,16 +201,6 @@
     ORDER BY UPPER(name), name
   </select>
 
-  <select id="countAll" parameterType="String" resultType="int">
-    SELECT count(1)
-    FROM permission_templates
-    <where>
-      <if test="nameMatch!=null">
-        AND (UPPER(name) LIKE #{nameMatch} ESCAPE '/')
-      </if>
-    </where>
-  </select>
-
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
     SELECT
     <include refid="templateColumns"/>

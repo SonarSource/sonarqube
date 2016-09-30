@@ -74,8 +74,6 @@ public interface PermissionTemplateMapper {
 
   List<PermissionTemplateDto> selectAll(@Nullable @Param("nameMatch") String nameMatch);
 
-  int countAll(@Param("nameMatch") String nameMatch);
-
   void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
   void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);

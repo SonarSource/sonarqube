@@ -67,7 +67,7 @@ public class PermissionTemplateDao implements Dao {
     return executeLargeInputs(logins, l -> mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, l));
   }
 
-  private List<PermissionTemplateUserDto> selectUserPermissionsByTemplateId(DbSession dbSession, long templateId) {
+  private static List<PermissionTemplateUserDto> selectUserPermissionsByTemplateId(DbSession dbSession, long templateId) {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
@@ -124,12 +124,6 @@ public class PermissionTemplateDao implements Dao {
 
   public List<PermissionTemplateDto> selectAll(DbSession session) {
     return mapper(session).selectAll(null);
-  }
-
-  public int countAll(DbSession dbSession, String nameQuery) {
-    String upperCasedNameQuery = toUppercaseSqlQuery(nameQuery);
-
-    return mapper(dbSession).countAll(upperCasedNameQuery);
   }
 
   private static String toUppercaseSqlQuery(String nameMatch) {

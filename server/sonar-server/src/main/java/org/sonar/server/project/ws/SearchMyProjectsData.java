@@ -88,7 +88,7 @@ class SearchMyProjectsData {
 
   private static Map<String, String> buildQualityGateStatuses(List<MeasureDto> measures) {
     return ImmutableMap.copyOf(measures.stream()
-      .collect(Collectors.toMap(measure -> measure.getComponentUuid(), MeasureDto::getData)));
+      .collect(Collectors.toMap(MeasureDto::getComponentUuid, MeasureDto::getData)));
   }
 
   static class Builder {

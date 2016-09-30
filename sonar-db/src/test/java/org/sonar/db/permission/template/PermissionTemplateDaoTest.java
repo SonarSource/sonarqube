@@ -329,10 +329,8 @@ public class PermissionTemplateDaoTest {
     templateDb.insertTemplate(newPermissionTemplateDto().setName("aaaccc"));
 
     List<PermissionTemplateDto> templates = underTest.selectAll(dbSession, "aaa");
-    int count = underTest.countAll(dbSession, "aaa");
 
     assertThat(templates.get(0).getName()).isEqualTo("aaabbb");
-    assertThat(count).isEqualTo(2);
   }
 
   @Test
