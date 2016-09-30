@@ -32,12 +32,12 @@ import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingV
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
 
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -63,6 +63,7 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
  * Compute following measures :
  * {@link CoreMetrics#RELIABILITY_RATING_KEY}
  * {@link CoreMetrics#SECURITY_RATING_KEY}
+ * {@link CoreMetrics#NEW_RELIABILITY_RATING_KEY}
  * {@link CoreMetrics#NEW_SECURITY_RATING_KEY}
  */
 public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisitorAdapter<ReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
@@ -81,7 +82,10 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   // Output metrics
   private final Metric reliabilityRatingMetric;
   private final Metric securityRatingMetric;
+  private final Metric newReliabilityRatingMetric;
   private final Metric newSecurityRatingMetric;
+
+  private final Map<String, Metric> metricsByKey;
 
   public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository,
     PeriodsHolder periodsHolder) {
@@ -93,7 +97,14 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     // Output metrics
     this.reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
     this.securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
+    this.newReliabilityRatingMetric = metricRepository.getByKey(NEW_RELIABILITY_RATING_KEY);
     this.newSecurityRatingMetric = metricRepository.getByKey(NEW_SECURITY_RATING_KEY);
+
+    this.metricsByKey = ImmutableMap.of(
+      RELIABILITY_RATING_KEY, reliabilityRatingMetric,
+      SECURITY_RATING_KEY, securityRatingMetric,
+      NEW_RELIABILITY_RATING_KEY, newReliabilityRatingMetric,
+      NEW_SECURITY_RATING_KEY, newSecurityRatingMetric);
   }
 
   @Override
@@ -128,51 +139,36 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
 
   @Override
   public void visitProjectView(Component projectView, Path<Counter> path) {
-    Optional<Measure> reliabilityRatingMeasure = measureRepository.getRawMeasure(projectView, reliabilityRatingMetric);
-    if (reliabilityRatingMeasure.isPresent()) {
-      path.parent().reliabilityRating.increment(valueOf(reliabilityRatingMeasure.get().getData()));
-    }
-    Optional<Measure> securityRatingMeasure = measureRepository.getRawMeasure(projectView, securityRatingMetric);
-    if (securityRatingMeasure.isPresent()) {
-      path.parent().securityRating.increment(valueOf(securityRatingMeasure.get().getData()));
-    }
+    path.parent().ratingValueByMetric.entrySet().forEach(entry -> {
+      Optional<Measure> ratingMeasure = measureRepository.getRawMeasure(projectView, metricsByKey.get(entry.getKey()));
+      if (ratingMeasure.isPresent()) {
+        entry.getValue().increment(valueOf(ratingMeasure.get().getData()));
+      }
+    });
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
     processIssues(component, path);
-    addReliabilityRatingMeasure(component, path);
-    addSecurityRatingMeasure(component, path);
-    addNewSecurityRatingMeasure(component, path);
+    path.current().ratingValueByMetric.entrySet().forEach(
+      entry -> measureRepository.add(component, metricsByKey.get(entry.getKey()), createRatingMeasure(entry.getValue().getValue())));
+    path.current().newRatingValueByMetric.entrySet().forEach(
+      entry -> entry.getValue().toMeasureVariations()
+        .ifPresent(measureVariations -> measureRepository.add(
+          component,
+          metricsByKey.get(entry.getKey()),
+          newMeasureBuilder().setVariations(measureVariations).createNoValue())));
     addToParent(path);
   }
 
   private void processIssues(Component component, Path<Counter> path) {
-    for (Issue issue : componentIssuesRepository.getIssues(component)) {
-      if (issue.resolution() == null) {
+    componentIssuesRepository.getIssues(component)
+      .stream()
+      .filter(issue -> issue.resolution() == null)
+      .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
+      .forEach(issue -> {
         path.current().processIssue(issue);
-        for (Period period : periodsHolder.getPeriods()) {
-          path.current().processIssue(issue, period);
-        }
-      }
-    }
-  }
-
-  private void addReliabilityRatingMeasure(Component component, Path<Counter> path) {
-    Rating rating = path.current().reliabilityRating.getValue();
-    measureRepository.add(component, reliabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
-  }
-
-  private void addSecurityRatingMeasure(Component component, Path<Counter> path) {
-    Rating rating = path.current().securityRating.getValue();
-    measureRepository.add(component, securityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
-  }
-
-  private void addNewSecurityRatingMeasure(Component component, Path<Counter> path) {
-    java.util.Optional<MeasureVariations> measureVariations = path.current().newSecurityRating.toMeasureVariations();
-    if (measureVariations.isPresent()) {
-      Measure measure = newMeasureBuilder().setVariations(measureVariations.get()).createNoValue();
-      measureRepository.add(component, newSecurityRatingMetric, measure);
-    }
+        periodsHolder.getPeriods().forEach(period -> path.current().processIssue(issue, period));
+      });
   }
 
   private static void addToParent(Path<Counter> path) {
@@ -181,35 +177,43 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     }
   }
 
+  private static Measure createRatingMeasure(Rating rating) {
+    return newMeasureBuilder().create(rating.getIndex(), rating.name());
+  }
+
   static final class Counter {
-    private RatingVariationValue reliabilityRating = new RatingVariationValue();
-    private RatingVariationValue securityRating = new RatingVariationValue();
-    private RatingVariationValue.Array newSecurityRating = new RatingVariationValue.Array();
+    private Map<String, RatingVariationValue> ratingValueByMetric = ImmutableMap.of(
+      RELIABILITY_RATING_KEY, new RatingVariationValue(),
+      SECURITY_RATING_KEY, new RatingVariationValue());
+    private Map<String, RatingVariationValue.Array> newRatingValueByMetric = ImmutableMap.of(
+      NEW_RELIABILITY_RATING_KEY, new RatingVariationValue.Array(),
+      NEW_SECURITY_RATING_KEY, new RatingVariationValue.Array());
 
     private Counter() {
       // prevents instantiation
     }
 
     void add(Counter otherCounter) {
-      reliabilityRating.increment(otherCounter.reliabilityRating);
-      securityRating.increment(otherCounter.securityRating);
-      newSecurityRating.incrementAll(otherCounter.newSecurityRating);
+      ratingValueByMetric.entrySet().forEach(e -> e.getValue().increment(otherCounter.ratingValueByMetric.get(e.getKey())));
+      newRatingValueByMetric.entrySet().forEach(e -> e.getValue().incrementAll(otherCounter.newRatingValueByMetric.get(e.getKey())));
     }
 
     void processIssue(Issue issue) {
       Rating rating = RATING_BY_SEVERITY.get(issue.severity());
       if (issue.type().equals(BUG)) {
-        reliabilityRating.increment(rating);
+        ratingValueByMetric.get(RELIABILITY_RATING_KEY).increment(rating);
       } else if (issue.type().equals(VULNERABILITY)) {
-        securityRating.increment(rating);
+        ratingValueByMetric.get(SECURITY_RATING_KEY).increment(rating);
       }
     }
 
     void processIssue(Issue issue, Period period) {
       if (isOnPeriod((DefaultIssue) issue, period)) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
-        if (issue.type().equals(VULNERABILITY)) {
-          newSecurityRating.increment(period, rating);
+        if (issue.type().equals(BUG)) {
+          newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(period, rating);
+        } else if (issue.type().equals(VULNERABILITY)) {
+          newRatingValueByMetric.get(NEW_SECURITY_RATING_KEY).increment(period, rating);
         }
       }
     }

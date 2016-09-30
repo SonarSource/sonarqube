@@ -44,6 +44,8 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRul
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
@@ -107,7 +109,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(RELIABILITY_RATING)
     .add(SECURITY_RATING)
-    .add(NEW_SECURITY_RATING);
+    .add(NEW_SECURITY_RATING)
+    .add(NEW_RELIABILITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -240,6 +243,31 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  public void compute_new_reliability_rating() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      // Should not be taken into account
+      newBugIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      newVulnerabilityIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newBugIssue(2L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      // Should not be taken into account
+      newBugIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
+    fillComponentIssuesVisitorRule.setIssues(MODULE_REF,
+      newBugIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(MODULE_REF, NEW_RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, E);
   }
 
   @Test
