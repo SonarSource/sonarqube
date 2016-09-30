@@ -44,16 +44,23 @@ message ComponentWsResponse {
 
 // WS api/measures/search
 message SearchWsResponse {
-  repeated Component components = 1;
+  repeated Measure measures = 1;
+  repeated Component components = 2;
+
+  message Component {
+    optional string id = 1;
+    optional string key = 2;
+    optional string name = 3;
+  }
 }
 
 message Component {
   optional string id = 1;
   optional string key = 2;
-  optional string refId = 3;
-  optional string refKey = 4;
-  optional string projectId = 5;
-  optional string name = 6;
+  optional string name = 3;
+  optional string refId = 4;
+  optional string refKey = 5;
+  optional string projectId = 6;
   optional string description = 7;
   optional string qualifier = 8;
   optional string path = 9;
@@ -78,8 +85,9 @@ message Metrics {
 
 message Measure {
   optional string metric = 1;
-  optional string value = 2;
-  optional PeriodsValue periods = 3;
+  optional string component = 2;
+  optional string value = 3;
+  optional PeriodsValue periods = 4;
 }
 
 message PeriodsValue {

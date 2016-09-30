@@ -20,10 +20,12 @@
 package org.sonar.server.measure.ws;
 
 import java.util.Map;
+import java.util.function.Function;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.Component;
+import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.measureDtoToWsMeasure;
 
@@ -32,9 +34,9 @@ class ComponentDtoToWsComponent {
     // static methods only
   }
 
-  static WsMeasures.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, MeasureDto> measuresByMetric,
+  static Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, MeasureDto> measuresByMetric,
     Map<String, ComponentDto> referenceComponentsByUuid) {
-    WsMeasures.Component.Builder wsComponent = componentDtoToWsComponent(component);
+    Component.Builder wsComponent = componentDtoToWsComponent(component);
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
@@ -49,12 +51,16 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  static WsMeasures.Component dbToWsComponent(ComponentDto dbComponent, Iterable<WsMeasures.Measure> measures) {
-    return componentDtoToWsComponent(dbComponent).addAllMeasures(measures).build();
+  static Function<ComponentDto, SearchWsResponse.Component> dbToWsComponent() {
+    return dbComponent -> SearchWsResponse.Component.newBuilder()
+      .setId(dbComponent.uuid())
+      .setKey(dbComponent.key())
+      .setName(dbComponent.name())
+      .build();
   }
 
-  static WsMeasures.Component.Builder componentDtoToWsComponent(ComponentDto component) {
-    WsMeasures.Component.Builder wsComponent = WsMeasures.Component.newBuilder()
+  static Component.Builder componentDtoToWsComponent(ComponentDto component) {
+    Component.Builder wsComponent = Component.newBuilder()
       .setId(component.uuid())
       .setKey(component.key())
       .setName(component.name())

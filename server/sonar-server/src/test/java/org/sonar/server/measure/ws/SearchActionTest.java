@@ -43,8 +43,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Component;
+import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -87,7 +86,6 @@ public class SearchActionTest {
       .getInput();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(ws.getDef().responseExampleAsString());
-
   }
 
   @Test
@@ -98,18 +96,21 @@ public class SearchActionTest {
     SearchWsResponse result = callByComponentUuids(singletonList(dbComponent.uuid()), singletonList("complexity"));
 
     assertThat(result.getComponentsCount()).isEqualTo(1);
-    Component wsComponent = result.getComponents(0);
-    assertThat(wsComponent.getMeasuresCount()).isEqualTo(0);
+    SearchWsResponse.Component wsComponent = result.getComponents(0);
     assertThat(wsComponent.getId()).isEqualTo(dbComponent.uuid());
     assertThat(wsComponent.getKey()).isEqualTo(dbComponent.key());
-    assertThat(wsComponent.getQualifier()).isEqualTo(dbComponent.qualifier());
     assertThat(wsComponent.getName()).isEqualTo(dbComponent.name());
-    assertThat(wsComponent.getDescription()).isEqualTo(dbComponent.description());
-    assertThat(wsComponent.getProjectId()).isEqualTo("");
-    assertThat(wsComponent.getLanguage()).isEqualTo("");
-    assertThat(wsComponent.getPath()).isEqualTo("");
-    assertThat(wsComponent.getRefId()).isEqualTo("");
-    assertThat(wsComponent.getRefKey()).isEqualTo("");
+  }
+
+  @Test
+  public void search_by_component_uuid() {
+    ComponentDto project = componentDb.insertProject();
+    insertComplexityMetric();
+
+    SearchWsResponse result = callByComponentUuids(singletonList(project.uuid()), singletonList("complexity"));
+
+    assertThat(result.getComponentsCount()).isEqualTo(1);
+    assertThat(result.getComponents(0).getId()).isEqualTo(project.uuid());
   }
 
   @Test
@@ -151,11 +152,14 @@ public class SearchActionTest {
     SearchWsResponse result = callByComponentUuids(newArrayList(directoryDto.uuid(), file.uuid()), newArrayList("ncloc", "coverage", "new_violations"));
 
     // directory is not eligible for best value
-    assertThat(result.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
+    assertThat(result.getMeasuresList().stream()
+      .filter(measure -> directoryDto.uuid().equals(measure.getComponent()))
+      .map(Measure::getMetric))
+        .containsOnly("coverage");
     // file measures
-    List<WsMeasures.Measure> fileMeasures = result.getComponentsList().get(1).getMeasuresList();
-    assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
-    assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
+    List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.uuid().equals(measure.getComponent())).collect(Collectors.toList());
+    assertThat(fileMeasures).extracting(Measure::getMetric).containsOnly("ncloc", "coverage", "new_violations");
+    assertThat(fileMeasures).extracting(Measure::getValue).containsOnly("100", "15.5", "");
   }
 
   @Test
