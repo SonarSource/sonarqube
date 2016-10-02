@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -32,6 +33,10 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 class InputFileBuilder {
 
@@ -93,7 +98,8 @@ class InputFileBuilder {
   DefaultInputFile completeAndComputeMetadata(DefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setModuleBaseDir(fs.baseDir().toPath());
-    inputFile.setCharset(fs.encoding());
+    Charset charset = detectCharset(inputFile.file(), fs.encoding());
+    inputFile.setCharset(charset);
 
     String lang = langDetection.language(inputFile);
     if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
@@ -101,11 +107,43 @@ class InputFileBuilder {
     }
     inputFile.setLanguage(lang);
 
-    inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), fs.encoding()));
+    inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), charset));
 
     inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), inputFile.hash()));
 
     return inputFile;
   }
+
+  /**
+   * @return charset detected from BOM in given file or given defaultCharset
+   * @throws IllegalStateException if an I/O error occurs
+   */
+  private static Charset detectCharset(File file, Charset defaultCharset) {
+    try (FileInputStream inputStream = new FileInputStream(file)) {
+      byte[] bom = new byte[4];
+      int n = inputStream.read(bom, 0, bom.length);
+      if ((n >= 3) && (bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
+        return StandardCharsets.UTF_8;
+      } else if ((n >= 4) && (bom[0] == (byte) 0x00) && (bom[1] == (byte) 0x00) && (bom[2] == (byte) 0xFE) && (bom[3] == (byte) 0xFF)) {
+        return UTF_32BE;
+      } else if ((n >= 4) && (bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE) && (bom[2] == (byte) 0x00) && (bom[3] == (byte) 0x00)) {
+        return UTF_32LE;
+      } else if ((n >= 2) && (bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
+        return StandardCharsets.UTF_16BE;
+      } else if ((n >= 2) && (bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
+        return StandardCharsets.UTF_16LE;
+      } else {
+        return defaultCharset;
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file " + file.getAbsolutePath(), e);
+    }
+  }
+
+  @VisibleForTesting
+  static final Charset UTF_32BE = Charset.forName("UTF-32BE");
+
+  @VisibleForTesting
+  static final Charset UTF_32LE = Charset.forName("UTF-32LE");
 
 }
