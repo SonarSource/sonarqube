@@ -19,116 +19,18 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Sets;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-public abstract class AbstractUserSession<T extends AbstractUserSession> implements UserSession {
-  protected static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
+public abstract class AbstractUserSession implements UserSession {
+  private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-
-  protected UserDto userDto;
-  protected Integer userId;
-  protected String login;
-  protected String name;
-
-  protected Set<String> userGroups = Sets.newHashSet(DefaultGroups.ANYONE);
-  protected List<String> globalPermissions = Collections.emptyList();
-  protected HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
-  protected HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
-  protected Map<String, String> projectUuidByComponentUuid = newHashMap();
-  protected List<String> projectPermissionsCheckedByKey = newArrayList();
-  protected List<String> projectPermissionsCheckedByUuid = newArrayList();
-
-  protected Locale locale = Locale.ENGLISH;
-
-  private final Class<T> clazz;
-
-  protected AbstractUserSession(Class<T> clazz) {
-    this.clazz = clazz;
-  }
-
-
-  @Override
-  @CheckForNull
-  public String getLogin() {
-    return login;
-  }
-
-  public T setLogin(@Nullable String s) {
-    this.login = Strings.emptyToNull(s);
-    return clazz.cast(this);
-  }
-
-  @Override
-  @CheckForNull
-  public String getName() {
-    return name;
-  }
-
-  public T setName(@Nullable String s) {
-    this.name = Strings.emptyToNull(s);
-    return clazz.cast(this);
-  }
-
-  @Override
-  @CheckForNull
-  public Integer getUserId() {
-    return userId;
-  }
-
-  public T setUserId(@Nullable Integer userId) {
-    this.userId = userId;
-    return clazz.cast(this);
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    return userGroups;
-  }
-
-  public T setUserGroups(@Nullable String... userGroups) {
-    if (userGroups != null) {
-      this.userGroups.addAll(Arrays.asList(userGroups));
-    }
-    return clazz.cast(this);
-  }
-
-  @Override
-  public boolean isLoggedIn() {
-    return login != null;
-  }
-
-  @Override
-  public Locale locale() {
-    return locale;
-  }
-
-  protected T setLocale(@Nullable Locale l) {
-    this.locale = MoreObjects.firstNonNull(l, Locale.ENGLISH);
-    return clazz.cast(this);
-  }
 
   @Override
   public UserSession checkLoggedIn() {
-    if (login == null) {
+    if (!isLoggedIn()) {
       throw new UnauthorizedException("Authentication is required");
     }
     return this;

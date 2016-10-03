@@ -19,14 +19,20 @@
  */
 package org.sonar.server.user;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
@@ -41,25 +47,28 @@ import static java.util.Objects.requireNonNull;
 /**
  * Part of the current HTTP session
  */
-public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
+public class ServerUserSession extends AbstractUserSession {
   private Map<String, String> projectKeyByComponentKey = newHashMap();
 
+  @CheckForNull
+  private final UserDto userDto;
   private final DbClient dbClient;
   private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;
+  private final Set<String> userGroups;
+  private List<String> globalPermissions = null;
+  private HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
+  private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private Map<String, String> projectUuidByComponentUuid = newHashMap();
+  private List<String> projectPermissionsCheckedByKey = new ArrayList<>();
+  private List<String> projectPermissionsCheckedByUuid = new ArrayList<>();
 
   private ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
-    super(ServerUserSession.class);
+    this.userDto = userDto;
     this.dbClient = dbClient;
     this.permissionDao = dbClient.permissionDao();
     this.resourceDao = dbClient.resourceDao();
-    this.globalPermissions = null;
-    if (userDto != null) {
-      this.setLogin(userDto.getLogin());
-      this.setName(userDto.getName());
-      this.setUserId(userDto.getId().intValue());
-      this.userGroups.addAll(getUserGroups(userDto.getLogin()));
-    }
+    this.userGroups = loadUserGroups();
   }
 
   public static ServerUserSession createForUser(DbClient dbClient, UserDto userDto) {
@@ -71,38 +80,68 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
     return new ServerUserSession(dbClient, null);
   }
 
-  private Set<String> getUserGroups(String userLogin) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return new HashSet<>(dbClient.groupDao().selectByUserLogin(dbSession, userLogin).stream().map(GroupDto::getName).collect(Collectors.toSet()));
-    } finally {
-      dbClient.closeSession(dbSession);
+  private Set<String> loadUserGroups() {
+    if (this.userDto == null) {
+      return Collections.singleton(DefaultGroups.ANYONE);
     }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return Stream.concat(
+        Stream.of(DefaultGroups.ANYONE),
+        dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin()).stream().map(GroupDto::getName))
+        .collect(Collectors.toSet());
+    }
+  }
+
+  @Override
+  @CheckForNull
+  public String getLogin() {
+    return userDto == null ? null : userDto.getLogin();
+  }
+
+  @Override
+  @CheckForNull
+  public String getName() {
+    return userDto == null ? null : userDto.getName();
+  }
+
+  @Override
+  @CheckForNull
+  public Integer getUserId() {
+    return userDto == null ? null : userDto.getId().intValue();
+  }
+
+  @Override
+  public Set<String> getUserGroups() {
+    return userGroups;
+  }
+
+  @Override
+  public boolean isLoggedIn() {
+    return userDto != null;
+  }
+
+  @Override
+  public Locale locale() {
+    return Locale.ENGLISH;
   }
 
   @Override
   public List<String> globalPermissions() {
     if (globalPermissions == null) {
-      List<String> permissionKeys = permissionDao.selectGlobalPermissions(login);
-      globalPermissions = new ArrayList<>();
-      for (String permissionKey : permissionKeys) {
-        globalPermissions.add(permissionKey);
-      }
+      List<String> permissionKeys = permissionDao.selectGlobalPermissions(getLogin());
+      globalPermissions = ImmutableList.copyOf(permissionKeys);
     }
     return globalPermissions;
   }
 
   private boolean hasProjectPermission(String permission, String projectKey) {
     if (!projectPermissionsCheckedByKey.contains(permission)) {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
-        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, userId, permission);
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
         for (String key : projectKeys) {
           projectKeyByPermission.put(permission, key);
         }
         projectPermissionsCheckedByKey.add(permission);
-      } finally {
-        dbClient.closeSession(dbSession);
       }
     }
     return projectKeyByPermission.get(permission).contains(projectKey);
@@ -111,12 +150,9 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
   // To keep private
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
     if (!projectPermissionsCheckedByUuid.contains(permission)) {
-      DbSession dbSession = dbClient.openSession(false);
-      try {
-        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, userId, permission);
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
         addProjectPermission(permission, projectUuids);
-      } finally {
-        dbClient.closeSession(dbSession);
       }
     }
     return projectUuidByPermission.get(permission).contains(projectUuid);

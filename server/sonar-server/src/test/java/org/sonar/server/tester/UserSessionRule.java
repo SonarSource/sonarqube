@@ -158,24 +158,24 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   public UserSessionRule setGlobalPermissions(String... globalPermissions) {
-    ensureMockUserSession().setGlobalPermissions(globalPermissions);
+    ensureAbstractMockUserSession().setGlobalPermissions(globalPermissions);
     return this;
   }
 
   public UserSessionRule addProjectUuidPermissions(String projectPermission, String... projectUuids) {
-    ensureMockUserSession().addProjectUuidPermissions(projectPermission, projectUuids);
+    ensureAbstractMockUserSession().addProjectUuidPermissions(projectPermission, projectUuids);
     return this;
   }
 
   @Deprecated
   public UserSessionRule addComponentPermission(String projectPermission, String projectKey, String componentKey) {
-    ensureMockUserSession().addComponentPermission(projectPermission, projectKey, componentKey);
+    ensureAbstractMockUserSession().addComponentPermission(projectPermission, projectKey, componentKey);
     return this;
   }
 
   @Deprecated
   public UserSessionRule addProjectPermissions(String projectPermission, String... projectKeys) {
-    ensureMockUserSession().addProjectPermissions(projectPermission, projectKeys);
+    ensureAbstractMockUserSession().addProjectPermissions(projectPermission, projectKeys);
     return this;
   }
 
@@ -185,23 +185,28 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   public UserSessionRule setUserGroups(@Nullable String... userGroups) {
-    ensureMockUserSession().setUserGroups(userGroups);
+    ensureAbstractMockUserSession().setUserGroups(userGroups);
     return this;
   }
 
   public UserSessionRule setLocale(@Nullable Locale l) {
-    ensureMockUserSession().setLocale(l);
+    ensureAbstractMockUserSession().setLocale(l);
     return this;
   }
 
   public UserSessionRule addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
-    ensureMockUserSession().addComponentUuidPermission(projectPermission, projectUuid, componentUuid);
+    ensureAbstractMockUserSession().addComponentUuidPermission(projectPermission, projectUuid, componentUuid);
     return this;
   }
 
   public UserSessionRule setName(@Nullable String s) {
     ensureMockUserSession().setName(s);
     return this;
+  }
+
+  private AbstractMockUserSession ensureAbstractMockUserSession() {
+    checkState(currentUserSession instanceof AbstractMockUserSession, "rule state can not be changed if a UserSession has explicitly been provided");
+    return (AbstractMockUserSession) currentUserSession;
   }
 
   private MockUserSession ensureMockUserSession() {

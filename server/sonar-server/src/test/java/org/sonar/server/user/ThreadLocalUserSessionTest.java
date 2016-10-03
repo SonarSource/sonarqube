@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.AbstractMockUserSession;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 
@@ -52,7 +53,7 @@ public class ThreadLocalUserSessionTest {
 
   @Test
   public void get_session_for_user() {
-    MockUserSession expected = new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH);
+    AbstractMockUserSession expected = new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH);
     threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();

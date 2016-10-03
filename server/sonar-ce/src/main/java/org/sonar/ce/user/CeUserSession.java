@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
  */
 public class CeUserSession implements UserSession {
 
-  public static final String UOE_MESSAGE = "UserSession must not be used from within the Compute Engine";
+  private static final String UOE_MESSAGE = "UserSession must not be used from within the Compute Engine";
 
   @Override
   public String getLogin() {

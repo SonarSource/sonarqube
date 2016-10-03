@@ -19,22 +19,30 @@
  */
 package org.sonar.server.tester;
 
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.user.UserSession;
+public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousMockUserSession> {
 
-public class AnonymousMockUserSession extends MockUserSession {
   public AnonymousMockUserSession() {
-    super();
+    super(AnonymousMockUserSession.class);
+  }
+
+  @Override
+  public String getLogin() {
+    return null;
+  }
+
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  @Override
+  public Integer getUserId() {
+    return null;
   }
 
   @Override
   public boolean isLoggedIn() {
     return false;
-  }
-
-  @Override
-  public UserSession checkLoggedIn() {
-    throw new UnauthorizedException("Authentication is required");
   }
 
 }
