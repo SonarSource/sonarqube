@@ -20,6 +20,7 @@
 package org.sonar.db;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -64,6 +65,8 @@ import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -84,10 +87,13 @@ public class DbTester extends ExternalResource {
   private final TestDb db;
   private DbClient client;
   private DbSession session = null;
+  private boolean disableDefaultOrganization = false;
+  private boolean started = false;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
     this.db = TestDb.create(schemaPath);
+    initDbClient();
   }
 
   public static DbTester create(System2 system2) {
@@ -97,13 +103,45 @@ public class DbTester extends ExternalResource {
   public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
     String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
     String schemaPath = path + "/" + filename;
-    return new DbTester(system2, schemaPath);
+    return new DbTester(system2, schemaPath).setDisableDefaultOrganization(true);
+  }
+
+  private void initDbClient() {
+    TransientPicoContainer ioc = new TransientPicoContainer();
+    ioc.addComponent(db.getMyBatis());
+    ioc.addComponent(system2);
+    ioc.addComponent(new SequenceUuidFactory());
+    for (Class daoClass : DaoModule.classes()) {
+      ioc.addComponent(daoClass);
+    }
+    List<Dao> daos = ioc.getComponents(Dao.class);
+    client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
+  }
+
+  public DbTester setDisableDefaultOrganization(boolean b) {
+    Preconditions.checkState(!started, "DbTester is already started");
+    this.disableDefaultOrganization = b;
+    return this;
   }
 
   @Override
   protected void before() throws Throwable {
     db.start();
     db.truncateTables();
+    initDbClient();
+    if (!disableDefaultOrganization) {
+      insertDefaultOrganization();
+    }
+    started = true;
+  }
+
+  private void insertDefaultOrganization() {
+    OrganizationDto org = OrganizationTesting.newOrganizationDto();
+    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
+      client.organizationDao().insert(dbSession, org);
+      client.internalPropertiesDao().save(dbSession, "organization.default", org.getUuid());
+      dbSession.commit();
+    }
   }
 
   @Override
@@ -112,6 +150,7 @@ public class DbTester extends ExternalResource {
       MyBatis.closeQuietly(session);
     }
     db.stop();
+    started = false;
   }
 
   public DbSession getSession() {
@@ -126,17 +165,6 @@ public class DbTester extends ExternalResource {
   }
 
   public DbClient getDbClient() {
-    if (client == null) {
-      TransientPicoContainer ioc = new TransientPicoContainer();
-      ioc.addComponent(db.getMyBatis());
-      ioc.addComponent(system2);
-      ioc.addComponent(new SequenceUuidFactory());
-      for (Class daoClass : DaoModule.classes()) {
-        ioc.addComponent(daoClass);
-      }
-      List<Dao> daos = ioc.getComponents(Dao.class);
-      client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
-    }
     return client;
   }
 

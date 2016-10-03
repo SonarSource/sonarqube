@@ -44,7 +44,7 @@ public class DefaultOrganizationProviderImplTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
