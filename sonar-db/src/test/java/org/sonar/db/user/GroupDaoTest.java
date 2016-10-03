@@ -70,7 +70,7 @@ public class GroupDaoTest {
   public void selectByName() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    GroupDto group = underTest.selectByName(dbSession, AN_ORGANIZATION.getKey(), aGroup.getName()).get();
+    GroupDto group = underTest.selectByName(dbSession, AN_ORGANIZATION.getUuid(), aGroup.getName()).get();
 
     assertThat(group.getId()).isNotNull();
     assertThat(group.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
@@ -82,7 +82,7 @@ public class GroupDaoTest {
 
   @Test
   public void selectByName_returns_absent() {
-    Optional<GroupDto> group = underTest.selectByName(dbSession, AN_ORGANIZATION.getKey(), "missing");
+    Optional<GroupDto> group = underTest.selectByName(dbSession, AN_ORGANIZATION.getUuid(), "missing");
 
     assertThat(group).isNotPresent();
   }

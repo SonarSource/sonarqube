@@ -17,17 +17,14 @@
     select
     <include refid="groupColumns"/>
     from groups g
-    inner join organizations o on o.uuid = g.organization_uuid
-    where o.kee = #{organizationKey} and g.name = #{name}
+    where g.organization_uuid = #{organizationUuid} and g.name = #{name}
   </select>
 
   <select id="selectByKey" parameterType="string" resultType="Group">
     SELECT
     <include refid="groupColumns"/>
     FROM groups g
-    <where>
-      g.name=#{id}
-    </where>
+    where g.name=#{id}
   </select>
 
   <select id="selectById" parameterType="long" resultType="Group">
