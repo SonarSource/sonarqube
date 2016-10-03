@@ -159,9 +159,12 @@ import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
+import org.sonar.db.version.v62.AddIsRootColumnOnTableUsers;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
+import org.sonar.db.version.v62.MakeRootColumnNotNullOnTableUsers;
+import org.sonar.db.version.v62.PopulateIsRootColumnOnTableUsers;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -344,7 +347,9 @@ public class MigrationStepModule extends Module {
       // 6.2
       CreateTableOrganizations.class,
       CreateDefaultOrganization.class,
-      DeletePermissionShareDashboard.class
-    );
+      DeletePermissionShareDashboard.class,
+      AddIsRootColumnOnTableUsers.class,
+      PopulateIsRootColumnOnTableUsers.class,
+      MakeRootColumnNotNullOnTableUsers.class);
   }
 }
