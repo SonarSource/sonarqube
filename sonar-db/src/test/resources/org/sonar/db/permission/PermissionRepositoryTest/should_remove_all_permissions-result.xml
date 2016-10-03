@@ -1,8 +1,14 @@
 <dataset>
 
-  <users id="200" login="dave.loper" name="Dave Loper" email="dave.loper@company.net" active="[true]"/>
+  <users id="200"
+         login="dave.loper"
+         name="Dave Loper"
+         email="dave.loper@company.net"
+         active="[true]"
+         is_root="[false]"/>
 
-  <groups id="100" name="devs"/>
+  <groups id="100"
+          name="devs"/>
 
   <user_roles/>
 

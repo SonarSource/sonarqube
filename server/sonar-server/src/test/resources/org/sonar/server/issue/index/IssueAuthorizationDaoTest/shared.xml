@@ -41,7 +41,8 @@
          login="user1"
          name="User 1"
          email="user1@company.net"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
   <user_roles id="1"
               user_id="10"
               resource_id="1"
@@ -86,7 +87,8 @@
          login="user2"
          name="User 2"
          email="user2@company.net"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
   <user_roles id="4"
               user_id="11"
               resource_id="1"

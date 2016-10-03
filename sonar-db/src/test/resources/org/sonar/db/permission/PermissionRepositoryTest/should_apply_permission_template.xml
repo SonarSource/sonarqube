@@ -26,7 +26,8 @@
          login="marius"
          name="Marius"
          email="[null]"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
 
   <!-- on other resources -->
   <group_roles id="1"

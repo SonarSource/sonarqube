@@ -4,7 +4,8 @@
          login="dave.loper"
          name="Dave Loper"
          email="dave.loper@company.net"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
 
   <user_roles id="1"
               user_id="200"

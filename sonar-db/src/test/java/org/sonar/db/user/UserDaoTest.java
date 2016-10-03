@@ -53,21 +53,18 @@ import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
+  private static final long NOW = 1500000000000L;
+
+  private System2 system2 = mock(System2.class);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  System2 system2 = mock(System2.class);
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  static final long NOW = 1500000000000L;
-
-  DbClient dbClient = db.getDbClient();
-
-  UserDao underTest = db.getDbClient().userDao();
-  final DbSession session = db.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession session = db.getSession();
+  private UserDao underTest = db.getDbClient().userDao();
 
   @Before
   public void setUp() throws Exception {
@@ -229,6 +226,7 @@ public class UserDaoTest {
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isLocal()).isTrue();
+    assertThat(user.isRoot()).isFalse();
     assertThat(user.getCreatedAt()).isEqualTo(date);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
@@ -275,6 +273,7 @@ public class UserDaoTest {
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isLocal()).isFalse();
+    assertThat(user.isRoot()).isFalse();
     assertThat(user.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(user.getUpdatedAt()).isEqualTo(1500000000000L);
   }
@@ -307,6 +306,7 @@ public class UserDaoTest {
     assertThat(userReloaded.getCryptedPassword()).isNull();
     assertThat(userReloaded.getExternalIdentity()).isNull();
     assertThat(userReloaded.getExternalIdentityProvider()).isNull();
+    assertThat(userReloaded.isRoot()).isFalse();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
 
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
@@ -409,8 +409,12 @@ public class UserDaoTest {
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
     assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.isRoot()).isFalse();
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735485L);
+
+    dto = underTest.selectOrFailByLogin(session, "sbrandhof");
+    assertThat(dto.isRoot()).isTrue();
   }
 
   @Test

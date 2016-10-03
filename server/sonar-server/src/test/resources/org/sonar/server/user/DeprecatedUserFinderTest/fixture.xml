@@ -1,6 +1,14 @@
 <dataset>
 
-  <users id="1" login="simon" name="Simon Brandhof" email="simon.brandhof@sonarsource.com"/>
-  <users id="2" login="godin" name="Evgeny Mandrikov" email="evgeny.mandrikov@sonarsource.com"/>
+  <users id="1"
+         login="simon"
+         name="Simon Brandhof"
+         email="simon.brandhof@sonarsource.com"
+         is_root="[false]"/>
+  <users id="2"
+         login="godin"
+         name="Evgeny Mandrikov"
+         email="evgeny.mandrikov@sonarsource.com"
+         is_root="[false]"/>
 
 </dataset>

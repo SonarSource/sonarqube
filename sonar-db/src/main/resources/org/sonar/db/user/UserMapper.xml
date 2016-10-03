@@ -15,6 +15,7 @@
     u.external_identity as "externalIdentity",
     u.external_identity_provider as "externalIdentityProvider",
     u.user_local as "local",
+    u.is_root as "root",
     u.created_at as "createdAt",
     u.updated_at as "updatedAt"
   </sql>
@@ -145,28 +146,66 @@
   </delete>
 
   <update id="deactivateUser" parameterType="long">
-    UPDATE users SET active=${_false}, email=null, scm_accounts=null,
-    external_identity=null, external_identity_provider=null,
-    salt=null, crypted_password=null,
-    updated_at=#{now,jdbcType=BIGINT} WHERE id=#{id}
+    UPDATE users SET
+      active=${_false},
+      email=null,
+      scm_accounts=null,
+      external_identity=null,
+      external_identity_provider=null,
+      salt=null,
+      crypted_password=null,
+      updated_at=#{now,jdbcType=BIGINT}
+    WHERE
+      id=#{id}
   </update>
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO users (login, name, email, active, scm_accounts, external_identity, external_identity_provider, user_local, salt, crypted_password, created_at, updated_at)
-    VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{active,jdbcType=BOOLEAN},
-    #{scmAccounts,jdbcType=VARCHAR}, #{externalIdentity,jdbcType=VARCHAR}, #{externalIdentityProvider,jdbcType=VARCHAR},
-    #{local,jdbcType=BOOLEAN},
-    #{salt,jdbcType=VARCHAR}, #{cryptedPassword,jdbcType=VARCHAR},
-    #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT})
+    INSERT INTO users (
+      login,
+      name,
+      email,
+      active,
+      scm_accounts,
+      external_identity,
+      external_identity_provider,
+      user_local,
+      salt,
+      crypted_password,
+      is_root,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{login,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR},
+      #{email,jdbcType=VARCHAR},
+      #{active,jdbcType=BOOLEAN},
+      #{scmAccounts,jdbcType=VARCHAR},
+      #{externalIdentity,jdbcType=VARCHAR},
+      #{externalIdentityProvider,jdbcType=VARCHAR},
+      #{local,jdbcType=BOOLEAN},
+      #{salt,jdbcType=VARCHAR},
+      #{cryptedPassword,jdbcType=VARCHAR},
+      #{root,jdbcType=BOOLEAN},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
   </insert>
 
   <insert id="update" parameterType="User" useGeneratedKeys="false">
-    UPDATE users set name=#{name,jdbcType=VARCHAR}, email=#{email,jdbcType=VARCHAR}, active=#{active,jdbcType=BOOLEAN},
-    scm_accounts=#{scmAccounts,jdbcType=VARCHAR}, external_identity=#{externalIdentity,jdbcType=VARCHAR}, external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
-    user_local=#{local,jdbcType=BOOLEAN},
-    salt=#{salt,jdbcType=VARCHAR}, crypted_password=#{cryptedPassword,jdbcType=BIGINT},
-    updated_at=#{updatedAt,jdbcType=BIGINT}
-    WHERE login = #{login}
+    UPDATE users set
+      name=#{name,jdbcType=VARCHAR},
+      email=#{email,jdbcType=VARCHAR},
+      active=#{active,jdbcType=BOOLEAN},
+      scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
+      external_identity=#{externalIdentity,jdbcType=VARCHAR},
+      external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
+      user_local=#{local,jdbcType=BOOLEAN},
+      salt=#{salt,jdbcType=VARCHAR},
+      crypted_password=#{cryptedPassword,jdbcType=BIGINT},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    WHERE
+      login = #{login}
   </insert>
 
 </mapper>

@@ -50,6 +50,7 @@ public class UserDto {
   private Long createdAt;
   private Long updatedAt;
   private boolean local = true;
+  private boolean root = false;
 
   public Long getId() {
     return id;
@@ -199,6 +200,21 @@ public class UserDto {
   public UserDto setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  public boolean isRoot() {
+    return root;
+  }
+
+  /**
+   * Setters is not accessible as dedicated requests must be used to update the root flag of a user:
+   * <ul>
+   *   <li>a user can not be created root</li>
+   *   <li>the generic update method of a user can not change its root flag</li>
+   * </ul>
+   */
+  private void setRoot(boolean root) {
+    this.root = root;
   }
 
   public static String encryptPassword(String password, String salt) {

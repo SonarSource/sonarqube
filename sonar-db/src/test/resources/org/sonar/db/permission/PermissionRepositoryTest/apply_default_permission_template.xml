@@ -26,12 +26,14 @@
          login="marius"
          name="Marius"
          email="[null]"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
   <users id="201"
          login="janette"
          name="Janette"
          email="[null]"
-         active="[true]"/>
+         active="[true]"
+         is_root="[false]"/>
 
   <!-- on other resources -->
   <group_roles id="1"
