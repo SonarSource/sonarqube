@@ -57,6 +57,8 @@ public interface UserMapper {
 
   void update(UserDto userDto);
 
+  void setRoot(@Param("login") String login, @Param("root") boolean root, @Param("now") long now);
+
   void removeUserFromGroups(long userId);
 
   void deleteUserActiveDashboards(long userId);
@@ -78,6 +80,5 @@ public interface UserMapper {
   void deletePropertiesMatchingLogin(@Param("propertyKeys") List<String> propertyKeys, @Param("login") String login);
 
   void deactivateUser(@Param("id") long userId, @Param("now") long now);
-
 
 }

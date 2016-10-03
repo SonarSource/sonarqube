@@ -24,6 +24,7 @@ import com.google.common.base.Predicates;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -59,7 +60,7 @@ public class UserDao implements Dao {
   }
 
   public UserDto selectUserById(DbSession session, long userId) {
-    return session.getMapper(UserMapper.class).selectUser(userId);
+    return getMapper(session).selectUser(userId);
   }
 
   /**
@@ -69,7 +70,7 @@ public class UserDao implements Dao {
    * Used by the Governance plugin
    */
   public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return executeLargeInputs(ids, session.getMapper(UserMapper.class)::selectByIds);
+    return executeLargeInputs(ids, getMapper(session)::selectByIds);
   }
 
   /**
@@ -89,7 +90,7 @@ public class UserDao implements Dao {
 
   @CheckForNull
   public UserDto selectActiveUserByLogin(DbSession session, String login) {
-    UserMapper mapper = session.getMapper(UserMapper.class);
+    UserMapper mapper = getMapper(session);
     return mapper.selectUserByLogin(login);
   }
 
@@ -98,7 +99,7 @@ public class UserDao implements Dao {
    * if list of logins is empty, without any db round trips.
    */
   public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
-    return executeLargeInputs(logins, session.getMapper(UserMapper.class)::selectByLogins);
+    return executeLargeInputs(logins, getMapper(session)::selectByLogins);
   }
 
   /**
@@ -135,18 +136,22 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
-    UserMapper mapper = dbSession.getMapper(UserMapper.class);
+    UserMapper mapper = getMapper(dbSession);
     return mapper.selectUsers(query);
   }
 
   public UserDto insert(DbSession session, UserDto dto) {
-    session.getMapper(UserMapper.class).insert(dto);
+    getMapper(session).insert(dto);
     return dto;
   }
 
   public UserDto update(DbSession session, UserDto dto) {
-    session.getMapper(UserMapper.class).update(dto);
+    getMapper(session).update(dto);
     return dto;
+  }
+
+  public void setRoot(DbSession session, String login, boolean root) {
+    getMapper(session).setRoot(login, root, system2.now());
   }
 
   /**
@@ -154,7 +159,7 @@ public class UserDao implements Dao {
    * @return false if the user does not exist, true if the existing user has been deactivated
    */
   public boolean deactivateUserByLogin(DbSession dbSession, String login) {
-    UserMapper mapper = dbSession.getMapper(UserMapper.class);
+    UserMapper mapper = getMapper(dbSession);
     UserDto dto = mapper.selectUserByLogin(login);
     if (dto == null) {
       return false;
@@ -177,7 +182,7 @@ public class UserDao implements Dao {
 
   @CheckForNull
   public UserDto selectByLogin(DbSession session, String login) {
-    return mapper(session).selectByLogin(login);
+    return getMapper(session).selectByLogin(login);
   }
 
   public UserDto selectOrFailByLogin(DbSession session, String login) {
@@ -192,7 +197,7 @@ public class UserDao implements Dao {
     String like = new StringBuilder().append("%")
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
-    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
+    return getMapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
   }
 
   /**
@@ -201,10 +206,10 @@ public class UserDao implements Dao {
    * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
    */
   public boolean doesEmailExist(DbSession dbSession, String email) {
-    return mapper(dbSession).countByEmail(email.toLowerCase()) > 0;
+    return getMapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
   }
 
-  protected UserMapper mapper(DbSession session) {
+  private static UserMapper getMapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }
 

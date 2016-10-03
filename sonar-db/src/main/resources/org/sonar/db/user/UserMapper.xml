@@ -159,6 +159,14 @@
       id=#{id}
   </update>
 
+  <update id="setRoot">
+    update users set
+      is_root = #{root,jdbcType=BOOLEAN},
+      updated_at=#{now,jdbcType=BIGINT}
+    where
+      login = #{login,jdbcType=VARCHAR}
+  </update>
+
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO users (
       login,

@@ -481,6 +481,50 @@ public class UserDaoTest {
     assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
   }
 
+  @Test
+  public void setRoot_does_not_fail_on_non_existing_login() {
+    underTest.setRoot(session, "unkown", true);
+    underTest.setRoot(session, "unkown", false);
+  }
+
+  @Test
+  public void setRoot_set_root_flag_of_specified_user_to_specified_value_and_updates_udpateAt() {
+    String login = newActiveUser().getLogin();
+    UserDto otherUser = newActiveUser();
+    assertThat(underTest.selectByLogin(session, login).isRoot()).isEqualTo(false);
+    assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isEqualTo(false);
+
+    // does not fail when changing to same value
+    when(system2.now()).thenReturn(15_000L);
+    underTest.setRoot(session, login, false);
+    verifyRootAndUpdatedAt(login, false, 15_000L);
+    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+
+    // change value
+    when(system2.now()).thenReturn(26_000L);
+    underTest.setRoot(session, login, true);
+    verifyRootAndUpdatedAt(login, true, 26_000L);
+    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+
+    // does not fail when changing to same value
+    when(system2.now()).thenReturn(37_000L);
+    underTest.setRoot(session, login, true);
+    verifyRootAndUpdatedAt(login, true, 37_000L);
+    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+
+    // change value back
+    when(system2.now()).thenReturn(48_000L);
+    underTest.setRoot(session, login, false);
+    verifyRootAndUpdatedAt(login, false, 48_000L);
+    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+  }
+
+  private void verifyRootAndUpdatedAt(String login1, boolean root, long updatedAt) {
+    UserDto userDto = underTest.selectByLogin(session, login1);
+    assertThat(userDto.isRoot()).isEqualTo(root);
+    assertThat(userDto.getUpdatedAt()).isEqualTo(updatedAt);
+  }
+
   private UserDto newActiveUser() {
     return insertUser(true);
   }
