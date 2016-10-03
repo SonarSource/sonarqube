@@ -53,6 +53,7 @@ public class InputFileBuilderTest {
     File basedir = new File("src/test/resources/org/sonar/scanner/scan/filesystem/");
     when(fs.baseDir()).thenReturn(basedir);
     when(fs.encoding()).thenReturn(StandardCharsets.US_ASCII);
+    when(langDetection.language(any(InputFile.class))).thenReturn("java");
     InputFileBuilder builder = new InputFileBuilder("moduleKey", new PathResolver(), langDetection, statusDetection, fs, new MapSettings(), new FileMetadata());
 
     assertThat(createAndComplete(builder, new File(basedir, "without_BOM.txt")).charset())

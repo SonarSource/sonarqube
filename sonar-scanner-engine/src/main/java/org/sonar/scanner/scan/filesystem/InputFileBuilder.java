@@ -98,14 +98,15 @@ class InputFileBuilder {
   DefaultInputFile completeAndComputeMetadata(DefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setModuleBaseDir(fs.baseDir().toPath());
-    Charset charset = detectCharset(inputFile.file(), fs.encoding());
-    inputFile.setCharset(charset);
 
     String lang = langDetection.language(inputFile);
     if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
       return null;
     }
     inputFile.setLanguage(lang);
+
+    Charset charset = detectCharset(inputFile.file(), fs.encoding());
+    inputFile.setCharset(charset);
 
     inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), charset));
 
