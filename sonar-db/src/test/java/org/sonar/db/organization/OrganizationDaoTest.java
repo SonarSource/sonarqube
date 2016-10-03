@@ -54,7 +54,7 @@ public class OrganizationDaoTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(system2);
+  public final DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

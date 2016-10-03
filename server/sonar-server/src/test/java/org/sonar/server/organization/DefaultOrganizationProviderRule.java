@@ -19,52 +19,24 @@
  */
 package org.sonar.server.organization;
 
-import com.google.common.base.Preconditions;
 import org.junit.rules.ExternalResource;
-import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DbTester;
 
 public class DefaultOrganizationProviderRule extends ExternalResource implements DefaultOrganizationProvider {
-  private DefaultOrganization defaultOrganization;
 
-  private DefaultOrganizationProviderRule(DefaultOrganization defaultOrganization) {
-    this.defaultOrganization = defaultOrganization;
+  private final DbTester dbTester;
+
+  private DefaultOrganizationProviderRule(DbTester dbTester) {
+    this.dbTester = dbTester;
   }
 
-  /**
-   * <p>
-   * This method is meant to be statically imported.
-   * </p>
-   */
-  public static DefaultOrganizationProviderRule someDefaultOrganization() {
-    String uuid = UuidFactoryImpl.INSTANCE.create();
-    return new DefaultOrganizationProviderRule(DefaultOrganization.newBuilder()
-      .setUuid(uuid)
-      .setName("Default organization " + uuid)
-      .setKey(uuid + "_key")
-      .setCreatedAt(uuid.hashCode())
-      .setUpdatedAt(uuid.hashCode())
-      .build());
+  public static DefaultOrganizationProviderRule create(DbTester dbTester) {
+    return new DefaultOrganizationProviderRule(dbTester);
   }
 
-  /**
-   * <p>
-   * This method is meant to be statically imported.
-   * </p>
-   */
-  public static DefaultOrganizationProviderRule defaultOrganizationWithName(String name) {
-    String uuid = UuidFactoryImpl.INSTANCE.create();
-    return new DefaultOrganizationProviderRule(DefaultOrganization.newBuilder()
-      .setUuid(uuid)
-      .setName(name)
-      .setKey(uuid + "_key")
-      .setCreatedAt(uuid.hashCode())
-      .setUpdatedAt(uuid.hashCode())
-      .build());
-  }
 
   @Override
   public DefaultOrganization get() {
-    Preconditions.checkState(defaultOrganization != null, "No default organization is set");
-    return defaultOrganization;
+    return new DefaultOrganizationProviderImpl(dbTester.getDbClient()).get();
   }
 }
