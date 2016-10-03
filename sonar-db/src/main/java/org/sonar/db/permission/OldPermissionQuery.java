@@ -30,7 +30,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Query used to get users and groups from a permission
+ * @deprecated use {@link PermissionQuery}
  */
+@Deprecated
 public class OldPermissionQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
