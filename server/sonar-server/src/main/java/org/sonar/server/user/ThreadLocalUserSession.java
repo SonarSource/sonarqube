@@ -88,22 +88,26 @@ public class ThreadLocalUserSession implements UserSession {
 
   @Override
   public UserSession checkLoggedIn() {
-    return get().checkLoggedIn();
+    get().checkLoggedIn();
+    return this;
   }
 
   @Override
   public UserSession checkPermission(String globalPermission) {
-    return get().checkPermission(globalPermission);
+    get().checkPermission(globalPermission);
+    return this;
   }
 
   @Override
   public UserSession checkGlobalPermission(String globalPermission) {
-    return get().checkGlobalPermission(globalPermission);
+    get().checkGlobalPermission(globalPermission);
+    return this;
   }
 
   @Override
   public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
-    return get().checkAnyPermissions(globalPermissions);
+    get().checkAnyPermissions(globalPermissions);
+    return this;
   }
 
   @Override
@@ -123,12 +127,14 @@ public class ThreadLocalUserSession implements UserSession {
 
   @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    return get().checkComponentPermission(projectPermission, componentKey);
+    get().checkComponentPermission(projectPermission, componentKey);
+    return this;
   }
 
   @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
-    return get().checkComponentUuidPermission(permission, componentUuid);
+    get().checkComponentUuidPermission(permission, componentUuid);
+    return this;
   }
 
   @Override

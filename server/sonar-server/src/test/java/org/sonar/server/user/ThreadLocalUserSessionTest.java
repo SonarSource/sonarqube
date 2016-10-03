@@ -52,27 +52,29 @@ public class ThreadLocalUserSessionTest {
 
   @Test
   public void get_session_for_user() {
-    threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH));
+    MockUserSession expected = new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH);
+    threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();
-    assertThat(session).isNotNull();
-    assertThat(session.getUserId()).isEqualTo(123);
-    assertThat(session.getLogin()).isEqualTo("karadoc");
-    assertThat(session.isLoggedIn()).isTrue();
-    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
+    assertThat(session).isSameAs(expected);
+    assertThat(threadLocalUserSession.getUserId()).isEqualTo(123);
+    assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
+    assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
+    assertThat(threadLocalUserSession.locale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test
   public void get_session_for_anonymous() {
-    threadLocalUserSession.set(new AnonymousMockUserSession());
+    AnonymousMockUserSession expected = new AnonymousMockUserSession();
+    threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();
-    assertThat(session).isNotNull();
-    assertThat(session.getLogin()).isNull();
-    assertThat(session.getUserId()).isNull();
-    assertThat(session.isLoggedIn()).isFalse();
+    assertThat(session).isSameAs(expected);
+    assertThat(threadLocalUserSession.getLogin()).isNull();
+    assertThat(threadLocalUserSession.getUserId()).isNull();
+    assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
     // default locale
-    assertThat(session.locale()).isEqualTo(Locale.ENGLISH);
+    assertThat(threadLocalUserSession.locale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test

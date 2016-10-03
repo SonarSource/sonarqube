@@ -266,22 +266,26 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   public UserSession checkLoggedIn() {
-    return currentUserSession.checkLoggedIn();
+    currentUserSession.checkLoggedIn();
+    return this;
   }
 
   @Override
   public UserSession checkPermission(String globalPermission) {
-    return currentUserSession.checkPermission(globalPermission);
+    currentUserSession.checkPermission(globalPermission);
+    return this;
   }
 
   @Override
   public UserSession checkGlobalPermission(String globalPermission) {
-    return currentUserSession.checkGlobalPermission(globalPermission);
+    currentUserSession.checkGlobalPermission(globalPermission);
+    return this;
   }
 
   @Override
   public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
-    return currentUserSession.checkAnyPermissions(globalPermissions);
+    currentUserSession.checkAnyPermissions(globalPermissions);
+    return this;
   }
 
   @Override
@@ -296,12 +300,14 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    return currentUserSession.checkComponentPermission(projectPermission, componentKey);
+    currentUserSession.checkComponentPermission(projectPermission, componentKey);
+    return this;
   }
 
   @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
-    return currentUserSession.checkComponentUuidPermission(permission, componentUuid);
+    currentUserSession.checkComponentUuidPermission(permission, componentUuid);
+    return this;
   }
 
 
