@@ -47,31 +47,39 @@
 }
 
 .overview-quality-gate-conditions-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
+
 }
 
 .overview-quality-gate-condition {
-  padding: 10px 40px 10px 0;
-}
-
-.overview-quality-gate-condition-period {
-  margin-bottom: 4px;
-}
-
-.overview-quality-gate-condition-container {
-  display: flex;
-  align-items: center;
-}
-
-.overview-quality-gate-condition-value {
-  margin-right: 8px;
-  font-size: 24px;
-  font-weight: 300;
+  float: left;
+  margin-top: 15px;
+  margin-right: 30px;
+  border: 1px solid #e6e6e6;
+  border-radius: 2px;
+  background-color: #fff;
 }
 
 .overview-quality-gate-condition-metric {
+  max-width: 120px;
+}
+
+.overview-quality-gate-condition-metric,
+.overview-quality-gate-condition-period {
+  margin-bottom: 2px;
+}
+
+.overview-quality-gate-condition-container {
+  float: left;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.overview-quality-gate-condition-value {
+  line-height: 1;
+  margin-right: 12px;
+  font-size: 32px;
+  font-weight: 300;
 }
 
 .overview-quality-gate-condition-threshold {
@@ -80,6 +88,33 @@
 .overview-quality-gate-warning {
   margin: 15px 0 0;
 }
+
+.overview-quality-gate-level {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4px;
+  height: 80px;
+  margin-left: 20px;
+  content: "";
+}
+
+.overview-quality-gate-condition-error {
+  border-color: #d4333f;
+}
+
+.overview-quality-gate-condition-error .overview-quality-gate-level {
+  background-color: #d4333f;
+}
+
+.overview-quality-gate-condition-warn {
+  border-color: #f90;
+}
+
+.overview-quality-gate-condition-warn .overview-quality-gate-level {
+  background-color: #f90;
+}
+
 
 /*
  * Domain

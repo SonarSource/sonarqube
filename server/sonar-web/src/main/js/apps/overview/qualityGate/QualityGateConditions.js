@@ -104,7 +104,7 @@ export default class QualityGateConditions extends React.Component {
 
     return (
         <ul
-            className="overview-quality-gate-conditions-list"
+            className="overview-quality-gate-conditions-list clearfix"
             id="overview-quality-gate-conditions-list">
           {sortedConditions.map(condition => (
               <QualityGateCondition
