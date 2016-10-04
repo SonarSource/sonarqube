@@ -37,7 +37,6 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
@@ -86,9 +85,8 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkIsRoot_fails_with_UnauthorizedException_when_flag_is_false_on_UserDto() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
+  public void checkIsRoot_fails_with_ForbiddenException_when_flag_is_false_on_UserDto() {
+    expectInsufficientPrivilegesForbiddenException();
 
     newUserSession(NON_ROOT_USER_DTO).checkIsRoot();
   }
@@ -101,7 +99,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_global_permission() {
+  public void hasPermission_permission() {
     addGlobalPermissions("admin", "profileadmin");
     UserSession session = newUserSession(userDto);
 
@@ -111,7 +109,16 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void check_global_Permission_ok() {
+  public void hasPermission_returns_true_when_flag_is_true_on_UserDto_no_matter_actual_global_permissions() {
+    ServerUserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.hasPermission(QUALITY_PROFILE_ADMIN)).isTrue();
+    assertThat(underTest.hasPermission(SYSTEM_ADMIN)).isTrue();
+    assertThat(underTest.hasPermission("whatever!")).isTrue();
+  }
+
+  @Test
+  public void checkPermission_succeeds_if_user_has_global_permission_in_db() {
     addGlobalPermissions("admin", "profileadmin");
     UserSession session = newUserSession(userDto);
 
@@ -119,12 +126,22 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void check_global_Permission_ko() {
+  public void checkPermission_fails_with_FE_if_user_has_not_global_permission_in_db() {
     addGlobalPermissions("admin", "profileadmin");
     UserSession session = newUserSession(userDto);
 
-    expectedException.expect(ForbiddenException.class);
+    expectInsufficientPrivilegesForbiddenException();
+
     session.checkPermission(QUALITY_GATE_ADMIN);
+  }
+
+  @Test
+  public void checkPermission_succeeds_when_flag_is_true_on_UserDto_no_matter_actual_global_permissions() {
+    UserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.checkPermission(QUALITY_PROFILE_ADMIN)).isSameAs(underTest);
+    assertThat(underTest.checkPermission(SYSTEM_ADMIN)).isSameAs(underTest);
+    assertThat(underTest.checkPermission("whatever!")).isSameAs(underTest);
   }
 
   @Test
@@ -138,7 +155,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_component_uuid_permission() {
+  public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -148,7 +165,17 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_component_permission_with_only_global_permission() {
+  public void hasComponentUuidPermission_returns_true_when_flag_is_true_on_UserDto_no_matter_if_user_has_project_permission_for_given_uuid() {
+    UserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.hasComponentUuidPermission(UserRole.USER, FILE_UUID)).isTrue();
+    assertThat(underTest.hasComponentUuidPermission(UserRole.CODEVIEWER, FILE_UUID)).isTrue();
+    assertThat(underTest.hasComponentUuidPermission(UserRole.ADMIN, FILE_UUID)).isTrue();
+    assertThat(underTest.hasComponentUuidPermission("whatever", "who cares?")).isTrue();
+  }
+
+  @Test
+  public void hasComponentPermission_returns_true_if_user_has_global_permission_in_db() {
     addGlobalPermissions(UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -168,7 +195,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void check_component_key_permission_ok() {
+  public void checkComponentPermission_succeeds_if_user_has_permission_for_specified_key_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -176,7 +203,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void check_component_key_permission_with_only_global_permission_ok() {
+  public void checkComponentPermission_succeeds_if_user_has_global_permission_in_db() {
     addGlobalPermissions(UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -184,53 +211,66 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void check_component_key_permission_ko() {
+  public void checkComponentPermission_succeeds_when_flag_is_true_on_UserDto_no_matter_if_user_has_permission_for_specified_key_in_db() {
+    UserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.checkComponentPermission(UserRole.USER, FILE_KEY)).isSameAs(underTest);
+    assertThat(underTest.checkComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isSameAs(underTest);
+    assertThat(underTest.checkComponentPermission("whatever", "who cares?")).isSameAs(underTest);
+  }
+
+  @Test
+  public void checkComponentPermission_throws_FE_when_user_has_not_permission_for_specified_key_in_db() {
     ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
     ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
-    expectedException.expect(ForbiddenException.class);
+    expectInsufficientPrivilegesForbiddenException();
+
     session.checkComponentPermission(UserRole.USER, file2.getKey());
   }
 
   @Test
-  public void check_component_uuid_permission_ok() {
+  public void checkComponentPermission_throws_FE_when_project_does_not_exist_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
-    session.checkComponentUuidPermission(UserRole.USER, FILE_UUID);
+    expectInsufficientPrivilegesForbiddenException();
+
+    session.checkComponentPermission(UserRole.USER, "another");
   }
 
   @Test
-  public void check_component_uuid_permission_ko() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    expectedException.expect(ForbiddenException.class);
-    session.checkComponentUuidPermission(UserRole.USER, "another-uuid");
-  }
-
-  @Test
-  public void check_component_key_permission_when_project_not_found() {
+  public void checkComponentPermission_fails_with_FE_when_project_of_specified_uuid_can_not_be_found() {
     ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
     ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null)
-      // Simulate file is linked to an invalid project
-      .setProjectUuid("INVALID"));
+        // Simulate file is linked to an invalid project
+        .setProjectUuid("INVALID"));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
-    expectedException.expect(ForbiddenException.class);
+    expectInsufficientPrivilegesForbiddenException();
+
     session.checkComponentPermission(UserRole.USER, file2.getKey());
   }
 
   @Test
-  public void check_component_dto_permission_ko() {
+  public void checkComponentUuidPermission_succeeds_if_user_has_permission_for_specified_uuid_in_db() {
+    UserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.checkComponentUuidPermission(UserRole.USER, FILE_UUID)).isSameAs(underTest);
+    assertThat(underTest.checkComponentUuidPermission("whatever", "who cares?")).isSameAs(underTest);
+  }
+
+  @Test
+  public void checkComponentUuidPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
-    expectedException.expect(ForbiddenException.class);
-    session.checkComponentPermission(UserRole.USER, "another");
+    expectInsufficientPrivilegesForbiddenException();
+
+    session.checkComponentUuidPermission(UserRole.USER, "another-uuid");
   }
 
   @Test
@@ -318,6 +358,11 @@ public class ServerUserSessionTest {
         .setResourceId(component == null ? null : component.getId()));
     }
     dbSession.commit();
+  }
+
+  private void expectInsufficientPrivilegesForbiddenException() {
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
   }
 
 

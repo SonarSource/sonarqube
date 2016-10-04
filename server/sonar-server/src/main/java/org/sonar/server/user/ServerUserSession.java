@@ -139,40 +139,9 @@ public class ServerUserSession extends AbstractUserSession {
     return globalPermissions;
   }
 
-  private boolean hasProjectPermission(String permission, String projectKey) {
-    if (!projectPermissionsCheckedByKey.contains(permission)) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
-        for (String key : projectKeys) {
-          projectKeyByPermission.put(permission, key);
-        }
-        projectPermissionsCheckedByKey.add(permission);
-      }
-    }
-    return projectKeyByPermission.get(permission).contains(projectKey);
-  }
-
-  // To keep private
-  private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    if (!projectPermissionsCheckedByUuid.contains(permission)) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
-        addProjectPermission(permission, projectUuids);
-      }
-    }
-    return projectUuidByPermission.get(permission).contains(projectUuid);
-  }
-
-  private void addProjectPermission(String permission, Collection<String> authorizedProjectUuids) {
-    for (String key : authorizedProjectUuids) {
-      projectUuidByPermission.put(permission, key);
-    }
-    projectPermissionsCheckedByUuid.add(permission);
-  }
-
   @Override
   public boolean hasComponentPermission(String permission, String componentKey) {
-    if (hasPermission(permission)) {
+    if (isRoot() || hasPermission(permission)) {
       return true;
     }
 
@@ -192,9 +161,25 @@ public class ServerUserSession extends AbstractUserSession {
     return false;
   }
 
+  private boolean hasProjectPermission(String permission, String projectKey) {
+    if (isRoot()) {
+      return true;
+    }
+    if (!projectPermissionsCheckedByKey.contains(permission)) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
+        for (String key : projectKeys) {
+          projectKeyByPermission.put(permission, key);
+        }
+        projectPermissionsCheckedByKey.add(permission);
+      }
+    }
+    return projectKeyByPermission.get(permission).contains(projectKey);
+  }
+
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    if (hasPermission(permission)) {
+    if (isRoot() || hasPermission(permission)) {
       return true;
     }
 
@@ -212,6 +197,24 @@ public class ServerUserSession extends AbstractUserSession {
       return true;
     }
     return false;
+  }
+
+  // To keep private
+  private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+    if (!projectPermissionsCheckedByUuid.contains(permission)) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
+        addProjectPermission(permission, projectUuids);
+      }
+    }
+    return projectUuidByPermission.get(permission).contains(projectUuid);
+  }
+
+  private void addProjectPermission(String permission, Collection<String> authorizedProjectUuids) {
+    for (String key : authorizedProjectUuids) {
+      projectUuidByPermission.put(permission, key);
+    }
+    projectPermissionsCheckedByUuid.add(permission);
   }
 
 }

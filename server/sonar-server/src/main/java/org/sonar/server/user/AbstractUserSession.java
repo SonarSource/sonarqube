@@ -41,13 +41,16 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public UserSession checkIsRoot() {
     if (!isRoot()) {
-      throw new UnauthorizedException(AUTHENTICATION_IS_REQUIRED_MESSAGE);
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }
 
   @Override
   public UserSession checkPermission(String globalPermission) {
+    if (isRoot()) {
+      return this;
+    }
     if (!hasPermission(globalPermission)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
@@ -73,12 +76,12 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public boolean hasPermission(String globalPermission) {
-    return globalPermissions().contains(globalPermission);
+    return isRoot() || globalPermissions().contains(globalPermission);
   }
 
   @Override
   public boolean hasGlobalPermission(String globalPermission) {
-    return hasPermission(globalPermission);
+    return isRoot() || hasPermission(globalPermission);
   }
 
   @Override
