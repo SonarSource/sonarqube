@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.NoRouteToHostException;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -52,12 +53,13 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -89,8 +91,7 @@ public class DefaultHttpDownloaderTest {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
             resp.add("Location", "/");
-          }
-          else {
+          } else {
             if (req.getPath().getPath().contains("/timeout/")) {
               try {
                 Thread.sleep(500);
@@ -106,8 +107,7 @@ public class DefaultHttpDownloaderTest {
               GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
               gzipOutputStream.write("GZIP response".getBytes());
               gzipOutputStream.close();
-            }
-            else {
+            } else {
               resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
             }
           }
@@ -134,20 +134,25 @@ public class DefaultHttpDownloaderTest {
   }
 
   @Test(timeout = 10000)
-  public void readStringConnectTimeout() throws IOException, URISyntaxException {
+  public void openStream_network_errors() throws IOException, URISyntaxException {
     // non routable address
     String url = "http://10.255.255.1";
 
-    thrown.expect(new BaseMatcher<Exception>() {
+    thrown.expect(SonarException.class);
+    thrown.expect(hasCause(new BaseMatcher<Exception>() {
       @Override
       public boolean matches(Object ex) {
-        return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
+        return
+            // Java 8
+            ex instanceof NoRouteToHostException
+                // Java 7 or before
+            || ex instanceof SocketTimeoutException;
       }
 
       @Override
       public void describeTo(Description arg0) {
       }
-    });
+    }));
     DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings(), 10, 50000);
     downloader.openStream(new URI(url));
   }
