@@ -89,7 +89,7 @@ public class CreateAction implements OrganizationsAction {
     if (settings.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE)) {
       userSession.checkLoggedIn();
     } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkIsRoot();
     }
 
     String name = wsSupport.getAndCheckName(request);
