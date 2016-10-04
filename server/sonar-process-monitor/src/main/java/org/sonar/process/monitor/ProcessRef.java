@@ -58,18 +58,14 @@ class ProcessRef {
     return commands;
   }
 
-  void waitForUp() {
+  void waitForUp() throws InterruptedException {
     boolean up = false;
     while (!up) {
       if (isStopped()) {
         throw new MessageException(String.format("%s failed to start", this));
       }
       up = commands.isUp();
-      try {
-        Thread.sleep(200L);
-      } catch (InterruptedException e) {
-        throw new IllegalStateException(String.format("Interrupted while waiting for %s to be up", this), e);
-      }
+      Thread.sleep(200L);
     }
   }
 
@@ -98,6 +94,7 @@ class ProcessRef {
       } catch (InterruptedException e) {
         // can't wait for the termination of process. Let's assume it's down.
         LoggerFactory.getLogger(getClass()).warn(String.format("Interrupted while stopping process %s", key), e);
+        Thread.currentThread().interrupt();
       }
     }
     ProcessUtils.closeStreams(process);

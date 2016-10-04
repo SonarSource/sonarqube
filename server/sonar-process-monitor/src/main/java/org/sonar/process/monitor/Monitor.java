@@ -82,7 +82,7 @@ public class Monitor {
    * @throws java.lang.IllegalStateException if already started or if at least one process failed to start. In this case
    *   all processes are terminated. No need to execute {@link #stop()}
    */
-  public void start(List<JavaCommand> commands) {
+  public void start(List<JavaCommand> commands) throws InterruptedException {
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("At least one command is required");
     }
@@ -101,7 +101,7 @@ public class Monitor {
     startProcesses();
   }
 
-  private void startProcesses() {
+  private void startProcesses() throws InterruptedException {
     // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
     if (lifecycle.tryToMoveTo(State.STARTING)) {
       resetFileSystem();
@@ -137,14 +137,14 @@ public class Monitor {
     }
   }
 
-  private void startAndMonitorProcesses() {
+  private void startAndMonitorProcesses() throws InterruptedException{
     File tempDir = fileSystem.getTempDir();
     this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir);
     for (JavaCommand command : javaCommands) {
       try {
         ProcessRef processRef = launcher.launch(command);
         monitor(processRef);
-      } catch (RuntimeException e) {
+      } catch (InterruptedException | RuntimeException e) {
         // fail to start or to monitor
         stop();
         throw e;
@@ -152,7 +152,7 @@ public class Monitor {
     }
   }
 
-  private void monitor(ProcessRef processRef) {
+  private void monitor(ProcessRef processRef) throws InterruptedException {
     // physically watch if process is alive
     WatcherThread watcherThread = new WatcherThread(processRef, this);
     watcherThread.start();
@@ -282,8 +282,12 @@ public class Monitor {
 
     @Override
     public void run() {
-      stopProcesses();
-      startProcesses();
+      try {
+        stopProcesses();
+        startProcesses();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 

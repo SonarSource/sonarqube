@@ -45,23 +45,27 @@ class WatcherThread extends Thread {
 
   @Override
   public void run() {
-    boolean stopped = false;
-    while (!stopped) {
-      try {
+    try {
+      boolean stopped = false;
+      while (!stopped) {
         processRef.getProcess().waitFor();
         askedForRestart = processRef.getCommands().askedForRestart();
         processRef.getCommands().acknowledgeAskForRestart();
-
-        // finalize status of ProcessRef
-        processRef.stop();
-
-        // terminate all other processes, but in another thread
-        monitor.stopAsync();
+        askForStop();
         stopped = true;
-      } catch (InterruptedException ignored) {
-        // continue to watch process
       }
+    } catch (InterruptedException ignored) {
+      askForStop();
+      Thread.currentThread().interrupt();
     }
+  }
+
+  private void askForStop() {
+    // finalize status of ProcessRef
+    processRef.stop();
+
+    // terminate all other processes, but in another thread
+    monitor.stopAsync();
   }
 
   public ProcessRef getProcessRef() {

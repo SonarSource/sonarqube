@@ -48,7 +48,7 @@ public class App implements Stoppable {
     this.monitor = monitor;
   }
 
-  public void start(Props props) {
+  public void start(Props props) throws InterruptedException {
     monitor.start(createCommands(props));
     monitor.awaitTermination();
   }
@@ -134,7 +134,7 @@ public class App implements Stoppable {
     return FilenameUtils.concat(dir.getAbsolutePath(), "*");
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws InterruptedException {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
