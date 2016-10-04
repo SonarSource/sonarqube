@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { ComponentType, PeriodsListType, EnhancedConditionType } from '../propTypes';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
+import Measure from '../../component-measures/components/Measure';
+import { getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getPeriod, getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 
@@ -45,12 +45,10 @@ const QualityGateCondition = ({ component, periods, condition }) => {
       translate('quality_gates.operator', condition.op, 'rating') :
       translate('quality_gates.operator', condition.op, 'short');
 
-  return (
-      <li className="overview-quality-gate-condition">
-        <div className="overview-quality-gate-condition-period">
-          {periodLabel}
-        </div>
+  const className = 'overview-quality-gate-condition overview-quality-gate-condition-' + condition.level.toLowerCase();
 
+  return (
+      <li className={className}>
         <div className="overview-quality-gate-condition-container">
           <div className="overview-quality-gate-condition-value">
             <DrilldownLink
@@ -58,9 +56,7 @@ const QualityGateCondition = ({ component, periods, condition }) => {
                 metric={metric.key}
                 period={condition.period}
                 periodDate={periodDate}>
-              <span className={'alert_' + condition.level.toUpperCase()}>
-                {formatMeasure(actual, metric.type)}
-              </span>
+              <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
             </DrilldownLink>
           </div>
 
@@ -68,12 +64,19 @@ const QualityGateCondition = ({ component, periods, condition }) => {
             <div className="overview-quality-gate-condition-metric">
               {metric.name}
             </div>
+            {period != null && (
+                <div className="overview-quality-gate-condition-period">
+                  {periodLabel}
+                </div>
+            )}
             <div className="overview-quality-gate-condition-threshold">
               {operator}
               {' '}
-              {formatMeasure(threshold, metric.type)}
+              <Measure measure={{ value: threshold, leak: threshold }} metric={metric}/>
             </div>
           </div>
+
+          <div className="overview-quality-gate-level"/>
         </div>
       </li>
   );
