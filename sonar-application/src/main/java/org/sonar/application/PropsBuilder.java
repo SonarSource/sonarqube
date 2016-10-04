@@ -27,7 +27,6 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import org.apache.commons.io.IOUtils;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -44,14 +43,14 @@ class PropsBuilder {
     this.homeDir = homeDir;
   }
 
-  PropsBuilder(Properties rawProperties, JdbcSettings jdbcSettings) throws URISyntaxException {
+  PropsBuilder(Properties rawProperties, JdbcSettings jdbcSettings) {
     this(rawProperties, jdbcSettings, detectHomeDir());
   }
 
   /**
    * Load optional conf/sonar.properties, interpolates environment variables
    */
-  Props build() throws IOException {
+  Props build() {
     Properties p = loadPropertiesFile(homeDir);
     p.putAll(rawProperties);
     p.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
@@ -69,20 +68,23 @@ class PropsBuilder {
     return props;
   }
 
-  static File detectHomeDir() throws URISyntaxException {
-    File appJar = new File(PropsBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-    return appJar.getParentFile().getParentFile();
+  static File detectHomeDir() {
+    try {
+      File appJar = new File(PropsBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+      return appJar.getParentFile().getParentFile();
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("Cannot detect path of main jar file", e);
+    }
   }
 
-  private static Properties loadPropertiesFile(File homeDir) throws IOException {
+  private static Properties loadPropertiesFile(File homeDir) {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
-      Reader reader = new InputStreamReader(new FileInputStream(propsFile), StandardCharsets.UTF_8);
-      try {
+      try (Reader reader = new InputStreamReader(new FileInputStream(propsFile), StandardCharsets.UTF_8)) {
         p.load(reader);
-      } finally {
-        IOUtils.closeQuietly(reader);
+      } catch (IOException e) {
+        throw new IllegalStateException("Cannot open file " + propsFile, e);
       }
     }
     return p;
