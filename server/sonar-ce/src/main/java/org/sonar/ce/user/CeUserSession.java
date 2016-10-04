@@ -66,6 +66,16 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
+  public boolean isRoot() {
+    return notImplementedBooleanMethod();
+  }
+
+  @Override
+  public UserSession checkIsRoot() {
+    return notImplemented();
+  }
+
+  @Override
   public UserSession checkLoggedIn() {
     return notImplemented();
   }

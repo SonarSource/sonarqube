@@ -126,6 +126,11 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
+  public boolean isRoot() {
+    return userDto != null && userDto.isRoot();
+  }
+
+  @Override
   public List<String> globalPermissions() {
     if (globalPermissions == null) {
       List<String> permissionKeys = permissionDao.selectGlobalPermissions(getLogin());

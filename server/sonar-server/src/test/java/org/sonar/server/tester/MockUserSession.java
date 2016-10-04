@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
+  private boolean root = false;
   private Integer userId;
   private String name;
 
@@ -39,6 +40,15 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   @Override
   public boolean isLoggedIn() {
     return true;
+  }
+
+  @Override
+  public boolean isRoot() {
+    return root;
+  }
+
+  public void setRoot(boolean root) {
+    this.root = root;
   }
 
   @Override

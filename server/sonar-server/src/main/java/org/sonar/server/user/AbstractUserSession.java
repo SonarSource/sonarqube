@@ -27,11 +27,21 @@ import org.sonar.server.exceptions.UnauthorizedException;
 public abstract class AbstractUserSession implements UserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+  private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
   @Override
   public UserSession checkLoggedIn() {
     if (!isLoggedIn()) {
-      throw new UnauthorizedException("Authentication is required");
+      throw new UnauthorizedException(AUTHENTICATION_IS_REQUIRED_MESSAGE);
+    }
+    return this;
+  }
+
+
+  @Override
+  public UserSession checkIsRoot() {
+    if (!isRoot()) {
+      throw new UnauthorizedException(AUTHENTICATION_IS_REQUIRED_MESSAGE);
     }
     return this;
   }

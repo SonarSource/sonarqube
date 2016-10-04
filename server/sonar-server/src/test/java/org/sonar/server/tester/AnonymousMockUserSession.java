@@ -26,6 +26,11 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
+  public boolean isRoot() {
+    return false;
+  }
+
+  @Override
   public String getLogin() {
     return null;
   }

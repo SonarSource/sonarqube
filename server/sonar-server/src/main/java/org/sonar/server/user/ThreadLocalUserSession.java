@@ -87,6 +87,17 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean isRoot() {
+    return get().isRoot();
+  }
+
+  @Override
+  public UserSession checkIsRoot() {
+    get().checkIsRoot();
+    return this;
+  }
+
+  @Override
   public UserSession checkLoggedIn() {
     get().checkLoggedIn();
     return this;

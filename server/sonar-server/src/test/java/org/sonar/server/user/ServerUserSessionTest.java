@@ -37,6 +37,7 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
@@ -47,33 +48,56 @@ import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
 
 public class ServerUserSessionTest {
-  static final String LOGIN = "marius";
+  private static final String LOGIN = "marius";
 
-  static final String PROJECT_UUID = "ABCD";
-  static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
-  static final String FILE_UUID = "BCDE";
+  private static final String PROJECT_UUID = "ABCD";
+  private static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
+  private static final String FILE_UUID = "BCDE";
+  private static final UserDto ROOT_USER_DTO = new UserDto() {{
+    setRoot(true);
+  }}.setLogin("root_user");
+  private static final UserDto NON_ROOT_USER_DTO = new UserDto() {{
+    setRoot(false);
+  }}.setLogin("regular_user");
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession dbSession = dbTester.getSession();
-
-  UserDto userDto = newUserDto().setLogin(LOGIN);
-  ComponentDto project, file;
+  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private UserDto userDto = newUserDto().setLogin(LOGIN);
+  private ComponentDto project;
 
   @Before
   public void setUp() throws Exception {
     project = componentDbTester.insertComponent(ComponentTesting.newProjectDto(PROJECT_UUID));
-    file = componentDbTester.insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
+    componentDbTester.insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     dbClient.userDao().insert(dbSession, userDto);
     dbSession.commit();
+  }
+
+  @Test
+  public void isRoot_is_false_is_flag_root_is_false_on_UserDto() {
+    assertThat(newUserSession(ROOT_USER_DTO).isRoot()).isTrue();
+    assertThat(newUserSession(NON_ROOT_USER_DTO).isRoot()).isFalse();
+  }
+
+  @Test
+  public void checkIsRoot_fails_with_UnauthorizedException_when_flag_is_false_on_UserDto() {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    newUserSession(NON_ROOT_USER_DTO).checkIsRoot();
+  }
+
+  @Test
+  public void checkIsRoot_does_not_fails_when_flag_is_true_on_UserDto() {
+    ServerUserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(underTest.checkIsRoot()).isSameAs(underTest);
   }
 
   @Test

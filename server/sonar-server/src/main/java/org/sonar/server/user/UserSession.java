@@ -45,6 +45,13 @@ public interface UserSession {
   @Deprecated
   Locale locale();
 
+  boolean isRoot();
+
+  /**
+   * Ensures that user is root in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
+   */
+  UserSession checkIsRoot();
+
   /**
    * Ensures that user is logged in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
    */

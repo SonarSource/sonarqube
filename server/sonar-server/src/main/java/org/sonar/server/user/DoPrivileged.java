@@ -93,6 +93,11 @@ public final class DoPrivileged {
       }
 
       @Override
+      public boolean isRoot() {
+        return false;
+      }
+
+      @Override
       public Locale locale() {
         return Locale.getDefault();
       }

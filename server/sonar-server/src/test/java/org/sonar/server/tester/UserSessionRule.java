@@ -78,7 +78,7 @@ import static com.google.common.base.Preconditions.checkState;
  * </p>
  */
 public class UserSessionRule implements TestRule, UserSession {
-  public static final String DEFAULT_LOGIN = "default_login";
+  private static final String DEFAULT_LOGIN = "default_login";
 
   @CheckForNull
   private final ServerTester serverTester;
@@ -117,6 +117,16 @@ public class UserSessionRule implements TestRule, UserSession {
    */
   public UserSessionRule anonymous() {
     setCurrentUserSession(new AnonymousMockUserSession());
+    return this;
+  }
+
+  public UserSessionRule setRoot() {
+    ensureMockUserSession().setRoot(true);
+    return this;
+  }
+
+  public UserSessionRule setNonRoot() {
+    ensureMockUserSession().setRoot(false);
     return this;
   }
 
@@ -267,6 +277,17 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public Locale locale() {
     return currentUserSession.locale();
+  }
+
+  @Override
+  public boolean isRoot() {
+    return currentUserSession.isRoot();
+  }
+
+  @Override
+  public UserSession checkIsRoot() {
+    currentUserSession.checkIsRoot();
+    return this;
   }
 
   @Override
