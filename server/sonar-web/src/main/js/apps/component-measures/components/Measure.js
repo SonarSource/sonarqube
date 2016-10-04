@@ -24,12 +24,12 @@ import { formatMeasure } from '../../../helpers/measures';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { formatLeak, isDiffMetric, getRatingTooltip } from '../utils';
 
-const Measure = ({ measure, metric }) => {
-  const finalMetric = metric || measure.metric;
+export default class Measure extends React.Component {
+  renderRating (measure, metric) {
+    const value = isDiffMetric(metric) ? measure.leak : measure.value;
+    const tooltip = getRatingTooltip(metric.key, value);
+    const rating = <Rating value={value}/>;
 
-  if (finalMetric.type === 'RATING') {
-    const tooltip = getRatingTooltip(finalMetric.key, measure.value);
-    const rating = <Rating value={measure.value}/>;
     if (tooltip) {
       return (
           <TooltipsContainer>
@@ -41,22 +41,30 @@ const Measure = ({ measure, metric }) => {
           </TooltipsContainer>
       );
     }
+
     return rating;
   }
 
-  if (finalMetric.type === 'LEVEL') {
-    return <Level level={measure.value}/>;
+  render () {
+    const { measure, metric } = this.props;
+    const finalMetric = metric || measure.metric;
+
+    if (finalMetric.type === 'RATING') {
+      return this.renderRating(measure, finalMetric);
+    }
+
+    if (finalMetric.type === 'LEVEL') {
+      return <Level level={measure.value}/>;
+    }
+
+    const formattedValue = isDiffMetric(finalMetric) ?
+        formatLeak(measure.leak, finalMetric) :
+        formatMeasure(measure.value, finalMetric.type);
+
+    return (
+        <span>
+          {formattedValue != null ? formattedValue : '–'}
+        </span>
+    );
   }
-
-  const formattedValue = isDiffMetric(finalMetric) ?
-      formatLeak(measure.leak, finalMetric) :
-      formatMeasure(measure.value, finalMetric.type);
-
-  return (
-      <span>
-        {formattedValue != null ? formattedValue : '–'}
-      </span>
-  );
-};
-
-export default Measure;
+}
