@@ -37,7 +37,7 @@ public class WorkDirectoryCleaner {
   }
 
   public void execute() {
-    if (!Files.exists(workDir)) {
+    if (!workDir.toFile().exists()) {
       return;
     }
 

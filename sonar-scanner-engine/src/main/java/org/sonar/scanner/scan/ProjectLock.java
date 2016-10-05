@@ -35,7 +35,7 @@ public class ProjectLock implements Startable {
   public ProjectLock(ProjectReactor projectReactor) {
     Path directory = projectReactor.getRoot().getWorkDir().toPath();
     try {
-      if (!Files.exists(directory)) {
+      if (!directory.toFile().exists()) {
         Files.createDirectories(directory);
       }
     } catch (IOException e) {

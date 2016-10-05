@@ -59,7 +59,7 @@ public class WebServer implements Monitored {
   /**
    * Can't be started as is. Needs to be bootstrapped by sonar-application
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new WebServerProcessLogging().configure(props);

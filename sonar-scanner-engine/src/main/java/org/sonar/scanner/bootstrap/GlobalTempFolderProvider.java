@@ -109,7 +109,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   }
 
   private static void cleanTempFolders(Path path) throws IOException {
-    if (Files.exists(path)) {
+    if (path.toFile().exists()) {
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, new CleanFilter())) {
         for (Path p : stream) {
           deleteQuietly(p.toFile());
@@ -121,7 +121,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   private static class CleanFilter implements DirectoryStream.Filter<Path> {
     @Override
     public boolean accept(Path path) throws IOException {
-      if (!Files.isDirectory(path)) {
+      if (!path.toFile().exists()) {
         return false;
       }
 
