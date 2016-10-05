@@ -41,6 +41,7 @@ import static util.ItUtils.newAdminWsClient;
 
 public class UserRule extends ExternalResource {
 
+  public static final String ADMIN_LOGIN = "admin";
   private final Orchestrator orchestrator;
 
   private WsClient adminWsClient;
@@ -60,7 +61,7 @@ public class UserRule extends ExternalResource {
   public void resetUsers() {
     for (Users.User user : getUsers().getUsers()) {
       String userLogin = user.getLogin();
-      if (!userLogin.equals("admin")) {
+      if (!userLogin.equals(ADMIN_LOGIN)) {
         deactivateUsers(userLogin);
       }
     }
@@ -95,6 +96,14 @@ public class UserRule extends ExternalResource {
 
   public void createUser(String login, String password) {
     createUser(login, login, null, password);
+  }
+
+  public void setRoot(String login) {
+    adminWsClient().rootService().setRoot(login);
+  }
+
+  public void unsetRoot(String login) {
+    adminWsClient().rootService().unsetRoot(login);
   }
 
   public Optional<Users.User> getUserByLogin(String login) {

@@ -27,6 +27,8 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.mockito.Mockito.mock;
 
 public class RootServiceTest {
+  private static final String SOME_LOGIN = "johnDoe";
+
   @Rule
   public ServiceTester<RootService> serviceTester = new ServiceTester<>(new RootService(mock(WsConnector.class)));
 
@@ -34,13 +36,21 @@ public class RootServiceTest {
 
   @Test
   public void setRoot() {
-    String login = "johnDoe";
-
-    underTest.setRoot(login);
+    underTest.setRoot(SOME_LOGIN);
 
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasPath("set_root")
-      .hasParam("login", login)
+      .hasParam("login", SOME_LOGIN)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void unsetRoot() {
+    underTest.unsetRoot(SOME_LOGIN);
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("unset_root")
+      .hasParam("login", SOME_LOGIN)
       .andNoOtherParam();
   }
 }

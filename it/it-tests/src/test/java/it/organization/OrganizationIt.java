@@ -72,13 +72,13 @@ public class OrganizationIt {
     verifyNoExtraOrganization();
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-        .setName(NAME)
-        .setKey(KEY)
-        .setDescription(DESCRIPTION)
-        .setUrl(URL)
-        .setAvatar(AVATAR_URL)
-        .build())
-        .getOrganization();
+      .setName(NAME)
+      .setKey(KEY)
+      .setDescription(DESCRIPTION)
+      .setUrl(URL)
+      .setAvatar(AVATAR_URL)
+      .build())
+      .getOrganization();
     assertThat(createdOrganization.getName()).isEqualTo(NAME);
     assertThat(createdOrganization.getKey()).isEqualTo(KEY);
     assertThat(createdOrganization.getDescription()).isEqualTo(DESCRIPTION);
@@ -89,29 +89,29 @@ public class OrganizationIt {
 
     // update by id
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-        .setKey(createdOrganization.getKey())
-        .setName("new name")
-        .setDescription("new description")
-        .setUrl("new url")
-        .setAvatar("new avatar url")
-        .build());
+      .setKey(createdOrganization.getKey())
+      .setName("new name")
+      .setDescription("new description")
+      .setUrl("new url")
+      .setAvatar("new avatar url")
+      .build());
     verifySingleSearchResult(createdOrganization, "new name", "new description", "new url", "new avatar url");
 
     // update by key
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-        .setKey(createdOrganization.getKey())
-        .setName("new name 2")
-        .setDescription("new description 2")
-        .setUrl("new url 2")
-        .setAvatar("new avatar url 2")
-        .build());
+      .setKey(createdOrganization.getKey())
+      .setName("new name 2")
+      .setDescription("new description 2")
+      .setUrl("new url 2")
+      .setAvatar("new avatar url 2")
+      .build());
     verifySingleSearchResult(createdOrganization, "new name 2", "new description 2", "new url 2", "new avatar url 2");
 
     // remove optional fields
     adminOrganizationService.update(new UpdateWsRequest.Builder()
-        .setKey(createdOrganization.getKey())
-        .setName("new name 3")
-        .build());
+      .setKey(createdOrganization.getKey())
+      .setName("new name 3")
+      .build());
     verifySingleSearchResult(createdOrganization, "new name 3", null, null, null);
 
     // delete organization
@@ -119,10 +119,10 @@ public class OrganizationIt {
     verifyNoExtraOrganization();
 
     adminOrganizationService.create(new CreateWsRequest.Builder()
-        .setName(NAME)
-        .setKey(KEY)
-        .build())
-        .getOrganization();
+      .setName(NAME)
+      .setKey(KEY)
+      .build())
+      .getOrganization();
     verifySingleSearchResult(createdOrganization, NAME, null, null, null);
 
     // verify anonymous can't create update nor delete an organization by default
@@ -149,8 +149,8 @@ public class OrganizationIt {
     verifyUserNotAuthorized("john", "doh", service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
     verifyUserNotAuthorized("john", "doh", service -> service.delete(KEY));
     verifySingleSearchResult(
-        verifyUserAuthorized("john", "doh", service -> service.create(new CreateWsRequest.Builder().setName("An org").build())).getOrganization(),
-        "An org", null, null, null);
+      verifyUserAuthorized("john", "doh", service -> service.create(new CreateWsRequest.Builder().setName("An org").build())).getOrganization(),
+      "An org", null, null, null);
 
     // clean-up
     adminOrganizationService.delete("an-org");
@@ -195,9 +195,9 @@ public class OrganizationIt {
     String name = "Foo  Company to keyize";
     String expectedKey = "foo-company-to-keyize";
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-        .setName(name)
-        .build())
-        .getOrganization();
+      .setName(name)
+      .build())
+      .getOrganization();
     assertThat(createdOrganization.getKey()).isEqualTo(expectedKey);
     verifySingleSearchResult(createdOrganization, name, null, null, null);
 
@@ -215,6 +215,35 @@ public class OrganizationIt {
     }
   }
 
+  @Test
+  public void create_fails_if_user_is_not_root() {
+    userRule.createUser("foo", "bar");
+
+    CreateWsRequest createWsRequest = new CreateWsRequest.Builder()
+      .setName("bla bla")
+      .build();
+    OrganizationService fooUserOrganizationService = ItUtils.newUserWsClient(orchestrator, "foo", "bar").organizations();
+
+    expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
+
+    userRule.setRoot("foo");
+    assertThat(fooUserOrganizationService.create(createWsRequest).getOrganization().getKey()).isEqualTo("bla-bla");
+
+    // delete org, attempt recreate when no root anymore and ensure it can't anymore
+    fooUserOrganizationService.delete("bla-bla");
+    userRule.unsetRoot("foo");
+    expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
+  }
+
+  private void expect403HttpError(Runnable runnable) {
+    try {
+      runnable.run();
+      fail("Ws call should have failed");
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(403);
+    }
+  }
+
   private void verifyNoExtraOrganization() {
     Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().build());
     List<Organizations.Organization> organizationsList = searchWsResponse.getOrganizationsList();
@@ -223,13 +252,13 @@ public class OrganizationIt {
   }
 
   private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
-                                        String avatarUrl) {
+    String avatarUrl) {
     List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder().build()).getOrganizationsList();
     assertThat(organizations).hasSize(2);
     Organizations.Organization searchedOrganization = organizations.stream()
-        .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
-        .findFirst()
-        .get();
+      .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
+      .findFirst()
+      .get();
     assertThat(searchedOrganization.getKey()).isEqualTo(createdOrganization.getKey());
     assertThat(searchedOrganization.getName()).isEqualTo(name);
     if (description == null) {

@@ -34,4 +34,10 @@ public class RootService extends BaseService {
 
     call(post);
   }
+  public void unsetRoot(String login) {
+    PostRequest post = new PostRequest(path("unset_root"))
+        .setParam("login", login);
+
+    call(post);
+  }
 }
