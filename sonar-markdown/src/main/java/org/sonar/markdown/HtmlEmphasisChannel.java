@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Markdown treats asterisks (*) as indicators of emphasis. Text wrapped with one * will be wrapped with an HTML {@literal <em>} tag.

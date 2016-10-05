@@ -20,8 +20,8 @@
 package org.sonar.markdown;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.channel.ChannelDispatcher;
-import org.sonar.channel.CodeReader;
+import org.sonar.sslr.channel.ChannelDispatcher;
+import org.sonar.sslr.channel.CodeReader;
 
 /**
  * Entry point of the Markdown library
@@ -54,6 +54,6 @@ public final class Markdown {
   }
 
   public static String convertToHtml(String input) {
-    return new Markdown().convert(StringEscapeUtils.escapeHtml(input));
+  	return new Markdown().convert(StringEscapeUtils.escapeHtml(input));
   }
 }
