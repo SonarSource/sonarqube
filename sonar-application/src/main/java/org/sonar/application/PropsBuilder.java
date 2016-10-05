@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -70,6 +71,14 @@ class PropsBuilder {
   }
 
   static File detectHomeDir() throws URISyntaxException {
+    String homeProp = System.getProperty(ProcessProperties.PATH_HOME, "");
+    if (!StringUtils.isEmpty(homeProp)) {
+      File homeDir = new File((homeProp));
+      if (homeDir.exists() && homeDir.isDirectory()) {
+        return homeDir;
+      }
+    }
+
     File appJar = new File(PropsBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI());
     return appJar.getParentFile().getParentFile();
   }
