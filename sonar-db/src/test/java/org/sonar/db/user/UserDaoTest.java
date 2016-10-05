@@ -591,25 +591,25 @@ public class UserDaoTest {
 
     // does not fail when changing to same value
     when(system2.now()).thenReturn(15_000L);
-    underTest.setRoot(session, login, false);
+    commit(() -> underTest.setRoot(session, login, false));
     verifyRootAndUpdatedAt(login, false, 15_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // change value
     when(system2.now()).thenReturn(26_000L);
-    underTest.setRoot(session, login, true);
+    commit(() -> underTest.setRoot(session, login, true));
     verifyRootAndUpdatedAt(login, true, 26_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // does not fail when changing to same value
     when(system2.now()).thenReturn(37_000L);
-    underTest.setRoot(session, login, true);
+    commit(() -> underTest.setRoot(session, login, true));
     verifyRootAndUpdatedAt(login, true, 37_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // change value back
     when(system2.now()).thenReturn(48_000L);
-    underTest.setRoot(session, login, false);
+    commit(() -> underTest.setRoot(session, login, false));
     verifyRootAndUpdatedAt(login, false, 48_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
   }
@@ -618,6 +618,30 @@ public class UserDaoTest {
     UserDto userDto = underTest.selectByLogin(session, login1);
     assertThat(userDto.isRoot()).isEqualTo(root);
     assertThat(userDto.getUpdatedAt()).isEqualTo(updatedAt);
+  }
+
+  @Test
+  public void setRoot_has_no_effect_on_root_flag_of_inactive_user() {
+    String nonRootInactiveUser = insertUser(false).getLogin();
+    commit(() -> underTest.setRoot(session, nonRootInactiveUser, true));
+    assertThat(underTest.selectByLogin(session, nonRootInactiveUser).isRoot()).isFalse();
+
+    // create inactive root user
+    UserDto rootUser = newActiveUser();
+    commit(() -> underTest.setRoot(session, rootUser.getLogin(), true));
+    rootUser.setActive(false);
+    commit(() -> underTest.update(session, rootUser));
+    UserDto inactiveRootUser = underTest.selectByLogin(session, rootUser.getLogin());
+    assertThat(inactiveRootUser.isRoot()).isTrue();
+    assertThat(inactiveRootUser.isActive()).isFalse();
+
+    commit(() -> underTest.setRoot(session, inactiveRootUser.getLogin(), false));
+    assertThat(underTest.selectByLogin(session, inactiveRootUser.getLogin()).isRoot()).isTrue();
+  }
+
+  private void commit(Runnable runnable) {
+    runnable.run();
+    session.commit();
   }
 
   private UserDto newActiveUser() {
