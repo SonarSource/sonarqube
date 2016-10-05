@@ -282,10 +282,12 @@ public class Monitor {
 
     @Override
     public void run() {
+      stopProcesses();
       try {
-        stopProcesses();
         startProcesses();
       } catch (InterruptedException e) {
+        // Startup was interrupted. Processes are supposed to be stopped.
+        // Cleaning the interruption state
         Thread.currentThread().interrupt();
       }
     }
