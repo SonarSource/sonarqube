@@ -54,6 +54,7 @@ class UsersController < ApplicationController
     user.external_identity = user.login
     user.external_identity_provider = 'sonarqube'
     user.user_local = true
+    user.is_root = false
     default_group_name=java_facade.getSettings().getString('sonar.defaultGroup')
     default_group=Group.find_by_name(default_group_name)
     user.groups<<default_group if default_group
