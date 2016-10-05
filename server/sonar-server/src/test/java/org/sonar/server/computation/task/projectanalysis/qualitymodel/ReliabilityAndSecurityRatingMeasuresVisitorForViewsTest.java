@@ -33,8 +33,6 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRul
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
@@ -85,9 +83,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForViewsTest {
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(RELIABILITY_RATING)
-    .add(SECURITY_RATING)
-    .add(NEW_SECURITY_RATING)
-    .add(NEW_RELIABILITY_RATING);
+    .add(SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);

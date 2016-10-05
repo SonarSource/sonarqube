@@ -105,23 +105,25 @@ public class NewMaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void project_has_new_debt_ratio_variation_for_each_defined_period() {
+  public void project_has_new_measures_for_each_defined_period() {
     setTwoPeriods();
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
 
     assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewMaintainability(ROOT_REF, A, A);
   }
 
   @Test
-  public void project_has_no_new_debt_ratio_variation_if_there_is_no_period() {
+  public void project_has_no_measure_if_there_is_no_period() {
     periodsHolder.setPeriods();
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
 
     assertNoNewDebtRatioMeasure(ROOT_REF);
+    assertNoNewMaintainability(ROOT_REF);
   }
 
   @Test
@@ -395,6 +397,30 @@ public class NewMaintainabilityMeasuresVisitorTest {
     assertNewMaintainability(ROOT_REF, D, A);
   }
 
+  @Test
+  public void compute_new_maintainability_rating_to_A_when_no_debt() throws Exception {
+    setTwoPeriods();
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    treeRootHolder.setRoot(
+      builder(PROJECT, ROOT_REF)
+        .addChildren(
+          builder(MODULE, 11)
+            .addChildren(
+              builder(DIRECTORY, 111)
+                .addChildren(
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                .build())
+            .build())
+        .build());
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    assertNewMaintainability(LANGUAGE_1_FILE_REF, A, A);
+    assertNewMaintainability(111, A, A);
+    assertNewMaintainability(11, A, A);
+    assertNewMaintainability(ROOT_REF, A, A);
+  }
+
   private void setupOneFileAloneInAProject(int newDebtPeriod2, int newDebtPeriod4, Flag isUnitTest, Flag withNclocLines, Flag withChangeSets) {
     checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
     checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
@@ -496,6 +522,10 @@ public class NewMaintainabilityMeasuresVisitorTest {
       .hasVariation2(expectedPeriod2Value.getIndex())
       .hasVariation4(expectedPeriod4Value.getIndex());
   }
+
+  private void assertNoNewMaintainability(int componentRef) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY))
+      .isAbsent();  }
 
   private void setTwoPeriods() {
     periodsHolder.setPeriods(
