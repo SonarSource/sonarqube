@@ -29,6 +29,7 @@ import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
+import org.sonarqube.ws.client.root.RootService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
@@ -91,4 +92,9 @@ public interface WsClient {
    * @since 6.1
    */
   SettingsService settingsService();
+
+  /**
+   * @since 6.2
+   */
+  RootService rootService();
 }
