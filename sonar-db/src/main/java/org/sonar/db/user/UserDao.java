@@ -140,6 +140,10 @@ public class UserDao implements Dao {
     return mapper.selectUsers(query);
   }
 
+  public long countRootUsersButLogin(DbSession dbSession, String login) {
+    return getMapper(dbSession).countRootUsersButLogin(login);
+  }
+
   public UserDto insert(DbSession session, UserDto dto) {
     getMapper(session).insert(dto);
     return dto;

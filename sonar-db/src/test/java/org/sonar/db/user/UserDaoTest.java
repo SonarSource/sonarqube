@@ -193,6 +193,101 @@ public class UserDaoTest {
   }
 
   @Test
+  public void countRootUsersButLogin_returns_0_when_there_is_no_user_at_all() {
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_0_when_there_is_no_root() {
+    underTest.insert(session, newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_0_when_there_is_no_active_root() {
+    insertNonRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_there_specified_login_does_not_exist() {
+    insertRootUser(newUserDto());
+    insertNonRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(3);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_specified_login_is_not_root() {
+    insertRootUser(newUserDto());
+    String login = insertNonRootUser(newUserDto()).getLogin();
+    insertRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, login)).isEqualTo(3);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_count_of_all_active_roots_when_specified_login_is_inactive_root() {
+    insertRootUser(newUserDto());
+    insertNonRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    String inactiveRootLogin = insertInactiveRootUser(newUserDto()).getLogin();
+    insertInactiveRootUser(newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, inactiveRootLogin)).isEqualTo(3);
+  }
+
+  @Test
+  public void countRootUsersButLogin_returns_count_of_all_active_roots_minus_one_when_specified_login_is_active_root() {
+    insertRootUser(newUserDto());
+    insertNonRootUser(newUserDto());
+    insertRootUser(newUserDto());
+    String rootLogin = insertRootUser(newUserDto()).getLogin();
+    insertInactiveRootUser(newUserDto());
+    insertInactiveRootUser(newUserDto());
+    session.commit();
+
+    assertThat(underTest.countRootUsersButLogin(session, rootLogin)).isEqualTo(2);
+  }
+
+  private UserDto insertInactiveRootUser(UserDto dto) {
+    insertRootUser(dto);
+    dto.setActive(false);
+    underTest.update(session, dto);
+    session.commit();
+    return dto;
+  }
+
+  private UserDto insertRootUser(UserDto dto) {
+    underTest.insert(session, dto);
+    underTest.setRoot(session, dto.getLogin(), true);
+    session.commit();
+    return dto;
+  }
+
+  private UserDto insertNonRootUser(UserDto dto) {
+    underTest.insert(session, dto);
+    session.commit();
+    return dto;
+  }
+
+  @Test
   public void insert_user() {
     Long date = DateUtils.parseDate("2014-06-20").getTime();
 

@@ -53,6 +53,11 @@ public interface UserMapper {
 
   long countByEmail(String email);
 
+  /**
+   * Count actives users which are root and which login is not the specified one.
+   */
+  long countRootUsersButLogin(@Param("login") String login);
+
   void insert(UserDto userDto);
 
   void update(UserDto userDto);
@@ -80,5 +85,4 @@ public interface UserMapper {
   void deletePropertiesMatchingLogin(@Param("propertyKeys") List<String> propertyKeys, @Param("login") String login);
 
   void deactivateUser(@Param("id") long userId, @Param("now") long now);
-
 }

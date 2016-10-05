@@ -98,6 +98,17 @@
     where lower(u.email)=#{email} AND u.active=${_true}
   </select>
 
+  <select id="countRootUsersButLogin" parameterType="String" resultType="long">
+    select
+      count(1)
+    from
+      users u
+    where
+      u.active = ${_true}
+      and u.is_root = ${_true}
+      and u.login &lt;&gt; #{login}
+  </select>
+
   <delete id="removeUserFromGroups" parameterType="long">
     DELETE FROM groups_users WHERE user_id=#{id}
   </delete>

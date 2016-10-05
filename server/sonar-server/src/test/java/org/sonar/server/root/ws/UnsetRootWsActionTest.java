@@ -29,13 +29,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UnsetRootWsActionTest {
   private static final String SOME_LOGIN = "johndoe";
@@ -60,7 +61,7 @@ public class UnsetRootWsActionTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.description()).isEqualTo("Make the specified user not root.<br/>" +
-        "Requires to be root.");
+      "Requires to be root.");
     assertThat(action.responseExample()).isNull();
     assertThat(action.deprecatedKey()).isNull();
     assertThat(action.deprecatedSince()).isNull();
@@ -94,7 +95,7 @@ public class UnsetRootWsActionTest {
 
   @Test
   public void execute_fails_with_IAE_when_login_param_is_not_provided() {
-    userSessionRule.login().setRoot();
+    makeAuthenticatedUserRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'login' parameter is missing");
@@ -104,13 +105,9 @@ public class UnsetRootWsActionTest {
 
   @Test
   public void execute_makes_user_with_specified_login_not_root_when_it_is() {
-    UserDto otherUser = UserTesting.newUserDto();
-    userDao.insert(dbSession, otherUser);
-    userDao.setRoot(dbSession, otherUser.getLogin(), true);
-    userDao.insert(dbSession, UserTesting.newUserDto(SOME_LOGIN, "name", "email"));
-    userDao.setRoot(dbSession, SOME_LOGIN, true);
-    dbSession.commit();
-    userSessionRule.login().setRoot();
+    UserDto otherUser = insertRootUser(newUserDto());
+    insertRootUser(newUserDto(SOME_LOGIN, "name", "email"));
+    makeAuthenticatedUserRoot();
 
     executeRequest(SOME_LOGIN);
 
@@ -120,18 +117,55 @@ public class UnsetRootWsActionTest {
 
   @Test
   public void execute_has_no_effect_when_user_is_already_not_root() {
-    UserDto otherUser = UserTesting.newUserDto();
-    userDao.insert(dbSession, otherUser);
-    userDao.setRoot(dbSession, otherUser.getLogin(), true);
-    userDao.insert(dbSession, UserTesting.newUserDto(SOME_LOGIN, "name", "email"));
-    userDao.setRoot(dbSession, SOME_LOGIN, true);
-    dbSession.commit();
-    userSessionRule.login().setRoot();
+    UserDto otherUser = insertRootUser(newUserDto());
+    insertNonRootUser(newUserDto(SOME_LOGIN, "name", "email"));
+    makeAuthenticatedUserRoot();
 
     executeRequest(SOME_LOGIN);
 
     assertThat(userDao.selectByLogin(dbSession, SOME_LOGIN).isRoot()).isFalse();
     assertThat(userDao.selectByLogin(dbSession, otherUser.getLogin()).isRoot()).isTrue();
+  }
+
+  @Test
+  public void execute_fails_with_BadRequestException_when_attempting_to_unset_root_on_last_root_user() {
+    insertRootUser(newUserDto(SOME_LOGIN, "name", "email"));
+    insertNonRootUser(newUserDto());
+    makeAuthenticatedUserRoot();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Last root can't be unset");
+    
+    executeRequest(SOME_LOGIN);
+  }
+
+  @Test
+  public void execute_fails_with_BadRequestException_when_attempting_to_unset_non_root_and_there_is_no_root_at_all() {
+    insertNonRootUser(newUserDto(SOME_LOGIN, "name", "email"));
+    insertNonRootUser(newUserDto());
+    makeAuthenticatedUserRoot();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Last root can't be unset");
+
+    executeRequest("non_existing_user");
+  }
+
+  private UserDto insertNonRootUser(UserDto dto) {
+    userDao.insert(dbSession, dto);
+    dbSession.commit();
+    return dto;
+  }
+
+  private UserDto insertRootUser(UserDto dto) {
+    insertNonRootUser(dto);
+    userDao.setRoot(dbSession, dto.getLogin(), true);
+    dbSession.commit();
+    return dto;
+  }
+
+  private void makeAuthenticatedUserRoot() {
+    userSessionRule.login().setRoot();
   }
 
   private void expectInsufficientPrivilegesForbiddenException() {
@@ -145,8 +179,8 @@ public class UnsetRootWsActionTest {
       request.setParam("login", login);
     }
     return request
-        .execute()
-        .getStatus();
+      .execute()
+      .getStatus();
   }
 
 }

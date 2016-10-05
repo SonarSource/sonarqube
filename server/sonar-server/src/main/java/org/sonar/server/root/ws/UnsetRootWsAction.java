@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 public class UnsetRootWsAction implements RootWsAction {
@@ -60,6 +61,9 @@ public class UnsetRootWsAction implements RootWsAction {
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      if (dbClient.userDao().countRootUsersButLogin(dbSession, login) == 0) {
+        throw new BadRequestException("Last root can't be unset");
+      }
       dbClient.userDao().setRoot(dbSession, login, false);
       dbSession.commit();
     }
