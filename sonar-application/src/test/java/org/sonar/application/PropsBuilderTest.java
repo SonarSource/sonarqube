@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
@@ -28,13 +29,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class PropsBuilderTest {
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -43,6 +45,7 @@ public class PropsBuilderTest {
 
   @Before
   public void before() throws IOException {
+    System.setProperty(ProcessProperties.PATH_HOME, "");
     homeDir = temp.newFolder();
   }
 
@@ -92,8 +95,15 @@ public class PropsBuilderTest {
   }
 
   @Test
-  public void detectHomeDir() throws Exception {
-    assertThat(PropsBuilder.detectHomeDir()).isDirectory().exists();
+  public void detectHomeDir_uses_CodeSource_when_PATH_HOME_is_not_set() throws Exception {
+    File expected = new File(PropsBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getParentFile();
+    assertEquals(expected, PropsBuilder.detectHomeDir());
+  }
 
+  @Test
+  public void detectHomeDir_uses_PATH_HOME_when_it_is_set() throws Exception {
+    System.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+
+    assertEquals(homeDir, PropsBuilder.detectHomeDir());
   }
 }
