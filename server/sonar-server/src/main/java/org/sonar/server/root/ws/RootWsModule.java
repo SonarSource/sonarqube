@@ -25,6 +25,7 @@ public class RootWsModule extends Module {
   @Override
   protected void configureModule() {
     add(RootWs.class,
-      SetRootWsAction.class);
+      SetRootWsAction.class,
+      UnsetRootWsAction.class);
   }
 }
