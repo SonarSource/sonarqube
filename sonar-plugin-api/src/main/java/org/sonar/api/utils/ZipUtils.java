@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -35,6 +36,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 /**
+ * Utility to zip directories and unzip files.
+ *
  * @since 1.10
  */
 public final class ZipUtils {
@@ -51,24 +54,31 @@ public final class ZipUtils {
    * @return the target directory
    */
   public static File unzip(File zip, File toDir) throws IOException {
-    unzip(zip, toDir, TrueZipEntryFilter.INSTANCE);
-    return toDir;
+    return unzip(zip, toDir, (Predicate<ZipEntry>)ze -> true);
   }
 
   public static File unzip(InputStream zip, File toDir) throws IOException {
-    unzip(zip, toDir, TrueZipEntryFilter.INSTANCE);
-    return toDir;
+    return unzip(zip, toDir, (Predicate<ZipEntry>)ze -> true);
   }
 
-  private enum TrueZipEntryFilter implements ZipEntryFilter {
-    INSTANCE;
-    @Override
-    public boolean accept(ZipEntry entry) {
-      return true;
-    }
-  }
-
+  /**
+   * @deprecated replaced by {@link #unzip(InputStream, File, Predicate)} in 6.2.
+   */
+  @Deprecated
   public static File unzip(InputStream stream, File toDir, ZipEntryFilter filter) throws IOException {
+    return unzip(stream, toDir, new ZipEntryFilterDelegate(filter));
+  }
+
+  /**
+   * Unzip a file to a directory.
+   * @param stream the zip input file
+   * @param toDir the target directory. It is created if needed.
+   * @param filter filter zip entries so that only a subset of directories/files can be
+   *               extracted to target directory.
+   * @return the parameter {@code toDir}
+   * @since 6.2
+   */
+  public static File unzip(InputStream stream, File toDir, Predicate<ZipEntry> filter) throws IOException {
     if (!toDir.exists()) {
       FileUtils.forceMkdir(toDir);
     }
@@ -77,7 +87,7 @@ public final class ZipUtils {
     try {
       ZipEntry entry;
       while ((entry = zipStream.getNextEntry()) != null) {
-        if (filter.accept(entry)) {
+        if (filter.test(entry)) {
           File to = new File(toDir, entry.getName());
           if (entry.isDirectory()) {
             throwExceptionIfDirectoryIsNotCreatable(to);
@@ -101,7 +111,24 @@ public final class ZipUtils {
     }
   }
 
+  /**
+   * @deprecated replaced by {@link #unzip(File, File, Predicate)} in 6.2.
+   */
+  @Deprecated
   public static File unzip(File zip, File toDir, ZipEntryFilter filter) throws IOException {
+    return unzip(zip, toDir, new ZipEntryFilterDelegate(filter));
+  }
+
+  /**
+   * Unzip a file to a directory.
+   * @param zip the zip file. It must exist.
+   * @param toDir the target directory. It is created if needed.
+   * @param filter filter zip entries so that only a subset of directories/files can be
+   *               extracted to target directory.
+   * @return the parameter {@code toDir}
+   * @since 6.2
+   */
+  public static File unzip(File zip, File toDir, Predicate<ZipEntry> filter) throws IOException {
     if (!toDir.exists()) {
       FileUtils.forceMkdir(toDir);
     }
@@ -111,7 +138,7 @@ public final class ZipUtils {
       Enumeration<? extends ZipEntry> entries = zipFile.entries();
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
-        if (filter.accept(entry)) {
+        if (filter.test(entry)) {
           File to = new File(toDir, entry.getName());
           if (entry.isDirectory()) {
             throwExceptionIfDirectoryIsNotCreatable(to);
@@ -189,12 +216,8 @@ public final class ZipUtils {
       }
 
     } else {
-      InputStream in = null;
-      try {
-        in = new BufferedInputStream(new FileInputStream(file));
+      try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
         doZip(entryName, in, out);
-      } finally {
-        IOUtils.closeQuietly(in);
       }
     }
   }
@@ -209,9 +232,26 @@ public final class ZipUtils {
     }
   }
 
+  /**
+   * @deprecated replaced by {@link Predicate<ZipEntry>} in 6.2.
+   * @see #unzip(File, File, Predicate)
+   */
+  @Deprecated
   @FunctionalInterface
   public interface ZipEntryFilter {
     boolean accept(ZipEntry entry);
   }
 
+  private static class ZipEntryFilterDelegate implements Predicate<ZipEntry> {
+    private final ZipEntryFilter delegate;
+
+    private ZipEntryFilterDelegate(ZipEntryFilter delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public boolean test(ZipEntry zipEntry) {
+      return delegate.accept(zipEntry);
+    }
+  }
 }

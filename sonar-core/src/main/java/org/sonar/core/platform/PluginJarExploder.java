@@ -22,8 +22,8 @@ package org.sonar.core.platform;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
-import org.sonar.api.utils.ZipUtils;
 
 import static org.apache.commons.io.FileUtils.listFiles;
 
@@ -33,8 +33,8 @@ public abstract class PluginJarExploder {
 
   public abstract ExplodedPlugin explode(PluginInfo info);
 
-  protected ZipUtils.ZipEntryFilter newLibFilter() {
-    return ZipLibFilter.INSTANCE;
+  protected Predicate<ZipEntry> newLibFilter() {
+    return ze -> ze.getName().startsWith(LIB_RELATIVE_PATH_IN_JAR);
   }
 
   protected ExplodedPlugin explodeFromUnzippedDir(String pluginKey, File jarFile, File unzippedDir) {
@@ -46,14 +46,5 @@ public abstract class PluginJarExploder {
       libs = Collections.emptyList();
     }
     return new ExplodedPlugin(pluginKey, jarFile, libs);
-  }
-
-  private enum ZipLibFilter implements ZipUtils.ZipEntryFilter {
-    INSTANCE;
-
-    @Override
-    public boolean accept(ZipEntry entry) {
-      return entry.getName().startsWith(LIB_RELATIVE_PATH_IN_JAR);
-    }
   }
 }

@@ -20,7 +20,9 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.Iterators;
+import java.net.URL;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.util.Files;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -40,7 +42,7 @@ public class ZipUtilsTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void shouldZipDirectory() throws IOException {
+  public void zip_directory() throws IOException {
     File foo = FileUtils.toFile(getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldZipDirectory/foo.txt"));
     File dir = foo.getParentFile();
     File zip = temp.newFile();
@@ -60,18 +62,51 @@ public class ZipUtilsTest {
   }
 
   @Test
-  public void shouldUnzipFile() throws IOException {
-    File zip = FileUtils.toFile(getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip"));
+  public void unzipping_creates_target_directory_if_it_does_not_exist() throws IOException {
+    File zip = FileUtils.toFile(urlToZip());
+    File tempDir = temp.newFolder();
+    Files.delete(tempDir);
+
+    File subDir = new File(tempDir, "subDir");
+    ZipUtils.unzip(zip, subDir);
+    assertThat(subDir.list()).hasSize(3);
+  }
+
+  @Test
+  public void unzip_file() throws IOException {
+    File zip = FileUtils.toFile(urlToZip());
     File toDir = temp.newFolder();
     ZipUtils.unzip(zip, toDir);
     assertThat(toDir.list()).hasSize(3);
   }
 
   @Test
-  public void should_unzip_stream_file() throws Exception {
-    InputStream zip = getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip").openStream();
+  public void unzip_stream() throws Exception {
+    InputStream zip = urlToZip().openStream();
     File toDir = temp.newFolder();
     ZipUtils.unzip(zip, toDir);
     assertThat(toDir.list()).hasSize(3);
+  }
+
+  @Test
+  public void unzipping_file_extracts_subset_of_files() throws IOException {
+    File zip = FileUtils.toFile(urlToZip());
+    File toDir = temp.newFolder();
+
+    ZipUtils.unzip(zip, toDir, (ZipUtils.ZipEntryFilter)ze -> ze.getName().equals("foo.txt"));
+    assertThat(toDir.listFiles()).containsOnly(new File(toDir, "foo.txt"));
+  }
+
+  @Test
+  public void unzipping_stream_extracts_subset_of_files() throws IOException {
+    InputStream zip = urlToZip().openStream();
+    File toDir = temp.newFolder();
+
+    ZipUtils.unzip(zip, toDir, (ZipUtils.ZipEntryFilter)ze -> ze.getName().equals("foo.txt"));
+    assertThat(toDir.listFiles()).containsOnly(new File(toDir, "foo.txt"));
+  }
+
+  private URL urlToZip() {
+    return getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip");
   }
 }
