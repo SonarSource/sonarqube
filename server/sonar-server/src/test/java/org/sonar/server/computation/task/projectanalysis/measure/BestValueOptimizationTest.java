@@ -28,6 +28,8 @@ import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
 
 public class BestValueOptimizationTest {
 
@@ -40,7 +42,7 @@ public class BestValueOptimizationTest {
 
   public static Measure.NewMeasureBuilder[] builders_of_non_bestValueOptimized_measures() {
     QualityGateStatus someQualityGateStatus = new QualityGateStatus(Measure.Level.ERROR, null);
-    MeasureVariations someVariations = new MeasureVariations(1d);
+    MeasureVariations someVariations = new MeasureVariations(2d);
     String someDescription = "desc";
     return new Measure.NewMeasureBuilder[] {
       newMeasureBuilder().setQualityGateStatus(someQualityGateStatus),
@@ -139,6 +141,16 @@ public class BestValueOptimizationTest {
     assertThat(underTest.apply(newMeasureBuilder().create(9511L))).isTrue();
     assertThat(underTest.apply(newMeasureBuilder().setVariations(SOME_EMPTY_VARIATIONS).create(9511L))).isTrue();
     assertThat(underTest.apply(newMeasureBuilder().create(963L))).isFalse();
+  }
+
+  @Test
+  public void verify_value_comparison_for_rating_metric() {
+    Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.RATING, A.getIndex()), FILE_COMPONENT);
+
+    assertThat(underTest.apply(newMeasureBuilder().create(A.getIndex()))).isTrue();
+    assertThat(underTest.apply(newMeasureBuilder().setVariations(new MeasureVariations(null, (double) A.getIndex(), null, (double) A.getIndex(), null)).createNoValue())).isTrue();
+    assertThat(underTest.apply(newMeasureBuilder().create(B.getIndex()))).isFalse();
+    assertThat(underTest.apply(newMeasureBuilder().setVariations(new MeasureVariations(null, (double) A.getIndex(), null, (double) B.getIndex(), null)).createNoValue())).isFalse();
   }
 
   @Test

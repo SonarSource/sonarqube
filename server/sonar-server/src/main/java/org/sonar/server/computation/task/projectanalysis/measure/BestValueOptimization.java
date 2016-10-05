@@ -22,11 +22,11 @@ package org.sonar.server.computation.task.projectanalysis.measure;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.math.NumberUtils.compare;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.ValueType.NO_VALUE;
 
 public class BestValueOptimization implements Predicate<Measure> {
@@ -60,20 +60,24 @@ public class BestValueOptimization implements Predicate<Measure> {
     return measure.getDescription() == null
       && measure.getData() == null
       && !measure.hasQualityGateStatus()
-      && hasNoVariation(measure)
+      && hasNoVariation(measure, metric.getBestValue())
       && (measure.getValueType() == NO_VALUE || isBestValue(measure, metric.getBestValue()));
   }
 
-  private static boolean hasNoVariation(Measure measure) {
-    return !measure.hasVariations() || hasOnlyZeroVariations(measure.getVariations());
+  private static boolean hasNoVariation(Measure measure, Double bestValue) {
+    return !measure.hasVariations() || hasOnlyZeroVariations(measure.getVariations(), bestValue);
   }
 
-  private static boolean hasOnlyZeroVariations(MeasureVariations variations) {
-    return (!variations.hasVariation1() || NumberUtils.compare(variations.getVariation1(), 0.0) == 0)
-      && (!variations.hasVariation2() || NumberUtils.compare(variations.getVariation2(), 0.0) == 0)
-      && (!variations.hasVariation3() || NumberUtils.compare(variations.getVariation3(), 0.0) == 0)
-      && (!variations.hasVariation4() || NumberUtils.compare(variations.getVariation4(), 0.0) == 0)
-      && (!variations.hasVariation5() || NumberUtils.compare(variations.getVariation5(), 0.0) == 0);
+  private static boolean hasOnlyZeroVariations(MeasureVariations variations, Double bestValue) {
+    return (!variations.hasVariation1() || isVariationEmptyOrBestValue(variations.getVariation1(), bestValue))
+      && (!variations.hasVariation2() || isVariationEmptyOrBestValue(variations.getVariation2(), bestValue))
+      && (!variations.hasVariation3() || isVariationEmptyOrBestValue(variations.getVariation3(), bestValue))
+      && (!variations.hasVariation4() || isVariationEmptyOrBestValue(variations.getVariation4(), bestValue))
+      && (!variations.hasVariation5() || isVariationEmptyOrBestValue(variations.getVariation5(), bestValue));
+  }
+
+  private static boolean isVariationEmptyOrBestValue(double variation, Double bestValue) {
+    return compare(variation, 0d) == 0 || compare(variation, bestValue) == 0;
   }
 
   private static boolean isBestValue(Measure measure, Double bestValue) {

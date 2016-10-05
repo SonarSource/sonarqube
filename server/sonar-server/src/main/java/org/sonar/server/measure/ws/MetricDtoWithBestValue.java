@@ -47,7 +47,7 @@ class MetricDtoWithBestValue {
     boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
     if (isNewTypeMetric) {
       for (Integer periodIndex : periodIndexes) {
-        measure.setVariation(periodIndex, 0.0d);
+        measure.setVariation(periodIndex, metric.getBestValue());
       }
     } else {
       measure.setValue(metric.getBestValue());

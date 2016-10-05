@@ -56,6 +56,7 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
@@ -218,6 +219,38 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void use_best_value_for_rating() {
+    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    ComponentDto projectDto = newProjectDto("project-uuid");
+    componentDb.insertComponent(projectDto);
+    SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(projectDto)
+      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode(1, "previous_version")
+      .setPeriodParam(1, "1.0-SNAPSHOT"));
+    ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
+    componentDb.insertComponent(directoryDto);
+    ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
+    componentDb.insertComponent(file);
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+      .setKey(NEW_SECURITY_RATING_KEY)
+      .setOptimizedBestValue(true)
+      .setBestValue(1d)
+      .setValueType(ValueType.RATING.name()));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(metric, directoryDto, projectSnapshot).setVariation(1, 2d));
+    db.commit();
+
+    ComponentTreeWsResponse response = call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, NEW_SECURITY_RATING_KEY)
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics"));
+
+    // directory
+    assertThat(response.getComponentsList().get(0).getMeasuresList().get(0).getPeriods().getPeriodsValue(0).getValue()).isEqualTo("2.0");
+    // file measures
+    assertThat(response.getComponentsList().get(1).getMeasuresList().get(0).getPeriods().getPeriodsValue(0).getValue()).isEqualTo("1.0");
+  }
+
+  @Test
   public void load_measures_multi_sort_with_metric_key_and_paginated() {
     ComponentDto projectDto = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
@@ -229,7 +262,7 @@ public class ComponentTreeActionTest {
     ComponentDto file4 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-4").setName("file-1"));
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3").setName("file-1"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2").setName("file-1"));
-    ComponentDto file1 =  componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1").setName("file-1"));
+    ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1").setName("file-1"));
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(coverage, file1, projectSnapshot).setValue(1.0d),
