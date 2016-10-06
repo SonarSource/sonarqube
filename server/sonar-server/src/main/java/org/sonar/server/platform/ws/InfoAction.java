@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.user.UserSession;
@@ -60,7 +59,8 @@ public class InfoAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     JsonWriter json = response.newJsonWriter();
     writeJson(json);
     json.close();

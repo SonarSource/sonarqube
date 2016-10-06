@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.ce.http.CeHttpClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
-import org.sonar.ce.http.CeHttpClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -41,31 +41,43 @@ public class InfoActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().login("login")
     .setName("name");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  Monitor monitor1 = mock(Monitor.class);
-  Monitor monitor2 = mock(Monitor.class);
-  CeHttpClient ceHttpClient = mock(CeHttpClient.class, Mockito.RETURNS_MOCKS);
+  private Monitor monitor1 = mock(Monitor.class);
+  private Monitor monitor2 = mock(Monitor.class);
+  private CeHttpClient ceHttpClient = mock(CeHttpClient.class, Mockito.RETURNS_MOCKS);
 
-  WsActionTester ws = new WsActionTester(new InfoAction(userSessionRule, ceHttpClient, monitor1, monitor2));
+  private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, monitor1, monitor2);
+  private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
   public void test_definition() throws Exception {
-    assertThat(ws.getDef().key()).isEqualTo("info");
-    assertThat(ws.getDef().isInternal()).isTrue();
-    assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
-    assertThat(ws.getDef().params()).isEmpty();
+    assertThat(actionTester.getDef().key()).isEqualTo("info");
+    assertThat(actionTester.getDef().isInternal()).isTrue();
+    assertThat(actionTester.getDef().responseExampleAsString()).isNotEmpty();
+    assertThat(actionTester.getDef().params()).isEmpty();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void should_fail_when_does_not_have_admin_right() {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
+    expectedException.expect(ForbiddenException.class);
 
-    ws.newRequest().execute();
+    actionTester.newRequest().execute();
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
+    userSessionRule.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().execute();
   }
 
   @Test
   public void write_json() {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    makeAuthenticatedUserRoot();
 
     Map<String, Object> attributes1 = new LinkedHashMap<>();
     attributes1.put("foo", "bar");
@@ -78,8 +90,12 @@ public class InfoActionTest {
     when(monitor2.attributes()).thenReturn(attributes2);
     when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
 
-    TestResponse response = ws.newRequest().execute();
+    TestResponse response = actionTester.newRequest().execute();
     // response does not contain empty "Monitor Three"
     assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
+  }
+
+  private void makeAuthenticatedUserRoot() {
+    userSessionRule.login().setRoot();
   }
 }
