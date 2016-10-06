@@ -24,11 +24,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.web.UserRole;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -93,7 +92,16 @@ public class RestartActionTest {
   }
 
   @Test
-  public void requires_admin_permission_if_production_mode() {
+  public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_logged_in() {
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().execute();
+  }
+
+  @Test
+  public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_root() {
+    userSessionRule.login();
+
     expectedException.expect(ForbiddenException.class);
 
     actionTester.newRequest().execute();
@@ -101,7 +109,7 @@ public class RestartActionTest {
 
   @Test
   public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() throws Exception {
-    userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.login().setRoot();
 
     actionTester.newRequest().execute();
 
@@ -112,8 +120,7 @@ public class RestartActionTest {
   @Test
   public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() throws Exception {
     String login = "BigBother";
-
-    userSessionRule.login(login).setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.login(login).setRoot();
 
     actionTester.newRequest().execute();
 

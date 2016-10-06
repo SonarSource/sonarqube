@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.UserRole;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
@@ -73,7 +72,8 @@ public class RestartAction implements SystemWsAction {
         restartFlagHolder.unset();
       }
     } else {
-      userSession.checkPermission(UserRole.ADMIN);
+      userSession.checkIsRoot();
+
       LOGGER.info("SonarQube restart requested by {}", userSession.getLogin());
       restartFlagHolder.set();
       processCommandWrapper.requestSQRestart();
