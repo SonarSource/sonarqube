@@ -30,7 +30,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -42,11 +45,10 @@ import static util.ItUtils.newWsClient;
  */
 public class RestartTest {
 
-  Orchestrator orchestrator;
+  private Orchestrator orchestrator;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(300L));
 
@@ -58,7 +60,7 @@ public class RestartTest {
   }
 
   @Test
-  public void restart_in_prod_mode_requires_admin_privileges_and_restarts_WebServer_and_ES() throws Exception {
+  public void restart_in_prod_mode_requires_root_and_restarts_WebServer_and_ES() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
       orchestrator = Orchestrator.builderEnv()
@@ -66,14 +68,13 @@ public class RestartTest {
         .build();
       orchestrator.start();
 
-      try {
-        newWsClient(orchestrator).system().restart();
-        fail();
-      } catch (Exception e) {
-        assertThat(e.getMessage()).contains("403");
-      }
+      verifyFailWith403(() -> newWsClient(orchestrator).system().restart());
 
-      newAdminWsClient(orchestrator).system().restart();
+      createNonRootUser("john", "doe");
+      verifyFailWith403(() -> ItUtils.newUserWsClient(orchestrator, "john", "doe").system().restart());
+
+      createRootUser("big", "boss");
+      ItUtils.newUserWsClient(orchestrator, "big", "boss").system().restart();
       WsResponse wsResponse = newAdminWsClient(orchestrator).wsConnector().call(new GetRequest("/api/system/status")).failIfNotSuccessful();
       assertThat(wsResponse.content()).contains("RESTARTING");
 
@@ -81,7 +82,7 @@ public class RestartTest {
       Thread.sleep(5000);
 
       assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
-        .contains("SonarQube restart requested by admin");
+        .contains("SonarQube restart requested by big");
     }
   }
 
@@ -102,5 +103,32 @@ public class RestartTest {
         .contains("Fast restarting WebServer...")
         .contains("WebServer restarted");
     }
+  }
+
+  private static void verifyFailWith403(Runnable runnable) {
+    try {
+      runnable.run();
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage()).contains("403");
+    }
+  }
+
+   private void createRootUser(String login, String password) {
+    WsClient wsClient = newAdminWsClient(orchestrator);
+    createNonRootUser(wsClient, login, password);
+    wsClient.rootService().setRoot(login);
+  }
+
+  private void createNonRootUser(String login, String password) {
+    createNonRootUser(newAdminWsClient(orchestrator), login, password);
+  }
+
+  private static void createNonRootUser(WsClient wsClient, String login, String password) {
+    wsClient.wsConnector().call(
+      new PostRequest("api/users/create")
+        .setParam("login", login)
+        .setParam("name", login)
+        .setParam("password", password));
   }
 }
