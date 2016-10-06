@@ -405,9 +405,18 @@ public class SetActionTest {
   @Test
   public void fail_when_empty_value() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("One and only one of 'value', 'values', 'fieldValues' must be provided");
+    expectedException.expectMessage("A non empty value must be provided");
 
     callForGlobalSetting("my.key", "");
+  }
+
+  @Test
+  public void fail_when_one_empty_value_on_multi_value() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("A non empty value must be provided");
+
+    callForMultiValueGlobalSetting("my.key", newArrayList("oneValue", "  ", "anotherValue"));
+
   }
 
   @Test
@@ -577,6 +586,65 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_empty_values_on_one_property_set() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.PROPERTY_SET)
+      .defaultValue("default")
+      .fields(newArrayList(
+        PropertyFieldDefinition.build("firstField")
+          .name("First Field")
+          .type(PropertyType.STRING)
+          .build(),
+        PropertyFieldDefinition.build("secondField")
+          .name("Second Field")
+          .type(PropertyType.STRING)
+          .build()))
+      .build());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("A non empty value must be provided");
+
+    callForGlobalPropertySet("my.key", newArrayList(
+      GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
+      GSON.toJson(ImmutableMap.of("firstField", "", "secondField", "")),
+      GSON.toJson(ImmutableMap.of("firstField", "yetFirstValue", "secondField", "yetSecondValue"))));
+  }
+
+  @Test
+  public void do_not_fail_when_only_one_empty_value_on_one_property_set() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.PROPERTY_SET)
+      .defaultValue("default")
+      .fields(newArrayList(
+        PropertyFieldDefinition.build("firstField")
+          .name("First Field")
+          .type(PropertyType.STRING)
+          .build(),
+        PropertyFieldDefinition.build("secondField")
+          .name("Second Field")
+          .type(PropertyType.STRING)
+          .build()))
+      .build());
+
+    callForGlobalPropertySet("my.key", newArrayList(
+      GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
+      GSON.toJson(ImmutableMap.of("firstField", "anotherFirstValue", "secondField", "")),
+      GSON.toJson(ImmutableMap.of("firstField", "yetFirstValue", "secondField", "yetSecondValue"))));
+
+    assertGlobalSetting("my.key", "1,2,3");
+  }
+
+  @Test
   public void fail_when_property_set_setting_is_not_defined() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' is undefined");
@@ -648,7 +716,7 @@ public class SetActionTest {
       .build());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Parameter field 'field' must not be null");
+    expectedException.expectMessage("A non empty value must be provided");
 
     callForGlobalPropertySet("my.key", newArrayList("{\"field\": null}"));
   }

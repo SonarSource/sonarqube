@@ -36,6 +36,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -59,7 +60,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
@@ -71,6 +71,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
+  private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -217,12 +218,10 @@ public class SetAction implements SettingsWsAction {
 
     request.getFieldValues().stream()
       .map(oneFieldValues -> readOneFieldValues(oneFieldValues, request.getKey()))
+      .peek(map -> checkRequest(map.values().stream().anyMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE))
       .flatMap(map -> map.entrySet().stream())
       .peek(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()))
-      .forEach(entry -> {
-        checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey());
-        checkRequest(entry.getValue() != null, "Parameter field '%s' must not be null", entry.getKey());
-      });
+      .forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
 
     checkFieldType(request, definition, valuesByFieldKeys);
   }
@@ -253,10 +252,13 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static void checkValueIsSet(SetRequest request) {
-    checkRequest(!isNullOrEmpty(request.getValue())
-      ^ !request.getValues().isEmpty()
-      ^ !request.getFieldValues().isEmpty(),
+    checkRequest(
+      request.getValue() != null
+        ^ !request.getValues().isEmpty()
+        ^ !request.getFieldValues().isEmpty(),
       "One and only one of '%s', '%s', '%s' must be provided", PARAM_VALUE, PARAM_VALUES, PARAM_FIELD_VALUES);
+    checkRequest(request.getValues().stream().allMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE);
+    checkRequest(request.getValue() == null || StringUtils.isNotBlank(request.getValue()), MSG_NO_EMPTY_VALUE);
   }
 
   private static List<String> valuesFromRequest(SetRequest request) {
