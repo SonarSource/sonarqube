@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
@@ -50,7 +49,8 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkPermission(UserRole.ADMIN);
+    userSession.checkIsRoot();
+
     wsResponse.stream().setMediaType(MediaTypes.TXT);
     File file = serverLogging.getCurrentLogFile();
     if (file.exists()) {

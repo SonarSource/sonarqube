@@ -26,13 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.web.UserRole;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerLogging;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,20 +41,34 @@ public class LogsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  ServerLogging serverLogging = mock(ServerLogging.class);
-  LogsAction underTest = new LogsAction(userSession, serverLogging);
-  WsActionTester actionTester = new WsActionTester(underTest);
+  private ServerLogging serverLogging = mock(ServerLogging.class);
+  private LogsAction underTest = new LogsAction(userSession, serverLogging);
+  private WsActionTester actionTester = new WsActionTester(underTest);
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().execute();
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().execute();
+  }
 
   @Test
   public void get_logs() throws IOException {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    makeAuthenticatedUserRoot();
 
     File file = temp.newFile();
     FileUtils.write(file, "{logs}");
@@ -68,7 +81,7 @@ public class LogsActionTest {
 
   @Test
   public void get_empty_logs_if_file_does_not_exist() throws IOException {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    makeAuthenticatedUserRoot();
 
     File file = temp.newFile();
     file.delete();
@@ -79,10 +92,7 @@ public class LogsActionTest {
     assertThat(response.getInput()).isEqualTo("");
   }
 
-  @Test
-  public void requires_admin_permission() {
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().execute();
+  private void makeAuthenticatedUserRoot() {
+    userSession.login().setRoot();
   }
 }
