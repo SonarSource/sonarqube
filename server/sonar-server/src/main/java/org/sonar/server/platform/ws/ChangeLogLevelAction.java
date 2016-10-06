@@ -23,7 +23,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.web.UserRole;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
@@ -62,7 +61,8 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkPermission(UserRole.ADMIN);
+    userSession.checkIsRoot();
+
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
     db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     logging.changeLevel(level);

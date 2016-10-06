@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.web.UserRole;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.db.Database;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -48,13 +47,30 @@ public class ChangeLogLevelActionTest {
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().setMethod("POST").execute();
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    actionTester.newRequest().setMethod("POST").execute();
+  }
+
+  @Test
   public void enable_debug_logs() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    makeAuthenticatedUserRoot();
 
     actionTester.newRequest()
       .setParam("level", "DEBUG")
       .setMethod("POST")
       .execute();
+
     verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
     verify(ceHttpClient).changeLogLevel(LoggerLevel.DEBUG);
     verify(db).enableSqlLogging(false);
@@ -62,12 +78,13 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void enable_trace_logs() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    makeAuthenticatedUserRoot();
 
     actionTester.newRequest()
       .setParam("level", "TRACE")
       .setMethod("POST")
       .execute();
+
     verify(serverLogging).changeLevel(LoggerLevel.TRACE);
     verify(ceHttpClient).changeLogLevel(LoggerLevel.TRACE);
     verify(db).enableSqlLogging(true);
@@ -75,8 +92,10 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void fail_if_unsupported_level() {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+
     actionTester.newRequest()
       .setParam("level", "ERROR")
       .setMethod("POST")
@@ -85,17 +104,16 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void fail_if_missing_level() {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+
     actionTester.newRequest()
       .setMethod("POST")
       .execute();
   }
 
-  @Test
-  public void requires_admin_permission() {
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().setMethod("POST").execute();
+  private void makeAuthenticatedUserRoot() {
+    userSession.login().setRoot();
   }
 }
