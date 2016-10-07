@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import static java.util.stream.Collectors.*;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -352,21 +354,34 @@ public class ProjectReactorBuilder {
   @VisibleForTesting
   protected static void cleanAndCheckAggregatorProjectProperties(ProjectDefinition project) {
     Map<String, String> properties = project.properties();
+    // "aggregator" project must not have tests or source folders (but can have source files at root level, such as pom.xml)
+    properties.remove(PROPERTY_TESTS);
 
-    // SONARPLUGINS-2295
-    String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
-    for (String path : sourceDirs) {
-      File sourceFolder = resolvePath(project.getBaseDir(), path);
-      if (sourceFolder.isDirectory()) {
-        LOG.warn("/!\\ A multi-module project can't have source folders, so '{}' won't be used for the analysis. " +
-          "If you want to analyse files of this folder, you should create another sub-module and move them inside it.",
-          sourceFolder.toString());
+    if (properties.containsKey(PROPERTY_SOURCES)) {
+      String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
+      String sourceFiles = Arrays.stream(sourceDirs)
+                                 .collect(toMap(s -> s, s -> resolvePath(project.getBaseDir(), s)))
+                                 .entrySet().stream()
+                                 .peek(ProjectReactorBuilder::warnFolderInAggregatorSources)
+                                 .filter(e -> e.getValue().isFile())
+                                 .collect(mapping(e -> e.getKey(), joining(",")));
+
+      if (StringUtils.isBlank(sourceFiles)) {
+        properties.remove(PROPERTY_SOURCES);
+      } else {
+        properties.put(PROPERTY_SOURCES, sourceFiles);
       }
     }
 
-    // "aggregator" project must not have the following properties:
-    properties.remove(PROPERTY_SOURCES);
-    properties.remove(PROPERTY_TESTS);
+  }
+
+  private static void warnFolderInAggregatorSources(Entry<String, File> sourceFolder) {
+    // SONARPLUGINS-2295
+    if (sourceFolder.getValue().isDirectory()) {
+      LOG.warn("/!\\ A multi-module project can't have source folders, so '{}' won't be used for the analysis. " +
+          "If you want to analyse files of this folder, you should create another sub-module and move them inside it.",
+          sourceFolder.toString());
+    }
   }
 
   @VisibleForTesting
