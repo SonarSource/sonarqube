@@ -19,7 +19,9 @@
  */
 package org.sonarqube.ws.client.root;
 
+import org.sonarqube.ws.WsRoot;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -28,15 +30,20 @@ public class RootService extends BaseService {
     super(wsConnector, "api/root");
   }
 
+  public WsRoot.SearchWsResponse search() {
+    return call(new GetRequest(path("search")), WsRoot.SearchWsResponse.parser());
+  }
+
   public void setRoot(String login) {
     PostRequest post = new PostRequest(path("set_root"))
-        .setParam("login", login);
+      .setParam("login", login);
 
     call(post);
   }
+
   public void unsetRoot(String login) {
     PostRequest post = new PostRequest(path("unset_root"))
-        .setParam("login", login);
+      .setParam("login", login);
 
     call(post);
   }

@@ -35,6 +35,15 @@ public class RootServiceTest {
   private RootService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
+  public void search() {
+    underTest.search();
+
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasPath("search")
+      .andNoOtherParam();
+  }
+
+  @Test
   public void setRoot() {
     underTest.setRoot(SOME_LOGIN);
 
