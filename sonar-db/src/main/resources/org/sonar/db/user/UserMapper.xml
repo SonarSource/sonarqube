@@ -88,6 +88,12 @@
       <if test="searchText != null">
         AND (u.login LIKE #{searchTextSql} ESCAPE '/' OR u.name LIKE #{searchTextSql} ESCAPE '/')
       </if>
+      <if test="mustBeRoot != null and mustBeRoot==true">
+        AND u.is_root = ${_true}
+      </if>
+      <if test="mustBeRoot != null and mustBeRoot==false">
+        AND u.is_root = ${_false}
+      </if>
     </where>
     ORDER BY u.name
   </select>

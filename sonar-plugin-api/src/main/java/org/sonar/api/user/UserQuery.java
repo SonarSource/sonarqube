@@ -36,6 +36,7 @@ public class UserQuery {
   private final Collection<String> logins;
   private final boolean includeDeactivated;
   private final String searchText;
+  private final Boolean mustBeRoot;
 
   // for internal use in MyBatis
   final String searchTextSql;
@@ -44,6 +45,7 @@ public class UserQuery {
     this.logins = builder.logins;
     this.includeDeactivated = builder.includeDeactivated;
     this.searchText = builder.searchText;
+    this.mustBeRoot = builder.mustBeRoot;
 
     this.searchTextSql = searchTextToSql(searchText);
   }
@@ -75,6 +77,11 @@ public class UserQuery {
     return searchText;
   }
 
+  @CheckForNull
+  public Boolean mustBeRoot() {
+    return mustBeRoot;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -83,6 +90,7 @@ public class UserQuery {
     private boolean includeDeactivated = false;
     private Collection<String> logins;
     private String searchText;
+    private Boolean mustBeRoot;
 
     private Builder() {
     }
@@ -105,6 +113,16 @@ public class UserQuery {
 
     public Builder searchText(@Nullable String s) {
       this.searchText = StringUtils.defaultIfBlank(s, null);
+      return this;
+    }
+
+    public Builder mustBeRoot() {
+      this.mustBeRoot = true;
+      return this;
+    }
+
+    public Builder mustNotBeRoot() {
+      this.mustBeRoot = false;
       return this;
     }
 

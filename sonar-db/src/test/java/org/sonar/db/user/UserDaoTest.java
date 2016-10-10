@@ -193,6 +193,24 @@ public class UserDaoTest {
   }
 
   @Test
+  public void selectUsers_returns_both_only_root_or_only_non_root_depending_on_mustBeRoot_and_mustNotBeRoot_calls_on_query() {
+    UserDto user1 = insertUser(true);
+    UserDto root1 = insertRootUser(newUserDto());
+    UserDto user2 = insertUser(true);
+    UserDto root2 = insertRootUser(newUserDto());
+
+    assertThat(underTest.selectUsers(UserQuery.builder().build()))
+      .extracting(UserDto::getLogin)
+      .containsOnly(user1.getLogin(), user2.getLogin(), root1.getLogin(), root2.getLogin());
+    assertThat(underTest.selectUsers(UserQuery.builder().mustBeRoot().build()))
+      .extracting(UserDto::getLogin)
+      .containsOnly(root1.getLogin(), root2.getLogin());
+    assertThat(underTest.selectUsers(UserQuery.builder().mustNotBeRoot().build()))
+      .extracting(UserDto::getLogin)
+      .containsOnly(user1.getLogin(), user2.getLogin());
+  }
+
+  @Test
   public void countRootUsersButLogin_returns_0_when_there_is_no_user_at_all() {
     assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
   }

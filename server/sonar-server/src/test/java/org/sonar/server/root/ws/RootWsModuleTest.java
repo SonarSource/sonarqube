@@ -19,14 +19,22 @@
  */
 package org.sonar.server.root.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class RootWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(RootWs.class,
-      SetRootWsAction.class,
-      UnsetRootWsAction.class,
-      SearchAction.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class RootWsModuleTest {
+  private static final int ADAPTERS_IN_EMPTY_CONTAINER = 2;
+
+  private RootWsModule underTest = new RootWsModule();
+
+  @Test
+  public void verify_number_of_components_added_by_module() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(ADAPTERS_IN_EMPTY_CONTAINER + 4);
   }
 }
