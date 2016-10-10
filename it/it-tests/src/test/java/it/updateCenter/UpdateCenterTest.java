@@ -23,11 +23,17 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.wsclient.Host;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.UpdateCenterQuery;
 import util.selenium.SeleneseTest;
+import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
@@ -37,15 +43,27 @@ import static util.ItUtils.pluginArtifact;
  */
 public class UpdateCenterTest {
 
+
   @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/updateCenter/UpdateCenterTest/update-center.properties").toString())
     .addPlugin(pluginArtifact("sonar-fake-plugin"))
     .build();
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @After
+  public void tearDown() throws Exception {
+    userRule.resetUsers();
+  }
 
   @Test
-  public void web_service_should_return_installed_plugins() {
-    List<Plugin> plugins = orchestrator.getServer().getAdminWsClient().findAll(UpdateCenterQuery.createForInstalledPlugins());
+  public void web_service_installed_plugins_requires_root_and_returns_installed_plugins() {
+    userRule.createUser("new_root", "bar");
+    userRule.setRoot("new_root");
+
+    Sonar newRootSonarWsClient = new Sonar(new HttpClient4Connector(new Host(orchestrator.getServer().getUrl(), "new_root", "bar")));
+    List < Plugin > plugins = newRootSonarWsClient.findAll(UpdateCenterQuery.createForInstalledPlugins());
     assertThat(plugins.size()).isGreaterThan(0);
 
     Plugin installedPlugin = findPlugin(plugins, "fake");
