@@ -38,8 +38,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
  */
@@ -60,8 +58,8 @@ public class UpdatesAction implements PluginsWsAction {
   private final PluginUpdateAggregator aggregator;
 
   public UpdatesAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory,
-                       PluginWSCommons pluginWSCommons,
-                       PluginUpdateAggregator aggregator) {
+    PluginWSCommons pluginWSCommons,
+    PluginUpdateAggregator aggregator) {
     this.userSession = userSession;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.pluginWSCommons = pluginWSCommons;
@@ -86,7 +84,8 @@ public class UpdatesAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 

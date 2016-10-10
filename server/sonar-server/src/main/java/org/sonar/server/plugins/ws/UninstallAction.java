@@ -22,7 +22,6 @@ package org.sonar.server.plugins.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.UserSession;
 
@@ -59,7 +58,8 @@ public class UninstallAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     String key = request.mandatoryParam(PARAM_KEY);
     ensurePluginIsInstalled(key);
     pluginRepository.uninstall(key);

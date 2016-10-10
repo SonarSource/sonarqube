@@ -22,7 +22,6 @@ package org.sonar.server.plugins.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.UserSession;
@@ -52,7 +51,7 @@ public class CancelAllAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
 
     pluginDownloader.cancelDownloads();
     pluginRepository.cancelUninstalls();

@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
@@ -73,7 +72,8 @@ public class UpdateAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findPluginUpdateByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());

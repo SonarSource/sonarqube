@@ -38,7 +38,6 @@ import org.sonar.updatecenter.common.Plugin;
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
@@ -80,7 +79,8 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
 
     JsonWriter jsonWriter = response.newJsonWriter();

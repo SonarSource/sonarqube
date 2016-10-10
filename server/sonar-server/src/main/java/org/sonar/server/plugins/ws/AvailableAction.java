@@ -32,7 +32,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
 
 public class AvailableAction implements PluginsWsAction {
@@ -72,7 +71,8 @@ public class AvailableAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 

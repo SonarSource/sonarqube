@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -72,23 +71,30 @@ public class UpdateActionTest {
   @Before
   public void setUp() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
-
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
-  public void user_must_have_system_admin_permission() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    // no permission on user
-    userSessionRule.setGlobalPermissions();
+    underTest.handle(validRequest, response);
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
+    userSessionRule.login();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     underTest.handle(validRequest, response);
   }
 
   @Test
   public void action_update_is_defined() {
+    makeAuthenticatedUserRoot();
+
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -112,6 +118,8 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     underTest.handle(invalidRequest, response);
@@ -119,6 +127,8 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_there_is_no_plugin_update_for_the_key() throws Exception {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("No plugin with key 'pluginKey'");
 
@@ -127,6 +137,7 @@ public class UpdateActionTest {
 
   @Test
   public void IAE_is_raised_when_update_center_is_unavailable() throws Exception {
+    makeAuthenticatedUserRoot();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -137,6 +148,7 @@ public class UpdateActionTest {
 
   @Test
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
+    makeAuthenticatedUserRoot();
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)
@@ -146,6 +158,10 @@ public class UpdateActionTest {
 
     verify(pluginDownloader).download(PLUGIN_KEY, version);
     assertThat(response.outputAsString()).isEmpty();
+  }
+
+  private void makeAuthenticatedUserRoot() {
+    userSessionRule.login().setRoot();
   }
 
 }

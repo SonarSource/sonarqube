@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -34,7 +33,6 @@ import org.sonar.updatecenter.common.Release;
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
@@ -78,17 +76,16 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private UpdatesAction underTest = new UpdatesAction(userSession, updateCenterFactory,
-    new PluginWSCommons(), new PluginUpdateAggregator()
-    );
+    new PluginWSCommons(), new PluginUpdateAggregator());
 
   @Test
   public void action_updatable_is_defined() {
-    loggedAsSystemAdmin();
+    makeAuthenticatedUserRoot();
+
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -105,8 +102,24 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   }
 
   @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+
+    underTest.handle(request, response);
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.handle(request, response);
+  }
+
+  @Test
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
-    loggedAsSystemAdmin();
+    makeAuthenticatedUserRoot();
+
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -114,12 +127,11 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void verify_response_against_example() throws Exception {
-    loggedAsSystemAdmin();
+    makeAuthenticatedUserRoot();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(ABAP_32, COMPATIBLE),
       pluginUpdate(ABAP_31, INCOMPATIBLE),
-      pluginUpdate(ANDROID_10, COMPATIBLE)
-      ));
+      pluginUpdate(ANDROID_10, COMPATIBLE)));
 
     underTest.handle(request, response);
 
@@ -128,10 +140,9 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
-    loggedAsSystemAdmin();
+    makeAuthenticatedUserRoot();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
-      pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)
-      ));
+      pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)));
 
     underTest.handle(request, response);
 
@@ -146,19 +157,17 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
         "      ]" +
         "    }" +
         "  ]" +
-        "}"
-      );
+        "}");
   }
 
   @Test
   public void plugins_are_sorted_by_name_and_made_unique() throws Exception {
-    loggedAsSystemAdmin();
+    makeAuthenticatedUserRoot();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate("key2", "name2"),
       pluginUpdate("key2", "name2"),
       pluginUpdate("key0", "name0"),
-      pluginUpdate("key1", "name1")
-      ));
+      pluginUpdate("key1", "name1")));
 
     underTest.handle(request, response);
 
@@ -178,19 +187,10 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
         "      \"name\": \"name2\"" +
         "    }," +
         "  ]" +
-        "}"
-      );
+        "}");
   }
 
-  @Test
-  public void fail_when_user_is_not_sys_admin() throws Exception {
-    userSession.login("user").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-
-    expectedException.expect(ForbiddenException.class);
-    underTest.handle(request, response);
-  }
-
-  private void loggedAsSystemAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void makeAuthenticatedUserRoot() {
+    userSession.login().setRoot();
   }
 }

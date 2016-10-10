@@ -41,7 +41,6 @@ import org.sonar.updatecenter.common.Plugin;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.io.Resources.getResource;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
@@ -81,7 +80,8 @@ public class PendingAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
+
     ImmutableMap<String, Plugin> compatiblePluginsByKey = compatiblePluginsByKey(updateCenterMatrixFactory);
 
     JsonWriter jsonWriter = response.newJsonWriter();

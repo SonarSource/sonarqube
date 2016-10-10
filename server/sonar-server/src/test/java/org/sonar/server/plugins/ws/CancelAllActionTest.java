@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
@@ -40,7 +39,9 @@ public class CancelAllActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
@@ -48,9 +49,6 @@ public class CancelAllActionTest {
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void action_cancel_all_is_defined() {
@@ -72,18 +70,27 @@ public class CancelAllActionTest {
   }
 
   @Test
-  public void user_must_have_system_admin_permission() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    // no permission on user
-    userSessionRule.setGlobalPermissions();
+    underTest.handle(request, response);
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
+    userSessionRule.login();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     underTest.handle(request, response);
   }
 
   @Test
   public void triggers_cancel_for_downloads_and_uninstalls() throws Exception {
+    userSessionRule.login().setRoot();
+
     underTest.handle(request, response);
 
     verify(pluginDownloader, times(1)).cancelDownloads();

@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.tester.UserSessionRule;
@@ -43,7 +42,7 @@ public class UninstallActionTest {
   private static final String PLUGIN_KEY = "findbugs";
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -56,18 +55,27 @@ public class UninstallActionTest {
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Test
-  public void user_must_have_system_admin_permission() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    // no permission on user
-    userSessionRule.setGlobalPermissions();
+    underTest.handle(validRequest, response);
+  }
+
+  @Test
+  public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
+    userSessionRule.login();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     underTest.handle(validRequest, response);
   }
 
   @Test
   public void action_uninstall_is_defined() {
+    makeAuthenticatedUserRoot();
+
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -91,6 +99,8 @@ public class UninstallActionTest {
 
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     underTest.handle(invalidRequest, response);
@@ -98,6 +108,8 @@ public class UninstallActionTest {
 
   @Test
   public void IAE_is_raised_when_plugin_is_not_installed() throws Exception {
+    makeAuthenticatedUserRoot();
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Plugin [findbugs] is not installed");
 
@@ -106,12 +118,17 @@ public class UninstallActionTest {
 
   @Test
   public void if_plugin_is_installed_uninstallation_is_triggered() throws Exception {
+    makeAuthenticatedUserRoot();
     when(pluginRepository.hasPlugin(PLUGIN_KEY)).thenReturn(true);
 
     underTest.handle(validRequest, response);
 
     verify(pluginRepository).uninstall(PLUGIN_KEY);
     assertThat(response.outputAsString()).isEmpty();
+  }
+
+  private void makeAuthenticatedUserRoot() {
+    userSessionRule.login().setRoot();
   }
 
 }
