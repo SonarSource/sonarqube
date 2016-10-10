@@ -1,0 +1,24 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  },
+  "components": [
+    {
+      "id": "AU-Tpxb--iU5OvuD2FLy",
+      "key": "my_project",
+      "name": "My Project 1"
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FLz",
+      "key": "another_project",
+      "name": "My Project 2"
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FL0",
+      "key": "third_project",
+      "name": "My Project 3"
+    }
+  ]
+}

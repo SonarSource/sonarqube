@@ -57,6 +57,12 @@ message BulkUpdateKeyWsResponse {
   }
 }
 
+// WS api/components/search_projects
+message SearchProjectsWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component components = 2;
+}
+
 message Component {
   optional string id = 1;
   optional string key = 2;

@@ -17,18 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.ws;
 
+package org.sonarqube.ws.client.component;
+
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentsWsModuleTest {
+public class SearchProjectsRequestTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  SearchProjectsRequest.Builder underTest = SearchProjectsRequest.builder();
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ComponentsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
+  public void default_page_values() {
+    SearchProjectsRequest result = underTest.build();
+
+    assertThat(result.getPage()).isEqualTo(1);
+    assertThat(result.getPageSize()).isEqualTo(100);
+  }
+
+  @Test
+  public void handle_paging_limit_values() {
+    SearchProjectsRequest result = underTest.setPageSize(500).build();
+
+    assertThat(result.getPage()).isEqualTo(1);
+    assertThat(result.getPageSize()).isEqualTo(500);
+  }
+
+  @Test
+  public void fail_if_page_size_greater_than_500() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    underTest.setPageSize(501).build();
   }
 }
