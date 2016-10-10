@@ -35,6 +35,7 @@ import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import it.organization.OrganizationIt;
+import it.root.RootIt;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -61,7 +62,9 @@ import static util.ItUtils.xooPlugin;
   // measures
   DecimalScaleMetricTest.class,
   // organization
-  OrganizationIt.class
+  OrganizationIt.class,
+  // root users
+  RootIt.class
 })
 public class Category3Suite {
 
