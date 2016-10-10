@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsRoot;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import util.user.UserRule;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
+import static util.ItUtils.newWsClient;
 
 public class RootIt {
   @ClassRule
@@ -47,6 +49,23 @@ public class RootIt {
   @After
   public void tearDown() throws Exception {
     userRule.resetUsers();
+  }
+
+  @Test
+  public void by_default_admin_is_the_only_root() {
+    // must be root to call search WS
+    verifyHttpError(() -> newWsClient(orchestrator).rootService().search(), 403);
+
+    assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
+      .extracting(WsRoot.Root::getLogin)
+      .containsOnly(UserRule.ADMIN_LOGIN);
+
+    userRule.createUser("bar", "foo");
+    userRule.setRoot("bar");
+
+    assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
+      .extracting(WsRoot.Root::getLogin)
+      .containsOnly(UserRule.ADMIN_LOGIN, "bar");
   }
 
   @Test
