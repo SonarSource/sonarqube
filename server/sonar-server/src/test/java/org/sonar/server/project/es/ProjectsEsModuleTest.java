@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
 
-public class KeyExamples {
-  public static final String KEY_FILE_EXAMPLE_001 = "my_project:/src/foo/Bar.php";
-  public static final String KEY_FILE_EXAMPLE_002 = "another_project:/src/foo/Foo.php";
-  public static final String KEY_PROJECT_EXAMPLE_001 = "my_project";
-  public static final String KEY_PROJECT_EXAMPLE_002 = "another_project";
-  public static final String KEY_PROJECT_EXAMPLE_003 = "third_project";
-  public static final String KEY_DEVELOPER_EXAMPLE_001 = "DEV:ada@lovelace.com";
+package org.sonar.server.project.es;
 
-  private KeyExamples() {
-    // prevent instantiation
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ProjectsEsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new ProjectsEsModule().configure(container);
+    assertThat(container.size()).isEqualTo(2 + 2);
   }
 }

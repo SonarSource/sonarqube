@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.project.es;
 
-public class KeyExamples {
-  public static final String KEY_FILE_EXAMPLE_001 = "my_project:/src/foo/Bar.php";
-  public static final String KEY_FILE_EXAMPLE_002 = "another_project:/src/foo/Foo.php";
-  public static final String KEY_PROJECT_EXAMPLE_001 = "my_project";
-  public static final String KEY_PROJECT_EXAMPLE_002 = "another_project";
-  public static final String KEY_PROJECT_EXAMPLE_003 = "third_project";
-  public static final String KEY_DEVELOPER_EXAMPLE_001 = "DEV:ada@lovelace.com";
-
-  private KeyExamples() {
-    // prevent instantiation
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
