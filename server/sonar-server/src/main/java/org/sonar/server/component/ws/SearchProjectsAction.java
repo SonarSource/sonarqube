@@ -35,6 +35,7 @@ import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
+import static java.util.Comparator.comparing;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
@@ -66,27 +67,23 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      SearchResult searchResult = searchProjects(dbSession, request);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      SearchResults searchResults = searchProjects(dbSession, request);
 
-      return buildResponse(request, searchResult);
-
-    } finally {
-      dbClient.closeSession(dbSession);
+      return buildResponse(request, searchResults);
     }
   }
 
-  private SearchResult searchProjects(DbSession dbSession, SearchProjectsRequest request) {
+  private SearchResults searchProjects(DbSession dbSession, SearchProjectsRequest request) {
     List<ComponentDto> allProjects = dbClient.componentDao().selectProjects(dbSession);
     List<ComponentDto> projects = allProjects
       .stream()
-      .sorted((c1, c2) -> c1.name().compareTo(c2.name()))
+      .sorted(comparing(ComponentDto::name))
       .skip(offset(request.getPage(), request.getPageSize()))
       .limit(request.getPageSize())
       .collect(Collectors.toList());
 
-    return new SearchResult(projects, allProjects.size());
+    return new SearchResults(projects, allProjects.size());
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
@@ -98,33 +95,48 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private static SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResult searchResult) {
+  private static SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
     SearchProjectsWsResponse.Builder response = SearchProjectsWsResponse.newBuilder();
 
     response.setPaging(Common.Paging.newBuilder()
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize())
-      .setTotal(searchResult.total));
+      .setTotal(searchResults.total));
 
-    Function<ComponentDto, Component.Builder> dbToWsComponent = dbComponent -> Component.newBuilder()
-      .setId(dbComponent.uuid())
-      .setKey(dbComponent.key())
-      .setName(dbComponent.name());
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent();
 
-    searchResult.projects
+    searchResults.projects
       .stream()
       .map(dbToWsComponent)
-      .sorted((component1, component2) -> component1.getName().compareTo(component2.getName()))
+      .sorted(comparing(Component::getName))
       .forEach(response::addComponents);
 
     return response.build();
   }
 
-  private static class SearchResult {
+  private static class DbToWsComponent implements Function<ComponentDto, Component> {
+    private final Component.Builder wsComponent;
+
+    private DbToWsComponent() {
+      this.wsComponent = Component.newBuilder();
+    }
+
+    @Override
+    public Component apply(ComponentDto dbComponent) {
+      return wsComponent
+        .clear()
+        .setId(dbComponent.uuid())
+        .setKey(dbComponent.key())
+        .setName(dbComponent.name())
+        .build();
+    }
+  }
+
+  private static class SearchResults {
     private final List<ComponentDto> projects;
     private final int total;
 
-    private SearchResult(List<ComponentDto> projects, int total) {
+    private SearchResults(List<ComponentDto> projects, int total) {
       this.projects = projects;
       this.total = total;
     }

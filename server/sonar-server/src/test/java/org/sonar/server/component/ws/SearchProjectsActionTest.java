@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
@@ -106,6 +107,17 @@ public class SearchProjectsActionTest {
     assertThat(result.getComponentsList())
       .extracting(Component::getName)
       .containsExactly("PROJECT-4", "PROJECT-5", "PROJECT-6");
+  }
+
+  @Test
+  public void empty_result() {
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(0);
+    Common.Paging paging = result.getPaging();
+    assertThat(paging.getPageIndex()).isEqualTo(1);
+    assertThat(paging.getPageSize()).isEqualTo(100);
+    assertThat(paging.getTotal()).isEqualTo(0);
   }
 
   @Test

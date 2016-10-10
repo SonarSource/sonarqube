@@ -72,7 +72,7 @@ public class SearchProjectsRequest {
         pageSize = DEFAULT_PAGE_SIZE;
       }
 
-      checkArgument(pageSize <= MAX_PAGE_SIZE);
+      checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
 
       return new SearchProjectsRequest(this);
     }

@@ -52,6 +52,7 @@ public class SearchProjectsRequestTest {
   @Test
   public void fail_if_page_size_greater_than_500() {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must not be greater than 500");
 
     underTest.setPageSize(501).build();
   }
