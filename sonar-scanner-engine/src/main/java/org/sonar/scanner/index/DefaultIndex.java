@@ -161,7 +161,7 @@ public class DefaultIndex {
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
-      return sensorStorage.saveMeasure(resource, measure);
+      sensorStorage.saveMeasure(resource, measure);
     }
     return measure;
   }

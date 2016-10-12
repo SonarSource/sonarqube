@@ -527,7 +527,7 @@ public final class CoreMetrics {
 
   public static final String COVERAGE_KEY = "coverage";
   public static final Metric<Double> COVERAGE = new Metric.Builder(COVERAGE_KEY, "Coverage", Metric.ValueType.PERCENT)
-    .setDescription("Coverage by unit tests")
+    .setDescription("Coverage by tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_COVERAGE)

@@ -137,10 +137,10 @@ public class DefaultSensorStorage implements SensorStorage {
     }
   }
 
-  public org.sonar.api.measures.Measure saveMeasure(Resource resource, org.sonar.api.measures.Measure measure) {
+  public void saveMeasure(Resource resource, org.sonar.api.measures.Measure measure) {
     if (DEPRECATED_METRICS_KEYS.contains(measure.getMetricKey())) {
       // Ignore deprecated metrics
-      return null;
+      return;
     }
     org.sonar.api.batch.measure.Metric metric = metricFinder.findByKey(measure.getMetricKey());
     if (metric == null) {
@@ -148,13 +148,11 @@ public class DefaultSensorStorage implements SensorStorage {
     }
     if (!measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
       LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
-      return measure;
     }
     if (measureCache.contains(resource, measure)) {
       throw new SonarException("Can not add the same measure twice on " + resource + ": " + measure);
     }
     measureCache.put(resource, measure);
-    return measure;
   }
 
   private void setValueAccordingToMetricType(Measure<?> measure, org.sonar.api.measures.Metric<?> m, org.sonar.api.measures.Measure measureToSave) {
