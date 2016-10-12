@@ -26,13 +26,13 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.mockito.Mockito.mock;
 
-public class RootServiceTest {
+public class RootsServiceTest {
   private static final String SOME_LOGIN = "johnDoe";
 
   @Rule
-  public ServiceTester<RootService> serviceTester = new ServiceTester<>(new RootService(mock(WsConnector.class)));
+  public ServiceTester<RootsService> serviceTester = new ServiceTester<>(new RootsService(mock(WsConnector.class)));
 
-  private RootService underTest = serviceTester.getInstanceUnderTest();
+  private RootsService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
   public void search() {

@@ -19,8 +19,22 @@
  */
 package org.sonar.server.root.ws;
 
-import org.sonar.server.ws.WsAction;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public interface RootWsAction extends WsAction {
+import static org.assertj.core.api.Assertions.assertThat;
 
+public class RootsWsModuleTest {
+  private static final int ADAPTERS_IN_EMPTY_CONTAINER = 2;
+
+  private RootWsModule underTest = new RootWsModule();
+
+  @Test
+  public void verify_number_of_components_added_by_module() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(ADAPTERS_IN_EMPTY_CONTAINER + 4);
+  }
 }

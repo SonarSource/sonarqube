@@ -25,28 +25,29 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 
-public class SetRootWsAction implements RootWsAction {
+public class UnsetRootAction implements RootsWsAction {
   private static final String PARAM_LOGIN = "login";
 
   private final UserSession userSession;
   private final DbClient dbClient;
 
-  public SetRootWsAction(UserSession userSession, DbClient dbClient) {
+  public UnsetRootAction(UserSession userSession, DbClient dbClient) {
     this.userSession = userSession;
     this.dbClient = dbClient;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("set_root")
+    WebService.NewAction action = controller.createAction("unset_root")
       .setInternal(true)
       .setPost(true)
-      .setDescription("Make the specified user root.<br/>" +
+      .setDescription("Make the specified user not root.<br/>" +
         "Requires to be root.")
       .setSince("6.2")
       .setHandler(this);
@@ -69,8 +70,11 @@ public class SetRootWsAction implements RootWsAction {
         throw new NotFoundException(format("User with login '%s' not found", login));
       }
 
-      if (!userDto.isRoot()) {
-        dbClient.userDao().setRoot(dbSession, login, true);
+      if (dbClient.userDao().countRootUsersButLogin(dbSession, login) == 0) {
+        throw new BadRequestException("Last root can't be unset");
+      }
+      if (userDto.isRoot()) {
+        dbClient.userDao().setRoot(dbSession, login, false);
         dbSession.commit();
       }
     }

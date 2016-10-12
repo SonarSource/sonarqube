@@ -32,7 +32,7 @@ import org.sonarqube.ws.WsRoot;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class SearchAction implements RootWsAction {
+public class SearchAction implements RootsWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
 

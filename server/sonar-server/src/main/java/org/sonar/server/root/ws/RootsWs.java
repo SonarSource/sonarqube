@@ -17,34 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.root;
+package org.sonar.server.root.ws;
 
-import org.sonarqube.ws.WsRoot;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
+import org.sonar.api.server.ws.WebService;
 
-public class RootService extends BaseService {
-  public RootService(WsConnector wsConnector) {
-    super(wsConnector, "api/root");
+public class RootsWs implements WebService {
+  private final RootsWsAction[] actions;
+
+  public RootsWs(RootsWsAction... actions) {
+    this.actions = actions;
   }
 
-  public WsRoot.SearchWsResponse search() {
-    return call(new GetRequest(path("search")), WsRoot.SearchWsResponse.parser());
-  }
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/roots")
+        .setSince("6.2")
+        .setDescription("Manage root users");
 
-  public void setRoot(String login) {
-    PostRequest post = new PostRequest(path("set_root"))
-      .setParam("login", login);
+    for (RootsWsAction action : actions) {
+      action.define(controller);
+    }
 
-    call(post);
-  }
-
-  public void unsetRoot(String login) {
-    PostRequest post = new PostRequest(path("unset_root"))
-      .setParam("login", login);
-
-    call(post);
+    controller.done();
   }
 }

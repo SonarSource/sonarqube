@@ -19,14 +19,8 @@
  */
 package org.sonar.server.root.ws;
 
-import org.sonar.core.platform.Module;
+import org.sonar.server.ws.WsAction;
 
-public class RootWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(RootsWs.class,
-      SetRootAction.class,
-      UnsetRootAction.class,
-      SearchAction.class);
-  }
+public interface RootsWsAction extends WsAction {
+
 }

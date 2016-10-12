@@ -20,21 +20,34 @@
 package org.sonar.server.root.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RootWsModuleTest {
-  private static final int ADAPTERS_IN_EMPTY_CONTAINER = 2;
-
-  private RootWsModule underTest = new RootWsModule();
+public class RootsWsTest {
+  private RootsWs underTest = new RootsWs(new DummyRootsWsAction());
+  private WsTester wsTester = new WsTester(underTest);
 
   @Test
-  public void verify_number_of_components_added_by_module() {
-    ComponentContainer container = new ComponentContainer();
+  public void verify_definition() {
+    assertThat(wsTester.context().controllers()).hasSize(1);
+    WebService.Controller controller = wsTester.context().controller("api/roots");
+    assertThat(controller.description()).isEqualTo("Manage root users");
+    assertThat(controller.since()).isEqualTo("6.2");
+  }
 
-    underTest.configure(container);
+  private static class DummyRootsWsAction implements RootsWsAction {
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("ooo").setHandler(this);
+    }
 
-    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(ADAPTERS_IN_EMPTY_CONTAINER + 4);
+    @Override
+    public void handle(Request request, Response response) throws Exception {
+
+    }
   }
 }
