@@ -320,14 +320,14 @@ public class UserPermissionDaoTest {
   }
 
   private UserPermissionDto insertGlobalPermission(String permission, long userId) {
-    UserPermissionDto dto = new UserPermissionDto(permission, userId, null);
+    UserPermissionDto dto = new UserPermissionDto(dbTester.getDefaultOrganization().getUuid(), permission, userId, null);
     underTest.insert(dbTester.getSession(), dto);
     dbTester.commit();
     return dto;
   }
 
   private UserPermissionDto insertProjectPermission(String permission, long userId, long projectId) {
-    UserPermissionDto dto = new UserPermissionDto(permission, userId, projectId);
+    UserPermissionDto dto = new UserPermissionDto(dbTester.getDefaultOrganization().getUuid(), permission, userId, projectId);
     underTest.insert(dbTester.getSession(), dto);
     dbTester.commit();
     return dto;

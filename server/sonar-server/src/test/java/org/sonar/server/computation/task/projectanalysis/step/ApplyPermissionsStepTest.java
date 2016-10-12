@@ -123,7 +123,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, projectDto);
     // Permissions are already set on the project
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
 
     dbSession.commit();
 
@@ -163,7 +163,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, viewDto);
     // Permissions are already set on the view
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
 
     dbSession.commit();
 

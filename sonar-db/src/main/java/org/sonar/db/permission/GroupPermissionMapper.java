@@ -28,13 +28,35 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface GroupPermissionMapper {
 
+  /**
+   * @deprecated does not support organizations
+   */
+  @Deprecated
   int countGroups(Map<String, Object> parameters);
 
+  /**
+   * @deprecated does not support organizations
+   */
+  @Deprecated
   List<String> selectGroupNamesByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
 
+  /**
+   * @deprecated does not support organizations
+   */
+  @Deprecated
   int countGroupsByPermissionQuery(@Param("query") PermissionQuery query);
 
+  /**
+   * @deprecated does not support organizations
+   */
+  @Deprecated
   List<GroupPermissionDto> selectGroupPermissionByGroupNames(@Param("groupNames") List<String> groupNames, @Nullable @Param("projectId") Long projectId);
 
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+
+  List<String> selectGroupPermissions(@Param("groupId") long groupId, @Nullable @Param("projectId") Long projectId);
+
+  List<String> selectAnyonePermissions(@Nullable @Param("projectId") Long projectId);
+
+  void insert(GroupPermissionDto dto);
 }

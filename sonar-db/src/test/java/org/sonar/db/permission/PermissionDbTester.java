@@ -36,13 +36,8 @@ public class PermissionDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void addGlobalPermissionToUser(String permission, long userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userId, null));
-    db.commit();
-  }
-
   public void addProjectPermissionToGroup(String permission, @Nullable Long groupId, long componentId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(componentId));
@@ -50,7 +45,7 @@ public class PermissionDbTester {
   }
 
   public void addGlobalPermissionToGroup(String permission, @Nullable Long groupId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId));
     db.commit();

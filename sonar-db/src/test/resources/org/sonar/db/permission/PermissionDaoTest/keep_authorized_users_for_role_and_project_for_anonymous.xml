@@ -4,15 +4,18 @@
   <user_roles id="1"
               user_id="100"
               resource_id="999"
-              role="user"/>
+              role="user"
+              organization_uuid="org1"/>
   <user_roles id="2"
               user_id="101"
               resource_id="999"
-              role="user"/>
+              role="user"
+              organization_uuid="org1"/>
   <user_roles id="3"
               user_id="102"
               resource_id="999"
-              role="user"/>
+              role="user"
+              organization_uuid="org1"/>
 
   <groups_users user_id="100"
                 group_id="200"/>

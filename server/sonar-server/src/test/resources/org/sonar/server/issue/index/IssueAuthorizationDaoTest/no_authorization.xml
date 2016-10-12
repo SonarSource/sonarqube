@@ -27,12 +27,14 @@
          active="[true]"
          is_root="[false]"/>
   <groups id="100"
-          name="devs"/>
+          name="devs"
+          organization_uuid="org1"/>
 
   <user_roles id="1"
               user_id="10"
               resource_id="2"
-              role="user"/>
+              role="user"
+              organization_uuid="org1"/>
   <group_roles id="1"
                group_id="100"
                resource_id="2"
