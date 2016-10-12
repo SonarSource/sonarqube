@@ -72,10 +72,6 @@
     </choose>
   </delete>
 
-  <delete id="deleteGroupRolesByResourceId" parameterType="long">
-    delete from group_roles where resource_id=#{id}
-  </delete>
-
   <select id="countResourceUserRoles" parameterType="long" resultType="int">
     SELECT count(1)
     FROM user_roles WHERE resource_id=#{id}

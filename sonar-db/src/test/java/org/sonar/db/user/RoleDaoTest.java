@@ -159,21 +159,6 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void should_remove_group_permissions_on_project() {
-    db.prepareDbUnit(getClass(), "should_remove_all_permissions.xml");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).hasSize(1);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "other", 123L)).isEmpty();
-
-    underTest.deleteGroupRolesByResourceId(db.getSession(), 123L);
-    db.getSession().commit();
-
-    db.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "group_roles", "group_id", "resource_id", "role");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).isEmpty();
-  }
-
-  @Test
   public void countUserPermissions() {
     db.users().insertProjectPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN, project1);
     db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);

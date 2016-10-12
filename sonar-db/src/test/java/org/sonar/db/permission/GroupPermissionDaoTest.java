@@ -315,4 +315,22 @@ public class GroupPermissionDaoTest {
     assertThat(underTest.selectAnyonePermissions(dbSession, project.getId())).containsOnly("perm4");
     assertThat(underTest.selectAnyonePermissions(dbSession, UNKNOWN_PROJECT_ID)).isEmpty();
   }
+
+  @Test
+  public void deleteByRootComponentId() {
+    GroupDto group1 = db.users().insertGroup(newGroupDto());
+    GroupDto group2 = db.users().insertGroup(newGroupDto());
+    ComponentDto project1 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertProject();
+    db.users().insertPermissionOnGroup(group1, "perm1");
+    db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
+    db.users().insertProjectPermissionOnAnyone("perm3", project1);
+    db.users().insertProjectPermissionOnGroup(group2, "perm4", project2);
+
+    underTest.deleteByRootComponentId(dbSession, project1.getId());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(id) from group_roles where resource_id=" + project1.getId())).isEqualTo(0);
+    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(2);
+  }
 }

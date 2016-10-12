@@ -163,4 +163,9 @@
     #{role,jdbcType=VARCHAR}
     )
   </insert>
+
+  <delete id="deleteByRootComponentId" parameterType="long">
+    delete from group_roles
+    where resource_id=#{rootComponentId,jdbcType=BIGINT}
+  </delete>
 </mapper>
