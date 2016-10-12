@@ -43,18 +43,17 @@ import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRe
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
-  private final PermissionDependenciesFinder finder;
+  private final PermissionWsSupport wsSupport;
   private final String[] rootQualifiers;
 
-  public SearchProjectPermissionsDataLoader(DbClient dbClient, PermissionDependenciesFinder finder, ResourceTypes resourceTypes) {
+  public SearchProjectPermissionsDataLoader(DbClient dbClient, PermissionWsSupport wsSupport, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
-    this.finder = finder;
+    this.wsSupport = wsSupport;
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
   SearchProjectPermissionsData load(SearchProjectPermissionsWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       SearchProjectPermissionsData.Builder data = newBuilder();
       int countRootComponents = countRootComponents(dbSession, request);
       List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
@@ -66,8 +65,6 @@ public class SearchProjectPermissionsDataLoader {
         .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
 
       return data.build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -85,7 +82,7 @@ public class SearchProjectPermissionsDataLoader {
     Optional<WsProjectRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
-      return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));
+      return singletonList(wsSupport.getRootComponentOrModule(dbSession, project.get()));
     }
 
     return dbClient.componentDao().selectByQuery(dbSession, toDbQuery(request), paging.offset(), paging.pageSize());

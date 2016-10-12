@@ -17,18 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.db.component.ComponentDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Objects.requireNonNull;
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 33);
+/**
+ * Reference to a project by its db id or uuid. Temporarily
+ * as long as permissions do not use only uuids.
+ */
+@Immutable
+public class ProjectRef {
+
+  private final long id;
+  private final String uuid;
+
+  public ProjectRef(long projectId, String projectUuid) {
+    this.id = projectId;
+    this.uuid = requireNonNull(projectUuid);
+  }
+
+  public ProjectRef(ComponentDto dto) {
+    this(requireNonNull(dto.getId()), dto.uuid());
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 }

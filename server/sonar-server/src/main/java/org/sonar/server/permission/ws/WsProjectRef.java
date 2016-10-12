@@ -29,7 +29,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
  * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
  */
 public class WsProjectRef {
-  private static final String MSG_ID_OR_KEY_MUST_BE_PROVIDED = "Project id or project key must be provided, not both.";
+  private static final String MSG_ID_OR_KEY_MUST_BE_PROVIDED = "Project id or project key can be provided, not both.";
   private final String uuid;
   private final String key;
 

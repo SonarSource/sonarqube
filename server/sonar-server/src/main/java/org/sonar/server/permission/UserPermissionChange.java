@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Nullable;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Objects.requireNonNull;
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 33);
+public class UserPermissionChange extends PermissionChange {
+
+  private final UserId userId;
+
+  public UserPermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectRef projectRef,
+    UserId userId) {
+    super(operation, organizationUuid, permission, projectRef);
+    this.userId = requireNonNull(userId);
+  }
+
+  public UserId getUserId() {
+    return userId;
   }
 }

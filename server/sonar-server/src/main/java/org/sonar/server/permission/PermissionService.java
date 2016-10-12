@@ -55,6 +55,9 @@ public class PermissionService {
     this.componentFinder = componentFinder;
   }
 
+  /**
+   * Used by Ruby on Rails
+   */
   public List<String> globalPermissions() {
     return GlobalPermissions.ALL;
   }
@@ -93,18 +96,6 @@ public class PermissionService {
 
     Long userId = userSession.getUserId() == null ? null : userSession.getUserId().longValue();
     return permissionRepository.wouldUserHavePermissionWithDefaultTemplate(dbSession, userId, permission, effectiveKey, qualifier);
-  }
-
-  /**
-   * Important - this method checks caller permissions
-   */
-  public void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      applyPermissionTemplate(dbSession, query);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
   }
 
   public void applyPermissionTemplate(DbSession dbSession, ApplyPermissionTemplateQuery query) {

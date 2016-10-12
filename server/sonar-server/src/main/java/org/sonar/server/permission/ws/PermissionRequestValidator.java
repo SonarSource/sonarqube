@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -29,11 +28,11 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -48,17 +47,6 @@ public class PermissionRequestValidator {
     // static methods only
   }
 
-  public static void validatePermission(@Nullable String permission, Optional<WsProjectRef> projectRef) {
-    if (permission == null) {
-      return;
-    }
-    if (projectRef.isPresent()) {
-      validateProjectPermission(permission);
-    } else {
-      validateGlobalPermission(permission);
-    }
-  }
-
   public static String validateProjectPermission(String permission) {
     checkRequest(ProjectPermissions.ALL.contains(permission),
       format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, ProjectPermissions.ALL_ON_ONE_LINE, permission));
@@ -70,9 +58,9 @@ public class PermissionRequestValidator {
       format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermissions.ALL_ON_ONE_LINE, permission));
   }
 
-  public static void validateNotAnyoneAndAdminPermission(String permission, @Nullable String groupName) {
-    checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !isAnyone(groupName),
-      format("It is not possible to add the '%s' permission to the '%s' group.", permission, groupName));
+  public static void validateNotAnyoneAndAdminPermission(String permission, GroupIdOrAnyone group) {
+    checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !group.isAnyone(),
+      format("It is not possible to add the '%s' permission to group 'Anyone'.", permission));
   }
 
   public static void validateTemplateNameFormat(String name) {

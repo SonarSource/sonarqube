@@ -70,9 +70,8 @@ class SearchProjectPermissionsData {
     return FluentIterable.from(
       Iterables.concat(
         userCountByProjectIdAndPermission.row(rootComponentId).keySet(),
-        groupCountByProjectIdAndPermission.row(rootComponentId).keySet()
-        )
-      ).toSortedSet(Ordering.natural());
+        groupCountByProjectIdAndPermission.row(rootComponentId).keySet()))
+      .toSortedSet(Ordering.natural());
   }
 
   static class Builder {
