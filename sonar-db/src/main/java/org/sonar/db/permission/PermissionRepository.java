@@ -56,15 +56,6 @@ public class PermissionRepository {
     this.settings = settings;
   }
 
-  public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
-    GroupPermissionDto groupRole = new GroupPermissionDto()
-      .setRole(permission)
-      .setGroupId(groupId)
-      .setResourceId(resourceId);
-    updateProjectAuthorizationDate(session, resourceId);
-    dbClient.roleDao().deleteGroupRole(groupRole, session);
-  }
-
   /**
    * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
    */
