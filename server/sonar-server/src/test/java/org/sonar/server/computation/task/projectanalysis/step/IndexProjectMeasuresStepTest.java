@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
-public class IndexIssuesStepTest {
+public class IndexProjectMeasuresStepTest {
 
   static String PROJECT_UUID = "PROJECT_UUID";
 
@@ -39,11 +40,12 @@ public class IndexIssuesStepTest {
 
   @Test
   public void call_indexer() {
-    IssueIndexer issueIndexer = mock(IssueIndexer.class);
-    IndexIssuesStep underTest = new IndexIssuesStep(issueIndexer, treeRootHolder);
+    ProjectMeasuresIndexer indexer = mock(ProjectMeasuresIndexer.class);
+    IndexProjectMeasuresStep underTest = new IndexProjectMeasuresStep(indexer, treeRootHolder);
 
     underTest.execute();
 
-    verify(issueIndexer).index(PROJECT_UUID);
+    verify(indexer).index(PROJECT_UUID);
   }
+
 }

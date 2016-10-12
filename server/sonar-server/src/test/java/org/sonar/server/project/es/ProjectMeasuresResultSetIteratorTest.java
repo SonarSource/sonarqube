@@ -23,6 +23,7 @@ package org.sonar.server.project.es;
 import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -54,7 +55,7 @@ public class ProjectMeasuresResultSetIteratorTest {
     ComponentDto project = newProjectDto().setKey("Project-Key").setName("Project Name");
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
 
-    Map<String, ProjectMeasuresDoc> docsById = docsById();
+    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
 
     assertThat(docsById).hasSize(1);
     ProjectMeasuresDoc doc = docsById.get(project.uuid());
@@ -71,7 +72,7 @@ public class ProjectMeasuresResultSetIteratorTest {
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
 
-    assertThat(docsById()).hasSize(3);
+    assertThat(createResultSetAndReturnDocsById()).hasSize(3);
   }
 
   @Test
@@ -80,7 +81,7 @@ public class ProjectMeasuresResultSetIteratorTest {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
     dbSession.commit();
 
-    Map<String, ProjectMeasuresDoc> docsById = docsById();
+    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
 
     assertThat(docsById).hasSize(1);
     ProjectMeasuresDoc doc = docsById.get(project.uuid());
@@ -106,15 +107,46 @@ public class ProjectMeasuresResultSetIteratorTest {
     assertResultSetIsEmpty();
   }
 
-  private Map<String, ProjectMeasuresDoc> docsById() {
-    ProjectMeasuresResultSetIterator it = ProjectMeasuresResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
+  @Test
+  public void return_only_docs_from_given_project() throws Exception {
+    ComponentDto project = newProjectDto();
+    SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
+    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+
+    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById(project.uuid());
+
+    assertThat(docsById).hasSize(1);
+    ProjectMeasuresDoc doc = docsById.get(project.uuid());
+    assertThat(doc).isNotNull();
+    assertThat(doc.getId()).isEqualTo(project.uuid());
+    assertThat(doc.getKey()).isNotNull().isEqualTo(project.getKey());
+    assertThat(doc.getName()).isNotNull().isEqualTo(project.name());
+    assertThat(doc.getAnalysedAt()).isNotNull().isEqualTo(new Date(analysis.getCreatedAt()));
+  }
+
+  @Test
+  public void return_nothing_on_unknown_project() throws Exception {
+    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+
+    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById("UNKNOWN");
+
+    assertThat(docsById).isEmpty();
+  }
+
+  private Map<String, ProjectMeasuresDoc> createResultSetAndReturnDocsById() {
+    return createResultSetAndReturnDocsById(null);
+  }
+
+  private Map<String, ProjectMeasuresDoc> createResultSetAndReturnDocsById(@Nullable String projectUuid) {
+    ProjectMeasuresResultSetIterator it = ProjectMeasuresResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), projectUuid);
     Map<String, ProjectMeasuresDoc> docsById = Maps.uniqueIndex(it, ProjectMeasuresDoc::getId);
     it.close();
     return docsById;
   }
 
   private void assertResultSetIsEmpty() {
-    assertThat(docsById()).isEmpty();
+    assertThat(createResultSetAndReturnDocsById()).isEmpty();
   }
 
 }

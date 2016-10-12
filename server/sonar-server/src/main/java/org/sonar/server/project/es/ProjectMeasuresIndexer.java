@@ -21,6 +21,7 @@
 package org.sonar.server.project.es;
 
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,16 +44,20 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    doIndex(createBulkIndexer(false));
-    return 0L;
+    return doIndex(createBulkIndexer(false), (String) null);
   }
 
-  private void doIndex(BulkIndexer bulk) {
+  public void index(String projectUuid) {
+    index(lastUpdatedAt -> doIndex(createBulkIndexer(false), projectUuid));
+  }
+
+  private long doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ProjectMeasuresResultSetIterator rowIt = ProjectMeasuresResultSetIterator.create(dbClient, dbSession);
+      ProjectMeasuresResultSetIterator rowIt = ProjectMeasuresResultSetIterator.create(dbClient, dbSession, projectUuid);
       doIndex(bulk, rowIt);
       rowIt.close();
+      return 0L;
     } finally {
       dbClient.closeSession(dbSession);
     }

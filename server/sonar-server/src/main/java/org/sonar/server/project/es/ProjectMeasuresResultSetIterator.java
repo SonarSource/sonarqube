@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -44,17 +45,25 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
 
+  private static final String PROJECT_FILTER = " AND p.uuid=?";
+
   private ProjectMeasuresResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
-  static ProjectMeasuresResultSetIterator create(DbClient dbClient, DbSession session) {
+  static ProjectMeasuresResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String projectUuid) {
     try {
-      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, SQL_ALL);
+
+      String sql = SQL_ALL;
+      sql += projectUuid == null ? "" : PROJECT_FILTER;
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       stmt.setBoolean(1, true);
       stmt.setBoolean(2, true);
       stmt.setString(3, Scopes.PROJECT);
       stmt.setString(4, Qualifiers.PROJECT);
+      if (projectUuid != null) {
+        stmt.setString(5, projectUuid);
+      }
       return new ProjectMeasuresResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all project measures", e);
