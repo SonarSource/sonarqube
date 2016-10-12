@@ -33,10 +33,11 @@ public class OrganizationTesting {
   /**
    * Insert an {@link OrganizationDto} and commit the session
    */
-  public static void insert(DbTester dbTester, OrganizationDto dto) {
+  public static OrganizationDto insert(DbTester dbTester, OrganizationDto dto) {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().insert(dbSession, dto);
     dbSession.commit();
+    return dto;
   }
 
   /**
