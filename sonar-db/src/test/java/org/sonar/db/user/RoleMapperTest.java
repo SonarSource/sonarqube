@@ -40,15 +40,4 @@ public class RoleMapperTest {
     assertThat(mapper.countResourceUserRoles(123L)).isEqualTo(1);
   }
 
-  @Test
-  public void delete_roles_by_resource_id() {
-    dbTester.prepareDbUnit(getClass(), "deleteRolesByResourceId.xml");
-
-    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
-    mapper.deleteGroupRolesByResourceId(123L);
-    dbTester.getSession().commit();
-
-    dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles");
-  }
-
 }

@@ -38,8 +38,6 @@ public interface RoleMapper {
 
   void deleteGroupRole(GroupPermissionDto dto);
 
-  void deleteGroupRolesByResourceId(long projectId);
-
   int countResourceGroupRoles(Long resourceId);
 
   int countResourceUserRoles(long resourceId);

@@ -59,4 +59,6 @@ public interface GroupPermissionMapper {
   List<String> selectAnyonePermissions(@Nullable @Param("projectId") Long projectId);
 
   void insert(GroupPermissionDto dto);
+
+  void deleteByRootComponentId(@Param("rootComponentId") long componentId);
 }

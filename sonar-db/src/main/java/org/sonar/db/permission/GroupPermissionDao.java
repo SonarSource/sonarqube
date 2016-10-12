@@ -113,8 +113,14 @@ public class GroupPermissionDao implements Dao {
     mapper(dbSession).insert(dto);
   }
 
+  /**
+   * Delete all the permissions associated to a root component (project)
+   */
+  public void deleteByRootComponentId(DbSession dbSession, long rootComponentId) {
+    mapper(dbSession).deleteByRootComponentId(rootComponentId);
+  }
+
   private static GroupPermissionMapper mapper(DbSession session) {
     return session.getMapper(GroupPermissionMapper.class);
   }
-
 }
