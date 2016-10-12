@@ -51,6 +51,14 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
     index(lastUpdatedAt -> doIndex(createBulkIndexer(false), projectUuid));
   }
 
+  public void deleteProject(String uuid) {
+    esClient
+      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, uuid)
+      .setRefresh(true)
+      .setRouting(uuid)
+      .get();
+  }
+
   private long doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {

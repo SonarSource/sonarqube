@@ -31,6 +31,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
@@ -41,15 +42,17 @@ public class ComponentCleanerService {
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final TestIndexer testIndexer;
+  private final ProjectMeasuresIndexer projectMeasuresIndexer;
   private final ResourceTypes resourceTypes;
   private final ComponentFinder componentFinder;
 
   public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+                                 TestIndexer testIndexer, ProjectMeasuresIndexer projectMeasuresIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.testIndexer = testIndexer;
+    this.projectMeasuresIndexer = projectMeasuresIndexer;
     this.resourceTypes = resourceTypes;
     this.componentFinder = componentFinder;
   }
@@ -85,6 +88,7 @@ public class ComponentCleanerService {
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid);
     testIndexer.deleteByProject(projectUuid);
+    projectMeasuresIndexer.deleteProject(projectUuid);
   }
 
   private static boolean hasNotProjectScope(ComponentDto project) {

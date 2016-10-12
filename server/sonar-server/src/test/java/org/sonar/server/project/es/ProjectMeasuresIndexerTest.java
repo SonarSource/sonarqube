@@ -62,10 +62,21 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void index_all_project() {
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
+    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+    componentDbTester.insertProjectAndSnapshot(newProjectDto());
 
     underTest.index();
 
-    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isEqualTo(1);
+    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isEqualTo(3);
+  }
+
+  @Test
+  public void index_projects_even_when_no_analysis() {
+    ComponentDto project = componentDbTester.insertProject();
+
+    underTest.index();
+
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
   }
 
   @Test
@@ -103,5 +114,31 @@ public class ProjectMeasuresIndexerTest {
           .must(termQuery(ProjectMeasuresIndexDefinition.FIELD_NAME, "New name"))
           .must(termQuery(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT, new Date(analysis.getCreatedAt())))));
     assertThat(request.get().getHits()).hasSize(1);
+  }
+
+  @Test
+  public void delete_project() {
+    ComponentDto project1 = newProjectDto();
+    componentDbTester.insertProjectAndSnapshot(project1);
+    ComponentDto project2 = newProjectDto();
+    componentDbTester.insertProjectAndSnapshot(project2);
+    ComponentDto project3 = newProjectDto();
+    componentDbTester.insertProjectAndSnapshot(project3);
+    underTest.index();
+
+    underTest.deleteProject(project1.uuid());
+
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project2.uuid(), project3.uuid());
+  }
+
+  @Test
+  public void does_nothing_when_deleting_unknown_project() throws Exception {
+    ComponentDto project = newProjectDto();
+    componentDbTester.insertProjectAndSnapshot(project);
+    underTest.index();
+
+    underTest.deleteProject("UNKNOWN");
+
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
   }
 }
