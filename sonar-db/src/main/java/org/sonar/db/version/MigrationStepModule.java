@@ -159,16 +159,21 @@ import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
-<<<<<<< HEAD
 import org.sonar.db.version.v62.AddIsRootColumnOnTableUsers;
-=======
 import org.sonar.db.version.v62.AddOrganizationUuidToGroups;
->>>>>>> SONAR-8134 add db column groups.organization_uuid
+import org.sonar.db.version.v62.AddOrganizationUuidToPermissionTemplates;
+import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroups;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnUserRoles;
 import org.sonar.db.version.v62.MakeRootColumnNotNullOnTableUsers;
 import org.sonar.db.version.v62.PopulateIsRootColumnOnTableUsers;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -352,13 +357,17 @@ public class MigrationStepModule extends Module {
       CreateTableOrganizations.class,
       CreateDefaultOrganization.class,
       DeletePermissionShareDashboard.class,
-<<<<<<< HEAD
       AddIsRootColumnOnTableUsers.class,
       PopulateIsRootColumnOnTableUsers.class,
-      MakeRootColumnNotNullOnTableUsers.class);
-=======
-      AddOrganizationUuidToGroups.class
-    );
->>>>>>> SONAR-8134 add db column groups.organization_uuid
+      MakeRootColumnNotNullOnTableUsers.class,
+      AddOrganizationUuidToGroups.class,
+      PopulateOrganizationUuidOfGroups.class,
+      MakeOrganizationUuidNotNullOnGroups.class,
+      AddOrganizationUuidToUserRoles.class,
+      AddOrganizationUuidToPermissionTemplates.class,
+      PopulateOrganizationUuidOfUserRoles.class,
+      MakeOrganizationUuidNotNullOnUserRoles.class,
+      PopulateOrganizationUuidOfPermissionTemplates.class,
+      MakeOrganizationUuidNotNullOnPermissionTemplates.class);
   }
 }
