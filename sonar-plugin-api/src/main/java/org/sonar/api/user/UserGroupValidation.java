@@ -33,7 +33,7 @@ public class UserGroupValidation {
   }
 
   public static void validateGroupName(String groupName) {
-    checkArgument(!isNullOrEmpty(groupName) && groupName.trim().length() > 0, "Group cannot contain empty group name");
+    checkArgument(!isNullOrEmpty(groupName) && groupName.trim().length() > 0, "Group name cannot be empty");
     checkArgument(groupName.length() <= GROUP_NAME_MAX_LENGTH, "Group name cannot be longer than %s characters", GROUP_NAME_MAX_LENGTH);
     checkArgument(!DefaultGroups.isAnyone(groupName), "Anyone group cannot be used");
   }
