@@ -48,7 +48,10 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 /**
  * Different coverage categories.
  * @since 5.2
+ *
+ * @deprecated since 6.2 SonarQube merge all coverage reports and don't keep track of different test category
  */
+@Deprecated
 public enum CoverageType {
 
   UNIT(LINES_TO_COVER, UNCOVERED_LINES, COVERAGE_LINE_HITS_DATA, CONDITIONS_TO_COVER, UNCOVERED_CONDITIONS, COVERED_CONDITIONS_BY_LINE, CONDITIONS_BY_LINE),

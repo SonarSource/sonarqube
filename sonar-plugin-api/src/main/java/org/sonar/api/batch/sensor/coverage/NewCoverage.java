@@ -22,13 +22,12 @@ package org.sonar.api.batch.sensor.coverage;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * This builder is used to define code coverage by tests of a given type (UT/IT/Overall) on files.
+ * This class is used to report code coverage on files.
  * 
  * Example:
  * 
  * <pre>
  *   sensorContext.newCoverage().onFile(file)
-       .ofType(UNIT)
        .lineHits(1, 2)
        .lineHits(2, 5)
        .lineHits(3, 0)
@@ -39,6 +38,13 @@ import org.sonar.api.batch.fs.InputFile;
        .save();
  *     
  * </pre>
+ * 
+ * Since 6.2 you can save several reports for the same file and reports will be merged using the following "additive" strategy:
+ * <ul>
+ *   <li>Line hits are cumulated</li>
+ *   <li>We keep the max for condition coverage. Examples: 2/4 + 2/4 = 2/4, 2/4 + 3/4 = 3/4</li>
+ * </ul>
+ * 
  * @since 5.2
  */
 public interface NewCoverage {
@@ -48,6 +54,10 @@ public interface NewCoverage {
    */
   NewCoverage onFile(InputFile inputFile);
 
+  /**
+   * @deprecated since 6.2 SonarQube merge all coverage reports and don't keep track of different test category
+   */
+  @Deprecated
   NewCoverage ofType(CoverageType type);
 
   /**
@@ -66,7 +76,7 @@ public interface NewCoverage {
   NewCoverage conditions(int line, int conditions, int coveredConditions);
 
   /**
-   * Call this method only once when your are done with defining coverage of the file.
+   * Call this method to save the coverage report for the given file. Data will be merged with existing coverage information.
    */
   void save();
 }
