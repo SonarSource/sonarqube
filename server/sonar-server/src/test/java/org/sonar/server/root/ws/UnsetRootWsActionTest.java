@@ -31,6 +31,7 @@ import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -141,14 +142,35 @@ public class UnsetRootWsActionTest {
 
   @Test
   public void execute_fails_with_BadRequestException_when_attempting_to_unset_non_root_and_there_is_no_root_at_all() {
-    insertNonRootUser(newUserDto(SOME_LOGIN, "name", "email"));
-    insertNonRootUser(newUserDto());
+    UserDto userDto1 = newUserDto(SOME_LOGIN, "name", "email");
+    insertNonRootUser(userDto1);
     makeAuthenticatedUserRoot();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last root can't be unset");
 
-    executeRequest("non_existing_user");
+    executeRequest(userDto1.getLogin());
+  }
+
+  @Test
+  public void execute_fails_with_NotFoundException_when_user_for_specified_login_does_not_exist() {
+    makeAuthenticatedUserRoot();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User with login 'bar_foo' not found");
+
+    executeRequest("bar_foo");
+  }
+
+  @Test
+  public void execute_fails_with_NotFoundException_when_user_for_specified_login_is_inactive() {
+    UserDto userDto = insertRootUser(newUserDto().setActive(false));
+    makeAuthenticatedUserRoot();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User with login '" + userDto.getLogin() + "' not found");
+
+    executeRequest(userDto.getLogin());
   }
 
   private UserDto insertNonRootUser(UserDto dto) {
