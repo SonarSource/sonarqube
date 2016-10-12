@@ -5,12 +5,12 @@
                group_id="[null]"
                resource_id="100"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
   <group_roles id="2"
                group_id="[null]"
                resource_id="101"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <!-- View with sub view -->
   <projects uuid="EFGH"

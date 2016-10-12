@@ -8,7 +8,7 @@
                group_id="100"
                resource_id="123"
                role="admin"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <projects uuid="A"
             uuid_path="NOT_USED"

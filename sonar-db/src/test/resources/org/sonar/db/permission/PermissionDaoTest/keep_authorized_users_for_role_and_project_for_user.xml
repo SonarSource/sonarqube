@@ -28,7 +28,7 @@
                group_id="200"
                resource_id="400"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <projects id="300"
             kee="pj-w-snapshot"

@@ -21,6 +21,6 @@
                group_id="100"
                resource_id="123"
                role="codeviewer"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
 </dataset>

@@ -39,5 +39,5 @@
                group_id="100"
                resource_id="2"
                role="admin"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 </dataset>

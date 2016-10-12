@@ -21,7 +21,7 @@
                group_id="101"
                resource_id="999"
                role="codeviewer"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
   <user_roles id="2"
               user_id="200"
               resource_id="999"

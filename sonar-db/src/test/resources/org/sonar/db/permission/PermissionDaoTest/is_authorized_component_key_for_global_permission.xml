@@ -13,7 +13,7 @@
                group_id="200"
                resource_id="[null]"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <projects id="301"
             kee="pj-w-snapshot:package"
