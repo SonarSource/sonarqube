@@ -27,29 +27,58 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-public class AddOrganizationUuidToGroupsTest {
+import static java.lang.String.valueOf;
+
+public class MakeOrganizationUuidNotNullOnGroupsTest {
+  
+  private static final String TABLE_GROUPS = "groups";
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddOrganizationUuidToGroupsTest.class, "previous-groups.sql");
-
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeOrganizationUuidNotNullOnGroupsTest.class,
+    "in_progress_groups.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddOrganizationUuidToGroups underTest = new AddOrganizationUuidToGroups(dbTester.database());
+  private MakeOrganizationUuidNotNullOnGroups underTest = new MakeOrganizationUuidNotNullOnGroups(db.database());
 
   @Test
-  public void creates_table_on_empty_db() throws SQLException {
+  public void migration_sets_uuid_column_not_nullable_on_empty_table() throws SQLException {
     underTest.execute();
 
-    dbTester.assertColumnDefinition("groups", "organization_uuid", Types.VARCHAR, 40, true);
+    verifyColumnDefinition();
   }
 
   @Test
-  public void migration_is_not_reentrant() throws SQLException {
+  public void migration_sets_uuid_column_not_nullable_on_populated_table() throws SQLException {
+    insertGroup(1, true);
+    insertGroup(2, true);
+
     underTest.execute();
+
+    verifyColumnDefinition();
+  }
+
+  @Test
+  public void migration_fails_if_some_row_has_a_null_uuid() throws SQLException {
+    insertGroup(1, false);
 
     expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to execute");
 
     underTest.execute();
+  }
+
+  private void verifyColumnDefinition() {
+    db.assertColumnDefinition(TABLE_GROUPS, "organization_uuid", Types.VARCHAR, 40, false);
+  }
+
+  private String insertGroup(long id, boolean hasUuid) {
+    String uuid = "uuid_" + id;
+    db.executeInsert(
+      TABLE_GROUPS,
+      "ID", valueOf(id),
+      "NAME", valueOf(id + 10),
+      "ORGANIZATION_UUID", hasUuid ? "uuid_" + id : null);
+    return uuid;
   }
 }
