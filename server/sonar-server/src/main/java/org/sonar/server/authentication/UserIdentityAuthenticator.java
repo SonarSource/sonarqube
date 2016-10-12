@@ -19,10 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -45,6 +41,10 @@ import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
+
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class UserIdentityAuthenticator {
 
@@ -140,7 +140,7 @@ public class UserIdentityAuthenticator {
     groupsToRemove.stream().map(groupsByName::get).filter(groupDto -> groupDto != null).forEach(
       groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
-        dbClient.userGroupDao().delete(dbSession, new UserGroupDto().setGroupId(groupDto.getId()).setUserId(userDto.getId()));
+        dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
   }
 

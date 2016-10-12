@@ -28,18 +28,27 @@ import org.sonar.db.permission.GroupPermissionDto;
 
 public class RoleDao implements Dao {
 
+  /**
+   * All the projects on which the user has {@code permission}, directly or through
+   * groups.
+   */
   public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
 
+  /**
+   * @deprecated replaced by {@link org.sonar.db.permission.GroupPermissionDao#selectGroupPermissions(DbSession, long, Long)}
+   * and {@link org.sonar.db.permission.GroupPermissionDao#selectAnyonePermissions(DbSession, Long)}
+   */
+  @Deprecated
   public List<String> selectGroupPermissions(DbSession session, String groupName, @Nullable Long resourceId) {
     return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
   }
 
-  public void insertGroupRole(DbSession session, GroupPermissionDto dto) {
-    mapper(session).insertGroupRole(dto);
-  }
-
+  /**
+   * @deprecated does not support organizations on anyone groups
+   */
+  @Deprecated
   public void deleteGroupRole(GroupPermissionDto groupRole, DbSession session) {
     mapper(session).deleteGroupRole(groupRole);
   }
@@ -52,7 +61,7 @@ public class RoleDao implements Dao {
     return mapper(session).countResourceGroupRoles(resourceId);
   }
 
-  private static int countResourceUserRoles(DbSession session, Long resourceId) {
+  private static int countResourceUserRoles(DbSession session, long resourceId) {
     return mapper(session).countResourceUserRoles(resourceId);
   }
 

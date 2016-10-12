@@ -69,6 +69,10 @@ public class GroupMembershipDao implements Dao {
     return result;
   }
 
+  public List<Long> selectGroupIdsByUserId(DbSession dbSession, long userId) {
+    return mapper(dbSession).selectGroupIdsByUserId(userId);
+  }
+
   public Multimap<String, String> selectGroupsByLogins(DbSession session, Collection<String> logins) {
     Multimap<String, String> result = ArrayListMultimap.create();
     executeLargeInputs(

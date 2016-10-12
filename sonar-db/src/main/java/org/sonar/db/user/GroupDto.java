@@ -32,14 +32,6 @@ public class GroupDto {
   private Date createdAt;
   private Date updatedAt;
 
-  public final Date getCreatedAt() {
-    return this.createdAt;
-  }
-
-  public final Date getUpdatedAt() {
-    return this.updatedAt;
-  }
-
   public Long getId() {
     return id;
   }
@@ -87,6 +79,13 @@ public class GroupDto {
     return this;
   }
 
+  public Date getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public Date getUpdatedAt() {
+    return this.updatedAt;
+  }
 
   @Override
   public String toString() {

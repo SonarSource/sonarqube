@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.GroupPermissionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,15 +51,4 @@ public class RoleMapperTest {
     dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles");
   }
 
-  @Test
-  public void insert_roles() {
-    dbTester.prepareDbUnit(getClass(), "insertRoles.xml");
-
-    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
-    mapper.insertGroupRole(new GroupPermissionDto().setRole("admin").setGroupId(100L).setResourceId(123L));
-    mapper.insertGroupRole(new GroupPermissionDto().setRole("user").setResourceId(123L));// Anyone
-    dbTester.getSession().commit();
-
-    dbTester.assertDbUnit(getClass(), "insertRoles-result.xml", "group_roles");
-  }
 }

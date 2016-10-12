@@ -24,18 +24,17 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-
 public class UserGroupDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  UserGroupDao dao = dbTester.getDbClient().userGroupDao();
+  private UserGroupDao underTest = dbTester.getDbClient().userGroupDao();
 
   @Test
   public void insert() {
     UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
-    dao.insert(dbTester.getSession(), userGroupDto);
+    underTest.insert(dbTester.getSession(), userGroupDto);
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
@@ -44,7 +43,7 @@ public class UserGroupDaoTest {
   @Test
   public void delete_members_by_group_id() {
     dbTester.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
-    dao.deleteMembersByGroupId(dbTester.getSession(), 1L);
+    underTest.deleteByGroupId(dbTester.getSession(), 1L);
     dbTester.getSession().commit();
     dbTester.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
   }

@@ -39,7 +39,7 @@ public class UserMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
-  private final Long groupId;
+  private final long groupId;
   private final String membership;
 
   private final String memberSearch;
@@ -73,7 +73,7 @@ public class UserMembershipQuery {
     return sql;
   }
 
-  public Long groupId() {
+  public long groupId() {
     return groupId;
   }
 
