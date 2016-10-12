@@ -168,4 +168,29 @@
     delete from group_roles
     where resource_id=#{rootComponentId,jdbcType=BIGINT}
   </delete>
+
+  <delete id="delete" parameterType="map">
+    delete from group_roles
+    where
+    role=#{permission,jdbcType=VARCHAR} and
+    organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    <choose>
+      <when test="rootComponentId != null">
+        resource_id=#{rootComponentId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        resource_id is null
+      </otherwise>
+    </choose>
+    and
+    <choose>
+      <when test="groupId != null">
+        group_id=#{groupId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        group_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
 </mapper>

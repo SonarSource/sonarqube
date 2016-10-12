@@ -120,6 +120,24 @@ public class GroupPermissionDao implements Dao {
     mapper(dbSession).deleteByRootComponentId(rootComponentId);
   }
 
+  /**
+   * Delete a single permission. It can be:
+   * <ul>
+   *   <li>a global permission granted to a group</li>
+   *   <li>a global permission granted to anyone</li>
+   *   <li>a permission granted to a group for a project</li>
+   *   <li>a permission granted to anyone for a project</li>
+   * </ul>
+   * @param dbSession
+   * @param permission the kind of permission
+   * @param organizationUuid UUID of organization, even if parameter {@code groupId} is not null
+   * @param groupId if null, then anyone, else id of group
+   * @param rootComponentId if null, then global permission, else id of root component (project)
+   */
+  public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable Long groupId, @Nullable Long rootComponentId) {
+    mapper(dbSession).delete(permission, organizationUuid, groupId, rootComponentId);
+  }
+
   private static GroupPermissionMapper mapper(DbSession session) {
     return session.getMapper(GroupPermissionMapper.class);
   }

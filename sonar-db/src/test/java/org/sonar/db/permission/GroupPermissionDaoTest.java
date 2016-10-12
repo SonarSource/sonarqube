@@ -333,4 +333,72 @@ public class GroupPermissionDaoTest {
     assertThat(db.countSql("select count(id) from group_roles where resource_id=" + project1.getId())).isEqualTo(0);
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(2);
   }
+
+  @Test
+  public void delete_global_permission_from_group() {
+    GroupDto group1 = db.users().insertGroup();
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+
+    underTest.delete(dbSession, "perm2", group1.getOrganizationUuid(), group1.getId(), null);
+    dbSession.commit();
+
+    assertThatNoPermission("perm2");
+    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
+  }
+
+  @Test
+  public void delete_global_permission_from_anyone() {
+    GroupDto group1 = db.users().insertGroup();
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+
+    underTest.delete(dbSession, "perm1", group1.getOrganizationUuid(), null, null);
+    dbSession.commit();
+
+    assertThatNoPermission("perm1");
+    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
+  }
+
+  @Test
+  public void delete_project_permission_from_group() {
+    GroupDto group1 = db.users().insertGroup();
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+
+    underTest.delete(dbSession, "perm3", group1.getOrganizationUuid(), group1.getId(), project1.getId());
+    dbSession.commit();
+
+    assertThatNoPermission("perm3");
+    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
+  }
+
+  @Test
+  public void delete_project_permission_from_anybody() {
+    GroupDto group1 = db.users().insertGroup();
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnAnyone("perm4", project1);
+
+    underTest.delete(dbSession, "perm4", group1.getOrganizationUuid(), null, project1.getId());
+    dbSession.commit();
+
+    assertThatNoPermission("perm4");
+    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
+  }
+
+  private void assertThatNoPermission(String permission) {
+    assertThat(db.countSql("select count(id) from group_roles where role='" + permission + "'")).isEqualTo(0);
+  }
 }

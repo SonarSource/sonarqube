@@ -49,29 +49,6 @@
     </where>
   </select>
 
-  <delete id="deleteGroupRole" parameterType="map">
-    DELETE FROM group_roles
-    WHERE role=#{role}
-    AND
-    <choose>
-      <when test="resourceId != null">
-        resource_id=#{resourceId}
-      </when>
-      <otherwise>
-        resource_id IS NULL
-      </otherwise>
-    </choose>
-    AND
-    <choose>
-      <when test="groupId != null">
-        group_id=#{groupId}
-      </when>
-      <otherwise>
-        group_id IS NULL
-      </otherwise>
-    </choose>
-  </delete>
-
   <select id="countResourceUserRoles" parameterType="long" resultType="int">
     SELECT count(1)
     FROM user_roles WHERE resource_id=#{id}

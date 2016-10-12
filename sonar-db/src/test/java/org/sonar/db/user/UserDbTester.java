@@ -71,6 +71,14 @@ public class UserDbTester {
     return insertGroup(group);
   }
 
+  /**
+   * Create group in default organization
+   */
+  public GroupDto insertGroup() {
+    GroupDto group = newGroupDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    return insertGroup(group);
+  }
+
   public GroupDto insertGroup(GroupDto dto) {
     db.getDbClient().groupDao().insert(db.getSession(), dto);
     db.commit();

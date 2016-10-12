@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GroupPermissionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -115,30 +114,6 @@ public class RoleDaoTest {
 
     assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
     assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
-  }
-
-  @Test
-  public void delete_global_group_permission() {
-    db.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
-
-    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "globalGroupPermissions-result.xml", "group_roles");
-  }
-
-  @Test
-  public void delete_resource_group_permission() {
-    db.prepareDbUnit(getClass(), "resourceGroupPermissions.xml");
-
-    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
-
-    underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "resourceGroupPermissions-result.xml", "group_roles");
   }
 
   @Test
