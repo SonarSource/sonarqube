@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -44,6 +44,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
@@ -62,38 +64,34 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserUpdaterTest {
 
-  static final long NOW = 1418215735482L;
-  static final long PAST = 1000000000000L;
-
-  static final String DEFAULT_LOGIN = "marius";
+  private static final long NOW = 1418215735482L;
+  private static final long PAST = 1000000000000L;
+  private static final String DEFAULT_LOGIN = "marius";
 
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  DbClient dbClient = db.getDbClient();
-
-  NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
-
-  ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
-
-  Settings settings = new MapSettings();
-  UserDao userDao = dbClient.userDao();
-  GroupDao groupDao = dbClient.groupDao();
-  DbSession session = db.getSession();
-  UserIndexer userIndexer;
-
-  UserUpdater userUpdater;
+  private DbClient dbClient = db.getDbClient();
+  private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
+  private ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
+  private Settings settings = new MapSettings();
+  private UserDao userDao = dbClient.userDao();
+  private GroupDao groupDao = dbClient.groupDao();
+  private DbSession session = db.getSession();
+  private UserIndexer userIndexer;
+  private UserUpdater underTest;
 
   @Before
   public void setUp() {
     userIndexer = new UserIndexer(dbClient, es.client());
-    userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
-      userIndexer, system2);
+    DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+    underTest = new UserUpdater(newUserNotifier, settings, dbClient,
+      userIndexer, system2, defaultOrganizationProvider);
 
     when(system2.now()).thenReturn(NOW);
   }
@@ -102,7 +100,7 @@ public class UserUpdaterTest {
   public void create_user() {
     createDefaultGroup();
 
-    boolean result = userUpdater.create(NewUser.create()
+    boolean result = underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -137,7 +135,7 @@ public class UserUpdaterTest {
   public void create_user_with_sq_authority_when_no_authority_set() throws Exception {
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setPassword("password"));
@@ -152,7 +150,7 @@ public class UserUpdaterTest {
   public void create_user_with_authority() {
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("ABCD")
       .setName("User")
       .setPassword("password")
@@ -169,7 +167,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("us")
       .setName("User"));
 
@@ -187,7 +185,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -201,7 +199,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -215,7 +213,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
@@ -227,7 +225,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_missing_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(null)
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -241,7 +239,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_invalid_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("/marius/")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -255,7 +253,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_space_in_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("mari us")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -269,7 +267,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_too_short_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("m")
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -283,7 +281,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_too_long_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(Strings.repeat("m", 256))
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -297,7 +295,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_missing_name() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName(null)
         .setEmail("marius@mail.com")
@@ -311,7 +309,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_too_long_name() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName(Strings.repeat("m", 201))
         .setEmail("marius@mail.com")
@@ -325,7 +323,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_too_long_email() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius")
         .setEmail(Strings.repeat("m", 101))
@@ -339,7 +337,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_with_many_errors() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("")
         .setName("")
         .setEmail("marius@mail.com")
@@ -355,7 +353,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used.xml");
 
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -372,7 +370,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used_by_many_user.xml");
 
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius")
         .setEmail("marius@mail.com")
@@ -387,7 +385,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_when_scm_account_is_user_login() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius2")
         .setEmail("marius2@mail.com")
@@ -402,7 +400,7 @@ public class UserUpdaterTest {
   @Test
   public void fail_to_create_user_when_scm_account_is_user_email() {
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius2")
         .setEmail("marius2@mail.com")
@@ -418,7 +416,7 @@ public class UserUpdaterTest {
   public void notify_new_user() {
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -435,7 +433,7 @@ public class UserUpdaterTest {
   public void associate_default_group_when_creating_user() {
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
@@ -451,7 +449,7 @@ public class UserUpdaterTest {
     settings.setProperty(CORE_DEFAULT_GROUP, (String) null);
 
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("user")
         .setName("User")
         .setEmail("user@mail.com")
@@ -467,7 +465,7 @@ public class UserUpdaterTest {
     settings.setProperty(CORE_DEFAULT_GROUP, "polop");
 
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin("user")
         .setName("User")
         .setEmail("user@mail.com")
@@ -487,7 +485,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    boolean result = userUpdater.create(NewUser.create()
+    boolean result = underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -515,7 +513,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    boolean result = userUpdater.create(NewUser.create()
+    boolean result = underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com"));
@@ -543,7 +541,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setPassword("password2")
@@ -562,7 +560,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.create(NewUser.create()
+      underTest.create(NewUser.create()
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius2")
         .setEmail("marius2@mail.com")
@@ -578,7 +576,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_reactivating_user.xml");
     createDefaultGroup();
 
-    userUpdater.create(NewUser.create()
+    underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -595,7 +593,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -630,7 +628,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
@@ -651,7 +649,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
@@ -674,7 +672,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -707,7 +705,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -724,7 +722,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2"));
     session.commit();
     session.clearCache();
@@ -744,7 +742,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius2@mail.com"));
     session.commit();
     session.clearCache();
@@ -764,7 +762,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
     session.clearCache();
@@ -784,7 +782,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(newArrayList("ma", "marius33")));
     session.commit();
     session.clearCache();
@@ -798,7 +796,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(null));
     session.commit();
     session.clearCache();
@@ -812,7 +810,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setPassword("password2"));
     session.commit();
     session.clearCache();
@@ -833,7 +831,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setPassword(null));
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of("errors.cant_be_empty", "Password"));
@@ -850,7 +848,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setPassword("password2"));
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of("user.password_cant_be_changed_on_external_auth"));
@@ -863,7 +861,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     // Existing user, he has no group, and should not be associated to the default one
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -884,7 +882,7 @@ public class UserUpdaterTest {
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isTrue();
 
-    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -902,7 +900,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setName("Marius2")
         .setEmail("marius2@mail.com")
         .setPassword("password2")
@@ -919,7 +917,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setScmAccounts(newArrayList(DEFAULT_LOGIN)));
       fail();
     } catch (BadRequestException e) {
@@ -933,7 +931,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setScmAccounts(newArrayList("marius@lesbronzes.fr")));
       fail();
     } catch (BadRequestException e) {
@@ -947,7 +945,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     try {
-      userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      underTest.update(UpdateUser.create(DEFAULT_LOGIN)
         .setEmail("marius@newmail.com")
         .setScmAccounts(newArrayList("marius@newmail.com")));
       fail();
@@ -958,7 +956,7 @@ public class UserUpdaterTest {
 
   private void createDefaultGroup() {
     settings.setProperty(CORE_DEFAULT_GROUP, "sonar-users");
-    groupDao.insert(session, new GroupDto().setName("sonar-users").setDescription("Sonar Users"));
+    groupDao.insert(session, GroupTesting.newGroupDto().setName("sonar-users").setOrganizationUuid(db.getDefaultOrganization().getUuid()));
     session.commit();
   }
 
