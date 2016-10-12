@@ -65,43 +65,59 @@
   </select>
 
   <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into groups (organization_uuid, name, description, created_at, updated_at)
-    values (
-      #{organizationUuid,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR},
-      #{description,jdbcType=VARCHAR},
-      #{createdAt},
-      #{updatedAt}
+    insert into groups (
+    organization_uuid,
+    name,
+    description,
+    created_at,
+    updated_at
+    ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP}
     )
   </insert>
 
   <update id="update" parameterType="Group">
     UPDATE groups SET
-    name=#{name},
-    description=#{description},
-    updated_at=#{updatedAt}
+    name=#{name,jdbcType=VARCHAR},
+    description=#{description,jdbcType=VARCHAR},
+    updated_at=#{updatedAt,jdbcType=TIMESTAMP}
     WHERE id=#{id}
   </update>
 
   <select id="selectByQuery" parameterType="map" resultType="Group">
-    SELECT
+    select
     <include refid="groupColumns"/>
-    FROM groups g
-    <where>
-      <if test="query!=null">
-        UPPER(g.name) LIKE #{query} ESCAPE '/'
-      </if>
-    </where>
-    ORDER BY UPPER(g.name)
+    from groups g
+    where
+    organization_uuid = #{organizationUuid}
+    <if test="query!=null">
+      and upper(g.name) like #{query} escape '/'
+    </if>
+    order by upper(g.name)
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
-    SELECT count(1)
-    FROM groups g
-    <where>
-      <if test="query!=null">
-        UPPER(g.name) LIKE #{query} ESCAPE '/'
-      </if>
-    </where>
+    select count(1)
+    from groups g
+    where
+    organization_uuid = #{organizationUuid}
+    <if test="query!=null">
+      and upper(g.name) like #{query} escape '/'
+    </if>
   </select>
+
+  <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.organization_uuid = #{organizationUuid}
+    order by upper(g.name)
+  </select>
+
+
+
 </mapper>

@@ -49,11 +49,6 @@
     </where>
   </select>
 
-  <insert id="insertGroupRole" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO group_roles (group_id, resource_id, role)
-    VALUES (#{groupId}, #{resourceId}, #{role})
-  </insert>
-
   <delete id="deleteGroupRole" parameterType="map">
     DELETE FROM group_roles
     WHERE role=#{role}

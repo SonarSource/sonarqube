@@ -4,23 +4,24 @@
 <mapper namespace="org.sonar.db.user.UserGroupMapper">
 
   <insert id="insert" parameterType="UserGroup" useGeneratedKeys="false">
-    INSERT INTO groups_users (user_id, group_id)
-    VALUES (#{userId}, #{groupId})
+    insert into groups_users (
+    user_id,
+    group_id
+    ) values (
+    #{userId,jdbcType=BIGINT},
+    #{groupId,jdbcType=BIGINT}
+    )
   </insert>
 
-  <delete id="delete" parameterType="UserGroup">
-    DELETE FROM groups_users
-    <where>
-      AND user_id = #{userId}
-      AND group_id = #{groupId}
-    </where>
+  <delete id="delete" parameterType="map">
+    delete from groups_users
+    where user_id = #{userId} and
+    group_id = #{groupId}
   </delete>
 
-  <delete id="deleteMembersByGroup" parameterType="long">
-    DELETE FROM groups_users
-    <where>
-      AND group_id = #{groupId}
-    </where>
+  <delete id="deleteByGroupId" parameterType="long">
+    delete from groups_users
+    where group_id = #{groupId}
   </delete>
 
 </mapper>

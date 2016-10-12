@@ -1,4 +1,8 @@
 <dataset>
-  <permission_templates id="1" name="Môü Gnô Gnèçàß" kee="mou_gno_gneca_20130102_010405" description="my description"
-                        key_pattern="[null]"/>
+  <permission_templates id="1"
+                        name="Môü Gnô Gnèçàß"
+                        kee="mou_gno_gneca_20130102_010405"
+                        description="my description"
+                        key_pattern="[null]"
+                        organization_uuid="org1"/>
 </dataset>

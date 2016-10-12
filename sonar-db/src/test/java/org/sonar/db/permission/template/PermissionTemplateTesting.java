@@ -23,10 +23,6 @@ import java.util.Date;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
-import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.permission.template.PermissionTemplateGroupDto;
-import org.sonar.db.permission.template.PermissionTemplateUserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
@@ -36,6 +32,7 @@ public class PermissionTemplateTesting {
     return new PermissionTemplateDto()
       .setName(randomAlphanumeric(60))
       .setDescription(randomAscii(500))
+      .setOrganizationUuid(randomAlphanumeric(40))
       .setUuid(Uuids.create())
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());

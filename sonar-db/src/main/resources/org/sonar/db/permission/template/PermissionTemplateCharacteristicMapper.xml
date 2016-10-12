@@ -40,13 +40,6 @@
     order by id
   </select>
 
-  <select id="selectById" parameterType="long" resultType="PermissionTemplateCharacteristic">
-    select
-    <include refid="columns" />
-    from perm_tpl_characteristics ptc
-    where ptc.id=#{id}
-  </select>
-
   <insert id="insert" parameterType="PermissionTemplateCharacteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into perm_tpl_characteristics(template_id, permission_key, with_project_creator, created_at, updated_at)
     values(#{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR}, #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})

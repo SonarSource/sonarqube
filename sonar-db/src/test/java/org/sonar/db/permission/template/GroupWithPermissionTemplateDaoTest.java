@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Arrays.asList;
@@ -43,18 +42,16 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 public class GroupWithPermissionTemplateDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private DbSession session = dbTester.getSession();
-  private GroupDbTester groupDb = new GroupDbTester(dbTester);
-  private PermissionTemplateDbTester permissionTemplateDbTester = new PermissionTemplateDbTester(dbTester);
-
-  private PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  private DbSession session = db.getSession();
+  private PermissionTemplateDbTester permissionTemplateDbTester = new PermissionTemplateDbTester(db);
+  private PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_group_names_by_query_and_template() {
-    GroupDto group1 = groupDb.insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = groupDb.insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
@@ -79,9 +76,9 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Test
   public void select_group_names_by_query_and_template_is_ordered_by_group_names() {
-    GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));
-    groupDb.insertGroup(newGroupDto().setName("Group-3"));
-    groupDb.insertGroup(newGroupDto().setName("Group-1"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    db.users().insertGroup(newGroupDto().setName("Group-3"));
+    db.users().insertGroup(newGroupDto().setName("Group-1"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), USER);
@@ -91,7 +88,7 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Test
   public void select_group_names_by_query_and_template_is_paginated() {
-    IntStream.rangeClosed(0, 9).forEach(i -> groupDb.insertGroup(newGroupDto().setName(i + "-name")));
+    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertGroup(newGroupDto().setName(i + "-name")));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
 
@@ -103,7 +100,7 @@ public class GroupWithPermissionTemplateDaoTest {
   public void select_group_names_by_query_and_template_returns_anyone() {
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
 
-    GroupDto group = groupDb.insertGroup(newGroupDto().setName("Group"));
+    GroupDto group = db.users().insertGroup(newGroupDto().setName("Group"));
     PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getId(), group.getId(), USER);
 
@@ -112,9 +109,9 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Test
   public void count_group_names_by_query_and_template() {
-    GroupDto group1 = groupDb.insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = groupDb.insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
@@ -139,9 +136,9 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Test
   public void select_group_permissions_by_template_id_and_group_names() {
-    GroupDto group1 = groupDb.insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = groupDb.insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
@@ -175,9 +172,9 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Test
   public void select_group_permissions_by_template_id() {
-    GroupDto group1 = groupDb.insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = groupDb.insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = groupDb.insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
