@@ -20,51 +20,43 @@
 package org.sonar.server.authentication;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
-import org.sonar.db.user.UserTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserIdentityAuthenticatorTest {
 
-  static String USER_LOGIN = "github-johndoo";
+  private static String USER_LOGIN = "github-johndoo";
+  private static String DEFAULT_GROUP = "default";
 
-  static String DEFAULT_GROUP = "default";
-
-  static UserIdentity USER_IDENTITY = UserIdentity.builder()
+  private static UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderLogin("johndoo")
     .setLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
     .build();
 
-  static TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
+  private static TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
     .setKey("github")
     .setEnabled(true)
     .setAllowsUsersToSignUp(true);
@@ -72,55 +64,48 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession dbSession = dbTester.getSession();
-  UserDao userDao = dbClient.userDao();
-  GroupDao groupDao = dbClient.groupDao();
-  Settings settings = new MapSettings();
-
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-
-  UserUpdater userUpdater = new UserUpdater(
+  private Settings settings = new MapSettings();
+  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     settings,
-    dbClient,
+    db.getDbClient(),
     mock(UserIndexer.class),
-    system2);
-
-  UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(dbClient, userUpdater);
+    system2,
+    defaultOrganizationProvider);
+  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater);
+  private GroupDto defaultGroup;
 
   @Before
   public void setUp() throws Exception {
     settings.setProperty("sonar.defaultGroup", DEFAULT_GROUP);
-    addGroup(DEFAULT_GROUP);
+    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP);
   }
 
   @Test
   public void authenticate_new_user() throws Exception {
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
-    assertThat(userDto).isNotNull();
-    assertThat(userDto.isActive()).isTrue();
-    assertThat(userDto.getName()).isEqualTo("John");
-    assertThat(userDto.getEmail()).isEqualTo("john@email.com");
-    assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
-    assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
+    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    assertThat(user).isNotNull();
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.getName()).isEqualTo("John");
+    assertThat(user.getEmail()).isEqualTo("john@email.com");
+    assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
 
-    verifyUserGroups(USER_LOGIN, DEFAULT_GROUP);
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(defaultGroup.getId());
   }
 
   @Test
   public void authenticate_new_user_with_groups() throws Exception {
-    addGroup("group1");
-    addGroup("group2");
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
     underTest.authenticate(UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -129,30 +114,26 @@ public class UserIdentityAuthenticatorTest {
       // group3 doesn't exist in db, it will be ignored
       .setGroups(newHashSet("group1", "group2", "group3"))
       .build(), IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
-    assertThat(userDto).isNotNull();
+    Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
+    assertThat(user).isPresent();
 
-    verifyUserGroups(USER_LOGIN, "group1", "group2");
+    assertThat(db.users().selectGroupIdsOfUser(user.get())).containsOnly(group1.getId(), group2.getId());
   }
 
   @Test
   public void authenticate_existing_user() throws Exception {
-    userDao.insert(dbSession, new UserDto()
+    db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
       .setName("Old name")
       .setEmail("Old email")
       .setExternalIdentity("old identity")
       .setExternalIdentityProvider("old provide"));
-    dbSession.commit();
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
-    assertThat(userDto).isNotNull();
+    UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(userDto.isActive()).isTrue();
     assertThat(userDto.getName()).isEqualTo("John");
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
@@ -162,20 +143,17 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_disabled_user() throws Exception {
-    userDao.insert(dbSession, new UserDto()
+    db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(false)
       .setName("Old name")
       .setEmail("Old email")
       .setExternalIdentity("old identity")
       .setExternalIdentityProvider("old provide"));
-    dbSession.commit();
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
-    assertThat(userDto).isNotNull();
+    UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(userDto.isActive()).isTrue();
     assertThat(userDto.getName()).isEqualTo("John");
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
@@ -185,13 +163,12 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_user_and_add_new_groups() throws Exception {
-    userDao.insert(dbSession, new UserDto()
+    UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
       .setName("John"));
-    addGroup("group1");
-    addGroup("group2");
-    dbSession.commit();
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
     underTest.authenticate(UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -200,28 +177,20 @@ public class UserIdentityAuthenticatorTest {
       // group3 doesn't exist in db, it will be ignored
       .setGroups(newHashSet("group1", "group2", "group3"))
       .build(), IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(USER_LOGIN));
-    assertThat(userGroups).containsOnly("group1", "group2");
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId(), group2.getId());
   }
 
   @Test
   public void authenticate_existing_user_and_remove_groups() throws Exception {
-    UserDto user = new UserDto()
+    UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
-      .setName("John");
-    userDao.insert(dbSession, user);
-
-    GroupDto group1 = addGroup("group1");
-    GroupDto group2 = addGroup("group2");
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(user.getId()).setGroupId(group1.getId()));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(user.getId()).setGroupId(group2.getId()));
-    dbSession.commit();
-
-    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(USER_LOGIN));
-    assertThat(userGroups).containsOnly("group1", "group2");
+      .setName("John"));
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
 
     underTest.authenticate(UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -230,38 +199,30 @@ public class UserIdentityAuthenticatorTest {
       // Only group1 is returned by the id provider => group2 will be removed
       .setGroups(newHashSet("group1"))
       .build(), IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    verifyUserGroups(USER_LOGIN, "group1");
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId());
   }
 
   @Test
   public void authenticate_existing_user_and_remove_all_groups() throws Exception {
-    UserDto user = new UserDto()
+    UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
-      .setName("John");
-    userDao.insert(dbSession, user);
-
-    GroupDto group1 = addGroup("group1");
-    GroupDto group2 = addGroup("group2");
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(user.getId()).setGroupId(group1.getId()));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(user.getId()).setGroupId(group2.getId()));
-    dbSession.commit();
-
-    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(USER_LOGIN));
-    assertThat(userGroups).containsOnly("group1", "group2");
+      .setName("John"));
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
 
     underTest.authenticate(UserIdentity.builder()
       .setProviderLogin("johndoo")
       .setLogin(USER_LOGIN)
       .setName("John")
       // No group => group1 and group2 will be removed
-      .setGroups(Collections.<String>emptySet())
+      .setGroups(Collections.emptySet())
       .build(), IDENTITY_PROVIDER);
-    dbSession.commit();
 
-    verifyNoUserGroups(USER_LOGIN);
+    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
 
   @Test
@@ -279,12 +240,10 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void fail_to_authenticate_new_user_when_email_already_exists() throws Exception {
-    UserDto userDto = UserTesting.newUserDto()
+    db.users().insertUser(newUserDto()
       .setLogin("Existing user with same email")
       .setActive(true)
-      .setEmail("john@email.com");
-    userDao.insert(dbSession, userDto);
-    dbSession.commit();
+      .setEmail("john@email.com"));
 
     thrown.expect(UnauthorizedException.class);
     thrown.expectMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
@@ -292,20 +251,4 @@ public class UserIdentityAuthenticatorTest {
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
   }
 
-  private void verifyUserGroups(String userLogin, String... groups) {
-    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(userLogin));
-    assertThat(userGroups).containsOnly(groups);
-  }
-
-  private void verifyNoUserGroups(String userLogin) {
-    Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(userLogin));
-    assertThat(userGroups).isEmpty();
-  }
-
-  private GroupDto addGroup(String name) {
-    GroupDto group = new GroupDto().setName(name);
-    groupDao.insert(dbSession, group);
-    dbSession.commit();
-    return group;
-  }
 }

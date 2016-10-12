@@ -41,12 +41,10 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -79,22 +77,19 @@ public class SetActionTest {
     .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  UserDbTester userDb = new UserDbTester(db);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
-  I18nRule i18n = new I18nRule();
-  PropertyDefinitions definitions = new PropertyDefinitions();
-  FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
-  SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
-  SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
+  private I18nRule i18n = new I18nRule();
+  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
+  private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
+  private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
+  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
-  SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
-
-  WsActionTester ws = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void empty_204_response() {
@@ -129,7 +124,7 @@ public class SetActionTest {
   @Test
   public void persist_new_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
 
     callForProjectSettingByUuid("my.key", "my project value", project.uuid());
 
@@ -140,7 +135,7 @@ public class SetActionTest {
 
   @Test
   public void persist_project_property_with_project_admin_permission() {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     callForProjectSettingByUuid("my.key", "my value", project.uuid());
@@ -151,7 +146,7 @@ public class SetActionTest {
   @Test
   public void update_existing_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
     propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project));
     assertComponentSetting("my.key", "my project value", project.getId());
 
@@ -281,7 +276,7 @@ public class SetActionTest {
           .type(PropertyType.STRING)
           .build()))
       .build());
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
     propertyDb.insertProperties(
       newGlobalPropertyDto("my.key", "1"),
       newGlobalPropertyDto("my.key.1.firstField", "oldFirstValue"),
@@ -342,8 +337,8 @@ public class SetActionTest {
       .defaultValue("default")
       .multiValues(true)
       .build());
-    userDb.insertUser(newUserDto().setLogin("login.1"));
-    userDb.insertUser(newUserDto().setLogin("login.2"));
+    db.users().insertUser(newUserDto().setLogin("login.1"));
+    db.users().insertUser(newUserDto().setLogin("login.2"));
 
     callForMultiValueGlobalSetting("my.key", newArrayList("login.1", "login.2"));
 
@@ -479,8 +474,8 @@ public class SetActionTest {
       .defaultValue("default")
       .multiValues(true)
       .build());
-    userDb.insertUser(newUserDto().setLogin("login.1"));
-    userDb.insertUser(newUserDto().setLogin("login.2").setActive(false));
+    db.users().insertUser(newUserDto().setLogin("login.1"));
+    db.users().insertUser(newUserDto().setLogin("login.2").setActive(false));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Error when validating login setting with key 'my.key' and values [login.1, login.2]. A value is not a valid login.");
@@ -535,7 +530,7 @@ public class SetActionTest {
       .defaultValue("default")
       .onQualifiers(Qualifiers.PROJECT)
       .build());
-    ComponentDto view = componentDb.insertComponent(newView("view-uuid"));
+    ComponentDto view = db.components().insertComponent(newView("view-uuid"));
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
@@ -782,7 +777,7 @@ public class SetActionTest {
       .fields(newArrayList(PropertyFieldDefinition.build("firstField").name("First Field").type(PropertyType.STRING).build()))
       .build());
     i18n.put("qualifier." + Qualifiers.PROJECT, "Project");
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a Project");

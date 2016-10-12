@@ -26,9 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.tester.UserSessionRule;
@@ -44,9 +42,7 @@ public class CurrentActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  UserDbTester userDb = new UserDbTester(db);
-  GroupDbTester groupDb = new GroupDbTester(db);
-  DbClient dbClient = db.getDbClient();
+  private DbClient dbClient = db.getDbClient();
 
   private WsActionTester ws;
 
@@ -59,15 +55,15 @@ public class CurrentActionTest {
   public void json_example() throws Exception {
     userSessionRule.login("obiwan.kenobi").setName("Obiwan Kenobi")
       .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
-    UserDto obiwan = userDb.insertUser(
+    UserDto obiwan = db.users().insertUser(
       newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")
         .setLocal(true)
         .setExternalIdentity("obiwan.kenobi")
         .setExternalIdentityProvider("sonarqube")
         .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
-    GroupDto jedi = groupDb.insertGroup(newGroupDto().setName("Jedi"));
-    GroupDto rebel = groupDb.insertGroup(newGroupDto().setName("Rebel"));
-    groupDb.insertGroup(newGroupDto().setName("Sith"));
+    GroupDto jedi = db.users().insertGroup(newGroupDto().setName("Jedi"));
+    GroupDto rebel = db.users().insertGroup(newGroupDto().setName("Rebel"));
+    db.users().insertGroup(newGroupDto().setName("Sith"));
     dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
       .setUserId(obiwan.getId())
       .setGroupId(jedi.getId()));

@@ -30,9 +30,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserTesting;
@@ -64,29 +62,26 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  UserDbTester userDb = new UserDbTester(db);
-  GroupDbTester groupDb = new GroupDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-
-  UserIndex index = new UserIndex(esTester.client());
-  UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
-  WsTester ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private UserIndex index = new UserIndex(esTester.client());
+  private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
+  private WsTester ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
 
   @Test
   public void search_json_example() throws Exception {
-    UserDto fmallet = userDb.insertUser(newUserDto("fmallet", "Freddy Mallet", "f@m.com")
+    UserDto fmallet = db.users().insertUser(newUserDto("fmallet", "Freddy Mallet", "f@m.com")
       .setActive(true)
       .setLocal(true)
       .setScmAccounts(emptyList()));
-    UserDto simon = userDb.insertUser(newUserDto("sbrandhof", "Simon", "s.brandhof@company.tld")
+    UserDto simon = db.users().insertUser(newUserDto("sbrandhof", "Simon", "s.brandhof@company.tld")
       .setActive(true)
       .setLocal(false)
       .setExternalIdentity("sbrandhof@ldap.com")
       .setExternalIdentityProvider("LDAP")
       .setScmAccounts(newArrayList("simon.brandhof", "s.brandhof@company.tld")));
-    GroupDto sonarUsers = groupDb.insertGroup(newGroupDto().setName("sonar-users"));
-    GroupDto sonarAdministrators = groupDb.insertGroup(newGroupDto().setName("sonar-administrators"));
+    GroupDto sonarUsers = db.users().insertGroup(newGroupDto().setName("sonar-users"));
+    GroupDto sonarAdministrators = db.users().insertGroup(newGroupDto().setName("sonar-administrators"));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(simon.getId()).setGroupId(sonarUsers.getId()));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarUsers.getId()));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarAdministrators.getId()));
@@ -122,7 +117,7 @@ public class SearchActionTest {
   public void search_with_query() throws Exception {
     loginAsSimpleUser();
     injectUsers(5);
-    UserDto user = userDb.insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com").setScmAccounts(singletonList("user1")));
+    UserDto user = db.users().insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com").setScmAccounts(singletonList("user1")));
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc()
         .setActive(true)
@@ -200,8 +195,8 @@ public class SearchActionTest {
     loginAsAdmin();
     List<UserDto> users = injectUsers(1);
 
-    GroupDto group1 = dbClient.groupDao().insert(dbSession, new GroupDto().setName("sonar-users"));
-    GroupDto group2 = dbClient.groupDao().insert(dbSession, new GroupDto().setName("sonar-admins"));
+    GroupDto group1 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-users"));
+    GroupDto group2 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-admins"));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(group1.getId()).setUserId(users.get(0).getId()));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(group2.getId()).setUserId(users.get(0).getId()));
     dbSession.commit();

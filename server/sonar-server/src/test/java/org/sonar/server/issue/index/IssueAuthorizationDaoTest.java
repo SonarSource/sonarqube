@@ -34,7 +34,7 @@ public class IssueAuthorizationDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  IssueAuthorizationDao dao = new IssueAuthorizationDao();
+  private IssueAuthorizationDao dao = new IssueAuthorizationDao();
 
   @Test
   public void select_all() {

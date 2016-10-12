@@ -30,9 +30,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.permission.PermissionRepository;
+import org.sonar.db.permission.UserPermissionDao;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.DefaultOrganization;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -132,8 +135,9 @@ public class QProfileProjectOperationsMediumTest {
     // Create a user having user permission on the two projects and the global quality profile admin permission
     UserDto user = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     db.userDao().insert(dbSession, user);
-    tester.get(PermissionRepository.class).insertUserPermission(project1.getId(), user.getId(), UserRole.USER, dbSession);
-    tester.get(PermissionRepository.class).insertUserPermission(project2.getId(), user.getId(), UserRole.USER, dbSession);
+    DefaultOrganization defaultOrganization = tester.get(DefaultOrganizationProvider.class).get();
+    tester.get(UserPermissionDao.class).insert(dbSession, new UserPermissionDto(defaultOrganization.getUuid(), UserRole.USER, user.getId(), project1.getId()));
+    tester.get(UserPermissionDao.class).insert(dbSession, new UserPermissionDto(defaultOrganization.getUuid(), UserRole.USER, user.getId(), project2.getId()));
     UserSession userSession = userSessionRule.login("john").setUserId(user.getId().intValue()).setName("John")
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
