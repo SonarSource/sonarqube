@@ -187,7 +187,7 @@ public class ViewIndexerTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbClient.componentDao().insert(dbSession, project, file);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(project.getId()));
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(project.getId()));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);

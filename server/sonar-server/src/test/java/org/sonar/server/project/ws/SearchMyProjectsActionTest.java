@@ -36,16 +36,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.UserPermissionDto;
-import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -78,20 +73,16 @@ public class SearchMyProjectsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  UserDbTester userDb = new UserDbTester(db);
-  GroupDbTester groupDb = new GroupDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
 
-  WsActionTester ws;
-
-  UserDto user;
-  MetricDto alertStatusMetric;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private WsActionTester ws;
+  private UserDto user;
+  private MetricDto alertStatusMetric;
 
   @Before
   public void setUp() {
-    user = userDb.insertUser(newUserDto().setLogin(USER_LOGIN));
+    user = db.users().insertUser(newUserDto().setLogin(USER_LOGIN));
     userSession.login(this.user.getLogin()).setUserId(user.getId().intValue());
     alertStatusMetric = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(ALERT_STATUS_KEY).setValueType(ValueType.LEVEL.name()));
     db.commit();
@@ -113,8 +104,8 @@ public class SearchMyProjectsActionTest {
     SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang).setCreatedAt(anotherTime));
     dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7, jdk7Snapshot).setData(Level.ERROR.name()));
     dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLang, cLangSnapshot).setData(Level.OK.name()));
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), cLang.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, cLang);
     db.commit();
     System.setProperty("user.timezone", "UTC");
 
@@ -127,9 +118,9 @@ public class SearchMyProjectsActionTest {
   public void return_only_current_user_projects() {
     ComponentDto jdk7 = insertJdk7();
     ComponentDto cLang = insertClang();
-    UserDto anotherUser = userDb.insertUser(newUserDto());
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertUserPermission(UserRole.ADMIN, anotherUser.getId(), cLang.getId());
+    UserDto anotherUser = db.users().insertUser(newUserDto());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -139,13 +130,13 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void sort_projects_by_name() {
-    ComponentDto b_project = componentDb.insertComponent(newProjectDto().setName("B_project_name"));
-    ComponentDto c_project = componentDb.insertComponent(newProjectDto().setName("c_project_name"));
-    ComponentDto a_project = componentDb.insertComponent(newProjectDto().setName("A_project_name"));
+    ComponentDto b_project = db.components().insertComponent(newProjectDto().setName("B_project_name"));
+    ComponentDto c_project = db.components().insertComponent(newProjectDto().setName("c_project_name"));
+    ComponentDto a_project = db.components().insertComponent(newProjectDto().setName("A_project_name"));
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), b_project.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), a_project.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), c_project.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, c_project);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -157,8 +148,8 @@ public class SearchMyProjectsActionTest {
   @Test
   public void paginate_projects() {
     for (int i = 0; i < 10; i++) {
-      ComponentDto project = componentDb.insertComponent(newProjectDto().setName("project-" + i));
-      insertUserPermission(UserRole.ADMIN, user.getId(), project.getId());
+      ComponentDto project = db.components().insertComponent(newProjectDto().setName("project-" + i));
+      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
     SearchMyProjectsWsResponse result = call_ws(ws.newRequest()
@@ -174,8 +165,8 @@ public class SearchMyProjectsActionTest {
     ComponentDto jdk7 = insertJdk7();
     ComponentDto clang = insertClang();
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertUserPermission(UserRole.ISSUE_ADMIN, user.getId(), clang.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -189,9 +180,9 @@ public class SearchMyProjectsActionTest {
     ComponentDto dev = insertDeveloper();
     ComponentDto view = insertView();
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), dev.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), view.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, dev);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -204,11 +195,11 @@ public class SearchMyProjectsActionTest {
     ComponentDto jdk7 = insertJdk7();
     ComponentDto cLang = insertClang();
 
-    GroupDto group = groupDb.insertGroup(newGroupDto());
-    groupDb.addUserToGroup(user.getId(), group.getId());
+    GroupDto group = db.users().insertGroup(newGroupDto());
+    db.users().insertMember(group, user);
 
-    insertGroupPermission(UserRole.ADMIN, group.getId(), jdk7.getId());
-    insertGroupPermission(UserRole.USER, group.getId(), cLang.getId());
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, cLang);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -220,16 +211,16 @@ public class SearchMyProjectsActionTest {
   public void admin_via_groups_and_users() {
     ComponentDto jdk7 = insertJdk7();
     ComponentDto cLang = insertClang();
-    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto());
+    ComponentDto sonarqube = db.components().insertComponent(newProjectDto());
 
-    GroupDto group = groupDb.insertGroup(newGroupDto());
-    groupDb.addUserToGroup(user.getId(), group.getId());
+    GroupDto group = db.users().insertGroup(newGroupDto());
+    db.users().insertMember(group, user);
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
-    insertGroupPermission(UserRole.ADMIN, group.getId(), cLang.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, cLang);
     // admin via group and user
-    insertUserPermission(UserRole.ADMIN, user.getId(), sonarqube.getId());
-    insertGroupPermission(UserRole.ADMIN, group.getId(), sonarqube.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, sonarqube);
 
     SearchMyProjectsWsResponse result = call_ws();
 
@@ -239,16 +230,16 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void search_my_projects_by_name() {
-    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto().setName("ONE_PROJECT_NAME"));
-    ComponentDto jdk8 = componentDb.insertComponent(newProjectDto().setName("TWO_PROJECT_NAME"));
-    ComponentDto ruby = componentDb.insertComponent(newProjectDto().setName("ANOTHER_42"));
+    ComponentDto sonarqube = db.components().insertComponent(newProjectDto().setName("ONE_PROJECT_NAME"));
+    ComponentDto jdk8 = db.components().insertComponent(newProjectDto().setName("TWO_PROJECT_NAME"));
+    ComponentDto ruby = db.components().insertComponent(newProjectDto().setName("ANOTHER_42"));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(jdk8), newAnalysis(ruby));
-    componentDb.indexAllComponents();
+    db.components().indexAllComponents();
     db.commit();
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), sonarqube.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), jdk8.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), ruby.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk8);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, ruby);
 
     SearchMyProjectsWsResponse result = call_ws(ws.newRequest().setParam(TEXT_QUERY, "_project_"));
 
@@ -260,14 +251,14 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void search_my_projects_by_exact_match_on_key() {
-    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto().setKey("MY_PROJECT_KEY"));
-    ComponentDto ruby = componentDb.insertComponent(newProjectDto().setKey("MY_PROJECT_KEY_OR_ELSE"));
+    ComponentDto sonarqube = db.components().insertComponent(newProjectDto().setKey("MY_PROJECT_KEY"));
+    ComponentDto ruby = db.components().insertComponent(newProjectDto().setKey("MY_PROJECT_KEY_OR_ELSE"));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(ruby));
-    componentDb.indexAllComponents();
+    db.components().indexAllComponents();
     db.commit();
 
-    insertUserPermission(UserRole.ADMIN, user.getId(), sonarqube.getId());
-    insertUserPermission(UserRole.ADMIN, user.getId(), ruby.getId());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, ruby);
 
     SearchMyProjectsWsResponse result = call_ws(ws.newRequest().setParam(TEXT_QUERY, "MY_PROJECT_KEY"));
 
@@ -300,40 +291,27 @@ public class SearchMyProjectsActionTest {
   }
 
   private ComponentDto insertClang() {
-    return componentDb.insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_01)
+    return db.components().insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
       .setKey("clang"));
   }
 
   private ComponentDto insertJdk7() {
-    return componentDb.insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_02)
+    return db.components().insertComponent(newProjectDto(Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));
   }
 
   private ComponentDto insertView() {
-    return componentDb.insertComponent(newView("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
+    return db.components().insertComponent(newView("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
   }
 
   private ComponentDto insertDeveloper() {
-    return componentDb.insertComponent(newDeveloper("Joda", "4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
+    return db.components().insertComponent(newDeveloper("Joda", "4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
       .setKey("joda"));
-  }
-
-  private void insertUserPermission(String permission, long userId, long componentId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userId, componentId));
-    db.commit();
-  }
-
-  private void insertGroupPermission(String permission, long groupId, long componentId) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
-      .setRole(permission)
-      .setGroupId(groupId)
-      .setResourceId(componentId));
-    db.commit();
   }
 
   private SearchMyProjectsWsResponse call_ws() {
