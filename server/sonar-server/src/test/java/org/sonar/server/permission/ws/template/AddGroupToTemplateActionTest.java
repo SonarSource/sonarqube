@@ -22,190 +22,163 @@ package org.sonar.server.permission.ws.template;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
-public class AddGroupToTemplateActionTest {
+public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupToTemplateAction> {
 
-  private static final String GROUP_NAME = "group-name";
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+  private PermissionTemplateDto template;
+  private GroupDto group;
 
-  WsActionTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
-  GroupDto group;
-  PermissionTemplateDto permissionTemplate;
+  @Override
+  protected AddGroupToTemplateAction buildWsAction() {
+    return new AddGroupToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession);
+  }
 
   @Before
   public void setUp() {
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-
-    PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
-    ws = new WsActionTester(new AddGroupToTemplateAction(dbClient, dependenciesFinder, userSession));
-
-    group = insertGroup(newGroupDto().setName(GROUP_NAME));
-    permissionTemplate = insertPermissionTemplate(newPermissionTemplateDto());
-    commit();
+    loginAsAdmin();
+    template = insertTemplate();
+    group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-name");
   }
 
   @Test
-  public void add_group_to_template() {
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
+  public void add_group_to_template() throws Exception {
+    newRequest(group.getName(), template.getUuid(), CODEVIEWER);
 
-    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
+    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
-  public void add_group_to_template_by_name() {
-    ws.newRequest()
-      .setParam(PARAM_GROUP_NAME, GROUP_NAME)
+  public void add_group_to_template_by_name() throws Exception {
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
-      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
-    commit();
 
-    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
+    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
-  public void add_with_group_id() {
-    ws.newRequest()
-      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getUuid())
+  public void add_with_group_id() throws Exception {
+    newRequest()
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
 
-    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
+    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
-  public void does_not_add_a_group_twice() {
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), ISSUE_ADMIN);
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), ISSUE_ADMIN);
+  public void does_not_add_a_group_twice() throws Exception {
+    newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
+    newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
 
-    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(GROUP_NAME);
+    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), ISSUE_ADMIN)).containsExactly(group.getName());
   }
 
   @Test
-  public void add_anyone_group_to_template() {
-    newRequest(ANYONE, permissionTemplate.getUuid(), CODEVIEWER);
+  public void add_anyone_group_to_template() throws Exception {
+    newRequest(ANYONE, template.getUuid(), CODEVIEWER);
 
-    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(ANYONE);
+    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(ANYONE);
   }
 
   @Test
-  public void fail_if_add_anyone_group_to_admin_permission() {
+  public void fail_if_add_anyone_group_to_admin_permission() throws Exception {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the '%s' group.", UserRole.ADMIN, ANYONE));
+    expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'", UserRole.ADMIN));
 
-    newRequest(ANYONE, permissionTemplate.getUuid(), ADMIN);
+    newRequest(ANYONE, template.getUuid(), ADMIN);
   }
 
   @Test
-  public void fail_if_not_a_project_permission() {
-    expectedException.expect(BadRequestException.class);
+  public void fail_if_not_a_project_permission() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), GlobalPermissions.PROVISIONING);
+    newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
-    expectedException.expect(ForbiddenException.class);
+  public void fail_if_insufficient_privileges() throws Exception {
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest(group.getName(), template.getUuid(), CODEVIEWER);
   }
 
   @Test
-  public void fail_if_not_logged_in() {
+  public void fail_if_not_logged_in() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
+    newRequest(group.getName(), template.getUuid(), CODEVIEWER);
   }
 
   @Test
-  public void fail_if_group_params_missing() {
+  public void fail_if_group_params_missing() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(null, permissionTemplate.getUuid(), CODEVIEWER);
+    newRequest(null, template.getUuid(), CODEVIEWER);
   }
 
   @Test
-  public void fail_if_permission_missing() {
+  public void fail_if_permission_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), null);
+    newRequest(group.getName(), template.getUuid(), null);
   }
 
   @Test
-  public void fail_if_template_uuid_and_name_missing() {
+  public void fail_if_template_uuid_and_name_missing() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(GROUP_NAME, null, CODEVIEWER);
+    newRequest(group.getName(), null, CODEVIEWER);
   }
 
   @Test
-  public void fail_if_group_does_not_exist() {
+  public void fail_if_group_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Group with name 'unknown-group-name' is not found");
+    expectedException.expectMessage("No group with name 'unknown-group-name'");
 
-    newRequest("unknown-group-name", permissionTemplate.getUuid(), CODEVIEWER);
+    newRequest("unknown-group-name", template.getUuid(), CODEVIEWER);
   }
 
   @Test
-  public void fail_if_template_key_does_not_exist() {
+  public void fail_if_template_key_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
-    newRequest(GROUP_NAME, "unknown-key", CODEVIEWER);
+    newRequest(group.getName(), "unknown-key", CODEVIEWER);
   }
 
-  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
-    TestRequest request = ws.newRequest();
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) throws Exception {
+    WsTester.TestRequest request = newRequest();
     if (groupName != null) {
       request.setParam(PARAM_GROUP_NAME, groupName);
     }
@@ -219,21 +192,17 @@ public class AddGroupToTemplateActionTest {
     request.execute();
   }
 
-  private void commit() {
-    dbSession.commit();
-  }
-
-  private GroupDto insertGroup(GroupDto groupDto) {
-    return dbClient.groupDao().insert(dbSession, groupDto);
-  }
-
-  private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
-    return dbClient.permissionTemplateDao().insert(dbSession, permissionTemplate);
-  }
-
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
-    return dbClient.permissionTemplateDao()
-      .selectGroupNamesByQueryAndTemplate(dbSession, permissionQuery, templateId);
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
+    return db.getDbClient().permissionTemplateDao()
+      .selectGroupNamesByQueryAndTemplate(db.getSession(), query, templateId);
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return wsTester.newPostRequest(CONTROLLER, "add_group_to_template");
+  }
+
+  private void loginAsAdmin() {
+    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

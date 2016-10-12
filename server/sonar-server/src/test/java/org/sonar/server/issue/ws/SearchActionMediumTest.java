@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -47,11 +46,14 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ProjectRef;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import org.sonar.server.ws.WsTester;
 
 import static java.util.Arrays.asList;
@@ -646,8 +648,10 @@ public class SearchActionMediumTest {
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    userSessionRule.login();
+    // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
+    // for each organization
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

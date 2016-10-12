@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
@@ -35,6 +35,8 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
+import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
@@ -56,12 +58,12 @@ public class TemplateUsersAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionDependenciesFinder dependenciesFinder;
+  private final PermissionWsSupport support;
 
-  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionDependenciesFinder dependenciesFinder) {
+  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.dependenciesFinder = dependenciesFinder;
+    this.support = support;
   }
 
   @Override
@@ -88,10 +90,10 @@ public class TemplateUsersAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
+      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
 
       PermissionQuery query = buildQuery(wsRequest, template);
       int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
@@ -101,8 +103,6 @@ public class TemplateUsersAction implements PermissionsWsAction {
         users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
       WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
@@ -77,13 +76,8 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   }
 
   private SearchTemplatesWsResponse doHandle(SearchTemplatesWsRequest wsRequest) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      SearchTemplatesData data = dataLoader.load(wsRequest);
-      return buildResponse(data);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    SearchTemplatesData data = dataLoader.load(wsRequest);
+    return buildResponse(data);
   }
 
   private static SearchTemplatesWsRequest toSearchTemplatesWsRequest(Request request) {

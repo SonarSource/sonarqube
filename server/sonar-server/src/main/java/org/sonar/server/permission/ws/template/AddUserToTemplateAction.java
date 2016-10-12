@@ -27,18 +27,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.UserId;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -46,12 +45,12 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class AddUserToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
-  private final PermissionDependenciesFinder dependenciesFinder;
+  private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
 
-  public AddUserToTemplateAction(DbClient dbClient, PermissionDependenciesFinder dependenciesFinder, UserSession userSession) {
+  public AddUserToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession) {
     this.dbClient = dbClient;
-    this.dependenciesFinder = dependenciesFinder;
+    this.wsSupport = wsSupport;
     this.userSession = userSession;
   }
 
@@ -79,19 +78,16 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
 
   private void doHandle(AddUserToTemplateWsRequest request) {
     String permission = request.getPermission();
-    final String userLogin = request.getLogin();
+    String userLogin = request.getLogin();
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
-      UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      UserId user = wsSupport.findUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getId(), userLogin, permission)) {
         dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getId(), user.getId(), permission);
+        dbSession.commit();
       }
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

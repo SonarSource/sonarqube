@@ -27,11 +27,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 
@@ -45,13 +44,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 
 public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
-  private final PermissionDependenciesFinder dependenciesFinder;
+  private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final System2 system;
 
-  public AddProjectCreatorToTemplateAction(DbClient dbClient, PermissionDependenciesFinder dependenciesFinder, UserSession userSession, System2 system) {
+  public AddProjectCreatorToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, System2 system) {
     this.dbClient = dbClient;
-    this.dependenciesFinder = dependenciesFinder;
+    this.wsSupport = wsSupport;
     this.userSession = userSession;
     this.system = system;
   }
@@ -77,9 +76,8 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(AddProjectCreatorToTemplateWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
         .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
       if (templatePermission.isPresent()) {
@@ -87,8 +85,6 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       } else {
         addTemplatePermission(dbSession, request, template);
       }
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

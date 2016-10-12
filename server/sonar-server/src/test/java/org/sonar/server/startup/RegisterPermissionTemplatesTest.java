@@ -19,140 +19,120 @@
  */
 package org.sonar.server.startup;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.junit.Before;
+import java.util.List;
+import java.util.Objects;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.permission.template.PermissionTemplateDao;
-import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
-import org.sonar.server.permission.DefaultPermissionTemplates;
+import org.sonar.db.permission.template.PermissionTemplate;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.platform.PersistentSettings;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.argThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_KEY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 
 public class RegisterPermissionTemplatesTest {
 
-  private PersistentSettings settings;
-  private LoadedTemplateDao loadedTemplateDao;
-  private PermissionTemplateDao permissionTemplateDao;
-  private DbClient dbClient;
-  private UserDao userDao;
-  private GroupDao groupDao;
-  private DbSession dbSession = mock(DbSession.class);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    settings = mock(PersistentSettings.class);
-    loadedTemplateDao = mock(LoadedTemplateDao.class);
-    permissionTemplateDao = mock(PermissionTemplateDao.class);
-    userDao = mock(UserDao.class);
-    groupDao = mock(GroupDao.class);
+  @Rule
+  public LogTester logTester = new LogTester();
 
-    dbClient = mock(DbClient.class);
-    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
-    when(dbClient.loadedTemplateDao()).thenReturn(loadedTemplateDao);
-    when(dbClient.userDao()).thenReturn(userDao);
-    when(dbClient.groupDao()).thenReturn(groupDao);
-    when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
+  private PersistentSettings settings = mock(PersistentSettings.class);
+  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), settings, defaultOrganizationProvider);
+
+  @Test
+  public void insert_default_permission_template_if_fresh_install() {
+    db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
+
+    underTest.start();
+
+    PermissionTemplate defaultTemplate = selectTemplate();
+    assertThat(defaultTemplate.getTemplate().getName()).isEqualTo("Default template");
+
+    List<PermissionTemplateGroupDto> groupPermissions = defaultTemplate.getGroupPermissions();
+    assertThat(groupPermissions).hasSize(4);
+    expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
+    expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
+
+    // template is marked as default
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getTemplate().getUuid());
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   @Test
-  public void should_insert_and_register_default_permission_template() {
-    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid())
-      .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
-    PermissionTemplateDto permissionTemplate = DefaultPermissionTemplates.DEFAULT_TEMPLATE.setId(1L);
+  public void ignore_administrators_permissions_if_group_does_not_exist() {
+    underTest.start();
 
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()))
-      .thenReturn(0);
-    when(permissionTemplateDao.insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE))
-      .thenReturn(permissionTemplate);
-    when(groupDao.selectByName(dbSession, DefaultGroups.ADMINISTRATORS)).thenReturn(new GroupDto().setId(1L));
-    when(groupDao.selectByName(dbSession, DefaultGroups.USERS)).thenReturn(new GroupDto().setId(2L));
+    PermissionTemplate defaultTemplate = selectTemplate();
+    assertThat(defaultTemplate.getTemplate().getName()).isEqualTo("Default template");
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
-    initializer.start();
+    List<PermissionTemplateGroupDto> groupPermissions = defaultTemplate.getGroupPermissions();
+    assertThat(groupPermissions).hasSize(2);
+    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
+    expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
 
-    verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(permissionTemplateDao).insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
-    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, 1L, UserRole.ADMIN);
-    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, 1L, UserRole.ISSUE_ADMIN);
-    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, null, UserRole.USER);
-    verify(permissionTemplateDao).insertGroupPermission(dbSession, 1L, null, UserRole.CODEVIEWER);
-    verifyNoMoreInteractions(permissionTemplateDao);
-    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
+    // marked as default
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getTemplate().getUuid());
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Cannot setup default permission for group: sonar-administrators");
   }
 
   @Test
-  public void should_skip_insertion_and_registration() {
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()))
-      .thenReturn(1);
+  public void do_not_create_default_template_if_already_exists() {
+    markTaskAsAlreadyExecuted();
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
-    initializer.start();
+    underTest.start();
 
-    verifyZeroInteractions(permissionTemplateDao);
-    verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
+    assertThat(selectTemplate()).isNull();
+    verify(settings, never()).saveProperty(eq(DEFAULT_TEMPLATE_PROPERTY), anyString());
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   @Test
-  public void should_reference_TRK_template_as_default_when_present() {
+  public void reference_TRK_template_as_default_when_present() {
     when(settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT))).thenReturn("my_projects_template");
+    markTaskAsAlreadyExecuted();
 
-    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid())
-      .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
+    underTest.start();
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
-    initializer.start();
-
-    verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
     verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, "my_projects_template");
-    verifyZeroInteractions(permissionTemplateDao);
   }
 
-  private static class Matches extends BaseMatcher<LoadedTemplateDto> {
+  private void markTaskAsAlreadyExecuted() {
+    db.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(DEFAULT_TEMPLATE_KEY, LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE));
+  }
 
-    private final LoadedTemplateDto referenceTemplate;
+  private PermissionTemplate selectTemplate() {
+    return db.getDbClient().permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(db.getSession(), DEFAULT_TEMPLATE_KEY);
+  }
 
-    private Matches(LoadedTemplateDto referenceTemplate) {
-      this.referenceTemplate = referenceTemplate;
-    }
-
-    static Matches template(LoadedTemplateDto referenceTemplate) {
-      return new Matches(referenceTemplate);
-    }
-
-    @Override
-    public boolean matches(Object o) {
-      if (o != null && o instanceof LoadedTemplateDto) {
-        LoadedTemplateDto otherTemplate = (LoadedTemplateDto) o;
-        return referenceTemplate.getKey().equals(otherTemplate.getKey())
-          && referenceTemplate.getType().equals(otherTemplate.getType());
-      }
-      return false;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-    }
+  private void expectGroupPermission(List<PermissionTemplateGroupDto> groupPermissions, String expectedPermission,
+    String expectedGroupName) {
+    assertThat(
+      groupPermissions.stream().anyMatch(gp -> gp.getPermission().equals(expectedPermission) && Objects.equals(gp.getGroupName(), expectedGroupName)))
+        .isTrue();
   }
 }

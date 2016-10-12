@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
@@ -35,6 +35,8 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
+import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 
@@ -54,12 +56,12 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 public class TemplateGroupsAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionDependenciesFinder dependenciesFinder;
+  private final PermissionWsSupport support;
 
-  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionDependenciesFinder dependenciesFinder) {
+  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.dependenciesFinder = dependenciesFinder;
+    this.support = support;
   }
 
   @Override
@@ -86,10 +88,10 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateRef);
+      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
 
       PermissionQuery query = buildPermissionQuery(wsRequest);
       int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getId());
@@ -98,8 +100,6 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
       WsPermissions.WsGroupsResponse groupsResponse = buildResponse(groups, groupPermissions, paging);
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
