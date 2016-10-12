@@ -51,7 +51,7 @@ public class GroupPermissionChanger {
         validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
         GroupPermissionDto addedDto = new GroupPermissionDto()
           .setRole(change.getPermission())
-          // TODO support organizations
+          .setOrganizationUuid(change.getOrganizationUuid())
           .setGroupId(change.getGroupIdOrAnyone().getId())
           .setResourceId(change.getNullableProjectId());
         dbClient.groupPermissionDao().insert(dbSession, addedDto);
@@ -60,7 +60,7 @@ public class GroupPermissionChanger {
         checkAdminUsersExistOutsideTheRemovedGroup(dbSession, change);
         GroupPermissionDto deletedDto = new GroupPermissionDto()
           .setRole(change.getPermission())
-          // TODO support organizations
+          .setOrganizationUuid(change.getOrganizationUuid())
           .setGroupId(change.getGroupIdOrAnyone().getId())
           .setResourceId(change.getNullableProjectId());
         dbClient.roleDao().deleteGroupRole(deletedDto, dbSession);
