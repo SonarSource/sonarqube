@@ -3,7 +3,8 @@
   <group_roles id="1"
                group_id="[null]"
                resource_id="399"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
 
   <projects uuid="ABCD"
             uuid_path="NOT_USED"

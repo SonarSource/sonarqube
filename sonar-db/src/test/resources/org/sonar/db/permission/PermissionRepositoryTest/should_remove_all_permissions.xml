@@ -20,6 +20,7 @@
   <group_roles id="1"
                group_id="100"
                resource_id="123"
-               role="codeviewer"/>
+               role="codeviewer"
+               organization_uuid="[null]"/>
 
 </dataset>

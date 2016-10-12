@@ -33,10 +33,12 @@
   <group_roles id="200"
                group_id="200"
                resource_id="[null]"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
   <group_roles id="201"
                group_id="200"
                resource_id="[null]"
-               role="admin"/>
+               role="admin"
+               organization_uuid="[null]"/>
 
 </dataset>

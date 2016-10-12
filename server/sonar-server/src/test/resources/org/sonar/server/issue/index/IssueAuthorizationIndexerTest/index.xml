@@ -46,20 +46,24 @@
   <group_roles id="1"
                group_id="100"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
   <group_roles id="2"
                group_id="100"
                resource_id="2"
-               role="admin"/>
+               role="admin"
+               organization_uuid="[null]"/>
 
   <!-- Anyone group  -->
   <group_roles id="3"
                group_id="[null]"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
   <group_roles id="4"
                group_id="[null]"
                resource_id="2"
-               role="admin"/>
+               role="admin"
+               organization_uuid="[null]"/>
 
 </dataset>

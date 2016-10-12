@@ -38,5 +38,6 @@
   <group_roles id="1"
                group_id="100"
                resource_id="2"
-               role="admin"/>
+               role="admin"
+               organization_uuid="[null]"/>
 </dataset>
