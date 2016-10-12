@@ -28,9 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
@@ -57,13 +56,13 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final System2 system;
-  private final PermissionDependenciesFinder finder;
+  private final PermissionWsSupport wsSupport;
 
-  public UpdateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, PermissionDependenciesFinder finder) {
+  public UpdateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
-    this.finder = finder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -100,15 +99,12 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     String descriptionParam = request.getDescription();
     String projectPatternParam = request.getProjectKeyPattern();
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, uuid, nameParam, descriptionParam, projectPatternParam);
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
 
       return buildResponse(updatedTemplate);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -127,7 +123,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
   private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String uuid, @Nullable String newName, @Nullable String newDescription,
     @Nullable String newProjectKeyPattern) {
-    PermissionTemplateDto templateToUpdate = finder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
+    PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
     templateToUpdate.setName(firstNonNull(newName, templateToUpdate.getName()));
     templateToUpdate.setDescription(firstNonNull(newDescription, templateToUpdate.getDescription()));
     templateToUpdate.setKeyPattern(firstNonNull(newProjectKeyPattern, templateToUpdate.getKeyPattern()));

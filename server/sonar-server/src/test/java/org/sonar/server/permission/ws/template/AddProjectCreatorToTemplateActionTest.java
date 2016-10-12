@@ -17,152 +17,135 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.permission.ws.template;
 
 import java.util.Optional;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
-public class AddProjectCreatorToTemplateActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  PermissionTemplateCharacteristicMapper mapper = dbSession.getMapper(PermissionTemplateCharacteristicMapper.class);
-  ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  System2 system = mock(System2.class);
+public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<AddProjectCreatorToTemplateAction> {
 
-  WsActionTester ws;
+  private System2 system = spy(System2.INSTANCE);
+  private PermissionTemplateDto template;
 
-  PermissionTemplateDto template;
+  @Override
+  protected AddProjectCreatorToTemplateAction buildWsAction() {
+    return new AddProjectCreatorToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system);
+  }
 
   @Before
   public void setUp() {
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    when(system.now()).thenReturn(2_000_000_000L);
-
-    ws = new WsActionTester(new AddProjectCreatorToTemplateAction(dbClient,
-      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes), userSession, system));
-
     template = insertTemplate();
+    when(system.now()).thenReturn(2_000_000_000L);
   }
 
   @Test
-  public void insert_row_when_no_template_permission() {
-    call(ws.newRequest()
+  public void insert_row_when_no_template_permission() throws Exception {
+    newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .execute();
 
     assertThatProjectCreatorIsPresentFor(UserRole.ADMIN, template.getId());
   }
 
   @Test
-  public void update_row_when_existing_template_permission() {
-    PermissionTemplateCharacteristicDto insertedPermissionTemplate = dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setTemplateId(template.getId())
-      .setPermission(UserRole.USER)
-      .setWithProjectCreator(false)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(1_000_000_000L));
+  public void update_row_when_existing_template_permission() throws Exception {
+    PermissionTemplateCharacteristicDto characteristic = db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(),
+      new PermissionTemplateCharacteristicDto()
+        .setTemplateId(template.getId())
+        .setPermission(UserRole.USER)
+        .setWithProjectCreator(false)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(1_000_000_000L));
     db.commit();
     when(system.now()).thenReturn(3_000_000_000L);
 
-    call(ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, UserRole.USER)
-      .setParam(PARAM_TEMPLATE_NAME, template.getName()));
+      .setParam(PARAM_TEMPLATE_NAME, template.getName())
+      .execute();
 
     assertThatProjectCreatorIsPresentFor(UserRole.USER, template.getId());
-    PermissionTemplateCharacteristicDto updatedPermissionTemplate = mapper.selectById(insertedPermissionTemplate.getId());
-    assertThat(updatedPermissionTemplate.getCreatedAt()).isEqualTo(1_000_000_000L);
-    assertThat(updatedPermissionTemplate.getUpdatedAt()).isEqualTo(3_000_000_000L);
+    PermissionTemplateCharacteristicDto reloaded = reload(characteristic);
+    assertThat(reloaded.getCreatedAt()).isEqualTo(1_000_000_000L);
+    assertThat(reloaded.getUpdatedAt()).isEqualTo(3_000_000_000L);
   }
 
   @Test
-  public void fail_when_template_does_not_exist() {
+  public void fail_when_template_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    call(ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, "42"));
+      .setParam(PARAM_TEMPLATE_ID, "42")
+      .execute();
   }
 
   @Test
-  public void fail_if_permission_is_not_a_project_permission() {
-    expectedException.expect(BadRequestException.class);
+  public void fail_if_permission_is_not_a_project_permission() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
 
-    call(ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .execute();
   }
 
   @Test
-  public void fail_if_not_authenticated() {
+  public void fail_if_not_authenticated() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    call(ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .execute();
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
+  public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
-    call(ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .execute();
   }
 
   private void assertThatProjectCreatorIsPresentFor(String permission, long templateId) {
-    Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(dbSession, permission, templateId);
+    Optional<PermissionTemplateCharacteristicDto> templatePermission = db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(),
+      permission,
+      templateId);
     assertThat(templatePermission).isPresent();
     assertThat(templatePermission.get().getWithProjectCreator()).isTrue();
   }
 
-  private PermissionTemplateDto insertTemplate() {
-    PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto());
-    db.commit();
-    return template;
+  private WsTester.TestRequest newRequest() {
+    return wsTester.newPostRequest(CONTROLLER, "add_project_creator_to_template");
   }
 
-  private void call(TestRequest request) {
-    request.execute();
+  private PermissionTemplateCharacteristicDto reload(PermissionTemplateCharacteristicDto characteristic) {
+    return db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(), characteristic.getPermission(), characteristic.getTemplateId()).get();
   }
 }

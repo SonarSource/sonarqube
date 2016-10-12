@@ -28,7 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
 
@@ -36,7 +36,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newWsProjectRef;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -45,12 +45,12 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionService permissionService;
-  private final PermissionDependenciesFinder finder;
+  private final PermissionWsSupport wsSupport;
 
-  public ApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionDependenciesFinder finder) {
+  public ApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.permissionService = permissionService;
-    this.finder = finder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -75,17 +75,14 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(ApplyTemplateWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
-      ComponentDto project = finder.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
 
       ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(
         template.getUuid(),
         singletonList(project.key()));
-      permissionService.applyPermissionTemplate(query);
-    } finally {
-      dbClient.closeSession(dbSession);
+      permissionService.applyPermissionTemplate(dbSession, query);
     }
   }
 

@@ -22,207 +22,176 @@ package org.sonar.server.permission.ws.template;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.GroupDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
-import static org.sonar.test.JsonAssert.assertJson;
 
-public class UpdateTemplateActionTest {
+public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplateAction> {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  private static final String ACTION = "update_template";
 
-  WsActionTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+  private System2 system = spy(System2.INSTANCE);
+  private PermissionTemplateDto template;
 
-  PermissionTemplateDto templateDto;
+  @Override
+  protected UpdateTemplateAction buildWsAction() {
+    return new UpdateTemplateAction(db.getDbClient(), userSession, system, newPermissionWsSupport());
+  }
 
   @Before
   public void setUp() {
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    System2 system = mock(System2.class);
     when(system.now()).thenReturn(1_440_512_328_743L);
 
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
-
-    ws = new WsActionTester(new UpdateTemplateAction(dbClient, userSession, system, finder));
-
-    templateDto = insertTemplate(newPermissionTemplateDto()
+    template = insertTemplate(newPermissionTemplateDto()
       .setName("Permission Template Name")
       .setDescription("Permission Template Description")
       .setKeyPattern(".*\\.pattern\\..*")
       .setCreatedAt(new Date(1_000_000_000_000L))
       .setUpdatedAt(new Date(1_000_000_000_000L)));
-    commit();
   }
 
   @Test
-  public void update_all_permission_template_fields() {
-    TestResponse result = newRequest(templateDto.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
+  public void update_all_permission_template_fields() throws Exception {
+    String result = call(template.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
-    assertJson(result.getInput())
+    assertJson(result)
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("update_template-example.json"));
-    PermissionTemplateDto finance = dbClient.permissionTemplateDao().selectByName(dbSession, "Finance");
+    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
-    assertThat(finance.getUuid()).isEqualTo(templateDto.getUuid());
-    assertThat(finance.getCreatedAt()).isEqualTo(templateDto.getCreatedAt());
+    assertThat(finance.getUuid()).isEqualTo(template.getUuid());
+    assertThat(finance.getCreatedAt()).isEqualTo(template.getCreatedAt());
     assertThat(finance.getUpdatedAt().getTime()).isEqualTo(1440512328743L);
   }
 
   @Test
-  public void update_with_the_same_values() {
-    newRequest(templateDto.getUuid(), templateDto.getName(), templateDto.getDescription(), templateDto.getKeyPattern());
+  public void update_with_the_same_values() throws Exception {
+    call(template.getUuid(), template.getName(), template.getDescription(), template.getKeyPattern());
 
-    PermissionTemplateDto updatedTemplate = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getUuid());
-    assertThat(updatedTemplate.getName()).isEqualTo(templateDto.getName());
-    assertThat(updatedTemplate.getDescription()).isEqualTo(templateDto.getDescription());
-    assertThat(updatedTemplate.getKeyPattern()).isEqualTo(templateDto.getKeyPattern());
+    PermissionTemplateDto reloaded = db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid());
+    assertThat(reloaded.getName()).isEqualTo(template.getName());
+    assertThat(reloaded.getDescription()).isEqualTo(template.getDescription());
+    assertThat(reloaded.getKeyPattern()).isEqualTo(template.getKeyPattern());
   }
 
   @Test
-  public void update_name_only() {
-    newRequest(templateDto.getUuid(), "Finance", null, null);
+  public void update_name_only() throws Exception {
+    call(template.getUuid(), "Finance", null, null);
 
-    PermissionTemplateDto finance = dbClient.permissionTemplateDao().selectByName(dbSession, "Finance");
+    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
-    assertThat(finance.getDescription()).isEqualTo(templateDto.getDescription());
-    assertThat(finance.getKeyPattern()).isEqualTo(templateDto.getKeyPattern());
+    assertThat(finance.getDescription()).isEqualTo(template.getDescription());
+    assertThat(finance.getKeyPattern()).isEqualTo(template.getKeyPattern());
   }
 
   @Test
-  public void fail_if_key_is_not_found() {
+  public void fail_if_key_is_not_found() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
-    newRequest("unknown-key", null, null, null);
+    call("unknown-key", null, null, null);
   }
 
   @Test
-  public void fail_if_name_already_exists_in_another_template() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A template with the name 'My Template' already exists (case insensitive).");
-
+  public void fail_if_name_already_exists_in_another_template() throws Exception {
     insertTemplate(newPermissionTemplateDto()
       .setName("My Template")
       .setUuid("my-key")
       .setCreatedAt(new Date(12345789L))
       .setUpdatedAt(new Date(12345789L)));
-    commit();
 
-    newRequest(templateDto.getUuid(), "My Template", null, null);
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("A template with the name 'My Template' already exists (case insensitive).");
+
+    call(template.getUuid(), "My Template", null, null);
   }
 
   @Test
-  public void fail_if_key_is_not_provided() {
+  public void fail_if_key_is_not_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(null, "Finance", null, null);
+    call(null, "Finance", null, null);
   }
 
   @Test
-  public void fail_if_name_empty() {
+  public void fail_if_name_empty() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
-    newRequest(templateDto.getUuid(), "", null, null);
+    call(template.getUuid(), "", null, null);
   }
 
   @Test
-  public void fail_if_name_has_just_whitespaces() {
+  public void fail_if_name_has_just_whitespaces() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
-    newRequest(templateDto.getUuid(), "  \r\n", null, null);
+    call(template.getUuid(), "  \r\n", null, null);
   }
 
   @Test
-  public void fail_if_regexp_if_not_valid() {
+  public void fail_if_regexp_if_not_valid() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
-    newRequest(templateDto.getUuid(), "Finance", null, "[azerty");
+    call(template.getUuid(), "Finance", null, "[azerty");
   }
 
   @Test
-  public void fail_if_name_already_exists_in_database_case_insensitive() {
+  public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
+    insertTemplate(newPermissionTemplateDto().setName("finance"));
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("A template with the name 'Finance' already exists (case insensitive).");
-    insertTemplate(newPermissionTemplateDto().setName("finance"));
-    commit();
 
-    newRequest(templateDto.getUuid(), "Finance", null, null);
+    call(template.getUuid(), "Finance", null, null);
   }
 
   @Test
-  public void fail_if_not_logged_in() {
+  public void fail_if_not_logged_in() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(templateDto.getUuid(), "Finance", null, null);
+    call(template.getUuid(), "Finance", null, null);
   }
 
   @Test
-  public void fail_if_not_admin() {
+  public void fail_if_not_admin() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(templateDto.getUuid(), "Finance", null, null);
+    call(template.getUuid(), "Finance", null, null);
   }
 
-  private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(dbSession, template);
+  private PermissionTemplateDto insertTemplate(PermissionTemplateDto dto) {
+    db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
   }
 
-  private GroupDto insertGroup(GroupDto group) {
-    return dbClient.groupDao().insert(db.getSession(), group);
-  }
-
-  private void commit() {
-    dbSession.commit();
-  }
-
-  private TestResponse newRequest(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) {
-    TestRequest request = ws.newRequest();
+  private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
+    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
     if (key != null) {
       request.setParam(PARAM_ID, key);
     }
@@ -236,6 +205,6 @@ public class UpdateTemplateActionTest {
       request.setParam(PARAM_PROJECT_KEY_PATTERN, projectPattern);
     }
 
-    return request.execute();
+    return request.execute().outputAsString();
   }
 }

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Template from a WS request. Guaranties the template id or the template name is provided, not both.

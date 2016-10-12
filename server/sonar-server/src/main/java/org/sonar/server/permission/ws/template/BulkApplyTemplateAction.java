@@ -20,15 +20,6 @@
 
 package org.sonar.server.permission.ws.template;
 
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -47,22 +38,31 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
+
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class BulkApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionService permissionService;
-  private final PermissionDependenciesFinder finder;
+  private final PermissionWsSupport wsSupport;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
 
-  public BulkApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionDependenciesFinder finder, I18n i18n,
+  public BulkApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionWsSupport wsSupport, I18n i18n,
     ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.permissionService = permissionService;
-    this.finder = finder;
+    this.wsSupport = wsSupport;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
   }
@@ -94,9 +94,8 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(BulkApplyTemplateWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       ComponentQuery componentQuery = ComponentQuery.builder()
         .setNameOrKeyQuery(request.getQuery())
         .setQualifiers(qualifiers(request.getQualifier()))
@@ -110,8 +109,6 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         template.getUuid(),
         Lists.transform(rootComponents, ComponentDtoFunctions.toKey()));
       permissionService.applyPermissionTemplate(dbSession, query);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

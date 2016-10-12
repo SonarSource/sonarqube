@@ -25,10 +25,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.UserId;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 
@@ -44,12 +43,12 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
-  private final PermissionDependenciesFinder dependenciesFinder;
+  private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
 
-  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionDependenciesFinder dependenciesFinder, UserSession userSession) {
+  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession) {
     this.dbClient = dbClient;
-    this.dependenciesFinder = dependenciesFinder;
+    this.wsSupport = wsSupport;
     this.userSession = userSession;
   }
 
@@ -80,16 +79,13 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     String permission = request.getPermission();
     String userLogin = request.getLogin();
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
-      UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      UserId user = wsSupport.findUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
