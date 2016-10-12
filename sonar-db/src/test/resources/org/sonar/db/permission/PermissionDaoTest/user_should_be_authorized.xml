@@ -16,7 +16,8 @@
   <group_roles id="1"
                group_id="200"
                resource_id="999"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
 
   <projects id="300"
             kee="pj-w-snapshot"

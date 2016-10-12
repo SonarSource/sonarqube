@@ -152,10 +152,12 @@
 
   <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into group_roles (
+    organization_uuid,
     group_id,
     resource_id,
     role
     ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{groupId,jdbcType=BIGINT},
     #{resourceId,jdbcType=BIGINT},
     #{role,jdbcType=VARCHAR}

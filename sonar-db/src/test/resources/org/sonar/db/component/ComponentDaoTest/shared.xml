@@ -4,7 +4,8 @@
   <group_roles id="1"
                group_id="[null]"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
 
 
   <!-- root project -->

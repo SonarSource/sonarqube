@@ -12,7 +12,8 @@
   <group_roles id="1"
                group_id="200"
                resource_id="[null]"
-               role="user"/>
+               role="user"
+               organization_uuid="[null]"/>
 
   <projects id="301"
             kee="pj-w-snapshot:package"
