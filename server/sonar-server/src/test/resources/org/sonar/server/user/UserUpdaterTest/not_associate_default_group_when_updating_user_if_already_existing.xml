@@ -18,7 +18,8 @@
           name="sonar-users"
           description="Sonar Users"
           created_at="2014-09-08"
-          updated_at="2014-09-08"/>
+          updated_at="2014-09-08"
+          organization_uuid="org1"/>
 
   <groups_users user_id="101"
                 group_id="1"/>

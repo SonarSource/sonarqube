@@ -31,15 +31,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createGroupParameters;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 
 public class UsersAction implements UserGroupsWsAction {
 
@@ -48,13 +46,13 @@ public class UsersAction implements UserGroupsWsAction {
   private static final String FIELD_LOGIN = "login";
 
   private final DbClient dbClient;
-  private final UserGroupFinder userGroupFinder;
   private final UserSession userSession;
+  private final GroupWsSupport support;
 
-  public UsersAction(DbClient dbClient, UserGroupFinder userGroupFinder, UserSession userSession) {
+  public UsersAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
-    this.userGroupFinder = userGroupFinder;
     this.userSession = userSession;
+    this.support = support;
   }
 
   @Override
@@ -68,26 +66,23 @@ public class UsersAction implements UserGroupsWsAction {
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25);
 
-    createGroupParameters(action);
+    defineGroupWsParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    WsGroupRef wsGroupRef = WsGroupRef.newWsGroupRefFromUserGroupRequest(request);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
     String queryString = request.param(Param.TEXT_QUERY);
     String selected = request.mandatoryParam(Param.SELECTED);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      GroupDto group = userGroupFinder.getGroup(dbSession, wsGroupRef);
-      long groupId = group.getId();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      GroupId group = support.findGroup(dbSession, request);
 
       UserMembershipQuery query = UserMembershipQuery.builder()
-        .groupId(groupId)
+        .groupId(group.getId())
         .memberSearch(queryString)
         .membership(getMembership(selected))
         .pageIndex(page)
@@ -101,8 +96,6 @@ public class UsersAction implements UserGroupsWsAction {
       writeMembers(json, users);
       writePaging(json, paging);
       json.endObject().close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
@@ -124,7 +117,7 @@ public class UsersAction implements UserGroupsWsAction {
       .prop("total", paging.total());
   }
 
-  private String getMembership(String selected) {
+  private static String getMembership(String selected) {
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
     String membership = GroupMembershipQuery.ANY;
     if (SelectionMode.SELECTED == selectionMode) {

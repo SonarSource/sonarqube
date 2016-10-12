@@ -4,7 +4,8 @@
                         kee="my_template_20130102_030405"
                         description="my description"
                         created_at="[null]"
-                        updated_at="[null]"/>
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
 
   <users id="1"
          login="user1"

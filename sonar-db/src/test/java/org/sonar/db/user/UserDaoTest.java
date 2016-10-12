@@ -39,6 +39,7 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
 import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
@@ -722,13 +724,13 @@ public class UserDaoTest {
 
   private org.sonar.db.permission.UserPermissionDto insertUserPermission(UserDto user) {
     String permission = randomAlphanumeric(64);
-    org.sonar.db.permission.UserPermissionDto dto = new org.sonar.db.permission.UserPermissionDto(permission, user.getId(), null);
+    UserPermissionDto dto = new UserPermissionDto(db.getDefaultOrganization().getUuid(), permission, user.getId(), null);
     dbClient.userPermissionDao().insert(session, dto);
     return dto;
   }
 
   private UserGroupDto insertUserGroup(UserDto user) {
-    GroupDto group = new GroupDto().setName(randomAlphanumeric(30));
+    GroupDto group = newGroupDto().setName(randomAlphanumeric(30));
     dbClient.groupDao().insert(session, group);
 
     UserGroupDto dto = new UserGroupDto().setUserId(user.getId()).setGroupId(group.getId());

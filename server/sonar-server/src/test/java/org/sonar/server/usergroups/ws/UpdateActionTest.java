@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.net.HttpURLConnection;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,16 +26,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserGroupDao;
-import org.sonar.db.user.UserGroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -47,42 +46,40 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class UpdateActionTest {
 
-  static final String DEFAULT_GROUP_NAME_KEY = "sonar.defaultGroup";
-  static final String DEFAULT_GROUP_NAME_VALUE = "DEFAULT_GROUP_NAME_VALUE";
+  private static final String DEFAULT_GROUP_NAME_KEY = "sonar.defaultGroup";
+  private static final String DEFAULT_GROUP_NAME_VALUE = "DEFAULT_GROUP_NAME_VALUE";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  GroupDao groupDao = dbClient.groupDao();
-  UserGroupDao userGroupDao = dbClient.userGroupDao();
 
-  PersistentSettings settings = mock(PersistentSettings.class);
-  WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient), settings)));
+  private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private PersistentSettings settings = mock(PersistentSettings.class);
+  private WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider), settings, defaultOrganizationProvider)));
 
   @Before
   public void setUp() throws Exception {
+    GroupWsSupport groupSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
+    ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, groupSupport, settings, defaultOrganizationProvider)));
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
   }
 
   @Test
-  public void update_nominal() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    userGroupDao.insert(dbSession, new UserGroupDto().setGroupId(existingGroup.getId()).setUserId(42L));
-
-    dbSession.commit();
+  public void update_both_name_and_description() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
+    UserDto user = db.users().insertUser();
+    db.users().insertMember(group, user);
 
     loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .setParam("description", "New Description")
       .execute().assertJson("{" +
@@ -96,17 +93,16 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
 
     loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .execute().assertJson("{" +
         "  \"group\": {" +
         "    \"name\": \"new-name\"," +
-        "    \"description\": \"Old Description\"," +
+        "    \"description\": \"" + group.getDescription() + "\"," +
         "    \"membersCount\": 0" +
         "  }" +
         "}");
@@ -114,16 +110,15 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_description() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
 
     loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("description", "New Description")
       .execute().assertJson("{" +
         "  \"group\": {" +
-        "    \"name\": \"old-name\"," +
+        "    \"name\": \"" + group.getName() + "\"," +
         "    \"description\": \"New Description\"," +
         "    \"membersCount\": 0" +
         "  }" +
@@ -132,12 +127,11 @@ public class UpdateActionTest {
 
   @Test
   public void update_default_group_name_also_update_default_group_property() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName(DEFAULT_GROUP_NAME_VALUE).setDescription("Default group name"));
-    dbSession.commit();
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
 
     loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .execute();
 
@@ -147,12 +141,27 @@ public class UpdateActionTest {
   @Test
   public void update_default_group_name_does_not_update_default_group_setting_when_null() throws Exception {
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(null);
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName(DEFAULT_GROUP_NAME_VALUE).setDescription("Default group name"));
-    dbSession.commit();
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
 
     loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
+      .setParam("name", "new-name")
+      .execute();
+
+    verify(settings, never()).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
+  }
+
+  @Test
+  public void do_not_update_default_group_of_default_organization_if_updating_group_on_non_default_organization() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
+    GroupDto groupInDefaultOrg = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto group = db.users().insertGroup(org, DEFAULT_GROUP_NAME_VALUE);
+
+    loginAsAdmin();
+    newRequest()
+      .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
       .execute();
 
@@ -161,9 +170,10 @@ public class UpdateActionTest {
 
   @Test
   public void require_admin_permission() throws Exception {
+    userSession.login("not-admin");
+
     expectedException.expect(ForbiddenException.class);
 
-    userSession.login("not-admin");
     newRequest()
       .setParam("id", "42")
       .setParam("name", "some-product-bu")
@@ -172,85 +182,86 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void name_too_short() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
+  public void fail_if_name_is_too_short() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Group name cannot be empty");
 
-    loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", "")
       .execute();
   }
 
   @Test
-  public void name_too_long() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
+  public void fail_if_name_is_too_long() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Group name cannot be longer than 255 characters");
 
-    loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", StringUtils.repeat("a", 255 + 1))
       .execute();
   }
 
   @Test
-  public void forbidden_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
+  public void fail_if_new_name_is_anyone() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Anyone group cannot be used");
 
-    loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
+      .setParam("id", group.getId().toString())
       .setParam("name", "AnYoNe")
       .execute();
   }
 
   @Test
-  public void non_unique_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    String groupName = "conflicting-name";
-    groupDao.insert(dbSession, new GroupDto()
-      .setName(groupName));
-    dbSession.commit();
+  public void fail_to_update_if_name_already_exists() throws Exception {
+    OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
+    GroupDto groupToBeRenamed = db.users().insertGroup(defaultOrg, "a name");
+    String newName = "new-name";
+    db.users().insertGroup(defaultOrg, newName);
+    loginAsAdmin();
 
     expectedException.expect(ServerException.class);
-    expectedException.expectMessage("already taken");
+    expectedException.expectMessage("Group 'new-name' already exists");
 
-    loginAsAdmin();
     newRequest()
-      .setParam("id", existingGroup.getId().toString())
-      .setParam("name", groupName)
-      .execute().assertStatus(HttpURLConnection.HTTP_CONFLICT);
-  }
-
-  @Test
-  public void description_too_long() throws Exception {
-    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
-    dbSession.commit();
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    loginAsAdmin();
-    newRequest()
-      .setParam("id", existingGroup.getId().toString())
-      .setParam("name", "long-group-description-is-looooooooooooong")
-      .setParam("description", StringUtils.repeat("a", 200 + 1))
+      .setParam("id", groupToBeRenamed.getId().toString())
+      .setParam("name", newName)
       .execute();
   }
 
   @Test
-  public void unknown_group() throws Exception {
-    expectedException.expect(NotFoundException.class);
-
+  public void fail_if_description_is_too_long() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
     loginAsAdmin();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Description cannot be longer than 200 characters");
+
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("name", "long-group-description-is-looooooooooooong")
+      .setParam("description", StringUtils.repeat("a", 201))
+      .execute();
+  }
+
+  @Test
+  public void fail_if_unknown_group() throws Exception {
+    loginAsAdmin();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Could not find a user group with id '42'.");
+
     newRequest()
       .setParam("id", "42")
       .execute();
@@ -263,6 +274,4 @@ public class UpdateActionTest {
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
-
-
 }

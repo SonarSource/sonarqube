@@ -94,22 +94,19 @@ public class GroupsAction implements UsersWsAction {
       .pageSize(pageSize)
       .build();
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      UserDto user = dbClient.userDao().selectByLogin(session, login);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
       if (user == null) {
         throw new NotFoundException(String.format("User with login '%s' has not been found", login));
       }
-      int total = dbClient.groupMembershipDao().countGroups(session, query, user.getId());
+      int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getId());
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
-      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(session, query, user.getId(), paging.offset(), pageSize);
+      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getId(), paging.offset(), pageSize);
 
       JsonWriter json = response.newJsonWriter().beginObject();
       writeGroups(json, groups);
       writePaging(json, paging);
       json.endObject().close();
-    } finally {
-      session.close();
     }
   }
 

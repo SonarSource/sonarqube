@@ -8,7 +8,8 @@
          is_root="[false]"/>
 
   <groups id="100"
-          name="devs"/>
+          name="devs"
+          organization_uuid="org1"/>
 
   <user_roles/>
 

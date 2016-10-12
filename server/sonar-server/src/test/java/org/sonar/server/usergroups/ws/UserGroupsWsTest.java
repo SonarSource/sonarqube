@@ -40,9 +40,10 @@ public class UserGroupsWsTest {
 
   @Before
   public void setUp() {
+    GroupWsSupport wsSupport = mock(GroupWsSupport.class);
     WsTester tester = new WsTester(new UserGroupsWs(
-      new SearchAction(mock(DbClient.class), mock(UserSession.class)),
-      new CreateAction(mock(DbClient.class), mock(UserSession.class), mock(UserGroupUpdater.class))));
+      new SearchAction(mock(DbClient.class), mock(UserSession.class), wsSupport),
+      new CreateAction(mock(DbClient.class), mock(UserSession.class), wsSupport)));
     controller = tester.controller("api/user_groups");
   }
 
@@ -59,7 +60,7 @@ public class UserGroupsWsTest {
     WebService.Action action = controller.action("search");
     assertThat(action).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
   @Test
@@ -68,6 +69,6 @@ public class UserGroupsWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 }
