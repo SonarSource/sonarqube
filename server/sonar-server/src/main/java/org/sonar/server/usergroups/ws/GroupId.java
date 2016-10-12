@@ -19,35 +19,38 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.user.GroupDto;
 
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static java.util.Objects.requireNonNull;
 
-public class UserGroupFinder {
-  private final DbClient dbClient;
+/**
+ * Reference to a user group, as used internally by the backend. It does
+ * not support reference to virtual groups "anyone".
+ *
+ * @see GroupWsRef
+ * @see GroupIdOrAnyone
+ */
+@Immutable
+public class GroupId {
 
-  public UserGroupFinder(DbClient dbClient) {
-    this.dbClient = dbClient;
+  private final long id;
+  private final String organizationUuid;
+
+  public GroupId(String organizationUuid, long id) {
+    this.id = id;
+    this.organizationUuid = requireNonNull(organizationUuid);
   }
 
-  public GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
-    Long groupId = group.id();
-    String groupName = group.name();
+  public long getId() {
+    return id;
+  }
 
-    GroupDto groupDto = null;
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
 
-    if (groupId != null) {
-      groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
-        "Group with id '%d' is not found", groupId);
-    }
-
-    if (groupName != null) {
-      groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
-        "Group with name '%s' is not found", groupName);
-    }
-
-    return groupDto;
+  public static GroupId from(GroupDto dto) {
+    return new GroupId(dto.getOrganizationUuid(), dto.getId());
   }
 }

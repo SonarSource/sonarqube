@@ -1,6 +1,7 @@
 {
   "group": {
     "id": "42",
+    "organization": "my-org",
     "name": "some-product-bu",
     "description": "Business Unit for Some Awesome Product",
     "membersCount": 0

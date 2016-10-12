@@ -19,26 +19,26 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserGroupDao;
-import org.sonar.db.user.UserGroupDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-
 
 public class SearchActionTest {
 
@@ -53,19 +53,9 @@ public class SearchActionTest {
 
   private WsTester ws;
 
-  private GroupDao groupDao;
-  private UserGroupDao userGroupDao;
-  private DbSession dbSession;
-
   @Before
   public void setUp() {
-    DbClient dbClient = db.getDbClient();
-    groupDao = dbClient.groupDao();
-    userGroupDao = dbClient.userGroupDao();
-
-    ws = new WsTester(new UserGroupsWs(new SearchAction(dbClient, userSession)));
-
-    dbSession = dbClient.openSession(false);
+    ws = new WsTester(new UserGroupsWs(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport())));
   }
 
   @Test
@@ -76,40 +66,49 @@ public class SearchActionTest {
 
   @Test
   public void search_without_parameters() throws Exception {
-    loginAsSimpleUser();
-    insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    dbSession.commit();
+    insertGroup(db.getDefaultOrganization(), "users", 0);
+    insertGroup(db.getDefaultOrganization(), "admins", 0);
+    insertGroup(db.getDefaultOrganization(), "customer1", 0);
+    insertGroup(db.getDefaultOrganization(), "customer2", 0);
+    insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
+    loginAsSimpleUser();
     newRequest().execute().assertJson(getClass(), "five_groups.json");
   }
 
   @Test
   public void search_with_members() throws Exception {
-    loginAsSimpleUser();
-    insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    insertMembers("users", 5);
-    insertMembers("admins", 1);
-    insertMembers("customer2", 4);
-    dbSession.commit();
+    insertGroup(db.getDefaultOrganization(), "users", 5);
+    insertGroup(db.getDefaultOrganization(), "admins", 1);
+    insertGroup(db.getDefaultOrganization(), "customer1", 0);
+    insertGroup(db.getDefaultOrganization(), "customer2", 4);
+    insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
+    loginAsSimpleUser();
     newRequest().execute().assertJson(getClass(), "with_members.json");
   }
 
   @Test
   public void search_with_query() throws Exception {
-    loginAsSimpleUser();
-    insertGroups("users", "admins", "customer%_%/1", "customer%_%/2", "customer%_%/3");
-    dbSession.commit();
+    insertGroup(db.getDefaultOrganization(), "users", 0);
+    insertGroup(db.getDefaultOrganization(), "admins", 0);
+    insertGroup(db.getDefaultOrganization(), "customer%_%/1", 0);
+    insertGroup(db.getDefaultOrganization(), "customer%_%/2", 0);
+    insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
 
+    loginAsSimpleUser();
     newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().assertJson(getClass(), "customers.json");
   }
 
   @Test
   public void search_with_paging() throws Exception {
-    loginAsSimpleUser();
-    insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    dbSession.commit();
+    insertGroup(db.getDefaultOrganization(), "users", 0);
+    insertGroup(db.getDefaultOrganization(), "admins", 0);
+    insertGroup(db.getDefaultOrganization(), "customer1", 0);
+    insertGroup(db.getDefaultOrganization(), "customer2", 0);
+    insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
+    loginAsSimpleUser();
     newRequest()
       .setParam(Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
     newRequest()
@@ -120,10 +119,9 @@ public class SearchActionTest {
 
   @Test
   public void search_with_fields() throws Exception {
-    loginAsSimpleUser();
-    insertGroups("sonar-users");
-    dbSession.commit();
+    insertGroup(db.getDefaultOrganization(), "sonar-users", 0);
 
+    loginAsSimpleUser();
     assertThat(newRequest().execute().outputAsString())
       .contains("id")
       .contains("name")
@@ -156,7 +154,23 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_not_logged() throws Exception {
+  public void search_in_organization() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org, "users");
+    // the group in default org is not returned
+    db.users().insertGroup(db.getDefaultOrganization(), "users");
+
+    loginAsSimpleUser();
+    newRequest()
+      .setParam("organization", org.getKey())
+      .execute()
+      .assertJson(
+        "{\"total\":1,\"p\":1,\"ps\":100," +
+          "\"groups\":[{\"id\":\"" + group.getId() + "\",\"name\":\"users\"}]}\n");
+  }
+
+  @Test
+  public void fail_when_not_logged_in() throws Exception {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -167,23 +181,21 @@ public class SearchActionTest {
     return ws.newGetRequest("api/user_groups", "search");
   }
 
-  private void insertGroups(String... groupNames) {
-    for (String groupName : groupNames) {
-      groupDao.insert(dbSession, newGroupDto()
-        .setName(groupName)
-        .setDescription(StringUtils.capitalize(groupName)));
-    }
-  }
-
-  private void insertMembers(String groupName, int count) {
-    long groupId = groupDao.selectOrFailByName(dbSession, groupName).getId();
-    for (int i = 0; i < count; i++) {
-      userGroupDao.insert(dbSession, new UserGroupDto().setGroupId(groupId).setUserId((long) i + 1));
+  private void insertGroup(OrganizationDto org, String name, int numberOfMembers) {
+    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name)).setOrganizationUuid(org.getUuid());
+    db.users().insertGroup(group);
+    for (int i = 0; i < numberOfMembers; i++) {
+      UserDto user = db.users().insertUser();
+      db.users().insertMember(group, user);
     }
   }
 
   private void loginAsSimpleUser() {
     userSession.login("user");
+  }
+
+  private GroupWsSupport newGroupWsSupport() {
+    return new GroupWsSupport(db.getDbClient(), DefaultOrganizationProviderRule.create(db));
   }
 
 }

@@ -1,8 +1,10 @@
 <dataset>
   <groups id="100"
-          name="sonar-administrators"/>
+          name="sonar-administrators"
+          organization_uuid="org1"/>
   <groups id="101"
-          name="sonar-users"/>
+          name="sonar-users"
+          organization_uuid="org1"/>
   <users id="200"
          login="marius"
          name="Marius"
@@ -22,6 +24,7 @@
   <user_roles id="2"
               user_id="200"
               resource_id="999"
-              role="codeviewer"/>
+              role="codeviewer"
+              organization_uuid="org1"/>
 
 </dataset>
