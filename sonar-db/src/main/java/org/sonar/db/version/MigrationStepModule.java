@@ -172,6 +172,7 @@ import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnUserRoles;
 import org.sonar.db.version.v62.MakeRootColumnNotNullOnTableUsers;
 import org.sonar.db.version.v62.PopulateIsRootColumnOnTableUsers;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroupRoles;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
@@ -370,7 +371,8 @@ public class MigrationStepModule extends Module {
       MakeOrganizationUuidNotNullOnUserRoles.class,
       PopulateOrganizationUuidOfPermissionTemplates.class,
       MakeOrganizationUuidNotNullOnPermissionTemplates.class,
-      AddOrganizationUuidToGroupRoles.class
+      AddOrganizationUuidToGroupRoles.class,
+      PopulateOrganizationUuidOfGroupRoles.class
     );
   }
 }
