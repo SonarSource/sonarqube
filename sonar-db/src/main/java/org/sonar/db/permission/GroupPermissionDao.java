@@ -37,6 +37,10 @@ public class GroupPermissionDao implements Dao {
   private static final String COMPONENT_ID_PARAMETER = "componentId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
+  /**
+   * @deprecated not compatible with organizations.
+   */
+  @Deprecated
   public int countGroups(DbSession session, String permission, @Nullable Long componentId) {
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("permission", permission);
@@ -47,16 +51,26 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * ordered by group names
+   * @return group names, sorted in alphabetical order
+   * @deprecated not compatible with organizations.
    */
+  @Deprecated
   public List<String> selectGroupNamesByPermissionQuery(DbSession dbSession, PermissionQuery query) {
     return mapper(dbSession).selectGroupNamesByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
+  /**
+   * @deprecated not compatible with organizations.
+   */
+  @Deprecated
   public int countGroupsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
     return mapper(dbSession).countGroupsByPermissionQuery(query);
   }
 
+  /**
+   * @deprecated group name parameter is not enough to identify a group. It is not compatible with organizations.
+   */
+  @Deprecated
   public List<GroupPermissionDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
     return executeLargeInputs(groupNames, groups -> mapper(dbSession).selectGroupPermissionByGroupNames(groups, projectId));
   }
@@ -75,6 +89,28 @@ public class GroupPermissionDao implements Dao {
         mapper(dbSession).groupsCountByProjectIdAndPermission(parameters, resultHandler);
         return null;
       });
+  }
+
+  /**
+   * @return the permissions granted to the requested group, optionally on the requested project. An
+   * empty list is returned if the group or project do not exist.
+   */
+  public List<String> selectGroupPermissions(DbSession session, long groupId, @Nullable Long projectId) {
+    return session.getMapper(GroupPermissionMapper.class).selectGroupPermissions(groupId, projectId);
+  }
+
+  /**
+   * @return the permissions granted to Anyone virtual group, optionally on the requested project. An
+   * empty list is returned if the project does not exist.
+   * @deprecated not compatible with organizations if {@code projectId} is null. Should have an organization parameter.
+   */
+  @Deprecated
+  public List<String> selectAnyonePermissions(DbSession session, @Nullable Long projectId) {
+    return session.getMapper(GroupPermissionMapper.class).selectAnyonePermissions(projectId);
+  }
+
+  public void insert(DbSession dbSession, GroupPermissionDto dto) {
+    mapper(dbSession).insert(dto);
   }
 
   private static GroupPermissionMapper mapper(DbSession session) {

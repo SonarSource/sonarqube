@@ -6,6 +6,7 @@
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.permission.ExtendedUserPermissionDto">
     select
       u.id as userId,
+      ur.organization_uuid as organizationUuid,
       ur.resource_id as componentId,
       ur.role as permission,
       u.login as userLogin,
@@ -60,8 +61,17 @@
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
-    insert into user_roles (user_id, resource_id, role)
-    values (#{userId,jdbcType=BIGINT}, #{componentId,jdbcType=BIGINT}, #{permission,jdbcType=VARCHAR})
+    insert into user_roles (
+    organization_uuid,
+    user_id,
+    resource_id,
+    role
+    ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{userId,jdbcType=BIGINT},
+    #{componentId,jdbcType=BIGINT},
+    #{permission,jdbcType=VARCHAR}
+    )
   </insert>
 
   <delete id="delete" parameterType="map">

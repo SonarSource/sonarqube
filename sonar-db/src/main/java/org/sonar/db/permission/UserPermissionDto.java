@@ -23,6 +23,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class UserPermissionDto {
+
+  private String organizationUuid;
   private String permission;
   private long userId;
   private Long componentId;
@@ -31,10 +33,11 @@ public class UserPermissionDto {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String permission, long userId, @Nullable Long componentId) {
+  public UserPermissionDto(String organizationUuid, String permission, long userId, @Nullable Long componentId) {
+    this.organizationUuid = organizationUuid;
+    this.permission = permission;
     this.userId = userId;
     this.componentId = componentId;
-    this.permission = permission;
   }
 
   public String getPermission() {
@@ -43,6 +46,10 @@ public class UserPermissionDto {
 
   public long getUserId() {
     return userId;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   /**
@@ -58,6 +65,7 @@ public class UserPermissionDto {
     StringBuilder sb = new StringBuilder("UserPermissionDto{");
     sb.append("permission='").append(permission).append('\'');
     sb.append(", userId=").append(userId);
+    sb.append(", organizationUuid=").append(organizationUuid);
     sb.append(", componentId=").append(componentId);
     sb.append('}');
     return sb.toString();
