@@ -40,7 +40,7 @@ public class UserGroupValidationTest {
   @Test
   public void fail_when_group_name_is_empty() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserGroupValidation.validateGroupName("");
   }
@@ -48,7 +48,7 @@ public class UserGroupValidationTest {
   @Test
   public void fail_when_group_name_contains_only_blank() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserGroupValidation.validateGroupName("     ");
   }
@@ -64,7 +64,7 @@ public class UserGroupValidationTest {
   @Test
   public void fail_when_group_name_is_null() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserGroupValidation.validateGroupName(null);
   }
