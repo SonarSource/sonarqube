@@ -20,31 +20,15 @@
 package org.sonar.server.permission.ws;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -56,101 +40,87 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
+public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
-public class AddUserActionTest {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  ResourceTypesRule resourceTypes = new ResourceTypesRule()
-    .setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+  private static final String A_PROJECT_UUID = "project-uuid";
+  private static final String A_PROJECT_KEY = "project-key";
 
-  UserSessionRule userSession = UserSessionRule.standalone();
-  WsTester ws;
-  PermissionUpdater permissionUpdater;
-  DbClient dbClient;
-  DbSession dbSession;
-  ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
+  private UserDto user;
 
   @Before
   public void setUp() {
-    permissionUpdater = mock(PermissionUpdater.class);
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    ws = new WsTester(new PermissionsWs(
-      new AddUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient),
-        resourceTypes)))));
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    user = db.users().insertUser("ray.bradbury");
+  }
+
+  @Override
+  protected AddUserAction buildWsAction() {
+    return new AddUserAction(db.getDbClient(), newPermissionUpdater(), newPermissionWsSupport());
   }
 
   @Test
-  public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+  public void add_permission_to_user() throws Exception {
+    loginAsAdmin();
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
-    PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.userLogin()).isEqualTo("ray.bradbury");
-    assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
+    assertThat(db.users().selectUserPermissions(user, null)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
-  public void add_user_permission_with_project_uuid() throws Exception {
-    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
-    commit();
+  public void add_permission_to_project_referenced_by_its_id() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
+    loginAsAdmin();
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
-    PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
+    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
+    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
-  public void add_user_permissions_with_project_key() throws Exception {
-    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
-    commit();
+  public void add_permission_to_project_referenced_by_its_key() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_KEY, "project-key")
+    loginAsAdmin();
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
-    PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
+    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
+    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
-  public void add_user_permission_with_view_uuid() throws Exception {
-    dbClient.componentDao().insert(dbSession, newView("view-uuid").setKey("view-key"));
-    commit();
+  public void add_permission_to_view() throws Exception {
+    ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_ID, "view-uuid")
+    loginAsAdmin();
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, view.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
-    PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.componentKey()).isEqualTo("view-key");
+    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
+    assertThat(db.users().selectUserPermissions(user, view)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
   public void fail_when_project_uuid_is_unknown() throws Exception {
+    loginAsAdmin();
+
     expectedException.expect(NotFoundException.class);
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -158,22 +128,25 @@ public class AddUserActionTest {
 
   @Test
   public void fail_when_project_permission_without_project() throws Exception {
+    loginAsAdmin();
+
     expectedException.expect(BadRequestException.class);
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
   }
 
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
-    expectedException.expect(BadRequestException.class);
-    insertComponent(newFileDto(newProjectDto("project-uuid"), null, "file-uuid"));
-    commit();
+    db.components().insertComponent(newFileDto(newProjectDto("project-uuid"), null, "file-uuid"));
+    loginAsAdmin();
 
-    ws.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+    expectedException.expect(BadRequestException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -181,9 +154,11 @@ public class AddUserActionTest {
 
   @Test
   public void fail_when_get_request() throws Exception {
+    loginAsAdmin();
+
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(CONTROLLER, ACTION)
+    wsTester.newGetRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "george.orwell")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -191,42 +166,43 @@ public class AddUserActionTest {
 
   @Test
   public void fail_when_user_login_is_missing() throws Exception {
+    loginAsAdmin();
+
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(CONTROLLER, ACTION)
+    wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
 
   @Test
   public void fail_when_permission_is_missing() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
+    loginAsAdmin();
 
-    ws.newPostRequest(CONTROLLER, ACTION)
+    expectedException.expect(NotFoundException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
       .execute();
   }
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+    db.components().insertComponent(newProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    loginAsAdmin();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
-    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
-    commit();
 
-    ws.newPostRequest(CONTROLLER, ACTION)
+    wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 
-  private void insertComponent(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
-  }
-
-  private void commit() {
-    dbSession.commit();
+  private void loginAsAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

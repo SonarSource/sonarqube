@@ -64,12 +64,9 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       WsSearchGlobalPermissionsResponse response = buildResponse(dbSession);
       writeProtobuf(response, wsRequest, wsResponse);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

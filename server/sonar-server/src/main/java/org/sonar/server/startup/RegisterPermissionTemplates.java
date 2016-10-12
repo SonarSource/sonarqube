@@ -19,6 +19,9 @@
  */
 package org.sonar.server.startup;
 
+import java.util.Date;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
@@ -30,9 +33,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.DefaultPermissionTemplates;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.PersistentSettings;
 
+import static org.sonar.db.loadedtemplate.LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE;
+import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_KEY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 
@@ -42,10 +47,12 @@ public class RegisterPermissionTemplates {
 
   private final DbClient dbClient;
   private final PersistentSettings settings;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RegisterPermissionTemplates(DbClient dbClient, PersistentSettings settings) {
+  public RegisterPermissionTemplates(DbClient dbClient, PersistentSettings settings, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.settings = settings;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public void start() {
@@ -57,8 +64,8 @@ public class RegisterPermissionTemplates {
       String defaultProjectPermissionTemplateUuid = settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT));
       setDefaultProperty(defaultProjectPermissionTemplateUuid);
     } else if (shouldRegister) {
-      insertDefaultTemplate();
-      setDefaultProperty(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
+      PermissionTemplateDto template = insertDefaultTemplate();
+      setDefaultProperty(template.getUuid());
     }
 
     if (shouldRegister) {
@@ -73,43 +80,50 @@ public class RegisterPermissionTemplates {
   }
 
   private boolean shouldRegister() {
-    return dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()) == 0;
+    return dbClient.loadedTemplateDao().countByTypeAndKey(PERMISSION_TEMPLATE_TYPE, DEFAULT_TEMPLATE_KEY) == 0;
   }
 
-  private void insertDefaultTemplate() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      PermissionTemplateDto defaultPermissionTemplate = dbClient.permissionTemplateDao().insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
-      addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-      addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
-      addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
-      addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
-    } finally {
-      dbClient.closeSession(dbSession);
+  private PermissionTemplateDto insertDefaultTemplate() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String orgUuid = defaultOrganizationProvider.get().getUuid();
+
+      PermissionTemplateDto template = new PermissionTemplateDto()
+        .setOrganizationUuid(orgUuid)
+        .setName("Default template")
+        .setUuid(DEFAULT_TEMPLATE_KEY)
+        .setDescription("This permission template will be used as default when no other permission configuration is available")
+        .setCreatedAt(new Date())
+        .setUpdatedAt(new Date());
+
+      dbClient.permissionTemplateDao().insert(dbSession, template);
+      insertDefaultGroupPermissions(dbSession, template);
+      dbSession.commit();
+      return template;
     }
   }
 
-  private void addGroupPermission(PermissionTemplateDto template, String permission, String groupName) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Long groupId = null;
-      if (!DefaultGroups.isAnyone(groupName)) {
-        GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, groupName);
-        if (groupDto != null) {
-          groupId = groupDto.getId();
-        } else {
-          LOG.error("Cannot setup default permission for group: " + groupName);
-        }
-      }
-      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId, permission);
-    } finally {
-      dbClient.closeSession(dbSession);
+  private void insertDefaultGroupPermissions(DbSession dbSession, PermissionTemplateDto template) {
+    Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, template.getOrganizationUuid(), DefaultGroups.ADMINISTRATORS);
+    if (admins.isPresent()) {
+      insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
+      insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, admins.get());
+    } else {
+      LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
+    }
+    insertGroupPermission(dbSession, template, UserRole.USER, null);
+    insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, null);
+  }
+
+  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
+    if (group == null) {
+      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), null, permission);
+    } else {
+      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group.getId(), permission);
     }
   }
 
   private void registerInitialization() {
-    LoadedTemplateDto loadedTemplate = new LoadedTemplateDto(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid(),
-      LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
+    LoadedTemplateDto loadedTemplate = new LoadedTemplateDto(DEFAULT_TEMPLATE_KEY, PERMISSION_TEMPLATE_TYPE);
     dbClient.loadedTemplateDao().insert(loadedTemplate);
   }
 

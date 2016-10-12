@@ -19,39 +19,37 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonarqube.ws.client.permission.AddGroupWsRequest;
+import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
+import static java.util.Arrays.asList;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
-import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
-import static org.sonar.server.usergroups.ws.WsGroupRef.newWsGroupRef;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 public class AddGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "add_group";
 
   private final DbClient dbClient;
-  private final PermissionChangeBuilder permissionChangeBuilder;
   private final PermissionUpdater permissionUpdater;
+  private final PermissionWsSupport support;
 
-  public AddGroupAction(DbClient dbClient, PermissionChangeBuilder permissionChangeBuilder, PermissionUpdater permissionUpdater) {
-    this.permissionChangeBuilder = permissionChangeBuilder;
-    this.permissionUpdater = permissionUpdater;
+  public AddGroupAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
     this.dbClient = dbClient;
+    this.permissionUpdater = permissionUpdater;
+    this.support = support;
   }
 
   @Override
@@ -73,33 +71,18 @@ public class AddGroupAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    AddGroupWsRequest addGroupWsRequest = toAddGroupWsRequest(request);
-    doHandle(addGroupWsRequest);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      GroupIdOrAnyone group = support.findGroup(dbSession, request);
+      Optional<ProjectRef> projectId = support.findProject(dbSession, request);
 
+      PermissionChange change = new GroupPermissionChange(
+        PermissionChange.Operation.ADD,
+        request.mandatoryParam(PARAM_PERMISSION),
+        projectId.orElse(null),
+        group);
+      permissionUpdater.apply(dbSession, asList(change));
+    }
     response.noContent();
   }
 
-  private void doHandle(AddGroupWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Long groupId = request.getGroupId() == null ? null : Long.valueOf(request.getGroupId());
-      PermissionChange permissionChange = permissionChangeBuilder.buildGroupPermissionChange(
-        dbSession,
-        request.getPermission(),
-        newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey()),
-        newWsGroupRef(groupId, request.getGroupName()));
-      permissionUpdater.addPermission(permissionChange);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-  }
-
-  private static AddGroupWsRequest toAddGroupWsRequest(Request request) {
-    return new AddGroupWsRequest()
-      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
-      .setGroupId(request.param(PARAM_GROUP_ID))
-      .setGroupName(request.param(PARAM_GROUP_NAME))
-      .setProjectId(request.param(PARAM_PROJECT_ID))
-      .setProjectKey(request.param(PARAM_PROJECT_KEY));
-  }
 }

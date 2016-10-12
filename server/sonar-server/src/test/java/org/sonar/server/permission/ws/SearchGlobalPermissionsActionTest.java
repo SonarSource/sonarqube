@@ -20,17 +20,16 @@
 package org.sonar.server.permission.ws;
 
 import java.io.IOException;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
@@ -55,8 +54,8 @@ public class SearchGlobalPermissionsActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  WsActionTester ws;
-  I18nRule i18n = new I18nRule();
+  private WsActionTester ws;
+  private I18nRule i18n = new I18nRule();
 
   @Before
   public void setUp() {
@@ -68,22 +67,19 @@ public class SearchGlobalPermissionsActionTest {
 
   @Test
   public void search() {
-    GroupDto adminGroup = insertGroup(newGroupDto("sonar-admins", "Administrators"));
-    GroupDto userGroup = insertGroup(newGroupDto("sonar-users", "Users"));
-    insertGroupRole(newGroupRole(SCAN_EXECUTION, null));
-    insertGroupRole(newGroupRole(SCAN_EXECUTION, userGroup.getId()));
-    insertGroupRole(newGroupRole(SYSTEM_ADMIN, adminGroup.getId()));
-    insertGroupRole(newGroupRole(PROVISIONING, userGroup.getId()));
-
-    UserDto user = insertUser(newUserDto("user", "user-name"));
-    UserDto adminUser = insertUser(newUserDto("admin", "admin-name"));
-    insertUserPermission(newUserPermission(PROVISIONING, user.getId()));
-    insertUserPermission(newUserPermission(QUALITY_PROFILE_ADMIN, user.getId()));
-    insertUserPermission(newUserPermission(QUALITY_PROFILE_ADMIN, adminUser.getId()));
-    insertUserPermission(newUserPermission(QUALITY_GATE_ADMIN, user.getId()));
-    insertUserPermission(newUserPermission(QUALITY_GATE_ADMIN, adminUser.getId()));
-
-    db.getSession().commit();
+    GroupDto adminGroup = db.users().insertGroup(newGroupDto("sonar-admins", "Administrators"));
+    GroupDto userGroup = db.users().insertGroup(newGroupDto("sonar-users", "Users"));
+    db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
+    db.users().insertPermissionOnGroup(userGroup, SCAN_EXECUTION);
+    db.users().insertPermissionOnGroup(userGroup, PROVISIONING);
+    db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
+    UserDto user = db.users().insertUser(newUserDto("user", "user-name"));
+    UserDto adminUser = db.users().insertUser(newUserDto("admin", "admin-name"));
+    db.users().insertPermissionOnUser(user, PROVISIONING);
+    db.users().insertPermissionOnUser(user, QUALITY_PROFILE_ADMIN);
+    db.users().insertPermissionOnUser(adminUser, QUALITY_PROFILE_ADMIN);
+    db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(adminUser, QUALITY_GATE_ADMIN);
 
     String result = ws.newRequest().execute().getInput();
 
@@ -102,16 +98,18 @@ public class SearchGlobalPermissionsActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    expectedException.expect(ForbiddenException.class);
     userSession.login("login");
+
+    expectedException.expect(ForbiddenException.class);
 
     ws.newRequest().execute();
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
 
     ws.newRequest().execute();
   }
@@ -131,40 +129,11 @@ public class SearchGlobalPermissionsActionTest {
     i18n.put("global_permissions.provisioning.desc", "Ability to initialize project structure before first analysis.");
   }
 
-  private UserDto insertUser(UserDto user) {
-    return db.getDbClient().userDao().insert(db.getSession(), user);
-  }
-
-  private void insertUserPermission(UserPermissionDto dto) {
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
-  }
-
-  private GroupDto insertGroup(GroupDto groupDto) {
-    return db.getDbClient().groupDao().insert(db.getSession(), groupDto);
-  }
-
-  private void insertGroupRole(GroupPermissionDto group) {
-    db.getDbClient().roleDao().insertGroupRole(db.getSession(), group);
-  }
-
   private static UserDto newUserDto(String login, String name) {
-    return new UserDto().setLogin(login).setName(name).setActive(true);
+    return UserTesting.newUserDto().setLogin(login).setName(name).setActive(true);
   }
 
   private static GroupDto newGroupDto(String name, String description) {
-    return new GroupDto().setName(name).setDescription(description);
-  }
-
-  private static GroupPermissionDto newGroupRole(String role, @Nullable Long groupId) {
-    GroupPermissionDto groupRole = new GroupPermissionDto().setRole(role);
-    if (groupId != null) {
-      groupRole.setGroupId(groupId);
-    }
-
-    return groupRole;
-  }
-
-  private static UserPermissionDto newUserPermission(String permission, long userId) {
-    return new UserPermissionDto(permission, userId, null);
+    return GroupTesting.newGroupDto().setName(name).setDescription(description);
   }
 }

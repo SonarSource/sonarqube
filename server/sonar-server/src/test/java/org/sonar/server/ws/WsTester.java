@@ -57,6 +57,7 @@ public class WsTester {
 
     private final String method;
     private String path;
+    private String mediaType = MediaTypes.JSON;
 
     private Map<String, String> params = Maps.newHashMap();
     private final Map<String, Part> parts = Maps.newHashMap();
@@ -72,7 +73,12 @@ public class WsTester {
 
     @Override
     public String getMediaType() {
-      return MediaTypes.JSON;
+      return mediaType;
+    }
+
+    public TestRequest setMediaType(String s) {
+      this.mediaType = s;
+      return this;
     }
 
     @Override

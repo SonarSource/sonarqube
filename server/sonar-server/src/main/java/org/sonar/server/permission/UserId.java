@@ -17,18 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.concurrent.Immutable;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Objects.requireNonNull;
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 33);
+/**
+ * Reference a user by his technical (db) id or functional login.
+ * This is temporary class as long as services and DAOs do not
+ * use only technical id.
+ */
+@Immutable
+public class UserId {
+
+  private final long id;
+  private final String login;
+
+  public UserId(long userId, String login) {
+    this.id = userId;
+    this.login = requireNonNull(login);
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public String getLogin() {
+    return login;
   }
 }

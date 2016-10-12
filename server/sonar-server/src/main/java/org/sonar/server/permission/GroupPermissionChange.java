@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Nullable;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class GroupPermissionChange extends PermissionChange {
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 33);
+  private final GroupIdOrAnyone groupId;
+
+  public GroupPermissionChange(Operation operation, String permission, @Nullable ProjectRef projectRef,
+    GroupIdOrAnyone groupId) {
+    super(operation, groupId.getOrganizationUuid(), permission, projectRef);
+    this.groupId = groupId;
+  }
+
+  public GroupIdOrAnyone getGroupIdOrAnyone() {
+    return groupId;
   }
 }

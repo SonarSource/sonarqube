@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -99,14 +98,9 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
 
   private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsWsRequest request) {
     checkRequestAndPermissions(request);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      validateQualifier(request.getQualifier(), resourceTypes);
-      SearchProjectPermissionsData data = dataLoader.load(request);
-      return buildResponse(data);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    validateQualifier(request.getQualifier(), resourceTypes);
+    SearchProjectPermissionsData data = dataLoader.load(request);
+    return buildResponse(data);
   }
 
   private static SearchProjectPermissionsWsRequest toSearchProjectPermissionsWsRequest(Request request) {
