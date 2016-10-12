@@ -4,8 +4,15 @@
 <mapper namespace="org.sonar.db.permission.template.PermissionTemplateMapper">
 
   <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO permission_templates (name, kee, description, key_pattern, created_at, updated_at)
-    VALUES (#{name}, #{kee}, #{description}, #{keyPattern}, #{createdAt}, #{updatedAt})
+    INSERT INTO permission_templates (organization_uuid, name, kee, description, key_pattern, created_at, updated_at)
+    VALUES (
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{kee,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{keyPattern,jdbcType=VARCHAR},
+    #{createdAt},
+    #{updatedAt})
   </insert>
 
   <update id="update" parameterType="PermissionTemplate">
@@ -43,7 +50,13 @@
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
     INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
-    VALUES (#{templateId}, #{groupId}, #{permission}, #{createdAt}, #{updatedAt})
+    VALUES (
+    #{templateId,jdbcType=BIGINT},
+    #{groupId,jdbcType=BIGINT},
+    #{permission,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP}
+    )
   </insert>
 
   <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
@@ -98,45 +111,6 @@
     </where>
   </sql>
 
-  <select id="countGroups" parameterType="map" resultType="int">
-    SELECT count(1) FROM
-    (SELECT g.name as name, g.description as description, ptg.permission_reference as permission
-    FROM groups g
-    LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
-    AND ptg.permission_reference=#{query.permission}
-    AND ptg.template_id=#{templateId}
-    UNION
-    -- Add Anyone group permission
-    SELECT
-    #{anyoneGroup} as name,
-    NULL as description,
-    (select ptg.permission_reference
-    FROM perm_templates_groups ptg
-    <where>
-      AND ptg.permission_reference=#{query.permission}
-      AND ptg.template_id=#{templateId}
-      AND ptg.group_id IS NULL
-    </where>) as permission
-    FROM groups g
-    ) groups
-    <where>
-      <if test="groupName!=null">
-        AND (UPPER(groups.name) LIKE #{groupName} ESCAPE '/')
-      </if>
-      <if test="query.search() != null">
-        AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
-      </if>
-      <choose>
-        <when test="query.membership() == 'IN'">
-          AND groups.permission IS NOT NULL
-        </when>
-        <when test="query.membership() == 'OUT'">
-          AND groups.permission IS NULL
-        </when>
-      </choose>
-    </where>
-  </select>
-
   <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
     SELECT DISTINCT groups.name, LOWER(groups.name), groups.group_id
     <include refid="groupNamesByQueryAndTemplate" />
@@ -179,7 +153,7 @@
   </sql>
 
   <sql id="templateColumns">
-    id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+    id, organization_uuid as organizationUuid, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="PermissionTemplate">
@@ -348,5 +322,19 @@
       </foreach>
     </where>
     GROUP BY groups.permission, groups.templateId
+  </select>
+
+  <select id="countGroupsWithPermission" resultType="int" parameterType="map">
+    select count(1)
+    from perm_templates_groups ptg
+    where ptg.template_id = #{templateId}
+    and ptg.permission_reference = #{permission}
+    and
+    <if test="groupId == null">
+      ptg.group_id is null
+    </if>
+    <if test="groupId != null">
+      ptg.group_id = #{groupId}
+    </if>
   </select>
 </mapper>

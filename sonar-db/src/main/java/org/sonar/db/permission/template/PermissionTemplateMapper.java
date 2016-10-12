@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 
 /**
@@ -65,9 +64,6 @@ public interface PermissionTemplateMapper {
 
   int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
-  int countGroups(@Param("query") OldPermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
-    @Param("projectAdminPermission") String projectAdminPermission, @Nullable @Param("groupName") String groupName);
-
   List<String> selectGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
 
   int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
@@ -79,4 +75,6 @@ public interface PermissionTemplateMapper {
   void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
   List<String> selectPotentialPermissionsByUserIdAndTemplateId(@Param("userId") @Nullable Long currentUserId, @Param("templateId") long templateId);
+
+  int countGroupsWithPermission(@Param("templateId") long templateId, @Param("permission") String permission, @Nullable @Param("groupId") Long groupId);
 }

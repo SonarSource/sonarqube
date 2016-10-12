@@ -33,12 +33,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountPerProjectPermission;
-import org.sonar.db.permission.OldPermissionQuery;
 import org.sonar.db.permission.PermissionQuery;
 
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
@@ -87,12 +85,11 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectGroupPermissionsByTemplateIdAndGroupNames(templateId, Collections.emptyList());
   }
 
-  private static int countGroups(DbSession session, OldPermissionQuery query, long templateId, @Nullable String groupName) {
-    return mapper(session).countGroups(query, templateId, ANYONE, ADMIN, groupName != null ? groupName.toUpperCase(Locale.ENGLISH) : null);
-  }
-
-  public boolean hasGroup(DbSession session, OldPermissionQuery query, long templateId, String groupName) {
-    return countGroups(session, query, templateId, groupName) > 0;
+  /**
+   * @return {@code true} if template contains groups that are granted with {@code permission}, else {@code false}
+   */
+  public boolean hasGroupsWithPermission(DbSession dbSession, long templateId, String permission, @Nullable Long groupId) {
+    return mapper(dbSession).countGroupsWithPermission(templateId, permission, groupId) > 0;
   }
 
   @CheckForNull
@@ -206,7 +203,7 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
-  public void insertGroupPermission(DbSession session, Long templateId, @Nullable Long groupId, String permission) {
+  public void insertGroupPermission(DbSession session, long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
       .setPermission(permission)
@@ -214,7 +211,6 @@ public class PermissionTemplateDao implements Dao {
       .setCreatedAt(now())
       .setUpdatedAt(now());
     mapper(session).insertGroupPermission(permissionTemplateGroup);
-    session.commit();
   }
 
   public void insertGroupPermission(DbSession session, PermissionTemplateGroupDto permissionTemplateGroup) {

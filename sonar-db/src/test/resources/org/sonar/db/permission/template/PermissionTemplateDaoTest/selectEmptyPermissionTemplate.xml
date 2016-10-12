@@ -14,9 +14,10 @@
          login="user2"
          name="user2"
          is_root="[false]"/>
-
   <groups id="1"
-          name="group1"/>
+          name="group1"
+          organization_uuid="org1"/>
   <groups id="2"
-          name="group2"/>
+          name="group2"
+          organization_uuid="org1"/>
 </dataset>

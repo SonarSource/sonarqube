@@ -27,6 +27,7 @@ public class PermissionTemplateDto {
 
   private Long id;
   private String name;
+  private String organizationUuid;
   private String uuid;
   private String description;
   private String keyPattern;
@@ -39,6 +40,15 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public PermissionTemplateDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 

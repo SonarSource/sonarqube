@@ -90,4 +90,9 @@
     <include refid="userCommonClauses"/>
   </select>
 
+  <select id="selectGroupIdsByUserId" parameterType="map" resultType="long">
+    select group_id
+    from groups_users
+    where user_id = #{userId}
+  </select>
 </mapper>

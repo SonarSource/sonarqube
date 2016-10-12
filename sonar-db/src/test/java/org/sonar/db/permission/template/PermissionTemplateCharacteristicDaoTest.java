@@ -20,11 +20,6 @@
 
 package org.sonar.db.permission.template;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.primitives.Longs.asList;
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -34,6 +29,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.primitives.Longs.asList;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionTemplateCharacteristicDaoTest {
   @Rule
@@ -119,7 +119,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setCreatedAt(123_456_789L)
       .setUpdatedAt(2_000_000_000L));
 
-    PermissionTemplateCharacteristicDto result = mapper.selectById(expectedResult.getId());
+    PermissionTemplateCharacteristicDto result = selectById(expectedResult.getId());
     assertThat(result.getId()).isNotNull();
     assertThat(result).isEqualToComparingFieldByField(expectedResult);
   }
@@ -141,7 +141,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setWithProjectCreator(false)
       .setUpdatedAt(3_000_000_000L));
 
-    PermissionTemplateCharacteristicDto result = mapper.selectById(insertedDto.getId());
+    PermissionTemplateCharacteristicDto result = underTest.selectByPermissionAndTemplateId(dbSession, insertedDto.getPermission(), insertedDto.getTemplateId()).get();
     assertThat(result).extracting("id", "permission", "templateId", "createdAt")
       .containsExactly(insertedDto.getId(), insertedDto.getPermission(), insertedDto.getTemplateId(), insertedDto.getCreatedAt());
     assertThat(result).extracting("withProjectCreator", "updatedAt")
@@ -158,6 +158,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setWithProjectCreator(true)
       .setUpdatedAt(2_000_000_000L));
   }
+
   @Test
   public void fail_insert_if_updated_at_is_equal_to_0() {
     expectedException.expect(IllegalArgumentException.class);
@@ -203,5 +204,9 @@ public class PermissionTemplateCharacteristicDaoTest {
 
     assertThat(underTest.selectByTemplateIds(dbSession, asList(1L))).hasSize(0);
     assertThat(underTest.selectByTemplateIds(dbSession, asList(1L, 2L))).hasSize(1);
+  }
+
+  private PermissionTemplateCharacteristicDto selectById(long id) {
+    return db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(id)).get(0);
   }
 }
