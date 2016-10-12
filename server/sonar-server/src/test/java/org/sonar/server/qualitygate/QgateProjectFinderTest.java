@@ -35,7 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -234,9 +233,8 @@ public class QgateProjectFinderTest {
   }
 
   private ComponentDto insertProjectAuthorizedToAnyone(ComponentDto project) {
-    componentDbTester.insertComponent(project);
-    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
-    dbSession.commit();
+    dbTester.components().insertComponent(project);
+    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
     return project;
   }
 

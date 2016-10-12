@@ -34,11 +34,11 @@
                group_id="200"
                resource_id="[null]"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
   <group_roles id="201"
                group_id="200"
                resource_id="[null]"
                role="admin"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
 </dataset>

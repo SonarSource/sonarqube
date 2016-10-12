@@ -167,6 +167,7 @@ import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroupRoles;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroups;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnUserRoles;
@@ -372,7 +373,8 @@ public class MigrationStepModule extends Module {
       PopulateOrganizationUuidOfPermissionTemplates.class,
       MakeOrganizationUuidNotNullOnPermissionTemplates.class,
       AddOrganizationUuidToGroupRoles.class,
-      PopulateOrganizationUuidOfGroupRoles.class
+      PopulateOrganizationUuidOfGroupRoles.class,
+      MakeOrganizationUuidNotNullOnGroupRoles.class
     );
   }
 }

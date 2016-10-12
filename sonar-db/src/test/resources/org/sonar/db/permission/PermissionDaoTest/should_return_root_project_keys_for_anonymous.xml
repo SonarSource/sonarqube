@@ -11,7 +11,7 @@
                group_id="[null]"
                resource_id="300"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <projects id="300"
             uuid="ABCD"

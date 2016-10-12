@@ -5,7 +5,7 @@
                group_id="[null]"
                resource_id="100"
                role="user"
-               organization_uuid="[null]"/>
+               organization_uuid="org1"/>
 
   <!-- View -->
   <projects uuid="EFGH"
