@@ -31,4 +31,12 @@
           updated_at="2014-09-08"
           organization_uuid="org1"/>
 
+  <!-- another organization -->
+  <groups id="6"
+          name="customers-group4"
+          description="Group 3"
+          created_at="2014-09-07"
+          updated_at="2014-09-08"
+          organization_uuid="org2"/>
+
 </dataset>

@@ -32,29 +32,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupDao implements Dao {
 
-  private System2 system;
+  private final System2 system;
 
   public GroupDao(System2 system) {
     this.system = system;
-  }
-
-  /**
-   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
-   */
-  @Deprecated
-  public GroupDto selectOrFailByName(DbSession session, String name) {
-    GroupDto group = selectByName(session, name);
-    if (group == null) {
-      throw new RowNotFoundException(String.format("Could not find a group with name '%s'", name));
-    }
-    return group;
   }
 
   /**
@@ -84,14 +71,6 @@ public class GroupDao implements Dao {
     return executeLargeInputs(names, mapper(session)::selectByNames);
   }
 
-  public GroupDto selectOrFailById(DbSession dbSession, long groupId) {
-    GroupDto group = selectById(dbSession, groupId);
-    if (group == null) {
-      throw new RowNotFoundException(String.format("Could not find a group with id '%d'", groupId));
-    }
-    return group;
-  }
-
   @CheckForNull
   public GroupDto selectById(DbSession dbSession, long groupId) {
     return mapper(dbSession).selectById(groupId);
@@ -101,12 +80,12 @@ public class GroupDao implements Dao {
     mapper(dbSession).deleteById(groupId);
   }
 
-  public int countByQuery(DbSession session, @Nullable String query) {
-    return mapper(session).countByQuery(groupSearchToSql(query));
+  public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
+    return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectByQuery(organizationUuid, groupSearchToSql(query), new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -137,8 +116,11 @@ public class GroupDao implements Dao {
     return DatabaseUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
+  public List<GroupDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectByOrganizationUuid(organizationUuid);
+  }
+
   private static GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
   }
-
 }
