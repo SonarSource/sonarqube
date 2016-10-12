@@ -56,14 +56,6 @@ public class PermissionRepository {
     this.settings = settings;
   }
 
-  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setRole(permission)
-      .setGroupId(groupId)
-      .setResourceId(resourceId);
-    dbClient.groupPermissionDao().insert(session, dto);
-  }
-
   public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
     GroupPermissionDto groupRole = new GroupPermissionDto()
       .setRole(permission)
@@ -101,8 +93,14 @@ public class PermissionRepository {
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = template.getGroupPermissions();
-    groupsPermissions.forEach(groupPermission -> insertGroupPermission(project.getId(), isAnyone(groupPermission.getGroupName()) ? null : groupPermission.getGroupId(),
-      groupPermission.getPermission(), session));
+    groupsPermissions.forEach(gp -> {
+      GroupPermissionDto dto = new GroupPermissionDto()
+        .setOrganizationUuid(template.getTemplate().getOrganizationUuid())
+        .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
+        .setRole(gp.getPermission())
+        .setResourceId(project.getId());
+      dbClient.groupPermissionDao().insert(session, dto);
+    });
 
     List<PermissionTemplateCharacteristicDto> characteristics = template.getCharacteristics();
     if (currentUserId != null) {
