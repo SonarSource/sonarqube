@@ -27,6 +27,7 @@ public class ProjectsEsModule extends Module {
   protected void configureModule() {
     add(
       ProjectMeasuresIndexDefinition.class,
-      ProjectMeasuresIndex.class);
+      ProjectMeasuresIndex.class,
+      ProjectMeasuresIndexer.class);
   }
 }

@@ -19,10 +19,8 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -200,11 +198,6 @@ public class RuleResultSetIteratorTest {
   }
 
   private static Map<String, RuleDoc> rulesByKey(RuleResultSetIterator it) {
-    return Maps.uniqueIndex(it, new Function<RuleDoc, String>() {
-      @Override
-      public String apply(@Nonnull RuleDoc rule) {
-        return rule.key().rule();
-      }
-    });
+    return Maps.uniqueIndex(it, rule -> rule.key().rule());
   }
 }

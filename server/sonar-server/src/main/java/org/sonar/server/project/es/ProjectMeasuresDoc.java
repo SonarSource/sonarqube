@@ -71,7 +71,7 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   @CheckForNull
   public Date getAnalysedAt() {
-    return getFieldAsDate(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT);
+    return getNullableField(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT);
   }
 
   public ProjectMeasuresDoc setAnalysedAt(@Nullable Date d) {
