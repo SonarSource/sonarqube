@@ -100,6 +100,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
     Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
     Preconditions.checkState(this.primaryLocation == null, "at() already called");
     this.primaryLocation = (DefaultIssueLocation) primaryLocation;
+    Preconditions.checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
     return this;
   }
 
