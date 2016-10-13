@@ -19,112 +19,107 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
 public class DefaultRubyComponentServiceTest {
 
-  ResourceDao resourceDao = mock(ResourceDao.class);
-  ComponentService componentService = mock(ComponentService.class);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  I18nRule i18n = new I18nRule();
+
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+
+  ResourceDao resourceDao = dbClient.resourceDao();
+  ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
   PermissionService permissionService = mock(PermissionService.class);
 
-  DefaultRubyComponentService service;
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  @Before
-  public void before() {
-    service = new DefaultRubyComponentService(resourceDao, componentService, permissionService);
-  }
+  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionService);
 
   @Test
   public void find_by_key() {
-    Component component = mock(Component.class);
-    when(resourceDao.selectByKey("struts")).thenReturn(component);
+    ComponentDto componentDto = componentDb.insertProject();
 
-    assertThat(service.findByKey("struts")).isEqualTo(component);
+    assertThat(service.findByKey(componentDto.getKey())).isNotNull();
   }
 
   @Test
   public void find_by_uuid() {
-    ComponentDto component = new ComponentDto();
-    when(componentService.getByUuid("ABCD")).thenReturn(Optional.of(component));
+    ComponentDto componentDto = componentDb.insertProject();
 
-    assertThat(service.findByUuid("ABCD")).isEqualTo(component);
+    assertThat(service.findByUuid(componentDto.uuid())).isNotNull();
   }
 
   @Test
   public void not_find_by_uuid() {
-    when(componentService.getByUuid("ABCD")).thenReturn(Optional.<ComponentDto>absent());
+    componentDb.insertProject();
 
-    assertThat(service.findByUuid("ABCD")).isNull();
+    assertThat(service.findByUuid("UNKNOWN")).isNull();
   }
 
   @Test
   public void create_component() {
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    ComponentDto projectDto = ComponentTesting.newProjectDto().setKey(componentKey);
-    when(resourceDao.selectByKey(componentKey)).thenReturn(projectDto);
-    when(componentService.create(any(NewComponent.class))).thenReturn(projectDto);
 
-    service.createComponent(componentKey, componentName, qualifier);
+    Long result = service.createComponent(componentKey, componentName, qualifier);
 
-    ArgumentCaptor<NewComponent> newComponentArgumentCaptor = ArgumentCaptor.forClass(NewComponent.class);
-
-    verify(componentService).create(newComponentArgumentCaptor.capture());
-    NewComponent newComponent = newComponentArgumentCaptor.getValue();
-    assertThat(newComponent.key()).isEqualTo(componentKey);
-    assertThat(newComponent.name()).isEqualTo(componentName);
-    assertThat(newComponent.branch()).isNull();
-    assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
-
-    verify(permissionService).applyDefaultPermissionTemplate(componentKey);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_throw_exception_if_create_fails() {
-    String componentKey = "new-project";
-    String componentName = "New Project";
-    String qualifier = Qualifiers.PROJECT;
-    when(resourceDao.selectByKey(componentKey)).thenReturn(null);
-
-    service.createComponent(componentKey, componentName, qualifier);
+    ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, componentKey);
+    assertThat(project.key()).isEqualTo(componentKey);
+    assertThat(project.name()).isEqualTo(componentName);
+    assertThat(project.qualifier()).isEqualTo(qualifier);
+    assertThat(project.getId()).isEqualTo(result);
+    verify(permissionService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
   }
 
   @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
     service.createComponent("1234", "New Project", Qualifiers.PROJECT);
   }
 
   @Test
   public void should_find_provisioned_projects() {
+    componentDb.insertProject();
     List<String> qualifiers = newArrayList("TRK");
-
     Map<String, Object> map = newHashMap();
     map.put("qualifiers", qualifiers);
 
-    service.findProvisionedProjects(map);
-    verify(resourceDao).selectProvisionedProjects(anyListOf(String.class));
+    List<ResourceDto> resourceDtos = service.findProvisionedProjects(map);
+    assertThat(resourceDtos).hasSize(1);
   }
 
   @Test
@@ -165,21 +160,4 @@ public class DefaultRubyComponentServiceTest {
     assertThat(query.asc()).isTrue();
   }
 
-  @Test
-  public void update_key() {
-    service.updateKey("oldKey", "newKey");
-    verify(componentService).updateKey("oldKey", "newKey");
-  }
-
-  @Test
-  public void check_module_keys_before_renaming() {
-    service.checkModuleKeysBeforeRenaming("oldKey", "old", "new");
-    verify(componentService).checkModuleKeysBeforeRenaming("oldKey", "old", "new");
-  }
-
-  @Test
-  public void bulk_update_key() {
-    service.bulkUpdateKey("oldKey", "old", "new");
-    verify(componentService).bulkUpdateKey("oldKey", "old", "new");
-  }
 }

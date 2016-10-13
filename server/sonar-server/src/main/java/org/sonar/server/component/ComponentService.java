@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -108,15 +107,6 @@ public class ComponentService {
     }
   }
 
-  public void updateKey(String projectOrModuleKey, String newKey) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      updateKey(dbSession, projectOrModuleKey, newKey);
-    } finally {
-      dbSession.close();
-    }
-  }
-
   public void updateKey(DbSession dbSession, String projectOrModuleKey, String newKey) {
     ComponentDto component = componentFinder.getByKey(dbSession, projectOrModuleKey);
     userSession.checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
@@ -126,44 +116,8 @@ public class ComponentService {
     dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);
   }
 
-  public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      ComponentDto project = getByKey(projectKey);
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-      return dbClient.componentKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.uuid(), stringToReplace, replacementString);
-    } finally {
-      session.close();
-    }
-  }
-
-  public void bulkUpdateKey(DbSession dbSession, String projectKey, String stringToReplace, String replacementString) {
-    ComponentDto project = getByKey(dbSession, projectKey);
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-    checkIsProjectOrModule(project);
-    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, project.uuid(), stringToReplace, replacementString);
-  }
-
-  public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
-    // Open a batch session
-    DbSession dbSession = dbClient.openSession(true);
-    try {
-      bulkUpdateKey(dbSession, projectKey, stringToReplace, replacementString);
-      dbSession.commit();
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  public ComponentDto create(NewComponent newComponent) {
-    userSession.checkPermission(GlobalPermissions.PROVISIONING);
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      return create(session, newComponent);
-    } finally {
-      dbClient.closeSession(session);
-    }
+  public void bulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
+    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectUuid, stringToReplace, replacementString);
   }
 
   public ComponentDto create(DbSession session, NewComponent newComponent) {

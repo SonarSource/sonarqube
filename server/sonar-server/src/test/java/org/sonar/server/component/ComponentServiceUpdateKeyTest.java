@@ -41,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentServiceUpdateKeyTest {
@@ -76,7 +77,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    underTest.updateKey(project.key(), "sample2:root");
+    underTest.updateKey(dbSession, project.key(), "sample2:root");
     dbSession.commit();
 
     // Check project key has been updated
@@ -102,7 +103,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    underTest.updateKey(module.key(), "sample:root2:module");
+    underTest.updateKey(dbSession, module.key(), "sample:root2:module");
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isPresent();
@@ -119,7 +120,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
-    underTest.updateKey(provisionedProject.key(), "provisionedProject2");
+    underTest.updateKey(dbSession, provisionedProject.key(), "provisionedProject2");
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
@@ -132,7 +133,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleRootProject();
     userSession.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    underTest.updateKey(project.key(), "sample2:root");
+    underTest.updateKey(dbSession, project.key(), "sample2:root");
   }
 
   @Test
@@ -179,6 +180,32 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expectMessage("Component updated must be a module or a key");
 
     underTest.updateKey(dbSession, file.key(), "file:key");
+  }
+
+  @Test
+  public void bulk_update_key() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto().setKey("my_project"));
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
+    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
+    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
+
+    underTest.bulkUpdateKey(dbSession, project.uuid(), "my_", "your_");
+
+    assertComponentKeyUpdated(project.key(), "your_project");
+    assertComponentKeyUpdated(module.key(), "your_project:root:module");
+    assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
+    assertComponentKeyNotUpdated(inactiveModule.key());
+    assertComponentKeyNotUpdated(inactiveFile.key());
+  }
+
+  private void assertComponentKeyUpdated(String oldKey, String newKey) {
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
+  }
+
+  private void assertComponentKeyNotUpdated(String key) {
+    assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
   private void setGlobalAdminPermission() {

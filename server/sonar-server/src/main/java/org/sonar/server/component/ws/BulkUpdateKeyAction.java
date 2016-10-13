@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
@@ -51,12 +52,14 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final ComponentKeyUpdaterDao componentKeyUpdater;
+  private final ComponentService componentService;
   private final UserSession userSession;
 
-  public BulkUpdateKeyAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public BulkUpdateKeyAction(DbClient dbClient, ComponentFinder componentFinder, ComponentService componentService, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentKeyUpdater = dbClient.componentKeyUpdaterDao();
     this.componentFinder = componentFinder;
+    this.componentService = componentService;
     this.userSession = userSession;
   }
 
@@ -141,7 +144,7 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
   }
 
   private void bulkUpdateKey(DbSession dbSession, BulkUpdateWsRequest request, ComponentDto projectOrModule) {
-    componentKeyUpdater.bulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
+    componentService.bulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
     dbSession.commit();
   }
 

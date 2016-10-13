@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -77,7 +78,7 @@ public class BulkUpdateKeyActionTest {
 
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
-  WsActionTester ws = new WsActionTester(new BulkUpdateKeyAction(dbClient, componentFinder, userSession));
+  WsActionTester ws = new WsActionTester(new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null), userSession));
 
   @Before
   public void setUp() {

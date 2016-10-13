@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
@@ -27,21 +26,23 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.util.RubyUtils;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
-
 public class DefaultRubyComponentService implements RubyComponentService {
 
+  private final DbClient dbClient;
   private final ResourceDao resourceDao;
   private final ComponentService componentService;
   private final PermissionService permissionService;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, ComponentService componentService, PermissionService permissionService) {
+  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionService permissionService) {
+    this.dbClient = dbClient;
     this.resourceDao = resourceDao;
     this.componentService = componentService;
     this.permissionService = permissionService;
@@ -50,49 +51,40 @@ public class DefaultRubyComponentService implements RubyComponentService {
   @Override
   @CheckForNull
   public Component findByKey(String key) {
-    return resourceDao.selectByKey(key);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.componentDao().selectByKey(dbSession, key).orNull();
+    }
   }
 
+  // Used in rails
   @CheckForNull
   public Component findByUuid(String uuid) {
-    Optional<ComponentDto> componentOptional = componentService.getByUuid(uuid);
-    return componentOptional.isPresent() ? componentOptional.get() : null;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.componentDao().selectByUuid(dbSession, uuid).orNull();
+    }
   }
 
-  /**
-   * Be careful when updating this method, it's used by the Views plugin
-   */
+  // Used in GOV
   @CheckForNull
   public Long createComponent(String key, String name, String qualifier) {
     return createComponent(key, null, name, qualifier);
   }
 
+  // Used in rails
   @CheckForNull
   public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
-    ComponentDto provisionedComponent = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-    checkRequest(provisionedComponent != null, "Component not created: %s", key);
-    ComponentDto componentInDb = (ComponentDto) resourceDao.selectByKey(provisionedComponent.getKey());
-    checkRequest(componentInDb != null, "Component not created: %s", key);
-
-    permissionService.applyDefaultPermissionTemplate(componentInDb.getKey());
-    return componentInDb.getId();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+      permissionService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
+      dbSession.commit();
+      return provisionedComponent.getId();
+    }
   }
 
+  // Used in GOV
   public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
     return resourceDao.selectProvisionedProjects(query.qualifiers());
-  }
-
-  public void updateKey(String projectOrModuleKey, String newKey) {
-    componentService.updateKey(projectOrModuleKey, newKey);
-  }
-
-  public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
-    return componentService.checkModuleKeysBeforeRenaming(projectKey, stringToReplace, replacementString);
-  }
-
-  public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
-    componentService.bulkUpdateKey(projectKey, stringToReplace, replacementString);
   }
 
   static ComponentQuery toQuery(Map<String, Object> props) {
