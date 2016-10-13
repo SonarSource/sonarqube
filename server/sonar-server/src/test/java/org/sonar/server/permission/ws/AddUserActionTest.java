@@ -25,10 +25,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -42,9 +44,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
-  private static final String A_PROJECT_UUID = "project-uuid";
-  private static final String A_PROJECT_KEY = "project-key";
-
   private UserDto user;
 
   @Before
@@ -54,7 +53,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Override
   protected AddUserAction buildWsAction() {
-    return new AddUserAction(db.getDbClient(), newPermissionUpdater(), newPermissionWsSupport());
+    return new AddUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport());
   }
 
   @Test
@@ -70,7 +69,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_project_referenced_by_its_id() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    ComponentDto project = db.components().insertProject();
 
     loginAsAdmin();
     wsTester.newPostRequest(CONTROLLER, ACTION)
@@ -85,7 +84,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_project_referenced_by_its_key() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    ComponentDto project = db.components().insertProject();
 
     loginAsAdmin();
     wsTester.newPostRequest(CONTROLLER, ACTION)
@@ -188,7 +187,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
-    db.components().insertComponent(newProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
+    db.components().insertProject();
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
@@ -202,7 +201,51 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .execute();
   }
 
+  @Test
+  public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .execute();
+  }
+
+  /**
+   * User is project administrator but not system administrator
+   */
+  @Test
+  public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
+    ComponentDto project = db.components().insertProject();
+
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
+
+    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(ISSUE_ADMIN);
+  }
+
   private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

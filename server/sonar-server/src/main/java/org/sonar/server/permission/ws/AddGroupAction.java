@@ -29,9 +29,11 @@ import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ProjectId;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
@@ -43,11 +45,13 @@ public class AddGroupAction implements PermissionsWsAction {
   public static final String ACTION = "add_group";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsSupport support;
 
-  public AddGroupAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
+  public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.support = support;
   }
@@ -74,6 +78,8 @@ public class AddGroupAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupIdOrAnyone group = support.findGroup(dbSession, request);
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
+
+      checkAdministrationPermission(userSession, projectId);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,

@@ -33,6 +33,7 @@ import org.sonar.ce.CeModule;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
@@ -135,6 +136,10 @@ import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
+import org.sonar.server.permission.GroupPermissionChanger;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.PersistentSettings;
@@ -426,6 +431,11 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // permissions
       PermissionsWsModule.class,
+      PermissionRepository.class,
+      PermissionService.class,
+      PermissionUpdater.class,
+      UserPermissionChanger.class,
+      GroupPermissionChanger.class,
 
       // components
       ProjectsWsModule.class,

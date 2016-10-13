@@ -26,23 +26,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionChange.Operation;
-import org.sonar.server.user.UserSession;
-
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
 
 public class UserPermissionChanger {
 
   private final DbClient dbClient;
-  private final UserSession userSession;
 
-  public UserPermissionChanger(DbClient dbClient, UserSession userSession) {
+  public UserPermissionChanger(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
-    checkProjectAdminUserByComponentUuid(userSession, change.getProjectUuid());
-
     if (shouldSkipChange(dbSession, change)) {
       return false;
     }

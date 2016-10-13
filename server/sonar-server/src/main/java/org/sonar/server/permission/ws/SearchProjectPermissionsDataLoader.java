@@ -38,8 +38,8 @@ import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
+import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
@@ -52,20 +52,18 @@ public class SearchProjectPermissionsDataLoader {
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
-  SearchProjectPermissionsData load(SearchProjectPermissionsWsRequest request) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchProjectPermissionsData.Builder data = newBuilder();
-      int countRootComponents = countRootComponents(dbSession, request);
-      List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
-      List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentDto::getId);
+  SearchProjectPermissionsData load(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+    SearchProjectPermissionsData.Builder data = newBuilder();
+    int countRootComponents = countRootComponents(dbSession, request);
+    List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
+    List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentDto::getId);
 
-      data.rootComponents(rootComponents)
-        .paging(paging(request, countRootComponents))
-        .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
-        .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
+    data.rootComponents(rootComponents)
+      .paging(paging(request, countRootComponents))
+      .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
+      .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
 
-      return data.build();
-    }
+    return data.build();
   }
 
   private static Paging paging(SearchProjectPermissionsWsRequest request, int total) {

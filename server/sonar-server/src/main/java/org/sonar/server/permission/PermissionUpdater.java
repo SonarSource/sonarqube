@@ -27,6 +27,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
+/**
+ * Add or remove global/project permissions to a group. This class
+ * does not verify that caller has administration right on the related
+ * organization or project.
+ */
 public class PermissionUpdater {
 
   private final DbClient dbClient;

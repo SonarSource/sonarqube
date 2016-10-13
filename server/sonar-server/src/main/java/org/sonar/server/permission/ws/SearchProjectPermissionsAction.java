@@ -19,8 +19,8 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.Optional;
 import java.util.Locale;
+import java.util.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
@@ -30,7 +30,9 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsPermissions.Permission;
@@ -38,9 +40,7 @@ import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse.Project;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
@@ -60,13 +60,16 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
   private final SearchProjectPermissionsDataLoader dataLoader;
+  private final PermissionWsSupport wsSupport;
 
-  public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes, SearchProjectPermissionsDataLoader dataLoader) {
+  public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
+                                        SearchProjectPermissionsDataLoader dataLoader, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
     this.dataLoader = dataLoader;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -97,10 +100,12 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsWsRequest request) {
-    checkRequestAndPermissions(request);
-    validateQualifier(request.getQualifier(), resourceTypes);
-    SearchProjectPermissionsData data = dataLoader.load(request);
-    return buildResponse(data);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkAuthorized(dbSession, request);
+      validateQualifier(request.getQualifier(), resourceTypes);
+      SearchProjectPermissionsData data = dataLoader.load(dbSession, request);
+      return buildResponse(data);
+    }
   }
 
   private static SearchProjectPermissionsWsRequest toSearchProjectPermissionsWsRequest(Request request) {
@@ -113,19 +118,15 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setQuery(request.param(Param.TEXT_QUERY));
   }
 
-  private void checkRequestAndPermissions(SearchProjectPermissionsWsRequest request) {
-    Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
-    boolean hasProject = project.isPresent();
-    boolean hasProjectUuid = hasProject && project.get().uuid() != null;
-    boolean hasProjectKey = hasProject && project.get().key() != null;
-
-    if (hasProjectUuid) {
-      checkProjectAdminUserByComponentUuid(userSession, project.get().uuid());
-    } else if (hasProjectKey) {
-      checkProjectAdminUserByComponentKey(userSession, project.get().key());
+  private void checkAuthorized(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+    com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    Optional<ProjectId> projectId;
+    if (projectRef.isPresent()) {
+      projectId = Optional.of(wsSupport.findProject(dbSession, projectRef.get()));
     } else {
-      checkGlobalAdminUser(userSession);
+      projectId = Optional.empty();
     }
+    checkAdministrationPermission(userSession, projectId);
   }
 
   private SearchProjectPermissionsWsResponse buildResponse(SearchProjectPermissionsData data) {
