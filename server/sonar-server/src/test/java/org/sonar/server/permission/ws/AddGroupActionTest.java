@@ -24,7 +24,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,7 +37,6 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -73,7 +71,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void reference_group_by_its_name_in_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
     loginAsAdmin(org);
 
@@ -227,8 +225,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void fail_if_administrator_of_other_organization_only() throws Exception {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "the-group");
     loginAsAdmin(org2);
 

@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Arrays.asList;
@@ -45,15 +44,12 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupPermissionDaoTest {
-  private static final long UNKNOWN_PROJECT_ID = -1L;
-  private static final long UNKNOWN_GROUP_ID = -1L;
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbSession dbSession = db.getSession();
   private GroupPermissionDao underTest = new GroupPermissionDao();
 
@@ -281,8 +277,8 @@ public class GroupPermissionDaoTest {
 
   @Test
   public void selectGlobalPermissionsOfGroup() {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
     GroupDto group2 = db.users().insertGroup(org2, "group2");
     ComponentDto project = db.components().insertProject();
@@ -305,7 +301,7 @@ public class GroupPermissionDaoTest {
 
   @Test
   public void selectProjectPermissionsOfGroup() {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
     ComponentDto project1 = db.components().insertProject();
     ComponentDto project2 = db.components().insertProject();

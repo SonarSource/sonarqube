@@ -29,7 +29,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -46,7 +45,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class UpdateActionTest {
 
@@ -62,7 +60,8 @@ public class UpdateActionTest {
 
   private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
   private PersistentSettings settings = mock(PersistentSettings.class);
-  private WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider), settings, defaultOrganizationProvider)));
+  private WsTester ws = new WsTester(
+    new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider), settings, defaultOrganizationProvider)));
 
   @Before
   public void setUp() throws Exception {
@@ -154,7 +153,7 @@ public class UpdateActionTest {
 
   @Test
   public void do_not_update_default_group_of_default_organization_if_updating_group_on_non_default_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
     GroupDto groupInDefaultOrg = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
     GroupDto group = db.users().insertGroup(org, DEFAULT_GROUP_NAME_VALUE);
@@ -184,8 +183,8 @@ public class UpdateActionTest {
 
   @Test
   public void fails_if_admin_of_another_organization_only() throws Exception {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "group1");
     loginAsAdmin(org2);
 

@@ -30,13 +30,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class AuthorizationDaoTest {
 
@@ -57,7 +55,7 @@ public class AuthorizationDaoTest {
 
   @Before
   public void setUp() throws Exception {
-    org = OrganizationTesting.insert(db, newOrganizationDto());
+    org = db.organizations().insert();
     user = db.users().insertUser();
     group1 = db.users().insertGroup(org, "group1");
     group2 = db.users().insertGroup(org, "group2");
@@ -187,7 +185,7 @@ public class AuthorizationDaoTest {
     UserDto user4 = db.users().insertUser();
     UserDto user5 = db.users().insertUser();
 
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org, "g1");
     db.users().insertPermissionOnGroup(group1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");

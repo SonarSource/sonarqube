@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -37,7 +36,6 @@ import org.sonar.server.ws.WsTester;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class SearchActionTest {
@@ -155,7 +153,7 @@ public class SearchActionTest {
 
   @Test
   public void search_in_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "users");
     // the group in default org is not returned
     db.users().insertGroup(db.getDefaultOrganization(), "users");

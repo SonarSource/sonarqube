@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -107,7 +106,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_by_group_name_in_specific_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, OrganizationTesting.newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "a_group");
     UserDto user = db.users().insertUser("user_login");
     db.users().insertMember(group, user);

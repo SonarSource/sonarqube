@@ -31,7 +31,6 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -54,7 +53,7 @@ public class GroupPermissionChangerTest {
 
   @Before
   public void setUp() throws Exception {
-    org = OrganizationTesting.insert(db, OrganizationTesting.newOrganizationDto());
+    org = db.organizations().insert();
     group = db.users().insertGroup(org, "a-group");
     project = new ComponentDbTester(db).insertComponent(ComponentTesting.newProjectDto());
   }

@@ -34,7 +34,6 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.db.user.GroupDto;
@@ -46,7 +45,6 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -108,7 +106,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_by_name_and_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     addAdmin(org);
     GroupDto group = db.users().insertGroup(org, "to-delete");
     loginAsAdmin(org);
@@ -124,9 +122,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_by_name_fails_if_organization_is_not_correct() throws Exception {
-    OrganizationDto org = newOrganizationDto();
-    OrganizationTesting.insert(db, org);
-
+    OrganizationDto org = db.organizations().insert();
     loginAsAdmin(org);
 
     expectedException.expect(NotFoundException.class);
@@ -215,7 +211,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_group_of_an_organization_even_if_name_is_default_group_of_default_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     addAdmin(org);
     GroupDto group = db.users().insertGroup(org, defaultGroup.getName());
     loginAsAdmin(org);
@@ -245,7 +241,7 @@ public class DeleteActionTest {
   @Test
   public void delete_admin_group_fails_if_no_admin_users_left() throws Exception {
     // admin users are part of the group to be deleted
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto adminGroup = db.users().insertGroup(org, "admins");
     db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
     UserDto bigBoss = db.users().insertUser();
@@ -260,7 +256,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_admin_group_succeeds_if_other_groups_have_administrators() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto adminGroup1 = db.users().insertGroup(org, "admins");
     db.users().insertPermissionOnGroup(adminGroup1, SYSTEM_ADMIN);
     GroupDto adminGroup2 = db.users().insertGroup(org, "admins");

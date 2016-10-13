@@ -29,7 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -40,7 +39,6 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 
@@ -91,8 +89,8 @@ public class UsersActionTest {
 
   @Test
   public void fail_if_admin_of_other_organization_only() throws Exception {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "the-group");
     loginAsAdmin(org2);
 
@@ -132,7 +130,7 @@ public class UsersActionTest {
 
   @Test
   public void references_group_by_its_name() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertMember(group, user1);

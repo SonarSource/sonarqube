@@ -19,24 +19,30 @@
  */
 package org.sonar.db.organization;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-public class OrganizationTesting {
+public class OrganizationDbTester {
+  private final DbTester dbTester;
 
-  private OrganizationTesting() {
-    // only statics
+  public OrganizationDbTester(DbTester dbTester) {
+    this.dbTester = dbTester;
   }
 
   /**
-   * Creates a new {@link OrganizationDto} with randomly generated field values.
+   * Insert an {@link OrganizationDto} and commit the session
    */
-  public static OrganizationDto newOrganizationDto() {
-    return new OrganizationDto()
-      .setKey(randomAlphanumeric(32))
-      .setUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(64))
-      .setDescription(randomAlphanumeric(256))
-      .setAvatarUrl(randomAlphanumeric(256))
-      .setUrl(randomAlphanumeric(256));
+  public OrganizationDto insert() {
+    return insert(OrganizationTesting.newOrganizationDto());
+  }
+
+  /**
+   * Insert the provided {@link OrganizationDto} and commit the session
+   */
+  public OrganizationDto insert(OrganizationDto dto) {
+    DbSession dbSession = dbTester.getSession();
+    dbTester.getDbClient().organizationDao().insert(dbSession, dto);
+    dbSession.commit();
+    return dto;
   }
 }

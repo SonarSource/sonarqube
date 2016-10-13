@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -38,7 +37,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class CreateActionTest {
 
@@ -79,7 +77,7 @@ public class CreateActionTest {
 
   @Test
   public void create_group_on_specific_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     loginAsAdmin(org);
 
     newRequest()
@@ -115,8 +113,8 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_administrator_of_another_organization() throws Exception {
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     loginAsAdmin(org2);
 
     expectedException.expect(ForbiddenException.class);
@@ -167,7 +165,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_group_with_same_name_already_exists_in_the_organization() throws Exception {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
     loginAsAdmin(org);
 
@@ -183,8 +181,8 @@ public class CreateActionTest {
   @Test
   public void add_group_with_a_name_that_already_exists_in_another_organization() throws Exception {
     String name = "the-group";
-    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, name);
     loginAsAdmin(org2);
 

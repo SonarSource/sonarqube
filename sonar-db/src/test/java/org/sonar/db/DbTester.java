@@ -65,6 +65,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDbTester;
@@ -95,6 +96,7 @@ public class DbTester extends ExternalResource {
 
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
+  private final OrganizationDbTester organizationTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
@@ -102,6 +104,7 @@ public class DbTester extends ExternalResource {
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
+    this.organizationTester = new OrganizationDbTester(this);
   }
 
   public static DbTester create(System2 system2) {
@@ -163,6 +166,10 @@ public class DbTester extends ExternalResource {
 
   public ComponentDbTester components() {
     return componentTester;
+  }
+
+  public OrganizationDbTester organizations() {
+    return organizationTester;
   }
 
   @Override

@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
@@ -51,12 +49,16 @@ public class ServerUserSessionTest {
   private static final String PROJECT_UUID = "ABCD";
   private static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
   private static final String FILE_UUID = "BCDE";
-  private static final UserDto ROOT_USER_DTO = new UserDto() {{
-    setRoot(true);
-  }}.setLogin("root_user");
-  private static final UserDto NON_ROOT_USER_DTO = new UserDto() {{
-    setRoot(false);
-  }}.setLogin("regular_user");
+  private static final UserDto ROOT_USER_DTO = new UserDto() {
+    {
+      setRoot(true);
+    }
+  }.setLogin("root_user");
+  private static final UserDto NON_ROOT_USER_DTO = new UserDto() {
+    {
+      setRoot(false);
+    }
+  }.setLogin("regular_user");
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -241,8 +243,8 @@ public class ServerUserSessionTest {
   public void checkComponentPermission_fails_with_FE_when_project_of_specified_uuid_can_not_be_found() {
     ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto());
     ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null)
-        // Simulate file is linked to an invalid project
-        .setProjectUuid("INVALID"));
+      // Simulate file is linked to an invalid project
+      .setProjectUuid("INVALID"));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -333,7 +335,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasOrganizationPermission_for_logged_in_user() {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
 
     UserSession session = newUserSession(userDto);
@@ -344,7 +346,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void hasOrganizationPermission_for_anonymous_user() {
-    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     db.users().insertPermissionOnAnyone(org, GlobalPermissions.PROVISIONING);
 
     UserSession session = newAnonymousSession();
