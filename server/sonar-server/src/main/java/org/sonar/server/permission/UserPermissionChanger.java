@@ -70,7 +70,7 @@ public class UserPermissionChanger {
 
   private void checkOtherAdminUsersExist(DbSession session, PermissionChange change) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getProjectRef().isPresent() &&
+      !change.getProjectId().isPresent() &&
       dbClient.roleDao().countUserPermissions(session, change.getPermission(), null) <= 1) {
       throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
     }

@@ -51,7 +51,7 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -340,7 +340,7 @@ public class IssueServiceMediumTest {
     // project can be seen by group "anyone"
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO"));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.login();
 

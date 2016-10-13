@@ -25,21 +25,23 @@ import org.sonar.db.component.ComponentDto;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Reference to a project by its db id or uuid. Temporarily
- * as long as permissions do not use only uuids.
+ * Reference to a project by its db id or uuid. The field "id" should
+ * be removed as soon as backend is fully based on uuids.
+ *
+ * @see org.sonar.server.permission.ws.WsProjectRef
  */
 @Immutable
-public class ProjectRef {
+public class ProjectId {
 
   private final long id;
   private final String uuid;
 
-  public ProjectRef(long projectId, String projectUuid) {
+  public ProjectId(long projectId, String projectUuid) {
     this.id = projectId;
     this.uuid = requireNonNull(projectUuid);
   }
 
-  public ProjectRef(ComponentDto dto) {
+  public ProjectId(ComponentDto dto) {
     this(requireNonNull(dto.getId()), dto.uuid());
   }
 

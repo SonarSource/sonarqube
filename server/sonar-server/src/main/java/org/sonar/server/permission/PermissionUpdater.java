@@ -46,7 +46,7 @@ public class PermissionUpdater {
     Set<Long> projectIds = new HashSet<>();
     for (PermissionChange change : changes) {
       boolean changed = doApply(dbSession, change);
-      Optional<ProjectRef> projectId = change.getProjectRef();
+      Optional<ProjectId> projectId = change.getProjectId();
       if (changed && projectId.isPresent()) {
         projectIds.add(projectId.get().getId());
       }

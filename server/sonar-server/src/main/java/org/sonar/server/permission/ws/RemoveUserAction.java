@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 
@@ -75,7 +75,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
-      Optional<ProjectRef> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProject(dbSession, request);
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
 
       PermissionChange change = new UserPermissionChange(

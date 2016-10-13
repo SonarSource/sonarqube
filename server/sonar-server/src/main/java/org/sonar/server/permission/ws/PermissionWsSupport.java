@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
@@ -64,12 +64,12 @@ public class PermissionWsSupport {
   /**
    * @throws org.sonar.server.exceptions.NotFoundException if a project does not exist
    */
-  public ProjectRef findProject(DbSession dbSession, WsProjectRef ref) {
+  public ProjectId findProject(DbSession dbSession, WsProjectRef ref) {
     ComponentDto project = componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes);
-    return new ProjectRef(project.getId(), project.uuid());
+    return new ProjectId(project.getId(), project.uuid());
   }
 
-  public Optional<ProjectRef> findProject(DbSession dbSession, Request request) {
+  public Optional<ProjectId> findProject(DbSession dbSession, Request request) {
     String uuid = request.param(PermissionsWsParameters.PARAM_PROJECT_ID);
     String key = request.param(PermissionsWsParameters.PARAM_PROJECT_KEY);
     if (uuid != null || key != null) {

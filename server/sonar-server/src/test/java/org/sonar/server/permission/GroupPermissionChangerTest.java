@@ -77,7 +77,7 @@ public class GroupPermissionChangerTest {
     GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
 
     loginAsAdmin();
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
     assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(UserRole.ISSUE_ADMIN);
@@ -99,7 +99,7 @@ public class GroupPermissionChangerTest {
     GroupIdOrAnyone groupId = new GroupIdOrAnyone(db.getDefaultOrganization().getUuid(), null);
 
     loginAsAdmin();
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
     assertThat(db.users().selectAnyonePermissions(null)).isEmpty();
     assertThat(db.users().selectAnyonePermissions(project)).containsOnly(UserRole.ISSUE_ADMIN);
@@ -112,7 +112,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(ForbiddenException.class);
 
     userSession.login("a_guy");
-    underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class GroupPermissionChangerTest {
     expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [admin, codeviewer, issueadmin, scan, user]");
 
     loginAsAdmin();
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, new ProjectRef(project), groupId));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, new ProjectId(project), groupId));
   }
 
   @Test
@@ -168,7 +168,7 @@ public class GroupPermissionChangerTest {
     db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project);
 
     loginAsAdmin();
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
     assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(UserRole.CODEVIEWER);
@@ -179,7 +179,7 @@ public class GroupPermissionChangerTest {
     GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
 
     loginAsAdmin();
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
     assertThat(db.users().selectGroupPermissions(group, project)).isEmpty();
@@ -192,7 +192,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(ForbiddenException.class);
 
     userSession.login("a_guy");
-    underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectRef(project), groupId));
+    underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
   }
 
   @Test

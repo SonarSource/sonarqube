@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
@@ -73,7 +73,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupIdOrAnyone group = support.findGroup(dbSession, request);
-      Optional<ProjectRef> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProject(dbSession, request);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
