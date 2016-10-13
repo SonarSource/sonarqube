@@ -21,16 +21,24 @@ package org.sonar.db.permission;
 
 import javax.annotation.Nullable;
 
-/**
- * @since 3.2
- */
 public class GroupPermissionDto {
+
+  private String organizationUuid;
   private Long groupId;
   private Long resourceId;
   private String role;
 
   public Long getGroupId() {
     return groupId;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public GroupPermissionDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
+    return this;
   }
 
   /**

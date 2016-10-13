@@ -26,8 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -38,7 +38,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -74,15 +73,11 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
-  DbSession dbSession;
-
-  DbClient dbClient = dbTester.getDbClient();
-
-  Settings settings = new MapSettings();
-
-  IssueAuthorizationIndexer issueAuthorizationIndexer;
-
-  ApplyPermissionsStep step;
+  private DbSession dbSession;
+  private DbClient dbClient = dbTester.getDbClient();
+  private Settings settings = new MapSettings();
+  private IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private ApplyPermissionsStep step;
 
   @Before
   public void setUp() {
@@ -121,9 +116,9 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Test
   public void nothing_to_do_on_existing_project() {
     ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
-    dbClient.componentDao().insert(dbSession, projectDto);
+    dbTester.components().insertComponent(projectDto);
     // Permissions are already set on the project
-    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
+    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, projectDto);
 
     dbSession.commit();
 
@@ -161,11 +156,9 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Test
   public void nothing_to_do_on_existing_view() {
     ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
-    dbClient.componentDao().insert(dbSession, viewDto);
+    dbTester.components().insertComponent(viewDto);
     // Permissions are already set on the view
-    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
-
-    dbSession.commit();
+    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, viewDto);
 
     Component project = ReportComponent.builder(PROJECT, 1).setUuid(ROOT_UUID).setKey(ROOT_KEY).build();
     dbIdsRepository.setComponentId(project, viewDto.getId());

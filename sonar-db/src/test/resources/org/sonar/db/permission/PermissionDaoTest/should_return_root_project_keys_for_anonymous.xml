@@ -10,7 +10,8 @@
   <group_roles id="1"
                group_id="[null]"
                resource_id="300"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
 
   <projects id="300"
             uuid="ABCD"

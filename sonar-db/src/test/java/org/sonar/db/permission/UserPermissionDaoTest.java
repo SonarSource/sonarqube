@@ -28,6 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
@@ -52,14 +54,16 @@ public class UserPermissionDaoTest {
   private UserDto user3 = newUserDto().setLogin("login3").setName("Bernard").setActive(true);
   private ComponentDto project1 = newProjectDto();
   private ComponentDto project2 = newProjectDto();
+  private DbSession dbSession = dbTester.getSession();
 
   @Before
   public void setUp() throws Exception {
-    dbTester.getDbClient().userDao().insert(dbTester.getSession(), user1);
-    dbTester.getDbClient().userDao().insert(dbTester.getSession(), user2);
-    dbTester.getDbClient().userDao().insert(dbTester.getSession(), user3);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project1);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project2);
+    DbClient dbClient = dbTester.getDbClient();
+    dbClient.userDao().insert(dbSession, user1);
+    dbClient.userDao().insert(dbSession, user2);
+    dbClient.userDao().insert(dbSession, user3);
+    dbClient.componentDao().insert(dbSession, project1);
+    dbClient.componentDao().insert(dbSession, project2);
     dbTester.commit();
   }
 
@@ -188,7 +192,7 @@ public class UserPermissionDaoTest {
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
 
     // no projects -> return empty list
-    assertThat(underTest.countUsersByProjectPermission(dbTester.getSession(), Collections.emptyList())).isEmpty();
+    assertThat(underTest.countUsersByProjectPermission(dbSession, Collections.emptyList())).isEmpty();
 
     // one project
     expectCount(asList(project1.getId()),
@@ -211,12 +215,12 @@ public class UserPermissionDaoTest {
 
     // logins are ordered by user name: user2 ("Marie") then user1 ("Marius")
     PermissionQuery query = PermissionQuery.builder().setComponentUuid(project1.uuid()).withAtLeastOnePermission().build();
-    List<String> logins = underTest.selectLogins(dbTester.getSession(), query);
+    List<String> logins = underTest.selectLogins(dbSession, query);
     assertThat(logins).containsExactly(user2.getLogin(), user1.getLogin());
 
     // on a project without permissions
     query = PermissionQuery.builder().setComponentUuid("missing").withAtLeastOnePermission().build();
-    assertThat(underTest.selectLogins(dbTester.getSession(), query)).isEmpty();
+    assertThat(underTest.selectLogins(dbSession, query)).isEmpty();
   }
 
   @Test
@@ -228,18 +232,18 @@ public class UserPermissionDaoTest {
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
 
     // user1 has one global permission and user2 has no global permissions
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), null)).hasSize(1);
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user2.getLogin(), null)).hasSize(0);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, user1.getLogin(), null)).hasSize(1);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, user2.getLogin(), null)).hasSize(0);
 
     // user1 has one permission on project1, user2 has 2
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), project1.uuid())).hasSize(1);
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user2.getLogin(), project1.uuid())).hasSize(2);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, user1.getLogin(), project1.uuid())).hasSize(1);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, user2.getLogin(), project1.uuid())).hasSize(2);
 
     // nobody has permissions on a project that does not exist!
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), user1.getLogin(), "missing")).hasSize(0);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, user1.getLogin(), "missing")).hasSize(0);
 
     // users who do not exist don't have permissions!
-    assertThat(underTest.selectPermissionsByLogin(dbTester.getSession(), "missing", null)).hasSize(0);
+    assertThat(underTest.selectPermissionsByLogin(dbSession, "missing", null)).hasSize(0);
   }
 
   @Test
@@ -249,11 +253,11 @@ public class UserPermissionDaoTest {
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
 
-    underTest.delete(dbTester.getSession(), null, project1.uuid(), null);
+    underTest.delete(dbSession, null, project1.uuid(), null);
 
-    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where resource_id=" + project1.getId())).isEqualTo(0);
+    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where resource_id=" + project1.getId())).isEqualTo(0);
     // remains global permission and project2 permission
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable(dbSession, "user_roles")).isEqualTo(2);
   }
 
   @Test
@@ -263,11 +267,11 @@ public class UserPermissionDaoTest {
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
 
-    underTest.delete(dbTester.getSession(), user1.getLogin(), null, null);
+    underTest.delete(dbSession, user1.getLogin(), null, null);
 
-    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(0);
+    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(0);
     // remains user2 permissions
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable(dbSession, "user_roles")).isEqualTo(2);
   }
 
   @Test
@@ -277,15 +281,24 @@ public class UserPermissionDaoTest {
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project1.getId());
     insertProjectPermission(ISSUE_ADMIN, user2.getId(), project2.getId());
 
-    underTest.delete(dbTester.getSession(), user1.getLogin(), project1.uuid(), USER);
+    underTest.delete(dbSession, user1.getLogin(), project1.uuid(), USER);
 
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "user_roles")).isEqualTo(3);
-    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(1);
-    assertThat(dbTester.countSql(dbTester.getSession(), "select count(id) from user_roles where role='" + SYSTEM_ADMIN + "' and user_id=" + user1.getId())).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "user_roles")).isEqualTo(3);
+    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where user_id=" + user1.getId())).isEqualTo(1);
+    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where role='" + SYSTEM_ADMIN + "' and user_id=" + user1.getId())).isEqualTo(1);
+  }
+
+  @Test
+  public void projectHasPermissions() {
+    insertGlobalPermission(SYSTEM_ADMIN, user1.getId());
+    insertProjectPermission(USER, user1.getId(), project1.getId());
+
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project2.getId())).isFalse();
   }
 
   private void expectCount(List<Long> projectIds, CountPerProjectPermission... expected) {
-    List<CountPerProjectPermission> got = underTest.countUsersByProjectPermission(dbTester.getSession(), projectIds);
+    List<CountPerProjectPermission> got = underTest.countUsersByProjectPermission(dbSession, projectIds);
     assertThat(got).hasSize(expected.length);
 
     for (CountPerProjectPermission expect : expected) {
@@ -298,7 +311,7 @@ public class UserPermissionDaoTest {
 
   private void expectPermissions(PermissionQuery query, @Nullable Collection<String> logins, UserPermissionDto... expected) {
     // test method "select()"
-    List<ExtendedUserPermissionDto> permissions = underTest.select(dbTester.getSession(), query, logins);
+    List<ExtendedUserPermissionDto> permissions = underTest.select(dbSession, query, logins);
     assertThat(permissions).hasSize(expected.length);
     for (int i = 0; i < expected.length; i++) {
       ExtendedUserPermissionDto got = permissions.get(i);
@@ -315,20 +328,20 @@ public class UserPermissionDaoTest {
     if (logins == null) {
       // test method "countUsers()", which does not make sense if users are filtered
       long distinctUsers = Arrays.stream(expected).mapToLong(p -> p.getUserId()).distinct().count();
-      assertThat((long) underTest.countUsers(dbTester.getSession(), query)).isEqualTo(distinctUsers);
+      assertThat((long) underTest.countUsers(dbSession, query)).isEqualTo(distinctUsers);
     }
   }
 
   private UserPermissionDto insertGlobalPermission(String permission, long userId) {
     UserPermissionDto dto = new UserPermissionDto(dbTester.getDefaultOrganization().getUuid(), permission, userId, null);
-    underTest.insert(dbTester.getSession(), dto);
+    underTest.insert(dbSession, dto);
     dbTester.commit();
     return dto;
   }
 
   private UserPermissionDto insertProjectPermission(String permission, long userId, long projectId) {
     UserPermissionDto dto = new UserPermissionDto(dbTester.getDefaultOrganization().getUuid(), permission, userId, projectId);
-    underTest.insert(dbTester.getSession(), dto);
+    underTest.insert(dbSession, dto);
     dbTester.commit();
     return dto;
   }

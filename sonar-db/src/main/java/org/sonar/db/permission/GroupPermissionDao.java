@@ -109,12 +109,44 @@ public class GroupPermissionDao implements Dao {
     return session.getMapper(GroupPermissionMapper.class).selectAnyonePermissions(projectId);
   }
 
+  /**
+   * @return {@code true} if the project has at least one permission defined, whatever it is
+   * on a group or on "anyone", else returns {@code false}
+   */
+  public boolean hasRootComponentPermissions(DbSession dbSession, long rootComponentId) {
+    return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
+  }
+
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
     mapper(dbSession).insert(dto);
+  }
+
+  /**
+   * Delete all the permissions associated to a root component (project)
+   */
+  public void deleteByRootComponentId(DbSession dbSession, long rootComponentId) {
+    mapper(dbSession).deleteByRootComponentId(rootComponentId);
+  }
+
+  /**
+   * Delete a single permission. It can be:
+   * <ul>
+   *   <li>a global permission granted to a group</li>
+   *   <li>a global permission granted to anyone</li>
+   *   <li>a permission granted to a group for a project</li>
+   *   <li>a permission granted to anyone for a project</li>
+   * </ul>
+   * @param dbSession
+   * @param permission the kind of permission
+   * @param organizationUuid UUID of organization, even if parameter {@code groupId} is not null
+   * @param groupId if null, then anyone, else id of group
+   * @param rootComponentId if null, then global permission, else id of root component (project)
+   */
+  public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable Long groupId, @Nullable Long rootComponentId) {
+    mapper(dbSession).delete(permission, organizationUuid, groupId, rootComponentId);
   }
 
   private static GroupPermissionMapper mapper(DbSession session) {
     return session.getMapper(GroupPermissionMapper.class);
   }
-
 }

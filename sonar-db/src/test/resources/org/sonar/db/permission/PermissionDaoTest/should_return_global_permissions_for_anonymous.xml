@@ -14,10 +14,12 @@
   <group_roles id="200"
                group_id="[null]"
                resource_id="[null]"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
   <group_roles id="201"
                group_id="[null]"
                resource_id="[null]"
-               role="admin"/>
+               role="admin"
+               organization_uuid="org1"/>
 
 </dataset>

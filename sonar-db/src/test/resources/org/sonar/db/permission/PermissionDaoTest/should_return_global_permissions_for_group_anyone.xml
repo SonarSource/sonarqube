@@ -16,6 +16,7 @@
   <group_roles id="1"
                group_id="[null]"
                resource_id="[null]"
-               role="profileadmin"/>
+               role="profileadmin"
+               organization_uuid="org1"/>
 
 </dataset>

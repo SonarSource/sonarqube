@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.GroupPermissionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -118,30 +117,6 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void delete_global_group_permission() {
-    db.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
-
-    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "globalGroupPermissions-result.xml", "group_roles");
-  }
-
-  @Test
-  public void delete_resource_group_permission() {
-    db.prepareDbUnit(getClass(), "resourceGroupPermissions.xml");
-
-    GroupPermissionDto groupRoleToDelete = new GroupPermissionDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
-
-    underTest.deleteGroupRole(groupRoleToDelete, db.getSession());
-    db.getSession().commit();
-
-    db.assertDbUnit(getClass(), "resourceGroupPermissions-result.xml", "group_roles");
-  }
-
-  @Test
   public void delete_all_group_permissions_by_group_id() {
     db.prepareDbUnit(getClass(), "deleteGroupPermissionsByGroupId.xml");
 
@@ -149,28 +124,6 @@ public class RoleDaoTest {
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "deleteGroupPermissionsByGroupId-result.xml", "group_roles");
-  }
-
-  @Test
-  public void should_count_component_permissions() {
-    db.prepareDbUnit(getClass(), "should_count_component_permissions.xml");
-
-    assertThat(underTest.countComponentPermissions(db.getSession(), 123L)).isEqualTo(2);
-  }
-
-  @Test
-  public void should_remove_group_permissions_on_project() {
-    db.prepareDbUnit(getClass(), "should_remove_all_permissions.xml");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).hasSize(1);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "other", 123L)).isEmpty();
-
-    underTest.deleteGroupRolesByResourceId(db.getSession(), 123L);
-    db.getSession().commit();
-
-    db.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "group_roles", "group_id", "resource_id", "role");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "devs", 123L)).isEmpty();
   }
 
   @Test

@@ -94,6 +94,13 @@ public class UserPermissionDao implements Dao {
     return executeLargeInputs(projectIds, mapper(dbSession)::countUsersByProjectPermission);
   }
 
+  /**
+   * @return {@code true} if the project has at least one user permission defined, else returns {@code false}
+   */
+  public boolean hasRootComponentPermissions(DbSession dbSession, long rootComponentId) {
+    return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
+  }
+
   public void insert(DbSession dbSession, UserPermissionDto dto) {
     mapper(dbSession).insert(dto);
   }

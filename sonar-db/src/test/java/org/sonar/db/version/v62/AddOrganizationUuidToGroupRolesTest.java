@@ -17,38 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.version.v62;
 
+import java.sql.SQLException;
+import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-public class RoleMapperTest {
+public class AddOrganizationUuidToGroupRolesTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddOrganizationUuidToGroupRolesTest.class, "previous-group_roles.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddOrganizationUuidToGroupRoles underTest = new AddOrganizationUuidToGroupRoles(dbTester.database());
 
   @Test
-  public void count_roles() {
-    dbTester.prepareDbUnit(getClass(), "countRoles.xml");
+  public void creates_table_on_empty_db() throws SQLException {
+    underTest.execute();
 
-    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
-    assertThat(mapper.countResourceGroupRoles(123L)).isEqualTo(2);
-    assertThat(mapper.countResourceUserRoles(123L)).isEqualTo(1);
+    dbTester.assertColumnDefinition("group_roles", "organization_uuid", Types.VARCHAR, 40, true);
   }
 
   @Test
-  public void delete_roles_by_resource_id() {
-    dbTester.prepareDbUnit(getClass(), "deleteRolesByResourceId.xml");
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
-    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
-    mapper.deleteGroupRolesByResourceId(123L);
-    dbTester.getSession().commit();
+    expectedException.expect(IllegalStateException.class);
 
-    dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles");
+    underTest.execute();
   }
 
 }

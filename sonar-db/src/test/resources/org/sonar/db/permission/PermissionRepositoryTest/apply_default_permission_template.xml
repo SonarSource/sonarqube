@@ -41,11 +41,13 @@
   <group_roles id="1"
                group_id="100"
                resource_id="1"
-               role="admin"/>
+               role="admin"
+               organization_uuid="org1"/>
   <group_roles id="2"
                group_id="101"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
   <user_roles id="1"
               user_id="200"
               resource_id="1"

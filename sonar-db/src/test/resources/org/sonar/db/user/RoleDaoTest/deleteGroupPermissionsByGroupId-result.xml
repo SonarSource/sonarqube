@@ -10,20 +10,24 @@
   <group_roles id="4"
                group_id="101"
                role="gateadmin"
-               resource_id="[null]"/>
+               resource_id="[null]"
+               organization_uuid="org1"/>
 
   <group_roles id="5"
                group_id="[null]"
                role="scan"
-               resource_id="[null]"/>
+               resource_id="[null]"
+               organization_uuid="org1"/>
   <group_roles id="6"
                group_id="[null]"
                role="provisioning"
-               resource_id="[null]"/>
+               resource_id="[null]"
+               organization_uuid="org1"/>
 
   <group_roles id="7"
                group_id="102"
                role="admin"
-               resource_id="1"/>
+               resource_id="1"
+               organization_uuid="org1"/>
 
 </dataset>

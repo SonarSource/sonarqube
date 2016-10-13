@@ -66,25 +66,30 @@
   <group_roles id="1"
                group_id="100"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
   <group_roles id="2"
                group_id="100"
                resource_id="1"
-               role="admin"/>
+               role="admin"
+               organization_uuid="org1"/>
 
   <!-- Anyone group has user access on both projects -->
   <group_roles id="4"
                group_id="[null]"
                resource_id="1"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
   <group_roles id="5"
                group_id="[null]"
                resource_id="1"
-               role="admin"/>
+               role="admin"
+               organization_uuid="org1"/>
   <group_roles id="6"
                group_id="[null]"
                resource_id="2"
-               role="user"/>
+               role="user"
+               organization_uuid="org1"/>
 
   <!-- user2 has user access on DEF only -->
   <users id="11"

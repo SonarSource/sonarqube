@@ -150,15 +150,53 @@
     </if>
   </select>
 
+  <select id="countRowsByRootComponentId" parameterType="long" resultType="int">
+    select count(1)
+    from group_roles
+    where resource_id=#{rootComponentId,jdbcType=BIGINT}
+  </select>
+
   <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into group_roles (
+    organization_uuid,
     group_id,
     resource_id,
     role
     ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{groupId,jdbcType=BIGINT},
     #{resourceId,jdbcType=BIGINT},
     #{role,jdbcType=VARCHAR}
     )
   </insert>
+
+  <delete id="deleteByRootComponentId" parameterType="long">
+    delete from group_roles
+    where resource_id=#{rootComponentId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="delete" parameterType="map">
+    delete from group_roles
+    where
+    role=#{permission,jdbcType=VARCHAR} and
+    organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    <choose>
+      <when test="rootComponentId != null">
+        resource_id=#{rootComponentId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        resource_id is null
+      </otherwise>
+    </choose>
+    and
+    <choose>
+      <when test="groupId != null">
+        group_id=#{groupId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        group_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
 </mapper>

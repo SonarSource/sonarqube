@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -48,7 +47,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
 
   public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer, PermissionRepository permissionRepository,
-                              TreeRootHolder treeRootHolder) {
+    TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
@@ -73,17 +72,19 @@ public class ApplyPermissionsStep implements ComputationStep {
   }
 
   private void execute(Component project) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       long projectId = dbIdsRepository.getComponentId(project);
-      if (dbClient.roleDao().countComponentPermissions(session, projectId) == 0) {
-        permissionRepository.applyDefaultPermissionTemplate(session, projectId);
-        session.commit();
+      if (hasNoPermissions(dbSession, projectId)) {
+        permissionRepository.applyDefaultPermissionTemplate(dbSession, projectId);
+        dbSession.commit();
         indexer.index();
       }
-    } finally {
-      MyBatis.closeQuietly(session);
     }
+  }
+
+  private boolean hasNoPermissions(DbSession dbSession, long projectId) {
+    return !dbClient.groupPermissionDao().hasRootComponentPermissions(dbSession, projectId) &&
+      !dbClient.userPermissionDao().hasRootComponentPermissions(dbSession, projectId);
   }
 
   @Override

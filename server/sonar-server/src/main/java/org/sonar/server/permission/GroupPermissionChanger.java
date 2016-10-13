@@ -51,19 +51,18 @@ public class GroupPermissionChanger {
         validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
         GroupPermissionDto addedDto = new GroupPermissionDto()
           .setRole(change.getPermission())
-          // TODO support organizations
+          .setOrganizationUuid(change.getOrganizationUuid())
           .setGroupId(change.getGroupIdOrAnyone().getId())
           .setResourceId(change.getNullableProjectId());
         dbClient.groupPermissionDao().insert(dbSession, addedDto);
         break;
       case REMOVE:
         checkAdminUsersExistOutsideTheRemovedGroup(dbSession, change);
-        GroupPermissionDto deletedDto = new GroupPermissionDto()
-          .setRole(change.getPermission())
-          // TODO support organizations
-          .setGroupId(change.getGroupIdOrAnyone().getId())
-          .setResourceId(change.getNullableProjectId());
-        dbClient.roleDao().deleteGroupRole(deletedDto, dbSession);
+        dbClient.groupPermissionDao().delete(dbSession,
+          change.getPermission(),
+          change.getOrganizationUuid(),
+          change.getGroupIdOrAnyone().getId(),
+          change.getNullableProjectId());
         break;
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
