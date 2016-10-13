@@ -31,6 +31,8 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -49,7 +51,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Override
   protected AddGroupAction buildWsAction() {
-    return new AddGroupAction(db.getDbClient(), newPermissionUpdater(), newPermissionWsSupport());
+    return new AddGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport());
   }
 
   @Test
@@ -221,17 +223,50 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .execute();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void require_admin_permission() throws Exception {
+  @Test
+  public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newProjectDto(A_PROJECT_UUID).setKey(A_PROJECT_KEY));
-    userSession.login("not-admin");
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, PROVISIONING)
       .execute();
+  }
+
+  @Test
+  public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "sonar-administrators");
+    ComponentDto project = db.components().insertProject();
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .execute();
+  }
+
+  /**
+   * User is project administrator but not system administrator
+   */
+  @Test
+  public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "sonar-administrators");
+    ComponentDto project = db.components().insertProject();
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .execute();
+
+    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ISSUE_ADMIN);
   }
 
   private WsTester.TestRequest newRequest() {
@@ -239,7 +274,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
   }
 
 }

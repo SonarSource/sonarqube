@@ -25,23 +25,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
-  private final UserSession userSession;
 
-  public GroupPermissionChanger(DbClient dbClient, UserSession userSession) {
+  public GroupPermissionChanger(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
-    PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid(userSession, change.getProjectUuid());
-
     if (shouldSkip(dbSession, change)) {
       return false;
     }

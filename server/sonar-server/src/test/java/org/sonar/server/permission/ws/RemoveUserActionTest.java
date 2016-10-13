@@ -21,9 +21,11 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 
@@ -59,7 +61,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Override
   protected RemoveUserAction buildWsAction() {
-    return new RemoveUserAction(db.getDbClient(), newPermissionUpdater(), newPermissionWsSupport());
+    return new RemoveUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport());
   }
 
   @Test
@@ -226,6 +228,51 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .execute();
+  }
+
+  @Test
+  public void removing_global_permission_fails_if_not_administrator_of_organization() throws Exception {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .execute();
+  }
+
+  @Test
+  public void removing_project_permission_fails_if_not_administrator_of_project() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .execute();
+  }
+
+  /**
+   * User is project administrator but not system administrator
+   */
+  @Test
+  public void removing_project_permission_is_allowed_to_project_administrators() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
+    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .execute();
+
+    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(CODEVIEWER);
   }
 
   private void loginAsAdmin() {

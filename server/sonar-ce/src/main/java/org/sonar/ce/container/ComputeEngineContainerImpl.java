@@ -96,6 +96,10 @@ import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
+import org.sonar.server.permission.GroupPermissionChanger;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -316,6 +320,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // permissions
       PermissionRepository.class,
+      PermissionService.class,
+      PermissionUpdater.class,
+      UserPermissionChanger.class,
+      GroupPermissionChanger.class,
+
 
       // components
       ComponentFinder.class, // used in ComponentService

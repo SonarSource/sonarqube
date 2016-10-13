@@ -31,8 +31,10 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.user.UserSession;
 
 import static java.util.Arrays.asList;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -46,11 +48,13 @@ public class RemoveUserAction implements PermissionsWsAction {
   public static final String ACTION = "remove_user";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsSupport support;
 
-  public RemoveUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.support = support;
   }
@@ -77,6 +81,8 @@ public class RemoveUserAction implements PermissionsWsAction {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+
+      checkAdministrationPermission(userSession, projectId);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
