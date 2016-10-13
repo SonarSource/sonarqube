@@ -49,16 +49,6 @@
     </where>
   </select>
 
-  <select id="countResourceUserRoles" parameterType="long" resultType="int">
-    SELECT count(1)
-    FROM user_roles WHERE resource_id=#{id}
-  </select>
-
-  <select id="countResourceGroupRoles" parameterType="long" resultType="int">
-    SELECT count(1)
-    FROM group_roles WHERE resource_id=#{id}
-  </select>
-
   <select id="countUsersWithPermission" parameterType="map" resultType="int">
     SELECT count(c.id)
     FROM (

@@ -317,6 +317,33 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
+  public void projectHasPermissions_is_false_if_no_permissions_at_all() {
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertPermissionOnAnyone("perm1");
+
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isFalse();
+  }
+
+  @Test
+  public void projectHasPermissions_is_true_if_at_least_one_permission_on_group() {
+    GroupDto group1 = db.users().insertGroup(newGroupDto());
+    ComponentDto project1 = db.components().insertProject();
+    db.users().insertProjectPermissionOnGroup(group1, "perm1", project1);
+
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
+  }
+
+  @Test
+  public void projectHasPermissions_is_true_if_at_least_one_permission_on_anyone() {
+    ComponentDto project1 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertProject();
+    db.users().insertProjectPermissionOnAnyone("perm1", project1);
+
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
+    assertThat(underTest.hasRootComponentPermissions(dbSession, project2.getId())).isFalse();
+  }
+
+  @Test
   public void deleteByRootComponentId() {
     GroupDto group1 = db.users().insertGroup(newGroupDto());
     GroupDto group2 = db.users().insertGroup(newGroupDto());

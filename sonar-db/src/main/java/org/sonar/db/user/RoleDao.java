@@ -44,20 +44,9 @@ public class RoleDao implements Dao {
     return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
   }
 
-  private static int countResourceGroupRoles(DbSession session, Long resourceId) {
-    return mapper(session).countResourceGroupRoles(resourceId);
-  }
-
-  private static int countResourceUserRoles(DbSession session, long resourceId) {
-    return mapper(session).countResourceUserRoles(resourceId);
-  }
 
   public void deleteGroupRolesByGroupId(DbSession session, long groupId) {
     mapper(session).deleteGroupRolesByGroupId(groupId);
-  }
-
-  public int countComponentPermissions(DbSession session, Long componentId) {
-    return countResourceGroupRoles(session, componentId) + countResourceUserRoles(session, componentId);
   }
 
   public int countUserPermissions(DbSession session, String permission, @Nullable Long allGroupsExceptThisGroupId) {

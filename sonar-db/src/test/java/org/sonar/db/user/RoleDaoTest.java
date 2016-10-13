@@ -127,13 +127,6 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void should_count_component_permissions() {
-    db.prepareDbUnit(getClass(), "should_count_component_permissions.xml");
-
-    assertThat(underTest.countComponentPermissions(db.getSession(), 123L)).isEqualTo(2);
-  }
-
-  @Test
   public void countUserPermissions() {
     db.users().insertProjectPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN, project1);
     db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
