@@ -328,9 +328,8 @@ public class ComponentDao implements Dao {
     parameters.put("qualifier", Qualifiers.PROJECT);
   }
 
-  public ComponentDto insert(DbSession session, ComponentDto item) {
+  public void insert(DbSession session, ComponentDto item) {
     mapper(session).insert(item);
-    return item;
   }
 
   public void insertBatch(DbSession session, ComponentDto item) {

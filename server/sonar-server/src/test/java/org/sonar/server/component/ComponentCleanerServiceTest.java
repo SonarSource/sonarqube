@@ -149,8 +149,10 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_to_delete_not_project_scope() throws Exception {
     mockResourceTypeAsValidProject();
-    ComponentDto project = dbClient.componentDao().insert(dbSession, newProjectDto());
-    ComponentDto file = dbClient.componentDao().insert(dbSession, newFileDto(project, null));
+    ComponentDto project = newProjectDto();
+    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto file = newFileDto(project, null);
+    dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -162,7 +164,8 @@ public class ComponentCleanerServiceTest {
     ResourceType resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty("deletable")).thenReturn(false);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ComponentDto project = dbClient.componentDao().insert(dbSession, newProjectDto());
+    ComponentDto project = newProjectDto();
+    dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -172,7 +175,8 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_to_delete_null_resource_type() throws Exception {
     when(mockResourceTypes.get(anyString())).thenReturn(null);
-    ComponentDto project = dbClient.componentDao().insert(dbSession, newProjectDto());
+    ComponentDto project = newProjectDto();
+    dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
