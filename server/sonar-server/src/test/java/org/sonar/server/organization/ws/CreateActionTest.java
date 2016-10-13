@@ -60,7 +60,7 @@ public class CreateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

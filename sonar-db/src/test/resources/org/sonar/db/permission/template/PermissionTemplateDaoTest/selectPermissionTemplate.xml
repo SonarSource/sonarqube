@@ -4,7 +4,8 @@
                         kee="my_template_20130102_030405"
                         description="my description"
                         created_at="[null]"
-                        updated_at="[null]"/>
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
 
   <perm_templates_users id="1"
                         template_id="1"
@@ -27,6 +28,7 @@
          login="login2"
          name="user2"
          is_root="[false]"/>
+         name="user1"/>
 
   <perm_templates_groups id="1"
                          template_id="1"
@@ -48,7 +50,9 @@
                          permission_reference="group_permission2"/>
 
   <groups id="1"
-          name="group1"/>
+          name="group1"
+          organization_uuid="org1"/>
   <groups id="2"
-          name="group2"/>
+          name="group2"
+          organization_uuid="org1"/>
 </dataset>

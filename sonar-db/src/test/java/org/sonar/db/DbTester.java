@@ -64,8 +64,13 @@ import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.user.UserDbTester;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.sql.ResultSetMetaData.columnNoNulls;
@@ -84,10 +89,19 @@ public class DbTester extends ExternalResource {
   private final TestDb db;
   private DbClient client;
   private DbSession session = null;
+  private boolean disableDefaultOrganization = false;
+  private boolean started = false;
+  private OrganizationDto defaultOrganization;
+
+  private final UserDbTester userTester;
+  private final ComponentDbTester componentTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
     this.db = TestDb.create(schemaPath);
+    initDbClient();
+    this.userTester = new UserDbTester(this);
+    this.componentTester = new ComponentDbTester(this);
   }
 
   public static DbTester create(System2 system2) {
@@ -97,13 +111,58 @@ public class DbTester extends ExternalResource {
   public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
     String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
     String schemaPath = path + "/" + filename;
-    return new DbTester(system2, schemaPath);
+    return new DbTester(system2, schemaPath).setDisableDefaultOrganization(true);
+  }
+
+  private void initDbClient() {
+    TransientPicoContainer ioc = new TransientPicoContainer();
+    ioc.addComponent(db.getMyBatis());
+    ioc.addComponent(system2);
+    ioc.addComponent(new SequenceUuidFactory());
+    for (Class daoClass : DaoModule.classes()) {
+      ioc.addComponent(daoClass);
+    }
+    List<Dao> daos = ioc.getComponents(Dao.class);
+    client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
+  }
+
+  public DbTester setDisableDefaultOrganization(boolean b) {
+    checkState(!started, "DbTester is already started");
+    this.disableDefaultOrganization = b;
+    return this;
   }
 
   @Override
   protected void before() throws Throwable {
     db.start();
     db.truncateTables();
+    initDbClient();
+    if (!disableDefaultOrganization) {
+      insertDefaultOrganization();
+    }
+    started = true;
+  }
+
+  private void insertDefaultOrganization() {
+    defaultOrganization = OrganizationTesting.newOrganizationDto();
+    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
+      client.organizationDao().insert(dbSession, defaultOrganization);
+      client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
+      dbSession.commit();
+    }
+  }
+
+  public OrganizationDto getDefaultOrganization() {
+    checkState(defaultOrganization != null, "Default organization has not been created");
+    return defaultOrganization;
+  }
+
+  public UserDbTester users() {
+    return userTester;
+  }
+
+  public ComponentDbTester components() {
+    return componentTester;
   }
 
   @Override
@@ -112,6 +171,7 @@ public class DbTester extends ExternalResource {
       MyBatis.closeQuietly(session);
     }
     db.stop();
+    started = false;
   }
 
   public DbSession getSession() {
@@ -126,17 +186,6 @@ public class DbTester extends ExternalResource {
   }
 
   public DbClient getDbClient() {
-    if (client == null) {
-      TransientPicoContainer ioc = new TransientPicoContainer();
-      ioc.addComponent(db.getMyBatis());
-      ioc.addComponent(system2);
-      ioc.addComponent(new SequenceUuidFactory());
-      for (Class daoClass : DaoModule.classes()) {
-        ioc.addComponent(daoClass);
-      }
-      List<Dao> daos = ioc.getComponents(Dao.class);
-      client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
-    }
     return client;
   }
 

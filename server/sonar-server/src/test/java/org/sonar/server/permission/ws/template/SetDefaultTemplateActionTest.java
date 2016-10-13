@@ -19,88 +19,63 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.ws.WsTester;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
+public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaultTemplateAction> {
 
-public class SetDefaultTemplateActionTest {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  I18nRule i18n = new I18nRule();
+  private static final String ACTION = "set_default_template";
 
-  WsActionTester ws;
-  PersistentSettings persistentSettings;
-  ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private I18nRule i18n = new I18nRule();
+  private PersistentSettings persistentSettings = new PersistentSettings(new MapSettings(), db.getDbClient(), new SettingsChangeNotifier());
+  private PermissionTemplateDto template;
 
-  PermissionTemplateDto template;
+  @Override
+  protected SetDefaultTemplateAction buildWsAction() {
+    return new SetDefaultTemplateAction(db.getDbClient(), newPermissionWsSupport(), newRootResourceTypes(), persistentSettings, userSession, i18n);
+  }
 
   @Before
   public void setUp() {
     DbClient dbClient = db.getDbClient();
-    persistentSettings = new PersistentSettings(new MapSettings(), dbClient, new SettingsChangeNotifier());
     persistentSettings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(PROJECT), "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(VIEW), "any-view-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty("DEV"), "any-dev-template-uuid");
-    when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    ws = new WsActionTester(new SetDefaultTemplateAction(
-      dbClient,
-      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes),
-      resourceTypes,
-      persistentSettings,
-      userSession, i18n));
-
     template = dbClient.permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto().setUuid("permission-template-uuid"));
+    db.commit();
   }
 
   @Test
-  public void update_settings_for_project_qualifier() {
+  public void update_settings_for_project_qualifier() throws Exception {
     // default value is project qualifier's value
     String result = newRequest(template.getUuid(), null);
 
@@ -112,8 +87,8 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void update_settings_for_project_qualifier_by_template_name() {
-    ws.newRequest()
+  public void update_settings_for_project_qualifier_by_template_name() throws Exception {
+    wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
     db.getSession().commit();
@@ -125,7 +100,7 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void update_settings_of_views_property() {
+  public void update_settings_of_views_property() throws Exception {
     newRequest(template.getUuid(), VIEW);
 
     assertThat(persistentSettings.getString(DEFAULT_TEMPLATE_PROPERTY)).isEqualTo("any-template-uuid");
@@ -135,7 +110,7 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void fail_if_anonymous() {
+  public void fail_if_anonymous() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
@@ -143,7 +118,7 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void fail_if_not_admin() {
+  public void fail_if_not_admin() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
@@ -151,29 +126,29 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void fail_if_template_not_provided() {
+  public void fail_if_template_not_provided() throws Exception {
     expectedException.expect(BadRequestException.class);
 
     newRequest(null, PROJECT);
   }
 
   @Test
-  public void fail_if_template_does_not_exist() {
+  public void fail_if_template_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
 
     newRequest("unknown-template-uuid", PROJECT);
   }
 
   @Test
-  public void fail_if_qualifier_is_not_root() {
-    expectedException.expect(BadRequestException.class);
-    when(resourceTypes.getRoots()).thenReturn(singletonList(ResourceType.builder(PROJECT).build()));
+  public void fail_if_qualifier_is_not_root() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'qualifier' (FIL) must be one of: [DEV, TRK, VW]");
 
-    newRequest(template.getUuid(), VIEW);
+    newRequest(template.getUuid(), Qualifiers.FILE);
   }
 
-  private String newRequest(@Nullable String templateUuid, @Nullable String qualifier) {
-    TestRequest request = ws.newRequest();
+  private String newRequest(@Nullable String templateUuid, @Nullable String qualifier) throws Exception {
+    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }
@@ -181,14 +156,6 @@ public class SetDefaultTemplateActionTest {
       request.setParam(PARAM_QUALIFIER, qualifier);
     }
 
-    return request.execute().getInput();
-  }
-
-  private static List<ResourceType> rootResourceTypes() {
-    ResourceType project = ResourceType.builder(PROJECT).build();
-    ResourceType view = ResourceType.builder(Qualifiers.VIEW).build();
-    ResourceType dev = ResourceType.builder("DEV").build();
-
-    return asList(project, view, dev);
+    return request.execute().outputAsString();
   }
 }

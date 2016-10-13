@@ -1,7 +1,8 @@
 <dataset>
 
   <groups id="100"
-          name="devs"/>
+          name="devs"
+          organization_uuid="org1"/>
 
   <group_roles id="1"
                group_id="100"

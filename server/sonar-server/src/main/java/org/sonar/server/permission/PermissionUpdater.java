@@ -20,189 +20,55 @@
 package org.sonar.server.permission;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
-import org.sonar.server.user.UserSession;
-
-import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 
 public class PermissionUpdater {
 
-  private enum Operation {
-    ADD, REMOVE
-  }
-
-  private static final String OBJECT_TYPE_USER = "User";
-  private static final String OBJECT_TYPE_GROUP = "Group";
-  private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
-
   private final DbClient dbClient;
-  private final PermissionRepository permissionRepository;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
-  private final UserSession userSession;
-  private final ComponentFinder componentFinder;
+  private final UserPermissionChanger userPermissionChanger;
+  private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(DbClient dbClient, PermissionRepository permissionRepository,
-    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
+  public PermissionUpdater(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer,
+    UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
     this.dbClient = dbClient;
-    this.permissionRepository = permissionRepository;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
-    this.userSession = userSession;
-    this.componentFinder = componentFinder;
+    this.userPermissionChanger = userPermissionChanger;
+    this.groupPermissionChanger = groupPermissionChanger;
   }
 
-  public static List<String> globalPermissions() {
-    return GlobalPermissions.ALL;
-  }
-
-  public void addPermission(PermissionChange change) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.ADD, change, session);
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
-  public void removePermission(PermissionChange change) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.REMOVE, change, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  private void applyChange(Operation operation, PermissionChange change, DbSession session) {
-    userSession.checkLoggedIn();
-    change.validate();
-    boolean changed;
-    if (change.userLogin() != null) {
-      changed = applyChangeOnUser(session, operation, change);
-    } else {
-      changed = applyChangeOnGroup(session, operation, change);
-    }
-    if (changed) {
-      session.commit();
-      if (change.componentKey() != null) {
-        indexProjectPermissions();
+  public void apply(DbSession dbSession, Collection<PermissionChange> changes) {
+    Set<Long> projectIds = new HashSet<>();
+    for (PermissionChange change : changes) {
+      boolean changed = doApply(dbSession, change);
+      Optional<ProjectRef> projectId = change.getProjectRef();
+      if (changed && projectId.isPresent()) {
+        projectIds.add(projectId.get().getId());
       }
     }
-  }
-
-  private boolean applyChangeOnGroup(DbSession session, Operation operation, PermissionChange permissionChange) {
-    ComponentDto project = getComponent(session, permissionChange.componentKey());
-    Long projectId = project != null ? project.getId() : null;
-    checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
-
-    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), projectId);
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
-      return false;
+    for (Long projectId : projectIds) {
+      dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
     }
+    dbSession.commit();
 
-    Long targetedGroup = getTargetedGroup(session, permissionChange.groupName());
-    String permission = permissionChange.permission();
-    if (Operation.ADD == operation) {
-      validateNotAnyoneAndAdminPermission(permission, permissionChange.groupName());
-      permissionRepository.insertGroupPermission(projectId, targetedGroup, permission, session);
-    } else {
-      checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
-      permissionRepository.deleteGroupPermission(projectId, targetedGroup, permission, session);
-    }
-    return true;
-  }
-
-  private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
-    ComponentDto project = getComponent(session, permissionChange.componentKey());
-    Long projectId = project != null ? project.getId() : null;
-    String projectUuid = project != null ? project.uuid() : null;
-    checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
-
-    Set<String> existingPermissions = dbClient.userPermissionDao().selectPermissionsByLogin(session, permissionChange.userLogin(), projectUuid);
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
-      return false;
-    }
-
-    UserDto targetedUser = getTargetedUser(session, permissionChange.userLogin());
-    if (Operation.ADD == operation) {
-      permissionRepository.insertUserPermission(projectId, targetedUser.getId(), permissionChange.permission(), session);
-    } else {
-      checkOtherAdminUsersExist(session, permissionChange);
-      permissionRepository.deleteUserPermission(project, targetedUser.getLogin(), permissionChange.permission(), session);
-    }
-    return true;
-
-  }
-
-  private void checkOtherAdminUsersExist(DbSession session, PermissionChange permissionChange) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
-      && permissionChange.componentKey() == null
-      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), null) <= 1) {
-      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+    if (!projectIds.isEmpty()) {
+      issueAuthorizationIndexer.index();
     }
   }
 
-  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, @Nullable Long groupIdToExclude) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
-      && groupIdToExclude != null
-      && permissionChange.componentKey() == null
-      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), groupIdToExclude) <= 0) {
-      throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+  private boolean doApply(DbSession dbSession, PermissionChange change) {
+    if (change instanceof UserPermissionChange) {
+      return userPermissionChanger.apply(dbSession, (UserPermissionChange) change);
     }
-  }
-
-  private UserDto getTargetedUser(DbSession session, String userLogin) {
-    UserDto user = dbClient.userDao().selectActiveUserByLogin(session, userLogin);
-    badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin);
-    return user;
-  }
-
-  @Nullable
-  private Long getTargetedGroup(DbSession session, String group) {
-    if (isAnyone(group)) {
-      return null;
-    } else {
-      GroupDto groupDto = dbClient.groupDao().selectByName(session, group);
-      badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group);
-      return groupDto.getId();
+    if (change instanceof GroupPermissionChange) {
+      return groupPermissionChanger.apply(dbSession, (GroupPermissionChange) change);
     }
-  }
+    throw new UnsupportedOperationException("Unsupported permission change: " + change.getClass());
 
-  private static boolean shouldSkipPermissionChange(Operation operation, Collection<String> existingPermissions, PermissionChange permissionChange) {
-    return (Operation.ADD == operation && existingPermissions.contains(permissionChange.permission())) ||
-      (Operation.REMOVE == operation && !existingPermissions.contains(permissionChange.permission()));
-  }
-
-  @CheckForNull
-  private ComponentDto getComponent(DbSession session, @Nullable String componentKey) {
-    if (componentKey == null) {
-      return null;
-    }
-    return componentFinder.getByKey(session, componentKey);
-  }
-
-  private static Object badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {
-    if (component == null) {
-      throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
-    }
-    return component;
-  }
-
-  private void indexProjectPermissions() {
-    issueAuthorizationIndexer.index();
   }
 }

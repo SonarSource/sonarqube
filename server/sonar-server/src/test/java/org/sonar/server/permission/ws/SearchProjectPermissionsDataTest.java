@@ -25,7 +25,6 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.db.component.ComponentDto;
 
 public class SearchProjectPermissionsDataTest {
   @Rule
@@ -36,8 +35,8 @@ public class SearchProjectPermissionsDataTest {
     expectedException.expect(IllegalStateException.class);
 
     SearchProjectPermissionsData.newBuilder()
-      .groupCountByProjectIdAndPermission(HashBasedTable.<Long, String, Integer>create())
-      .userCountByProjectIdAndPermission(HashBasedTable.<Long, String, Integer>create())
+      .groupCountByProjectIdAndPermission(HashBasedTable.create())
+      .userCountByProjectIdAndPermission(HashBasedTable.create())
       .build();
   }
 
@@ -46,8 +45,8 @@ public class SearchProjectPermissionsDataTest {
     expectedException.expect(IllegalStateException.class);
 
     SearchProjectPermissionsData.newBuilder()
-      .rootComponents(Collections.<ComponentDto>emptyList())
-      .userCountByProjectIdAndPermission(HashBasedTable.<Long, String, Integer>create())
+      .rootComponents(Collections.emptyList())
+      .userCountByProjectIdAndPermission(HashBasedTable.create())
       .build();
   }
 
@@ -56,8 +55,8 @@ public class SearchProjectPermissionsDataTest {
     expectedException.expect(IllegalStateException.class);
 
     SearchProjectPermissionsData.newBuilder()
-      .rootComponents(Collections.<ComponentDto>emptyList())
-      .groupCountByProjectIdAndPermission(HashBasedTable.<Long, String, Integer>create())
+      .rootComponents(Collections.emptyList())
+      .groupCountByProjectIdAndPermission(HashBasedTable.create())
       .build();
   }
 }

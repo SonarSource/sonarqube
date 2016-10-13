@@ -11,8 +11,17 @@
   </sql>
 
   <insert id="insert" parameterType="UserToken" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO user_tokens (login, name, token_hash, created_at)
-    VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{tokenHash,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT})
+    insert into user_tokens (
+    login,
+    name,
+    token_hash,
+    created_at
+    ) values (
+    #{login,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{tokenHash,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT}
+    )
   </insert>
 
   <select id="selectByTokenHash" parameterType="String" resultType="UserToken">

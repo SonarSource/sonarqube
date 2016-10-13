@@ -19,52 +19,49 @@
  */
 package org.sonar.server.organization;
 
-import com.google.common.base.Preconditions;
-import org.junit.rules.ExternalResource;
-import org.sonar.core.util.UuidFactoryImpl;
+import java.util.Optional;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.property.InternalProperties;
 
-public class DefaultOrganizationProviderRule extends ExternalResource implements DefaultOrganizationProvider {
-  private DefaultOrganization defaultOrganization;
+import static com.google.common.base.Preconditions.checkState;
 
-  private DefaultOrganizationProviderRule(DefaultOrganization defaultOrganization) {
-    this.defaultOrganization = defaultOrganization;
-  }
+public class DefaultOrganizationProviderRule implements DefaultOrganizationProvider {
 
-  /**
-   * <p>
-   * This method is meant to be statically imported.
-   * </p>
-   */
-  public static DefaultOrganizationProviderRule someDefaultOrganization() {
-    String uuid = UuidFactoryImpl.INSTANCE.create();
-    return new DefaultOrganizationProviderRule(DefaultOrganization.newBuilder()
-      .setUuid(uuid)
-      .setName("Default organization " + uuid)
-      .setKey(uuid + "_key")
-      .setCreatedAt(uuid.hashCode())
-      .setUpdatedAt(uuid.hashCode())
-      .build());
-  }
+  private final DbTester dbTester;
 
-  /**
-   * <p>
-   * This method is meant to be statically imported.
-   * </p>
-   */
-  public static DefaultOrganizationProviderRule defaultOrganizationWithName(String name) {
-    String uuid = UuidFactoryImpl.INSTANCE.create();
-    return new DefaultOrganizationProviderRule(DefaultOrganization.newBuilder()
-      .setUuid(uuid)
-      .setName(name)
-      .setKey(uuid + "_key")
-      .setCreatedAt(uuid.hashCode())
-      .setUpdatedAt(uuid.hashCode())
-      .build());
+  public static DefaultOrganizationProviderRule create(DbTester dbTester) {
+    return new DefaultOrganizationProviderRule(dbTester);
   }
 
   @Override
   public DefaultOrganization get() {
-    Preconditions.checkState(defaultOrganization != null, "No default organization is set");
-    return defaultOrganization;
+    DbSession dbSession = dbTester.getSession();
+    Optional<String> uuid = dbTester.getDbClient().internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_ORGANIZATION);
+    checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");
+    Optional<OrganizationDto> dto = dbTester.getDbClient().organizationDao().selectByUuid(dbSession, uuid.get());
+    checkState(dto.isPresent(), "Default organization with uuid '%s' does not exist", uuid.get());
+    return toDefaultOrganization(dto.get());
+  }
+
+  public OrganizationDto getDto() {
+    String uuid = get().getUuid();
+    return dbTester.getDbClient().organizationDao().selectByUuid(dbTester.getSession(), uuid)
+        .orElseThrow(() -> new IllegalStateException("Missing default organization in database [uuid=" + uuid + "]"));
+  }
+
+  private static DefaultOrganization toDefaultOrganization(OrganizationDto organizationDto) {
+    return DefaultOrganization.newBuilder()
+      .setUuid(organizationDto.getUuid())
+      .setKey(organizationDto.getKey())
+      .setName(organizationDto.getName())
+      .setCreatedAt(organizationDto.getCreatedAt())
+      .setUpdatedAt(organizationDto.getUpdatedAt())
+      .build();
+  }
+
+  private DefaultOrganizationProviderRule(DbTester dbTester) {
+    this.dbTester = dbTester;
   }
 }

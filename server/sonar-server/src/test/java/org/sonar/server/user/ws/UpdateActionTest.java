@@ -19,23 +19,22 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -46,46 +45,38 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
 
-  static final Settings settings = new MapSettings().setProperty("sonar.defaultGroup", "sonar-users");
+  private final Settings settings = new MapSettings().setProperty("sonar.defaultGroup", "sonar-users");
 
-  System2 system2 = new System2();
+  private System2 system2 = new System2();
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
   @Rule
-  public final UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
     .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession session = dbTester.getSession();
-
-  WebService.Controller controller;
-
-  WsTester tester;
-
-  UserIndexer userIndexer;
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
+  private WsTester tester;
+  private UserIndexer userIndexer;
+  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(dbTester);
 
   @Before
   public void setUp() {
-    dbClient.groupDao().insert(session, new GroupDto().setName("sonar-users"));
+    dbClient.groupDao().insert(session, newGroupDto().setName("sonar-users"));
     session.commit();
 
     userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
-    controller = tester.controller("api/users");
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -223,7 +214,7 @@ public class UpdateActionTest {
   }
 
   private void createUser() {
-    dbClient.userDao().insert(session, new UserDto()
+    dbClient.userDao().insert(session, newUserDto()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")

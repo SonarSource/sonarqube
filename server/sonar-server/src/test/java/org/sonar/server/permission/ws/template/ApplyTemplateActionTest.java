@@ -22,23 +22,14 @@ package org.sonar.server.permission.ws.template;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -49,94 +40,72 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
-public class ApplyTemplateActionTest {
+public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateAction> {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+  private static final String ACTION = "apply_template";
 
-  WsActionTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
+  private UserDto user1;
+  private UserDto user2;
+  private GroupDto group1;
+  private GroupDto group2;
+  private ComponentDto project;
+  private PermissionTemplateDto template1;
+  private PermissionTemplateDto template2;
+  private IssueAuthorizationIndexer issueAuthorizationIndexer = mock(IssueAuthorizationIndexer.class);
 
-  UserDto user1;
-  UserDto user2;
-  GroupDto group1;
-  GroupDto group2;
-  ComponentDto project;
-  PermissionTemplateDto template1;
-  PermissionTemplateDto template2;
-  IssueAuthorizationIndexer issueAuthorizationIndexer = mock(IssueAuthorizationIndexer.class);
+  @Override
+  protected ApplyTemplateAction buildWsAction() {
+    PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
+    ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
+    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issueAuthorizationIndexer, userSession, componentFinder);
+    return new ApplyTemplateAction(db.getDbClient(), permissionService, newPermissionWsSupport());
+  }
 
   @Before
   public void setUp() {
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
+    loginAsAdmin();
 
-    PermissionRepository repository = new PermissionRepository(dbClient, new MapSettings());
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
-    PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);
-
-    ApplyTemplateAction underTest = new ApplyTemplateAction(dbClient, permissionService, permissionDependenciesFinder);
-    ws = new WsActionTester(underTest);
-
-    user1 = insertUser(newUserDto().setLogin("user-login-1"));
-    user2 = insertUser(newUserDto().setLogin("user-login-2"));
-    group1 = insertGroup(newGroupDto().setName("group-name-1"));
-    group2 = insertGroup(newGroupDto().setName("group-name-2"));
+    user1 = db.users().insertUser("user-login-1");
+    user2 = db.users().insertUser("user-login-2");
+    OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
+    group1 = db.users().insertGroup(defaultOrg, "group-name-1");
+    group2 = db.users().insertGroup(defaultOrg, "group-name-2");
 
     // template 1
-    template1 = insertTemplate(newPermissionTemplateDto().setUuid("permission-template-uuid-1"));
+    template1 = insertTemplate();
     addUserToTemplate(user1, template1, UserRole.CODEVIEWER);
     addUserToTemplate(user2, template1, UserRole.ISSUE_ADMIN);
     addGroupToTemplate(group1, template1, UserRole.ADMIN);
     addGroupToTemplate(group2, template1, UserRole.USER);
     // template 2
-    template2 = insertTemplate(newPermissionTemplateDto().setUuid("permission-template-uuid-2"));
+    template2 = insertTemplate();
     addUserToTemplate(user1, template2, UserRole.USER);
     addUserToTemplate(user2, template2, UserRole.USER);
     addGroupToTemplate(group1, template2, UserRole.USER);
     addGroupToTemplate(group2, template2, UserRole.USER);
 
-    project = insertProject(newProjectDto("project-uuid-1"));
-    addUserPermissionToProject(user1, project, UserRole.ADMIN);
-    addUserPermissionToProject(user2, project, UserRole.ADMIN);
-    addGroupPermissionToProject(group1, project, UserRole.ADMIN);
-    addGroupPermissionToProject(group2, project, UserRole.ADMIN);
-
-    commit();
+    project = db.components().insertComponent(newProjectDto("project-uuid-1"));
+    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
   }
 
   @Test
-  public void apply_template_with_project_uuid() {
-    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).hasSize(2);
-    assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).hasSize(2);
-
+  public void apply_template_with_project_uuid() throws Exception {
     newRequest(template1.getUuid(), project.uuid(), null);
 
     assertTemplate1AppliedToProject();
@@ -144,25 +113,24 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
-  public void apply_template_with_project_uuid_by_template_name() {
-    ws.newRequest()
+  public void apply_template_with_project_uuid_by_template_name() throws Exception {
+    wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
-    commit();
 
     assertTemplate1AppliedToProject();
   }
 
   @Test
-  public void apply_template_with_project_key() {
+  public void apply_template_with_project_key() throws Exception {
     newRequest(template1.getUuid(), null, project.key());
 
     assertTemplate1AppliedToProject();
   }
 
   @Test
-  public void fail_when_unknown_template() {
+  public void fail_when_unknown_template() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
 
@@ -170,7 +138,7 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
-  public void fail_when_unknown_project_uuid() {
+  public void fail_when_unknown_project_uuid() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project id 'unknown-project-uuid' not found");
 
@@ -178,7 +146,7 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
-  public void fail_when_unknown_project_key() {
+  public void fail_when_unknown_project_key() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project key 'unknown-project-key' not found");
 
@@ -186,22 +154,22 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
-  public void fail_when_template_is_not_provided() {
+  public void fail_when_template_is_not_provided() throws Exception {
     expectedException.expect(BadRequestException.class);
 
     newRequest(null, project.uuid(), null);
   }
 
   @Test
-  public void fail_when_project_uuid_and_key_not_provided() {
+  public void fail_when_project_uuid_and_key_not_provided() throws Exception {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key must be provided, not both.");
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
 
     newRequest(template1.getUuid(), null, null);
   }
 
   @Test
-  public void fail_when_anonymous() {
+  public void fail_when_anonymous() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
@@ -209,7 +177,7 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_privileges() {
+  public void fail_when_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
@@ -224,8 +192,8 @@ public class ApplyTemplateActionTest {
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
   }
 
-  private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
-    TestRequest request = ws.newRequest();
+  private WsTester.Result newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {
+    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }
@@ -236,59 +204,30 @@ public class ApplyTemplateActionTest {
       request.setParam(PARAM_PROJECT_KEY, projectKey);
     }
 
-    TestResponse result = request.execute();
-    commit();
-
-    return result;
-  }
-
-  private ComponentDto insertProject(ComponentDto project) {
-    dbClient.componentDao().insert(dbSession, project);
-    return dbClient.componentDao().selectOrFailByUuid(dbSession, project.uuid());
-  }
-
-  private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(dbSession, template);
-  }
-
-  private UserDto insertUser(UserDto userDto) {
-    return dbClient.userDao().insert(dbSession, userDto.setActive(true));
-  }
-
-  private GroupDto insertGroup(GroupDto group) {
-    return dbClient.groupDao().insert(dbSession, group);
+    return request.execute();
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, permissionTemplate.getId(), user.getId(), permission);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getId(), user.getId(), permission);
+    db.commit();
   }
 
   private void addGroupToTemplate(GroupDto group, PermissionTemplateDto permissionTemplate, String permission) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, permissionTemplate.getId(), group.getId(), permission);
-  }
-
-  private void addUserPermissionToProject(UserDto user, ComponentDto project, String permission) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, user.getId(), project.getId()));
-  }
-
-  private void addGroupPermissionToProject(GroupDto group, ComponentDto project, String permission) {
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
-      .setRole(permission)
-      .setResourceId(project.getId())
-      .setGroupId(group.getId()));
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplate.getId(), group.getId(), permission);
+    db.commit();
   }
 
   private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return dbClient.groupPermissionDao().selectGroupNamesByPermissionQuery(dbSession, query);
+    return db.getDbClient().groupPermissionDao().selectGroupNamesByPermissionQuery(db.getSession(), query);
   }
 
   private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return dbClient.userPermissionDao().selectLogins(dbSession, query);
+    return db.getDbClient().userPermissionDao().selectLogins(db.getSession(), query);
   }
 
-  private void commit() {
-    dbSession.commit();
+  private void loginAsAdmin() {
+    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

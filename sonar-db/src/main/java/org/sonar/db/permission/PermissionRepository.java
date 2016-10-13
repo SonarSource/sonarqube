@@ -36,7 +36,6 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
-import org.sonar.db.user.GroupDto;
 
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 
@@ -57,57 +56,12 @@ public class PermissionRepository {
     this.settings = settings;
   }
 
-  /**
-   * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
-   */
-  private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
-    UserPermissionDto userPermissionDto = new UserPermissionDto(permission, userId, resourceId);
-    if (updateProjectAuthorizationDate) {
-      updateProjectAuthorizationDate(session, resourceId);
-    }
-    dbClient.userPermissionDao().insert(session, userPermissionDto);
-  }
-
-  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
-    insertUserPermission(resourceId, userId, permission, true, session);
-  }
-
-  public void deleteUserPermission(@Nullable ComponentDto project, String login, String permission, DbSession session) {
-    if (project != null) {
-      dbClient.userPermissionDao().delete(session, login, project.uuid(), permission);
-      updateProjectAuthorizationDate(session, project.getId());
-    } else {
-      dbClient.userPermissionDao().delete(session, login, null, permission);
-    }
-  }
-
-  /**
-   * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
-   */
-  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
-    GroupPermissionDto groupRole = new GroupPermissionDto()
+  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
+    GroupPermissionDto dto = new GroupPermissionDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
-    if (updateProjectAuthorizationDate) {
-      updateProjectAuthorizationDate(session, resourceId);
-    }
-    dbClient.roleDao().insertGroupRole(session, groupRole);
-  }
-
-  public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
-    insertGroupPermission(resourceId, groupId, permission, true, session);
-  }
-
-  public void insertGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
-    if (isAnyone(groupName)) {
-      insertGroupPermission(resourceId, (Long) null, permission, session);
-    } else {
-      GroupDto group = dbClient.groupDao().selectByName(session, groupName);
-      if (group != null) {
-        insertGroupPermission(resourceId, group.getId(), permission, session);
-      }
-    }
+    dbClient.groupPermissionDao().insert(session, dto);
   }
 
   public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
@@ -133,19 +87,24 @@ public class PermissionRepository {
   }
 
   private void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project, @Nullable Long currentUserId) {
-    PermissionTemplate permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
+    PermissionTemplate template = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
     updateProjectAuthorizationDate(session, project.getId());
     dbClient.roleDao().deleteGroupRolesByResourceId(session, project.getId());
     dbClient.userPermissionDao().delete(session, null, project.uuid(), null);
 
-    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUserPermissions();
-    usersPermissions.forEach(userPermission -> insertUserPermission(project.getId(), userPermission.getUserId(), userPermission.getPermission(), false, session));
+    List<PermissionTemplateUserDto> usersPermissions = template.getUserPermissions();
+    String organizationUuid = template.getTemplate().getOrganizationUuid();
+    usersPermissions
+      .forEach(up -> {
+        UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.getId());
+        dbClient.userPermissionDao().insert(session, dto);
+      });
 
-    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupPermissions();
+    List<PermissionTemplateGroupDto> groupsPermissions = template.getGroupPermissions();
     groupsPermissions.forEach(groupPermission -> insertGroupPermission(project.getId(), isAnyone(groupPermission.getGroupName()) ? null : groupPermission.getGroupId(),
-      groupPermission.getPermission(), false, session));
+      groupPermission.getPermission(), session));
 
-    List<PermissionTemplateCharacteristicDto> characteristics = permissionTemplate.getCharacteristics();
+    List<PermissionTemplateCharacteristicDto> characteristics = template.getCharacteristics();
     if (currentUserId != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
         .filter(userPermission -> currentUserId.equals(userPermission.getUserId()))
@@ -154,7 +113,10 @@ public class PermissionRepository {
       characteristics.stream()
         .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
-        .forEach(characteristic -> insertUserPermission(project.getId(), currentUserId, characteristic.getPermission(), false, session));
+        .forEach(c -> {
+          UserPermissionDto dto = new UserPermissionDto(template.getTemplate().getOrganizationUuid(), c.getPermission(), currentUserId, project.getId());
+          dbClient.userPermissionDao().insert(session, dto);
+        });
     }
   }
 

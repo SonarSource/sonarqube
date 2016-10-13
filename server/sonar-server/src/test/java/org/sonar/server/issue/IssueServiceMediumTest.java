@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +31,6 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -50,12 +48,16 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ProjectRef;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
@@ -297,7 +299,7 @@ public class IssueServiceMediumTest {
   }
 
   private IssueQuery projectQuery(String projectUuid) {
-    return IssueQuery.builder(userSessionRule).projectUuids(Arrays.asList(projectUuid)).resolved(false).build();
+    return IssueQuery.builder(userSessionRule).projectUuids(asList(projectUuid)).resolved(false).build();
   }
 
   @Test
@@ -336,7 +338,10 @@ public class IssueServiceMediumTest {
     session.commit();
 
     // project can be seen by group "anyone"
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
+    // for each organization
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.login();
 
     return project;

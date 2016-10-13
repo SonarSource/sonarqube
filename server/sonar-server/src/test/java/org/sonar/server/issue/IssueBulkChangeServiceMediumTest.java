@@ -29,7 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -47,14 +46,18 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ProjectRef;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -96,7 +99,10 @@ public class IssueBulkChangeServiceMediumTest {
     // project can be seen by anyone
     session.commit();
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
+    // for each organization
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
 
     userSession = userSessionRule.login("john")
       .addProjectPermissions(UserRole.USER, project.key());

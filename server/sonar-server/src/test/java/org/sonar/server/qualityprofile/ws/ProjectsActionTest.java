@@ -29,11 +29,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,25 +43,20 @@ import static org.mockito.Mockito.mock;
 public class ProjectsActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  private DbSession session = dbTester.getSession();
-
+  private UserDto user;
   private QualityProfileDto xooP1;
   private QualityProfileDto xooP2;
-
   private ComponentDto project1;
   private ComponentDto project2;
   private ComponentDto project3;
   private ComponentDto project4;
-
-  private Long userId = 42L;
-
-  private RoleDao roleDao = dbClient.roleDao();
 
   private WsTester wsTester = new WsTester(new QProfilesWs(
     mock(RuleActivationActions.class),
@@ -72,30 +65,26 @@ public class ProjectsActionTest {
 
   @Before
   public void setUp() {
-    userSessionRule.login("obiwan").setUserId(userId.intValue());
-    dbClient.userDao()
-      .insert(session, new UserDto()
-        .setActive(true)
-        .setId(userId)
-        .setLogin("obiwan"));
+    user = db.users().insertUser(UserTesting.newUserDto().setLogin("obiwan"));
+    userSessionRule.login("obiwan").setUserId(user.getId().intValue());
 
     createProfiles();
 
-    session.commit();
+    dbSession.commit();
   }
 
   @Test
   public void should_list_authorized_projects_only() throws Exception {
     project1 = newProject("ABCD", "Project One");
     project2 = newProject("BCDE", "Project Two");
-    dbClient.componentDao().insert(session, project1, project2);
+    db.components().insertComponents(project1, project2);
 
     // user only sees project1
-    dbClient.userPermissionDao().insert(session, new UserPermissionDto(UserRole.USER, userId, project1.getId()));
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").execute().assertJson(this.getClass(), "authorized_selected.json");
   }
@@ -106,13 +95,13 @@ public class ProjectsActionTest {
     project2 = newProject("BCDE", "Project Two");
     project3 = newProject("CDEF", "Project Three");
     project4 = newProject("DEFA", "Project Four");
-    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+    dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2, project3, project4);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2, project3, project4);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2")
       .execute().assertJson(this.getClass(), "selected_page1.json");
@@ -137,13 +126,13 @@ public class ProjectsActionTest {
     project2 = newProject("BCDE", "Project Two");
     project3 = newProject("CDEF", "Project Three");
     project4 = newProject("DEFA", "Project Four");
-    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+    dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "deselected").execute().assertJson(this.getClass(), "deselected.json");
   }
@@ -154,15 +143,15 @@ public class ProjectsActionTest {
     project2 = newProject("BCDE", "Project Two");
     project3 = newProject("CDEF", "Project Three");
     project4 = newProject("DEFA", "Project Four");
-    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+    dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2);
     // project3 is associated with P2, must appear as not associated with xooP1
-    associateProjectsWithProfile(session, xooP2, project3);
+    associateProjectsWithProfile(dbSession, xooP2, project3);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").execute().assertJson(this.getClass(), "all.json");
   }
@@ -173,13 +162,13 @@ public class ProjectsActionTest {
     project2 = newProject("BCDE", "Project Two");
     project3 = newProject("CDEF", "Project Three");
     project4 = newProject("DEFA", "Project Four");
-    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+    dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").setParam("query", "project t").execute().assertJson(this.getClass(), "all_filtered.json");
   }
@@ -195,15 +184,15 @@ public class ProjectsActionTest {
     project2 = newProject("BCDE", "Project Two");
     project3 = newProject("CDEF", "Project Three");
     project4 = newProject("DEFA", "Project Four");
-    dbClient.componentDao().insert(session, project1, project2, project3, project4);
+    dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(session, project1, project2, project3, project4);
+    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
-    associateProjectsWithProfile(session, xooP1, project1, project2);
+    associateProjectsWithProfile(dbSession, xooP1, project1, project2);
     // project3 is associated with P2, must appear as not associated with xooP1
-    associateProjectsWithProfile(session, xooP2, project3);
+    associateProjectsWithProfile(dbSession, xooP2, project3);
 
-    session.commit();
+    dbSession.commit();
 
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
   }
@@ -211,7 +200,7 @@ public class ProjectsActionTest {
   private void createProfiles() {
     xooP1 = QProfileTesting.newXooP1();
     xooP2 = QProfileTesting.newXooP2();
-    dbClient.qualityProfileDao().insert(session, xooP1, xooP2);
+    dbClient.qualityProfileDao().insert(dbSession, xooP1, xooP2);
   }
 
   private TestRequest newRequest() {
@@ -222,9 +211,9 @@ public class ProjectsActionTest {
     return ComponentTesting.newProjectDto(uuid).setName(name);
   }
 
-  private void addBrowsePermissionToAnyone(DbSession session, ComponentDto... projects) {
+  private void addBrowsePermissionToAnyone(ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      roleDao.insertGroupRole(session, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+      db.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
     }
   }
 

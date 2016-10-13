@@ -30,8 +30,6 @@ public interface PermissionTemplateCharacteristicMapper {
 
   PermissionTemplateCharacteristicDto selectByPermissionAndTemplateId(@Param("permission") String permission, @Param("templateId") long templateId);
 
-  PermissionTemplateCharacteristicDto selectById(long id);
-
   void insert(PermissionTemplateCharacteristicDto templatePermissionDto);
 
   void update(PermissionTemplateCharacteristicDto templatePermissionDto);

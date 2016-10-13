@@ -19,29 +19,16 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.io.Resources;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.UserGroupFinder;
-import org.sonar.server.ws.WsActionTester;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -53,75 +40,95 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
-public class GroupsActionTest {
+public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  private GroupDto group1;
+  private GroupDto group2;
+  private GroupDto group3;
 
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
-
-  DbClient dbClient;
-  DbSession dbSession;
-  WsActionTester ws;
-
-  GroupsAction underTest;
+  @Override
+  protected GroupsAction buildWsAction() {
+    return new GroupsAction(
+      db.getDbClient(),
+      userSession,
+      newPermissionWsSupport());
+  }
 
   @Before
   public void setUp() {
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    underTest = new GroupsAction(
-      dbClient,
-      userSession,
-      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes));
-    ws = new WsActionTester(underTest);
-
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
-
-    GroupDto group1 = insertGroup(new GroupDto().setName("group-1-name").setDescription("group-1-description"));
-    GroupDto group2 = insertGroup(new GroupDto().setName("group-2-name").setDescription("group-2-description"));
-    GroupDto group3 = insertGroup(new GroupDto().setName("group-3-name").setDescription("group-3-description"));
-    insertGroupRole(new GroupPermissionDto().setGroupId(group1.getId()).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupPermissionDto().setGroupId(group2.getId()).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupPermissionDto().setGroupId(null).setRole(SCAN_EXECUTION));
-    insertGroupRole(new GroupPermissionDto().setGroupId(group3.getId()).setRole(SYSTEM_ADMIN));
+    OrganizationDto defOrg = defaultOrganizationProvider.getDto();
+    group1 = db.users().insertGroup(defOrg, "group-1-name");
+    group2 = db.users().insertGroup(defOrg, "group-2-name");
+    group3 = db.users().insertGroup(defOrg, "group-3-name");
+    db.users().insertPermissionOnGroup(group1, SCAN_EXECUTION);
+    db.users().insertPermissionOnGroup(group2, SCAN_EXECUTION);
+    db.users().insertPermissionOnGroup(group3, SYSTEM_ADMIN);
+    db.users().insertPermissionOnAnyone(defOrg, SCAN_EXECUTION);
+    db.commit();
   }
 
   @Test
-  public void search_for_groups_with_one_permission() {
-    String result = ws.newRequest()
+  public void search_for_groups_with_one_permission() throws Exception {
+    loginAsAdmin();
+    newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
-      .execute().getInput();
-
-    assertJson(result).isSimilarTo(Resources.getResource(getClass(), "GroupsActionTest/groups.json"));
+      .execute()
+      .assertJson("{\n" +
+        "  \"paging\": {\n" +
+        "    \"pageIndex\": 1,\n" +
+        "    \"pageSize\": 20,\n" +
+        "    \"total\": 3\n" +
+        "  },\n" +
+        "  \"groups\": [\n" +
+        "    {\n" +
+        "      \"name\": \"Anyone\",\n" +
+        "      \"permissions\": [\n" +
+        "        \"scan\"\n" +
+        "      ]\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"name\": \"group-1-name\",\n" +
+        "      \"description\": \"" + group1.getDescription() + "\",\n" +
+        "      \"permissions\": [\n" +
+        "        \"scan\"\n" +
+        "      ]\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"name\": \"group-2-name\",\n" +
+        "      \"description\": \"" + group2.getDescription() + "\",\n" +
+        "      \"permissions\": [\n" +
+        "        \"scan\"\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}\n");
   }
 
   @Test
-  public void search_with_selection() {
-    String result = ws.newRequest()
+  public void search_with_selection() throws Exception {
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2");
   }
 
   @Test
-  public void search_groups_with_pagination() {
-    String result = ws.newRequest()
+  public void search_groups_with_pagination() throws Exception {
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(PAGE_SIZE, "1")
       .setParam(PAGE, "3")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).contains("group-2")
       .doesNotContain("group-1")
@@ -129,11 +136,13 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void search_groups_with_query() {
-    String result = ws.newRequest()
+  public void search_groups_with_query() throws Exception {
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(TEXT_QUERY, "group-")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result)
       .contains("group-1", "group-2")
@@ -141,29 +150,23 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void search_groups_with_project_permissions() {
+  public void search_groups_with_project_permissions() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "project-group-name");
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+
+    ComponentDto anotherProject = db.components().insertComponent(newProjectDto());
+    GroupDto anotherGroup = db.users().insertGroup(defaultOrganizationProvider.getDto(), "another-project-group-name");
+    db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
+
+    GroupDto groupWithoutPermission = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-without-permission");
+
     userSession.login().addProjectUuidPermissions(ADMIN, "project-uuid");
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(group.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(project.getId()));
-
-    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto());
-    GroupDto anotherGroup = insertGroup(new GroupDto().setName("another-project-group-name"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(anotherGroup.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(anotherProject.getId()));
-
-    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
-
-    String result = ws.newRequest()
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).contains(group.getName())
       .doesNotContain(anotherGroup.getName())
@@ -171,24 +174,21 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_also_groups_without_permission_when_search_query() {
-    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+  public void return_also_groups_without_permission_when_search_query() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-with-permission");
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(group.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(project.getId()));
+    GroupDto groupWithoutPermission = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-without-permission");
+    GroupDto anotherGroup = db.users().insertGroup(defaultOrganizationProvider.getDto(), "another-group");
 
-    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
-    GroupDto anotherGroup = insertGroup(new GroupDto().setName("another-group"));
-
-    String result = ws.newRequest()
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(TEXT_QUERY, "group-with")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).contains(group.getName())
       .doesNotContain(groupWithoutPermission.getName())
@@ -196,59 +196,52 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_only_groups_with_permission_when_no_search_query() {
-    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+  public void return_only_groups_with_permission_when_no_search_query() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "project-group-name");
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(group.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(project.getId()));
+    GroupDto groupWithoutPermission = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-without-permission");
 
-    GroupDto groupWithoutPermission = insertGroup(new GroupDto().setName("group-without-permission"));
-
-    String result = ws.newRequest()
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .execute().getInput();
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .outputAsString();
 
-    assertThat(result).contains("project-group-name")
+    assertThat(result).contains(group.getName())
       .doesNotContain(groupWithoutPermission.getName());
   }
 
   @Test
-  public void return_anyone_group_when_search_query_and_no_param_permission() {
-    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+  public void return_anyone_group_when_search_query_and_no_param_permission() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-with-permission");
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = insertGroup(new GroupDto().setName("group-with-permission"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(group.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(project.getId()));
-
-    String result = ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
+    loginAsAdmin();
+    String result = newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "nyo")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).contains("Anyone");
   }
 
   @Test
-  public void search_groups_on_views() {
-    ComponentDto view = componentDb.insertComponent(newView("view-uuid").setKey("view-key"));
-    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
-    insertGroupRole(new GroupPermissionDto()
-      .setGroupId(group.getId())
-      .setRole(ISSUE_ADMIN)
-      .setResourceId(view.getId()));
+  public void search_groups_on_views() throws Exception {
+    ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
+    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "project-group-name");
+    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 
-    String result = ws.newRequest()
+    loginAsAdmin();
+    String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "view-uuid")
-      .execute().getInput();
+      .execute()
+      .outputAsString();
 
     assertThat(result).contains("project-group-name")
       .doesNotContain("group-1")
@@ -257,59 +250,44 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_if_project_permission_without_project() {
-    expectedException.expect(BadRequestException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .execute();
-  }
-
-  @Test
-  public void fail_if_not_logged_in() {
+  public void fail_if_not_logged_in() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    ws.newRequest()
+    newRequest()
       .setParam(PARAM_PERMISSION, "scan")
       .execute();
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
+  public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login("login");
 
-    ws.newRequest()
+    userSession.login("login");
+    newRequest()
       .setParam(PARAM_PERMISSION, "scan")
       .execute();
   }
 
   @Test
-  public void fail_if_project_uuid_and_project_key_are_provided() {
-    expectedException.expect(BadRequestException.class);
-    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+  public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
+    db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
 
-    ws.newRequest()
+    expectedException.expect(BadRequestException.class);
+
+    loginAsAdmin();
+    newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 
-  private GroupDto insertGroup(GroupDto group) {
-    GroupDto result = dbClient.groupDao().insert(dbSession, group);
-    commit();
-
-    return result;
+  private WsTester.TestRequest newRequest() {
+    return wsTester.newPostRequest(CONTROLLER, "groups");
   }
 
-  private void insertGroupRole(GroupPermissionDto groupRole) {
-    dbClient.roleDao().insertGroupRole(dbSession, groupRole);
-    commit();
-  }
-
-  private void commit() {
-    dbSession.commit();
+  private void loginAsAdmin() {
+    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

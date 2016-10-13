@@ -30,11 +30,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
@@ -60,22 +57,19 @@ public class ServerUserSessionTest {
   }}.setLogin("regular_user");
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
   private UserDto userDto = newUserDto().setLogin(LOGIN);
   private ComponentDto project;
 
   @Before
   public void setUp() throws Exception {
-    project = componentDbTester.insertComponent(ComponentTesting.newProjectDto(PROJECT_UUID));
-    componentDbTester.insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
-    dbClient.userDao().insert(dbSession, userDto);
-    dbSession.commit();
+    project = db.components().insertComponent(ComponentTesting.newProjectDto(PROJECT_UUID));
+    db.components().insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
+    db.users().insertUser(userDto);
   }
 
   @Test
@@ -221,8 +215,8 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentPermission_throws_FE_when_user_has_not_permission_for_specified_key_in_db() {
-    ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
-    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null));
+    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
 
@@ -243,8 +237,8 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentPermission_fails_with_FE_when_project_of_specified_uuid_can_not_be_found() {
-    ComponentDto project2 = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
-    ComponentDto file2 = componentDbTester.insertComponent(ComponentTesting.newFileDto(project2, null)
+    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null)
         // Simulate file is linked to an invalid project
         .setProjectUuid("INVALID"));
     addProjectPermissions(project, UserRole.USER);
@@ -307,7 +301,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void has_global_permission_for_anonymous() throws Exception {
-    addAnonymousPermissions(null, "profileadmin", "admin");
+    addAnyonePermissions(null, "profileadmin", "admin");
     UserSession session = newAnonymousSession();
 
     assertThat(session.getLogin()).isNull();
@@ -320,7 +314,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void has_project_permission_for_anonymous() throws Exception {
-    addAnonymousPermissions(project, UserRole.USER);
+    addAnyonePermissions(project, UserRole.USER);
     UserSession session = newAnonymousSession();
 
     assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
@@ -344,26 +338,29 @@ public class ServerUserSessionTest {
     addPermissions(component, permissions);
   }
 
-  private void addPermissions( @Nullable ComponentDto component, String... permissions) {
+  private void addPermissions(@Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
-      dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(permission, userDto.getId(), component == null ? null : component.getId()));
+      if (component == null) {
+        db.users().insertPermissionOnUser(userDto, permission);
+      } else {
+        db.users().insertProjectPermissionOnUser(userDto, permission, component);
+      }
     }
-    dbSession.commit();
   }
 
-  private void addAnonymousPermissions(@Nullable ComponentDto component, String... permissions) {
+  private void addAnyonePermissions(@Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
-      dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto()
-        .setRole(permission)
-        .setResourceId(component == null ? null : component.getId()));
+      if (component == null) {
+        db.users().insertPermissionOnAnyone(permission);
+      } else {
+        db.users().insertProjectPermissionOnAnyone(permission, component);
+      }
     }
-    dbSession.commit();
   }
 
   private void expectInsufficientPrivilegesForbiddenException() {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
   }
-
 
 }

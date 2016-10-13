@@ -160,11 +160,20 @@ import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
 import org.sonar.db.version.v62.AddIsRootColumnOnTableUsers;
+import org.sonar.db.version.v62.AddOrganizationUuidToGroups;
+import org.sonar.db.version.v62.AddOrganizationUuidToPermissionTemplates;
+import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroups;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates;
+import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnUserRoles;
 import org.sonar.db.version.v62.MakeRootColumnNotNullOnTableUsers;
 import org.sonar.db.version.v62.PopulateIsRootColumnOnTableUsers;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
+import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -350,6 +359,15 @@ public class MigrationStepModule extends Module {
       DeletePermissionShareDashboard.class,
       AddIsRootColumnOnTableUsers.class,
       PopulateIsRootColumnOnTableUsers.class,
-      MakeRootColumnNotNullOnTableUsers.class);
+      MakeRootColumnNotNullOnTableUsers.class,
+      AddOrganizationUuidToGroups.class,
+      PopulateOrganizationUuidOfGroups.class,
+      MakeOrganizationUuidNotNullOnGroups.class,
+      AddOrganizationUuidToUserRoles.class,
+      AddOrganizationUuidToPermissionTemplates.class,
+      PopulateOrganizationUuidOfUserRoles.class,
+      MakeOrganizationUuidNotNullOnUserRoles.class,
+      PopulateOrganizationUuidOfPermissionTemplates.class,
+      MakeOrganizationUuidNotNullOnPermissionTemplates.class);
   }
 }

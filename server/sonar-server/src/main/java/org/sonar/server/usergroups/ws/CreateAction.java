@@ -23,47 +23,56 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.user.UserGroupValidation;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsUserGroups;
 
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
-import static org.sonar.db.MyBatis.closeQuietly;
-import static org.sonar.server.usergroups.ws.UserGroupUpdater.DESCRIPTION_MAX_LENGTH;
-import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_DESCRIPTION;
-import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_NAME;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.toProtobuf;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final UserGroupUpdater groupUpdater;
+  private final GroupWsSupport support;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, UserGroupUpdater groupUpdater) {
+  public CreateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
-    this.groupUpdater = groupUpdater;
     this.userSession = userSession;
+    this.support = support;
   }
 
   @Override
-  public void define(NewController context) {
-    NewAction action = context.createAction("create")
+  public void define(NewController controller) {
+    NewAction action = controller.createAction("create")
       .setDescription("Create a group.")
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
       .setSince("5.2");
 
-    action.createParam(PARAM_NAME)
+    action.createParam(PARAM_ORGANIZATION_KEY)
+      .setDescription("Key of organization. If unset then default organization is used.")
+      .setExampleValue("my-org")
+      .setSince("6.2");
+
+    action.createParam(PARAM_GROUP_NAME)
       .setDescription(String.format("Name for the new group. A group name cannot be larger than %d characters and must be unique. " +
         "The value 'anyone' (whatever the case) is reserved and cannot be used.", GROUP_NAME_MAX_LENGTH))
       .setExampleValue("sonar-users")
       .setRequired(true);
 
-    action.createParam(PARAM_DESCRIPTION)
+    action.createParam(PARAM_GROUP_DESCRIPTION)
       .setDescription(String.format("Description for the new group. A group description cannot be larger than %d characters.", DESCRIPTION_MAX_LENGTH))
       .setExampleValue("Default group for new users");
   }
@@ -72,25 +81,28 @@ public class CreateAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    String name = request.mandatoryParam(PARAM_NAME);
-    String description = request.param(PARAM_DESCRIPTION);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      GroupDto group = new GroupDto()
+        .setOrganizationUuid(organization.getUuid())
+        .setName(request.mandatoryParam(PARAM_GROUP_NAME))
+        .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
 
-    groupUpdater.validateName(name);
-    if (description != null) {
-      groupUpdater.validateDescription(description);
+      // validations
+      UserGroupValidation.validateGroupName(group.getName());
+      support.validateDescription(group.getDescription());
+      support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), group.getName());
+
+      dbClient.groupDao().insert(dbSession, group);
+      dbSession.commit();
+
+      writeResponse(request, response, organization, group);
     }
+  }
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      groupUpdater.checkNameIsUnique(name, session);
-      GroupDto newGroup = dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
-      session.commit();
-
-      JsonWriter json = response.newJsonWriter().beginObject();
-      groupUpdater.writeGroup(json, newGroup, 0);
-      json.endObject().close();
-    } finally {
-      closeQuietly(session);
-    }
+  private void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
+    WsUserGroups.CreateResponse.Builder respBuilder = WsUserGroups.CreateResponse.newBuilder();
+    respBuilder.setGroup(toProtobuf(organization, group, 0));
+    writeProtobuf(respBuilder.build(), request, response);
   }
 }

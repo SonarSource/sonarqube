@@ -19,28 +19,28 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
 public class SearchAction implements UserGroupsWsAction {
 
@@ -52,15 +52,17 @@ public class SearchAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final GroupWsSupport groupWsSupport;
 
-  public SearchAction(DbClient dbClient, UserSession userSession) {
+  public SearchAction(DbClient dbClient, UserSession userSession, GroupWsSupport groupWsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.groupWsSupport = groupWsSupport;
   }
 
   @Override
   public void define(NewController context) {
-    context.createAction("search")
+    WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
         "Requires to be logged.")
       .setHandler(this)
@@ -69,37 +71,37 @@ public class SearchAction implements UserGroupsWsAction {
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar-users", "names");
+
+    action.createParam(PARAM_ORGANIZATION_KEY)
+      .setDescription("Key of organization. If not set then groups are searched in default organization.")
+      .setExampleValue("my-org")
+      .setSince("6.2");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
+
     int page = request.mandatoryParamAsInt(Param.PAGE);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     SearchOptions options = new SearchOptions()
       .setPage(page, pageSize);
 
-    String query = StringUtils.defaultIfBlank(request.param(Param.TEXT_QUERY), "");
+    String query = defaultIfBlank(request.param(Param.TEXT_QUERY), "");
     Set<String> fields = neededFields(request);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      int limit = dbClient.groupDao().countByQuery(dbSession, query);
-      List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, options.getOffset(), pageSize);
-      Collection<Long> groupIds = Collections2.transform(groups, new Function<GroupDto, Long>() {
-        @Override
-        public Long apply(@Nonnull GroupDto input) {
-          return input.getId();
-        }
-      });
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = groupWsSupport.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+
+      int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
+      List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
+      List<Long> groupIds = groups.stream().map(GroupDto::getId).collect(Collectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
 
       JsonWriter json = response.newJsonWriter().beginObject();
       options.writeJson(json, limit);
       writeGroups(json, groups, userCountByGroup, fields);
       json.endObject().close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

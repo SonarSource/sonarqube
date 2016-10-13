@@ -29,12 +29,12 @@ public class UserGroupDao implements Dao {
     return dto;
   }
 
-  public void delete(DbSession session, UserGroupDto dto) {
-    mapper(session).delete(dto);
+  public void delete(DbSession session, long groupId, long userId) {
+    mapper(session).delete(groupId, userId);
   }
 
-  public void deleteMembersByGroupId(DbSession session, long groupId) {
-    mapper(session).deleteMembersByGroup(groupId);
+  public void deleteByGroupId(DbSession session, long groupId) {
+    mapper(session).deleteByGroupId(groupId);
   }
 
   private static UserGroupMapper mapper(DbSession session) {

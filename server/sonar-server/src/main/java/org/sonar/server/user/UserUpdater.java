@@ -20,12 +20,11 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import java.net.HttpURLConnection;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -45,6 +44,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
@@ -72,13 +72,16 @@ public class UserUpdater {
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final System2 system2;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2) {
+  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.newUserNotifier = newUserNotifier;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -390,36 +393,24 @@ public class UserUpdater {
   }
 
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
-    String defaultGroup = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
-    if (defaultGroup == null) {
-      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, String.format("The default group property '%s' is null", CoreProperties.CORE_DEFAULT_GROUP));
+    String defaultGroupName = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
+    if (defaultGroupName == null) {
+      return;
     }
+    String defOrgUuid = defaultOrganizationProvider.get().getUuid();
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
-    if (!Iterables.any(userGroups, new GroupDtoMatchKey(defaultGroup))) {
-      GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, defaultGroup);
-      if (groupDto == null) {
+    if (!userGroups.stream().anyMatch(g -> defOrgUuid.equals(g.getOrganizationUuid()) && g.getName().equals(defaultGroupName))) {
+      Optional<GroupDto> groupDto = dbClient.groupDao().selectByName(dbSession, defOrgUuid, defaultGroupName);
+      if (!groupDto.isPresent()) {
         throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
           String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
-            defaultGroup));
+            defaultGroupName));
       }
-      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
+      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
     }
   }
 
   public void index() {
     userIndexer.index();
-  }
-
-  private static class GroupDtoMatchKey implements Predicate<GroupDto> {
-    private final String key;
-
-    public GroupDtoMatchKey(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nullable GroupDto input) {
-      return input != null && input.getKey().equals(key);
-    }
   }
 }

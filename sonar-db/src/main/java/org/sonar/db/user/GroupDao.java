@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -31,42 +32,43 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupDao implements Dao {
 
-  private System2 system;
+  private final System2 system;
 
   public GroupDao(System2 system) {
     this.system = system;
   }
 
-  public GroupDto selectOrFailByName(DbSession session, String key) {
-    GroupDto group = selectByName(session, key);
-    if (group == null) {
-      throw new RowNotFoundException(String.format("Could not find a group with name '%s'", key));
-    }
-    return group;
-  }
-
+  /**
+   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
+   */
+  @Deprecated
   @CheckForNull
   public GroupDto selectByName(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
-    return executeLargeInputs(names, mapper(session)::selectByNames);
+  /**
+   * @param dbSession
+   * @param organizationUuid non-null UUID of organization (no support of "default" organization)
+   * @param name non-null group name
+   * @return the group with the given organization key and name
+   */
+  public Optional<GroupDto> selectByName(DbSession dbSession, String organizationUuid, String name) {
+    return Optional.ofNullable(mapper(dbSession).selectByName(organizationUuid, name));
   }
 
-  public GroupDto selectOrFailById(DbSession dbSession, long groupId) {
-    GroupDto group = selectById(dbSession, groupId);
-    if (group == null) {
-      throw new RowNotFoundException(String.format("Could not find a group with id '%d'", groupId));
-    }
-    return group;
+  /**
+   * @deprecated organization should be added as a parameter
+   */
+  @Deprecated
+  public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
+    return executeLargeInputs(names, mapper(session)::selectByNames);
   }
 
   @CheckForNull
@@ -78,12 +80,12 @@ public class GroupDao implements Dao {
     mapper(dbSession).deleteById(groupId);
   }
 
-  public int countByQuery(DbSession session, @Nullable String query) {
-    return mapper(session).countByQuery(groupSearchToSql(query));
+  public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
+    return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectByQuery(organizationUuid, groupSearchToSql(query), new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -114,8 +116,11 @@ public class GroupDao implements Dao {
     return DatabaseUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
+  public List<GroupDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectByOrganizationUuid(organizationUuid);
+  }
+
   private static GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
   }
-
 }

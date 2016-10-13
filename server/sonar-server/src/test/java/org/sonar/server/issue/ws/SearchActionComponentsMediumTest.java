@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -43,10 +42,13 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ProjectRef;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.TestResponse;
@@ -59,6 +61,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -650,7 +653,10 @@ public class SearchActionComponentsMediumTest {
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(permission));
+    // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
+    // for each organization
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
   }
 
   private IssueDto insertIssue(IssueDto issue) {

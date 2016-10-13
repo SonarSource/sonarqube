@@ -18,9 +18,11 @@
             id="123"/>
 
   <groups id="100"
-          name="sonar-administrators"/>
+          name="sonar-administrators"
+          organization_uuid="org1"/>
   <groups id="101"
-          name="sonar-users"/>
+          name="sonar-users"
+          organization_uuid="org1"/>
 
   <users id="200"
          login="marius"
@@ -47,12 +49,14 @@
   <user_roles id="1"
               user_id="200"
               resource_id="1"
-              role="admin"/>
+              role="admin"
+              organization_uuid="org1"/>
 
   <!-- default permission template for all qualifiers -->
   <permission_templates id="1"
                         name="default"
-                        kee="default_20130101_010203"/>
+                        kee="default_20130101_010203"
+                        organization_uuid="org1"/>
 
   <perm_templates_groups id="1"
                          template_id="1"

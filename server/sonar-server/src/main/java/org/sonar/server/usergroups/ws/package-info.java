@@ -21,4 +21,3 @@
 package org.sonar.server.usergroups.ws;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-

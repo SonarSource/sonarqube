@@ -19,13 +19,17 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Date;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
@@ -37,25 +41,28 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
-import static org.sonar.server.permission.ws.template.PermissionTemplateDtoBuilder.create;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class CreateTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final System2 system;
+  private final PermissionWsSupport wsSupport;
 
-  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system) {
+  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -75,6 +82,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
     createTemplateProjectKeyPatternParameter(action);
     createTemplateDescriptionParameter(action);
+    createOrganizationParameter(action);
   }
 
   @Override
@@ -84,21 +92,15 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
-    String name = request.getName();
-    String description = request.getDescription();
-    String projectPattern = request.getProjectKeyPattern();
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       checkGlobalAdminUser(userSession);
-      validateTemplateNameForCreation(dbSession, name);
-      validateProjectPattern(projectPattern);
+      validateTemplateNameForCreation(dbSession, request.getName());
+      validateProjectPattern(request.getProjectKeyPattern());
 
-      PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, name, description, projectPattern);
+      PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, request);
 
       return buildResponse(permissionTemplate);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -106,7 +108,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return new CreateTemplateWsRequest()
       .setName(request.mandatoryParam(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
-      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION_KEY));
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, String name) {
@@ -116,12 +119,17 @@ public class CreateTemplateAction implements PermissionsWsAction {
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 
-  private PermissionTemplateDto insertTemplate(DbSession dbSession, String name, String description, String projectPattern) {
-    PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, create(system)
-      .setName(name)
-      .setDescription(description)
-      .setProjectKeyPattern(projectPattern)
-      .toDto());
+  private PermissionTemplateDto insertTemplate(DbSession dbSession, CreateTemplateWsRequest request) {
+    OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganizationKey());
+    Date now = new Date(system.now());
+    PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, new PermissionTemplateDto()
+      .setUuid(Uuids.create())
+      .setOrganizationUuid(org.getUuid())
+      .setName(request.getName())
+      .setDescription(request.getDescription())
+      .setKeyPattern(request.getProjectKeyPattern())
+      .setCreatedAt(now)
+      .setUpdatedAt(now));
     dbSession.commit();
     return template;
   }

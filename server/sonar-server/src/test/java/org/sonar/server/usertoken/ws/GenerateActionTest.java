@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -59,14 +58,13 @@ public class GenerateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  UserDbTester userDb = new UserDbTester(db);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  TokenGenerator tokenGenerator = mock(TokenGenerator.class);
-  WsActionTester ws;
+  private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
@@ -75,8 +73,8 @@ public class GenerateActionTest {
     userSession
       .login()
       .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    userDb.insertUser(newUserDto().setLogin(GRACE_HOPPER));
-    userDb.insertUser(newUserDto().setLogin(ADA_LOVELACE));
+    db.users().insertUser(newUserDto().setLogin(GRACE_HOPPER));
+    db.users().insertUser(newUserDto().setLogin(ADA_LOVELACE));
 
     ws = new WsActionTester(
       new GenerateAction(db.getDbClient(), userSession, System2.INSTANCE, tokenGenerator));

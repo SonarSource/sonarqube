@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.permission.GroupPermissionMapper">
 
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
-          resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
+          resultType="org.sonar.db.permission.CountPerProjectPermission">
     SELECT count(1) as count, permission, componentId
     FROM
     (SELECT g.name as name, group_role.role as permission, group_role.resource_id as componentId
@@ -124,4 +124,41 @@
       </if>
   </select>
 
+  <select id="selectGroupPermissions" parameterType="map" resultType="String">
+    select gr.role
+    from group_roles gr
+    where gr.group_id = #{groupId}
+    and
+    <if test="projectId == null">
+      gr.resource_id is null
+    </if>
+    <if test="projectId != null">
+      gr.resource_id = #{projectId}
+    </if>
+  </select>
+
+  <select id="selectAnyonePermissions" parameterType="map" resultType="String">
+    select gr.role
+    from group_roles gr
+    where gr.group_id is null
+    and
+    <if test="projectId == null">
+      gr.resource_id is null
+    </if>
+    <if test="projectId != null">
+      gr.resource_id = #{projectId}
+    </if>
+  </select>
+
+  <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into group_roles (
+    group_id,
+    resource_id,
+    role
+    ) values (
+    #{groupId,jdbcType=BIGINT},
+    #{resourceId,jdbcType=BIGINT},
+    #{role,jdbcType=VARCHAR}
+    )
+  </insert>
 </mapper>

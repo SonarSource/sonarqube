@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -38,6 +37,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.DefaultOrganizationProviderRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -54,7 +55,7 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class DeactivateActionTest {
 
-  static final Settings settings = new MapSettings();
+  private Settings settings = new MapSettings();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -65,12 +66,11 @@ public class DeactivateActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WebService.Controller controller;
-  WsTester ws;
-  UserIndex index;
-  DbClient dbClient;
-  UserIndexer userIndexer;
-  DbSession dbSession;
+  private WsTester ws;
+  private UserIndex index;
+  private DbClient dbClient;
+  private UserIndexer userIndexer;
+  private DbSession dbSession;
 
   @Before
   public void setUp() {
@@ -82,10 +82,10 @@ public class DeactivateActionTest {
 
     userIndexer = new UserIndexer(dbClient, esTester.client());
     index = new UserIndex(esTester.client());
+    DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
     ws = new WsTester(new UsersWs(new DeactivateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
-    controller = ws.controller("api/users");
   }
 
   @Test

@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -51,7 +50,6 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.IN;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.OUT;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.builder;
-import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class QgateProjectFinderTest {
@@ -65,23 +63,14 @@ public class QgateProjectFinderTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession dbSession = dbTester.getSession();
-
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-
-  UserDto userDto;
-
-  QualityGateDto qGate;
-
-  QgateProjectFinder underTest = new QgateProjectFinder(dbClient, userSession);
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private QualityGateDto qGate;
+  private QgateProjectFinder underTest = new QgateProjectFinder(dbClient, userSession);
 
   @Before
   public void setUp() throws Exception {
-    userDto = newUserDto();
-    dbClient.userDao().insert(dbSession, userDto);
-
     qGate = new QualityGateDto().setName("Default Quality Gate");
     dbClient.qualityGateDao().insert(dbSession, qGate);
 
@@ -152,14 +141,14 @@ public class QgateProjectFinderTest {
 
   @Test
   public void return_only_authorized_projects() throws Exception {
-    userSession.login(userDto.getLogin()).setUserId(userDto.getId().intValue());
+    UserDto user = dbTester.users().insertUser("a_login");
     ComponentDto project1 = componentDbTester.insertComponent(newProjectDto());
     componentDbTester.insertComponent(newProjectDto());
 
     // User can only see project 1
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(UserRole.USER, userDto.getId(), project1.getId()));
-    dbTester.commit();
+    dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
 
+    userSession.login(user.getLogin()).setUserId(user.getId().intValue());
     Association result = underTest.find(
       builder()
         .gateId(Long.toString(qGate.getId()))
@@ -246,14 +235,7 @@ public class QgateProjectFinderTest {
 
   private ComponentDto insertProjectAuthorizedToAnyone(ComponentDto project) {
     componentDbTester.insertComponent(project);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
-    dbSession.commit();
-    return project;
-  }
-
-  private ComponentDto insertProjectAuthorizedToUser(ComponentDto project, UserDto userDto) {
-    componentDbTester.insertComponent(project);
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+    dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
     dbSession.commit();
     return project;
   }

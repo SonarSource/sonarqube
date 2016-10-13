@@ -208,7 +208,7 @@ public class UserIdentityTest {
   @Test
   public void fail_when_groups_contain_empty_group_name() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserIdentity.builder()
       .setProviderLogin("john")
@@ -221,7 +221,7 @@ public class UserIdentityTest {
   @Test
   public void fail_when_groups_contain_only_blank_space() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserIdentity.builder()
       .setProviderLogin("john")
@@ -234,7 +234,7 @@ public class UserIdentityTest {
   @Test
   public void fail_when_groups_contain_null_group_name() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group cannot contain empty group name");
+    thrown.expectMessage("Group name cannot be empty");
 
     UserIdentity.builder()
       .setProviderLogin("john")

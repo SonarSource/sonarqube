@@ -19,11 +19,13 @@
  */
 package org.sonar.db.user;
 
+import org.apache.ibatis.annotations.Param;
+
 public interface UserGroupMapper {
 
-  void insert(UserGroupDto userGroupDto);
+  void insert(UserGroupDto dto);
 
-  void delete(UserGroupDto dto);
+  void delete(@Param("groupId") long groupId, @Param("userId") long userId);
 
-  void deleteMembersByGroup(long groupId);
+  void deleteByGroupId(@Param("groupId") long groupId);
 }

@@ -21,6 +21,7 @@ package org.sonar.db.user;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -40,9 +41,14 @@ public interface GroupMapper {
 
   void update(GroupDto item);
 
-  List<GroupDto> selectByQuery(@Param("query") String query, RowBounds rowBounds);
+  List<GroupDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query, RowBounds rowBounds);
 
-  int countByQuery(@Param("query") String query);
+  int countByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query);
 
   void deleteById(long groupId);
+
+  @CheckForNull
+  GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
+
+  List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 }

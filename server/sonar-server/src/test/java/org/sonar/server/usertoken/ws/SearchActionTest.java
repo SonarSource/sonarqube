@@ -31,7 +31,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,10 +46,9 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 
-
 public class SearchActionTest {
-  static final String GRACE_HOPPER = "grace.hopper";
-  static final String ADA_LOVELACE = "ada.lovelace";
+  private static final String GRACE_HOPPER = "grace.hopper";
+  private static final String ADA_LOVELACE = "ada.lovelace";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -58,17 +56,15 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  UserDbTester userDb = new UserDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
-
-  WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession));
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession));
 
   @Before
   public void setUp() {
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    userDb.insertUser(newUserDto().setLogin(GRACE_HOPPER));
-    userDb.insertUser(newUserDto().setLogin(ADA_LOVELACE));
+    db.users().insertUser(newUserDto().setLogin(GRACE_HOPPER));
+    db.users().insertUser(newUserDto().setLogin(ADA_LOVELACE));
   }
 
   @Test

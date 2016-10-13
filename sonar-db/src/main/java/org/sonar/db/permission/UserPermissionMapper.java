@@ -48,7 +48,7 @@ public interface UserPermissionMapper {
    * Count the number of users per permission for a given list of projects.
    * @param projectIds a non-null and non-empty list of project ids
    */
-  List<UserCountPerProjectPermission> countUsersByProjectPermission(@Param("projectIds") List<Long> projectIds);
+  List<CountPerProjectPermission> countUsersByProjectPermission(@Param("projectIds") List<Long> projectIds);
 
   void insert(UserPermissionDto dto);
 

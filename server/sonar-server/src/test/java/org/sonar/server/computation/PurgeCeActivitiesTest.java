@@ -22,7 +22,7 @@ package org.sonar.server.computation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
-import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -31,10 +31,12 @@ import org.sonar.server.computation.queue.PurgeCeActivities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class PurgeCeActivitiesTest {
 
-  private TestSystem2 system2 = new TestSystem2();
+  private System2 system2 = spy(System2.INSTANCE);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
@@ -45,7 +47,7 @@ public class PurgeCeActivitiesTest {
   public void delete_older_than_6_months() throws Exception {
     insertWithDate("VERY_OLD", 1_000_000_000_000L);
     insertWithDate("RECENT", 1_500_000_000_000L);
-    system2.setNow(1_500_000_000_100L);
+    when(system2.now()).thenReturn(1_500_000_000_100L);
 
     underTest.onServerStart(mock(Server.class));
 
@@ -60,7 +62,7 @@ public class PurgeCeActivitiesTest {
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
-    system2.setNow(date);
+    when(system2.now()).thenReturn(date);
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();
   }

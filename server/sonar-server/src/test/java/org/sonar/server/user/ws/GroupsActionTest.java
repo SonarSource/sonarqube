@@ -43,6 +43,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static java.util.Collections.singletonList;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupsActionTest {
 
@@ -207,7 +208,7 @@ public class GroupsActionTest {
   }
 
   private GroupDto createGroup(String name, String description) {
-    return dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
+    return dbClient.groupDao().insert(session, newGroupDto().setName(name).setDescription(description));
   }
 
   private void addUserToGroup(UserDto user, GroupDto usersGroup) {

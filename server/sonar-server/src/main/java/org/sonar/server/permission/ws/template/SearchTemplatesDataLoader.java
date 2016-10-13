@@ -26,8 +26,8 @@ import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
@@ -43,8 +43,7 @@ public class SearchTemplatesDataLoader {
   }
 
   public SearchTemplatesData load(SearchTemplatesWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       SearchTemplatesData.Builder data = builder();
       List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
       List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
@@ -57,8 +56,6 @@ public class SearchTemplatesDataLoader {
         .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));
 
       return data.build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

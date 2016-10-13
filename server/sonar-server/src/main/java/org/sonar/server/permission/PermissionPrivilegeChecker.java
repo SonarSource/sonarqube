@@ -19,11 +19,9 @@
  */
 package org.sonar.server.permission;
 
-import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 public class PermissionPrivilegeChecker {
@@ -48,14 +46,6 @@ public class PermissionPrivilegeChecker {
     userSession.checkLoggedIn();
     if (componentUuid == null || !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
       userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-    }
-  }
-
-  public static void checkProjectAdminUserByComponentDto(UserSession userSession, Optional<ComponentDto> project) {
-    if (project.isPresent()) {
-      checkProjectAdminUserByComponentUuid(userSession, project.get().uuid());
-    } else {
-      checkGlobalAdminUser(userSession);
     }
   }
 }
