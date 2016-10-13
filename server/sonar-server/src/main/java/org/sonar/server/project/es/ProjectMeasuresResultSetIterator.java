@@ -45,24 +45,31 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=?";
 
+  private static final String DATE_FILTER = " AND s.created_at>?";
+
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
   private ProjectMeasuresResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
-  static ProjectMeasuresResultSetIterator create(DbClient dbClient, DbSession session, @Nullable String projectUuid) {
+  static ProjectMeasuresResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
     try {
-
       String sql = SQL_ALL;
+      sql += afterDate <= 0L ? "" : DATE_FILTER;
       sql += projectUuid == null ? "" : PROJECT_FILTER;
       PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       stmt.setBoolean(1, true);
       stmt.setBoolean(2, true);
       stmt.setString(3, Scopes.PROJECT);
       stmt.setString(4, Qualifiers.PROJECT);
+      int index = 5;
+      if (afterDate > 0L) {
+        stmt.setLong(index, afterDate);
+        index++;
+      }
       if (projectUuid != null) {
-        stmt.setString(5, projectUuid);
+        stmt.setString(index, projectUuid);
       }
       return new ProjectMeasuresResultSetIterator(stmt);
     } catch (SQLException e) {
@@ -77,7 +84,7 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
       .setKey(rs.getString(2))
       .setName(rs.getString(3));
     long analysisDate = rs.getLong(4);
-    doc.setAnalysedAt(analysisDate != 0 ? new Date(analysisDate) : null);
+    doc.setAnalysedAt(rs.wasNull() ? null : new Date(analysisDate));
     return doc;
   }
 }

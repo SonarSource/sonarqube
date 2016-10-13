@@ -20,6 +20,7 @@
 
 package org.sonar.server.project.es;
 
+import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
@@ -44,40 +45,42 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), (String) null);
+    return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
   }
 
   public void index(String projectUuid) {
-    index(lastUpdatedAt -> doIndex(createBulkIndexer(false), projectUuid));
+    doIndex(createBulkIndexer(false), 0L, projectUuid);
   }
 
   public void deleteProject(String uuid) {
     esClient
       .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, uuid)
       .setRefresh(true)
-      .setRouting(uuid)
       .get();
   }
 
-  private long doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      ProjectMeasuresResultSetIterator rowIt = ProjectMeasuresResultSetIterator.create(dbClient, dbSession, projectUuid);
-      doIndex(bulk, rowIt);
+  private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      ProjectMeasuresResultSetIterator rowIt = ProjectMeasuresResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
+      long maxDate = doIndex(bulk, rowIt);
       rowIt.close();
-      return 0L;
-    } finally {
-      dbClient.closeSession(dbSession);
+      return maxDate;
     }
   }
 
-  private static void doIndex(BulkIndexer bulk, Iterator<ProjectMeasuresDoc> docs) {
+  private static long doIndex(BulkIndexer bulk, Iterator<ProjectMeasuresDoc> docs) {
     bulk.start();
+    long maxDate = 0L;
     while (docs.hasNext()) {
       ProjectMeasuresDoc doc = docs.next();
       bulk.add(newIndexRequest(doc));
+
+      Date analysisDate = doc.getAnalysedAt();
+      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
+      maxDate = Math.max(maxDate, analysisDate == null ? 0L : analysisDate.getTime());
     }
     bulk.stop();
+    return maxDate;
   }
 
   private BulkIndexer createBulkIndexer(boolean large) {
