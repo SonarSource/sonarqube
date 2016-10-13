@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -34,7 +35,10 @@ import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
@@ -55,6 +59,9 @@ public class AddProjectActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
+  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   DbClient dbClient = dbTester.getDbClient();
@@ -70,7 +77,7 @@ public class AddProjectActionTest {
 
   WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
     qProfileProjectOperations, new ProjectAssociationFinder(new QProfileLookup(dbClient),
-      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient))),
+      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(dbClient, es.client()))),
     userSession));
 
   @Before

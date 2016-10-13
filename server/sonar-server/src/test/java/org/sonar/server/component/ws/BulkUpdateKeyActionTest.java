@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -37,9 +38,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -68,17 +72,24 @@ public class BulkUpdateKeyActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
-  WsActionTester ws = new WsActionTester(new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null), userSession));
+  WsActionTester ws = new WsActionTester(
+    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(dbClient, es.client())), userSession));
 
   @Before
   public void setUp() {

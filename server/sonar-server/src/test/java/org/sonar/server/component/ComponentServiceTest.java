@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -36,9 +37,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceIndexDao;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -54,21 +58,30 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ComponentServiceTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
+  @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   DbClient dbClient = dbTester.getDbClient();
   DbSession dbSession = dbTester.getSession();
 
   I18nRule i18n = new I18nRule();
+
+  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
 
   ComponentService underTest;
 
@@ -76,7 +89,7 @@ public class ComponentServiceTest {
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
   }
 
   @Test
@@ -123,6 +136,8 @@ public class ComponentServiceTest {
     assertThat(project.scope()).isEqualTo("PRJ");
     assertThat(project.qualifier()).isEqualTo("TRK");
     assertThat(project.getCreatedAt()).isNotNull();
+
+    assertProjectIsInIndex(project.uuid());
   }
 
   @Test
@@ -154,6 +169,8 @@ public class ComponentServiceTest {
     assertThat(project.scope()).isEqualTo("PRJ");
     assertThat(project.qualifier()).isEqualTo("VW");
     assertThat(project.getCreatedAt()).isNotNull();
+
+    assertIndexIsEmpty();
   }
 
   @Test
@@ -176,6 +193,8 @@ public class ComponentServiceTest {
     assertThat(dev.scope()).isEqualTo("PRJ");
     assertThat(dev.qualifier()).isEqualTo("DEV");
     assertThat(dev.getCreatedAt()).isNotNull();
+
+    assertIndexIsEmpty();
   }
 
   @Test
@@ -236,7 +255,7 @@ public class ComponentServiceTest {
       ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
       ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)));
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
     underTest.create(session, NewComponent.create(projectKey, projectKey));
 
     verify(componentDao).delete(session, 2L);
@@ -308,6 +327,14 @@ public class ComponentServiceTest {
 
   private ComponentDto insertSampleProject() {
     return componentDb.insertComponent(newProjectDto().setKey("sample:root"));
+  }
+
+  private void assertProjectIsInIndex(String uuid) {
+    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(uuid);
+  }
+
+  private void assertIndexIsEmpty() {
+    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isEmpty();
   }
 
 }

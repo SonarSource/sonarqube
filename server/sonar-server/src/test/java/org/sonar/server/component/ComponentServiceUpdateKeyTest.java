@@ -20,10 +20,12 @@
 
 package org.sonar.server.component;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,31 +35,46 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ComponentServiceUpdateKeyTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
+  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
   I18nRule i18n = new I18nRule();
+
+  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
 
   ComponentService underTest;
 
@@ -65,7 +82,7 @@ public class ComponentServiceUpdateKeyTest {
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
   }
 
   @Test
@@ -89,6 +106,8 @@ public class ComponentServiceUpdateKeyTest {
     assertThat(underTest.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
+
+    assertProjectKeyExistsInIndex("sample2:root");
   }
 
   @Test
@@ -96,26 +115,24 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleRootProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(dbSession, module);
-
     ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
-
     dbSession.commit();
-
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
     underTest.updateKey(dbSession, module.key(), "sample:root2:module");
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isPresent();
-
     assertComponentKeyHasBeenUpdated(module.key(), "sample:root2:module");
     assertComponentKeyHasBeenUpdated(file.key(), "sample:root2:module:src/File.xoo");
+
+    assertProjectKeyExistsInIndex(project.key());
   }
 
   @Test
   public void update_provisioned_project_key() {
-    ComponentDto provisionedProject = newProjectDto().setKey("provisionedProject");
-    dbClient.componentDao().insert(dbSession, provisionedProject);
+    ComponentDto provisionedProject = insertProject("provisionedProject");
 
     dbSession.commit();
 
@@ -124,6 +141,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
+    assertProjectKeyExistsInIndex("provisionedProject2");
   }
 
   @Test
@@ -197,6 +215,8 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
     assertComponentKeyNotUpdated(inactiveModule.key());
     assertComponentKeyNotUpdated(inactiveFile.key());
+
+    assertProjectKeyExistsInIndex("your_project");
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
@@ -213,12 +233,27 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertSampleRootProject() {
-    return componentDb.insertComponent(newProjectDto().setKey("sample:root"));
+    return insertProject("sample:root");
+  }
+
+  private ComponentDto insertProject(String key) {
+    ComponentDto project = componentDb.insertComponent(newProjectDto().setKey(key));
+    projectMeasuresIndexer.index(project.uuid());
+    return project;
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
+  }
+
+  private void assertProjectKeyExistsInIndex(String key) {
+    SearchRequestBuilder request = es.client()
+      .prepareSearch(INDEX_PROJECT_MEASURES)
+      .setTypes(TYPE_PROJECT_MEASURES)
+      .setQuery(boolQuery().must(matchAllQuery()).filter(
+        boolQuery().must(termQuery(ProjectMeasuresIndexDefinition.FIELD_KEY, key))));
+    assertThat(request.get().getHits()).hasSize(1);
   }
 
 }

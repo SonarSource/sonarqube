@@ -44,6 +44,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -60,13 +61,15 @@ public class ComponentService {
   private final UserSession userSession;
   private final System2 system2;
   private final ComponentFinder componentFinder;
+  private final ProjectMeasuresIndexer projectMeasuresIndexer;
 
-  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder) {
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
     this.system2 = system2;
     this.componentFinder = componentFinder;
+    this.projectMeasuresIndexer = projectMeasuresIndexer;
   }
 
   public ComponentDto getByKey(String key) {
@@ -112,12 +115,15 @@ public class ComponentService {
     userSession.checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
-
     dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);
+    dbSession.commit();
+    projectMeasuresIndexer.index(component.uuid());
   }
 
   public void bulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
     dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectUuid, stringToReplace, replacementString);
+    dbSession.commit();
+    projectMeasuresIndexer.index(projectUuid);
   }
 
   public ComponentDto create(DbSession session, NewComponent newComponent) {
@@ -125,6 +131,7 @@ public class ComponentService {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto project = createProject(session, newComponent);
     removeDuplicatedProjects(session, project.getKey());
+    projectMeasuresIndexer.index(project.uuid());
     return project;
   }
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -32,9 +33,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -54,13 +58,17 @@ public class DefaultRubyComponentServiceTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  @Rule
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
   I18nRule i18n = new I18nRule();
 
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
   ResourceDao resourceDao = dbClient.resourceDao();
-  ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient));
+  ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient),
+    new ProjectMeasuresIndexer(dbClient, es.client()));
   PermissionService permissionService = mock(PermissionService.class);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
