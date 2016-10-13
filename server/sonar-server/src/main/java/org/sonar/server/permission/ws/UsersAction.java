@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.ExtendedUserPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
@@ -89,7 +89,7 @@ public class UsersAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ProjectRef> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProject(dbSession, request);
       checkProjectAdminUserByComponentUuid(userSession, projectId.isPresent() ? projectId.get().getUuid() : null);
 
       PermissionQuery query = buildPermissionQuery(request, projectId);
@@ -102,7 +102,7 @@ public class UsersAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, Optional<ProjectRef> project) {
+  private static PermissionQuery buildPermissionQuery(Request request, Optional<ProjectId> project) {
     String textQuery = request.param(Param.TEXT_QUERY);
     String permission = request.param(PARAM_PERMISSION);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
@@ -161,7 +161,7 @@ public class UsersAction implements PermissionsWsAction {
     return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }
 
-  private List<ExtendedUserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, Optional<ProjectRef> project) {
+  private List<ExtendedUserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, Optional<ProjectId> project) {
     if (users.isEmpty()) {
       return emptyList();
     }

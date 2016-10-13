@@ -37,7 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
@@ -86,7 +86,7 @@ public class GroupsAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ProjectRef> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProject(dbSession, request);
       checkProjectAdminUserByComponentUuid(userSession, projectId.isPresent() ? projectId.get().getUuid() : null);
 
       PermissionQuery query = buildPermissionQuery(request, projectId);
@@ -100,7 +100,7 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, Optional<ProjectRef> project) {
+  private static PermissionQuery buildPermissionQuery(Request request, Optional<ProjectId> project) {
     String textQuery = request.param(Param.TEXT_QUERY);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
       .setPermission(request.param(PARAM_PERMISSION))
@@ -151,7 +151,7 @@ public class GroupsAction implements PermissionsWsAction {
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, Optional<ProjectRef> project) {
+  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, Optional<ProjectId> project) {
     if (groups.isEmpty()) {
       return emptyList();
     }

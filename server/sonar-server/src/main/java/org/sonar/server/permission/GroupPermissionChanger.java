@@ -89,7 +89,7 @@ public class GroupPermissionChanger {
 
   private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession dbSession, GroupPermissionChange change) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getProjectRef().isPresent() &&
+      !change.getProjectId().isPresent() &&
       // TODO support organizations
       dbClient.roleDao().countUserPermissions(dbSession, change.getPermission(), change.getGroupIdOrAnyone().getId()) <= 0) {
       throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));

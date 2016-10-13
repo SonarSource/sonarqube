@@ -48,7 +48,7 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectRef;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
@@ -95,7 +95,7 @@ public class IssueCommentServiceMediumTest {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectRef(project), GroupIdOrAnyone.forAnyone("TODO"));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO"));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
 
     userSessionRule.login("gandalf");

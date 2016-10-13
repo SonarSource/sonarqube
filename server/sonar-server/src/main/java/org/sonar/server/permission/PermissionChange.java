@@ -37,14 +37,14 @@ public abstract class PermissionChange {
   private final Operation operation;
   private final String organizationUuid;
   private final String permission;
-  private final ProjectRef projectRef;
+  private final ProjectId projectId;
 
-  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectRef projectRef) {
+  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId) {
     this.operation = requireNonNull(operation);
     this.organizationUuid = requireNonNull(organizationUuid);
     this.permission = requireNonNull(permission);
-    this.projectRef = projectRef;
-    if (projectRef == null) {
+    this.projectId = projectId;
+    if (projectId == null) {
       checkRequest(GlobalPermissions.ALL.contains(permission), "Invalid global permission '%s'. Valid values are %s", permission, GlobalPermissions.ALL);
     } else {
       checkRequest(ProjectPermissions.ALL.contains(permission), "Invalid project permission '%s'. Valid values are %s", permission, ProjectPermissions.ALL);
@@ -63,23 +63,23 @@ public abstract class PermissionChange {
     return permission;
   }
 
-  public Optional<ProjectRef> getProjectRef() {
-    return Optional.ofNullable(projectRef);
+  public Optional<ProjectId> getProjectId() {
+    return Optional.ofNullable(projectId);
   }
 
   /**
-   * Shortcut based on {@link #getProjectRef()}
+   * Shortcut based on {@link #getProjectId()}
    */
   @CheckForNull
   public String getProjectUuid() {
-    return projectRef == null ? null : projectRef.getUuid();
+    return projectId == null ? null : projectId.getUuid();
   }
 
   /**
-   * Shortcut based on {@link #getProjectRef()}
+   * Shortcut based on {@link #getProjectId()}
    */
   @CheckForNull
   public Long getNullableProjectId() {
-    return projectRef == null ? null : projectRef.getId();
+    return projectId == null ? null : projectId.getId();
   }
 }
