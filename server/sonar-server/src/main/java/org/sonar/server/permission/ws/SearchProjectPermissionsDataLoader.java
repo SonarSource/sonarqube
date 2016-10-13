@@ -39,7 +39,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
-import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
+import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
@@ -79,7 +79,7 @@ public class SearchProjectPermissionsDataLoader {
   }
 
   private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request, Paging paging) {
-    Optional<WsProjectRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
       return singletonList(wsSupport.getRootComponentOrModule(dbSession, project.get()));
