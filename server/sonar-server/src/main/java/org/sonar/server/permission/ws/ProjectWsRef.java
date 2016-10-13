@@ -26,30 +26,33 @@ import javax.annotation.Nullable;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
- * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
+ * Reference to a project <b>as defined by web service callers</b>. It allows to reference a project
+ * by its (functional) key or by its (technical) id. It's then converted to {@link org.sonar.server.permission.ProjectId}.
+ *
+ * <p>Factory methods guarantee that the project id and project key are not provided at the same time.</p>
  */
-public class WsProjectRef {
+public class ProjectWsRef {
   private static final String MSG_ID_OR_KEY_MUST_BE_PROVIDED = "Project id or project key can be provided, not both.";
   private final String uuid;
   private final String key;
 
-  private WsProjectRef(@Nullable String uuid, @Nullable String key) {
+  private ProjectWsRef(@Nullable String uuid, @Nullable String key) {
     this.uuid = uuid;
     this.key = key;
     checkRequest(this.uuid != null ^ this.key != null, "Project id or project key can be provided, not both.");
   }
 
-  public static Optional<WsProjectRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
+  public static Optional<ProjectWsRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
     if (uuid == null && key == null) {
       return Optional.absent();
     }
 
-    return Optional.of(new WsProjectRef(uuid, key));
+    return Optional.of(new ProjectWsRef(uuid, key));
   }
 
-  public static WsProjectRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {
+  public static ProjectWsRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {
     checkRequest(uuid == null ^ key == null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
-    return new WsProjectRef(uuid, key);
+    return new ProjectWsRef(uuid, key);
   }
 
   @CheckForNull
