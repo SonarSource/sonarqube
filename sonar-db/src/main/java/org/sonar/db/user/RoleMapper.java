@@ -35,10 +35,6 @@ public interface RoleMapper {
    */
   List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("isAnyOneGroup") Boolean isAnyOneGroup);
 
-  int countResourceGroupRoles(Long resourceId);
-
-  int countResourceUserRoles(long resourceId);
-
   void deleteGroupRolesByGroupId(long groupId);
 
   int countUsersWithPermission(@Param("permission") String permission, @Nullable @Param("groupId") Long groupId);

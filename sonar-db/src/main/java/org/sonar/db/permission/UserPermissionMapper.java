@@ -56,4 +56,6 @@ public interface UserPermissionMapper {
    * Delete permissions by user and/or by project. In both cases scope can be restricted to a specified permission
    */
   void delete(@Nullable @Param("login") String login, @Nullable @Param("projectUuid") String projectUuid, @Nullable @Param("permission") String permission);
+
+  int countRowsByRootComponentId(@Param("rootComponentId") long projectId);
 }
