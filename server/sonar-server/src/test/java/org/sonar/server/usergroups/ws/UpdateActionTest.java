@@ -34,7 +34,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -58,7 +58,7 @@ public class UpdateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private PersistentSettings settings = mock(PersistentSettings.class);
   private WsTester ws = new WsTester(
     new UserGroupsWs(new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider), settings, defaultOrganizationProvider)));
@@ -126,7 +126,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_default_group_name_also_update_default_group_property() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
@@ -140,7 +140,7 @@ public class UpdateActionTest {
   @Test
   public void update_default_group_name_does_not_update_default_group_setting_when_null() throws Exception {
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(null);
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
@@ -155,7 +155,7 @@ public class UpdateActionTest {
   public void do_not_update_default_group_of_default_organization_if_updating_group_on_non_default_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
-    GroupDto groupInDefaultOrg = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME_VALUE);
     GroupDto group = db.users().insertGroup(org, DEFAULT_GROUP_NAME_VALUE);
     loginAsAdmin(org);
 
@@ -241,7 +241,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_if_name_already_exists() throws Exception {
-    OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
+    OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto groupToBeRenamed = db.users().insertGroup(defaultOrg, "a name");
     String newName = "new-name";
     db.users().insertGroup(defaultOrg, newName);

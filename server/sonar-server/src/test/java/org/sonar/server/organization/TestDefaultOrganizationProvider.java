@@ -19,36 +19,24 @@
  */
 package org.sonar.server.organization;
 
-import java.util.Optional;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.property.InternalProperties;
 
-import static com.google.common.base.Preconditions.checkState;
-
-public class DefaultOrganizationProviderRule implements DefaultOrganizationProvider {
+public class TestDefaultOrganizationProvider implements DefaultOrganizationProvider {
 
   private final DbTester dbTester;
 
-  public static DefaultOrganizationProviderRule create(DbTester dbTester) {
-    return new DefaultOrganizationProviderRule(dbTester);
+  private TestDefaultOrganizationProvider(DbTester dbTester) {
+    this.dbTester = dbTester;
+  }
+
+  public static TestDefaultOrganizationProvider from(DbTester dbTester) {
+    return new TestDefaultOrganizationProvider(dbTester);
   }
 
   @Override
   public DefaultOrganization get() {
-    DbSession dbSession = dbTester.getSession();
-    Optional<String> uuid = dbTester.getDbClient().internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_ORGANIZATION);
-    checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");
-    Optional<OrganizationDto> dto = dbTester.getDbClient().organizationDao().selectByUuid(dbSession, uuid.get());
-    checkState(dto.isPresent(), "Default organization with uuid '%s' does not exist", uuid.get());
-    return toDefaultOrganization(dto.get());
-  }
-
-  public OrganizationDto getDto() {
-    String uuid = get().getUuid();
-    return dbTester.getDbClient().organizationDao().selectByUuid(dbTester.getSession(), uuid)
-        .orElseThrow(() -> new IllegalStateException("Missing default organization in database [uuid=" + uuid + "]"));
+    return toDefaultOrganization(dbTester.getDefaultOrganization());
   }
 
   private static DefaultOrganization toDefaultOrganization(OrganizationDto organizationDto) {
@@ -59,9 +47,5 @@ public class DefaultOrganizationProviderRule implements DefaultOrganizationProvi
       .setCreatedAt(organizationDto.getCreatedAt())
       .setUpdatedAt(organizationDto.getUpdatedAt())
       .build();
-  }
-
-  private DefaultOrganizationProviderRule(DbTester dbTester) {
-    this.dbTester = dbTester;
   }
 }

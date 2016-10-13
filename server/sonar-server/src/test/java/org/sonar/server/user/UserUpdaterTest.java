@@ -45,7 +45,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
@@ -89,7 +89,7 @@ public class UserUpdaterTest {
   @Before
   public void setUp() {
     userIndexer = new UserIndexer(dbClient, es.client());
-    DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+    DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     underTest = new UserUpdater(newUserNotifier, settings, dbClient,
       userIndexer, system2, defaultOrganizationProvider);
 

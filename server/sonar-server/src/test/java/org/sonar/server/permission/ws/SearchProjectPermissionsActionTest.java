@@ -96,7 +96,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     GroupDto group2 = db.users().insertGroup(newGroupDto());
     GroupDto group3 = db.users().insertGroup(newGroupDto());
 
-    db.users().insertProjectPermissionOnAnyone(defaultOrganizationProvider.getDto(), UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnAnyone(db.getDefaultOrganization(), UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group3, UserRole.ADMIN, jdk7);

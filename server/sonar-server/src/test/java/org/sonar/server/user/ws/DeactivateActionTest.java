@@ -38,7 +38,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -82,7 +82,7 @@ public class DeactivateActionTest {
 
     userIndexer = new UserIndexer(dbClient, esTester.client());
     index = new UserIndex(esTester.client());
-    DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+    DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     ws = new WsTester(new UsersWs(new DeactivateAction(
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));

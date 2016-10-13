@@ -34,7 +34,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -66,7 +66,7 @@ public class UpdateActionTest {
   private DbSession session = dbTester.getSession();
   private WsTester tester;
   private UserIndexer userIndexer;
-  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(dbTester);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   @Before
   public void setUp() {

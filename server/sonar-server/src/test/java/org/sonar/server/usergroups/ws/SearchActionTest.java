@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -193,7 +193,7 @@ public class SearchActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), DefaultOrganizationProviderRule.create(db));
+    return new GroupWsSupport(db.getDbClient(), TestDefaultOrganizationProvider.from(db));
   }
 
 }

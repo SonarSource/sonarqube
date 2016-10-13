@@ -32,7 +32,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
@@ -48,11 +48,10 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  protected DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsTester wsTester;
 

@@ -53,7 +53,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Before
   public void setUp() {
-    aGroup = db.users().insertGroup(defaultOrganizationProvider.getDto(), "sonar-administrators");
+    aGroup = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
   }
 
   @Override

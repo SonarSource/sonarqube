@@ -39,7 +39,7 @@ import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -59,7 +59,7 @@ public class DeleteActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ComponentDbTester componentTester = new ComponentDbTester(db);
-  private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private GroupDto defaultGroup;
   private WsTester ws;
 

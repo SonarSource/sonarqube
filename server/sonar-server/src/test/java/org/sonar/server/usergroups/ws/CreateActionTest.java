@@ -32,7 +32,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -47,7 +47,7 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsTester ws;
 
   @Before

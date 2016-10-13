@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -48,7 +48,7 @@ public class RemoveUserActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProviderRule defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsTester ws;
 
   @Before
@@ -59,7 +59,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void does_nothing_if_user_is_not_in_group() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "admins");
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
     UserDto user = db.users().insertUser("my-admin");
 
     loginAsAdmin();
@@ -74,7 +74,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_by_group_id() throws Exception {
-    GroupDto users = db.users().insertGroup(defaultOrganizationProvider.getDto(), "users");
+    GroupDto users = db.users().insertGroup(db.getDefaultOrganization(), "users");
     UserDto user = db.users().insertUser("my-admin");
     db.users().insertMember(users, user);
 
@@ -90,7 +90,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_by_group_name_in_default_organization() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group_name");
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group_name");
     UserDto user = db.users().insertUser("user_login");
     db.users().insertMember(group, user);
 
@@ -124,7 +124,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_only_from_one_group() throws Exception {
-    OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
+    OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto users = db.users().insertGroup(defaultOrg, "user");
     GroupDto admins = db.users().insertGroup(defaultOrg, "admins");
     UserDto user = db.users().insertUser("user");
@@ -156,7 +156,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void fail_if_unknown_user() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "admins");
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
 
     expectedException.expect(NotFoundException.class);
 

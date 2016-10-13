@@ -59,7 +59,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   @Before
   public void setUp() {
     template = insertTemplate();
-    group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-name");
+    group = db.users().insertGroup(db.getDefaultOrganization(), "group-name");
   }
 
   @Test

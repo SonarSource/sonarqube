@@ -39,7 +39,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -73,7 +73,7 @@ public class ChangePasswordActionTest {
   private UserUpdater userUpdater;
   private DbSession session;
   private SecurityRealmFactory realmFactory = mock(SecurityRealmFactory.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(dbTester);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   @Before
   public void setUp() {

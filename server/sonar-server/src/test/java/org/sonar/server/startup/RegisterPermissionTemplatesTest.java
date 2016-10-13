@@ -34,7 +34,7 @@ import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ public class RegisterPermissionTemplatesTest {
   public LogTester logTester = new LogTester();
 
   private PersistentSettings settings = mock(PersistentSettings.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = DefaultOrganizationProviderRule.create(db);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), settings, defaultOrganizationProvider);
 
   @Test
