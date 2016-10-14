@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -276,6 +277,10 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   }
 
   private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    loginAsOrganizationAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsOrganizationAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
   }
 }
