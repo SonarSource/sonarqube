@@ -82,7 +82,8 @@ public class PermissionsWsParametersBuilder {
   public static void createOrganizationParameter(NewAction action) {
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization, used when group name is set")
-      .setExampleValue("my-org");
+      .setExampleValue("my-org")
+      .setSince("6.2");
   }
 
   public static void createGroupIdParameter(NewAction action) {
