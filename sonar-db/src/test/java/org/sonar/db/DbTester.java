@@ -68,6 +68,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -97,6 +98,7 @@ public class DbTester extends ExternalResource {
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final OrganizationDbTester organizationTester;
+  private final RootFlagAssertions rootFlagAssertions;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
@@ -105,6 +107,7 @@ public class DbTester extends ExternalResource {
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
+    this.rootFlagAssertions = new RootFlagAssertions(this);
   }
 
   public static DbTester create(System2 system2) {
@@ -170,6 +173,10 @@ public class DbTester extends ExternalResource {
 
   public OrganizationDbTester organizations() {
     return organizationTester;
+  }
+
+  public RootFlagAssertions rootFlag() {
+    return rootFlagAssertions;
   }
 
   @Override

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserMembershipDto;
+import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -54,7 +57,7 @@ public class RemoveUserActionTest {
   @Before
   public void setUp() {
     GroupWsSupport groupSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider);
-    ws = new WsTester(new UserGroupsWs(new RemoveUserAction(db.getDbClient(), userSession, groupSupport)));
+    ws = new WsTester(new UserGroupsWs(new RemoveUserAction(db.getDbClient(), userSession, groupSupport, defaultOrganizationProvider)));
   }
 
   @Test
@@ -167,12 +170,110 @@ public class RemoveUserActionTest {
       .execute();
   }
 
+  @Test
+  public void sets_root_flag_to_false_when_removing_user_from_group_of_default_organization_with_admin_permission() throws Exception {
+    GroupDto adminGroup = db.users().insertAdminGroup();
+    UserDto user1 = db.users().insertRootByGroupPermission(adminGroup);
+    UserDto user2 = db.users().insertRootByGroupPermission(adminGroup);
+    loginAsAdmin();
+
+    executeRequest(adminGroup, user1);
+    verifyUserNotInGroup(user1, adminGroup);
+    verifyRootFlagUpdated(user1, false);
+    verifyUserInGroup(user2, adminGroup);
+    verifyUnchanged(user2);
+
+    executeRequest(adminGroup, user2);
+    verifyUserNotInGroup(user1, adminGroup);
+    verifyRootFlag(user1, false);
+    verifyUserNotInGroup(user2, adminGroup);
+    verifyRootFlagUpdated(user2, false);
+  }
+
+  @Test
+  public void does_not_set_root_flag_to_false_when_removing_user_from_group_of_default_organization_and_user_is_admin_of_default_organization_another_way()
+    throws Exception {
+    GroupDto adminGroup1 = db.users().insertAdminGroup();
+    UserDto adminUserByUserPermission = db.users().insertRootByUserPermission("adminUserByUserPermission");
+    UserDto adminUserByTwoGroups = db.users().insertRootByGroupPermission("adminUserByTwoGroups", adminGroup1);
+    UserDto adminUserBySingleGroup = db.users().insertUser("adminUserBySingleGroup");
+    GroupDto adminGroup2 = db.users().insertAdminGroup();
+    db.users().insertMembers(adminGroup2, adminUserByUserPermission, adminUserByTwoGroups, adminUserBySingleGroup);
+    loginAsAdmin();
+
+    executeRequest(adminGroup2, adminUserByUserPermission);
+    verifyUserNotInGroup(adminUserByUserPermission, adminGroup2);
+    verifyRootFlagUpdated(adminUserByUserPermission, true);
+    verifyUserInGroup(adminUserByTwoGroups, adminGroup2);
+    verifyUserInGroup(adminUserByTwoGroups, adminGroup1);
+    verifyUnchanged(adminUserByTwoGroups);
+    verifyUserInGroup(adminUserBySingleGroup, adminGroup2);
+    verifyUnchanged(adminUserBySingleGroup);
+
+    executeRequest(adminGroup2, adminUserByTwoGroups);
+    verifyUserNotInGroup(adminUserByUserPermission, adminGroup2);
+    verifyRootFlag(adminUserByUserPermission, true);
+    verifyUserNotInGroup(adminUserByTwoGroups, adminGroup2);
+    verifyUserInGroup(adminUserByTwoGroups, adminGroup1);
+    verifyRootFlagUpdated(adminUserByTwoGroups, true);
+    verifyUserInGroup(adminUserBySingleGroup, adminGroup2);
+    verifyUnchanged(adminUserBySingleGroup);
+
+    executeRequest(adminGroup2, adminUserBySingleGroup);
+    verifyUserNotInGroup(adminUserByUserPermission, adminGroup2);
+    verifyRootFlag(adminUserByUserPermission, true);
+    verifyUserNotInGroup(adminUserByTwoGroups, adminGroup2);
+    verifyUserInGroup(adminUserByTwoGroups, adminGroup1);
+    verifyRootFlagUpdated(adminUserByTwoGroups, true);
+    verifyUserNotInGroup(adminUserBySingleGroup, adminGroup2);
+    verifyRootFlagUpdated(adminUserBySingleGroup, false);
+  }
+
+  private void executeRequest(GroupDto group, UserDto user) throws Exception {
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("login", user.getLogin())
+      .execute();
+  }
+
   private WsTester.TestRequest newRequest() {
     return ws.newPostRequest("api/user_groups", "remove_user");
   }
 
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  private void verifyUnchanged(UserDto user) {
+    db.rootFlag().verifyUnchanged(user);
+  }
+
+  private void verifyRootFlagUpdated(UserDto userDto, boolean root) {
+    db.rootFlag().verify(userDto, root);
+  }
+
+  private void verifyRootFlag(UserDto userDto, boolean root) {
+    db.rootFlag().verify(userDto, root);
+  }
+
+  private void verifyUserInGroup(UserDto userDto, GroupDto groupDto) {
+    assertThat(isUserInGroup(userDto, groupDto))
+      .as("user '%s' is a member of group '%s' of organization '%s'", userDto.getLogin(), groupDto.getName(), groupDto.getOrganizationUuid())
+      .isTrue();
+  }
+
+  private void verifyUserNotInGroup(UserDto userDto, GroupDto groupDto) {
+    assertThat(isUserInGroup(userDto, groupDto))
+      .as("user '%s' is not a member of group '%s' of organization '%s'", userDto.getLogin(), groupDto.getName(), groupDto.getOrganizationUuid())
+      .isFalse();
+  }
+
+  private boolean isUserInGroup(UserDto userDto, GroupDto groupDto) {
+    List<UserMembershipDto> members = db.getDbClient().groupMembershipDao()
+      .selectMembers(db.getSession(), UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+    return members
+      .stream()
+      .anyMatch(dto -> dto.getLogin().equals(userDto.getLogin()));
   }
 
 }

@@ -19,11 +19,13 @@
  */
 package org.sonar.db.user;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -31,6 +33,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -60,6 +65,76 @@ public class UserDbTester {
     return updatedUser;
   }
 
+  public UserDto makeRoot(UserDto userDto) {
+    dbClient.userDao().setRoot(db.getSession(), userDto.getLogin(), true);
+    db.commit();
+    return dbClient.userDao().selectByLogin(db.getSession(), userDto.getLogin());
+  }
+
+  public UserDto makeNotRoot(UserDto userDto) {
+    dbClient.userDao().setRoot(db.getSession(), userDto.getLogin(), false);
+    db.commit();
+    return dbClient.userDao().selectByLogin(db.getSession(), userDto.getLogin());
+  }
+
+  public UserDto insertRootByUserPermission(String login) {
+    return insertRootByUserPermissionImpl(requireNonNull(login));
+  }
+
+  public UserDto insertRootByUserPermission() {
+    return insertRootByUserPermissionImpl(null);
+  }
+
+  private UserDto insertRootByUserPermissionImpl(@Nullable String login) {
+    UserDto rootByUserPermissionUser = makeRoot(login == null ? insertUser() : insertUser(login));
+    insertPermissionOnUser(db.getDefaultOrganization(), rootByUserPermissionUser, SYSTEM_ADMIN);
+    return rootByUserPermissionUser;
+  }
+
+  public UserDto insertRootByGroupPermission(String login) {
+    return insertRootByGroupPermissionImpl(requireNonNull(login), null);
+  }
+
+  /**
+   * @see #insertAdminGroup()
+   */
+  public UserDto insertRootByGroupPermission(String login, GroupDto adminGroupDto) {
+    return insertRootByGroupPermissionImpl(requireNonNull(login), adminGroupDto);
+  }
+
+
+  /**
+   * @see #insertAdminGroup()
+   */
+  public UserDto insertRootByGroupPermission(GroupDto adminGroupDto) {
+    return insertRootByGroupPermissionImpl(null, adminGroupDto);
+  }
+
+  public UserDto insertRootByGroupPermission() {
+    return insertRootByGroupPermissionImpl(null, null);
+  }
+
+  public UserDto insertRootByGroupPermissionImpl(@Nullable String login, @Nullable GroupDto groupDto) {
+    UserDto rootByGroupPermissionUser = db.users().makeRoot(login == null ? insertUser() : insertUser(login));
+    GroupDto adminGroup = createOrCheckAdminGroup(groupDto);
+    insertMember(adminGroup, rootByGroupPermissionUser);
+    return rootByGroupPermissionUser;
+  }
+
+  private GroupDto createOrCheckAdminGroup(@Nullable GroupDto groupDto) {
+    if (groupDto == null) {
+      GroupDto adminGroup = insertGroup(db.getDefaultOrganization());
+      insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
+      return adminGroup;
+    }
+    checkArgument(
+      groupDto.getOrganizationUuid().equals(db.getDefaultOrganization().getUuid()),
+      "Group '%s' must belong to the default organization", groupDto.getName());
+    List<String> groupPermissions = db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), groupDto.getOrganizationUuid(), groupDto.getId());
+    checkArgument(groupPermissions.contains(SYSTEM_ADMIN), "Group '%s' must have permission '%s'", groupDto.getId(), SYSTEM_ADMIN);
+    return groupDto;
+  }
+
   public Optional<UserDto> selectUserByLogin(String login) {
     return Optional.ofNullable(dbClient.userDao().selectByLogin(db.getSession(), login));
   }
@@ -76,6 +151,32 @@ public class UserDbTester {
    */
   public GroupDto insertGroup() {
     GroupDto group = newGroupDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    return insertGroup(group);
+  }
+
+  /**
+   * Creates a group in the default organization with {@link GlobalPermissions#SYSTEM_ADMIN} permission.
+   */
+  public GroupDto insertAdminGroup() {
+    GroupDto groupDto = insertGroup();
+    insertPermissionOnGroup(groupDto, SYSTEM_ADMIN);
+    return groupDto;
+  }
+
+  /**
+   * Creates a group in the specified organization with {@link GlobalPermissions#SYSTEM_ADMIN} permission.
+   */
+  public GroupDto insertAdminGroup(OrganizationDto organizationDto) {
+    GroupDto groupDto = insertGroup(organizationDto);
+    insertPermissionOnGroup(groupDto, SYSTEM_ADMIN);
+    return groupDto;
+  }
+
+  /**
+   * Create group in specified organization
+   */
+  public GroupDto insertGroup(OrganizationDto organizationDto) {
+    GroupDto group = newGroupDto().setOrganizationUuid(organizationDto.getUuid());
     return insertGroup(group);
   }
 
@@ -105,6 +206,14 @@ public class UserDbTester {
     db.getDbClient().userGroupDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
+  }
+
+  public void insertMembers(GroupDto group, UserDto... users) {
+    Arrays.stream(users).forEach(user -> {
+      UserGroupDto dto = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
+      db.getDbClient().userGroupDao().insert(db.getSession(), dto);
+    });
+    db.commit();
   }
 
   public List<Long> selectGroupIdsOfUser(UserDto user) {
@@ -138,6 +247,11 @@ public class UserDbTester {
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
+  }
+
+  public void deletePermissionFromGroup(GroupDto group, String permission) {
+    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, group.getOrganizationUuid(), group.getId(), null);
+    db.commit();
   }
 
   public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {

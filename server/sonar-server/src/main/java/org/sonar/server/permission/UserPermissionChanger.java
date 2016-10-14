@@ -21,19 +21,23 @@ package org.sonar.server.permission;
 
 import java.util.Optional;
 import java.util.Set;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionChange.Operation;
+
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class UserPermissionChanger {
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserPermissionChanger(DbClient dbClient) {
+  public UserPermissionChanger(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
@@ -58,6 +62,9 @@ public class UserPermissionChanger {
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
+    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
+      dbClient.userDao().updateRootFlagFromPermissions(dbSession, change.getUserId().getId(), defaultOrganizationProvider.get().getUuid());
+    }
     return true;
   }
 
@@ -68,10 +75,10 @@ public class UserPermissionChanger {
   }
 
   private void checkOtherAdminUsersExist(DbSession session, PermissionChange change) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(change.getPermission()) &&
+    if (SYSTEM_ADMIN.equals(change.getPermission()) &&
       !change.getProjectId().isPresent() &&
       dbClient.roleDao().countUserPermissions(session, change.getPermission(), null) <= 1) {
-      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", SYSTEM_ADMIN));
     }
   }
 }

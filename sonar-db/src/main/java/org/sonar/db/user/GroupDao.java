@@ -120,6 +120,17 @@ public class GroupDao implements Dao {
     return mapper(dbSession).selectByOrganizationUuid(organizationUuid);
   }
 
+  /**
+   * Ensures all users of the specified group have its root flag set or unset depending on whether each of them have the
+   * 'admin' permission in the default organization or not.
+   */
+  public void updateRootFlagOfUsersInGroupFromPermissions(DbSession dbSession, long groupId, String defaultOrganizationUuid) {
+    long now = system.now();
+    GroupMapper mapper = mapper(dbSession);
+    mapper.updateRootUsersOfGroup(groupId, defaultOrganizationUuid, now);
+    mapper.updateNonRootUsersOfGroup(groupId, defaultOrganizationUuid, now);
+  }
+
   private static GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
   }

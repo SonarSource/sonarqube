@@ -57,7 +57,7 @@ public class UserDao implements Dao {
   }
 
   public UserDto selectUserById(DbSession session, long userId) {
-    return getMapper(session).selectUser(userId);
+    return mapper(session).selectUser(userId);
   }
 
   /**
@@ -67,7 +67,7 @@ public class UserDao implements Dao {
    * Used by the Governance plugin
    */
   public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return executeLargeInputs(ids, getMapper(session)::selectByIds);
+    return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 
   /**
@@ -84,7 +84,7 @@ public class UserDao implements Dao {
 
   @CheckForNull
   public UserDto selectActiveUserByLogin(DbSession session, String login) {
-    UserMapper mapper = getMapper(session);
+    UserMapper mapper = mapper(session);
     return mapper.selectUserByLogin(login);
   }
 
@@ -93,7 +93,7 @@ public class UserDao implements Dao {
    * if list of logins is empty, without any db round trips.
    */
   public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
-    return executeLargeInputs(logins, getMapper(session)::selectByLogins);
+    return executeLargeInputs(logins, mapper(session)::selectByLogins);
   }
 
   /**
@@ -124,25 +124,25 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
-    return getMapper(dbSession).selectUsers(query);
+    return mapper(dbSession).selectUsers(query);
   }
 
   public long countRootUsersButLogin(DbSession dbSession, String login) {
-    return getMapper(dbSession).countRootUsersButLogin(login);
+    return mapper(dbSession).countRootUsersButLogin(login);
   }
 
   public UserDto insert(DbSession session, UserDto dto) {
-    getMapper(session).insert(dto);
+    mapper(session).insert(dto);
     return dto;
   }
 
   public UserDto update(DbSession session, UserDto dto) {
-    getMapper(session).update(dto);
+    mapper(session).update(dto);
     return dto;
   }
 
   public void setRoot(DbSession session, String login, boolean root) {
-    getMapper(session).setRoot(login, root, system2.now());
+    mapper(session).setRoot(login, root, system2.now());
   }
 
   /**
@@ -150,7 +150,7 @@ public class UserDao implements Dao {
    * @return false if the user does not exist, true if the existing user has been deactivated
    */
   public boolean deactivateUserByLogin(DbSession dbSession, String login) {
-    UserMapper mapper = getMapper(dbSession);
+    UserMapper mapper = mapper(dbSession);
     UserDto dto = mapper.selectUserByLogin(login);
     if (dto == null) {
       return false;
@@ -173,7 +173,7 @@ public class UserDao implements Dao {
 
   @CheckForNull
   public UserDto selectByLogin(DbSession session, String login) {
-    return getMapper(session).selectByLogin(login);
+    return mapper(session).selectByLogin(login);
   }
 
   public UserDto selectOrFailByLogin(DbSession session, String login) {
@@ -188,7 +188,7 @@ public class UserDao implements Dao {
     String like = new StringBuilder().append("%")
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
-    return getMapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
+    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
   }
 
   /**
@@ -197,10 +197,21 @@ public class UserDao implements Dao {
    * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
    */
   public boolean doesEmailExist(DbSession dbSession, String email) {
-    return getMapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
+    return mapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
   }
 
-  private static UserMapper getMapper(DbSession session) {
+  /**
+   * Ensures the specified user has its root flag set or unset depending on whether the user has the 'admin' permission
+   * in the default organization or not.
+   */
+  public void updateRootFlagFromPermissions(DbSession dbSession, long userId, String defaultOrganizationUuid) {
+    long now = system2.now();
+    UserMapper mapper = mapper(dbSession);
+    mapper.updateRootUser(userId, defaultOrganizationUuid, now);
+    mapper.updateNonRootUser(userId, defaultOrganizationUuid, now);
+  }
+
+  protected UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }
 

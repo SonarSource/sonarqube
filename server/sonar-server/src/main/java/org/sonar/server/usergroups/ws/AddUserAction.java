@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -43,11 +44,13 @@ public class AddUserAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -77,6 +80,7 @@ public class AddUserAction implements UserGroupsWsAction {
       if (!isMemberOf(dbSession, user, groupId)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupId(groupId.getId()).setUserId(user.getId());
         dbClient.userGroupDao().insert(dbSession, membershipDto);
+        dbClient.userDao().updateRootFlagFromPermissions(dbSession, user.getId(), defaultOrganizationProvider.get().getUuid());
         dbSession.commit();
       }
 

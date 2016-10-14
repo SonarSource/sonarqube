@@ -19,15 +19,18 @@
  */
 package org.sonar.server.permission.ws;
 
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -37,6 +40,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddUserAction.ACTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -244,4 +248,89 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     assertThat(db.users().selectUserPermissions(user, project)).containsOnly(ISSUE_ADMIN);
   }
+
+  @Test
+  public void sets_root_flag_to_true_when_adding_user_admin_permission_without_org_parameter() throws Exception {
+    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
+    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
+    UserDto notRootUser = db.users().insertUser();
+    loginAsAdminOnDefaultOrganization();
+
+    executeRequest(notRootUser, SYSTEM_ADMIN);
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN);
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified user permission
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN);
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verify(rootByGroupPermissionUser, true);
+  }
+
+  @Test
+  public void sets_root_flag_to_true_when_adding_user_admin_permission_with_default_organization_uuid() throws Exception {
+    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
+    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
+    UserDto notRootUser = db.users().insertUser();
+    loginAsAdminOnDefaultOrganization();
+
+    executeRequest(notRootUser, SYSTEM_ADMIN, db.getDefaultOrganization());
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN, db.getDefaultOrganization());
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified user permission
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN, db.getDefaultOrganization());
+    db.rootFlag().verify(notRootUser, true);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verify(rootByGroupPermissionUser, true);
+  }
+
+  @Test
+  public void does_not_set_root_flag_when_adding_user_admin_permission_with_other_organization_uuid() throws Exception {
+    OrganizationDto otherOrganization = db.organizations().insert();
+    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
+    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
+    UserDto notRootUser = db.users().insertUser();
+    loginAsAdmin(otherOrganization);
+
+    executeRequest(notRootUser, SYSTEM_ADMIN, otherOrganization);
+    db.rootFlag().verify(notRootUser, false);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN, otherOrganization);
+    db.rootFlag().verify(notRootUser, false);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified permission
+    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
+
+    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN, otherOrganization);
+    db.rootFlag().verify(notRootUser, false);
+    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verify(rootByGroupPermissionUser, true);
+  }
+
+  private void executeRequest(UserDto userDto, String permission) throws Exception {
+    executeRequest(userDto, permission, null);
+  }
+
+  private void executeRequest(UserDto userDto, String permission, @Nullable OrganizationDto organizationDto) throws Exception {
+    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam(PARAM_USER_LOGIN, userDto.getLogin())
+      .setParam(PARAM_PERMISSION, permission);
+    if (organizationDto != null) {
+      request.setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey());
+    }
+    request.execute();
+  }
+
 }

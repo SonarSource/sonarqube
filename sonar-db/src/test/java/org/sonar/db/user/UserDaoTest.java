@@ -39,6 +39,7 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
 import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -49,13 +50,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
-  private static final long NOW = 1500000000000L;
+  private static final long NOW = 1_500_000_000_000L;
+  private static final long DATE_1 = 1_222_001L;
+  private static final long DATE_2 = 4_333_555L;
 
   private System2 system2 = mock(System2.class);
 
@@ -659,6 +663,116 @@ public class UserDaoTest {
     assertThat(underTest.selectByLogin(session, inactiveRootUser.getLogin()).isRoot()).isTrue();
   }
 
+  @Test
+  public void updateRootFlagFromPermissions_sets_root_flag_to_false_if_user_has_no_permission_at_all() {
+    UserDto rootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto notRootUser = db.users().insertUser();
+
+    call_updateRootFlagFromPermissions(rootUser, DATE_1);
+    db.rootFlag().verify(rootUser, false, DATE_1);
+    db.rootFlag().verify(notRootUser, false, notRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(notRootUser, DATE_2);
+    db.rootFlag().verify(rootUser, false, DATE_1);
+    db.rootFlag().verify(notRootUser, false, DATE_2);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_sets_root_flag_to_true_if_user_has_admin_user_permission_on_default_organization() {
+    UserDto rootUser = db.users().insertRootByUserPermission();
+    UserDto incorrectlyNotRootUser = db.users().insertUser();
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), incorrectlyNotRootUser, SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(rootUser, DATE_1);
+    db.rootFlag().verify(rootUser, true, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, false, incorrectlyNotRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(incorrectlyNotRootUser, DATE_2);
+    db.rootFlag().verify(rootUser, true, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, true, DATE_2);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_ignores_permissions_on_anyone_on_default_organization() {
+    UserDto rootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto incorrectlyNotRootUser = db.users().insertUser();
+    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(rootUser, DATE_1);
+    db.rootFlag().verify(rootUser, false, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, false, incorrectlyNotRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(incorrectlyNotRootUser, DATE_2);
+    db.rootFlag().verify(rootUser, false, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, false, DATE_2);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_ignores_permissions_on_anyone_on_other_organization() {
+    UserDto falselyRootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto notRootUser = db.users().insertUser();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    db.users().insertPermissionOnAnyone(otherOrganization, SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(falselyRootUser, DATE_2);
+    db.rootFlag().verify(falselyRootUser, false, DATE_2);
+    db.rootFlag().verify(notRootUser, false, notRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(notRootUser, DATE_1);
+    db.rootFlag().verify(falselyRootUser, false, DATE_2);
+    db.rootFlag().verify(notRootUser, false, DATE_1);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_sets_root_flag_to_false_if_user_has_admin_user_permission_on_other_organization() {
+    UserDto falselyRootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto notRootUser = db.users().insertUser();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    db.users().insertPermissionOnUser(otherOrganization, falselyRootUser, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(otherOrganization, notRootUser, SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(falselyRootUser, DATE_1);
+    db.rootFlag().verify(falselyRootUser, false, DATE_1);
+    db.rootFlag().verify(notRootUser, false, notRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(notRootUser, DATE_2);
+    db.rootFlag().verify(falselyRootUser, false, DATE_1);
+    db.rootFlag().verify(notRootUser, false, DATE_2);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_sets_root_flag_to_true_if_user_has_admin_group_permission_on_default_organization() {
+    UserDto rootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto incorrectlyNotRootUser = db.users().insertUser();
+    GroupDto groupDto = db.users().insertAdminGroup(db.getDefaultOrganization());
+    db.users().insertMembers(groupDto, rootUser, incorrectlyNotRootUser);
+
+    call_updateRootFlagFromPermissions(rootUser, DATE_1);
+    db.rootFlag().verify(rootUser, true, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, false, incorrectlyNotRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(incorrectlyNotRootUser, DATE_2);
+    db.rootFlag().verify(rootUser, true, DATE_1);
+    db.rootFlag().verify(incorrectlyNotRootUser, true, DATE_2);
+  }
+
+  @Test
+  public void updateRootFlagFromPermissions_sets_root_flag_to_false_if_user_has_admin_group_permission_on_other_organization() {
+    UserDto falselyRootUser = db.users().makeRoot(db.users().insertUser());
+    UserDto notRootUser = db.users().insertUser();
+    GroupDto otherOrganizationGroupDto = db.users().insertGroup(db.organizations().insert());
+    db.users().insertPermissionOnGroup(otherOrganizationGroupDto, SYSTEM_ADMIN);
+    db.users().insertMembers(otherOrganizationGroupDto, falselyRootUser, notRootUser);
+
+    call_updateRootFlagFromPermissions(falselyRootUser, DATE_2);
+    db.rootFlag().verify(falselyRootUser, false, DATE_2);
+    db.rootFlag().verify(notRootUser, false, notRootUser.getUpdatedAt());
+
+    call_updateRootFlagFromPermissions(notRootUser, DATE_1);
+    db.rootFlag().verify(falselyRootUser, false, DATE_2);
+    db.rootFlag().verify(notRootUser, false, DATE_1);
+  }
+
   private void commit(Runnable runnable) {
     runnable.run();
     session.commit();
@@ -737,4 +851,11 @@ public class UserDaoTest {
     dbClient.userGroupDao().insert(session, dto);
     return dto;
   }
+
+  private void call_updateRootFlagFromPermissions(UserDto userDto, long now) {
+    when(system2.now()).thenReturn(now);
+    underTest.updateRootFlagFromPermissions(db.getSession(), userDto.getId(), db.getDefaultOrganization().getUuid());
+    db.commit();
+  }
+
 }

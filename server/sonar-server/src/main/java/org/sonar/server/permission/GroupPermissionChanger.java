@@ -25,6 +25,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -33,9 +34,11 @@ import static org.sonar.server.permission.ws.PermissionRequestValidator.validate
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public GroupPermissionChanger(DbClient dbClient) {
+  public GroupPermissionChanger(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
@@ -61,6 +64,7 @@ public class GroupPermissionChanger {
       .setGroupId(change.getGroupIdOrAnyone().getId())
       .setResourceId(change.getNullableProjectId());
     dbClient.groupPermissionDao().insert(dbSession, addedDto);
+    updateRootFlag(dbSession, change);
     return true;
   }
 
@@ -74,7 +78,14 @@ public class GroupPermissionChanger {
       change.getOrganizationUuid(),
       change.getGroupIdOrAnyone().getId(),
       change.getNullableProjectId());
+    updateRootFlag(dbSession, change);
     return true;
+  }
+
+  private void updateRootFlag(DbSession dbSession, GroupPermissionChange change) {
+    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getGroupIdOrAnyone().isAnyone() &&  !change.getProjectId().isPresent()) {
+      dbClient.groupDao().updateRootFlagOfUsersInGroupFromPermissions(dbSession, change.getGroupIdOrAnyone().getId(), defaultOrganizationProvider.get().getUuid());
+    }
   }
 
   private List<String> loadExistingPermissions(DbSession dbSession, GroupPermissionChange change) {

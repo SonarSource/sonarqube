@@ -51,4 +51,12 @@ public interface GroupMapper {
   GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
   List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
+
+  int updateRootUsersOfGroup(@Param("groupId") long groupId,
+    @Param("defaultOrganizationUuid") String defaultOrganizationUuid,
+    @Param("now") long now);
+
+  int updateNonRootUsersOfGroup(@Param("groupId") long groupId,
+    @Param("defaultOrganizationUuid") String defaultOrganizationUuid,
+    @Param("now") long now);
 }

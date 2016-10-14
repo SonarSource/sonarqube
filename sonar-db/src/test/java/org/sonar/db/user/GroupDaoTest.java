@@ -32,10 +32,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupDaoTest {
@@ -45,11 +47,14 @@ public class GroupDaoTest {
     .setKey("an-org")
     .setName("An Org")
     .setUuid("abcde");
+  private static final long DATE_1 = 8_776_543L;
+  private static final long DATE_2 = 4_776_898L;
 
   private System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester db = DbTester.create(system2);
+
   private final DbSession dbSession = db.getSession();
   private GroupDao underTest = new GroupDao(system2);
 
@@ -201,4 +206,195 @@ public class GroupDaoTest {
     assertThat(db.countRowsOfTable(dbSession, "groups")).isEqualTo(0);
   }
 
+  @Test
+  public void updateRootFlagOfUsersInGroupFromPermissions_sets_root_flag_to_false_if_users_have_no_permission_at_all() {
+    UserDto[] usersInGroup1 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersInGroup2 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersNotInGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    GroupDto group1 = db.users().insertGroup();
+    stream(usersInGroup1).forEach(user -> db.users().insertMember(group1, user));
+    GroupDto group2 = db.users().insertGroup();
+    stream(usersInGroup2).forEach(user -> db.users().insertMember(group2, user));
+
+    call_updateRootFlagFromPermissions(group1, DATE_1);
+    stream(usersInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersInGroup2).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+
+    call_updateRootFlagFromPermissions(group2, DATE_2);
+    stream(usersInGroup2).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(usersInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+  }
+
+  @Test
+  public void updateRootFlagOfUsersInGroupFromPermissions_sets_root_flag_to_true_if_users_has_admin_user_permission_on_default_organization() {
+    UserDto[] usersWithAdminInGroup1 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser(),
+    };
+    UserDto[] usersWithoutAdminInGroup1 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser(),
+    };
+    UserDto[] usersWithAdminInGroup2 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersWithoutAdminInGroup2 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersNotInGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    GroupDto group1 = db.users().insertGroup();
+    stream(usersWithAdminInGroup1).forEach(user -> db.users().insertMember(group1, user));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.users().insertMember(group1, user));
+    stream(usersWithAdminInGroup1).forEach(user -> db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SYSTEM_ADMIN));
+    GroupDto group2 = db.users().insertGroup();
+    stream(usersWithAdminInGroup2).forEach(user -> db.users().insertMember(group2, user));
+    stream(usersWithoutAdminInGroup2).forEach(user -> db.users().insertMember(group2, user));
+    stream(usersWithAdminInGroup2).forEach(user -> db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SYSTEM_ADMIN));
+
+    call_updateRootFlagFromPermissions(group1, DATE_1);
+    stream(usersWithAdminInGroup1).forEach(user -> db.rootFlag().verify(user, true, DATE_1));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithAdminInGroup2).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersWithoutAdminInGroup2).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+
+    call_updateRootFlagFromPermissions(group2, DATE_2);
+    stream(usersWithAdminInGroup1).forEach(user -> db.rootFlag().verify(user, true, DATE_1));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithAdminInGroup2).forEach(user -> db.rootFlag().verify(user, true, DATE_2));
+    stream(usersWithoutAdminInGroup2).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+  }
+
+  @Test
+  public void updateRootFlagOfUsersInGroupFromPermissions_ignores_permissions_on_anyone_on_default_organization() {
+    UserDto[] usersWithAdminInGroup1 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser(),
+    };
+    UserDto[] usersWithoutAdminInGroup1 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser(),
+    };
+    UserDto[] usersWithAdminInGroup2 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersWithoutAdminInGroup2 = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersNotInGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    GroupDto group1 = db.users().insertGroup();
+    stream(usersWithAdminInGroup1).forEach(user -> db.users().insertMember(group1, user));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.users().insertMember(group1, user));
+    GroupDto group2 = db.users().insertGroup();
+    stream(usersWithAdminInGroup2).forEach(user -> db.users().insertMember(group2, user));
+    stream(usersWithoutAdminInGroup2).forEach(user -> db.users().insertMember(group2, user));
+    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(group1, DATE_1);
+    stream(usersWithAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithAdminInGroup2).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersWithoutAdminInGroup2).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+
+    call_updateRootFlagFromPermissions(group2, DATE_2);
+    stream(usersWithAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithoutAdminInGroup1).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersWithAdminInGroup2).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(usersWithoutAdminInGroup2).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+  }
+
+  @Test
+  public void updateRootFlagOfUsersInGroupFromPermissions_ignores_permissions_on_anyone_on_other_organization() {
+    UserDto[] usersInGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser(),
+    };
+    UserDto[] usersInOtherGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] usersNotInGroup = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    GroupDto group = db.users().insertGroup();
+    stream(usersInGroup).forEach(user -> db.users().insertMember(group, user));
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto otherGroup = db.users().insertGroup(otherOrganization);
+    stream(usersInOtherGroup).forEach(user -> db.users().insertMember(otherGroup, user));
+    db.users().insertPermissionOnAnyone(otherOrganization, SYSTEM_ADMIN);
+
+    call_updateRootFlagFromPermissions(group, DATE_1);
+    stream(usersInGroup).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersInOtherGroup).forEach(db.rootFlag()::verifyUnchanged);
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+
+    call_updateRootFlagFromPermissions(otherGroup, DATE_2);
+    stream(usersInGroup).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+    stream(usersInOtherGroup).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(usersNotInGroup).forEach(db.rootFlag()::verifyUnchanged);
+  }
+
+  @Test
+  public void updateRootFlagOfUsersInGroupFromPermissions_set_root_flag_to_false_on_users_of_group_of_non_default_organization() {
+    UserDto[] nonAdminUsers = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()
+    };
+    UserDto[] adminPerUserPermissionUsers = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser() // incorrectly not root
+    };
+    UserDto[] adminPerGroupPermissionUsers = {
+      db.users().makeRoot(db.users().insertUser()),
+      db.users().insertUser()  // incorrectly not root
+    };
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto nonAdminGroup = db.users().insertGroup(otherOrganization);
+    db.users().insertMembers(nonAdminGroup, nonAdminUsers);
+    db.users().insertMembers(nonAdminGroup, adminPerUserPermissionUsers);
+    stream(adminPerUserPermissionUsers).forEach(user -> db.users().insertPermissionOnUser(otherOrganization, user, SYSTEM_ADMIN));
+    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
+    db.users().insertMembers(adminGroup, adminPerGroupPermissionUsers);
+
+    call_updateRootFlagFromPermissions(nonAdminGroup, DATE_2);
+    stream(nonAdminUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(adminPerUserPermissionUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(adminPerGroupPermissionUsers).forEach(db.rootFlag()::verifyUnchanged);
+
+    call_updateRootFlagFromPermissions(adminGroup, DATE_1);
+    stream(nonAdminUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(adminPerUserPermissionUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
+    stream(adminPerGroupPermissionUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+  }
+
+  private void call_updateRootFlagFromPermissions(GroupDto groupDto, long now) {
+    when(system2.now()).thenReturn(now);
+    underTest.updateRootFlagOfUsersInGroupFromPermissions(db.getSession(), groupDto.getId(), db.getDefaultOrganization().getUuid());
+    db.commit();
+  }
 }

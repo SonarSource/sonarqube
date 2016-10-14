@@ -78,8 +78,8 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(db.getDbClient(),
       mock(IssueAuthorizationIndexer.class),
-      new UserPermissionChanger(db.getDbClient()),
-      new GroupPermissionChanger(db.getDbClient()));
+      new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider),
+      new GroupPermissionChanger(db.getDbClient(), defaultOrganizationProvider));
   }
 
   protected PermissionTemplateDto insertTemplate() {

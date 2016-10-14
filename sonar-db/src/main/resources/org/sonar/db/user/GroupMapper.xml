@@ -118,6 +118,92 @@
     order by upper(g.name)
   </select>
 
+  <update id="updateRootUsersOfGroup">
+    update users u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
 
+  <update id="updateRootUsersOfGroup" databaseId="mssql">
+    update u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
 
+  <update id="updateNonRootUsersOfGroup">
+    update users u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateNonRootUsersOfGroup" databaseId="mssql">
+    update u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <sql id="userIdsForGroupId">
+    select
+      gu.user_id
+    from
+      groups_users gu
+    where
+      gu.group_id = #{groupId,jdbcType=BIGINT}
+  </sql>
+
+  <sql id="userPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      user_roles ur
+    where
+      ur.user_id = u.id
+      and ur.role = 'admin'
+      and ur.resource_id is null
+      and ur.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
+
+  <sql id="groupPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      groups_users gu,
+      group_roles gr
+    where
+      gu.user_id = u.id
+      and gu.group_id = gr.group_id
+      and gr.role = 'admin'
+      and gr.resource_id is null
+      and gr.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
 </mapper>
