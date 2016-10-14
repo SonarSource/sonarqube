@@ -50,6 +50,7 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
+import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
@@ -79,6 +80,7 @@ public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
     ActiveDashboardDao.class,
     AuthorDao.class,
+    AuthorizationDao.class,
     PermissionDao.class,
     CeActivityDao.class,
     CeQueueDao.class,

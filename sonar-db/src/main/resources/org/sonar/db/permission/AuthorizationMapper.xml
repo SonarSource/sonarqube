@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.permission.AuthorizationMapper">
+
+  <select id="selectOrganizationPermissions" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId,jdbcType=BIGINT}))
+    union
+    select ur.role
+    from user_roles ur
+    where
+    ur.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    ur.user_id=#{userId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectOrganizationPermissionsOfAnonymous" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is null
+  </select>
+
+  <select id="selectRootComponentPermissions" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId,jdbcType=BIGINT}))
+    union
+    select ur.role
+    from user_roles ur
+    where
+    ur.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    ur.user_id=#{userId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectRootComponentPermissionsOfAnonymous" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    gr.group_id is null
+  </select>
+
+</mapper>

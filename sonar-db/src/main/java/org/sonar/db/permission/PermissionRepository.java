@@ -56,15 +56,6 @@ public class PermissionRepository {
     this.settings = settings;
   }
 
-  /**
-   * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
-   */
-  private void updateProjectAuthorizationDate(DbSession session, @Nullable Long projectId) {
-    if (projectId != null) {
-      dbClient.resourceDao().updateAuthorizationDate(projectId, session);
-    }
-  }
-
   public void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project) {
     applyPermissionTemplate(session, templateUuid, project, null);
   }
@@ -110,6 +101,13 @@ public class PermissionRepository {
   }
 
   /**
+   * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
+   */
+  private void updateProjectAuthorizationDate(DbSession dbSession, long projectId) {
+    dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
+  }
+
+  /**
    * Warning, this method is also used by the Developer Cockpit plugin
    */
   public void applyDefaultPermissionTemplate(DbSession session, long componentId) {
@@ -127,6 +125,7 @@ public class PermissionRepository {
    * permission template for the resource qualifier.
    */
   private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
+    // FIXME performance issue here, we should not load all templates
     List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(session);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
