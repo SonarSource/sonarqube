@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -36,10 +38,12 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -65,6 +69,21 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(SYSTEM_ADMIN);
+  }
+
+  @Test
+  public void reference_group_by_its_name_in_organization() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org, "the-group");
+
+    loginAsOrganizationAdmin(org);
+    newRequest()
+      .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .execute();
+
+    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(PROVISIONING);
   }
 
   @Test
@@ -226,7 +245,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "sonar-administrators");
-    userSession.login();
+    // user is administrator of another organization
+    userSession.login().addOrganizationPermission("anotherOrg", SYSTEM_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -274,7 +294,10 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   private void loginAsAdmin() {
-    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+    loginAsOrganizationAdmin(db.getDefaultOrganization());
   }
 
+  private void loginAsOrganizationAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+  }
 }
