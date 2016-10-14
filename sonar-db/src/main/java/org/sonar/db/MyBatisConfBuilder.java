@@ -24,6 +24,7 @@ import java.io.InputStream;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -47,6 +48,7 @@ public final class MyBatisConfBuilder {
     this.conf.getVariables().setProperty("_true", dialect.getTrueSqlValue());
     this.conf.getVariables().setProperty("_false", dialect.getFalseSqlValue());
     this.conf.getVariables().setProperty("_scrollFetchSize", String.valueOf(dialect.getScrollDefaultFetchSize()));
+    this.conf.setLocalCacheScope(LocalCacheScope.STATEMENT);
   }
 
   public void loadAlias(String alias, Class dtoClass) {
