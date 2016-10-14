@@ -43,6 +43,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private List<String> globalPermissions = Collections.emptyList();
   private HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private HashMultimap<String, String> permissionsByOrganizationUuid = HashMultimap.create();
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByKey = newArrayList();
   private List<String> projectPermissionsCheckedByUuid = newArrayList();
@@ -140,5 +141,15 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
     return projectPermissionsCheckedByUuid.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+  }
+
+  @Override
+  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
+  }
+
+  public T addOrganizationPermission(String organizationUuid, String permission) {
+    permissionsByOrganizationUuid.put(organizationUuid, permission);
+    return clazz.cast(this);
   }
 }

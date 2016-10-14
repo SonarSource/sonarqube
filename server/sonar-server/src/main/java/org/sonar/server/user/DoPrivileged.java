@@ -108,6 +108,11 @@ public final class DoPrivileged {
       }
 
       @Override
+      public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+        return true;
+      }
+
+      @Override
       public List<String> globalPermissions() {
         return Collections.emptyList();
       }

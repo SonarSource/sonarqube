@@ -189,6 +189,11 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
+  public UserSessionRule addOrganizationPermission(String organizationUuid, String permission) {
+    ensureAbstractMockUserSession().addOrganizationPermission(organizationUuid, permission);
+    return this;
+  }
+
   public UserSessionRule setUserId(@Nullable Integer userId) {
     ensureMockUserSession().setUserId(userId);
     return this;
@@ -325,6 +330,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return currentUserSession.hasOrganizationPermission(organizationUuid, permission);
+  }
+
+  @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
     currentUserSession.checkComponentPermission(projectPermission, componentKey);
     return this;
@@ -336,5 +346,9 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-
+  @Override
+  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    currentUserSession.checkOrganizationPermission(organizationUuid, permission);
+    return this;
+  }
 }

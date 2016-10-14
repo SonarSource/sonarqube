@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,8 +58,9 @@ public class ServerUserSession extends AbstractUserSession {
   private final ResourceDao resourceDao;
   private final Set<String> userGroups;
   private List<String> globalPermissions = null;
-  private HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
-  private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private SetMultimap<String, String> projectKeyByPermission = HashMultimap.create();
+  private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private SetMultimap<String, String> permissionsByOrganizationUuid;
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByKey = new ArrayList<>();
   private List<String> projectPermissionsCheckedByUuid = new ArrayList<>();
@@ -128,6 +130,30 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   public boolean isRoot() {
     return userDto != null && userDto.isRoot();
+  }
+
+  @Override
+  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    if (permissionsByOrganizationUuid == null) {
+      permissionsByOrganizationUuid = HashMultimap.create();
+    }
+    Set<String> permissions;
+    if (permissionsByOrganizationUuid.containsKey(organizationUuid)) {
+      permissions = permissionsByOrganizationUuid.get(organizationUuid);
+    } else {
+      permissions = loadOrganizationPermissions(organizationUuid);
+      permissionsByOrganizationUuid.putAll(organizationUuid, permissions);
+    }
+    return permissions.contains(permission);
+  }
+
+  private Set<String> loadOrganizationPermissions(String organizationUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (userDto != null && userDto.getId() != null) {
+        return dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getId());
+      }
+      return dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
+    }
   }
 
   @Override

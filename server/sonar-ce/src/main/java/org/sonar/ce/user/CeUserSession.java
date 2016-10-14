@@ -101,6 +101,16 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
+  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return notImplementedBooleanMethod();
+  }
+
+  @Override
+  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    return notImplemented();
+  }
+
+  @Override
   public boolean hasGlobalPermission(String globalPermission) {
     return notImplementedBooleanMethod();
   }

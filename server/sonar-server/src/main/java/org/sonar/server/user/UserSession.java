@@ -35,6 +35,10 @@ public interface UserSession {
   @CheckForNull
   Integer getUserId();
 
+  /**
+   * @deprecated does not support organizations as group names are not unique
+   */
+  @Deprecated
   Set<String> getUserGroups();
 
   boolean isLoggedIn();
@@ -78,6 +82,18 @@ public interface UserSession {
    * Does the user have the given permission ?
    */
   boolean hasPermission(String globalPermission);
+
+  /**
+   * Returns {@code true} if the permission is granted on the organization, else {@code false}.
+   * Root status is not verified, so the method may return {@code false} even for root users.
+   */
+  boolean hasOrganizationPermission(String organizationUuid, String permission);
+
+  /**
+   * Ensures that user implies the specified organization permission,
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkOrganizationPermission(String organizationUuid, String permission);
 
   /**
    * @deprecated Only used by Views and the Developer Cockpit plugins.

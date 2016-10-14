@@ -157,4 +157,15 @@ public class ThreadLocalUserSession implements UserSession {
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return get().hasComponentUuidPermission(permission, componentUuid);
   }
+
+  @Override
+  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
+    get().checkOrganizationPermission(organizationUuid, permission);
+    return this;
+  }
+
+  @Override
+  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return get().hasOrganizationPermission(organizationUuid, permission);
+  }
 }
