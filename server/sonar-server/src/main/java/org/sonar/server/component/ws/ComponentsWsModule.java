@@ -36,6 +36,7 @@ public class ComponentsWsModule extends Module {
       SearchViewComponentsAction.class,
       UpdateKeyAction.class,
       BulkUpdateKeyAction.class,
-      SearchProjectsAction.class);
+      SearchProjectsAction.class,
+      SearchProjectsQueryBuilderValidator.class);
   }
 }

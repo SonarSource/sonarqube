@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
+
 public class ComponentsWs implements WebService {
 
   private final AppAction appAction;
@@ -37,7 +39,7 @@ public class ComponentsWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/components")
+    NewController controller = context.createController(CONTROLLER_COMPONENTS)
       .setSince("4.2")
       .setDescription("Get information about a component (file, directory, project, ...) and its ancestors or descendants. " +
         "Update a project or module key.");

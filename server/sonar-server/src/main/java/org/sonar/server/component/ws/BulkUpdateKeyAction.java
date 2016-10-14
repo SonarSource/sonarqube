@@ -42,6 +42,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
@@ -65,7 +66,7 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("bulk_update_key")
+    WebService.NewAction action = context.createAction(ACTION_BULK_UPDATE_KEY)
       .setDescription("Bulk update a project or module key and all its sub-components keys. " +
         "The bulk update allows to replace a part of the current key by another string on the current project and all its sub-modules.<br>" +
         "It's possible to simulate the bulk update by setting the parameter '%s' at true. No key is updated with a dry run.<br>" +

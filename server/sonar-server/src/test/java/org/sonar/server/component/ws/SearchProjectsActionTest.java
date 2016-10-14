@@ -69,7 +69,7 @@ public class SearchProjectsActionTest {
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
 
-  WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client())));
+  WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client()), new SearchProjectsQueryBuilderValidator(dbClient)));
 
   SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 

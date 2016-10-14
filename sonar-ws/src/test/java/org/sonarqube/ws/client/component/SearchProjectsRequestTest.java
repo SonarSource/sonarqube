@@ -34,6 +34,15 @@ public class SearchProjectsRequestTest {
   SearchProjectsRequest.Builder underTest = SearchProjectsRequest.builder();
 
   @Test
+  public void filter_parameter() throws Exception {
+    SearchProjectsRequest result = underTest
+      .setFilter("ncloc > 10")
+      .build();
+
+    assertThat(result.getFilter()).isEqualTo("ncloc > 10");
+  }
+
+  @Test
   public void default_page_values() {
     SearchProjectsRequest result = underTest.build();
 

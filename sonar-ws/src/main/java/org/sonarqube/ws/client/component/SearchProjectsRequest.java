@@ -28,10 +28,16 @@ public class SearchProjectsRequest {
 
   private final int page;
   private final int pageSize;
+  private final String filter;
 
   private SearchProjectsRequest(Builder builder) {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
+    this.filter = builder.filter;
+  }
+
+  public String getFilter() {
+    return filter;
   }
 
   public int getPageSize() {
@@ -49,9 +55,15 @@ public class SearchProjectsRequest {
   public static class Builder {
     private Integer page;
     private Integer pageSize;
+    private String filter;
 
     private Builder() {
       // enforce static factory method
+    }
+
+    public Builder setFilter(String filter) {
+      this.filter = filter;
+      return this;
     }
 
     public Builder setPage(int page) {

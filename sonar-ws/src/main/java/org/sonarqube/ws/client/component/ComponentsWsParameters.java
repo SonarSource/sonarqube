@@ -20,13 +20,19 @@
 package org.sonarqube.ws.client.component;
 
 public class ComponentsWsParameters {
-  // actions
-  public static final String ACTION_TREE = "tree";
 
+  public static final String CONTROLLER_COMPONENTS = "api/components";
+
+  // actions
+  public static final String ACTION_SEARCH = "search";
+  public static final String ACTION_UPDATE_KEY = "update_key";
+  public static final String ACTION_TREE = "tree";
   public static final String ACTION_SHOW = "show";
+  public static final String ACTION_BULK_UPDATE_KEY = "bulk_update_key";
+  public static final String ACTION_SEARCH_PROJECTS = "search_projects";
+
   // parameters
   public static final String PARAM_QUALIFIERS = "qualifiers";
-
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
   public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
@@ -37,6 +43,7 @@ public class ComponentsWsParameters {
   public static final String PARAM_FROM = "from";
   public static final String PARAM_TO = "to";
   public static final String PARAM_DRY_RUN = "dryRun";
+  public static final String PARAM_FILTER = "filter";
 
   private ComponentsWsParameters() {
     // static utility class

@@ -32,6 +32,7 @@ import org.sonar.server.component.ComponentService;
 import org.sonarqube.ws.client.component.UpdateWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_KEY;
@@ -49,7 +50,7 @@ public class UpdateKeyAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("update_key")
+    WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
       .setDescription("Update a project or module key and all its sub-components keys.<br>" +
         "Either '%s' or '%s' must be provided, not both.<br> " +
         "Requires one of the following permissions: " +

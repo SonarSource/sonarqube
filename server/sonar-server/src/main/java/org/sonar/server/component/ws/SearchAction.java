@@ -45,6 +45,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -65,7 +66,7 @@ public class SearchAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search")
+    WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("5.2")
       .setInternal(true)
       .setDescription("Search for components")

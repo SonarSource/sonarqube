@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.component;
 
 import com.google.common.base.Joiner;
 import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
@@ -29,10 +30,17 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_BULK_UPDATE_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_UPDATE_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
@@ -44,15 +52,15 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
 public class ComponentsService extends BaseService {
 
   public ComponentsService(WsConnector wsConnector) {
-    super(wsConnector, "api/components");
+    super(wsConnector, CONTROLLER_COMPONENTS);
   }
 
   public SearchWsResponse search(SearchWsRequest request) {
-    GetRequest get = new GetRequest(path("search"))
-      .setParam("qualifiers", Joiner.on(",").join(request.getQualifiers()))
-      .setParam("p", request.getPage())
-      .setParam("ps", request.getPageSize())
-      .setParam("q", request.getQuery());
+    GetRequest get = new GetRequest(path(ACTION_SEARCH))
+      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))
+      .setParam(Param.PAGE, request.getPage())
+      .setParam(Param.PAGE_SIZE, request.getPageSize())
+      .setParam(Param.TEXT_QUERY, request.getQuery());
     return call(get, SearchWsResponse.parser());
   }
 
@@ -62,10 +70,10 @@ public class ComponentsService extends BaseService {
       .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_STRATEGY, request.getStrategy())
-      .setParam("p", request.getPage())
-      .setParam("ps", request.getPageSize())
-      .setParam("q", request.getQuery())
-      .setParam("s", request.getSort());
+      .setParam(Param.PAGE, request.getPage())
+      .setParam(Param.PAGE_SIZE, request.getPageSize())
+      .setParam(Param.TEXT_QUERY, request.getQuery())
+      .setParam(Param.SORT, request.getSort());
     return call(get, TreeWsResponse.parser());
   }
 
@@ -77,7 +85,7 @@ public class ComponentsService extends BaseService {
   }
 
   public void updateKey(UpdateWsRequest request) {
-    PostRequest post = new PostRequest(path("update_key"))
+    PostRequest post = new PostRequest(path(ACTION_UPDATE_KEY))
       .setParam(PARAM_ID, request.getId())
       .setParam(PARAM_KEY, request.getKey())
       .setParam(PARAM_NEW_KEY, request.getNewKey());
@@ -86,12 +94,20 @@ public class ComponentsService extends BaseService {
   }
 
   public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateWsRequest request) {
-    PostRequest post = new PostRequest(path("bulk_update_key"))
+    PostRequest post = new PostRequest(path(ACTION_BULK_UPDATE_KEY))
       .setParam(PARAM_ID, request.getId())
       .setParam(PARAM_KEY, request.getKey())
       .setParam(PARAM_FROM, request.getFrom())
       .setParam(PARAM_TO, request.getTo());
 
     return call(post, BulkUpdateKeyWsResponse.parser());
+  }
+
+  public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
+    GetRequest get = new GetRequest(path(ACTION_SEARCH_PROJECTS))
+      .setParam(PARAM_FILTER, request.getFilter())
+      .setParam(Param.PAGE, request.getPage())
+      .setParam(Param.PAGE_SIZE, request.getPageSize());
+    return call(get, SearchProjectsWsResponse.parser());
   }
 }
