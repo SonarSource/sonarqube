@@ -26,8 +26,8 @@ import org.apache.ibatis.annotations.Param;
 /**
  * Only the requests involving both user and group permissions.
  *
- * @see GroupPermissionMapper
- * @see UserPermissionMapper
+ * @see GroupPermissionMapper for CRUD of table group_roles
+ * @see UserPermissionMapper for CRUD of table user_roles
  */
 public interface PermissionMapper {
 

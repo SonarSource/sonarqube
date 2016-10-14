@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Set;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * @see AuthorizationDao
+ */
+public interface AuthorizationMapper {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 53);
-  }
+  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid,
+    @Param("userId") long userId);
+
+  Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
+
+  Set<String> selectRootComponentPermissions(@Param("rootComponentId") long rootComponentId, @Param("userId") long userId);
+
+  Set<String> selectRootComponentPermissionsOfAnonymous(@Param("rootComponentId") long rootComponentId);
+
 }

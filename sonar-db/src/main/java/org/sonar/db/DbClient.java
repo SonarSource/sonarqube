@@ -50,6 +50,7 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
+import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.UserPermissionDao;
@@ -79,6 +80,7 @@ public class DbClient {
 
   private final Database database;
   private final MyBatis myBatis;
+  private final AuthorizationDao authorizationDao;
   private final OrganizationDao organizationDao;
   private final QualityProfileDao qualityProfileDao;
   private final LoadedTemplateDao loadedTemplateDao;
@@ -140,6 +142,7 @@ public class DbClient {
     for (Dao dao : daos) {
       map.put(dao.getClass(), dao);
     }
+    authorizationDao = getDao(map, AuthorizationDao.class);
     organizationDao = getDao(map, OrganizationDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
     loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
@@ -204,6 +207,10 @@ public class DbClient {
 
   public Database getDatabase() {
     return database;
+  }
+
+  public AuthorizationDao authorizationDao() {
+    return authorizationDao;
   }
 
   public OrganizationDao organizationDao() {
