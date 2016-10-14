@@ -35,7 +35,7 @@ import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.db.permission.PermissionDao;
+import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
@@ -56,13 +56,13 @@ public class IssueFilterService {
   private final IssueFilterDao filterDao;
   private final IssueFilterFavouriteDao favouriteDao;
   private final IssueIndex issueIndex;
-  private final PermissionDao permissionDao;
+  private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer serializer;
 
   public IssueFilterService(DbClient dbClient, IssueIndex issueIndex, IssueFilterSerializer serializer) {
     this.filterDao = dbClient.issueFilterDao();
     this.favouriteDao = dbClient.issueFilterFavouriteDao();
-    this.permissionDao = dbClient.permissionDao();
+    this.authorizationDao = dbClient.authorizationDao();
     this.issueIndex = issueIndex;
     this.serializer = serializer;
   }
@@ -303,7 +303,7 @@ public class IssueFilterService {
   }
 
   private boolean isAdmin(String user) {
-    return permissionDao.selectGlobalPermissions(user).contains(GlobalPermissions.SYSTEM_ADMIN);
+    return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private static IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
