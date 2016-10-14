@@ -28,10 +28,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
@@ -320,6 +322,35 @@ public class ServerUserSessionTest {
     assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
     assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isFalse();
     assertThat(session.hasComponentPermission(UserRole.ADMIN, FILE_KEY)).isFalse();
+  }
+
+  @Test
+  public void checkOrganizationPermission_fails_with_ForbiddenException_when_user_has_no_permissions_on_organization() {
+    expectInsufficientPrivilegesForbiddenException();
+
+    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission("org-uuid", "perm1");
+  }
+
+  @Test
+  public void hasOrganizationPermission_for_logged_in_user() {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
+
+    UserSession session = newUserSession(userDto);
+    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN)).isFalse();
+    assertThat(session.hasOrganizationPermission("another-org", GlobalPermissions.PROVISIONING)).isFalse();
+  }
+
+  @Test
+  public void hasOrganizationPermission_for_anonymous_user() {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    db.users().insertPermissionOnAnyone(org, GlobalPermissions.PROVISIONING);
+
+    UserSession session = newAnonymousSession();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN)).isFalse();
+    assertThat(session.hasOrganizationPermission("another-org", GlobalPermissions.PROVISIONING)).isFalse();
   }
 
   private ServerUserSession newUserSession(UserDto userDto) {
