@@ -34,7 +34,7 @@ import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Arrays.asList;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministratorOfProjectOrOrganization;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -82,7 +82,7 @@ public class AddUserAction implements PermissionsWsAction {
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
 
-      checkAdministratorOfProjectOrOrganization(userSession, org.getUuid(), projectId);
+      checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,

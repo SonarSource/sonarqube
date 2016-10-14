@@ -46,7 +46,7 @@ import static java.util.Collections.emptyList;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -87,7 +87,7 @@ public class GroupsAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
-      checkAdministrationPermission(userSession, projectId);
+      checkProjectAdmin(userSession, projectId);
 
       PermissionQuery query = buildPermissionQuery(request, projectId);
       // TODO validatePermission(groupsRequest.getPermission(), wsProjectRef);
