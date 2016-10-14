@@ -40,7 +40,7 @@ import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse.Project;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
@@ -63,7 +63,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
 
   public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
-                                        SearchProjectPermissionsDataLoader dataLoader, PermissionWsSupport wsSupport) {
+    SearchProjectPermissionsDataLoader dataLoader, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
@@ -126,7 +126,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     } else {
       projectId = Optional.empty();
     }
-    checkAdministrationPermission(userSession, projectId);
+    checkProjectAdmin(userSession, projectId);
   }
 
   private SearchProjectPermissionsWsResponse buildResponse(SearchProjectPermissionsData data) {

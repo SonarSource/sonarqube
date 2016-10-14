@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkAdministrationPermission;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
@@ -79,7 +79,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       GroupIdOrAnyone group = support.findGroup(dbSession, request);
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
 
-      checkAdministrationPermission(userSession, projectId);
+      checkProjectAdmin(userSession, projectId);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,

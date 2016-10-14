@@ -43,7 +43,26 @@ public class PermissionPrivilegeChecker {
     }
   }
 
-  public static void checkAdministrationPermission(UserSession userSession, Optional<ProjectId> projectId) {
+  /**
+   * Checks that user is administrator of the specified project, or of the specified organization if project is not
+   * defined.
+   * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
+   */
+  public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectId> projectId) {
+    userSession.checkLoggedIn();
+    if (!projectId.isPresent() || !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid())) {
+      userSession.checkOrganizationPermission(organizationUuid, GlobalPermissions.SYSTEM_ADMIN);
+    }
+  }
+
+  /**
+   * Checks that user is administrator of the specified project, or of system if project is not
+   * defined.
+   * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
+   * @deprecated does not support organizations. Replaced by {@link #checkProjectAdmin(UserSession, String, Optional)}
+   */
+  @Deprecated
+  public static void checkProjectAdmin(UserSession userSession, Optional<ProjectId> projectId) {
     userSession.checkLoggedIn();
     if (!projectId.isPresent() || !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid())) {
       userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
