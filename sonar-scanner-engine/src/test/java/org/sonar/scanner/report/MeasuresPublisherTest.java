@@ -28,27 +28,27 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.MeasuresPublisher;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MeasuresPublisherTest {
+
+  private static final String FILE_KEY = "foo:src/Foo.php";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -65,22 +65,22 @@ public class MeasuresPublisherTest {
   public void prepare() {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
     BatchComponentCache resourceCache = new BatchComponentCache();
-    sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
+    sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey(FILE_KEY);
     resourceCache.add(p, null);
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
-    when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());
+    when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
     publisher = new MeasuresPublisher(resourceCache, measureCache, new ScannerMetrics());
   }
 
   @Test
   public void publishMeasures() throws Exception {
-    Measure measure = new Measure<>(CoreMetrics.LINES_TO_COVER)
-      .setValue(2.0);
+    DefaultMeasure<Integer> measure = new DefaultMeasure<Integer>().forMetric(CoreMetrics.LINES_TO_COVER)
+      .withValue(2);
     // String value
-    Measure stringMeasure = new Measure<>(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
-      .setData("foo bar");
-    when(measureCache.byResource(sampleFile)).thenReturn(asList(measure, stringMeasure));
+    DefaultMeasure<String> stringMeasure = new DefaultMeasure<String>().forMetric(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
+      .withValue("foo bar");
+    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(asList(measure, stringMeasure));
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
@@ -97,8 +97,8 @@ public class MeasuresPublisherTest {
 
   @Test
   public void fail_with_IAE_when_measure_has_no_value() throws Exception {
-    Measure measure = new Measure<>(CoreMetrics.LINES_TO_COVER);
-    when(measureCache.byResource(sampleFile)).thenReturn(Collections.singletonList(measure));
+    DefaultMeasure<Integer> measure = new DefaultMeasure<Integer>().forMetric(CoreMetrics.LINES_TO_COVER);
+    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(Collections.singletonList(measure));
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

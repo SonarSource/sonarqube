@@ -28,9 +28,9 @@ import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 import org.sonar.scanner.scan.measure.MeasureCache;
@@ -152,8 +152,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   private Map loadData(String metricKey, Converter converter) {
-    Measure measure = measureCache.byMetric(inputFile.key(), metricKey);
-    String data = measure != null ? measure.getData() : null;
+    DefaultMeasure<?> measure = measureCache.byMetric(inputFile.key(), metricKey);
+    String data = measure != null ? (String) measure.value() : null;
     if (data != null) {
       return ImmutableMap.copyOf(KeyValueFormat.parse(data, KeyValueFormat.newIntegerConverter(), converter));
     }

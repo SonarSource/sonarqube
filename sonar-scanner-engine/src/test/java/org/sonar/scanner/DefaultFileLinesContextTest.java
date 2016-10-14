@@ -27,9 +27,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.scanner.DefaultFileLinesContext;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,7 +145,7 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void shouldLoadIntValues() {
-    when(measureCache.byMetric("foo:src/foo.php", HITS_METRIC_KEY)).thenReturn(new Measure(HITS_METRIC_KEY).setData("1=2;3=4"));
+    when(measureCache.byMetric("foo:src/foo.php", HITS_METRIC_KEY)).thenReturn(new DefaultMeasure().withValue("1=2;3=4"));
 
     assertThat(fileLineMeasures.getIntValue(HITS_METRIC_KEY, 1), is(2));
     assertThat(fileLineMeasures.getIntValue(HITS_METRIC_KEY, 3), is(4));
@@ -155,7 +154,7 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void shouldLoadStringValues() {
-    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new Measure(AUTHOR_METRIC_KEY).setData("1=simon;3=evgeny"));
+    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new DefaultMeasure().withValue("1=simon;3=evgeny"));
 
     assertThat(fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 1), is("simon"));
     assertThat(fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 3), is("evgeny"));
@@ -164,7 +163,7 @@ public class DefaultFileLinesContextTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void shouldNotModifyAfterLoad() {
-    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new Measure(AUTHOR_METRIC_KEY).setData("1=simon;3=evgeny"));
+    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new DefaultMeasure().withValue("1=simon;3=evgeny"));
 
     fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 1);
     fileLineMeasures.setStringValue(AUTHOR_METRIC_KEY, 1, "evgeny");

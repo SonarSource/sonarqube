@@ -26,15 +26,15 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.Builder;
-import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.measure.MeasureCache;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
@@ -112,7 +112,7 @@ public class CoveragePublisher implements ReportPublisherStep {
   }
 
   void applyLineMeasure(String inputFileKey, int lineCount, String metricKey, Map<Integer, LineCoverage.Builder> coveragePerLine, MeasureOperation op) {
-    Measure measure = measureCache.byMetric(inputFileKey, metricKey);
+    DefaultMeasure<?> measure = measureCache.byMetric(inputFileKey, metricKey);
     if (measure != null) {
       Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
       for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {

@@ -37,16 +37,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.DefaultProjectTree;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
@@ -58,15 +63,17 @@ public class DefaultIndex {
   private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
   private final DefaultProjectTree projectTree;
+  private final MetricFinder metricFinder;
   // caches
   private DefaultSensorStorage sensorStorage;
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
 
-  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache) {
+  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache, MetricFinder metricFinder) {
     this.componentCache = componentCache;
     this.projectTree = projectTree;
     this.measureCache = measureCache;
+    this.metricFinder = metricFinder;
   }
 
   public void start() {
@@ -143,25 +150,83 @@ public class DefaultIndex {
     if (indexedResource == null) {
       return null;
     }
-    Collection<Measure> unfiltered = new ArrayList<>();
+    Collection<DefaultMeasure<?>> unfiltered = new ArrayList<>();
     if (filter instanceof MeasuresFilters.MetricFilter) {
       // optimization
-      Measure byMetric = measureCache.byMetric(indexedResource, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+      DefaultMeasure<?> byMetric = measureCache.byMetric(indexedResource.getEffectiveKey(), ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
       if (byMetric != null) {
         unfiltered.add(byMetric);
       }
     } else {
-      for (Measure measure : measureCache.byResource(indexedResource)) {
+      for (DefaultMeasure<?> measure : measureCache.byComponentKey(indexedResource.getEffectiveKey())) {
         unfiltered.add(measure);
       }
     }
-    return filter.filter(unfiltered);
+    return filter.filter(unfiltered.stream().map(DefaultIndex::toDeprecated).collect(Collectors.toList()));
+  }
+
+  private static Measure toDeprecated(org.sonar.api.batch.sensor.measure.Measure<?> measure) {
+    org.sonar.api.measures.Measure deprecatedMeasure = new org.sonar.api.measures.Measure((Metric<?>) measure.metric());
+    setValueAccordingToMetricType(measure, deprecatedMeasure);
+    return deprecatedMeasure;
+  }
+
+  private static void setValueAccordingToMetricType(org.sonar.api.batch.sensor.measure.Measure<?> measure, Measure measureToSave) {
+    ValueType deprecatedType = ((Metric<?>) measure.metric()).getType();
+    switch (deprecatedType) {
+      case BOOL:
+        measureToSave.setValue(Boolean.TRUE.equals(measure.value()) ? 1.0 : 0.0);
+        break;
+      case INT:
+      case MILLISEC:
+      case WORK_DUR:
+      case FLOAT:
+      case PERCENT:
+      case RATING:
+        measureToSave.setValue(((Number) measure.value()).doubleValue());
+        break;
+      case STRING:
+      case LEVEL:
+      case DATA:
+      case DISTRIB:
+        measureToSave.setData((String) measure.value());
+        break;
+      default:
+        throw new UnsupportedOperationException("Unsupported type :" + deprecatedType);
+    }
   }
 
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
-      sensorStorage.saveMeasure(resource, measure);
+      if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
+        // Ignore deprecated metrics
+        return measure;
+      }
+      org.sonar.api.batch.measure.Metric<?> metric = metricFinder.findByKey(measure.getMetricKey());
+      if (metric == null) {
+        throw new UnsupportedOperationException("Unknown metric: " + measure.getMetricKey());
+      }
+      DefaultMeasure<?> newMeasure;
+      if (Boolean.class.equals(metric.valueType())) {
+        newMeasure = new DefaultMeasure<Boolean>().forMetric((Metric<Boolean>) metric)
+          .withValue(measure.getValue() != 0.0);
+      } else if (Integer.class.equals(metric.valueType())) {
+        newMeasure = new DefaultMeasure<Integer>().forMetric((Metric<Integer>) metric)
+          .withValue(measure.getValue().intValue());
+      } else if (Double.class.equals(metric.valueType())) {
+        newMeasure = new DefaultMeasure<Double>().forMetric((Metric<Double>) metric)
+          .withValue(measure.getValue().doubleValue());
+      } else if (String.class.equals(metric.valueType())) {
+        newMeasure = new DefaultMeasure<String>().forMetric((Metric<String>) metric)
+          .withValue(measure.getData());
+      } else if (Long.class.equals(metric.valueType())) {
+        newMeasure = new DefaultMeasure<Long>().forMetric((Metric<Long>) metric)
+          .withValue(measure.getValue().longValue());
+      } else {
+        throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
+      }
+      sensorStorage.saveMeasure(componentCache.get(resource).inputComponent(), newMeasure);
     }
     return measure;
   }

@@ -23,11 +23,10 @@ import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Caches;
 import org.sonar.scanner.index.Cache.Entry;
+import org.sonar.scanner.index.Caches;
 
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
@@ -35,50 +34,41 @@ import org.sonar.scanner.index.Cache.Entry;
 @ScannerSide
 public class MeasureCache {
 
-  private final Cache<Measure> cache;
+  private final Cache<DefaultMeasure<?>> cache;
 
   public MeasureCache(Caches caches, MetricFinder metricFinder) {
-    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder));
+    caches.registerValueCoder(DefaultMeasure.class, new MeasureValueCoder(metricFinder));
     cache = caches.createCache("measures");
   }
 
-  public Iterable<Entry<Measure>> entries() {
+  public Iterable<Entry<DefaultMeasure<?>>> entries() {
     return cache.entries();
   }
 
-  public Iterable<Measure> all() {
+  public Iterable<DefaultMeasure<?>> all() {
     return cache.values();
   }
 
-  public Iterable<Measure> byResource(Resource r) {
-    return byComponentKey(r.getEffectiveKey());
-  }
-
-  public Iterable<Measure> byComponentKey(String effectiveKey) {
+  public Iterable<DefaultMeasure<?>> byComponentKey(String effectiveKey) {
     return cache.values(effectiveKey);
   }
 
   @CheckForNull
-  public Measure byMetric(Resource r, String metricKey) {
-    return byMetric(r.getEffectiveKey(), metricKey);
-  }
-
-  @CheckForNull
-  public Measure byMetric(String componentKey, String metricKey) {
+  public DefaultMeasure<?> byMetric(String componentKey, String metricKey) {
     return cache.get(componentKey, metricKey);
   }
 
-  public MeasureCache put(Resource resource, Measure measure) {
-    Preconditions.checkNotNull(resource.getEffectiveKey());
-    Preconditions.checkNotNull(measure.getMetricKey());
-    cache.put(resource.getEffectiveKey(), measure.getMetricKey(), measure);
+  public MeasureCache put(String componentKey, String metricKey, DefaultMeasure<?> measure) {
+    Preconditions.checkNotNull(componentKey);
+    Preconditions.checkNotNull(metricKey);
+    cache.put(componentKey, metricKey, measure);
     return this;
   }
 
-  public boolean contains(Resource resource, Measure measure) {
-    Preconditions.checkNotNull(resource.getEffectiveKey());
-    Preconditions.checkNotNull(measure.getMetricKey());
-    return cache.containsKey(resource.getEffectiveKey(), measure.getMetricKey());
+  public boolean contains(String componentKey, String metricKey) {
+    Preconditions.checkNotNull(componentKey);
+    Preconditions.checkNotNull(metricKey);
+    return cache.containsKey(componentKey, metricKey);
   }
 
 }

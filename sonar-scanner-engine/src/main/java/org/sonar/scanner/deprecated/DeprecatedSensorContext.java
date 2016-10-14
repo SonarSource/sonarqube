@@ -42,20 +42,17 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.sensor.DefaultSensorContext;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
 
   private final DefaultIndex index;
   private final Project project;
-  private final CoverageExclusions coverageFilter;
 
   public DeprecatedSensorContext(InputModule module, DefaultIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, CoverageExclusions coverageFilter, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     super(module, settings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
     this.index = index;
     this.project = project;
-    this.coverageFilter = coverageFilter;
 
   }
 
@@ -124,19 +121,13 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public Measure saveMeasure(Resource resource, Metric metric, Double value) {
     Measure<?> measure = new Measure(metric, value);
-    coverageFilter.validate(measure, resource.getPath());
     return saveMeasure(resource, measure);
   }
 
   @Override
   public Measure saveMeasure(Resource resource, Measure measure) {
     Resource resourceOrProject = resourceOrProject(resource);
-
-    if (coverageFilter.accept(resourceOrProject, measure)) {
-      return index.addMeasure(resourceOrProject, measure);
-    } else {
-      return measure;
-    }
+    return index.addMeasure(resourceOrProject, measure);
   }
 
   @Override
@@ -155,13 +146,11 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public Measure saveMeasure(InputFile inputFile, Metric metric, Double value) {
     Measure<?> measure = new Measure(metric, value);
-    coverageFilter.validate(measure, inputFile);
     return saveMeasure(getResource(inputFile), measure);
   }
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Measure measure) {
-    coverageFilter.validate(measure, inputFile);
     return saveMeasure(getResource(inputFile), measure);
   }
 

@@ -34,8 +34,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
@@ -46,10 +46,10 @@ import static com.google.common.collect.Sets.newHashSet;
 @Phase(name = Phase.Name.POST)
 public final class ZeroCoverageSensor implements Sensor {
 
-  private static final class MeasureToMetricKey implements Function<Measure, String> {
+  private static final class MeasureToMetricKey implements Function<DefaultMeasure<?>, String> {
     @Override
-    public String apply(Measure input) {
-      return input.getMetricKey();
+    public String apply(DefaultMeasure<?> input) {
+      return input.metric().key();
     }
   }
 
@@ -76,7 +76,7 @@ public final class ZeroCoverageSensor implements Sensor {
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
       if (!isCoverageMeasuresAlreadyDefined(f)) {
-        Measure execLines = measureCache.byMetric(f.key(), CoreMetrics.EXECUTABLE_LINES_DATA_KEY);
+        DefaultMeasure<String> execLines = (DefaultMeasure<String>) measureCache.byMetric(f.key(), CoreMetrics.EXECUTABLE_LINES_DATA_KEY);
         if (execLines != null) {
           storeZeroCoverageForEachExecutableLine(context, f, execLines);
         }
@@ -85,8 +85,8 @@ public final class ZeroCoverageSensor implements Sensor {
     }
   }
 
-  private static void storeZeroCoverageForEachExecutableLine(final SensorContext context, InputFile f, Measure execLines) {
-    NewCoverage newCoverage = context.newCoverage().ofType(CoverageType.UNIT).onFile(f);
+  private static void storeZeroCoverageForEachExecutableLine(final SensorContext context, InputFile f, DefaultMeasure<String> execLines) {
+    NewCoverage newCoverage = context.newCoverage().onFile(f);
     Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) execLines.value());
     for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
       int lineIdx = lineMeasure.getKey();

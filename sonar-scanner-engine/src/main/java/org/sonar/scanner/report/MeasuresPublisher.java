@@ -20,12 +20,10 @@
 package org.sonar.scanner.report;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import java.io.Serializable;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.measures.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
@@ -35,16 +33,14 @@ import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.IntValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.LongValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
-import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.measure.MeasureCache;
 
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Sets.newHashSet;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
-  private static final class MeasureToReportMeasure implements Function<Measure, ScannerReport.Measure> {
+  private static final class MeasureToReportMeasure implements Function<DefaultMeasure, ScannerReport.Measure> {
     private final BatchComponent resource;
     private final ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
 
@@ -53,67 +49,42 @@ public class MeasuresPublisher implements ReportPublisherStep {
     }
 
     @Override
-    public ScannerReport.Measure apply(@Nonnull Measure input) {
+    public ScannerReport.Measure apply(@Nonnull DefaultMeasure input) {
       validateMeasure(input, resource.key());
       return toReportMeasure(builder, input);
     }
 
-    private static void validateMeasure(Measure measure, String componentKey) {
-      if (measure.getValue() == null && measure.getData() == null) {
-        throw new IllegalArgumentException(String.format("Measure on metric '%s' and component '%s' has no value, but it's not allowed", measure.getMetricKey(), componentKey));
+    private static void validateMeasure(DefaultMeasure measure, String componentKey) {
+      if (measure.value() == null) {
+        throw new IllegalArgumentException(String.format("Measure on metric '%s' and component '%s' has no value, but it's not allowed", measure.metric().key(), componentKey));
       }
     }
 
-    private ScannerReport.Measure toReportMeasure(ScannerReport.Measure.Builder builder, Measure measure) {
+    private static ScannerReport.Measure toReportMeasure(ScannerReport.Measure.Builder builder, DefaultMeasure measure) {
       builder.clear();
-      builder.setMetricKey(measure.getMetricKey());
+      builder.setMetricKey(measure.metric().key());
       setValueAccordingToType(builder, measure);
       return builder.build();
     }
 
-    private void setValueAccordingToType(ScannerReport.Measure.Builder builder, Measure measure) {
+    private static void setValueAccordingToType(ScannerReport.Measure.Builder builder, DefaultMeasure measure) {
       Serializable value = measure.value();
-      String data = measure.getData() != null ? measure.getData() : "";
-      switch (measure.getMetric().getType()) {
-        case INT:
-        case RATING:
-          builder.setIntValue(IntValue.newBuilder().setValue(((Number) value).intValue()).setData(data));
-          break;
-        case FLOAT:
-        case PERCENT:
-          builder.setDoubleValue(DoubleValue.newBuilder().setValue(((Number) value).doubleValue()).setData(data));
-          break;
-        case BOOL:
-          builder.setBooleanValue(BoolValue.newBuilder().setValue(((Boolean) value).booleanValue()).setData(data));
-          break;
-        case WORK_DUR:
-        case MILLISEC:
-          builder.setLongValue(LongValue.newBuilder().setValue(((Number) value).longValue()).setData(data));
-          break;
-        case STRING:
-        case DATA:
-        case LEVEL:
-        case DISTRIB:
-          builder.setStringValue(StringValue.newBuilder().setValue((String) value));
-          break;
-        default:
-          throw new IllegalStateException("Unknown metric type: " + measure.getMetric().getType());
+      Metric<?> metric = measure.metric();
+      if (Boolean.class.equals(metric.valueType())) {
+        builder.setBooleanValue(BoolValue.newBuilder().setValue(((Boolean) value).booleanValue()));
+      } else if (Integer.class.equals(metric.valueType())) {
+        builder.setIntValue(IntValue.newBuilder().setValue(((Number) value).intValue()));
+      } else if (Double.class.equals(metric.valueType())) {
+        builder.setDoubleValue(DoubleValue.newBuilder().setValue(((Number) value).doubleValue()));
+      } else if (String.class.equals(metric.valueType())) {
+        builder.setStringValue(StringValue.newBuilder().setValue((String) value));
+      } else if (Long.class.equals(metric.valueType())) {
+        builder.setLongValue(LongValue.newBuilder().setValue(((Number) value).longValue()));
+      } else {
+        throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
       }
     }
 
-  }
-
-  private static final class IsMetricAllowed implements Predicate<Measure> {
-    private final Set<String> allowedMetricKeys;
-
-    private IsMetricAllowed(Set<String> allowedMetricKeys) {
-      this.allowedMetricKeys = allowedMetricKeys;
-    }
-
-    @Override
-    public boolean apply(Measure input) {
-      return allowedMetricKeys.contains(input.getMetricKey());
-    }
   }
 
   private static final class MetricToKey implements Function<Metric, String> {
@@ -135,12 +106,9 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    final Set<String> allowedMetricKeys = newHashSet(transform(scannerMetrics.getMetrics(), new MetricToKey()));
     for (final BatchComponent resource : resourceCache.all()) {
-      Iterable<Measure> batchMeasures = measureCache.byResource(resource.resource());
-      Iterable<org.sonar.scanner.protocol.output.ScannerReport.Measure> reportMeasures = transform(
-        filter(batchMeasures, new IsMetricAllowed(allowedMetricKeys)),
-        new MeasureToReportMeasure(resource));
+      Iterable<DefaultMeasure<?>> scannerMeasures = measureCache.byComponentKey(resource.key());
+      Iterable<ScannerReport.Measure> reportMeasures = transform(scannerMeasures, new MeasureToReportMeasure(resource));
       writer.writeComponentMeasures(resource.batchId(), reportMeasures);
     }
   }

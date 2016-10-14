@@ -59,7 +59,7 @@ public class CoverageMediumTest {
   }
 
   @Test
-  public void unitTests() throws IOException {
+  public void singleReport() throws IOException {
 
     File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
@@ -89,6 +89,46 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(1);
     assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
     assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+
+    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0),
+        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1));
+  }
+
+  @Test
+  public void twoReports() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
+    FileUtils.write(xooUtCoverageFile, "2:2:2:2");
+    File xooItCoverageFile = new File(srcDir, "sample.xoo.itcoverage");
+    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    InputFile file = result.inputFile("src/sample.xoo");
+    assertThat(result.coverageFor(file, 2).getUtHits()).isTrue();
+    assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
+    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(2);
+    assertThat(result.coverageFor(file, 3).getUtHits()).isTrue();
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")

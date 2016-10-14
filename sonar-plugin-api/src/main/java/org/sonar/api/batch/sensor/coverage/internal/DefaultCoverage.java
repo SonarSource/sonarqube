@@ -139,7 +139,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   @Override
   public void doSave() {
     validateFile();
-    Preconditions.checkNotNull(type, "Call ofType() first");
     storage.store(this);
   }
 

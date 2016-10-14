@@ -24,13 +24,11 @@ import com.persistit.Exchange;
 import com.persistit.Key;
 import com.persistit.KeyFilter;
 import com.persistit.exception.PersistitException;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * <p>
@@ -73,7 +71,7 @@ public class Cache<V> {
       exchange.store();
       return this;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to put element in the cache " + name, e);
+      throw new IllegalStateException("Fail to put element in the storage '" + name + "'", e);
     }
   }
 

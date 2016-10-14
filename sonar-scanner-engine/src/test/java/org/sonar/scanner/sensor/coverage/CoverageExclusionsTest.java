@@ -19,124 +19,41 @@
  */
 package org.sonar.scanner.sensor.coverage;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.config.ExclusionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CoverageExclusionsTest {
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   private Settings settings;
-  private DefaultFileSystem fs;
-
-  private CoverageExclusions filter;
+  private CoverageExclusions coverageExclusions;
 
   @Before
-  public void createFilter() {
+  public void prepare() {
     settings = new MapSettings(new PropertyDefinitions(ExclusionProperties.all()));
-    fs = new DefaultFileSystem(temp.getRoot());
-    filter = new CoverageExclusions(settings, fs);
+    coverageExclusions = new CoverageExclusions(settings);
   }
 
   @Test
-  public void shouldValidateStrictlyPositiveLine() {
-    DefaultInputFile file = new DefaultInputFile("module", "testfile");
-    Measure measure = mock(Measure.class);
-    Map<Integer, Integer> map = ImmutableMap.of(0, 3);
-
-    String data = KeyValueFormat.format(map);
-    when(measure.getMetric()).thenReturn(CoreMetrics.IT_CONDITIONS_BY_LINE);
-    when(measure.getData()).thenReturn(data);
-
-    fs.add(file);
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("must be > 0");
-    filter.validate(measure, "testfile");
-  }
-
-  @Test
-  public void shouldValidateFileExists() {
-    DefaultInputFile file = new DefaultInputFile("module", "testfile");
-    Measure measure = mock(Measure.class);
-    Map<Integer, Integer> map = ImmutableMap.of(0, 3);
-
-    String data = KeyValueFormat.format(map);
-    when(measure.getMetric()).thenReturn(CoreMetrics.IT_CONDITIONS_BY_LINE);
-    when(measure.getData()).thenReturn(data);
-
-    fs.add(file);
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("resource is not indexed as a file");
-    filter.validate(measure, "dummy");
-  }
-
-  @Test
-  public void shouldValidateMaxLine() {
-    DefaultInputFile file = new DefaultInputFile("module", "testfile");
-    file.setLines(10);
-    Measure measure = mock(Measure.class);
-    Map<Integer, Integer> map = ImmutableMap.of(11, 3);
-
-    String data = KeyValueFormat.format(map);
-    when(measure.getMetric()).thenReturn(CoreMetrics.COVERED_CONDITIONS_BY_LINE);
-    when(measure.getData()).thenReturn(data);
-
-    exception.expect(IllegalStateException.class);
-    filter.validate(measure, file);
-  }
-
-  @Test
-  public void shouldNotFilterNonCoverageMetrics() {
-    Measure otherMeasure = mock(Measure.class);
-    when(otherMeasure.getMetric()).thenReturn(CoreMetrics.LINES);
-    assertThat(filter.accept(mock(Resource.class), otherMeasure)).isTrue();
-  }
-
-  @Test
-  public void shouldFilterFileBasedOnPattern() {
-    Resource resource = File.create("src/org/polop/File.php", null, false);
-    Measure coverageMeasure = mock(Measure.class);
-    when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.LINES_TO_COVER);
-
+  public void shouldExcludeFileBasedOnPattern() {
+    InputFile file = new DefaultInputFile("foo", "src/org/polop/File.php");
     settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
-    filter.initPatterns();
-    assertThat(filter.accept(resource, coverageMeasure)).isFalse();
+    coverageExclusions.initPatterns();
+    assertThat(coverageExclusions.isExcluded(file)).isTrue();
   }
 
   @Test
-  public void shouldNotFilterFileBasedOnPattern() {
-    Resource resource = File.create("src/org/polop/File.php", null, false);
-    Measure coverageMeasure = mock(Measure.class);
-    when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.COVERAGE);
-
+  public void shouldNotExcludeFileBasedOnPattern() {
+    InputFile file = new DefaultInputFile("foo", "src/org/polop/File.php");
     settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
-    filter.initPatterns();
-    assertThat(filter.accept(resource, coverageMeasure)).isTrue();
+    coverageExclusions.initPatterns();
+    assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
 }

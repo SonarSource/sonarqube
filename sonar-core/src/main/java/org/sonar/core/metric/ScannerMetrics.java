@@ -19,19 +19,17 @@
  */
 package org.sonar.core.metric;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
@@ -44,31 +42,18 @@ import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
+import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA;
 import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC;
-import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.IT_COVERAGE_LINE_HITS_DATA;
-import static org.sonar.api.measures.CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.IT_LINES_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_CONDITIONS;
-import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_LINES;
 import static org.sonar.api.measures.CoreMetrics.LINES;
 import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_LINES_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API;
 import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS;
@@ -129,21 +114,7 @@ public class ScannerMetrics {
     COVERED_CONDITIONS_BY_LINE,
     CONDITIONS_BY_LINE,
 
-    IT_LINES_TO_COVER,
-    IT_UNCOVERED_LINES,
-    IT_COVERAGE_LINE_HITS_DATA,
-    IT_CONDITIONS_TO_COVER,
-    IT_UNCOVERED_CONDITIONS,
-    IT_COVERED_CONDITIONS_BY_LINE,
-    IT_CONDITIONS_BY_LINE,
-
-    OVERALL_LINES_TO_COVER,
-    OVERALL_UNCOVERED_LINES,
-    OVERALL_COVERAGE_LINE_HITS_DATA,
-    OVERALL_CONDITIONS_TO_COVER,
-    OVERALL_UNCOVERED_CONDITIONS,
-    OVERALL_COVERED_CONDITIONS_BY_LINE,
-    OVERALL_CONDITIONS_BY_LINE);
+    EXECUTABLE_LINES_DATA);
 
   private final Set<Metric> metrics;
 
@@ -160,16 +131,9 @@ public class ScannerMetrics {
   }
 
   private static Iterable<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
-    return from(asList(metricsRepositories)).transformAndConcat(FlattenMetrics.INSTANCE);
-  }
-
-  private enum FlattenMetrics implements Function<Metrics, List<Metric>> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public List<Metric> apply(Metrics input) {
-      return input.getMetrics();
-    }
+    return Arrays.stream(metricsRepositories)
+      .map(Metrics::getMetrics)
+      .flatMap(List::stream)
+      .collect(Collectors.toList());
   }
 }

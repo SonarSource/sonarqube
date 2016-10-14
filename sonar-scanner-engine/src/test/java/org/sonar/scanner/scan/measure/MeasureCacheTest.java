@@ -19,21 +19,14 @@
  */
 package org.sonar.scanner.scan.measure;
 
-import java.util.Date;
 import java.util.Iterator;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric.Level;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.scanner.index.AbstractCachesTest;
 import org.sonar.scanner.index.Cache.Entry;
 
@@ -42,6 +35,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MeasureCacheTest extends AbstractCachesTest {
+
+  private static final String COMPONENT_KEY = "struts";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -54,60 +50,28 @@ public class MeasureCacheTest extends AbstractCachesTest {
     super.start();
     metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.<String>findByKey(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(CoreMetrics.COVERAGE_LINE_HITS_DATA);
     measureCache = new MeasureCache(caches, metricFinder);
   }
 
   @Test
   public void should_add_measure() {
-    Project p = new Project("struts");
-
     assertThat(measureCache.entries()).hasSize(0);
-    assertThat(measureCache.byResource(p)).hasSize(0);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY)).hasSize(0);
 
-    Measure m = new Measure(CoreMetrics.NCLOC, 1.0);
-    measureCache.put(p, m);
+    DefaultMeasure<?> m = new DefaultMeasure().forMetric(CoreMetrics.NCLOC).withValue(1.0);
+    measureCache.put(COMPONENT_KEY, CoreMetrics.NCLOC_KEY, m);
 
-    assertThat(measureCache.contains(p, m)).isTrue();
+    assertThat(measureCache.contains(COMPONENT_KEY, CoreMetrics.NCLOC_KEY)).isTrue();
     assertThat(measureCache.entries()).hasSize(1);
-    Iterator<Entry<Measure>> iterator = measureCache.entries().iterator();
+    Iterator<Entry<DefaultMeasure<?>>> iterator = measureCache.entries().iterator();
     iterator.hasNext();
-    Entry<Measure> next = iterator.next();
+    Entry<DefaultMeasure<?>> next = iterator.next();
     assertThat(next.value()).isEqualTo(m);
-    assertThat(next.key()[0]).isEqualTo("struts");
+    assertThat(next.key()[0]).isEqualTo(COMPONENT_KEY);
 
-    assertThat(measureCache.byResource(p)).hasSize(1);
-    assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
-  }
-
-  @Test
-  public void should_add_measure_with_big_data() {
-    Project p = new Project("struts");
-
-    assertThat(measureCache.entries()).hasSize(0);
-
-    assertThat(measureCache.byResource(p)).hasSize(0);
-
-    Measure m = new Measure(CoreMetrics.NCLOC, 1.0).setDate(new Date());
-    m.setAlertText("foooooooooooooooooooooooooooooooooooo");
-    StringBuilder data = new StringBuilder();
-    for (int i = 0; i < 1_048_575; i++) {
-      data.append("a");
-    }
-
-    m.setData(data.toString());
-
-    measureCache.put(p, m);
-
-    assertThat(measureCache.contains(p, m)).isTrue();
-    assertThat(measureCache.entries()).hasSize(1);
-    Iterator<Entry<Measure>> iterator = measureCache.entries().iterator();
-    iterator.hasNext();
-    Entry<Measure> next = iterator.next();
-    assertThat(next.value()).isEqualTo(m);
-    assertThat(next.key()[0]).isEqualTo("struts");
-
-    assertThat(measureCache.byResource(p)).hasSize(1);
-    assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY)).hasSize(1);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY).iterator().next()).isEqualTo(m);
   }
 
   /**
@@ -115,117 +79,84 @@ public class MeasureCacheTest extends AbstractCachesTest {
    */
   @Test
   public void should_add_measure_with_too_big_data_for_persistit_pre_patch() {
-    Project p = new Project("struts");
-
     assertThat(measureCache.entries()).hasSize(0);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY)).hasSize(0);
 
-    assertThat(measureCache.byResource(p)).hasSize(0);
-
-    Measure m = new Measure(CoreMetrics.NCLOC, 1.0).setDate(new Date());
-    StringBuilder data = new StringBuilder();
-    for (int i = 0; i < 500000; i++) {
-      data.append("some data");
+    StringBuilder data = new StringBuilder(4_500_000);
+    for (int i = 0; i < 4_500_000; i++) {
+      data.append('a');
     }
-    m.setData(data.toString());
+    DefaultMeasure<?> m = new DefaultMeasure().forMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA).withValue(data.toString());
+    measureCache.put(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, m);
 
-    measureCache.put(p, m);
-
-    assertThat(measureCache.contains(p, m)).isTrue();
+    assertThat(measureCache.contains(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).isTrue();
     assertThat(measureCache.entries()).hasSize(1);
-    Iterator<Entry<Measure>> iterator = measureCache.entries().iterator();
+    Iterator<Entry<DefaultMeasure<?>>> iterator = measureCache.entries().iterator();
     iterator.hasNext();
-    Entry<Measure> next = iterator.next();
+    Entry<DefaultMeasure<?>> next = iterator.next();
     assertThat(next.value()).isEqualTo(m);
-    assertThat(next.key()[0]).isEqualTo("struts");
+    assertThat(next.key()[0]).isEqualTo(COMPONENT_KEY);
 
-    assertThat(measureCache.byResource(p)).hasSize(1);
-    assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY)).hasSize(1);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY).iterator().next()).isEqualTo(m);
 
   }
 
   @Test
   public void should_add_measure_with_too_big_data_for_persistit() {
-    Project p = new Project("struts");
-
     assertThat(measureCache.entries()).hasSize(0);
+    assertThat(measureCache.byComponentKey(COMPONENT_KEY)).hasSize(0);
 
-    assertThat(measureCache.byResource(p)).hasSize(0);
-
-    Measure m = new Measure(CoreMetrics.NCLOC, 1.0).setDate(new Date());
-    StringBuilder data = new StringBuilder(64 * 1024 * 1024 + 1);
     // Limit is 64Mo
-    for (int i = 0; i < (64 * 1024 * 1024 + 1); i++) {
+    StringBuilder data = new StringBuilder(64 * 1024 * 1024 + 1);
+    for (int i = 0; i < 64 * 1024 * 1024 + 1; i++) {
       data.append('a');
     }
-    m.setData(data.toString());
+    DefaultMeasure<?> m = new DefaultMeasure().forMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA).withValue(data.toString());
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to put element in the cache measures");
+    thrown.expectMessage("Fail to put element in the storage 'measures'");
 
-    measureCache.put(p, m);
+    measureCache.put(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, m);
   }
 
   @Test
   public void should_get_measures() {
-    Project p = new Project("struts");
-    Resource dir = Directory.create("foo/bar").setEffectiveKey("struts:foo/bar");
-    Resource file1 = Directory.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
-    Resource file2 = Directory.create("foo/bar/File2.txt").setEffectiveKey("struts:foo/bar/File2.txt");
+    String projectKey = "struts";
+    String dirKey = "struts:foo/bar";
+    String file1Key = "struts:foo/bar/File1.txt";
+    String file2Key = "struts:foo/bar/File2.txt";
 
     assertThat(measureCache.entries()).hasSize(0);
 
-    assertThat(measureCache.byResource(p)).hasSize(0);
-    assertThat(measureCache.byResource(dir)).hasSize(0);
+    assertThat(measureCache.byComponentKey(projectKey)).hasSize(0);
+    assertThat(measureCache.byComponentKey(dirKey)).hasSize(0);
 
-    Measure mFile1 = new Measure(CoreMetrics.NCLOC, 1.0);
-    measureCache.put(file1, mFile1);
-    Measure mFile2 = new Measure(CoreMetrics.NCLOC, 3.0);
-    measureCache.put(file2, mFile2);
+    DefaultMeasure<?> mFile1 = new DefaultMeasure().forMetric(CoreMetrics.NCLOC).withValue(1.0);
+    measureCache.put(file1Key, CoreMetrics.NCLOC_DATA_KEY, mFile1);
+    DefaultMeasure<?> mFile2 = new DefaultMeasure().forMetric(CoreMetrics.NCLOC).withValue(3.0);
+    measureCache.put(file2Key, CoreMetrics.NCLOC_DATA_KEY, mFile2);
 
     assertThat(measureCache.entries()).hasSize(2);
-    assertThat(measureCache.byResource(p)).hasSize(0);
-    assertThat(measureCache.byResource(dir)).hasSize(0);
+    assertThat(measureCache.byComponentKey(projectKey)).hasSize(0);
+    assertThat(measureCache.byComponentKey(dirKey)).hasSize(0);
 
-    Measure mDir = new Measure(CoreMetrics.NCLOC, 4.0);
-    measureCache.put(dir, mDir);
+    DefaultMeasure<?> mDir = new DefaultMeasure().forMetric(CoreMetrics.NCLOC).withValue(4.0);
+    measureCache.put(dirKey, CoreMetrics.NCLOC_DATA_KEY, mDir);
 
     assertThat(measureCache.entries()).hasSize(3);
-    assertThat(measureCache.byResource(p)).hasSize(0);
-    assertThat(measureCache.byResource(dir)).hasSize(1);
-    assertThat(measureCache.byResource(dir).iterator().next()).isEqualTo(mDir);
+    assertThat(measureCache.byComponentKey(projectKey)).hasSize(0);
+    assertThat(measureCache.byComponentKey(dirKey)).hasSize(1);
+    assertThat(measureCache.byComponentKey(dirKey).iterator().next()).isEqualTo(mDir);
 
-    Measure mProj = new Measure(CoreMetrics.NCLOC, 4.0);
-    measureCache.put(p, mProj);
+    DefaultMeasure<?> mProj = new DefaultMeasure().forMetric(CoreMetrics.NCLOC).withValue(4.0);
+    measureCache.put(projectKey, CoreMetrics.NCLOC_DATA_KEY, mProj);
 
     assertThat(measureCache.entries()).hasSize(4);
-    assertThat(measureCache.byResource(p)).hasSize(1);
-    assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(mProj);
-    assertThat(measureCache.byResource(dir)).hasSize(1);
-    assertThat(measureCache.byResource(dir).iterator().next()).isEqualTo(mDir);
+    assertThat(measureCache.byComponentKey(projectKey)).hasSize(1);
+    assertThat(measureCache.byComponentKey(projectKey).iterator().next()).isEqualTo(mProj);
+    assertThat(measureCache.byComponentKey(dirKey)).hasSize(1);
+    assertThat(measureCache.byComponentKey(dirKey).iterator().next()).isEqualTo(mDir);
   }
 
-  @Test
-  public void test_measure_coder() throws Exception {
-    Resource file1 = File.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
-
-    Measure measure = new Measure(CoreMetrics.NCLOC, 3.14);
-    measure.setData("data");
-    measure.setAlertStatus(Level.ERROR);
-    measure.setAlertText("alert");
-    measure.setDate(new Date());
-    measure.setDescription("description");
-    measure.setPersistenceMode(null);
-    measure.setPersonId(3);
-    measure.setUrl("http://foo");
-    measure.setVariation1(11.0);
-    measure.setVariation2(12.0);
-    measure.setVariation3(13.0);
-    measure.setVariation4(14.0);
-    measure.setVariation5(15.0);
-    measureCache.put(file1, measure);
-
-    Measure savedMeasure = measureCache.byResource(file1).iterator().next();
-    assertThat(EqualsBuilder.reflectionEquals(measure, savedMeasure)).isTrue();
-
-  }
 }
