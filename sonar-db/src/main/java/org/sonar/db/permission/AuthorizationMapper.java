@@ -19,6 +19,8 @@
  */
 package org.sonar.db.permission;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,8 +29,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface AuthorizationMapper {
 
-  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid,
-    @Param("userId") long userId);
+  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") long userId);
 
   Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
@@ -36,4 +37,13 @@ public interface AuthorizationMapper {
 
   Set<String> selectRootComponentPermissionsOfAnonymous(@Param("rootComponentId") long rootComponentId);
 
+  List<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+
+  List<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+
+  List<String> keepAuthorizedComponentKeysForAnonymous(@Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
+
+  List<String> keepAuthorizedComponentKeysForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
+
+  List<Long> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Long> userIds);
 }

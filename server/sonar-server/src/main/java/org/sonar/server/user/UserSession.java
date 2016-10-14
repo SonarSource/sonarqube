@@ -62,7 +62,7 @@ public interface UserSession {
   UserSession checkLoggedIn();
 
   /**
-   * Ensures that user implies the specified global permission, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkPermission(String globalPermission);
 
@@ -73,8 +73,8 @@ public interface UserSession {
   UserSession checkGlobalPermission(String globalPermission);
 
   /**
-   * Ensures that user implies any of the specified global permissions, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException} with
-   * the specified error message.
+   * Ensures that at least one of the global permissions is granted to user. If none are granted,
+   * then throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkAnyPermissions(Collection<String> globalPermissions);
 
@@ -90,7 +90,7 @@ public interface UserSession {
   boolean hasOrganizationPermission(String organizationUuid, String permission);
 
   /**
-   * Ensures that user implies the specified organization permission,
+   * Ensures that the permission is granted to user for the specified organization,
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkOrganizationPermission(String organizationUuid, String permission);
@@ -104,14 +104,17 @@ public interface UserSession {
   List<String> globalPermissions();
 
   /**
-   * Ensures that user implies the specified permission globally or on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   * If the component doesn't exist and the user hasn't the global permission, throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Ensures that permission is granted to user on the specified component, otherwise throws
+   * a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * If the component doesn't exist and the user doesn't have the global permission,
+   * throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentPermission(String projectPermission, String componentKey);
 
   /**
-   * Ensures that user implies the specified component permission globally or on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   * If the component doesn't exist and the user hasn't the global permission, throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * If the component doesn't exist and the user doesn't have the permission, throws
+   * a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentUuidPermission(String permission, String componentUuid);
 

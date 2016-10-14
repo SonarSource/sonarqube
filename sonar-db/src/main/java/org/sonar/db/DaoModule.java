@@ -68,7 +68,6 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
-import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -81,7 +80,6 @@ public class DaoModule extends Module {
     ActiveDashboardDao.class,
     AuthorDao.class,
     AuthorizationDao.class,
-    PermissionDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
     CeTaskInputDao.class,

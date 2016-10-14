@@ -87,7 +87,6 @@ import org.sonar.db.organization.OrganizationMapper;
 import org.sonar.db.permission.AuthorizationMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.GroupPermissionMapper;
-import org.sonar.db.permission.PermissionMapper;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.UserPermissionMapper;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -261,7 +260,6 @@ public class MyBatis {
       Migration53Mapper.class,
       NotificationQueueMapper.class,
       OrganizationMapper.class,
-      PermissionMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       ProjectQgateAssociationMapper.class,

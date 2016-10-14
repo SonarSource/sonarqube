@@ -36,7 +36,7 @@ import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.db.permission.PermissionDao;
+import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
@@ -68,21 +68,20 @@ import static org.mockito.Mockito.when;
 
 public class IssueFilterServiceTest {
 
-  DbClient dbClient = mock(DbClient.class);
-  IssueFilterDao issueFilterDao = mock(IssueFilterDao.class);
-  IssueFilterFavouriteDao issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
-  PermissionDao permissionDao = mock(PermissionDao.class);
-  IssueIndex issueIndex = mock(IssueIndex.class);
-  IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
-  UserSession userSession = new MockUserSession("john");
-
-  IssueFilterService underTest;
+  private DbClient dbClient = mock(DbClient.class);
+  private IssueFilterDao issueFilterDao = mock(IssueFilterDao.class);
+  private IssueFilterFavouriteDao issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
+  private AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+  private IssueIndex issueIndex = mock(IssueIndex.class);
+  private IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
+  private UserSession userSession = new MockUserSession("john");
+  private IssueFilterService underTest;
 
   @Before
   public void setUp() {
     when(dbClient.issueFilterDao()).thenReturn(issueFilterDao);
     when(dbClient.issueFilterFavouriteDao()).thenReturn(issueFilterFavouriteDao);
-    when(dbClient.permissionDao()).thenReturn(permissionDao);
+    when(dbClient.authorizationDao()).thenReturn(authorizationDao);
 
     underTest = new IssueFilterService(dbClient, issueIndex, issueFilterSerializer);
   }
@@ -255,7 +254,7 @@ public class IssueFilterServiceTest {
   @Test
   public void should_not_update_sharing_if_not_owner() {
     // John is admin and want to change arthur filter sharing
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
 
     try {
@@ -296,7 +295,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_update_other_shared_filter_if_admin() {
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(issueFilterDao.selectById(1L))
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
@@ -310,7 +309,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_update_other_shared_filter_if_not_admin() {
-    when(permissionDao.selectGlobalPermissions("arthur")).thenReturn(Collections.emptyList());
+    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.emptyList());
     when(issueFilterDao.selectById(1L))
       .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
@@ -338,7 +337,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_update_if_shared_and_not_admin() {
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
 
     try {
@@ -383,7 +382,7 @@ public class IssueFilterServiceTest {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
 
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
@@ -399,7 +398,7 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(permissionDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.PROVISIONING));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.PROVISIONING));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
@@ -448,7 +447,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_delete_shared_filter_if_user_is_admin() {
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     underTest.delete(1L, userSession);
@@ -458,7 +457,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_not_shared_filter_if_user_is_admin() {
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(false));
 
     try {
@@ -472,7 +471,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_shared_filter_if_not_admin() {
-    when(permissionDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     try {

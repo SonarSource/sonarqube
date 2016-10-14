@@ -38,7 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -54,7 +53,6 @@ public class ServerUserSession extends AbstractUserSession {
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
-  private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;
   private final Set<String> userGroups;
   private List<String> globalPermissions = null;
@@ -68,7 +66,6 @@ public class ServerUserSession extends AbstractUserSession {
   private ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
     this.userDto = userDto;
     this.dbClient = dbClient;
-    this.permissionDao = dbClient.permissionDao();
     this.resourceDao = dbClient.resourceDao();
     this.userGroups = loadUserGroups();
   }
@@ -145,7 +142,7 @@ public class ServerUserSession extends AbstractUserSession {
       permissionsByOrganizationUuid.putAll(organizationUuid, permissions);
     }
     return permissions.contains(permission);
-  }
+ }
 
   private Set<String> loadOrganizationPermissions(String organizationUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -159,7 +156,7 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   public List<String> globalPermissions() {
     if (globalPermissions == null) {
-      List<String> permissionKeys = permissionDao.selectGlobalPermissions(getLogin());
+      List<String> permissionKeys = dbClient.authorizationDao().selectGlobalPermissions(getLogin());
       globalPermissions = ImmutableList.copyOf(permissionKeys);
     }
     return globalPermissions;
@@ -193,7 +190,7 @@ public class ServerUserSession extends AbstractUserSession {
     }
     if (!projectPermissionsCheckedByKey.contains(permission)) {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        Collection<String> projectKeys = permissionDao.selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
+        Collection<String> projectKeys = dbClient.authorizationDao().selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
         for (String key : projectKeys) {
           projectKeyByPermission.put(permission, key);
         }
@@ -229,7 +226,7 @@ public class ServerUserSession extends AbstractUserSession {
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
     if (!projectPermissionsCheckedByUuid.contains(permission)) {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        Collection<String> projectUuids = permissionDao.selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
+        Collection<String> projectUuids = dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
         addProjectPermission(permission, projectUuids);
       }
     }
