@@ -82,7 +82,7 @@ public class RemoveUserAction implements PermissionsWsAction {
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
 
-      checkProjectAdmin(userSession, projectId);
+      checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
