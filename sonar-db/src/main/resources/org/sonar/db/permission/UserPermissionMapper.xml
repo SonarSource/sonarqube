@@ -80,23 +80,26 @@
     )
   </insert>
 
-  <delete id="delete" parameterType="map">
+  <delete id="deleteGlobalPermission" parameterType="map">
     delete from user_roles
-    <where>
-      <choose>
-        <when test="login != null">
-          and user_id = (select id from users where login = #{login})
-          <if test="projectUuid != null">
-          and resource_id = (select id from projects where uuid = #{projectUuid})
-          </if>
-        </when>
-        <otherwise>
-          and resource_id = (select id from projects where uuid = #{projectUuid})
-        </otherwise>
-      </choose>
-      <if test="permission != null">
-        and role = #{permission}
-      </if>
-    </where>
+    where
+    role = #{permission,jdbcType=VARCHAR} and
+    user_id = #{userId,jdbcType=BIGINT} and
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    resource_id is null
+  </delete>
+
+  <delete id="deleteProjectPermission" parameterType="map">
+    delete from user_roles
+    where
+    role = #{permission,jdbcType=VARCHAR} and
+    user_id = #{userId,jdbcType=BIGINT} and
+    resource_id = #{projectId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteProjectPermissions" parameterType="map">
+    delete from user_roles
+    where
+    resource_id = #{projectId,jdbcType=BIGINT}
   </delete>
 </mapper>

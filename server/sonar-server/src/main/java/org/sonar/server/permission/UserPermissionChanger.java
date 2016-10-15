@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -47,7 +48,12 @@ public class UserPermissionChanger {
         break;
       case REMOVE:
         checkOtherAdminUsersExist(dbSession, change);
-        dbClient.userPermissionDao().delete(dbSession, change.getUserId().getLogin(), change.getProjectUuid(), change.getPermission());
+        Optional<ProjectId> projectId = change.getProjectId();
+        if (projectId.isPresent()) {
+          dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectId.get().getId());
+        } else {
+          dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
+        }
         break;
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());

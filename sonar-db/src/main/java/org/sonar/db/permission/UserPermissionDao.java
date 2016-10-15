@@ -32,7 +32,6 @@ import org.sonar.db.DbSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserPermissionDao implements Dao {
@@ -106,21 +105,24 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Delete permissions for a user, permissions for a project, or a mix of them. In all cases
-   * scope can be restricted to a specified permission.
-   *
-   * Examples:
-   * <ul>
-   *   <li>{@code delete(dbSession, "marius", null, null)} deletes all permissions of Marius, including global and project permissions</li>
-   *   <li>{@code delete(dbSession, null, "ABC", null)} deletes all permissions of project ABC</li>
-   *   <li>{@code delete(dbSession, "marius", "ABC", null)} deletes the permissions of Marius on project "ABC"</li>
-   * </ul>
-   * 
-   * @see UserPermissionMapper#delete(String, String, String)
+   * Removes a single global permission from user
    */
-  public void delete(DbSession dbSession, @Nullable String login, @Nullable String projectUuid, @Nullable String permission) {
-    checkArgument(isNotEmpty(login) || isNotEmpty(projectUuid), "At least one of login or project must be set");
-    mapper(dbSession).delete(login, projectUuid, permission);
+  public void deleteGlobalPermission(DbSession dbSession, long userId, String permission, String organizationUuid) {
+    mapper(dbSession).deleteGlobalPermission(userId, permission, organizationUuid);
+  }
+
+  /**
+   * Removes a single project permission from user
+   */
+  public void deleteProjectPermission(DbSession dbSession, long userId, String permission, long projectId) {
+    mapper(dbSession).deleteProjectPermission(userId, permission, projectId);
+  }
+
+  /**
+   * Deletes all the permissions defined on a project
+   */
+  public void deleteProjectPermissions(DbSession dbSession, long projectId) {
+    mapper(dbSession).deleteProjectPermissions(projectId);
   }
 
   private static UserPermissionMapper mapper(DbSession dbSession) {
