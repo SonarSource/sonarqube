@@ -64,7 +64,7 @@ public class PermissionRepository {
     PermissionTemplate template = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
     updateProjectAuthorizationDate(session, project.getId());
     dbClient.groupPermissionDao().deleteByRootComponentId(session, project.getId());
-    dbClient.userPermissionDao().delete(session, null, project.uuid(), null);
+    dbClient.userPermissionDao().deleteProjectPermissions(session, project.getId());
 
     List<PermissionTemplateUserDto> usersPermissions = template.getUserPermissions();
     String organizationUuid = template.getTemplate().getOrganizationUuid();

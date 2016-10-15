@@ -52,10 +52,12 @@ public interface UserPermissionMapper {
 
   void insert(UserPermissionDto dto);
 
-  /**
-   * Delete permissions by user and/or by project. In both cases scope can be restricted to a specified permission
-   */
-  void delete(@Nullable @Param("login") String login, @Nullable @Param("projectUuid") String projectUuid, @Nullable @Param("permission") String permission);
-
   int countRowsByRootComponentId(@Param("rootComponentId") long projectId);
+
+  void deleteGlobalPermission(@Param("userId") long userId, @Param("permission") String permission, @Param("organizationUuid") String organizationUuid);
+
+  void deleteProjectPermission(@Param("userId") long userId, @Param("permission") String permission, @Param("projectId") long projectId);
+
+  void deleteProjectPermissions(@Param("projectId") long projectId);
+
 }

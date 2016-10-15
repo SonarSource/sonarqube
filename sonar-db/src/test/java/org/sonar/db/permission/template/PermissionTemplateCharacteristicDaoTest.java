@@ -40,10 +40,8 @@ public class PermissionTemplateCharacteristicDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbSession dbSession = db.getSession();
-  PermissionTemplateCharacteristicMapper mapper = dbSession.getMapper(PermissionTemplateCharacteristicMapper.class);
-
-  PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao();
+  private DbSession dbSession = db.getSession();
+  private PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao();
 
   @Test
   public void selectByTemplateId_filter_by_template_id() {
