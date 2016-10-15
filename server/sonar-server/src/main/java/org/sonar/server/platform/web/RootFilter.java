@@ -147,6 +147,9 @@ public class RootFilter implements Filter {
 
     @Override
     public HttpSession getSession(boolean create) {
+      if (!create) {
+        return null;
+      }
       throw notSupported();
     }
 
