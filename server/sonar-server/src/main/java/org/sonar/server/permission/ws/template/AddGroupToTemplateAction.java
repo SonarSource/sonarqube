@@ -19,10 +19,10 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -32,7 +32,8 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.lang.String.format;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -71,15 +72,14 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    checkGlobalAdminUser(userSession);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       GroupIdOrAnyone groupId = support.findGroup(dbSession, request);
-      checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !groupId.isAnyone(),
+      checkRequest(!SYSTEM_ADMIN.equals(permission) || !groupId.isAnyone(),
         format("It is not possible to add the '%s' permission to the group 'Anyone'.", permission));
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
 
       if (!groupAlreadyAdded(dbSession, template.getId(), permission, groupId)) {
         dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId.getId(), permission);

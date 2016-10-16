@@ -73,7 +73,6 @@ public class PermissionsWsParametersBuilder {
   }
 
   public static void createGroupNameParameter(NewAction action) {
-    createOrganizationParameter(action);
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
@@ -118,6 +117,7 @@ public class PermissionsWsParametersBuilder {
 
   public static void createTemplateParameters(NewAction action) {
     createTemplateIdParameter(action);
+    createOrganizationParameter(action);
     createTemplateNameParameter(action);
   }
 
