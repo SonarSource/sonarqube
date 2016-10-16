@@ -64,7 +64,8 @@ public class CreateAction implements UserGroupsWsAction {
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If unset then default organization is used.")
       .setExampleValue("my-org")
-      .setSince("6.2");
+      .setSince("6.2")
+      .setInternal(true);
 
     action.createParam(PARAM_GROUP_NAME)
       .setDescription(String.format("Name for the new group. A group name cannot be larger than %d characters and must be unique. " +

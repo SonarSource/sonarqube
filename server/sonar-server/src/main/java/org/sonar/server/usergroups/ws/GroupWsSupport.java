@@ -181,6 +181,7 @@ public class GroupWsSupport {
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization")
       .setExampleValue("my-org")
+      .setInternal(true)
       .setSince("6.2");
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name")
