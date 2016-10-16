@@ -28,7 +28,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -37,6 +36,7 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParameter;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class AddUserAction implements UserGroupsWsAction {
 
@@ -65,18 +65,16 @@ public class AddUserAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId groupId = support.findGroup(dbSession, request);
+      userSession.checkLoggedIn().checkOrganizationPermission(groupId.getOrganizationUuid(), GlobalPermissions.SYSTEM_ADMIN);
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
-      if (user == null) {
-        throw new NotFoundException(format("Could not find a user with login '%s'", login));
-      }
+      checkFound(user, "Could not find a user with login '%s'", login);
 
-      if (userIsNotYetMemberOf(dbSession, user.getId(), groupId)) {
+      if (!isMemberOf(dbSession, user, groupId)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupId(groupId.getId()).setUserId(user.getId());
         dbClient.userGroupDao().insert(dbSession, membershipDto);
         dbSession.commit();
@@ -86,7 +84,7 @@ public class AddUserAction implements UserGroupsWsAction {
     }
   }
 
-  private boolean userIsNotYetMemberOf(DbSession dbSession, long userId, GroupId groupId) {
-    return !dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, userId).contains(groupId.getId());
+  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupId groupId) {
+    return dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId()).contains(groupId.getId());
   }
 }
