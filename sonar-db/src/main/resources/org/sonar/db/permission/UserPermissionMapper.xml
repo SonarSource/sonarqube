@@ -29,10 +29,10 @@
         and u.active = ${_true}
       </if>
       <if test="userLogins != null">
-        and u.login in <foreach collection="userLogins" open="(" close=")" item="userLogin" separator=",">#{userLogin}</foreach>
+        and u.login in <foreach collection="userLogins" open="(" close=")" item="userLogin" separator=",">#{userLogin,jdbcType=VARCHAR}</foreach>
       </if>
       <if test="query.searchQueryToSql != null">
-        and lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
+        and lower(u.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
       </if>
       <!-- filter rows with user permissions -->
       <if test="query.withAtLeastOnePermission()">
@@ -41,10 +41,10 @@
           and ur.resource_id is null
         </if>
         <if test="query.componentUuid!=null">
-          and p.uuid = #{query.componentUuid}
+          and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
         </if>
         <if test="query.permission!=null">
-          and ur.role = #{query.permission}
+          and ur.role = #{query.permission,jdbcType=VARCHAR}
         </if>
       </if>
     </where>

@@ -98,21 +98,21 @@
     SELECT gr.resource_id
     FROM group_roles gr
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
     and
     <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      gr.resource_id=#{element}
+      gr.resource_id=#{element,jdbcType=BIGINT}
     </foreach>
     UNION
     SELECT p.id
     FROM user_roles ur
     INNER JOIN projects p on p.id = ur.resource_id
     WHERE
-    ur.role=#{role}
-    and ur.user_id=#{userId} and
+    ur.role=#{role,jdbcType=VARCHAR}
+    and ur.user_id=#{userId,jdbcType=BIGINT} and
     <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      p.id=#{element}
+      p.id=#{element,jdbcType=BIGINT}
     </foreach>
   </select>
 
@@ -120,11 +120,11 @@
     SELECT gr.resource_id
     FROM group_roles gr
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and gr.group_id is null
     and
     <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      gr.resource_id=#{element}
+      gr.resource_id=#{element,jdbcType=BIGINT}
     </foreach>
   </select>
 
@@ -139,23 +139,23 @@
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
-        gr.role=#{role}
+        gr.role=#{role,jdbcType=VARCHAR}
         and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
-        gu.user_id=#{userId}))
+        gu.user_id=#{userId,jdbcType=BIGINT}))
         UNION
         SELECT p.kee as root_project_kee
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
         where
-        ur.role=#{role}
-        and ur.user_id = #{userId}
+        ur.role=#{role,jdbcType=VARCHAR}
+        and ur.user_id = #{userId,jdbcType=BIGINT}
       </when>
       <otherwise>
         SELECT p.kee as root_project_kee
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
-        gr.role=#{role}
+        gr.role=#{role,jdbcType=VARCHAR}
         and gr.group_id is null
       </otherwise>
     </choose>
@@ -168,23 +168,23 @@
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
-        gr.role=#{role}
+        gr.role=#{role,jdbcType=VARCHAR}
         and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
-        gu.user_id=#{userId}))
+        gu.user_id=#{userId,jdbcType=BIGINT}))
         UNION
         SELECT p.uuid as root_project_uuid
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
         where
-        ur.role=#{role}
-        and ur.user_id = #{userId}
+        ur.role=#{role,jdbcType=VARCHAR}
+        and ur.user_id = #{userId,jdbcType=BIGINT}
       </when>
       <otherwise>
         SELECT p.uuid as root_project_uuid
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
-        gr.role=#{role}
+        gr.role=#{role,jdbcType=VARCHAR}
         and gr.group_id is null
       </otherwise>
     </choose>
@@ -198,20 +198,24 @@
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
         where
-        gr.role=#{role}
+        gr.role=#{role,jdbcType=VARCHAR}
         and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
-        gu.user_id=#{userId}))
+        gu.user_id=#{userId,jdbcType=BIGINT}))
         UNION
         SELECT p.id as root_project_id
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
-        where ur.role=#{role} and ur.user_id = #{userId}
+        where
+        ur.role=#{role,jdbcType=VARCHAR} and
+        ur.user_id = #{userId,jdbcType=BIGINT}
       </when>
       <otherwise>
         SELECT p.id as root_project_id
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        where gr.role=#{role} and gr.group_id is null
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and gr.group_id is null
       </otherwise>
     </choose>
   </sql>
@@ -223,7 +227,7 @@
         FROM group_roles gr
         INNER JOIN groups_users gu on gu.group_id=gr.group_id
         INNER JOIN users u on u.id=gu.user_id
-        where u.login=#{userLogin} and gr.resource_id is null
+        where u.login=#{userLogin,jdbcType=VARCHAR} and gr.resource_id is null
         UNION
         SELECT gr.role
         FROM group_roles gr
@@ -232,7 +236,7 @@
         SELECT ur.role
         FROM user_roles ur
         INNER JOIN users u on u.id=ur.user_id
-        where u.login=#{userLogin} and ur.resource_id is null
+        where u.login=#{userLogin,jdbcType=VARCHAR} and ur.resource_id is null
       </when>
       <otherwise>
         SELECT gr.role
@@ -246,24 +250,24 @@
     SELECT p.kee
     FROM group_roles gr, projects p
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and gr.group_id is null
     and gr.resource_id = p.id
     and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
-      p.kee=#{element}
+      p.kee=#{element,jdbcType=VARCHAR}
     </foreach>
     UNION
     SELECT p.kee
     FROM group_roles gr, projects root, projects p
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and gr.group_id is null
     and gr.resource_id = root.id
     and p.root_uuid = root.uuid
     and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
-      p.kee=#{element}
+      p.kee=#{element,jdbcType=VARCHAR}
     </foreach>
   </select>
 
@@ -271,35 +275,35 @@
     SELECT p.kee
     FROM group_roles gr, projects p
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
     and gr.resource_id = p.id
     and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
-      p.kee=#{element}
+      p.kee=#{element,jdbcType=VARCHAR}
     </foreach>
     UNION
     SELECT p.kee
     FROM group_roles gr, projects root, projects p
     WHERE
-    gr.role=#{role}
+    gr.role=#{role,jdbcType=VARCHAR}
     and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
     and gr.resource_id = root.id
     and p.root_uuid = root.uuid
     and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
-      p.kee=#{element}
+      p.kee=#{element,jdbcType=VARCHAR}
     </foreach>
     UNION
     SELECT p.kee
     FROM user_roles ur
     INNER JOIN projects p on p.id = ur.resource_id
     WHERE
-    ur.role=#{role}
-    and ur.user_id=#{userId}
+    ur.role=#{role,jdbcType=VARCHAR}
+    and ur.user_id=#{userId,jdbcType=BIGINT}
     and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
-      p.kee=#{element}
+      p.kee=#{element,jdbcType=VARCHAR}
     </foreach>
   </select>
 
@@ -308,21 +312,21 @@
     FROM groups_users gu
     INNER JOIN group_roles gr ON gr.group_id=gu.group_id
     WHERE
-    gr.resource_id=#{componentId}
-    AND gr.role=#{role}
+    gr.resource_id=#{componentId,jdbcType=BIGINT}
+    AND gr.role=#{role,jdbcType=VARCHAR}
     AND gu.user_id in
     <foreach collection="userIds" open="(" close=")" item="id" separator=",">
-      #{id}
+      #{id,jdbcType=BIGINT}
     </foreach>
     UNION
     SELECT ur.user_id
     FROM user_roles ur
     WHERE
-    ur.resource_id=#{componentId}
-    AND ur.role=#{role}
+    ur.resource_id=#{componentId,jdbcType=BIGINT}
+    AND ur.role=#{role,jdbcType=VARCHAR}
     AND ur.user_id IN
     <foreach collection="userIds" open="(" close=")" item="id" separator=",">
-      #{id}
+      #{id,jdbcType=BIGINT}
     </foreach>
   </select>
 </mapper>
