@@ -14,15 +14,22 @@
         "params": [
           {
             "key": "name",
-            "required": false
+            "required": false,
+            "internal": false
           },
           {
             "key": "severity",
             "description": "Severity",
             "required": false,
+            "internal": false,
             "defaultValue": "BLOCKER",
             "exampleValue": "INFO",
             "possibleValues": ["BLOCKER", "INFO"]
+          },
+          {
+            "key": "internal",
+            "required": false,
+            "internal": true
           }
         ]
       },
@@ -59,6 +66,7 @@
             "key": "include_internals",
             "description": "Include web services that are implemented for internal use only. Their forward-compatibility is not assured",
             "required": false,
+            "internal": false,
             "defaultValue": "false",
             "possibleValues": ["true", "false", "yes", "no"]
           }
@@ -75,12 +83,14 @@
           {
             "key": "action",
             "required": true,
+            "internal": false,
             "description": "Action of the web service",
             "exampleValue": "search"
           },
           {
             "key": "controller",
             "required": true,
+            "internal": false,
             "description": "Controller of the web service",
             "exampleValue": "api/issues"
           }
