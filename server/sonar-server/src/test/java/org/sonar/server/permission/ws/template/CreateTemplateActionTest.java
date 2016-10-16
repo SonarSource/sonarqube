@@ -20,19 +20,17 @@
 package org.sonar.server.permission.ws.template;
 
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
@@ -49,19 +47,16 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
     return new CreateTemplateAction(db.getDbClient(), userSession, system, newPermissionWsSupport());
   }
 
-  @Before
-  public void setUp() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
   @Test
   public void create_full_permission_template() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     WsTester.Result result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
     assertJson(result.outputAsString())
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("create_template-example.json"));
-    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
+    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
@@ -72,9 +67,11 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void create_minimalist_permission_template() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest("Finance", null, null);
 
-    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
+    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isNullOrEmpty();
     assertThat(finance.getKeyPattern()).isNullOrEmpty();
@@ -85,6 +82,8 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_not_provided() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest(null, null, null);
@@ -92,6 +91,8 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_empty() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
@@ -100,6 +101,8 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_regexp_if_not_valid() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
@@ -108,6 +111,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
+    loginAsAdminOnDefaultOrganization();
     PermissionTemplateDto template = insertTemplate();
 
     expectedException.expect(BadRequestException.class);
@@ -117,17 +121,10 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
-
-    newRequest("Finance", null, null);
-  }
-
-  @Test
   public void fail_if_not_admin() throws Exception {
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
+
     expectedException.expect(ForbiddenException.class);
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     newRequest("Finance", null, null);
   }

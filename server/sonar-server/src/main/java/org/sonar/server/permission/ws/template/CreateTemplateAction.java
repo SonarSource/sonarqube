@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,7 +38,7 @@ import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 
 import static java.lang.String.format;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
@@ -92,13 +93,14 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkGlobalAdminUser(userSession);
-      validateTemplateNameForCreation(dbSession, request.getName());
+      OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganizationKey());
+      checkProjectAdmin(userSession, org.getUuid(), Optional.empty());
+
+      validateTemplateNameForCreation(dbSession, org, request.getName());
       validateProjectPattern(request.getProjectKeyPattern());
 
-      PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, request);
+      PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, org, request);
 
       return buildResponse(permissionTemplate);
     }
@@ -112,15 +114,15 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setOrganizationKey(request.param(PARAM_ORGANIZATION_KEY));
   }
 
-  private void validateTemplateNameForCreation(DbSession dbSession, String name) {
+  private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
     validateTemplateNameFormat(name);
 
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao()
+      .selectByName(dbSession, org.getUuid(), name);
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 
-  private PermissionTemplateDto insertTemplate(DbSession dbSession, CreateTemplateWsRequest request) {
-    OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganizationKey());
+  private PermissionTemplateDto insertTemplate(DbSession dbSession, OrganizationDto org, CreateTemplateWsRequest request) {
     Date now = new Date(system.now());
     PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, new PermissionTemplateDto()
       .setUuid(Uuids.create())
