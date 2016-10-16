@@ -167,15 +167,21 @@ public class UserDbTester {
   }
 
   public List<String> selectGroupPermissions(GroupDto group, @Nullable ComponentDto project) {
-    return db.getDbClient().groupPermissionDao().selectGroupPermissions(db.getSession(), group.getId(), project == null ? null : project.getId());
+    if (project == null) {
+      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(),
+        group.getOrganizationUuid(), group.getId());
+    }
+    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(),
+      group.getOrganizationUuid(), group.getId(), project.getId());
   }
 
-  /**
-   * @deprecated does not support organizations
-   */
-  @Deprecated
-  public List<String> selectAnyonePermissions(@Nullable ComponentDto project) {
-    return db.getDbClient().groupPermissionDao().selectAnyonePermissions(db.getSession(), project == null ? null : project.getId());
+  public List<String> selectAnyonePermissions(OrganizationDto org, @Nullable ComponentDto project) {
+    if (project == null) {
+      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(),
+        org.getUuid(), null);
+    }
+    return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(),
+      org.getUuid(), null, project.getId());
   }
 
   // USER PERMISSIONS

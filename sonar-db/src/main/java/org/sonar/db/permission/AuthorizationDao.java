@@ -77,6 +77,15 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectRootComponentPermissionsOfAnonymous(rootComponentId);
   }
 
+  /**
+   * The number of users who will still have the permission when the group {@code excludedGroupId}
+   * is deleted.
+   */
+  public int countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(DbSession dbSession, String organizationUuid,
+    String permission, long excludedGroupId) {
+    return mapper(dbSession).countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(organizationUuid, permission, excludedGroupId);
+  }
+
   public Collection<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
     return executeLargeInputs(
       componentIds,

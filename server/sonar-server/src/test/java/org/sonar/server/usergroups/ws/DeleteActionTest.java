@@ -28,12 +28,15 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -44,6 +47,7 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
@@ -63,7 +67,7 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() {
-    defaultGroup = db.users().insertGroup(defaultOrganizationProvider.getDto(), CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
+    defaultGroup = db.users().insertGroup(db.getDefaultOrganization(), CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
     Settings settings = new MapSettings().setProperty(CoreProperties.CORE_DEFAULT_GROUP, CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE);
 
     ws = new WsTester(new UserGroupsWs(
@@ -76,9 +80,10 @@ public class DeleteActionTest {
 
   @Test
   public void delete_by_id() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "to-delete");
+    addAdmin(db.getDefaultOrganization());
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .execute()
@@ -89,9 +94,10 @@ public class DeleteActionTest {
 
   @Test
   public void delete_by_name_on_default_organization() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "to-delete");
+    addAdminToDefaultOrganization();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .execute()
@@ -103,9 +109,10 @@ public class DeleteActionTest {
   @Test
   public void delete_by_name_and_organization() throws Exception {
     OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    addAdmin(org);
     GroupDto group = db.users().insertGroup(org, "to-delete");
+    loginAsAdmin(org);
 
-    loginAsAdmin();
     newRequest()
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -117,27 +124,28 @@ public class DeleteActionTest {
 
   @Test
   public void delete_by_name_fails_if_organization_is_not_correct() throws Exception {
-    OrganizationDto org = newOrganizationDto().setUuid("org1");
+    OrganizationDto org = newOrganizationDto();
     OrganizationTesting.insert(db, org);
 
-    loginAsAdmin();
+    loginAsAdmin(org);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'org1'");
+    expectedException.expectMessage("No organization with key 'missing'");
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, "org1")
+      .setParam(PARAM_ORGANIZATION_KEY, "missing")
       .setParam(PARAM_GROUP_NAME, "a-group")
       .execute();
   }
 
   @Test
   public void delete_members() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "to-be-deleted");
-    UserDto user = db.users().insertUser("a-user");
+    addAdminToDefaultOrganization();
+    GroupDto group = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
     db.users().insertMember(group, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .execute()
@@ -148,11 +156,12 @@ public class DeleteActionTest {
 
   @Test
   public void delete_permissions() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "to-be-deleted");
+    addAdminToDefaultOrganization();
+    GroupDto group = db.users().insertGroup();
     ComponentDto project = componentTester.insertComponent(ComponentTesting.newProjectDto());
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .execute()
@@ -162,11 +171,15 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_permission_templates() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "to-be-deleted");
-    // TODO
+  public void delete_group_from_permission_templates() throws Exception {
+    addAdminToDefaultOrganization();
+    GroupDto group = db.users().insertGroup();
+    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto());
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), group.getId(), "perm");
+    db.commit();
+    loginAsAdminOnDefaultOrganization();
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(1);
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .execute().assertNoContent();
@@ -174,17 +187,27 @@ public class DeleteActionTest {
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void fail_if_id_does_not_exist() throws Exception {
-    loginAsAdmin();
+    addAdminToDefaultOrganization();
+    loginAsAdminOnDefaultOrganization();
+    long groupId = defaultGroup.getId() + 123;
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No group with id '" + groupId + "'");
+
     newRequest()
-      .setParam("id", String.valueOf(defaultGroup.getId() + 123))
+      .setParam("id", String.valueOf(groupId))
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void cannot_delete_default_group_of_default_organization() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default group 'sonar-users' cannot be deleted");
+
     newRequest()
       .setParam("id", defaultGroup.getId().toString())
       .execute();
@@ -193,9 +216,10 @@ public class DeleteActionTest {
   @Test
   public void delete_group_of_an_organization_even_if_name_is_default_group_of_default_organization() throws Exception {
     OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    addAdmin(org);
     GroupDto group = db.users().insertGroup(org, defaultGroup.getName());
+    loginAsAdmin(org);
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .execute();
@@ -206,10 +230,9 @@ public class DeleteActionTest {
 
   @Test
   public void cannot_delete_last_system_admin_group() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "system-admins");
+    GroupDto group = db.users().insertGroup();
     db.users().insertPermissionOnGroup(group, SYSTEM_ADMIN);
-
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The last system admin group cannot be deleted");
@@ -220,37 +243,52 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_system_admin_group_if_not_last() throws Exception {
-    OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
-    GroupDto funkyAdmins = db.users().insertGroup(defaultOrg, "funky-admins");
-    db.users().insertPermissionOnGroup(funkyAdmins, SYSTEM_ADMIN);
-    GroupDto boringAdmins = db.users().insertGroup(defaultOrg, "boring-admins");
-    db.users().insertPermissionOnGroup(boringAdmins, SYSTEM_ADMIN);
+  public void delete_admin_group_fails_if_no_admin_users_left() throws Exception {
+    // admin users are part of the group to be deleted
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto adminGroup = db.users().insertGroup(org, "admins");
+    db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
+    UserDto bigBoss = db.users().insertUser();
+    db.users().insertMember(adminGroup, bigBoss);
+    loginAsAdmin(org);
 
-    loginAsAdmin();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The last system admin group cannot be deleted");
 
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, boringAdmins.getName())
-      .execute();
-
-    assertThat(db.getDbClient().groupPermissionDao().countGroups(db.getSession(), SYSTEM_ADMIN, null)).isEqualTo(1);
+    newRequest().setParam(PARAM_GROUP_ID, adminGroup.getId().toString()).execute();
   }
 
   @Test
-  public void delete_last_system_admin_group_if_admin_user_left() throws Exception {
-    GroupDto lastGroup = db.users().insertGroup(defaultOrganizationProvider.getDto(), "last-group");
-    db.users().insertPermissionOnGroup(lastGroup, SYSTEM_ADMIN);
-    UserDto bigBoss = db.users().insertUser("big.boss");
-    db.users().insertPermissionOnUser(bigBoss, SYSTEM_ADMIN);
+  public void delete_admin_group_succeeds_if_other_groups_have_administrators() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto adminGroup1 = db.users().insertGroup(org, "admins");
+    db.users().insertPermissionOnGroup(adminGroup1, SYSTEM_ADMIN);
+    GroupDto adminGroup2 = db.users().insertGroup(org, "admins");
+    db.users().insertPermissionOnGroup(adminGroup2, SYSTEM_ADMIN);
+    UserDto bigBoss = db.users().insertUser();
+    db.users().insertMember(adminGroup2, bigBoss);
+    loginAsAdmin(org);
 
-    loginAsAdmin();
-    newRequest().setParam(PARAM_GROUP_NAME, lastGroup.getName()).execute();
+    newRequest().setParam(PARAM_GROUP_ID, adminGroup1.getId().toString()).execute();
 
-    assertThat(db.users().selectGroupById(lastGroup.getId())).isNull();
+    assertThat(db.users().selectGroupPermissions(adminGroup2, null)).hasSize(1);
   }
 
-  private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void addAdminToDefaultOrganization() {
+    addAdmin(db.getDefaultOrganization());
+  }
+
+  private void addAdmin(OrganizationDto org) {
+    UserDto admin = db.users().insertUser();
+    db.users().insertPermissionOnUser(org, admin, SYSTEM_ADMIN);
+  }
+
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private WsTester.TestRequest newRequest() {

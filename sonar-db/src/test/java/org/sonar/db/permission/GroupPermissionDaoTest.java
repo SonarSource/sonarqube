@@ -30,6 +30,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Arrays.asList;
@@ -43,6 +45,7 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupPermissionDaoTest {
@@ -277,43 +280,51 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
-  public void selectGroupPermissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
+  public void selectGlobalPermissionsOfGroup() {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group1 = db.users().insertGroup(org1, "group1");
+    GroupDto group2 = db.users().insertGroup(org2, "group2");
     ComponentDto project = db.components().insertProject();
 
-    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnAnyone(org1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertPermissionOnGroup(group1, "perm3");
     db.users().insertPermissionOnGroup(group2, "perm4");
     db.users().insertProjectPermissionOnGroup(group1, "perm5", project);
-    db.users().insertProjectPermissionOnAnyone("perm6", project);
+    db.users().insertProjectPermissionOnAnyone(org1, "perm6", project);
 
-    // select global permissions on group
-    assertThat(underTest.selectGroupPermissions(dbSession, group1.getId(), null)).containsOnly("perm2", "perm3");
-    assertThat(underTest.selectGroupPermissions(dbSession, UNKNOWN_GROUP_ID, null)).isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, org1.getUuid(), group1.getId())).containsOnly("perm2", "perm3");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, org2.getUuid(), group2.getId())).containsOnly("perm4");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, org1.getUuid(), null)).containsOnly("perm1");
 
-    // select project permissions on group
-    assertThat(underTest.selectGroupPermissions(dbSession, group1.getId(), project.getId())).containsOnly("perm5");
-    assertThat(underTest.selectGroupPermissions(dbSession, group1.getId(), UNKNOWN_PROJECT_ID)).isEmpty();
+    // group1 is not in org2
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, org2.getUuid(), group1.getId())).isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, org2.getUuid(), null)).isEmpty();
   }
 
   @Test
-  public void selectAnyonePermissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    ComponentDto project = db.components().insertProject();
+  public void selectProjectPermissionsOfGroup() {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group1 = db.users().insertGroup(org1, "group1");
+    ComponentDto project1 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertProject();
 
-    db.users().insertPermissionOnAnyone("perm1");
+    db.users().insertPermissionOnAnyone(org1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertProjectPermissionOnGroup(group1, "perm3", project);
-    db.users().insertProjectPermissionOnAnyone("perm4", project);
+    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
+    db.users().insertProjectPermissionOnGroup(group1, "perm4", project1);
+    db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
+    db.users().insertProjectPermissionOnAnyone(org1, "perm6", project1);
 
-    // select global permissions on group
-    assertThat(underTest.selectAnyonePermissions(dbSession, null)).containsOnly("perm1");
-
-    // select project permissions on group
-    assertThat(underTest.selectAnyonePermissions(dbSession, project.getId())).containsOnly("perm4");
-    assertThat(underTest.selectAnyonePermissions(dbSession, UNKNOWN_PROJECT_ID)).isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, org1.getUuid(), group1.getId(), project1.getId()))
+      .containsOnly("perm3", "perm4");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, org1.getUuid(), group1.getId(), project2.getId()))
+      .containsOnly("perm5");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, org1.getUuid(), null, project1.getId()))
+      .containsOnly("perm6");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, org1.getUuid(), null, project2.getId()))
+      .isEmpty();
   }
 
   @Test

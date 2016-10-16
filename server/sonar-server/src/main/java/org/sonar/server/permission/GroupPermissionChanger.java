@@ -20,12 +20,14 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import org.sonar.core.permission.GlobalPermissions;
+import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 
 public class GroupPermissionChanger {
@@ -37,57 +39,68 @@ public class GroupPermissionChanger {
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
-    if (shouldSkip(dbSession, change)) {
-      return false;
-    }
-
     switch (change.getOperation()) {
       case ADD:
-        validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
-        GroupPermissionDto addedDto = new GroupPermissionDto()
-          .setRole(change.getPermission())
-          .setOrganizationUuid(change.getOrganizationUuid())
-          .setGroupId(change.getGroupIdOrAnyone().getId())
-          .setResourceId(change.getNullableProjectId());
-        dbClient.groupPermissionDao().insert(dbSession, addedDto);
-        break;
+        return addPermission(dbSession, change);
       case REMOVE:
-        checkAdminUsersExistOutsideTheRemovedGroup(dbSession, change);
-        dbClient.groupPermissionDao().delete(dbSession,
-          change.getPermission(),
-          change.getOrganizationUuid(),
-          change.getGroupIdOrAnyone().getId(),
-          change.getNullableProjectId());
-        break;
+        return removePermission(dbSession, change);
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
+  }
+
+  private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {
+    if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+      return false;
+    }
+
+    validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
+    GroupPermissionDto addedDto = new GroupPermissionDto()
+      .setRole(change.getPermission())
+      .setOrganizationUuid(change.getOrganizationUuid())
+      .setGroupId(change.getGroupIdOrAnyone().getId())
+      .setResourceId(change.getNullableProjectId());
+    dbClient.groupPermissionDao().insert(dbSession, addedDto);
     return true;
   }
 
-  private boolean shouldSkip(DbSession dbSession, GroupPermissionChange change) {
-    List<String> existingPermissions;
-    if (change.getGroupIdOrAnyone().isAnyone()) {
-      existingPermissions = dbClient.groupPermissionDao().selectAnyonePermissions(dbSession, change.getNullableProjectId());
-    } else {
-      existingPermissions = dbClient.groupPermissionDao().selectGroupPermissions(dbSession, change.getGroupIdOrAnyone().getId(), change.getNullableProjectId());
+  private boolean removePermission(DbSession dbSession, GroupPermissionChange change) {
+    if (!loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+      return false;
     }
-    switch (change.getOperation()) {
-      case ADD:
-        return existingPermissions.contains(change.getPermission());
-      case REMOVE:
-        return !existingPermissions.contains(change.getPermission());
-      default:
-        throw new UnsupportedOperationException("Unsupported operation: " + change.getOperation());
-    }
+    checkIfRemainingGlobalAdministrators(dbSession, change);
+    dbClient.groupPermissionDao().delete(dbSession,
+      change.getPermission(),
+      change.getOrganizationUuid(),
+      change.getGroupIdOrAnyone().getId(),
+      change.getNullableProjectId());
+    return true;
   }
 
-  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession dbSession, GroupPermissionChange change) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getProjectId().isPresent() &&
-      // TODO support organizations
-      dbClient.roleDao().countUserPermissions(dbSession, change.getPermission(), change.getGroupIdOrAnyone().getId()) <= 0) {
-      throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+  private List<String> loadExistingPermissions(DbSession dbSession, GroupPermissionChange change) {
+    Optional<ProjectId> projectId = change.getProjectId();
+    if (projectId.isPresent()) {
+      return dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession,
+        change.getOrganizationUuid(),
+        change.getGroupIdOrAnyone().getId(),
+        projectId.get().getId());
+    }
+    return dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession,
+      change.getOrganizationUuid(),
+      change.getGroupIdOrAnyone().getId());
+  }
+
+  private void checkIfRemainingGlobalAdministrators(DbSession dbSession, GroupPermissionChange change) {
+    if (SYSTEM_ADMIN.equals(change.getPermission()) &&
+      !change.getGroupIdOrAnyone().isAnyone() &&
+      !change.getProjectId().isPresent()) {
+      // removing global admin permission from group
+      int remaining = dbClient.authorizationDao().countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(dbSession,
+        change.getOrganizationUuid(), SYSTEM_ADMIN, change.getGroupIdOrAnyone().getId());
+
+      if (remaining == 0) {
+        throw new BadRequestException(format("Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN));
+      }
     }
   }
 
