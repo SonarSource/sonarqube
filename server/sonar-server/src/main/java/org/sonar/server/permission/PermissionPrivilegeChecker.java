@@ -36,6 +36,10 @@ public class PermissionPrivilegeChecker {
       .checkPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
+  /**
+   * @deprecated does not support organizations. Replaced by {@link #checkProjectAdmin(UserSession, String, Optional)}
+   */
+  @Deprecated
   public static void checkProjectAdminUserByComponentKey(UserSession userSession, @Nullable String componentKey) {
     userSession.checkLoggedIn();
     if (componentKey == null || !userSession.hasComponentPermission(UserRole.ADMIN, componentKey)) {
