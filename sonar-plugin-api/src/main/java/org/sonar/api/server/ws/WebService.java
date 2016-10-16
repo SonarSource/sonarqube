@@ -296,6 +296,11 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * Internal actions are not displayed by default in the web api documentation. They are
+     * displayed only when the check-box "Show Internal API" is selected. By default
+     * an action is not internal.
+     */
     public NewAction setInternal(boolean b) {
       this.isInternal = b;
       return this;
@@ -532,6 +537,9 @@ public interface WebService extends Definable<WebService.Context> {
       return post;
     }
 
+    /**
+     * @see NewAction#setInternal(boolean)
+     */
     public boolean isInternal() {
       return isInternal;
     }
@@ -598,6 +606,7 @@ public interface WebService extends Definable<WebService.Context> {
     private String exampleValue;
     private String defaultValue;
     private boolean required = false;
+    private boolean internal = false;
     private Set<String> possibleValues = null;
 
     private NewParam(String key) {
@@ -648,6 +657,18 @@ public interface WebService extends Definable<WebService.Context> {
      */
     public NewParam setRequired(boolean b) {
       this.required = b;
+      return this;
+    }
+
+    /**
+     * Internal parameters are not displayed by default in the web api documentation. They are
+     * displayed only when the check-box "Show Internal API" is selected. By default
+     * a parameter is not internal.
+     *
+     * @since 6.2
+     */
+    public NewParam setInternal(boolean b) {
+      this.internal = b;
       return this;
     }
 
@@ -752,6 +773,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final String exampleValue;
     private final String defaultValue;
     private final boolean required;
+    private final boolean internal;
     private final Set<String> possibleValues;
 
     protected Param(Action action, NewParam newParam) {
@@ -763,6 +785,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
+      this.internal = newParam.internal;
       this.possibleValues = newParam.possibleValues;
       if (required && defaultValue != null) {
         throw new IllegalArgumentException(format("Default value must not be set on parameter '%s?%s' as it's marked as required", action, key));
@@ -817,6 +840,16 @@ public interface WebService extends Definable<WebService.Context> {
      */
     public boolean isRequired() {
       return required;
+    }
+
+    /**
+     * Is the parameter internal ?
+     *
+     * @since 6.2
+     * @see NewParam#setInternal(boolean)
+     */
+    public boolean isInternal() {
+      return internal;
     }
 
     /**

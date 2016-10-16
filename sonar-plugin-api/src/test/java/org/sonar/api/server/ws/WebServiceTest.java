@@ -223,6 +223,8 @@ public class WebServiceTest {
           .setDeprecatedSince("5.3")
           .setDeprecatedKey("old-severity")
           .setPossibleValues("INFO", "MAJOR", "BLOCKER");
+        newAction.createParam("internal")
+          .setInternal(true);
         newAction.addPagingParams(20);
         newAction.addFieldsParam(Arrays.asList("name", "severity"));
         newAction.addSortParams(Arrays.asList("name", "updatedAt", "severity"), "updatedAt", false);
@@ -231,11 +233,12 @@ public class WebServiceTest {
     }.define(context);
 
     WebService.Action action = context.controller("api/rule").action("create");
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(8);
 
     WebService.Param keyParam = action.param("key");
     assertThat(keyParam.key()).isEqualTo("key");
     assertThat(keyParam.description()).isEqualTo("Key of the new rule");
+    assertThat(keyParam.isInternal()).isFalse();
     assertThat(keyParam.toString()).isEqualTo("key");
 
     WebService.Param severityParam = action.param("severity");
@@ -246,6 +249,9 @@ public class WebServiceTest {
     assertThat(severityParam.deprecatedKey()).isEqualTo("old-severity");
     assertThat(severityParam.defaultValue()).isEqualTo("MAJOR");
     assertThat(severityParam.possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+
+    WebService.Param internalParam = action.param("internal");
+    assertThat(internalParam.isInternal()).isTrue();
 
     // predefined fields
     assertThat(action.param("p").defaultValue()).isEqualTo("1");
