@@ -93,14 +93,13 @@ public class UpdateAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       long groupId = request.mandatoryParamAsLong(PARAM_GROUP_ID);
       GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
       checkFound(group, "Could not find a user group with id '%s'.", groupId);
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
+      userSession.checkOrganizationPermission(org.get().getUuid(), GlobalPermissions.SYSTEM_ADMIN);
 
       boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);
