@@ -183,7 +183,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fails_if_admin_of_another_organization() throws Exception {
+  public void fails_if_admin_of_another_organization_only() throws Exception {
     OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
     OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
     GroupDto group = db.users().insertGroup(org1, "group1");
