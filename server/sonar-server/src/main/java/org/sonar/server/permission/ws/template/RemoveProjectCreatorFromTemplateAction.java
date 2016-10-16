@@ -35,10 +35,11 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -71,14 +72,16 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkGlobalAdminUser(userSession);
     doHandle(toWsRequest(request));
     response.noContent();
   }
 
   private void doHandle(RemoveProjectCreatorFromTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+
       PermissionTemplateCharacteristicDao dao = dbClient.permissionTemplateCharacteristicDao();
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
       if (templatePermission.isPresent()) {
@@ -99,6 +102,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     RemoveProjectCreatorFromTemplateWsRequest wsRequest = RemoveProjectCreatorFromTemplateWsRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .build();
     validateProjectPermission(wsRequest.getPermission());
