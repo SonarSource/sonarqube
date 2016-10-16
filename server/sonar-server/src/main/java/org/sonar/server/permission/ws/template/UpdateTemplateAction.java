@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,7 +38,7 @@ import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
@@ -92,8 +93,6 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   private UpdateTemplateWsResponse doHandle(UpdateTemplateWsRequest request) {
-    checkGlobalAdminUser(userSession);
-
     String uuid = request.getId();
     String nameParam = request.getName();
     String descriptionParam = request.getDescription();
@@ -101,6 +100,8 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, uuid, nameParam, descriptionParam, projectPatternParam);
+      checkProjectAdmin(userSession, templateToUpdate.getOrganizationUuid(), Optional.empty());
+
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
 
@@ -117,13 +118,13 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
-    validateTemplateNameForUpdate(dbSession, templateToUpdate.getName(), templateToUpdate.getId());
+    validateTemplateNameForUpdate(dbSession, templateToUpdate.getOrganizationUuid(), templateToUpdate.getName(), templateToUpdate.getId());
     validateProjectPattern(templateToUpdate.getKeyPattern());
   }
 
   private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String uuid, @Nullable String newName, @Nullable String newDescription,
     @Nullable String newProjectKeyPattern) {
-    PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
+    PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null, null));
     templateToUpdate.setName(firstNonNull(newName, templateToUpdate.getName()));
     templateToUpdate.setDescription(firstNonNull(newDescription, templateToUpdate.getDescription()));
     templateToUpdate.setKeyPattern(firstNonNull(newProjectKeyPattern, templateToUpdate.getKeyPattern()));
@@ -141,10 +142,10 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return UpdateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 
-  private void validateTemplateNameForUpdate(DbSession dbSession, String name, long id) {
+  private void validateTemplateNameForUpdate(DbSession dbSession, String organizationUuid, String name, long id) {
     validateTemplateNameFormat(name);
 
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, organizationUuid, name);
     checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == id,
       format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }

@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -36,6 +35,7 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
@@ -58,25 +58,27 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Before
   public void setUp() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     when(system.now()).thenReturn(1_440_512_328_743L);
-
-    template = insertTemplate(newPermissionTemplateDto()
+    template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto()
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setName("Permission Template Name")
       .setDescription("Permission Template Description")
       .setKeyPattern(".*\\.pattern\\..*")
       .setCreatedAt(new Date(1_000_000_000_000L))
       .setUpdatedAt(new Date(1_000_000_000_000L)));
+    db.commit();
   }
 
   @Test
   public void update_all_permission_template_fields() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     String result = call(template.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
     assertJson(result)
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("update_template-example.json"));
-    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
+    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
@@ -87,6 +89,8 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void update_with_the_same_values() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     call(template.getUuid(), template.getName(), template.getDescription(), template.getKeyPattern());
 
     PermissionTemplateDto reloaded = db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid());
@@ -97,9 +101,11 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void update_name_only() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     call(template.getUuid(), "Finance", null, null);
 
-    PermissionTemplateDto finance = db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Finance");
+    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo(template.getDescription());
     assertThat(finance.getKeyPattern()).isEqualTo(template.getKeyPattern());
@@ -107,6 +113,8 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_key_is_not_found() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
@@ -115,20 +123,19 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_another_template() throws Exception {
-    insertTemplate(newPermissionTemplateDto()
-      .setName("My Template")
-      .setUuid("my-key")
-      .setCreatedAt(new Date(12345789L))
-      .setUpdatedAt(new Date(12345789L)));
+    loginAsAdminOnDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A template with the name 'My Template' already exists (case insensitive).");
+    expectedException.expectMessage("A template with the name '" + anotherTemplate.getName() + "' already exists (case insensitive).");
 
-    call(template.getUuid(), "My Template", null, null);
+    call(this.template.getUuid(), anotherTemplate.getName(), null, null);
   }
 
   @Test
   public void fail_if_key_is_not_provided() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call(null, "Finance", null, null);
@@ -136,6 +143,8 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_empty() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
@@ -144,6 +153,8 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_has_just_whitespaces() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
@@ -152,6 +163,8 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_regexp_if_not_valid() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
@@ -160,12 +173,14 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
-    insertTemplate(newPermissionTemplateDto().setName("finance"));
+    loginAsAdminOnDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
+    String nameCaseInsensitive = anotherTemplate.getName().toUpperCase();
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A template with the name 'Finance' already exists (case insensitive).");
+    expectedException.expectMessage("A template with the name '" + nameCaseInsensitive + "' already exists (case insensitive).");
 
-    call(template.getUuid(), "Finance", null, null);
+    call(this.template.getUuid(), nameCaseInsensitive, null, null);
   }
 
   @Test
@@ -178,16 +193,11 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_not_admin() throws Exception {
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+
     expectedException.expect(ForbiddenException.class);
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     call(template.getUuid(), "Finance", null, null);
-  }
-
-  private PermissionTemplateDto insertTemplate(PermissionTemplateDto dto) {
-    db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
-    db.commit();
-    return dto;
   }
 
   private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
