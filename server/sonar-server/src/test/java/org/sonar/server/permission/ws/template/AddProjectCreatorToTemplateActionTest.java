@@ -24,18 +24,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -53,13 +52,14 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
   @Before
   public void setUp() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     template = insertTemplate();
     when(system.now()).thenReturn(2_000_000_000L);
   }
 
   @Test
   public void insert_row_when_no_template_permission() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -70,6 +70,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
   @Test
   public void update_row_when_existing_template_permission() throws Exception {
+    loginAsAdminOnDefaultOrganization();
     PermissionTemplateCharacteristicDto characteristic = db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(),
       new PermissionTemplateCharacteristicDto()
         .setTemplateId(template.getId())
@@ -93,6 +94,8 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
   @Test
   public void fail_when_template_does_not_exist() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
 
     newRequest()
@@ -103,29 +106,21 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
   @Test
   public void fail_if_permission_is_not_a_project_permission() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
+      .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute();
   }
 
   @Test
-  public void fail_if_not_authenticated() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
+  public void fail_if_not_admin_of_default_organization() throws Exception {
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_GATE_ADMIN);
 
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
-  }
-
-  @Test
-  public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)

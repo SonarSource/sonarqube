@@ -26,11 +26,13 @@ import static java.util.Objects.requireNonNull;
 
 public class AddProjectCreatorToTemplateWsRequest {
   private final String templateId;
+  private final String organization;
   private final String templateName;
   private final String permission;
 
   public AddProjectCreatorToTemplateWsRequest(Builder builder) {
     this.templateId = builder.templateId;
+    this.organization = builder.organization;
     this.templateName = builder.templateName;
     this.permission = requireNonNull(builder.permission);
   }
@@ -38,6 +40,11 @@ public class AddProjectCreatorToTemplateWsRequest {
   @CheckForNull
   public String getTemplateId() {
     return templateId;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
   }
 
   @CheckForNull
@@ -55,6 +62,7 @@ public class AddProjectCreatorToTemplateWsRequest {
 
   public static class Builder {
     private String templateId;
+    private String organization;
     private String templateName;
     private String permission;
 
@@ -64,6 +72,11 @@ public class AddProjectCreatorToTemplateWsRequest {
 
     public Builder setTemplateId(String templateId) {
       this.templateId = templateId;
+      return this;
+    }
+
+    public Builder setOrganization(String s) {
+      this.organization = s;
       return this;
     }
 

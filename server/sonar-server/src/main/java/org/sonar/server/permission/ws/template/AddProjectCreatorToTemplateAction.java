@@ -34,10 +34,11 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -70,14 +71,16 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkGlobalAdminUser(userSession);
     doHandle(toWsRequest(request));
     response.noContent();
   }
 
   private void doHandle(AddProjectCreatorToTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
         .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
       if (templatePermission.isPresent()) {
@@ -111,6 +114,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     AddProjectCreatorToTemplateWsRequest wsRequest = AddProjectCreatorToTemplateWsRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .build();
     validateProjectPermission(wsRequest.getPermission());
