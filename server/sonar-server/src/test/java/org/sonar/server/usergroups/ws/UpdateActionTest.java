@@ -73,11 +73,11 @@ public class UpdateActionTest {
 
   @Test
   public void update_both_name_and_description() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
+    GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.users().insertMember(group, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
@@ -93,9 +93,9 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_name() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
@@ -110,9 +110,9 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_description() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "Initial Name");
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("description", "New Description")
@@ -128,8 +128,8 @@ public class UpdateActionTest {
   @Test
   public void update_default_group_name_also_update_default_group_property() throws Exception {
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
@@ -142,8 +142,8 @@ public class UpdateActionTest {
   public void update_default_group_name_does_not_update_default_group_setting_when_null() throws Exception {
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(null);
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
@@ -158,8 +158,8 @@ public class UpdateActionTest {
     when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
     GroupDto groupInDefaultOrg = db.users().insertGroup(defaultOrganizationProvider.getDto(), DEFAULT_GROUP_NAME_VALUE);
     GroupDto group = db.users().insertGroup(org, DEFAULT_GROUP_NAME_VALUE);
+    loginAsAdmin(org);
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("name", "new-name")
@@ -169,13 +169,30 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void require_admin_permission() throws Exception {
+  public void require_admin_permission_on_organization() throws Exception {
+    GroupDto group = db.users().insertGroup();
     userSession.login("not-admin");
 
     expectedException.expect(ForbiddenException.class);
 
     newRequest()
-      .setParam("id", "42")
+      .setParam("id", group.getId().toString())
+      .setParam("name", "some-product-bu")
+      .setParam("description", "Business Unit for Some Awesome Product")
+      .execute();
+  }
+
+  @Test
+  public void fails_if_admin_of_another_organization() throws Exception {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org1, "group1");
+    loginAsAdmin(org2);
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest()
+      .setParam("id", group.getId().toString())
       .setParam("name", "some-product-bu")
       .setParam("description", "Business Unit for Some Awesome Product")
       .execute();
@@ -183,8 +200,8 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_name_is_too_short() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
-    loginAsAdmin();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Group name cannot be empty");
@@ -197,8 +214,8 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_name_is_too_long() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
-    loginAsAdmin();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Group name cannot be longer than 255 characters");
@@ -211,8 +228,8 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_new_name_is_anyone() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
-    loginAsAdmin();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Anyone group cannot be used");
@@ -229,7 +246,7 @@ public class UpdateActionTest {
     GroupDto groupToBeRenamed = db.users().insertGroup(defaultOrg, "a name");
     String newName = "new-name";
     db.users().insertGroup(defaultOrg, newName);
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("Group 'new-name' already exists");
@@ -242,8 +259,8 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_description_is_too_long() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a name");
-    loginAsAdmin();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Description cannot be longer than 200 characters");
@@ -256,8 +273,8 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_if_unknown_group() throws Exception {
-    loginAsAdmin();
+  public void fail_if_unknown_group_id() throws Exception {
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Could not find a user group with id '42'.");
@@ -271,7 +288,11 @@ public class UpdateActionTest {
     return ws.newPostRequest("api/user_groups", "update");
   }
 
-  private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 }
