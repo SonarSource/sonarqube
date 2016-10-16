@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,11 +32,12 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -74,14 +76,15 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(RemoveUserFromTemplateWsRequest request) {
-    checkGlobalAdminUser(userSession);
-
     String permission = request.getPermission();
     String userLogin = request.getLogin();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
@@ -94,6 +97,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

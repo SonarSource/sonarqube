@@ -28,6 +28,7 @@ public class RemoveUserFromTemplateWsRequest {
   private String login;
   private String permission;
   private String templateId;
+  private String organization;
   private String templateName;
 
   public String getLogin() {
@@ -55,6 +56,16 @@ public class RemoveUserFromTemplateWsRequest {
 
   public RemoveUserFromTemplateWsRequest setTemplateId(@Nullable String templateId) {
     this.templateId = templateId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public RemoveUserFromTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 

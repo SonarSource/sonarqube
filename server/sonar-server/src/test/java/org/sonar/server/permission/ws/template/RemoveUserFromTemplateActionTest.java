@@ -64,7 +64,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void remove_user_from_template() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
@@ -72,7 +72,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void remove_user_from_template_by_name_case_insensitive() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION)
@@ -84,7 +84,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void remove_user_from_template_twice_without_failing() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
@@ -95,7 +95,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void keep_user_permission_not_removed() throws Exception {
     addUserToTemplate(user, template, ISSUE_ADMIN);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).isEmpty();
@@ -107,7 +107,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     UserDto newUser = db.users().insertUser("new-login");
     addUserToTemplate(newUser, template, DEFAULT_PERMISSION);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template.getId(), DEFAULT_PERMISSION)).containsExactly("new-login");
@@ -117,7 +117,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void fail_if_not_a_project_permission() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
@@ -141,7 +141,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void fail_if_user_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(null, template.getUuid(), DEFAULT_PERMISSION);
   }
 
@@ -149,7 +149,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void fail_if_permission_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), template.getUuid(), null);
   }
 
@@ -157,7 +157,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void fail_if_template_missing() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), null, DEFAULT_PERMISSION);
   }
 
@@ -166,7 +166,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest("unknown-login", template.getUuid(), DEFAULT_PERMISSION);
   }
 
@@ -175,7 +175,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest(user.getLogin(), "unknown-key", DEFAULT_PERMISSION);
   }
 
@@ -205,7 +205,4 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     db.commit();
   }
 
-  private void loginAsAdmin() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
 }
