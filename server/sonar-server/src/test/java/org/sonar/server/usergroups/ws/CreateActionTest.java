@@ -59,7 +59,7 @@ public class CreateActionTest {
 
   @Test
   public void create_group_on_default_organization() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     newRequest()
       .setParam("name", "some-product-bu")
@@ -74,14 +74,14 @@ public class CreateActionTest {
         "  }" +
         "}");
 
-    assertThat(db.users().selectGroup(defaultOrganizationProvider.getDto(), "some-product-bu")).isPresent();
+    assertThat(db.users().selectGroup(db.getDefaultOrganization(), "some-product-bu")).isPresent();
   }
 
   @Test
   public void create_group_on_specific_organization() throws Exception {
     OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdmin(org);
 
-    loginAsAdmin();
     newRequest()
       .setParam("organization", org.getKey())
       .setParam("name", "some-product-bu")
@@ -101,9 +101,11 @@ public class CreateActionTest {
     assertThat(createdGroup.getOrganizationUuid()).isEqualTo(org.getUuid());
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void require_admin_permission() throws Exception {
+  @Test
+  public void fail_if_not_administrator() throws Exception {
     userSession.login("not-admin");
+
+    expectedException.expect(ForbiddenException.class);
 
     newRequest()
       .setParam("name", "some-product-bu")
@@ -111,9 +113,24 @@ public class CreateActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_if_administrator_of_another_organization() throws Exception {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdmin(org2);
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest()
+      .setParam("organization", org1.getKey())
+      .setParam("name", "some-product-bu")
+      .setParam("description", "Business Unit for Some Awesome Product")
+      .execute();
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void fail_if_name_is_too_short() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("name", "")
       .execute();
@@ -121,7 +138,7 @@ public class CreateActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_if_name_is_too_long() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("name", StringUtils.repeat("a", 255 + 1))
       .execute();
@@ -129,7 +146,7 @@ public class CreateActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_if_name_is_anyone() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("name", "AnYoNe")
       .execute();
@@ -137,12 +154,12 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_group_with_same_name_already_exists() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "the-group");
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("Group '" + group.getName() + "' already exists");
 
-    loginAsAdmin();
     newRequest()
       .setParam("name", group.getName())
       .execute();
@@ -152,11 +169,11 @@ public class CreateActionTest {
   public void fail_if_group_with_same_name_already_exists_in_the_organization() throws Exception {
     OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
     GroupDto group = db.users().insertGroup(org, "the-group");
+    loginAsAdmin(org);
 
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("Group '" + group.getName() + "' already exists");
 
-    loginAsAdmin();
     newRequest()
       .setParam("organization", org.getKey())
       .setParam("name", group.getName())
@@ -169,8 +186,8 @@ public class CreateActionTest {
     OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
     OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
     GroupDto group = db.users().insertGroup(org1, name);
+    loginAsAdmin(org2);
 
-    loginAsAdmin();
     newRequest()
       .setParam("organization", org2.getKey())
       .setParam("name", name)
@@ -188,7 +205,7 @@ public class CreateActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_if_description_is_too_long() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("name", "long-desc")
       .setParam("description", StringUtils.repeat("a", 1_000))
@@ -199,8 +216,12 @@ public class CreateActionTest {
     return ws.newPostRequest("api/user_groups", "create");
   }
 
-  private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private GroupWsSupport newGroupWsSupport() {

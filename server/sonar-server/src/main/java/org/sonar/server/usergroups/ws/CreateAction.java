@@ -79,10 +79,10 @@ public class CreateAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      userSession.checkOrganizationPermission(organization.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
       GroupDto group = new GroupDto()
         .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
