@@ -19,17 +19,16 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.stream.Collectors;
 
 /**
  * This web service lists all the existing web services, including itself,
@@ -56,12 +55,7 @@ public class WebServicesWs implements WebService {
       .setSince("4.2")
       .setDescription("List web services")
       .setResponseExample(getClass().getResource("list-example.json"))
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          handleList(context.controllers(), request, response);
-        }
-      });
+      .setHandler((request, response) -> handleList(context.controllers(), request, response));
     action
       .createParam("include_internals")
       .setDescription("Include web services that are implemented for internal use only. Their forward-compatibility is " +
@@ -123,12 +117,7 @@ public class WebServicesWs implements WebService {
     writer.name("webServices").beginArray();
 
     // sort controllers by path
-    Ordering<Controller> ordering = Ordering.natural().onResultOf(new Function<Controller, String>() {
-      @Override
-      public String apply(Controller controller) {
-        return controller.path();
-      }
-    });
+    Ordering<Controller> ordering = Ordering.natural().onResultOf(Controller::path);
     for (Controller controller : ordering.sortedCopy(controllers)) {
       writeController(writer, controller, includeInternals);
     }
@@ -144,12 +133,7 @@ public class WebServicesWs implements WebService {
       writer.prop("since", controller.since());
       writer.prop("description", controller.description());
       // sort actions by key
-      Ordering<Action> ordering = Ordering.natural().onResultOf(new Function<Action, String>() {
-        @Override
-        public String apply(Action action) {
-          return action.key();
-        }
-      });
+      Ordering<Action> ordering = Ordering.natural().onResultOf(Action::key);
       writer.name("actions").beginArray();
       for (Action action : ordering.sortedCopy(controller.actions())) {
         writeAction(writer, action, includeInternals);
@@ -169,16 +153,12 @@ public class WebServicesWs implements WebService {
       writer.prop("internal", action.isInternal());
       writer.prop("post", action.isPost());
       writer.prop("hasResponseExample", action.responseExample() != null);
-      if (!action.params().isEmpty()) {
+      List<Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(Collectors.toList());
+      if (!params.isEmpty()) {
         // sort parameters by key
-        Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {
-          @Override
-          public String apply(@Nullable Param param) {
-            return param != null ? param.key() : null;
-          }
-        });
+        Ordering<Param> ordering = Ordering.natural().onResultOf(Param::key);
         writer.name("params").beginArray();
-        for (Param param : ordering.sortedCopy(action.params())) {
+        for (Param param : ordering.sortedCopy(params)) {
           writeParam(writer, param);
         }
         writer.endArray();
@@ -193,6 +173,7 @@ public class WebServicesWs implements WebService {
     writer.prop("description", param.description());
     writer.prop("since", param.since());
     writer.prop("required", param.isRequired());
+    writer.prop("internal", param.isInternal());
     writer.prop("defaultValue", param.defaultValue());
     writer.prop("exampleValue", param.exampleValue());
     writer.prop("deprecatedSince", param.deprecatedSince());
