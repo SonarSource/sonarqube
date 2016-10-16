@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 public class DeleteTemplateWsRequest {
   private String templateId;
+  private String organization;
   private String templateName;
 
   @CheckForNull
@@ -33,6 +34,16 @@ public class DeleteTemplateWsRequest {
 
   public DeleteTemplateWsRequest setTemplateId(@Nullable String templateId) {
     this.templateId = templateId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public DeleteTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 

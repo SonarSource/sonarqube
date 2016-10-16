@@ -44,18 +44,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.util.collections.Sets.newSet;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplateAction> {
 
-  private static final String TEMPLATE_UUID = "permission-template-uuid";
   private static final String ACTION = "delete_template";
 
   private DefaultPermissionTemplateFinder defaultTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
-  private PermissionTemplateDto permissionTemplate;
+  private PermissionTemplateDto template;
 
   @Override
   protected DeleteTemplateAction buildWsAction() {
@@ -64,26 +62,26 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
 
   @Before
   public void setUp() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    loginAsAdminOnDefaultOrganization();
     when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.emptySet());
-    permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setUuid(TEMPLATE_UUID));
+    template = insertTemplateAndAssociatedPermissions();
   }
 
   @Test
   public void delete_template_in_db() throws Exception {
-    WsTester.Result result = newRequest(TEMPLATE_UUID);
+    WsTester.Result result = newRequest(template.getUuid());
 
     assertThat(result.outputAsString()).isEmpty();
-    assertThat(db.getDbClient().permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(db.getSession(), TEMPLATE_UUID)).isNull();
+    assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
   }
 
   @Test
   public void delete_template_by_name_case_insensitive() throws Exception {
     wsTester.newPostRequest(CONTROLLER, ACTION)
-      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
-    assertThat(db.getDbClient().permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(db.getSession(), TEMPLATE_UUID)).isNull();
+    assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
   }
 
   @Test
@@ -95,11 +93,12 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
 
   @Test
   public void fail_if_template_is_default() throws Exception {
+    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(template.getUuid()));
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("It is not possible to delete a default template");
-    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(TEMPLATE_UUID));
 
-    newRequest(TEMPLATE_UUID);
+    newRequest(template.getUuid());
   }
 
   @Test
@@ -107,7 +106,7 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(TEMPLATE_UUID);
+    newRequest(template.getUuid());
   }
 
   @Test
@@ -115,7 +114,7 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(TEMPLATE_UUID);
+    newRequest(template.getUuid());
   }
 
   @Test
@@ -129,26 +128,25 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
   public void delete_perm_tpl_characteristic_when_delete_template() throws Exception {
     db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(), new PermissionTemplateCharacteristicDto()
       .setPermission(UserRole.USER)
-      .setTemplateId(permissionTemplate.getId())
+      .setTemplateId(template.getId())
       .setWithProjectCreator(true)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime()));
     db.commit();
 
-    newRequest(TEMPLATE_UUID);
+    newRequest(template.getUuid());
 
-    assertThat(db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(db.getSession(), asList(permissionTemplate.getId()))).isEmpty();
+    assertThat(db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(db.getSession(), asList(template.getId()))).isEmpty();
   }
 
-  private PermissionTemplateDto insertTemplateAndAssociatedPermissions(PermissionTemplateDto template) {
-    db.getDbClient().permissionTemplateDao().insert(db.getSession(), template);
+  private PermissionTemplateDto insertTemplateAndAssociatedPermissions() {
+    PermissionTemplateDto dto = addTemplateToDefaultOrganization();
     UserDto user = db.getDbClient().userDao().insert(db.getSession(), UserTesting.newUserDto().setActive(true));
     GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), GroupTesting.newGroupDto());
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getId(), user.getId(), UserRole.ADMIN);
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), group.getId(), UserRole.CODEVIEWER);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getId(), user.getId(), UserRole.ADMIN);
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), dto.getId(), group.getId(), UserRole.CODEVIEWER);
     db.commit();
-
-    return template;
+    return dto;
   }
 
   private WsTester.Result newRequest(@Nullable String id) throws Exception {

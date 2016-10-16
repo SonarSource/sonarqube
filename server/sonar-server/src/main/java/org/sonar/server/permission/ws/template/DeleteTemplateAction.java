@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,14 +32,14 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.DeleteTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
-// TODO move to package "template"
 public class DeleteTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -66,14 +67,16 @@ public class DeleteTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkGlobalAdminUser(userSession);
     doHandle(toDeleteTemplateWsRequest(request));
     response.noContent();
   }
 
   private void doHandle(DeleteTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = finder.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = finder.findTemplate(dbSession, newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+
       checkTemplateUuidIsNotDefault(template.getUuid());
       dbClient.permissionTemplateDao().deleteById(dbSession, template.getId());
       dbSession.commit();
@@ -83,6 +86,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   private static DeleteTemplateWsRequest toDeleteTemplateWsRequest(Request request) {
     return new DeleteTemplateWsRequest()
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
