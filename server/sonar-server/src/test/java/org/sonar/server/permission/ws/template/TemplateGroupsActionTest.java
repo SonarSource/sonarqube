@@ -42,7 +42,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -64,15 +63,15 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     GroupDto adminGroup = insertGroupOnDefaultOrganization("sonar-administrators", "System administrators");
     GroupDto userGroup = insertGroupOnDefaultOrganization("sonar-users", "Any new users created will automatically join this group");
 
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), adminGroup.getId()));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), userGroup.getId()));
     // Anyone group
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), null));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     String response = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -86,7 +85,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void return_all_permissions_of_matching_groups() throws Exception {
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
     GroupDto group1 = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(CODEVIEWER, template.getId(), group1.getId()));
@@ -102,11 +101,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), null));
 
-    PermissionTemplateDto anotherTemplate = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-2"));
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -122,7 +121,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_by_permission() throws Exception {
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
     GroupDto group1 = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
@@ -136,11 +135,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     // Anyone
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
 
-    PermissionTemplateDto anotherTemplate = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-2"));
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
@@ -161,16 +160,16 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3-name");
 
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getId(), group2.getId()));
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
 
-    PermissionTemplateDto anotherTemplate = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-2"));
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, anotherTemplate.getId(), group1.getId()));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -184,14 +183,14 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void search_with_pagination() throws Exception {
     OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group2.getId()));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
@@ -208,14 +207,14 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void search_with_text_query() throws Exception {
     OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3");
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -230,13 +229,13 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void search_with_text_query_return_all_groups_even_when_no_permission_set() throws Exception {
     OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     db.users().insertGroup(defaultOrg, "group-1-name");
     db.users().insertGroup(defaultOrg, "group-2-name");
     db.users().insertGroup(defaultOrg, "group-3-name");
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -253,12 +252,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_with_text_query_return_anyone_group_even_when_no_permission_set() throws Exception {
-    PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "group");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group.getId()));
     commit();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     byte[] output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -273,8 +272,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_not_logged_in() throws Exception {
+    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     userSession.anonymous();
-    PermissionTemplateDto template1 = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -286,8 +285,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
+    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     userSession.login();
-    PermissionTemplateDto template1 = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
 
     expectedException.expect(ForbiddenException.class);
 
@@ -299,8 +298,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_uuid_and_name_provided() throws Exception {
-    loginAsAdmin();
-    PermissionTemplateDto template1 = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
 
@@ -313,7 +312,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_uuid_nor_name_provided() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
 
@@ -324,7 +323,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_is_not_found() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
 
@@ -336,8 +335,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
-    loginAsAdmin();
-    PermissionTemplateDto template1 = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid("template-uuid-1"));
+    loginAsAdminOnDefaultOrganization();
+    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -368,9 +367,5 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   private WsTester.TestRequest newRequest() {
     return wsTester.newPostRequest(CONTROLLER, "template_groups");
-  }
-
-  private void loginAsAdmin() {
-    userSession.login("login").setGlobalPermissions(ADMIN);
   }
 }
