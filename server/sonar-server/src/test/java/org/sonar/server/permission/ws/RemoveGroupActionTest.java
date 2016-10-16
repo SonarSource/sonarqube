@@ -145,13 +145,13 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   }
 
   @Test
-  public void fail_to_remove_last_sysadmin_permission() throws Exception {
+  public void fail_to_remove_last_admin_permission() throws Exception {
     db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
     db.users().insertPermissionOnGroup(aGroup, PROVISIONING);
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last group with 'admin' permission. Permission cannot be removed.");
+    expectedException.expectMessage("Last group with permission 'admin'. Permission cannot be removed.");
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())

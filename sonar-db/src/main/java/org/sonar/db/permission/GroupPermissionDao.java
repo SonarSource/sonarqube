@@ -92,21 +92,20 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * @return the permissions granted to the requested group, optionally on the requested project. An
-   * empty list is returned if the group or project do not exist.
+   * Selects the global permissions granted to group. An empty list is returned if the
+   * group does not exist.
    */
-  public List<String> selectGroupPermissions(DbSession session, long groupId, @Nullable Long projectId) {
-    return session.getMapper(GroupPermissionMapper.class).selectGroupPermissions(groupId, projectId);
+  public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Long groupId) {
+    return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupId);
   }
 
+
   /**
-   * @return the permissions granted to Anyone virtual group, optionally on the requested project. An
-   * empty list is returned if the project does not exist.
-   * @deprecated not compatible with organizations if {@code projectId} is null. Should have an organization parameter.
+   * Selects the permissions granted to group and project. An empty list is returned if the
+   * group or project do not exist.
    */
-  @Deprecated
-  public List<String> selectAnyonePermissions(DbSession session, @Nullable Long projectId) {
-    return session.getMapper(GroupPermissionMapper.class).selectAnyonePermissions(projectId);
+  public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Long groupId, long projectId) {
+    return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupId, projectId);
   }
 
   /**

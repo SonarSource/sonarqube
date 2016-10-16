@@ -54,10 +54,6 @@ public interface GroupPermissionMapper {
 
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
-  List<String> selectGroupPermissions(@Param("groupId") long groupId, @Nullable @Param("projectId") Long projectId);
-
-  List<String> selectAnyonePermissions(@Nullable @Param("projectId") Long projectId);
-
   void insert(GroupPermissionDto dto);
 
   void deleteByRootComponentId(@Param("rootComponentId") long componentId);
@@ -66,4 +62,8 @@ public interface GroupPermissionMapper {
     @Nullable @Param("groupId") Long groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
 
   int countRowsByRootComponentId(@Param("rootComponentId") long rootComponentId);
+
+  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupId") Long groupId);
+
+  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupId") Long groupId, @Param("projectId") long projectId);
 }

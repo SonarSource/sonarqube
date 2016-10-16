@@ -49,6 +49,10 @@ public class RoleDao implements Dao {
     mapper(session).deleteGroupRolesByGroupId(groupId);
   }
 
+  /**
+   * @deprecated does not support organizations
+   */
+  @Deprecated
   public int countUserPermissions(DbSession session, String permission, @Nullable Long allGroupsExceptThisGroupId) {
     return mapper(session).countUsersWithPermission(permission, allGroupsExceptThisGroupId);
   }

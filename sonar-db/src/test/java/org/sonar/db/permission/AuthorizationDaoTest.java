@@ -175,6 +175,59 @@ public class AuthorizationDaoTest {
   }
 
   @Test
+  public void countRemainingUserIdsWithGlobalPermissionIfExcludeGroup() {
+    // users with global permission "perm1" :
+    // - "u1" and "u2" through group "g1"
+    // - "u1" and "u3" through group "g2"
+    // - "u4"
+
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+    UserDto user4 = db.users().insertUser();
+    UserDto user5 = db.users().insertUser();
+
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group1 = db.users().insertGroup(org, "g1");
+    db.users().insertPermissionOnGroup(group1, "perm1");
+    db.users().insertPermissionOnGroup(group1, "perm2");
+    db.users().insertMember(group1, user1);
+    db.users().insertMember(group1, user2);
+
+    GroupDto group2 = db.users().insertGroup(org, "g2");
+    db.users().insertPermissionOnGroup(group2, "perm1");
+    db.users().insertPermissionOnGroup(group2, "perm2");
+    db.users().insertMember(group2, user1);
+    db.users().insertMember(group2, user3);
+
+    // group3 has the permission "perm1" but has no users
+    GroupDto group3 = db.users().insertGroup(org, "g2");
+    db.users().insertPermissionOnGroup(group3, "perm1");
+
+    db.users().insertPermissionOnUser(user4, "perm1");
+    db.users().insertPermissionOnUser(user4, "perm2");
+
+    db.users().insertPermissionOnAnyone(org, "perm1");
+
+    // excluding group "g1" -> remain u1, u3 and u4
+    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+      org.getUuid(), "perm1", group1.getId())).isEqualTo(3);
+
+    // excluding group "g2" -> remain u1, u2 and u4
+    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+      org.getUuid(), "perm1", group2.getId())).isEqualTo(3);
+
+    // excluding group "g3" -> remain u1, u2, u3 and u4
+    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+      org.getUuid(), "perm1", group3.getId())).isEqualTo(4);
+
+    // nobody has the permission
+    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+      org.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
+
+  }
+
+  @Test
   public void keep_authorized_project_ids_for_user() {
     db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_user.xml");
 

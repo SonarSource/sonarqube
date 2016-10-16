@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
@@ -79,22 +80,24 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void add_permission_to_anyone() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(db.getDefaultOrganization().getUuid(), null);
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    GroupIdOrAnyone groupId = new GroupIdOrAnyone(defaultOrganization.getUuid(), null);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupId));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectAnyonePermissions(defaultOrganization, null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
   }
 
   @Test
   public void add_project_permission_to_anyone() {
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(db.getDefaultOrganization().getUuid(), null);
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    GroupIdOrAnyone groupId = new GroupIdOrAnyone(defaultOrganization.getUuid(), null);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
-    assertThat(db.users().selectAnyonePermissions(null)).isEmpty();
-    assertThat(db.users().selectAnyonePermissions(project)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectAnyonePermissions(defaultOrganization, null)).isEmpty();
+    assertThat(db.users().selectAnyonePermissions(defaultOrganization, project)).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
@@ -162,14 +165,26 @@ public class GroupPermissionChangerTest {
   }
 
   @Test
-  public void fail_to_remove_sysadmin_permission_if_no_more_sysadmins() {
+  public void fail_to_remove_admin_permission_if_no_more_admins() {
     GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
     db.users().insertPermissionOnGroup(group, GlobalPermissions.SYSTEM_ADMIN);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last group with 'admin' permission. Permission cannot be removed.");
+    expectedException.expectMessage("Last group with permission 'admin'. Permission cannot be removed.");
 
     underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.REMOVE, GlobalPermissions.SYSTEM_ADMIN, null, groupId));
+  }
+
+  @Test
+  public void remove_admin_group_if_still_other_admins() {
+    GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
+    db.users().insertPermissionOnGroup(group, GlobalPermissions.SYSTEM_ADMIN);
+    UserDto admin = db.users().insertUser();
+    db.users().insertPermissionOnUser(admin, GlobalPermissions.SYSTEM_ADMIN);
+
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, GlobalPermissions.SYSTEM_ADMIN, null, groupId));
+
+    assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
   }
 
   private void apply(GroupPermissionChange change) {

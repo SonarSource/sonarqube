@@ -71,6 +71,29 @@
     gr.group_id is null
   </select>
 
+  <select id="countRemainingUserIdsWithGlobalPermissionIfExcludeGroup" parameterType="map" resultType="int">
+    select count(1) from
+    (
+      select gu.user_id
+      from groups_users gu
+      inner join group_roles gr on gr.group_id = gu.group_id
+      where
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.role = #{permission,jdbcType=VARCHAR} and
+      gr.resource_id is null and
+      gr.group_id is not null and
+      gr.group_id != #{excludedGroupId,jdbcType=BIGINT}
+
+      union
+
+      select ur.user_id
+      from user_roles ur
+      where
+      ur.resource_id is null and
+      ur.role = #{permission,jdbcType=VARCHAR}
+    ) remaining
+  </select>
+
   <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
     SELECT gr.resource_id
     FROM group_roles gr
