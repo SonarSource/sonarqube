@@ -31,7 +31,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.permission.ws.template.TemplateUsersAction;
 import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.WsPermissions;
 
@@ -40,7 +39,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -62,31 +61,31 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user1 = insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
 
-    PermissionTemplateDto template1 = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user1));
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user2));
     addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2));
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     String result = newRequest(null, template1.getUuid()).execute().outputAsString();
     assertJson(result).isSimilarTo(getClass().getResource("template_users-example.json"));
   }
 
   @Test
   public void search_for_users_by_template_name() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = insertTemplate("template-uuid-2");
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     byte[] bytes = newRequest(null, null)
@@ -103,19 +102,19 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void search_using_text_query() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = insertTemplate("template-uuid-2");
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     byte[] bytes = newRequest(null, null)
@@ -134,16 +133,16 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = insertTemplate("template-uuid-2");
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     byte[] bytes = newRequest(USER, template.getUuid())
       .setMediaType(PROTOBUF)
       .execute().output();
@@ -159,16 +158,16 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = insertTemplate("template-uuid-2");
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     byte[] bytes = newRequest(USER, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(WebService.Param.SELECTED, "all")
@@ -187,12 +186,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-3").setName("name-3"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-1").setName("name-1"));
 
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     byte[] bytes = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setMediaType(PROTOBUF)
@@ -205,11 +204,11 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void empty_result_when_no_user_on_template() throws Exception {
     UserDto user = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
-    PermissionTemplateDto anotherTemplate = insertTemplate("template-uuid-2");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user));
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     byte[] bytes = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setMediaType(PROTOBUF)
@@ -222,8 +221,8 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
-    loginAsAdmin();
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -233,7 +232,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_no_template_param() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
 
@@ -243,7 +242,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_template_does_not_exist() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
 
@@ -253,8 +252,8 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_template_uuid_and_name_provided() throws Exception {
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
-    loginAsAdmin();
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
 
@@ -265,7 +264,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_not_logged_in() throws Exception {
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -275,8 +274,8 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
-    PermissionTemplateDto template = insertTemplate("template-uuid-1");
-    userSession.login("login");
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -285,12 +284,6 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   private UserDto insertUser(UserDto userDto) {
     return db.users().insertUser(userDto);
-  }
-
-  private PermissionTemplateDto insertTemplate(String uuid) {
-    PermissionTemplateDto dto = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto().setUuid(uuid));
-    db.commit();
-    return dto;
   }
 
   private void addUserToTemplate(PermissionTemplateUserDto dto) {
@@ -316,7 +309,4 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     return request;
   }
 
-  private void loginAsAdmin() {
-    userSession.login("login").setGlobalPermissions(ADMIN);
-  }
 }
