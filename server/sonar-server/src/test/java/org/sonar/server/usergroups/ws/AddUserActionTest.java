@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProviderRule;
@@ -61,10 +62,10 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_id() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "admins");
-    UserDto user = db.users().insertUser("my-admin");
+    GroupDto group = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", user.getLogin())
@@ -76,10 +77,10 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_name() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a-group");
-    UserDto user = db.users().insertUser("user_login");
+    GroupDto group = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
@@ -94,8 +95,8 @@ public class AddUserActionTest {
     OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser("user_login");
+    loginAsAdmin(org);
 
-    loginAsAdmin();
     newRequest()
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -113,8 +114,8 @@ public class AddUserActionTest {
     GroupDto users = db.users().insertGroup(defaultOrg, "users");
     UserDto user = db.users().insertUser("my-admin");
     db.users().insertMember(users, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", admins.getId().toString())
       .setParam("login", user.getLogin())
@@ -125,12 +126,12 @@ public class AddUserActionTest {
   }
 
   @Test
-  public void user_is_already_member_of_group() throws Exception {
-    GroupDto users = db.users().insertGroup(defaultOrganizationProvider.getDto(), "users");
-    UserDto user = db.users().insertUser("my-admin");
+  public void do_not_fail_if_user_is_already_member_of_group() throws Exception {
+    GroupDto users = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
     db.users().insertMember(users, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user.getLogin())
@@ -143,12 +144,12 @@ public class AddUserActionTest {
 
   @Test
   public void group_has_multiple_members() throws Exception {
-    GroupDto users = db.users().insertGroup(defaultOrganizationProvider.getDto(), "user");
-    UserDto user1 = db.users().insertUser("user1");
-    UserDto user2 = db.users().insertUser("user2");
+    GroupDto users = db.users().insertGroup();
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
     db.users().insertMember(users, user1);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user2.getLogin())
@@ -161,11 +162,11 @@ public class AddUserActionTest {
 
   @Test
   public void fail_if_group_does_not_exist() throws Exception {
-    UserDto user = db.users().insertUser("my-admin");
+    UserDto user = db.users().insertUser();
 
     expectedException.expect(NotFoundException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("id", "42")
       .setParam("login", user.getLogin())
@@ -178,7 +179,7 @@ public class AddUserActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", "my-admin")
@@ -187,8 +188,8 @@ public class AddUserActionTest {
 
   @Test
   public void fail_if_not_administrator() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "admins");
-    UserDto user = db.users().insertUser("my-admin");
+    GroupDto group = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -198,12 +199,34 @@ public class AddUserActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_if_administrator_of_another_organization() throws Exception {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org1, "a-group");
+    UserDto user = db.users().insertUser("user_login");
+    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdmin(org2);
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION_KEY, org1.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .execute();
+  }
+
+
   private WsTester.TestRequest newRequest() {
     return ws.newPostRequest("api/user_groups", "add_user");
   }
 
-  private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private GroupWsSupport newGroupWsSupport() {
