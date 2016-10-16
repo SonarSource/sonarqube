@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,7 +31,8 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -67,12 +69,12 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkGlobalAdminUser(userSession);
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupIdOrAnyone groupId = wsSupport.findGroup(dbSession, request);
+      String permission = request.mandatoryParam(PARAM_PERMISSION);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.fromRequest(request));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+      GroupIdOrAnyone groupId = wsSupport.findGroup(dbSession, request);
+      checkArgument(groupId.getOrganizationUuid().equals(template.getOrganizationUuid()), "Group and template are on different organizations");
 
       dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getId(), groupId.getId(), permission);
       dbSession.commit();
