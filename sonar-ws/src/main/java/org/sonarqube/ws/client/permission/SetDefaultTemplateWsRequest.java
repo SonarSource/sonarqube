@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 public class SetDefaultTemplateWsRequest {
   private String qualifier;
   private String templateId;
+  private String organization;
   private String templateName;
 
   @CheckForNull
@@ -44,6 +45,16 @@ public class SetDefaultTemplateWsRequest {
 
   public SetDefaultTemplateWsRequest setTemplateId(@Nullable String templateId) {
     this.templateId = templateId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public SetDefaultTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 

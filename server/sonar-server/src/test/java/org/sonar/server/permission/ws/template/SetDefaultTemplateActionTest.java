@@ -68,9 +68,11 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(PROJECT), "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(VIEW), "any-view-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty("DEV"), "any-dev-template-uuid");
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    loginAsAdminOnDefaultOrganization();
 
-    template = dbClient.permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto().setUuid("permission-template-uuid"));
+    template = dbClient.permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto()
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .setUuid("permission-template-uuid"));
     db.commit();
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -35,12 +36,13 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
 
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -84,11 +86,10 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(SetDefaultTemplateWsRequest request) {
-    checkGlobalAdminUser(userSession);
-
-    String qualifier = request.getQualifier();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = getTemplate(dbSession, request);
+      String qualifier = request.getQualifier();
+      PermissionTemplateDto template = findTemplate(dbSession, request);
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
       validateQualifier(qualifier, resourceTypes);
       setDefaultTemplateUuid(dbSession, template.getUuid(), qualifier);
       dbSession.commit();
@@ -99,11 +100,13 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     return new SetDefaultTemplateWsRequest()
       .setQualifier(request.param(PARAM_QUALIFIER))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
-  private PermissionTemplateDto getTemplate(DbSession dbSession, SetDefaultTemplateWsRequest request) {
-    return wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+  private PermissionTemplateDto findTemplate(DbSession dbSession, SetDefaultTemplateWsRequest request) {
+    return wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(),
+      request.getOrganization(), request.getTemplateName()));
   }
 
   private void setDefaultTemplateUuid(DbSession dbSession, String templateUuid, String qualifier) {
