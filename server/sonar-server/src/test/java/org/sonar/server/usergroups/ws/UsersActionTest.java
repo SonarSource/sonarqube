@@ -22,11 +22,14 @@ package org.sonar.server.usergroups.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -37,11 +40,14 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 
 public class UsersActionTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -57,28 +63,50 @@ public class UsersActionTest {
         db.getDbClient(),
         userSession,
         groupSupport)));
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-
   }
 
-  @Test(expected = NotFoundException.class)
-  public void fail_if_unknown_user() throws Exception {
-    newUsersRequest()
-      .setParam("id", "42")
-      .setParam("login", "john").execute();
-  }
+  @Test
+  public void fail_if_unknown_group_id() throws Exception {
+    loginAsAdminOnDefaultOrganization();
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_if_missing_permission() throws Exception {
-    userSession.login("not-admin");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No group with id '42'");
+
     newUsersRequest()
       .setParam("id", "42")
       .setParam("login", "john").execute();
   }
 
   @Test
-  public void empty_users() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
+  public void fail_if_not_admin_of_organization() throws Exception {
+    GroupDto group = db.users().insertGroup();
+    userSession.login("not-admin");
+
+    expectedException.expect(ForbiddenException.class);
+
+    newUsersRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("login", "john").execute();
+  }
+
+  @Test
+  public void fail_if_admin_of_other_organization_only() throws Exception {
+    OrganizationDto org1 = OrganizationTesting.insert(db, newOrganizationDto());
+    OrganizationDto org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org1, "the-group");
+    loginAsAdmin(org2);
+
+    expectedException.expect(ForbiddenException.class);
+
+    newUsersRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("login", "john").execute();
+  }
+
+  @Test
+  public void group_has_no_users() throws Exception {
+    GroupDto group = db.users().insertGroup();
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("login", "john")
@@ -88,11 +116,12 @@ public class UsersActionTest {
   }
 
   @Test
-  public void all_users() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
+  public void return_members_by_group_id() throws Exception {
+    GroupDto group = db.users().insertGroup();
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertMember(group, user1);
     db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -102,15 +131,48 @@ public class UsersActionTest {
   }
 
   @Test
-  public void all_users_by_group_name() throws Exception {
+  public void references_group_by_its_name() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    GroupDto group = db.users().insertGroup(org, "the-group");
+    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.users().insertMember(group, user1);
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    loginAsAdmin(org);
+
+    newUsersRequest()
+      .setParam("organization", org.getKey())
+      .setParam("name", group.getName())
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
+      .execute()
+      .assertJson(getClass(), "all.json");
+  }
+
+  @Test
+  public void references_group_in_default_organization_by_its_name() throws Exception {
+    GroupDto group = db.users().insertGroup();
+    UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
+    db.users().insertMember(group, user1);
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    loginAsAdminOnDefaultOrganization();
+
+    newUsersRequest()
+      .setParam("name", group.getName())
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
+      .execute()
+      .assertJson(getClass(), "all.json");
+  }
+
+  @Test
+  public void filter_members_by_name() throws Exception {
     GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
     UserDto adaLovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     UserDto graceHopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, adaLovelace);
     db.users().insertMember(group, graceHopper);
+    loginAsAdminOnDefaultOrganization();
 
     String response = newUsersRequest()
-      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_GROUP_ID, group.getId().toString())
       .execute().outputAsString();
 
     assertThat(response).contains("Ada Lovelace", "Grace Hopper");
@@ -122,6 +184,7 @@ public class UsersActionTest {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, user1);
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -137,10 +200,11 @@ public class UsersActionTest {
 
   @Test
   public void deselected_users() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
+    GroupDto group = db.users().insertGroup();
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, user1);
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -151,10 +215,11 @@ public class UsersActionTest {
 
   @Test
   public void paging() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
+    GroupDto group = db.users().insertGroup();
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, user1);
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -174,10 +239,11 @@ public class UsersActionTest {
 
   @Test
   public void filtering() throws Exception {
-    GroupDto group = db.users().insertGroup(defaultOrganizationProvider.getDto(), "a group");
+    GroupDto group = db.users().insertGroup();
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, user1);
+    loginAsAdminOnDefaultOrganization();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -197,4 +263,11 @@ public class UsersActionTest {
     return wsTester.newGetRequest("api/user_groups", "users");
   }
 
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+  }
 }

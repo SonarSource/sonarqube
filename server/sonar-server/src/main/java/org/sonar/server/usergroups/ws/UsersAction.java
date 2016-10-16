@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupMembershipQuery;
@@ -37,6 +36,7 @@ import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 
 public class UsersAction implements UserGroupsWsAction {
@@ -71,8 +71,6 @@ public class UsersAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
     String queryString = request.param(Param.TEXT_QUERY);
@@ -80,6 +78,7 @@ public class UsersAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId group = support.findGroup(dbSession, request);
+      userSession.checkOrganizationPermission(group.getOrganizationUuid(), SYSTEM_ADMIN);
 
       UserMembershipQuery query = UserMembershipQuery.builder()
         .groupId(group.getId())
