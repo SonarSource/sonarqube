@@ -30,13 +30,13 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -56,14 +56,14 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Before
   public void setUp() {
-    loginAsAdmin();
-
     user = db.users().insertUser("user-login");
     permissionTemplate = insertTemplate();
   }
 
   @Test
   public void add_user_to_template() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(user.getLogin());
@@ -71,6 +71,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void add_user_to_template_by_name() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
@@ -82,6 +84,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void does_not_add_a_user_twice() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
 
@@ -90,29 +94,26 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
+  public void fail_if_not_admin_of_default_organization() throws Exception {
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
+
     expectedException.expect(ForbiddenException.class);
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
-  }
-
-  @Test
-  public void fail_if_not_logged_in() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_user_missing() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest(null, permissionTemplate.getUuid(), CODEVIEWER);
@@ -120,6 +121,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_permission_missing() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), null);
@@ -127,6 +130,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_uuid_and_name_are_missing() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
 
     newRequest(user.getLogin(), null, CODEVIEWER);
@@ -134,6 +139,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_user_does_not_exist() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
@@ -142,6 +149,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_key_does_not_exist() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
@@ -167,9 +176,5 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
     PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, templateId);
-  }
-
-  private void loginAsAdmin() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

@@ -28,6 +28,7 @@ public class AddUserToTemplateWsRequest {
   private String login;
   private String permission;
   private String templateId;
+  private String organization;
   private String templateName;
 
   public String getLogin() {
@@ -65,6 +66,16 @@ public class AddUserToTemplateWsRequest {
 
   public AddUserToTemplateWsRequest setTemplateName(@Nullable String templateName) {
     this.templateName = templateName;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public AddUserToTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 }

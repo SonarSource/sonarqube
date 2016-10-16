@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,11 +34,12 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -71,7 +73,6 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkGlobalAdminUser(userSession);
     doHandle(toAddUserToTemplateWsRequest(request));
     response.noContent();
   }
@@ -81,7 +82,10 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     String userLogin = request.getLogin();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getId(), userLogin, permission)) {
@@ -96,6 +100,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
