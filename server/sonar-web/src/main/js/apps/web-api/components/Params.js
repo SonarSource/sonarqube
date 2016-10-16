@@ -19,6 +19,8 @@
  */
 import React from 'react';
 
+import InternalBadge from './InternalBadge';
+
 export default function Params ({ params }) {
   return (
       <div className="web-api-params">
@@ -28,6 +30,11 @@ export default function Params ({ params }) {
               <tr key={param.key}>
                 <td style={{ width: 180 }}>
                   <code>{param.key}</code>
+                  {param.internal && (
+                      <span className="spacer-left">
+                      <InternalBadge/>
+                    </span>
+                  )}
 
                   <div className="note little-spacer-top">
                     {param.required ? 'required' : 'optional'}
