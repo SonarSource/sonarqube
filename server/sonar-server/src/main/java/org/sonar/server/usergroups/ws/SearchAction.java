@@ -75,7 +75,8 @@ public class SearchAction implements UserGroupsWsAction {
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If not set then groups are searched in default organization.")
       .setExampleValue("my-org")
-      .setSince("6.2");
+      .setSince("6.2")
+      .setInternal(true);
   }
 
   @Override
