@@ -19,7 +19,7 @@
     where
       groups.componentId in
       <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
-        #{id}
+        #{id,jdbcType=BIGINT}
       </foreach>
     GROUP BY groups.permission, groups.componentId
   </select>
@@ -30,9 +30,9 @@
     (SELECT g.name as name
     FROM groups g
     INNER JOIN group_roles group_role ON group_role.group_id=g.id
-    AND group_role.role=#{permission}
+    AND group_role.role=#{permission,jdbcType=VARCHAR}
     <if test="componentId != null">
-      AND group_role.resource_id=#{componentId}
+      AND group_role.resource_id=#{componentId,jdbcType=BIGINT}
     </if>
     <if test="componentId == null">
       AND group_role.resource_id IS NULL
@@ -42,10 +42,10 @@
     SELECT #{anyoneGroup} as name
     FROM group_roles group_role
     where
-      group_role.role=#{permission}
+      group_role.role=#{permission,jdbcType=VARCHAR}
       AND group_role.group_id IS NULL
       <if test="componentId != null">
-        AND group_role.resource_id=#{componentId}
+        AND group_role.resource_id=#{componentId,jdbcType=BIGINT}
       </if>
       <if test="componentId == null">
         AND group_role.resource_id IS NULL
@@ -81,7 +81,7 @@
     left join projects p on gr.resource_id = p.id
     <where>
       <if test="query.searchQueryToSql != null">
-        and lower(gr.name) like #{query.searchQueryToSql} ESCAPE '/'
+        and lower(gr.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
       </if>
       <!-- filter rows with group permissions -->
       <if test="query.withAtLeastOnePermission()">
@@ -90,10 +90,10 @@
           and gr.resource_id is null
         </if>
         <if test="query.componentUuid!=null">
-          and p.uuid=#{query.componentUuid}
+          and p.uuid=#{query.componentUuid,jdbcType=VARCHAR}
         </if>
         <if test="query.permission!=null">
-          and gr.permission=#{query.permission}
+          and gr.permission=#{query.permission,jdbcType=VARCHAR}
         </if>
       </if>
     </where>
@@ -117,7 +117,7 @@
         #{name}
       </foreach>
       <if test="projectId!=null">
-        AND sub.resourceId=#{projectId}
+        AND sub.resourceId=#{projectId,jdbcType=BIGINT}
       </if>
       <if test="projectId==null">
         AND sub.resourceId IS NULL

@@ -15,13 +15,13 @@
 
   <delete id="delete" parameterType="map">
     delete from groups_users
-    where user_id = #{userId} and
-    group_id = #{groupId}
+    where user_id = #{userId,jdbcType=BIGINT} and
+    group_id = #{groupId,jdbcType=BIGINT}
   </delete>
 
   <delete id="deleteByGroupId" parameterType="long">
     delete from groups_users
-    where group_id = #{groupId}
+    where group_id = #{groupId,jdbcType=BIGINT}
   </delete>
 
 </mapper>
