@@ -31,7 +31,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.permission.template.PermissionTemplate;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.DefaultOrganizationProviderRule;
@@ -66,10 +66,10 @@ public class RegisterPermissionTemplatesTest {
 
     underTest.start();
 
-    PermissionTemplate defaultTemplate = selectTemplate();
-    assertThat(defaultTemplate.getTemplate().getName()).isEqualTo("Default template");
+    PermissionTemplateDto defaultTemplate = selectTemplate();
+    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
-    List<PermissionTemplateGroupDto> groupPermissions = defaultTemplate.getGroupPermissions();
+    List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(4);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
@@ -77,7 +77,7 @@ public class RegisterPermissionTemplatesTest {
     expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
 
     // template is marked as default
-    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getTemplate().getUuid());
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getUuid());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
@@ -86,16 +86,16 @@ public class RegisterPermissionTemplatesTest {
   public void ignore_administrators_permissions_if_group_does_not_exist() {
     underTest.start();
 
-    PermissionTemplate defaultTemplate = selectTemplate();
-    assertThat(defaultTemplate.getTemplate().getName()).isEqualTo("Default template");
+    PermissionTemplateDto defaultTemplate = selectTemplate();
+    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
-    List<PermissionTemplateGroupDto> groupPermissions = defaultTemplate.getGroupPermissions();
+    List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(2);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
     expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
 
     // marked as default
-    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getTemplate().getUuid());
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate.getUuid());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Cannot setup default permission for group: sonar-administrators");
   }
@@ -125,8 +125,12 @@ public class RegisterPermissionTemplatesTest {
     db.getDbClient().loadedTemplateDao().insert(new LoadedTemplateDto(DEFAULT_TEMPLATE_KEY, LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE));
   }
 
-  private PermissionTemplate selectTemplate() {
-    return db.getDbClient().permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(db.getSession(), DEFAULT_TEMPLATE_KEY);
+  private PermissionTemplateDto selectTemplate() {
+    return db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), DEFAULT_TEMPLATE_KEY);
+  }
+
+  private List<PermissionTemplateGroupDto> selectGroupPermissions(PermissionTemplateDto template) {
+    return db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), template.getId());
   }
 
   private void expectGroupPermission(List<PermissionTemplateGroupDto> groupPermissions, String expectedPermission,

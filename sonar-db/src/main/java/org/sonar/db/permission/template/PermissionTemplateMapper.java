@@ -58,7 +58,7 @@ public interface PermissionTemplateMapper {
 
   void deleteByGroupId(long groupId);
 
-  PermissionTemplateDto selectByName(String name);
+  PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
   List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
 

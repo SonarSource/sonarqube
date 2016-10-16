@@ -42,12 +42,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class PermissionRepositoryTest {
 
   private static final String DEFAULT_TEMPLATE = "default_20130101_010203";
-  private static final ComponentDto PROJECT = new ComponentDto().setId(123L).setUuid("THE_PROJECT_UUID");
+  private static final ComponentDto PROJECT = newProjectDto().setId(123L).setUuid("THE_PROJECT_UUID");
   private static final long NOW = 123456789L;
 
   @Rule
@@ -78,7 +79,8 @@ public class PermissionRepositoryTest {
     assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT.getId())).isEmpty();
     assertThat(dbTester.getDbClient().userPermissionDao().selectPermissionsByLogin(session, "marius", PROJECT.uuid())).isEmpty();
 
-    underTest.applyPermissionTemplate(session, "default_20130101_010203", PROJECT);
+    PermissionTemplateDto template = dbTester.getDbClient().permissionTemplateDao().selectByUuid(session, "default_20130101_010203");
+    underTest.apply(session, template, PROJECT, null);
 
     assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT.getId())).containsOnly("admin", "issueadmin");
     assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT.getId())).containsOnly("user", "codeviewer");

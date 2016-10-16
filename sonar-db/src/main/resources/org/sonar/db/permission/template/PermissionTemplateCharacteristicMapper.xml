@@ -10,15 +10,6 @@
     ptc.updated_at as updatedAt
   </sql>
 
-  <select id="selectByTemplateId" parameterType="long" resultType="PermissionTemplateCharacteristic">
-    select
-    <include refid="columns" />
-    from perm_tpl_characteristics ptc
-    where
-    ptc.template_id = #{templateId}
-    order by id
-  </select>
-
   <select id="selectByTemplateIds" parameterType="long" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />

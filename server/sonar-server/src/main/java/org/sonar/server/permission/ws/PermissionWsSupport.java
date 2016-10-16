@@ -103,8 +103,9 @@ public class PermissionWsSupport {
         dbClient.permissionTemplateDao().selectByUuid(dbSession, ref.uuid()),
         "Permission template with id '%s' is not found", ref.uuid());
     } else {
+      OrganizationDto org = findOrganization(dbSession, ref.getOrganization());
       return checkFound(
-        dbClient.permissionTemplateDao().selectByName(dbSession, ref.name()),
+        dbClient.permissionTemplateDao().selectByName(dbSession, org.getUuid(), ref.name()),
         "Permission template with name '%s' is not found (case insensitive)", ref.name());
     }
   }

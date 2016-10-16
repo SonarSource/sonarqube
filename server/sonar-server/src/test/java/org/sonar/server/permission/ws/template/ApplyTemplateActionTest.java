@@ -37,7 +37,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
@@ -46,6 +45,7 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -71,13 +71,11 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
     PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issueAuthorizationIndexer, userSession, componentFinder);
-    return new ApplyTemplateAction(db.getDbClient(), permissionService, newPermissionWsSupport());
+    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport());
   }
 
   @Before
   public void setUp() {
-    loginAsAdmin();
-
     user1 = db.users().insertUser("user-login-1");
     user2 = db.users().insertUser("user-login-2");
     OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
@@ -106,6 +104,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest(template1.getUuid(), project.uuid(), null);
 
     assertTemplate1AppliedToProject();
@@ -114,6 +114,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid_by_template_name() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -124,6 +126,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_key() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     newRequest(template1.getUuid(), null, project.key());
 
     assertTemplate1AppliedToProject();
@@ -131,6 +135,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_template() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
 
@@ -139,6 +145,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_uuid() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project id 'unknown-project-uuid' not found");
 
@@ -147,6 +155,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_key() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project key 'unknown-project-key' not found");
 
@@ -155,6 +165,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_template_is_not_provided() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
 
     newRequest(null, project.uuid(), null);
@@ -162,6 +174,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_project_uuid_and_key_not_provided() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
 
@@ -169,15 +183,9 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_anonymous() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
+  public void fail_when_not_admin_of_organization() throws Exception {
+    userSession.login().addOrganizationPermission("otherOrg", SYSTEM_ADMIN);
 
-    newRequest(template1.getUuid(), project.uuid(), null);
-  }
-
-  @Test
-  public void fail_when_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
@@ -225,9 +233,5 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
     return db.getDbClient().userPermissionDao().selectLogins(db.getSession(), query);
-  }
-
-  private void loginAsAdmin() {
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

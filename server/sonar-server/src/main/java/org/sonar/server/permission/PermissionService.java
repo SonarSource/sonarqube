@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -30,11 +31,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 
 @ServerSide
@@ -98,20 +99,15 @@ public class PermissionService {
     return permissionRepository.wouldUserHavePermissionWithDefaultTemplate(dbSession, userId, permission, effectiveKey, qualifier);
   }
 
-  public void applyPermissionTemplate(DbSession dbSession, ApplyPermissionTemplateQuery query) {
-    if (query.getComponentKeys().size() == 1) {
-      checkProjectAdminUserByComponentKey(userSession, query.getComponentKeys().get(0));
-    } else {
-      checkGlobalAdminUser(userSession);
+  public void apply(DbSession dbSession, PermissionTemplateDto template, Collection<ComponentDto> projects) {
+    if (projects.isEmpty()) {
+      return;
     }
 
-    // TODO apply permission templates in on query instead of on on each project
-    for (String componentKey : query.getComponentKeys()) {
-      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
-      permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component);
+    for (ComponentDto project : projects) {
+      permissionRepository.apply(dbSession, template, project, null);
     }
     dbSession.commit();
-
     indexProjectPermissions();
   }
 

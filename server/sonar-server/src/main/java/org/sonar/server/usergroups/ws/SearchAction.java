@@ -64,7 +64,7 @@ public class SearchAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
-        "Requires to be logged.")
+        "Requires to be logged in.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")

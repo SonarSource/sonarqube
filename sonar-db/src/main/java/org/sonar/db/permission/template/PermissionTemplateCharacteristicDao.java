@@ -30,6 +30,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 public class PermissionTemplateCharacteristicDao implements Dao {
+
   public List<PermissionTemplateCharacteristicDto> selectByTemplateIds(DbSession dbSession, List<Long> templateIds) {
     return templateIds.isEmpty() ? emptyList() : mapper(dbSession).selectByTemplateIds(templateIds);
   }

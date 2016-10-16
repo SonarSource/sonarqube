@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
@@ -69,13 +68,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
     PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issueAuthorizationIndexer, userSession, componentFinder);
-    return new BulkApplyTemplateAction(db.getDbClient(), permissionService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
+    return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 
   @Before
   public void setUp() {
-    loginAsAdmin();
-
     user1 = db.users().insertUser("user-login-1");
     user2 = db.users().insertUser("user-login-2");
     OrganizationDto defaultOrg = defaultOrganizationProvider.getDto();
@@ -105,6 +102,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, developer);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, developer);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, developer);
+    loginAsAdminOnDefaultOrganization();
 
     newRequest().setParam(PARAM_TEMPLATE_ID, template1.getUuid()).execute();
 
@@ -116,6 +114,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Test
   public void bulk_apply_template_by_template_name() throws Exception {
     ComponentDto project = db.components().insertComponent(newProjectDto());
+    loginAsAdminOnDefaultOrganization();
 
     newRequest().setParam(PARAM_TEMPLATE_NAME, template1.getName()).execute();
 
@@ -126,6 +125,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void apply_template_by_qualifier() throws Exception {
     ComponentDto project = db.components().insertComponent(newProjectDto());
     ComponentDto view = db.components().insertComponent(newView());
+    loginAsAdminOnDefaultOrganization();
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
@@ -145,6 +145,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     ComponentDto projectUntouched = newProjectDto().setKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     db.components().indexAllComponents();
+    loginAsAdminOnDefaultOrganization();
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
@@ -158,6 +159,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void fail_if_no_template_parameter() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Template name or template id must be provided, not both.");
 
@@ -166,6 +169,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void fail_if_template_name_is_incorrect() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
 
@@ -213,9 +218,5 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   private WsTester.TestRequest newRequest() {
     return wsTester.newPostRequest(CONTROLLER, ACTION);
-  }
-
-  private void loginAsAdmin() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

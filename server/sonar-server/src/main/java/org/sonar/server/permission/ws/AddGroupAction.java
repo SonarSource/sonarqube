@@ -36,6 +36,7 @@ import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -68,6 +69,7 @@ public class AddGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     createPermissionParameter(action);
+    createOrganizationParameter(action);
     createGroupNameParameter(action);
     createGroupIdParameter(action);
     createProjectParameters(action);

@@ -25,18 +25,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.template.PermissionTemplate;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 
 /**
@@ -56,35 +57,30 @@ public class PermissionRepository {
     this.settings = settings;
   }
 
-  public void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project) {
-    applyPermissionTemplate(session, templateUuid, project, null);
-  }
-
-  private void applyPermissionTemplate(DbSession session, String templateUuid, ComponentDto project, @Nullable Long currentUserId) {
-    PermissionTemplate template = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
+  public void apply(DbSession session, PermissionTemplateDto template, ComponentDto project, @Nullable Long currentUserId) {
     updateProjectAuthorizationDate(session, project.getId());
     dbClient.groupPermissionDao().deleteByRootComponentId(session, project.getId());
     dbClient.userPermissionDao().deleteProjectPermissions(session, project.getId());
 
-    List<PermissionTemplateUserDto> usersPermissions = template.getUserPermissions();
-    String organizationUuid = template.getTemplate().getOrganizationUuid();
+    List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(session, template.getId());
+    String organizationUuid = template.getOrganizationUuid();
     usersPermissions
       .forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.getId());
         dbClient.userPermissionDao().insert(session, dto);
       });
 
-    List<PermissionTemplateGroupDto> groupsPermissions = template.getGroupPermissions();
+    List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(session, template.getId());
     groupsPermissions.forEach(gp -> {
       GroupPermissionDto dto = new GroupPermissionDto()
-        .setOrganizationUuid(template.getTemplate().getOrganizationUuid())
+        .setOrganizationUuid(organizationUuid)
         .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
         .setRole(gp.getPermission())
         .setResourceId(project.getId());
       dbClient.groupPermissionDao().insert(session, dto);
     });
 
-    List<PermissionTemplateCharacteristicDto> characteristics = template.getCharacteristics();
+    List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(session, asList(template.getId()));
     if (currentUserId != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
         .filter(userPermission -> currentUserId.equals(userPermission.getUserId()))
@@ -94,17 +90,10 @@ public class PermissionRepository {
         .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(template.getTemplate().getOrganizationUuid(), c.getPermission(), currentUserId, project.getId());
+          UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), currentUserId, project.getId());
           dbClient.userPermissionDao().insert(session, dto);
         });
     }
-  }
-
-  /**
-   * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
-   */
-  private void updateProjectAuthorizationDate(DbSession dbSession, long projectId) {
-    dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
   }
 
   /**
@@ -116,49 +105,51 @@ public class PermissionRepository {
   }
 
   public void applyDefaultPermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable Long userId) {
-    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(dbSession, componentDto.getKey(), componentDto.qualifier());
-    applyPermissionTemplate(dbSession, applicablePermissionTemplateKey, componentDto, userId);
+    PermissionTemplateDto template = getApplicablePermissionTemplate(dbSession, componentDto);
+    if (template == null) {
+      throw new IllegalArgumentException("Can not retrieve default permission template");
+    }
+    apply(dbSession, template, componentDto, userId);
   }
 
   /**
    * Return the permission template for the given componentKey. If no template key pattern match then consider default
    * permission template for the resource qualifier.
    */
-  private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
+  @CheckForNull
+  private PermissionTemplateDto getApplicablePermissionTemplate(DbSession dbSession, ComponentDto component) {
     // FIXME performance issue here, we should not load all templates
-    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(session);
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();
-      if (StringUtils.isNotBlank(keyPattern) && componentKey.matches(keyPattern)) {
+      if (StringUtils.isNotBlank(keyPattern) && component.getKey().matches(keyPattern)) {
         matchingTemplates.add(permissionTemplateDto);
       }
     }
-    checkAtMostOneMatchForComponentKey(componentKey, matchingTemplates);
+    checkAtMostOneMatchForComponentKey(component.getKey(), matchingTemplates);
     if (matchingTemplates.size() == 1) {
-      return matchingTemplates.get(0).getUuid();
+      return matchingTemplates.get(0);
     }
-    String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
+    String qualifierTemplateKey = settings.getString("sonar.permission.template." + component.qualifier() + ".default");
     if (!StringUtils.isBlank(qualifierTemplateKey)) {
-      return qualifierTemplateKey;
+      return dbClient.permissionTemplateDao().selectByUuid(dbSession, qualifierTemplateKey);
     }
 
     String defaultTemplateKey = settings.getString("sonar.permission.template.default");
     if (StringUtils.isBlank(defaultTemplateKey)) {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
-    return defaultTemplateKey;
+    return dbClient.permissionTemplateDao().selectByUuid(dbSession, defaultTemplateKey);
   }
 
   public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long currentUserId, String permission, String projectKey, String qualifier) {
-    String templateUuid = getApplicablePermissionTemplateKey(dbSession, projectKey, qualifier);
-    PermissionTemplateDto template = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateUuid);
+    PermissionTemplateDto template = getApplicablePermissionTemplate(dbSession, new ComponentDto().setKey(projectKey).setQualifier(qualifier));
     if (template == null) {
       return false;
     }
 
     List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserIdAndTemplateId(dbSession, currentUserId, template.getId());
-
     return potentialPermissions.contains(permission);
   }
 
@@ -177,5 +168,12 @@ public class PermissionRepository {
         componentKey,
         templatesNames.toString()));
     }
+  }
+
+  /**
+   * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
+   */
+  private void updateProjectAuthorizationDate(DbSession dbSession, long projectId) {
+    dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
   }
 }

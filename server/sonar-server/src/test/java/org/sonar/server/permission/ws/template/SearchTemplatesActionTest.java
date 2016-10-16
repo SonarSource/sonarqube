@@ -179,6 +179,7 @@ public class SearchTemplatesActionTest {
 
   private PermissionTemplateDto insertProjectTemplate() {
     return insertTemplate(newPermissionTemplateDto()
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(UUID_EXAMPLE_01)
       .setName("Default template for Projects")
       .setDescription("Template for new projects")
@@ -189,6 +190,7 @@ public class SearchTemplatesActionTest {
 
   private PermissionTemplateDto insertViewsTemplate() {
     return insertTemplate(newPermissionTemplateDto()
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(UUID_EXAMPLE_02)
       .setName("Default template for Views")
       .setDescription("Template for new views")
@@ -199,6 +201,7 @@ public class SearchTemplatesActionTest {
 
   private PermissionTemplateDto insertDeveloperTemplate() {
     return insertTemplate(newPermissionTemplateDto()
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(UUID_EXAMPLE_03)
       .setName("Default template for Developers")
       .setKeyPattern(".*sonar.developer.*")

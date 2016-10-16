@@ -21,7 +21,6 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
@@ -307,13 +306,5 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   private WsTester.TestRequest newRequest() {
     return wsTester.newPostRequest(CONTROLLER, ACTION);
-  }
-
-  private void loginAsAdminOnDefaultOrganization() {
-    loginAsAdmin(db.getDefaultOrganization());
-  }
-
-  private void loginAsAdmin(OrganizationDto org) {
-    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 }

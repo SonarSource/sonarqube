@@ -21,8 +21,8 @@
 package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
@@ -33,34 +33,39 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class BulkApplyTemplateAction implements PermissionsWsAction {
+
   private final DbClient dbClient;
+  private final UserSession userSession;
   private final PermissionService permissionService;
   private final PermissionWsSupport wsSupport;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
 
-  public BulkApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionWsSupport wsSupport, I18n i18n,
+  public BulkApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionService permissionService, PermissionWsSupport wsSupport, I18n i18n,
     ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
     this.permissionService = permissionService;
     this.wsSupport = wsSupport;
     this.i18n = i18n;
@@ -95,20 +100,19 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private void doHandle(BulkApplyTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
+        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
       ComponentQuery componentQuery = ComponentQuery.builder()
         .setNameOrKeyQuery(request.getQuery())
         .setQualifiers(qualifiers(request.getQualifier()))
         .build();
-      List<ComponentDto> rootComponents = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
-      if (rootComponents.isEmpty()) {
-        return;
-      }
+      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
 
-      ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(
-        template.getUuid(),
-        Lists.transform(rootComponents, ComponentDtoFunctions.toKey()));
-      permissionService.applyPermissionTemplate(dbSession, query);
+      for (ComponentDto project : projects) {
+        ProjectId projectId = new ProjectId(project);
+        checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.of(projectId));
+      }
+      permissionService.apply(dbSession, template, projects);
     }
   }
 
@@ -121,6 +125,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {
     return new BulkApplyTemplateWsRequest()
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .setQualifier(request.param(PARAM_QUALIFIER))
       .setQuery(request.param(Param.TEXT_QUERY));

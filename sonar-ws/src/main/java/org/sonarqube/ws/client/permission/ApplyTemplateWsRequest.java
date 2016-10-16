@@ -26,6 +26,7 @@ public class ApplyTemplateWsRequest {
   private String projectId;
   private String projectKey;
   private String templateId;
+  private String organization;
   private String templateName;
 
   @CheckForNull
@@ -58,6 +59,15 @@ public class ApplyTemplateWsRequest {
     return this;
   }
 
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public ApplyTemplateWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
+    return this;
+  }
   @CheckForNull
   public String getTemplateName() {
     return templateName;
