@@ -19,8 +19,10 @@
  */
 package org.sonar.server.permission.index;
 
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -33,6 +35,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
@@ -40,6 +43,9 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 
 public class AuthorizationIndexerTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -70,9 +76,41 @@ public class AuthorizationIndexerTest {
     userDbTester.insertProjectPermissionOnGroup(group, USER, project);
     userDbTester.insertProjectPermissionOnAnyone(USER, project);
 
-    underTest.doIndex(0L);
+    underTest.index();
 
-    authorizationIndexerTester.verifyProjectAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getLogin()));
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getLogin()));
+  }
+
+  @Test
+  public void index_one_project() throws Exception {
+    GroupDto group = userDbTester.insertGroup();
+    ComponentDto project1 = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project1);
+    ComponentDto project2 = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
+
+    underTest.index(project1.uuid());
+
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectDoesNotExist(project2.uuid());
+  }
+
+  @Test
+  public void index_projects() throws Exception {
+    GroupDto group = userDbTester.insertGroup();
+    ComponentDto project1 = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project1);
+    ComponentDto project2 = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
+    ComponentDto project3 = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project3);
+
+    // Only index projects 1 and 2
+    underTest.index(asList(project1.uuid(), project2.uuid()));
+
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project2.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectDoesNotExist(project3.uuid());
   }
 
   @Test
@@ -98,7 +136,12 @@ public class AuthorizationIndexerTest {
     // remove permissions -> dto has no users nor groups
     underTest.index(singletonList(new AuthorizationDao.Dto("ABC", System.currentTimeMillis())));
 
-    authorizationIndexerTester.verifyProjectAsNoAuthorization("ABC");
+    authorizationIndexerTester.verifyProjectExistsWithoutAuthorization("ABC");
   }
 
+  @Test
+  public void fail_when_trying_to_index_empty_project_uuids() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    underTest.index(Collections.<String>emptyList());
+  }
 }

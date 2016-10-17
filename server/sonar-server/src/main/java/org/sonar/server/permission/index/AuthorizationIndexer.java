@@ -22,7 +22,9 @@ package org.sonar.server.permission.index;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
@@ -31,6 +33,8 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT;
@@ -57,13 +61,22 @@ public class AuthorizationIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      // warning - do not enable large mode, else disabling of replicas
-      // will impact the type "issue" which is much bigger than issueAuthorization
-      BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    return doIndex(createBulkIndexer(), Collections.<String>emptyList());
+  }
 
+  public void index(String projectUuid) {
+    index(asList(projectUuid));
+  }
+
+  public void index(List<String> projectUuids) {
+    checkArgument(!projectUuids.isEmpty(), "ProjectUuids cannot be empty");
+    super.index(lastUpdatedAt -> doIndex(createBulkIndexer(), projectUuids));
+  }
+
+  private long doIndex(BulkIndexer bulk, List<String> projectUuids) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       AuthorizationDao dao = new AuthorizationDao();
-      Collection<AuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
+      Collection<AuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, projectUuids);
       return doIndex(bulk, authorizations);
     }
   }
@@ -74,7 +87,7 @@ public class AuthorizationIndexer extends BaseIndexer {
     doIndex(bulk, authorizations);
   }
 
-  private long doIndex(BulkIndexer bulk, Collection<AuthorizationDao.Dto> authorizations) {
+  private static long doIndex(BulkIndexer bulk, Collection<AuthorizationDao.Dto> authorizations) {
     long maxDate = 0L;
     bulk.start();
     for (AuthorizationDao.Dto authorization : authorizations) {
@@ -91,6 +104,12 @@ public class AuthorizationIndexer extends BaseIndexer {
       .setRefresh(refresh)
       .setRouting(uuid)
       .get();
+  }
+
+  private BulkIndexer createBulkIndexer() {
+    // warning - do not enable large mode, else disabling of replicas
+    // will impact the type "issue" which is much bigger than issueAuthorization
+    return new BulkIndexer(esClient, INDEX);
   }
 
   private static IndexRequest newIndexRequest(AuthorizationDao.Dto dto) {

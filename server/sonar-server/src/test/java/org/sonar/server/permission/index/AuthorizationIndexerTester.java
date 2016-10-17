@@ -59,12 +59,16 @@ public class AuthorizationIndexerTester {
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
-  public void verifyProjectAsNoAuthorization(String projectUuid) {
-    verifyProjectAuthorization(projectUuid, emptyList(), emptyList());
+  public void verifyProjectDoesNotExist(String projectUuid) {
+    assertThat(esTester.getIds("issues", "authorization")).doesNotContain(projectUuid);
   }
 
-  public void verifyProjectAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
-    assertThat(esTester.getIds("issues", "authorization")).containsOnly(projectUuid);
+  public void verifyProjectExistsWithoutAuthorization(String projectUuid) {
+    verifyProjectExistsWithAuthorization(projectUuid, emptyList(), emptyList());
+  }
+
+  public void verifyProjectExistsWithAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
+    assertThat(esTester.getIds("issues", "authorization")).contains(projectUuid);
     BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(FIELD_AUTHORIZATION_PROJECT_UUID, projectUuid));
     if (groupNames.isEmpty()) {
       queryBuilder.mustNot(existsQuery(FIELD_AUTHORIZATION_GROUPS));

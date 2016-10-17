@@ -19,19 +19,30 @@
  */
 package org.sonar.server.permission.index;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -48,34 +59,28 @@ public class AuthorizationDaoTest {
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   UserDbTester userDbTester = new UserDbTester(dbTester);
 
+  ComponentDto project1;
+  ComponentDto project2;
+  UserDto user1;
+  UserDto user2;
+  GroupDto group;
+
   AuthorizationDao underTest = new AuthorizationDao();
+
+  @Before
+  public void setUp() throws Exception {
+    project1 = componentDbTester.insertProject();
+    project2 = componentDbTester.insertProject();
+    user1 = userDbTester.insertUser();
+    user2 = userDbTester.insertUser();
+    group = userDbTester.insertGroup();
+  }
 
   @Test
   public void select_all() {
-    ComponentDto project1 = componentDbTester.insertProject();
-    ComponentDto project2 = componentDbTester.insertProject();
+    insertTestDataForProject1And2();
 
-    // user1 can access both projects
-    UserDto user1 = userDbTester.insertUser();
-    userDbTester.insertProjectPermissionOnUser(user1, USER, project1);
-    userDbTester.insertProjectPermissionOnUser(user1, ADMIN, project1);
-    userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
-
-    // user2 has user access on project2 only
-    UserDto user2 = userDbTester.insertUser();
-    userDbTester.insertProjectPermissionOnUser(user2, USER, project2);
-
-    // group1 has user access on project1 only
-    GroupDto group = userDbTester.insertGroup();
-    userDbTester.insertProjectPermissionOnGroup(group, USER, project1);
-    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, project1);
-
-    // Anyone group has user access on both projects
-    userDbTester.insertProjectPermissionOnAnyone(USER, project1);
-    userDbTester.insertProjectPermissionOnAnyone(ADMIN, project1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, project2);
-
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, 0L);
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, Collections.emptyList());
     assertThat(dtos).hasSize(2);
 
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
@@ -90,17 +95,65 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void no_authorization() {
-    ComponentDto project1 = componentDbTester.insertProject();
-    // no authorizations project1
+  public void select_by_project() throws Exception {
+    insertTestDataForProject1And2();
 
-    ComponentDto project2 = componentDbTester.insertProject();
-    UserDto user = userDbTester.insertUser();
-    userDbTester.insertProjectPermissionOnUser(user, USER, project2);
-    GroupDto group = userDbTester.insertGroup();
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, singletonList(project1.uuid()));
+    assertThat(dtos).hasSize(1);
+    AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
+    assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
+    assertThat(project1Authorization.getUsers()).containsOnly(user1.getLogin());
+    assertThat(project1Authorization.getUpdatedAt()).isNotNull();
+  }
+
+  @Test
+  public void select_by_projects() throws Exception {
+    insertTestDataForProject1And2();
+
+    Map<String, AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, asList(project1.uuid(), project2.uuid()))
+      .stream()
+      .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
+    assertThat(dtos).hasSize(2);
+
+    AuthorizationDao.Dto project1Authorization = dtos.get(project1.uuid());
+    assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
+    assertThat(project1Authorization.getUsers()).containsOnly(user1.getLogin());
+    assertThat(project1Authorization.getUpdatedAt()).isNotNull();
+
+    AuthorizationDao.Dto project2Authorization = dtos.get(project2.uuid());
+    assertThat(project2Authorization.getGroups()).containsOnly(ANYONE);
+    assertThat(project2Authorization.getUsers()).containsOnly(user1.getLogin(), user2.getLogin());
+    assertThat(project2Authorization.getUpdatedAt()).isNotNull();
+  }
+
+  @Test
+  public void select_by_projects_with_high_number_of_projects() throws Exception {
+    List<String> projects = new ArrayList<>();
+    for (int i = 0; i < 350; i++) {
+      ComponentDto project = ComponentTesting.newProjectDto(Integer.toString(i));
+      dbClient.componentDao().insert(dbSession, project);
+      projects.add(project.uuid());
+      GroupPermissionDto dto = new GroupPermissionDto()
+        .setOrganizationUuid(group.getOrganizationUuid())
+        .setGroupId(group.getId())
+        .setRole(USER)
+        .setResourceId(project.getId());
+      dbClient.groupPermissionDao().insert(dbSession, dto);
+    }
+    dbSession.commit();
+
+    Map<String, AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, projects)
+      .stream()
+      .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
+    assertThat(dtos).hasSize(350);
+  }
+
+  @Test
+  public void no_authorization() {
+    userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
     userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, 0L);
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, Collections.emptyList());
 
     assertThat(dtos).hasSize(2);
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
@@ -113,4 +166,22 @@ public class AuthorizationDaoTest {
     return dtos.stream().filter(dto -> dto.getProjectUuid().equals(projectUuid)).findFirst().orElseThrow(IllegalArgumentException::new);
   }
 
+  private void insertTestDataForProject1And2() {
+    // user1 can access both projects
+    userDbTester.insertProjectPermissionOnUser(user1, USER, project1);
+    userDbTester.insertProjectPermissionOnUser(user1, ADMIN, project1);
+    userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
+
+    // user2 has user access on project2 only
+    userDbTester.insertProjectPermissionOnUser(user2, USER, project2);
+
+    // group1 has user access on project1 only
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project1);
+    userDbTester.insertProjectPermissionOnGroup(group, ADMIN, project1);
+
+    // Anyone group has user access on both projects
+    userDbTester.insertProjectPermissionOnAnyone(USER, project1);
+    userDbTester.insertProjectPermissionOnAnyone(ADMIN, project1);
+    userDbTester.insertProjectPermissionOnAnyone(USER, project2);
+  }
 }

@@ -20,17 +20,21 @@
 package org.sonar.server.permission.index;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.repeatCondition;
 
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
@@ -75,108 +79,118 @@ public class AuthorizationDao {
     }
   }
 
-  private static final String SQL_TEMPLATE =
-    "SELECT " +
-      "  project_authorization.project as project, " +
-      "  project_authorization.login as login, " +
-      "  project_authorization.permission_group as permission_group, " +
-      "  project_authorization.updated_at as updated_at " +
-      "FROM ( " +
+  private static final String SQL_TEMPLATE = "SELECT " +
+    "  project_authorization.project as project, " +
+    "  project_authorization.login as login, " +
+    "  project_authorization.permission_group as permission_group, " +
+    "  project_authorization.updated_at as updated_at " +
+    "FROM ( " +
 
-      // project is returned when no authorization
-      "      SELECT " +
-      "      projects.uuid AS project, " +
-      "      projects.authorization_updated_at AS updated_at, " +
-      "      NULL AS login, " +
-      "      NULL  AS permission_group " +
-      "      FROM projects " +
-      "      WHERE " +
-      "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_component_uuid is NULL " +
-      "        {dateCondition} " +
-      "      UNION " +
+    // project is returned when no authorization
+    "      SELECT " +
+    "      projects.uuid AS project, " +
+    "      projects.authorization_updated_at AS updated_at, " +
+    "      NULL AS login, " +
+    "      NULL  AS permission_group " +
+    "      FROM projects " +
+    "      WHERE " +
+    "        projects.qualifier = 'TRK' " +
+    "        AND projects.copy_component_uuid is NULL " +
+    "        {projectsCondition} " +
+    "      UNION " +
 
-      // users
+    // users
 
-      "      SELECT " +
-      "      projects.uuid AS project, " +
-      "      projects.authorization_updated_at AS updated_at, " +
-      "      users.login  AS login, " +
-      "      NULL  AS permission_group " +
-      "      FROM projects " +
-      "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
-      "      INNER JOIN users ON users.id = user_roles.user_id " +
-      "      WHERE " +
-      "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_component_uuid is NULL " +
-      "        {dateCondition} " +
-      "      UNION " +
+    "      SELECT " +
+    "      projects.uuid AS project, " +
+    "      projects.authorization_updated_at AS updated_at, " +
+    "      users.login  AS login, " +
+    "      NULL  AS permission_group " +
+    "      FROM projects " +
+    "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
+    "      INNER JOIN users ON users.id = user_roles.user_id " +
+    "      WHERE " +
+    "        projects.qualifier = 'TRK' " +
+    "        AND projects.copy_component_uuid is NULL " +
+    "        {projectsCondition} " +
+    "      UNION " +
 
-      // groups without Anyone
+    // groups without Anyone
 
-      "      SELECT " +
-      "      projects.uuid AS project, " +
-      "      projects.authorization_updated_at AS updated_at, " +
-      "      NULL  AS login, " +
-      "      groups.name  AS permission_group " +
-      "      FROM projects " +
-      "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
-      "      INNER JOIN groups ON groups.id = group_roles.group_id " +
-      "      WHERE " +
-      "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_component_uuid is NULL " +
-      "        {dateCondition} " +
-      "        AND group_id IS NOT NULL " +
-      "      UNION " +
+    "      SELECT " +
+    "      projects.uuid AS project, " +
+    "      projects.authorization_updated_at AS updated_at, " +
+    "      NULL  AS login, " +
+    "      groups.name  AS permission_group " +
+    "      FROM projects " +
+    "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
+    "      INNER JOIN groups ON groups.id = group_roles.group_id " +
+    "      WHERE " +
+    "        projects.qualifier = 'TRK' " +
+    "        AND projects.copy_component_uuid is NULL " +
+    "        {projectsCondition} " +
+    "        AND group_id IS NOT NULL " +
+    "      UNION " +
 
-      // Anyone groups
+    // Anyone groups
 
-      "      SELECT " +
-      "      projects.uuid AS project, " +
-      "      projects.authorization_updated_at AS updated_at, " +
-      "      NULL         AS login, " +
-      "      'Anyone'     AS permission_group " +
-      "      FROM projects " +
-      "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
-      "      WHERE " +
-      "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_component_uuid is NULL " +
-      "        {dateCondition} " +
-      "        AND group_roles.group_id IS NULL " +
-      "    ) project_authorization";
+    "      SELECT " +
+    "      projects.uuid AS project, " +
+    "      projects.authorization_updated_at AS updated_at, " +
+    "      NULL         AS login, " +
+    "      'Anyone'     AS permission_group " +
+    "      FROM projects " +
+    "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
+    "      WHERE " +
+    "        projects.qualifier = 'TRK' " +
+    "        AND projects.copy_component_uuid is NULL " +
+    "        {projectsCondition} " +
+    "        AND group_roles.group_id IS NULL " +
+    "    ) project_authorization";
 
-  Collection<Dto> selectAfterDate(DbClient dbClient, DbSession session, long afterDate) {
+  List<Dto> selectAfterDate(DbClient dbClient, DbSession session, List<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return doSelectAfterDate(dbClient, session, Collections.emptyList());
+    }
+    return executeLargeInputs(projectUuids, subProjectUuids -> doSelectAfterDate(dbClient, session, subProjectUuids));
+  }
+
+  private List<Dto> doSelectAfterDate(DbClient dbClient, DbSession session, List<String> projectUuids) {
     try {
-      Map<String, Dto> dtosByProjectUuid = Maps.newHashMap();
+      Map<String, Dto> dtosByProjectUuid = new HashMap<>();
       PreparedStatement stmt = null;
       ResultSet rs = null;
       try {
-        stmt = createStatement(dbClient, session, afterDate);
+        stmt = createStatement(dbClient, session, projectUuids);
         rs = stmt.executeQuery();
         while (rs.next()) {
           processRow(rs, dtosByProjectUuid);
         }
-        return dtosByProjectUuid.values();
+        return new ArrayList<>(dtosByProjectUuid.values());
       } finally {
         DbUtils.closeQuietly(rs);
         DbUtils.closeQuietly(stmt);
       }
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to select authorizations after date: " + afterDate, e);
+      throw new IllegalStateException("Fail to select authorizations", e);
     }
   }
 
-  private static PreparedStatement createStatement(DbClient dbClient, DbSession session, long afterDate) throws SQLException {
+  private static PreparedStatement createStatement(DbClient dbClient, DbSession session, List<String> projectUuids) throws SQLException {
     String sql;
-    if (afterDate > 0L) {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", " AND projects.authorization_updated_at>? ");
+    if (!projectUuids.isEmpty()) {
+      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND (" + repeatCondition("projects.uuid = ?", projectUuids.size(), "OR") + ")");
     } else {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", "");
+      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", "");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-    if (afterDate > 0L) {
+    if (!projectUuids.isEmpty()) {
+      int index = 1;
       for (int i = 1; i <= 4; i++) {
-        stmt.setLong(i, afterDate);
+        for (int uuidIndex = 0; uuidIndex < projectUuids.size(); uuidIndex++) {
+          stmt.setString(index, projectUuids.get(uuidIndex));
+          index++;
+        }
       }
     }
     return stmt;

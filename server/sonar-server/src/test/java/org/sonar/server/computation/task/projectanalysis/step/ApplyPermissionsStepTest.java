@@ -107,7 +107,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
-    authorizationIndexerTester.verifyProjectAuthorization(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
   }
 
   @Test
