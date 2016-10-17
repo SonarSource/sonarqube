@@ -56,57 +56,11 @@ public class CoveragePublisher implements ReportPublisherStep {
 
       int lineCount = ((InputFile) resource.inputComponent()).lines();
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setUtHits(Integer.parseInt(value) > 0);
-          }
-        });
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setItHits(Integer.parseInt(value) > 0);
-          }
-        });
-      // Just in case we have only IT and no UT, we first take conditions from ITs, then from UTs (UTs will override ITs).
-      // Note that it would be very strange (and unsupported in scanner report) to have ITs and UTs don't report the same number of
-      // conditions. Not even talking about overall conditions...
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setConditions(Integer.parseInt(value));
-          }
-        });
+        (value, builder) -> builder.setHits(Integer.parseInt(value) > 0));
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setConditions(Integer.parseInt(value));
-          }
-        });
+        (value, builder) -> builder.setConditions(Integer.parseInt(value)));
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setUtCoveredConditions(Integer.parseInt(value));
-          }
-        });
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setItCoveredConditions(Integer.parseInt(value));
-          }
-        });
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
-        new MeasureOperation() {
-          @Override
-          public void apply(String value, LineCoverage.Builder builder) {
-            builder.setOverallCoveredConditions(Integer.parseInt(value));
-          }
-        });
+        (value, builder) -> builder.setCoveredConditions(Integer.parseInt(value)));
       writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
     }
   }

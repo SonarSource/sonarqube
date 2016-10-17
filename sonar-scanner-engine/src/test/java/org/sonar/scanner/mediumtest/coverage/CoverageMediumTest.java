@@ -83,12 +83,9 @@ public class CoverageMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.coverageFor(file, 2).getUtHits()).isTrue();
-    assertThat(result.coverageFor(file, 2).getItHits()).isFalse();
+    assertThat(result.coverageFor(file, 2).getHits()).isTrue();
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(1);
-    assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(1);
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
@@ -125,10 +122,10 @@ public class CoverageMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.coverageFor(file, 2).getUtHits()).isTrue();
+    assertThat(result.coverageFor(file, 2).getHits()).isTrue();
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(file, 3).getUtHits()).isTrue();
+    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(2);
+    assertThat(result.coverageFor(file, 3).getHits()).isTrue();
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
@@ -199,14 +196,11 @@ public class CoverageMediumTest {
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 1)).isNull();
 
-    assertThat(result.coverageFor(file, 2).getUtHits()).isFalse();
-    assertThat(result.coverageFor(file, 2).getItHits()).isFalse();
+    assertThat(result.coverageFor(file, 2).getHits()).isFalse();
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(0);
 
-    assertThat(result.coverageFor(file, 3).getUtHits()).isFalse();
+    assertThat(result.coverageFor(file, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file, 4)).isNull();
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();

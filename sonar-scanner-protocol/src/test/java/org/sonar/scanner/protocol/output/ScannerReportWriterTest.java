@@ -272,11 +272,8 @@ public class ScannerReportWriterTest {
       ScannerReport.LineCoverage.newBuilder()
         .setLine(1)
         .setConditions(1)
-        .setUtHits(true)
-        .setItHits(false)
-        .setUtCoveredConditions(1)
-        .setItCoveredConditions(1)
-        .setOverallCoveredConditions(1)
+        .setHits(true)
+        .setCoveredConditions(1)
         .build()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();

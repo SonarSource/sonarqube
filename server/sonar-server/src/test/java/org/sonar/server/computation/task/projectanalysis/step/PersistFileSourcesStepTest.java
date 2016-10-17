@@ -35,9 +35,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.Duplicate;
 import org.sonar.server.computation.task.projectanalysis.duplication.Duplication;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
@@ -138,11 +138,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putCoverage(FILE_REF, newArrayList(ScannerReport.LineCoverage.newBuilder()
       .setLine(1)
       .setConditions(10)
-      .setUtHits(true)
-      .setUtCoveredConditions(2)
-      .setItHits(true)
-      .setItCoveredConditions(3)
-      .setOverallCoveredConditions(4)
+      .setHits(true)
+      .setCoveredConditions(2)
       .build()));
 
     underTest.execute();
@@ -156,12 +153,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(0).getUtLineHits()).isEqualTo(1);
     assertThat(data.getLines(0).getUtConditions()).isEqualTo(10);
     assertThat(data.getLines(0).getUtCoveredConditions()).isEqualTo(2);
-    assertThat(data.getLines(0).hasItLineHits()).isTrue();
-    assertThat(data.getLines(0).getItConditions()).isEqualTo(10);
-    assertThat(data.getLines(0).getItCoveredConditions()).isEqualTo(3);
-    assertThat(data.getLines(0).getOverallLineHits()).isEqualTo(1);
-    assertThat(data.getLines(0).getOverallConditions()).isEqualTo(10);
-    assertThat(data.getLines(0).getOverallCoveredConditions()).isEqualTo(4);
   }
 
   @Test

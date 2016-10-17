@@ -217,24 +217,12 @@ message LineCoverage {
   // Number of conditions to cover (if set, the value must be greater than 0)
   int32 conditions = 2;
   // Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
-  oneof has_ut_hits {
-    bool ut_hits = 3;
+  oneof has_hits {
+    bool hits = 3;
   }
-  // Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
-  oneof has_it_hits {
-    bool it_hits = 4;
-  }
-  // Number of conditions covered by unit tests
-  oneof has_ut_covered_conditions {
-    int32 ut_covered_conditions = 5;
-  }
-  // Number of conditions covered by integration tests
-  oneof has_it_covered_conditions {
-    int32 it_covered_conditions = 6;
-  }
-  // Number of conditions covered by overall tests
-  oneof has_overall_covered_conditions {
-    int32 overall_covered_conditions = 7;
+  // Number of conditions covered by tests
+  oneof has_covered_conditions {
+    int32 covered_conditions = 5;
   }
 }
 

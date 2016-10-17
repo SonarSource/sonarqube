@@ -84,17 +84,17 @@ public class CoveragePublisherTest {
     try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
       assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(2)
-        .setUtHits(true)
+        .setHits(true)
         .build());
       assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(3)
-        .setUtHits(true)
+        .setHits(true)
         .setConditions(4)
-        .setUtCoveredConditions(2)
+        .setCoveredConditions(2)
         .build());
       assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(5)
-        .setUtHits(false)
+        .setHits(false)
         .build());
     }
 

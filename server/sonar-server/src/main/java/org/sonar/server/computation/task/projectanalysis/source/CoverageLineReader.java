@@ -23,11 +23,8 @@ import java.util.Iterator;
 import javax.annotation.CheckForNull;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasItCoveredConditionsCase;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasItHitsCase;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasOverallCoveredConditionsCase;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasUtCoveredConditionsCase;
-import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasUtHitsCase;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasCoveredConditionsCase;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.HasHitsCase;
 
 public class CoverageLineReader implements LineReader {
 
@@ -43,39 +40,28 @@ public class CoverageLineReader implements LineReader {
     ScannerReport.LineCoverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
       processUnitTest(lineBuilder, reportCoverage);
-      processIntegrationTest(lineBuilder, reportCoverage);
       processOverallTest(lineBuilder, reportCoverage);
       coverage = null;
     }
   }
 
   private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
-    if (reportCoverage.getHasUtHitsCase() == HasUtHitsCase.UT_HITS) {
-      lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
+    if (reportCoverage.getHasHitsCase() == HasHitsCase.HITS) {
+      lineBuilder.setUtLineHits(reportCoverage.getHits() ? 1 : 0);
     }
-    if (reportCoverage.getHasUtCoveredConditionsCase() == HasUtCoveredConditionsCase.UT_COVERED_CONDITIONS) {
+    if (reportCoverage.getHasCoveredConditionsCase() == HasCoveredConditionsCase.COVERED_CONDITIONS) {
       lineBuilder.setUtConditions(reportCoverage.getConditions());
-      lineBuilder.setUtCoveredConditions(reportCoverage.getUtCoveredConditions());
-    }
-  }
-
-  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
-    if (reportCoverage.getHasItHitsCase() == HasItHitsCase.IT_HITS) {
-      lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
-    }
-    if (reportCoverage.getHasItCoveredConditionsCase() == HasItCoveredConditionsCase.IT_COVERED_CONDITIONS) {
-      lineBuilder.setItConditions(reportCoverage.getConditions());
-      lineBuilder.setItCoveredConditions(reportCoverage.getItCoveredConditions());
+      lineBuilder.setUtCoveredConditions(reportCoverage.getCoveredConditions());
     }
   }
 
   private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
-    if (reportCoverage.getHasUtHitsCase() == HasUtHitsCase.UT_HITS || reportCoverage.getHasItHitsCase() == HasItHitsCase.IT_HITS) {
-      lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
+    if (reportCoverage.getHasHitsCase() == HasHitsCase.HITS) {
+      lineBuilder.setOverallLineHits(reportCoverage.getHits() ? 1 : 0);
     }
-    if (reportCoverage.getHasOverallCoveredConditionsCase() == HasOverallCoveredConditionsCase.OVERALL_COVERED_CONDITIONS) {
+    if (reportCoverage.getHasCoveredConditionsCase() == HasCoveredConditionsCase.COVERED_CONDITIONS) {
       lineBuilder.setOverallConditions(reportCoverage.getConditions());
-      lineBuilder.setOverallCoveredConditions(reportCoverage.getOverallCoveredConditions());
+      lineBuilder.setOverallCoveredConditions(reportCoverage.getCoveredConditions());
     }
   }
 

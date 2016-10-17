@@ -277,20 +277,14 @@ public class ScannerReportReaderTest {
       ScannerReport.LineCoverage.newBuilder()
         .setLine(1)
         .setConditions(1)
-        .setUtHits(true)
-        .setItHits(false)
-        .setUtCoveredConditions(1)
-        .setItCoveredConditions(1)
-        .setOverallCoveredConditions(1)
+        .setHits(true)
+        .setCoveredConditions(1)
         .build(),
       ScannerReport.LineCoverage.newBuilder()
         .setLine(2)
         .setConditions(5)
-        .setUtHits(false)
-        .setItHits(false)
-        .setUtCoveredConditions(4)
-        .setItCoveredConditions(5)
-        .setOverallCoveredConditions(5)
+        .setHits(false)
+        .setCoveredConditions(4)
         .build()));
 
     underTest = new ScannerReportReader(dir);
@@ -298,11 +292,8 @@ public class ScannerReportReaderTest {
       ScannerReport.LineCoverage coverage = it.next();
       assertThat(coverage.getLine()).isEqualTo(1);
       assertThat(coverage.getConditions()).isEqualTo(1);
-      assertThat(coverage.getUtHits()).isTrue();
-      assertThat(coverage.getItHits()).isFalse();
-      assertThat(coverage.getUtCoveredConditions()).isEqualTo(1);
-      assertThat(coverage.getItCoveredConditions()).isEqualTo(1);
-      assertThat(coverage.getOverallCoveredConditions()).isEqualTo(1);
+      assertThat(coverage.getHits()).isTrue();
+      assertThat(coverage.getCoveredConditions()).isEqualTo(1);
     }
   }
 

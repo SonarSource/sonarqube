@@ -55,7 +55,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void unit_test_coverage() throws Exception {
+  public void coverage() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
@@ -86,7 +86,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void unit_test_coverage_no_condition() throws Exception {
+  public void coverage_no_condition() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage-no-condition")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
@@ -111,19 +111,22 @@ public class CoverageTest {
   }
 
   @Test
-  public void it_coverage() throws Exception {
+  public void it_coverage_imported_as_coverage() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-it-coverage")));
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-it-coverage", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("coverage")).isNull();
 
-    assertThat(project.getMeasureValue("it_line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("it_lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("it_uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("it_branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("it_conditions_to_cover")).isEqualTo(2);
-    assertThat(project.getMeasureValue("it_uncovered_conditions")).isEqualTo(1);
-    assertThat(project.getMeasureValue("it_coverage")).isEqualTo(50.0);
+    // Since SQ 6.2 all coverage reports are merged as coverage
+
+    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
+    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
+    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2);
+    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
+    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2);
+    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1);
+    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+
+    assertThat(project.getMeasureValue("it_coverage")).isNull();
 
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
@@ -135,8 +138,10 @@ public class CoverageTest {
   }
 
   @Test
-  public void ut_and_it_coverage() throws Exception {
+  public void ut_and_it_coverage_merged_in_coverage() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-overall-coverage")));
+
+    // Since SQ 6.2 all coverage reports are merged as coverage
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-overall-coverage", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
@@ -147,21 +152,9 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(3);
     assertThat(project.getMeasureValue("coverage")).isEqualTo(37.5);
 
-    assertThat(project.getMeasureValue("it_line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("it_lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("it_uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("it_branch_coverage")).isEqualTo(25.0);
-    assertThat(project.getMeasureValue("it_conditions_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("it_uncovered_conditions")).isEqualTo(3);
-    assertThat(project.getMeasureValue("it_coverage")).isEqualTo(37.5);
+    assertThat(project.getMeasureValue("it_coverage")).isNull();
 
-    assertThat(project.getMeasureValue("overall_line_coverage")).isEqualTo(75.0);
-    assertThat(project.getMeasureValue("overall_lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("overall_uncovered_lines")).isEqualTo(1);
-    assertThat(project.getMeasureValue("overall_branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("overall_conditions_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("overall_uncovered_conditions")).isEqualTo(2);
-    assertThat(project.getMeasureValue("overall_coverage")).isEqualTo(62.5);
+    assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
     String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo"));
     // Use strict checking to be sure no extra coverage is present
