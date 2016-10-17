@@ -51,16 +51,26 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
+   * Returns the names of the groups that match the given query, for the given organization.
+   * The virtual group "Anyone" may be returned as the value "zero" (0L).
    * @return group names, sorted in alphabetical order
    */
   public List<String> selectGroupNamesByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
     return mapper(dbSession).selectGroupNamesByQuery(organizationUuid, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
+  /**
+   * Count the number of groups returned by {@link #selectGroupNamesByQuery(DbSession, String, PermissionQuery)},
+   * without applying pagination.
+   */
   public int countGroupsByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
     return mapper(dbSession).countGroupsByQuery(organizationUuid, query);
   }
 
+  /**
+   * Select global or project permission of given groups and organization. Anyone virtual group is supported
+   * through the value "zero" (0L) in {@code groupIds}.
+   */
   public List<GroupPermissionDto> selectByGroupIds(DbSession dbSession, String organizationUuid, List<Long> groupIds, @Nullable Long projectId) {
     return executeLargeInputs(groupIds, groups -> mapper(dbSession).selectByGroupIds(organizationUuid, groups, projectId));
   }
