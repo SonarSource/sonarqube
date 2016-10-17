@@ -24,16 +24,19 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -57,12 +60,12 @@ public class CreateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private WsTester tester;
   private UserIndex index;
@@ -84,7 +87,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user() throws Exception {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    authenticateAsAdmin();
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -110,7 +113,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_comma_in_scm_account() throws Exception {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    authenticateAsAdmin();
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -125,7 +128,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_deprecated_scmAccounts_parameter() throws Exception {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    authenticateAsAdmin();
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -141,7 +144,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_deprecated_scm_accounts_parameter() throws Exception {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    authenticateAsAdmin();
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -176,6 +179,60 @@ public class CreateActionTest {
     assertThat(index.getNullableByLogin("john").active()).isTrue();
   }
 
+  @Test
+  public void create_user_with_root_flag_to_false_if_default_group_is_unset() throws Exception {
+    unsetDefaultGroupProperty();
+    authenticateAsAdmin();
+
+    executeRequest("john");
+
+    db.rootFlag().verify("john", false);
+  }
+
+  @Test
+  public void create_user_with_root_flag_to_false_if_default_group_is_non_admin_on_default_organization() throws Exception {
+    GroupDto adminGroup = db.users().insertGroup(db.getDefaultOrganization());
+    setDefaultGroupProperty(adminGroup);
+    authenticateAsAdmin();
+
+    executeRequest("foo");
+
+    db.rootFlag().verify("foo", false);
+  }
+
+  @Test
+  public void request_fails_with_ServerException_when_default_group_belongs_to_another_organization() throws Exception {
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(otherOrganization);
+    setDefaultGroupProperty(group);
+    authenticateAsAdmin();
+
+    expectedException.expect(ServerException.class);
+    expectedException.expectMessage("The default group '" + group.getName() + "' for new users does not exist. " +
+      "Please update the general security settings to fix this issue");
+
+    executeRequest("bar");
+  }
+
+  @Test
+  public void create_user_with_root_flag_to_true_if_default_group_is_admin_on_default_organization() throws Exception {
+    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
+    setDefaultGroupProperty(adminGroup);
+    authenticateAsAdmin();
+
+    executeRequest("doh");
+
+    db.rootFlag().verify("doh", true);
+  }
+
+  private void unsetDefaultGroupProperty() {
+    settings.setProperty("sonar.defaultGroup", (String) null);
+  }
+
+  private void setDefaultGroupProperty(GroupDto adminGroup) {
+    settings.setProperty("sonar.defaultGroup", adminGroup.getName());
+  }
+
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
     userSessionRule.login("not_admin");
@@ -186,5 +243,19 @@ public class CreateActionTest {
       .setParam("email", "john@email.com")
       .setParam("scm_accounts", "jn")
       .setParam("password", "1234").execute();
+  }
+
+  private void authenticateAsAdmin() {
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  private void executeRequest(String login) throws Exception {
+    tester.newPostRequest("api/users", "create")
+      .setParam("login", login)
+      .setParam("name", "name of " + login)
+      .setParam("email", login + "@email.com")
+      .setParam("scm_accounts", login.substring(0, 2))
+      .setParam("password", "pwd_" + login)
+      .execute();
   }
 }

@@ -90,27 +90,47 @@ public class UserUpdater {
   public boolean create(NewUser newUser) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      return create(dbSession, newUser);
+      CreatedUser createdUser = create(dbSession, newUser);
+      dbClient.userDao().updateRootFlagFromPermissions(dbSession, createdUser.getId(), defaultOrganizationProvider.get().getUuid());
+      dbSession.commit();
+      return createdUser.isReactivated();
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  public boolean create(DbSession dbSession, NewUser newUser) {
+  public CreatedUser create(DbSession dbSession, NewUser newUser) {
     boolean isUserReactivated = false;
-    UserDto userDto = createNewUserDto(dbSession, newUser);
-    String login = userDto.getLogin();
-    UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, userDto.getLogin());
-    if (existingUser == null) {
-      saveUser(dbSession, userDto);
+    String login = newUser.login();
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
+    if (userDto == null) {
+      userDto = saveUser(dbSession, createNewUserDto(dbSession, newUser));
       addDefaultGroup(dbSession, userDto);
     } else {
-      isUserReactivated = reactivateUser(dbSession, existingUser, login, newUser);
+      isUserReactivated = reactivateUser(dbSession, userDto, login, newUser);
     }
     dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
     userIndexer.index();
-    return isUserReactivated;
+    return new CreatedUser(userDto.getId(), isUserReactivated);
+  }
+
+  private static final class CreatedUser {
+    private final long id;
+    private final boolean reactivated;
+
+    private CreatedUser(long id, boolean reactivated) {
+      this.id = id;
+      this.reactivated = reactivated;
+    }
+
+    public long getId() {
+      return id;
+    }
+
+    public boolean isReactivated() {
+      return reactivated;
+    }
   }
 
   private boolean reactivateUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
@@ -362,11 +382,12 @@ public class UserUpdater {
     return null;
   }
 
-  private void saveUser(DbSession dbSession, UserDto userDto) {
+  private UserDto saveUser(DbSession dbSession, UserDto userDto) {
     long now = system2.now();
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
-    dbClient.userDao().insert(dbSession, userDto);
+    UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addDefaultGroup(dbSession, userDto);
+    return res;
   }
 
   private void updateUser(DbSession dbSession, UserDto userDto) {
