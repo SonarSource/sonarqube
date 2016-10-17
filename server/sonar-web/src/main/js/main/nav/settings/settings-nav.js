@@ -41,7 +41,7 @@ export default React.createClass({
   },
 
   isProjectsActive() {
-    const urls = ['/projects', '/background_tasks'];
+    const urls = ['/projects_admin', '/background_tasks'];
     return this.isSomethingActive(urls);
   },
 
@@ -109,7 +109,7 @@ export default React.createClass({
                 <i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/projects', 'Management')}
+                {this.renderLink('/projects_admin', 'Management')}
                 {this.renderLink('/background_tasks',
                     translate('background_tasks.page'))}
               </ul>

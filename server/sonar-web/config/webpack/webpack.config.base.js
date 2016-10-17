@@ -43,7 +43,7 @@ module.exports = {
     'permission-templates': './src/main/js/apps/permission-templates/app.js',
     'project-admin': './src/main/js/apps/project-admin/app.js',
     'project-permissions': './src/main/js/apps/permissions/project/app.js',
-    'projects': './src/main/js/apps/projects/app.js',
+    'projects-admin': './src/main/js/apps/projects-admin/app.js',
     'quality-gates': './src/main/js/apps/quality-gates/app.js',
     'quality-profiles': './src/main/js/apps/quality-profiles/app.js',
     'settings': './src/main/js/apps/settings/app.js',
