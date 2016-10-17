@@ -131,5 +131,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
+    // do not store document but only indexation of information
+    authorizationMapping.setEnableSource(false);
   }
 }

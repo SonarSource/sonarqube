@@ -176,8 +176,7 @@ public class DeleteActionTest {
     String remainingProjectUuid = "project-uuid-2";
     assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID))
-      .containsOnly(remainingProjectUuid);
+    assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
   }

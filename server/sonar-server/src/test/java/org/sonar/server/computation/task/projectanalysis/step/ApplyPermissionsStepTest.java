@@ -19,9 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import java.util.List;
-import java.util.Map;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,13 +44,15 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
-
 
 public class ApplyPermissionsStepTest extends BaseStepTest {
 
@@ -73,19 +72,17 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
+  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
+
   private DbSession dbSession;
   private DbClient dbClient = dbTester.getDbClient();
   private Settings settings = new MapSettings();
-  private AuthorizationIndexer issueAuthorizationIndexer;
   private ApplyPermissionsStep step;
 
   @Before
   public void setUp() {
     dbSession = dbClient.openSession(false);
-
-    issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, esTester.client());
-
-    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, new AuthorizationIndexer(dbClient, esTester.client()), new PermissionRepository(dbClient, settings), treeRootHolder);
   }
 
   @After
@@ -110,7 +107,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
-    verifyAuthorisationIndex(ROOT_UUID, DefaultGroups.ANYONE);
+    authorizationIndexerTester.verifyProjectAuthorization(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
   }
 
   @Test
@@ -176,15 +173,6 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, permissionTemplateDto.getId(), null, permission);
     dbSession.commit();
-  }
-
-  private void verifyAuthorisationIndex(String rootUuid, String groupPermission){
-    List<SearchHit> issueAuthorizationHits = esTester.getDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
-    assertThat(issueAuthorizationHits).hasSize(1);
-    Map<String, Object> issueAuthorization = issueAuthorizationHits.get(0).sourceAsMap();
-    assertThat(issueAuthorization.get("project")).isEqualTo(rootUuid);
-    assertThat((List<String>) issueAuthorization.get("groups")).containsOnly(groupPermission);
-    assertThat((List<String>) issueAuthorization.get("users")).isEmpty();
   }
 
   @Override

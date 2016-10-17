@@ -62,7 +62,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_IDS;
@@ -159,8 +158,7 @@ public class BulkDeleteActionTest {
     String remainingProjectUuid = "project-uuid-2";
     assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, FIELD_AUTHORIZATION_PROJECT_UUID))
-      .containsOnly(remainingProjectUuid);
+    assertThat(es.getIds(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
   }

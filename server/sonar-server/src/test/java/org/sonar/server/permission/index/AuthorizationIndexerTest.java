@@ -19,10 +19,6 @@
  */
 package org.sonar.server.permission.index;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -36,6 +32,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -51,6 +49,7 @@ public class AuthorizationIndexerTest {
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   UserDbTester userDbTester = new UserDbTester(dbTester);
+  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
 
   AuthorizationIndexer underTest = new AuthorizationIndexer(dbTester.getDbClient(), esTester.client());
 
@@ -73,51 +72,33 @@ public class AuthorizationIndexerTest {
 
     underTest.doIndex(0L);
 
-    List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
-    assertThat(docs).hasSize(1);
-    SearchHit doc = docs.get(0);
-    assertThat(doc.getSource().get("project")).isEqualTo(project.uuid());
-    assertThat((Collection) doc.getSource().get("groups")).containsOnly(group.getName(), ANYONE);
-    assertThat((Collection) doc.getSource().get("users")).containsOnly(user.getLogin());
+    authorizationIndexerTester.verifyProjectAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getLogin()));
   }
 
   @Test
   public void delete_project() {
-    AuthorizationDao.Dto authorization = new AuthorizationDao.Dto("ABC", System.currentTimeMillis());
-    authorization.addUser("guy");
-    authorization.addGroup("dev");
-    underTest.index(Arrays.asList(authorization));
+    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
 
     underTest.deleteProject("ABC", true);
 
-    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
+    authorizationIndexerTester.verifyEmptyProjectAuthorization();
   }
 
   @Test
   public void do_not_fail_when_deleting_unindexed_project() {
     underTest.deleteProject("UNKNOWN", true);
 
-    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
+    authorizationIndexerTester.verifyEmptyProjectAuthorization();
   }
 
   @Test
-  public void delete_permissions() {
-    AuthorizationDao.Dto authorization = new AuthorizationDao.Dto("ABC", System.currentTimeMillis());
-    authorization.addUser("guy");
-    authorization.addGroup("dev");
-    underTest.index(Arrays.asList(authorization));
-
-    // has permissions
-    assertThat(esTester.countDocuments("issues", "authorization")).isEqualTo(1);
+  public void update_existing_permissions() {
+    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
 
     // remove permissions -> dto has no users nor groups
-    authorization = new AuthorizationDao.Dto("ABC", System.currentTimeMillis());
-    underTest.index(Arrays.asList(authorization));
+    underTest.index(singletonList(new AuthorizationDao.Dto("ABC", System.currentTimeMillis())));
 
-    List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
-    assertThat(docs).hasSize(1);
-    assertThat((Collection) docs.get(0).sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS)).hasSize(0);
-    assertThat((Collection) docs.get(0).sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS)).hasSize(0);
+    authorizationIndexerTester.verifyProjectAsNoAuthorization("ABC");
   }
 
 }

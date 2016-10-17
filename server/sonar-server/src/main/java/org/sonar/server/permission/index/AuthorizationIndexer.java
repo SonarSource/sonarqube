@@ -24,14 +24,20 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.issue.index.IssueIndexDefinition;
+
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_USERS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
+import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
 
 /**
  * Manages the synchronization of index issues/authorization with authorization settings defined in database :
@@ -45,7 +51,7 @@ public class AuthorizationIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public AuthorizationIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    super(esClient, 0L, INDEX, TYPE_AUTHORIZATION, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -54,7 +60,7 @@ public class AuthorizationIndexer extends BaseIndexer {
     try (DbSession dbSession = dbClient.openSession(false)) {
       // warning - do not enable large mode, else disabling of replicas
       // will impact the type "issue" which is much bigger than issueAuthorization
-      BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+      BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
 
       AuthorizationDao dao = new AuthorizationDao();
       Collection<AuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
@@ -64,7 +70,7 @@ public class AuthorizationIndexer extends BaseIndexer {
 
   @VisibleForTesting
   public void index(Collection<AuthorizationDao.Dto> authorizations) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
     doIndex(bulk, authorizations);
   }
 
@@ -72,7 +78,7 @@ public class AuthorizationIndexer extends BaseIndexer {
     long maxDate = 0L;
     bulk.start();
     for (AuthorizationDao.Dto authorization : authorizations) {
-      bulk.add(newIssueUpdateRequest(authorization));
+      bulk.add(newIndexRequest(authorization));
       maxDate = Math.max(maxDate, authorization.getUpdatedAt());
     }
     bulk.stop();
@@ -81,21 +87,20 @@ public class AuthorizationIndexer extends BaseIndexer {
 
   public void deleteProject(String uuid, boolean refresh) {
     esClient
-      .prepareDelete(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, uuid)
+      .prepareDelete(INDEX, TYPE_AUTHORIZATION, uuid)
       .setRefresh(refresh)
       .setRouting(uuid)
       .get();
   }
 
-  private static ActionRequest newIssueUpdateRequest(AuthorizationDao.Dto dto) {
+  private static IndexRequest newIndexRequest(AuthorizationDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
-      IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+      FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
+      FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
+      FIELD_AUTHORIZATION_USERS, dto.getUsers(),
+      FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    return new IndexRequest(INDEX, TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
-      .doc(doc)
-      .upsert(doc);
+      .source(doc);
   }
 }
