@@ -21,7 +21,6 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
@@ -30,7 +29,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -60,22 +58,6 @@ public class UserPermissionDao implements Dao {
       .distinct()
       .collect(Collectors.toList());
   }
-
-  /**
-   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)}
-   * @param userLogin the non-null user login
-   * @param projectUuid if null, then return global permissions, else return permissions of user on this project
-   */
-  public Set<String> selectPermissionsByLogin(DbSession dbSession, String userLogin, @Nullable String projectUuid) {
-    PermissionQuery query = PermissionQuery.builder()
-      .withAtLeastOnePermission()
-      .setComponentUuid(projectUuid)
-      .build();
-    return select(dbSession, query, asList(userLogin)).stream()
-      .map(ExtendedUserPermissionDto::getPermission)
-      .collect(Collectors.toSet());
-  }
-
 
   /**
    * @see UserPermissionMapper#countUsersByQuery(PermissionQuery, Collection)
