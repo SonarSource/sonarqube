@@ -33,6 +33,7 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.process.ProcessProperties;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.es.BaseIndex.SEARCH_PARTIAL_SUFFIX;
 import static org.sonar.server.es.BaseIndex.SEARCH_WORDS_SUFFIX;
@@ -126,6 +127,10 @@ public class NewIndex {
 
     public StringFieldBuilder stringFieldBuilder(String fieldName) {
       return new StringFieldBuilder(this, fieldName);
+    }
+
+    public NestedFieldBuilder nestedFieldBuilder(String fieldName) {
+      return new NestedFieldBuilder(this, fieldName);
     }
 
     public NewIndexType createBooleanField(String fieldName) {
@@ -253,7 +258,7 @@ public class NewIndex {
       return this;
     }
 
-    public void build() {
+    public NewIndexType build() {
       Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
@@ -270,7 +275,41 @@ public class NewIndex {
         hash.put("fields", multiFields);
       }
 
-      indexType.setProperty(fieldName, hash);
+      return indexType.setProperty(fieldName, hash);
+    }
+  }
+
+  public static class NestedFieldBuilder {
+    private final NewIndexType indexType;
+    private final String fieldName;
+    private final Map<String, Object> properties = new TreeMap<>();
+
+    private NestedFieldBuilder(NewIndexType indexType, String fieldName) {
+      this.indexType = indexType;
+      this.fieldName = fieldName;
+    }
+
+    private NestedFieldBuilder setProperty(String fieldName, Object value) {
+      properties.put(fieldName, value);
+
+      return this;
+    }
+
+    public NestedFieldBuilder addStringFied(String fieldName) {
+      return setProperty(fieldName, ImmutableMap.of("type", "string"));
+    }
+
+    public NestedFieldBuilder addDoubleField(String fieldName) {
+      return setProperty(fieldName, ImmutableMap.of("type", "double"));
+    }
+
+    public NewIndexType build() {
+      checkArgument(!properties.isEmpty(), "At least one sub-field must be declared in nested property '%s'", fieldName);
+      Map<String, Object> hash = new TreeMap<>();
+      hash.put("type", "nested");
+      hash.put("properties", properties);
+
+      return indexType.setProperty(fieldName, hash);
     }
   }
 

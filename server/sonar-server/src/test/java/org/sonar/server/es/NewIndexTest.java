@@ -24,7 +24,9 @@ import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.process.ProcessProperties;
 
@@ -32,6 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class NewIndexTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void most_basic_index() {
@@ -112,6 +117,34 @@ public class NewIndexTest {
   }
 
   @Test
+  public void define_nested_field() {
+    NewIndex index = new NewIndex("projectmeasures");
+    NewIndex.NewIndexType mapping = index.createType("projectmeasures");
+
+    mapping.nestedFieldBuilder("measures")
+      .addStringFied("key")
+      .addDoubleField("value")
+      .build();
+    Map<String, Object> result = (Map) mapping.getProperty("measures");
+
+    assertThat(result.get("type")).isEqualTo("nested");
+    Map<String, Map<String, Object>> subProperties = (Map) result.get("properties");
+    assertThat(subProperties.get("key").get("type")).isEqualTo("string");
+    assertThat(subProperties.get("value").get("type")).isEqualTo("double");
+  }
+
+  @Test
+  public void fail_when_nested_with_no_field() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At least one sub-field must be declared in nested property 'measures'");
+
+    NewIndex index = new NewIndex("projectmeasures");
+    NewIndex.NewIndexType mapping = index.createType("project_measures");
+
+    mapping.nestedFieldBuilder("measures").build();
+  }
+
+  @Test
   public void use_default_doc_values() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
@@ -170,7 +203,7 @@ public class NewIndexTest {
 
     mapping = index.getTypes().get("issue");
     assertThat(mapping).isNotNull();
-    assertThat((Map<String, Object>)mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", true));
+    assertThat((Map<String, Object>) mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", true));
   }
 
   @Test
@@ -181,6 +214,6 @@ public class NewIndexTest {
 
     mapping = index.getTypes().get("issue");
     assertThat(mapping).isNotNull();
-    assertThat((Map<String, Object>)mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", false));
+    assertThat((Map<String, Object>) mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", false));
   }
 }
