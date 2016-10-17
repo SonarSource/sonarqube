@@ -407,7 +407,7 @@ public class UserDaoTest {
     MeasureFilterDto measureFilter = insertMeasureFilter(user, false);
     MeasureFilterFavouriteDto measureFilterFavourite = insertMeasureFilterFavourite(measureFilter, user);
     PropertyDto property = insertProperty(user);
-    insertUserPermission(user);
+    db.users().insertPermissionOnUser(user, "perm");
     insertUserGroup(user);
 
     UserDto otherUser = newActiveUser();
@@ -437,7 +437,7 @@ public class UserDaoTest {
     assertThat(dbClient.measureFilterDao().selectById(session, measureFilter.getId())).isNull();
     assertThat(dbClient.measureFilterFavouriteDao().selectById(session, measureFilterFavourite.getId())).isNull();
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
-    assertThat(dbClient.userPermissionDao().selectPermissionsByLogin(session, user.getLogin(), null)).isEmpty();
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(session, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().login(user.getLogin()).membership(IN).build(), user.getId())).isZero();
   }
 
@@ -833,13 +833,6 @@ public class UserDaoTest {
   private PropertyDto insertProperty(String key, String value, long componentId) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value).setResourceId(componentId);
     dbClient.propertiesDao().saveProperty(session, dto);
-    return dto;
-  }
-
-  private org.sonar.db.permission.UserPermissionDto insertUserPermission(UserDto user) {
-    String permission = randomAlphanumeric(64);
-    UserPermissionDto dto = new UserPermissionDto(db.getDefaultOrganization().getUuid(), permission, user.getId(), null);
-    dbClient.userPermissionDao().insert(session, dto);
     return dto;
   }
 

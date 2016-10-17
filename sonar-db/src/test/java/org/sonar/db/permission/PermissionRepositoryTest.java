@@ -19,6 +19,7 @@
  */
 package org.sonar.db.permission;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,22 +73,30 @@ public class PermissionRepositoryTest {
   public void apply_permission_template() {
     dbTester.prepareDbUnit(getClass(), "should_apply_permission_template.xml");
 
-    UserDto marius = dbTester.users().selectUserByLogin("marius").get();
-    RoleDao roleDao = dbTester.getDbClient().roleDao();
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT.getId())).isEmpty();
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT.getId())).isEmpty();
-    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT.getId())).isEmpty();
-    assertThat(dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session, marius.getId(), PROJECT.getId())).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup("org1", 100L, PROJECT)).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup("org1", 101L, PROJECT)).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup("org1", null, PROJECT)).isEmpty();
+    assertThat(selectProjectPermissionsOfUser(200L, PROJECT)).isEmpty();
 
     PermissionTemplateDto template = dbTester.getDbClient().permissionTemplateDao().selectByUuid(session, "default_20130101_010203");
     underTest.apply(session, template, PROJECT, null);
 
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-administrators", PROJECT.getId())).containsOnly("admin", "issueadmin");
-    assertThat(roleDao.selectGroupPermissions(session, "sonar-users", PROJECT.getId())).containsOnly("user", "codeviewer");
-    assertThat(roleDao.selectGroupPermissions(session, "Anyone", PROJECT.getId())).containsOnly("user", "codeviewer");
-    assertThat(dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session, marius.getId(), PROJECT.getId())).containsOnly("admin");
+    assertThat(selectProjectPermissionsOfGroup("org1", 100L, PROJECT)).containsOnly("admin", "issueadmin");
+    assertThat(selectProjectPermissionsOfGroup("org1", 101L, PROJECT)).containsOnly("user", "codeviewer");
+    assertThat(selectProjectPermissionsOfGroup("org1", null, PROJECT)).containsOnly("user", "codeviewer");
+    assertThat(selectProjectPermissionsOfUser(200L, PROJECT)).containsOnly("admin");
 
     checkAuthorizationUpdatedAtIsUpdated();
+  }
+
+  private List<String> selectProjectPermissionsOfGroup(String organizationUuid, @Nullable Long groupId, ComponentDto project) {
+    return dbTester.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(session,
+      organizationUuid, groupId != null ? groupId : null, project.getId());
+  }
+
+  private List<String> selectProjectPermissionsOfUser(long userId, ComponentDto project) {
+    return dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session,
+      userId, project.getId());
   }
 
   @Test

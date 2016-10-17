@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -95,28 +94,6 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void retrieve_global_group_permissions() {
-    db.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN,
-      GlobalPermissions.QUALITY_PROFILE_ADMIN,
-      GlobalPermissions.QUALITY_GATE_ADMIN);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-users", null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.PROVISIONING,
-      GlobalPermissions.SCAN_EXECUTION);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "anyone", null)).containsOnly(GlobalPermissions.PROVISIONING, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "AnYoNe", null)).containsOnly(GlobalPermissions.PROVISIONING, GlobalPermissions.SCAN_EXECUTION);
-  }
-
-  @Test
-  public void retrieve_resource_group_permissions() {
-    db.prepareDbUnit(getClass(), "resourceGroupPermissions.xml");
-
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
-    assertThat(underTest.selectGroupPermissions(db.getSession(), "sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
-  }
-
-  @Test
   public void delete_all_group_permissions_by_group_id() {
     db.prepareDbUnit(getClass(), "deleteGroupPermissionsByGroupId.xml");
 
@@ -124,41 +101,5 @@ public class RoleDaoTest {
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "deleteGroupPermissionsByGroupId-result.xml", "group_roles");
-  }
-
-  @Test
-  public void countUserPermissions() {
-    db.users().insertProjectPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN, project1);
-    db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
-    db.users().insertPermissionOnUser(user1, GlobalPermissions.SCAN_EXECUTION);
-
-    int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
-
-    assertThat(result).isEqualTo(1);
-  }
-
-  @Test
-  public void countUserPermissions_counts_users_with_one_permission_when_the_last_one_is_in_a_group() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    db.users().insertMember(group1, user1);
-    db.users().insertPermissionOnGroup(group1, GlobalPermissions.SYSTEM_ADMIN);
-
-    int resultWithoutExcludingGroup = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
-    assertThat(resultWithoutExcludingGroup).isEqualTo(1);
-
-    int resultWithGroupExclusion = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, group1.getId());
-    assertThat(resultWithGroupExclusion).isEqualTo(0);
-  }
-
-  @Test
-  public void countUserPermissions_counts_user_twice_when_both_user_and_group_permission() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    db.users().insertMember(group1, user1);
-    db.users().insertPermissionOnGroup(group1, GlobalPermissions.SYSTEM_ADMIN);
-    db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
-
-    int result = underTest.countUserPermissions(db.getSession(), GlobalPermissions.SYSTEM_ADMIN, null);
-
-    assertThat(result).isEqualTo(2);
   }
 }

@@ -20,22 +20,12 @@
 package org.sonar.db.user;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
-/**
- * @since 3.2
- */
 public interface RoleMapper {
 
   List<Long> selectComponentIdsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") long userId);
 
-  /**
-   * @return permissions from to a group
-   */
-  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId, @Param("isAnyOneGroup") Boolean isAnyOneGroup);
-
   void deleteGroupRolesByGroupId(long groupId);
 
-  int countUsersWithPermission(@Param("permission") String permission, @Nullable @Param("groupId") Long groupId);
 }

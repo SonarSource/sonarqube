@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.List;
+import java.util.Map;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -107,7 +110,8 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
-    assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession,
+      dbTester.getDefaultOrganization().getUuid(), null, projectDto.getId())).containsOnly(UserRole.USER);
     authorizationIndexerTester.verifyProjectExistsWithPermission(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
   }
 
@@ -148,7 +152,8 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
-    assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, viewDto.getId())).containsOnly(permission);
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession,
+      dbTester.getDefaultOrganization().getUuid(), null, viewDto.getId())).containsOnly(permission);
   }
 
   @Test
@@ -170,9 +175,12 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   private void createDefaultPermissionTemplate(String permission) {
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setName("Default"));
-    settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, permissionTemplateDto.getId(), null, permission);
+    PermissionTemplateDto defaultTemplate = newPermissionTemplateDto()
+      .setOrganizationUuid(dbTester.getDefaultOrganization().getUuid())
+      .setName("Default");
+    dbClient.permissionTemplateDao().insert(dbSession, defaultTemplate);
+    settings.setProperty("sonar.permission.template.default", defaultTemplate.getKee());
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, defaultTemplate.getId(), null, permission);
     dbSession.commit();
   }
 

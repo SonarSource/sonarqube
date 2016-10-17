@@ -20,8 +20,6 @@
 package org.sonar.db.user;
 
 import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -35,26 +33,8 @@ public class RoleDao implements Dao {
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
 
-  /**
-   * @deprecated replaced by {@link org.sonar.db.permission.GroupPermissionDao#selectGroupPermissions(DbSession, long, Long)}
-   * and {@link org.sonar.db.permission.GroupPermissionDao#selectAnyonePermissions(DbSession, Long)}
-   */
-  @Deprecated
-  public List<String> selectGroupPermissions(DbSession session, String groupName, @Nullable Long resourceId) {
-    return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
-  }
-
-
   public void deleteGroupRolesByGroupId(DbSession session, long groupId) {
     mapper(session).deleteGroupRolesByGroupId(groupId);
-  }
-
-  /**
-   * @deprecated does not support organizations
-   */
-  @Deprecated
-  public int countUserPermissions(DbSession session, String permission, @Nullable Long allGroupsExceptThisGroupId) {
-    return mapper(session).countUsersWithPermission(permission, allGroupsExceptThisGroupId);
   }
 
   private static RoleMapper mapper(DbSession session) {
