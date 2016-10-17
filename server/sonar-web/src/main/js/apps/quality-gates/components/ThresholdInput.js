@@ -47,8 +47,7 @@ export default class ThresholdInput extends React.Component {
       { label: 'A', value: '1' },
       { label: 'B', value: '2' },
       { label: 'C', value: '3' },
-      { label: 'D', value: '4' },
-      { label: 'E', value: '5' }
+      { label: 'D', value: '4' }
     ];
 
     const realValue = value === '' ? null : value;
