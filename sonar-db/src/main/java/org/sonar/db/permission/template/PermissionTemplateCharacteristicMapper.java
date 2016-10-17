@@ -24,6 +24,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface PermissionTemplateCharacteristicMapper {
+
+  PermissionTemplateCharacteristicDto selectById(@Param("id") long id);
+
   List<PermissionTemplateCharacteristicDto> selectByTemplateIds(@Param("templateIds") List<Long> templateId);
 
   PermissionTemplateCharacteristicDto selectByPermissionAndTemplateId(@Param("permission") String permission, @Param("templateId") long templateId);

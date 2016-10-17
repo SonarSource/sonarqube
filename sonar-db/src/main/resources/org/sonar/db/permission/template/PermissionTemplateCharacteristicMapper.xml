@@ -10,6 +10,13 @@
     ptc.updated_at as updatedAt
   </sql>
 
+  <select id="selectById" parameterType="long" resultType="PermissionTemplateCharacteristic">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.id=#{id,jdbcType=BIGINT}
+  </select>
+
   <select id="selectByTemplateIds" parameterType="long" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />

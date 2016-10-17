@@ -117,7 +117,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setCreatedAt(123_456_789L)
       .setUpdatedAt(2_000_000_000L));
 
-    PermissionTemplateCharacteristicDto result = selectById(expectedResult.getId());
+    PermissionTemplateCharacteristicDto result = dbSession.getMapper(PermissionTemplateCharacteristicMapper.class).selectById(expectedResult.getId());
     assertThat(result.getId()).isNotNull();
     assertThat(result).isEqualToComparingFieldByField(expectedResult);
   }
@@ -202,9 +202,5 @@ public class PermissionTemplateCharacteristicDaoTest {
 
     assertThat(underTest.selectByTemplateIds(dbSession, asList(1L))).hasSize(0);
     assertThat(underTest.selectByTemplateIds(dbSession, asList(1L, 2L))).hasSize(1);
-  }
-
-  private PermissionTemplateCharacteristicDto selectById(long id) {
-    return db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(id)).get(0);
   }
 }
