@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.permission.index;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,11 +30,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class IssueAuthorizationIndexerTest {
+public class AuthorizationIndexerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -44,7 +45,7 @@ public class IssueAuthorizationIndexerTest {
 
   @Test
   public void index_nothing() {
-    IssueAuthorizationIndexer indexer = createIndexer();
+    AuthorizationIndexer indexer = createIndexer();
     indexer.index();
 
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
@@ -54,7 +55,7 @@ public class IssueAuthorizationIndexerTest {
   public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    IssueAuthorizationIndexer indexer = createIndexer();
+    AuthorizationIndexer indexer = createIndexer();
     indexer.doIndex(0L);
 
     List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
@@ -72,15 +73,15 @@ public class IssueAuthorizationIndexerTest {
 
   @Test
   public void do_not_fail_when_deleting_unindexed_project() {
-    IssueAuthorizationIndexer indexer = createIndexer();
+    AuthorizationIndexer indexer = createIndexer();
     indexer.deleteProject("UNKNOWN", true);
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   @Test
   public void delete_permissions() {
-    IssueAuthorizationIndexer indexer = createIndexer();
-    IssueAuthorizationDao.Dto authorization = new IssueAuthorizationDao.Dto("ABC", System.currentTimeMillis());
+    AuthorizationIndexer indexer = createIndexer();
+    AuthorizationDao.Dto authorization = new AuthorizationDao.Dto("ABC", System.currentTimeMillis());
     authorization.addUser("guy");
     authorization.addGroup("dev");
     indexer.index(Arrays.asList(authorization));
@@ -89,7 +90,7 @@ public class IssueAuthorizationIndexerTest {
     assertThat(esTester.countDocuments("issues", "authorization")).isEqualTo(1);
 
     // remove permissions -> dto has no users nor groups
-    authorization = new IssueAuthorizationDao.Dto("ABC", System.currentTimeMillis());
+    authorization = new AuthorizationDao.Dto("ABC", System.currentTimeMillis());
     indexer.index(Arrays.asList(authorization));
 
     List<SearchHit> docs = esTester.getDocuments("issues", "authorization");
@@ -98,7 +99,7 @@ public class IssueAuthorizationIndexerTest {
     assertThat((Collection)docs.get(0).sourceAsMap().get(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS)).hasSize(0);
   }
 
-  private IssueAuthorizationIndexer createIndexer() {
-    return new IssueAuthorizationIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+  private AuthorizationIndexer createIndexer() {
+    return new AuthorizationIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
   }
 }

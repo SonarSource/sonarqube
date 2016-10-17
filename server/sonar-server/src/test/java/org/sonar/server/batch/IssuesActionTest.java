@@ -39,12 +39,12 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueAuthorizationDao;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.index.AuthorizationDao;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -78,7 +78,7 @@ public class IssuesActionTest {
 
   private IssueIndex issueIndex;
   private IssueIndexer issueIndexer;
-  private IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private AuthorizationIndexer issueAuthorizationIndexer;
   private ServerFileSystem fs = mock(ServerFileSystem.class);
 
   WsTester tester;
@@ -89,7 +89,7 @@ public class IssuesActionTest {
   public void before() {
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
-    issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
+    issueAuthorizationIndexer = new AuthorizationIndexer(null, es.client());
     issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
     tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));
@@ -329,7 +329,7 @@ public class IssuesActionTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
-    issueAuthorizationIndexer.index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+    issueAuthorizationIndexer.index(newArrayList(new AuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
   }
 
   private void addBrowsePermissionOnComponent(String componentKey) {

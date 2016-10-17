@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbClient;
-import org.sonar.server.es.BaseIndexer;
-import org.sonar.server.es.BulkIndexer;
-import org.sonar.server.es.EsClient;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.server.es.BaseIndexer;
+import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 
 /**
  * Manages the synchronization of index issues/authorization with authorization settings defined in database :
@@ -40,11 +40,11 @@ import java.util.Map;
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class IssueAuthorizationIndexer extends BaseIndexer {
+public class AuthorizationIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public IssueAuthorizationIndexer(DbClient dbClient, EsClient esClient) {
+  public AuthorizationIndexer(DbClient dbClient, EsClient esClient) {
     super(esClient, 0L, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
@@ -56,23 +56,23 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
       // will impact the type "issue" which is much bigger than issueAuthorization
       BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
 
-      IssueAuthorizationDao dao = new IssueAuthorizationDao();
-      Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
+      AuthorizationDao dao = new AuthorizationDao();
+      Collection<AuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
       return doIndex(bulk, authorizations);
     }
   }
 
   @VisibleForTesting
-  public void index(Collection<IssueAuthorizationDao.Dto> authorizations) {
+  public void index(Collection<AuthorizationDao.Dto> authorizations) {
     final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
     doIndex(bulk, authorizations);
   }
 
-  private long doIndex(BulkIndexer bulk, Collection<IssueAuthorizationDao.Dto> authorizations) {
+  private long doIndex(BulkIndexer bulk, Collection<AuthorizationDao.Dto> authorizations) {
     long maxDate = 0L;
     bulk.start();
-    for (IssueAuthorizationDao.Dto authorization : authorizations) {
-      bulk.add(newUpdateRequest(authorization));
+    for (AuthorizationDao.Dto authorization : authorizations) {
+      bulk.add(newIssueUpdateRequest(authorization));
       maxDate = Math.max(maxDate, authorization.getUpdatedAt());
     }
     bulk.stop();
@@ -87,7 +87,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
       .get();
   }
 
-  private static ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
+  private static ActionRequest newIssueUpdateRequest(AuthorizationDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),

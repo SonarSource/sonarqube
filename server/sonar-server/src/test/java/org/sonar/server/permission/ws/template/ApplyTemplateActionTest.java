@@ -37,8 +37,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
@@ -64,7 +64,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private ComponentDto project;
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
-  private IssueAuthorizationIndexer issueAuthorizationIndexer = mock(IssueAuthorizationIndexer.class);
+  private AuthorizationIndexer issueAuthorizationIndexer = mock(AuthorizationIndexer.class);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {

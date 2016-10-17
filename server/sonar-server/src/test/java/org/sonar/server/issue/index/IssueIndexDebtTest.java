@@ -41,6 +41,8 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.permission.index.AuthorizationDao;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -64,13 +66,13 @@ public class IssueIndexDebtTest {
   IssueIndex index;
 
   IssueIndexer issueIndexer;
-  IssueAuthorizationIndexer issueAuthorizationIndexer;
+  AuthorizationIndexer issueAuthorizationIndexer;
   ViewIndexer viewIndexer;
 
   @Before
   public void setUp() {
     issueIndexer = new IssueIndexer(null, tester.client());
-    issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
+    issueAuthorizationIndexer = new AuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
@@ -285,7 +287,7 @@ public class IssueIndexDebtTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
-    issueAuthorizationIndexer.index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+    issueAuthorizationIndexer.index(newArrayList(new AuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
   }
 
   private Builder newQueryBuilder() {

@@ -36,8 +36,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
@@ -61,7 +61,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   private GroupDto group2;
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
-  private IssueAuthorizationIndexer issueAuthorizationIndexer = mock(IssueAuthorizationIndexer.class);
+  private AuthorizationIndexer issueAuthorizationIndexer = mock(AuthorizationIndexer.class);
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {

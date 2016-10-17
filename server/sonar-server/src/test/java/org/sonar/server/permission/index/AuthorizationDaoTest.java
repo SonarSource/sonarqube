@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.permission.index;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -29,26 +29,26 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueAuthorizationDaoTest {
+public class AuthorizationDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private IssueAuthorizationDao dao = new IssueAuthorizationDao();
+  private AuthorizationDao dao = new AuthorizationDao();
 
   @Test
   public void select_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    Collection<AuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
     assertThat(dtos).hasSize(2);
 
-    IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
+    AuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
     assertThat(abc.getGroups()).containsOnly("Anyone", "devs");
     assertThat(abc.getUsers()).containsOnly("user1");
     assertThat(abc.getUpdatedAt()).isNotNull();
 
-    IssueAuthorizationDao.Dto def = Iterables.find(dtos, new ProjectPredicate("DEF"));
+    AuthorizationDao.Dto def = Iterables.find(dtos, new ProjectPredicate("DEF"));
     assertThat(def.getGroups()).containsOnly("Anyone");
     assertThat(def.getUsers()).containsOnly("user1", "user2");
     assertThat(def.getUpdatedAt()).isNotNull();
@@ -58,11 +58,11 @@ public class IssueAuthorizationDaoTest {
   public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 1500000000L);
+    Collection<AuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 1500000000L);
 
     // only project DEF was updated in this period
     assertThat(dtos).hasSize(1);
-    IssueAuthorizationDao.Dto def = Iterables.find(dtos, new ProjectPredicate("DEF"));
+    AuthorizationDao.Dto def = Iterables.find(dtos, new ProjectPredicate("DEF"));
     assertThat(def).isNotNull();
     assertThat(def.getGroups()).containsOnly("Anyone");
     assertThat(def.getUsers()).containsOnly("user1", "user2");
@@ -72,16 +72,16 @@ public class IssueAuthorizationDaoTest {
   public void no_authorization() {
     dbTester.prepareDbUnit(getClass(), "no_authorization.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    Collection<AuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
 
     assertThat(dtos).hasSize(1);
-    IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
+    AuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
     assertThat(abc.getGroups()).isEmpty();
     assertThat(abc.getUsers()).isEmpty();
     assertThat(abc.getUpdatedAt()).isNotNull();
   }
 
-  private static class ProjectPredicate implements Predicate<IssueAuthorizationDao.Dto> {
+  private static class ProjectPredicate implements Predicate<AuthorizationDao.Dto> {
 
     private final String projectUuid;
 
@@ -90,7 +90,7 @@ public class IssueAuthorizationDaoTest {
     }
 
     @Override
-    public boolean apply(IssueAuthorizationDao.Dto input) {
+    public boolean apply(AuthorizationDao.Dto input) {
       return input.getProjectUuid().equals(projectUuid);
     }
 

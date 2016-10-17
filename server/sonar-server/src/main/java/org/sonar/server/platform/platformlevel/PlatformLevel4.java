@@ -102,7 +102,6 @@ import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.filter.IssueFilterWsModule;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
@@ -140,6 +139,7 @@ import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.PersistentSettings;
@@ -457,7 +457,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // issues
       IssueIndexDefinition.class,
       IssueIndexer.class,
-      IssueAuthorizationIndexer.class,
+      AuthorizationIndexer.class,
       ServerIssueStorage.class,
       IssueUpdater.class,
       FunctionExecutor.class,

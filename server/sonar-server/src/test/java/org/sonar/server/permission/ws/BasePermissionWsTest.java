@@ -31,11 +31,11 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.WsTester;
@@ -77,7 +77,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(db.getDbClient(),
-      mock(IssueAuthorizationIndexer.class),
+      mock(AuthorizationIndexer.class),
       new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider),
       new GroupPermissionChanger(db.getDbClient(), defaultOrganizationProvider));
   }

@@ -75,7 +75,6 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
@@ -100,6 +99,7 @@ import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -340,7 +340,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // issues
       IssueIndexer.class,
-      IssueAuthorizationIndexer.class,
+      AuthorizationIndexer.class,
       IssueUpdater.class, // used in Web Services and CE's DebtCalculator
       FunctionExecutor.class, // used by IssueWorkflow
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator

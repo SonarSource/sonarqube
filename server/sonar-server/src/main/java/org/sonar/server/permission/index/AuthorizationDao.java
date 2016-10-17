@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.permission.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
  */
-public class IssueAuthorizationDao {
+public class AuthorizationDao {
 
   public static final class Dto {
     private final String projectUuid;
@@ -162,7 +162,7 @@ public class IssueAuthorizationDao {
         DbUtils.closeQuietly(stmt);
       }
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to select issue authorizations after date: " + afterDate, e);
+      throw new IllegalStateException("Fail to select authorizations after date: " + afterDate, e);
     }
   }
 

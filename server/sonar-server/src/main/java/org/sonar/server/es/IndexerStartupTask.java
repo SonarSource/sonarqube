@@ -22,8 +22,8 @@ package org.sonar.server.es;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
@@ -34,7 +34,7 @@ public class IndexerStartupTask {
   private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
 
   private final TestIndexer testIndexer;
-  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
@@ -43,12 +43,12 @@ public class IndexerStartupTask {
 
   /**
    * Limitation - {@link org.sonar.server.es.BaseIndexer} are not injected through an array or a collection
-   * because we need {@link org.sonar.server.issue.index.IssueAuthorizationIndexer} to be executed before
+   * because we need {@link AuthorizationIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexerStartupTask(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    UserIndexer userIndexer, ViewIndexer viewIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
-    Settings settings) {
+  public IndexerStartupTask(TestIndexer testIndexer, AuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+                            UserIndexer userIndexer, ViewIndexer viewIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
+                            Settings settings) {
     this.testIndexer = testIndexer;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;

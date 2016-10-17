@@ -45,8 +45,8 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -76,14 +76,14 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private DbSession dbSession;
   private DbClient dbClient = dbTester.getDbClient();
   private Settings settings = new MapSettings();
-  private IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private AuthorizationIndexer issueAuthorizationIndexer;
   private ApplyPermissionsStep step;
 
   @Before
   public void setUp() {
     dbSession = dbClient.openSession(false);
 
-    issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
+    issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, esTester.client());
 
     step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
   }

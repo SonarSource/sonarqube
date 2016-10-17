@@ -33,7 +33,7 @@ import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
@@ -43,12 +43,12 @@ public class PermissionService {
 
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
-  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession,
-    ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, AuthorizationIndexer issueAuthorizationIndexer, UserSession userSession,
+                           ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;

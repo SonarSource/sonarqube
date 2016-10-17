@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 
 /**
  * Add or remove global/project permissions to a group. This class
@@ -35,11 +35,11 @@ import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 public class PermissionUpdater {
 
   private final DbClient dbClient;
-  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer issueAuthorizationIndexer;
   private final UserPermissionChanger userPermissionChanger;
   private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer,
+  public PermissionUpdater(DbClient dbClient, AuthorizationIndexer issueAuthorizationIndexer,
     UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;

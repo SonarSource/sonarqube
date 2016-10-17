@@ -41,11 +41,11 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -144,7 +144,7 @@ public class ViewIndexerTest {
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule);
     IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
-    IssueAuthorizationIndexer issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
+    AuthorizationIndexer issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, esTester.client());
 
     String viewUuid = "ABCD";
 

@@ -42,9 +42,9 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestDoc;
@@ -78,7 +78,7 @@ public class ComponentCleanerServiceTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  IssueAuthorizationIndexer issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, es.client());
+  AuthorizationIndexer issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, es.client());
   IssueIndexer issueIndexer = new IssueIndexer(dbClient, es.client());
   TestIndexer testIndexer = new TestIndexer(dbClient, es.client());
   ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());

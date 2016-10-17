@@ -29,7 +29,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DepthTraversa
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexer;
 
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
@@ -42,12 +42,12 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
-  private final IssueAuthorizationIndexer indexer;
+  private final AuthorizationIndexer indexer;
   private final PermissionRepository permissionRepository;
   private final TreeRootHolder treeRootHolder;
 
-  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer, PermissionRepository permissionRepository,
-    TreeRootHolder treeRootHolder) {
+  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, AuthorizationIndexer indexer, PermissionRepository permissionRepository,
+                              TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
