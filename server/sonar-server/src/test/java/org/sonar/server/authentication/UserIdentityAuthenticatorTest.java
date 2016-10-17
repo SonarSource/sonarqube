@@ -19,7 +19,7 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +30,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -39,7 +41,6 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -64,10 +65,8 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private System2 system2 = mock(System2.class);
-
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private Settings settings = new MapSettings();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
@@ -76,9 +75,9 @@ public class UserIdentityAuthenticatorTest {
     settings,
     db.getDbClient(),
     mock(UserIndexer.class),
-    system2,
+    System2.INSTANCE,
     defaultOrganizationProvider);
-  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater);
+  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
   private GroupDto defaultGroup;
 
   @Before
@@ -107,13 +106,7 @@ public class UserIdentityAuthenticatorTest {
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(USER_LOGIN)
-      .setName("John")
-      // group3 doesn't exist in db, it will be ignored
-      .setGroups(newHashSet("group1", "group2", "group3"))
-      .build(), IDENTITY_PROVIDER);
+    authenticate(USER_LOGIN, "group1", "group2", "group3");
 
     Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
     assertThat(user).isPresent();
@@ -170,13 +163,7 @@ public class UserIdentityAuthenticatorTest {
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(USER_LOGIN)
-      .setName("John")
-      // group3 doesn't exist in db, it will be ignored
-      .setGroups(newHashSet("group1", "group2", "group3"))
-      .build(), IDENTITY_PROVIDER);
+    authenticate(USER_LOGIN, "group1", "group2", "group3");
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId(), group2.getId());
   }
@@ -192,13 +179,7 @@ public class UserIdentityAuthenticatorTest {
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(USER_LOGIN)
-      .setName("John")
-      // Only group1 is returned by the id provider => group2 will be removed
-      .setGroups(newHashSet("group1"))
-      .build(), IDENTITY_PROVIDER);
+    authenticate(USER_LOGIN, "group1");
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group1.getId());
   }
@@ -214,15 +195,137 @@ public class UserIdentityAuthenticatorTest {
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(USER_LOGIN)
-      .setName("John")
-      // No group => group1 and group2 will be removed
-      .setGroups(Collections.emptySet())
-      .build(), IDENTITY_PROVIDER);
+    authenticate(USER_LOGIN);
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+  }
+
+  @Test
+  public void authenticate_new_user_and_add_it_to_no_group_sets_root_flag_to_false() {
+    authenticate(USER_LOGIN);
+
+    db.rootFlag().verify(USER_LOGIN, false);
+  }
+
+  @Test
+  public void authenticate_new_user_and_add_it_to_admin_group_of_default_organization_sets_root_flag_to_true() {
+    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
+
+    authenticate(USER_LOGIN, adminGroup.getName());
+
+    db.rootFlag().verify(USER_LOGIN, true);
+  }
+
+  @Test
+  public void authenticate_new_user_and_add_it_to_admin_group_of_other_organization_does_not_set_root_flag_to_true() {
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
+
+    authenticate(USER_LOGIN, adminGroup.getName());
+
+    db.rootFlag().verify(USER_LOGIN, false);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_add_it_to_no_group_sets_root_flag_to_false() {
+    UserDto userDto = db.users().insertUser();
+
+    authenticate(userDto.getLogin());
+
+    db.rootFlag().verify(userDto, false);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_add_it_to_admin_group_of_default_organization_sets_root_flag_to_true() {
+    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
+    UserDto userDto = db.users().insertUser();
+
+    authenticate(userDto.getLogin(), adminGroup.getName());
+
+    db.rootFlag().verify(userDto, true);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_add_it_to_admin_group_of_other_organization_sets_root_flag_to_false() {
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
+    UserDto userDto = db.users().insertUser();
+
+    authenticate(userDto.getLogin(), adminGroup.getName());
+
+    db.rootFlag().verify(userDto, false);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_remove_it_from_admin_group_of_default_organization_sets_root_flag_to_false() {
+    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
+    UserDto userDto = db.users().makeRoot(db.users().insertUser());
+    db.users().insertMembers(adminGroup, userDto);
+
+    authenticate(userDto.getLogin());
+
+    db.rootFlag().verify(userDto, false);
+  }
+
+  @Test
+  public void authenticate_existing_user_with_user_permission_admin_on_default_organization_with_no_group_does_not_set_root_flag_to_false() {
+    UserDto rootUser = db.users().insertRootByUserPermission();
+
+    authenticate(rootUser.getLogin());
+
+
+    db.rootFlag().verify(rootUser, true);
+  }
+
+  @Test
+  public void authenticate_existing_user_with_user_permission_admin_on_default_organization_with_non_admin_groups_does_not_set_root_flag_to_false() {
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto defaultOrgGroup = db.users().insertGroup(db.getDefaultOrganization());
+    GroupDto otherOrgGroup = db.users().insertGroup(otherOrganization);
+    UserDto rootUser = db.users().insertRootByUserPermission();
+
+    authenticate(rootUser.getLogin(), defaultOrgGroup.getName(), otherOrgGroup.getName());
+
+    db.rootFlag().verify(rootUser, true);
+  }
+
+  @Test
+  public void authenticate_user_multiple_times_sets_root_flag_to_true_only_if_at_least_one_group_is_admin() {
+    GroupDto defaultAdminGroup = db.users().insertAdminGroup(db.getDefaultOrganization(), "admin_of_default");
+    GroupDto defaultSomeGroup = db.users().insertGroup(db.getDefaultOrganization(), "some_group_of_default");
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto otherAdminGroup = db.users().insertAdminGroup(otherOrganization, "admin_of_other");
+    GroupDto otherSomeGroup = db.users().insertGroup(otherOrganization, "some_group_of_other");
+
+    authenticate(USER_LOGIN, defaultAdminGroup.getName(), defaultSomeGroup.getName(), otherAdminGroup.getName(), otherSomeGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, defaultAdminGroup.getName(), defaultSomeGroup.getName(), otherAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, otherAdminGroup.getName(), defaultAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, otherAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, false);
+
+    authenticate(USER_LOGIN, otherAdminGroup.getName(), otherSomeGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, false);
+
+    authenticate(USER_LOGIN, otherAdminGroup.getName(), otherSomeGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, false);
+
+    authenticate(USER_LOGIN, otherAdminGroup.getName(), defaultAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, defaultSomeGroup.getName(), defaultAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, otherSomeGroup.getName(), defaultAdminGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, true);
+
+    authenticate(USER_LOGIN, otherSomeGroup.getName(), defaultSomeGroup.getName());
+    db.rootFlag().verify(USER_LOGIN, false);
   }
 
   @Test
@@ -249,6 +352,16 @@ public class UserIdentityAuthenticatorTest {
     thrown.expectMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
       "This means that you probably already registered with another account.");
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
+  }
+
+  private void authenticate(String login, String... groups) {
+    underTest.authenticate(UserIdentity.builder()
+      .setProviderLogin("johndoo")
+      .setLogin(login)
+      .setName("John")
+      // No group
+      .setGroups(Arrays.stream(groups).collect(Collectors.toSet()))
+      .build(), IDENTITY_PROVIDER);
   }
 
 }

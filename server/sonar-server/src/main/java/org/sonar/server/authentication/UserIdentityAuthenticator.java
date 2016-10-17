@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -52,10 +53,12 @@ public class UserIdentityAuthenticator {
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater) {
+  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public UserDto authenticate(UserIdentity user, IdentityProvider provider) {
@@ -96,6 +99,7 @@ public class UserIdentityAuthenticator {
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin())));
     UserDto newUser = dbClient.userDao().selectOrFailByLogin(dbSession, userLogin);
     syncGroups(dbSession, user, newUser);
+    updateRootFlag(dbSession, newUser);
     return newUser;
   }
 
@@ -106,6 +110,7 @@ public class UserIdentityAuthenticator {
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
       .setPassword(null));
     syncGroups(dbSession, user, userDto);
+    updateRootFlag(dbSession, userDto);
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
@@ -142,6 +147,11 @@ public class UserIdentityAuthenticator {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
+  }
+
+  private void updateRootFlag(DbSession dbSession, UserDto userDto) {
+    dbClient.userDao().updateRootFlagFromPermissions(dbSession, userDto.getId(), defaultOrganizationProvider.get().getUuid());
+    dbSession.commit();
   }
 
   private enum GroupDtoToName implements Function<GroupDto, String> {

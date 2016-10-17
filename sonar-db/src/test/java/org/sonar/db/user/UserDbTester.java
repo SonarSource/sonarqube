@@ -173,6 +173,16 @@ public class UserDbTester {
   }
 
   /**
+   * Creates a group with the specified name in the specified organization with {@link GlobalPermissions#SYSTEM_ADMIN}
+   * permission.
+   */
+  public GroupDto insertAdminGroup(OrganizationDto organizationDto, String name) {
+    GroupDto groupDto = insertGroup(organizationDto, name);
+    insertPermissionOnGroup(groupDto, SYSTEM_ADMIN);
+    return groupDto;
+  }
+
+  /**
    * Create group in specified organization
    */
   public GroupDto insertGroup(OrganizationDto organizationDto) {
