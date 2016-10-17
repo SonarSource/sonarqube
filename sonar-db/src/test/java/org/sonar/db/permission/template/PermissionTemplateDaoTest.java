@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
@@ -56,7 +55,6 @@ public class PermissionTemplateDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system);
-  private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(db);
 
@@ -73,6 +71,7 @@ public class PermissionTemplateDaoTest {
       .setName("my template")
       .setDescription("my description")
       .setKeyPattern("myregexp"));
+    db.commit();
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
@@ -116,6 +115,7 @@ public class PermissionTemplateDaoTest {
       .setDescription("new_description")
       .setKeyPattern("new_regexp");
     underTest.update(dbSession, dto);
+    db.commit();
 
     db.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
   }

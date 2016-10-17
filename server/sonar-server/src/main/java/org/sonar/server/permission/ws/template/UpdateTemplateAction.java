@@ -104,6 +104,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
+      dbSession.commit();
 
       return buildResponse(updatedTemplate);
     }
