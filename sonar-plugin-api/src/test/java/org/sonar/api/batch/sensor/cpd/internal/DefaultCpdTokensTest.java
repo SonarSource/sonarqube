@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.cpd.internal;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -37,7 +38,7 @@ public class DefaultCpdTokensTest {
   private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("foo", "src/Foo.java")
     .setLines(2)
     .setLanguage("java")
-    .setOriginalLineOffsets(new int[] {0, 50})
+    .setOriginalLineOffsets(Arrays.asList(0, 50))
     .setLastValidOffset(100);
 
   @Test

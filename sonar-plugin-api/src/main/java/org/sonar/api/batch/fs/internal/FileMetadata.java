@@ -355,7 +355,7 @@ public class FileMetadata {
     final int lines;
     final int nonBlankLines;
     final String hash;
-    final int[] originalLineOffsets;
+    final List<Integer> originalLineOffsets;
     final int lastValidOffset;
 
     private Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.symbol.internal;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class DefaultSymbolTableTest {
 
   private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("foo", "src/Foo.java")
     .setLines(2)
-    .setOriginalLineOffsets(new int[] {0, 50})
+    .setOriginalLineOffsets(Arrays.asList(0, 50))
     .setLastValidOffset(100);
 
   private Map<TextRange, Set<TextRange>> referencesPerSymbol;
