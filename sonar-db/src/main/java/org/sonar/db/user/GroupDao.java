@@ -45,15 +45,6 @@ public class GroupDao implements Dao {
   }
 
   /**
-   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
-   */
-  @Deprecated
-  @CheckForNull
-  public GroupDto selectByName(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
-  }
-
-  /**
    * @param dbSession
    * @param organizationUuid non-null UUID of organization (no support of "default" organization)
    * @param name non-null group name
