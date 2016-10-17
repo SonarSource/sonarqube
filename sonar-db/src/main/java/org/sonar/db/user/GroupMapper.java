@@ -28,9 +28,6 @@ import org.apache.ibatis.session.RowBounds;
 public interface GroupMapper {
 
   @CheckForNull
-  GroupDto selectByKey(String name);
-
-  @CheckForNull
   GroupDto selectById(long groupId);
 
   List<GroupDto> selectByUserLogin(String userLogin);

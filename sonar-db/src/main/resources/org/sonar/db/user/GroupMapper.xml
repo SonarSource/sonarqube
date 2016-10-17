@@ -30,13 +30,6 @@
     </foreach>
   </select>
 
-  <select id="selectByKey" parameterType="string" resultType="Group">
-    SELECT
-    <include refid="groupColumns"/>
-    FROM groups g
-    where g.name=#{id,jdbcType=BIGINT}
-  </select>
-
   <select id="selectById" parameterType="long" resultType="Group">
     SELECT
     <include refid="groupColumns"/>
