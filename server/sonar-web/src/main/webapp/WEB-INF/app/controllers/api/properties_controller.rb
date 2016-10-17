@@ -164,4 +164,9 @@ class Api::PropertiesController < Api::ApiController
     Property.new({:prop_key => key, :text_value => value}) if java_facade.getSettings().hasDefaultValue(key)
   end
 
+  def get_default_property(key)
+    value = java_facade.getSettings().getString(key).to_s
+    Property.new({:prop_key => key, :text_value => value}) if java_facade.getSettings().hasDefaultValue(key)
+  end
+
 end
