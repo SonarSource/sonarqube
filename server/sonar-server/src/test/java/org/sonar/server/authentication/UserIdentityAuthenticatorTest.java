@@ -30,6 +30,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -66,7 +67,7 @@ public class UserIdentityAuthenticatorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
   private Settings settings = new MapSettings();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

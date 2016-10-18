@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -47,7 +47,7 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_K
 public class AddUserActionTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

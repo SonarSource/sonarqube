@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,7 +45,7 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_K
 public class RemoveUserActionTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -173,8 +173,8 @@ public class RemoveUserActionTest {
   @Test
   public void sets_root_flag_to_false_when_removing_user_from_group_of_default_organization_with_admin_permission() throws Exception {
     GroupDto adminGroup = db.users().insertAdminGroup();
-    UserDto user1 = db.users().insertRootByGroupPermission(adminGroup);
-    UserDto user2 = db.users().insertRootByGroupPermission(adminGroup);
+    UserDto user1 = db.users().insertRootByGroupPermission("user1", adminGroup);
+    UserDto user2 = db.users().insertRootByGroupPermission("user2", adminGroup);
     loginAsAdmin();
 
     executeRequest(adminGroup, user1);

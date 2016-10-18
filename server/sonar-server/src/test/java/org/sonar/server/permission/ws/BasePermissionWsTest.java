@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
@@ -47,7 +47,7 @@ import static org.sonar.db.permission.template.PermissionTemplateTesting.newPerm
 public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
