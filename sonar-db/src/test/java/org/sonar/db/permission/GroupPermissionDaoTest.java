@@ -432,6 +432,61 @@ public class GroupPermissionDaoTest {
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
   }
 
+  @Test
+  public void deleteByOrganization_does_not_fail_on_empty_db() {
+    underTest.deleteByOrganization(dbSession, "some uuid");
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_if_organization_has_no_group() {
+    OrganizationDto organization = db.organizations().insert();
+
+    underTest.deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_deletes_all_groups_of_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    OrganizationDto organization3 = db.organizations().insert();
+    insertGroupWithPermissions(organization1);
+    insertGroupWithPermissions(organization2);
+    insertGroupWithPermissions(organization3);
+    insertGroupWithPermissions(organization3);
+    insertGroupWithPermissions(organization2);
+    db.users().insertPermissionOnAnyone(organization1, "pop");
+    db.users().insertPermissionOnAnyone(organization2, "pop");
+    db.users().insertPermissionOnAnyone(organization3, "pop");
+
+    underTest.deleteByOrganization(dbSession, organization2.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization1.getUuid(), organization3.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization1.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization3.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization3.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable();
+  }
+
+  private void verifyOrganizationUuidsInTable(String... organizationUuids) {
+    assertThat(db.select("select distinct organization_uuid as \"organizationUuid\" from group_roles"))
+        .extracting((row) -> (String) row.get("organizationUuid"))
+        .containsOnly(organizationUuids);
+  }
+
+  private Long insertGroupWithPermissions(OrganizationDto organization1) {
+    GroupDto group = db.users().insertGroup(organization1);
+    db.users().insertPermissionOnGroup(group, "foo");
+    db.users().insertPermissionOnGroup(group, "bar");
+    db.users().insertPermissionOnGroup(group, "doh");
+    return group.getId();
+  }
+
   private void assertThatNoPermission(String permission) {
     assertThat(db.countSql("select count(id) from group_roles where role='" + permission + "'")).isEqualTo(0);
   }

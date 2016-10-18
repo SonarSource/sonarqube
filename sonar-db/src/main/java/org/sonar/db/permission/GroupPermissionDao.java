@@ -145,6 +145,10 @@ public class GroupPermissionDao implements Dao {
     mapper(dbSession).delete(permission, organizationUuid, groupId, rootComponentId);
   }
 
+  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
+    mapper(dbSession).deleteByOrganization(organizationUuid);
+  }
+
   private static GroupPermissionMapper mapper(DbSession session) {
     return session.getMapper(GroupPermissionMapper.class);
   }
