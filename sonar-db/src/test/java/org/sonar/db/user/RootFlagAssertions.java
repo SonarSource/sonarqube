@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import java.util.Map;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,23 +36,29 @@ public class RootFlagAssertions {
   }
 
   public void verify(UserDto userDto, boolean root, long updatedAt) {
-    UserDto dto = db.getDbClient().userDao().selectByLogin(db.getSession(), userDto.getLogin());
-    assertThat(dto.isRoot())
+    Map<String, Object> row = db.selectFirst("select is_root as \"isRoot\", updated_at as \"updatedAt\" from users where login = '" + userDto.getLogin() + "'");
+    Object isRoot = row.get("isRoot");
+    assertThat(isRoot)
       .as("Root flag of user '%s' is same as when created", userDto.getLogin())
-      .isEqualTo(root);
-    assertThat(dto.getUpdatedAt())
+      .isEqualTo(isRoot instanceof Long ? toLong(root) : root);
+    assertThat(row.get("updatedAt"))
       .as("UpdatedAt of user '%s' has not changed since created")
       .isEqualTo(updatedAt);
   }
 
   public void verify(UserDto userDto, boolean root) {
-    UserDto dto = db.getDbClient().userDao().selectByLogin(db.getSession(), userDto.getLogin());
-    assertThat(dto.isRoot())
+    Map<String, Object> row = db.selectFirst("select is_root as \"isRoot\", updated_at as \"updatedAt\" from users where login = '" + userDto.getLogin() + "'");
+    Object isRoot = row.get("isRoot");
+    assertThat(isRoot)
       .as("Root flag of user '%s' is '%s'", userDto.getLogin(), root)
-      .isEqualTo(root);
-    assertThat(dto.getUpdatedAt())
+      .isEqualTo(isRoot instanceof Long ? toLong(root) : root);
+    assertThat(row.get("updatedAt"))
       .as("UpdatedAt of user '%s' has changed since insertion", userDto.getLogin())
       .isNotEqualTo(userDto.getUpdatedAt());
+  }
+
+  private static Long toLong(boolean root) {
+    return root ? 1L : 0L;
   }
 
   public void verify(String login, boolean root) {
