@@ -1,0 +1,16 @@
+.size-rating {
+  display: inline-block;
+  vertical-align: top;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  background-color: #4b9fd5;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+}
+
+.size-rating-muted {
+  background-color: #ccc;
+}

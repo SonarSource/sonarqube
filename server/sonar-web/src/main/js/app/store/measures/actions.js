@@ -25,3 +25,18 @@ export const receiveComponentMeasure = (componentKey, metricKey, value) => ({
   metricKey,
   value
 });
+
+export const RECEIVE_COMPONENT_MEASURES = 'RECEIVE_COMPONENT_MEASURES';
+
+export const receiveComponentMeasures = (componentKey, measures) => ({
+  type: RECEIVE_COMPONENT_MEASURES,
+  componentKey,
+  measures
+});
+
+export const RECEIVE_COMPONENTS_MEASURES = 'RECEIVE_COMPONENTS_MEASURES';
+
+export const receiveComponentsMeasures = componentsWithMeasures => ({
+  type: RECEIVE_COMPONENTS_MEASURES,
+  componentsWithMeasures
+});

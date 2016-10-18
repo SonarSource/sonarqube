@@ -146,7 +146,7 @@ export default function enhance (ComposedComponent) {
           <div className="overview-domain-measure-sup"
                title={title}
                data-toggle="tooltip">
-            <DrilldownLink component={component.key} metric={metricKey}>
+            <DrilldownLink className="link-no-underline" component={component.key} metric={metricKey}>
               <Rating value={measure.value}/>
             </DrilldownLink>
           </div>

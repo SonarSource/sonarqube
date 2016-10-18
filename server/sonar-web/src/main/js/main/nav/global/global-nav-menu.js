@@ -71,6 +71,15 @@ export default React.createClass({
     );
   },
 
+  renderProjects () {
+    const url = window.baseUrl + '/projects';
+    return (
+        <li className={this.activeLink('/projects')}>
+          <a href={url}>{translate('projects.page')}</a>
+        </li>
+    );
+  },
+
   renderIssuesLink () {
     const url = window.baseUrl + '/issues/search';
     return (
@@ -159,6 +168,7 @@ export default React.createClass({
     return (
         <ul className="nav navbar-nav">
           {this.renderDashboards()}
+          {this.renderProjects()}
           {this.renderIssuesLink()}
           {this.renderMeasuresLink()}
           {this.renderRulesLink()}

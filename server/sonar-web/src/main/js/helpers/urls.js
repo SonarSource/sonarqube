@@ -115,5 +115,5 @@ export function getDeprecatedActiveRulesUrl (query = {}) {
 }
 
 export const getProjectsUrl = () => {
-  return window.baseUrl + '/measures/search?qualifiers[]=TRK';
+  return window.baseUrl + '/projects';
 };

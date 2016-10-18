@@ -20,6 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchCurrentUser } from '../store/users/actions';
+import { fetchLanguages } from '../store/rootActions';
 
 class App extends React.Component {
   static propTypes = {
@@ -28,6 +29,7 @@ class App extends React.Component {
 
   componentDidMount () {
     this.props.fetchCurrentUser();
+    this.props.fetchLanguages();
   }
 
   render () {
@@ -37,5 +39,5 @@ class App extends React.Component {
 
 export default connect(
     () => ({}),
-    { fetchCurrentUser }
+    { fetchCurrentUser, fetchLanguages }
 )(App);

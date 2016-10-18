@@ -179,13 +179,15 @@ export default Marionette.LayoutView.extend({
     const favorite = _.first(this.favorite, 6).map(function (f, index) {
       return _.extend(f, { extra: index === 0 ? translate('favorite') : null });
     });
-    const qualifiers = this.model.get('qualifiers').map(function (q, index) {
-      return {
-        url: window.baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
-        name: translate('qualifiers.all', q),
-        extra: index === 0 ? '' : null
-      };
-    });
+    const qualifiers = this.model.get('qualifiers')
+        .filter(q => q !== 'TRK')
+        .map(function (q, index) {
+          return {
+            url: window.baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
+            name: translate('qualifiers.all', q),
+            extra: index === 0 ? '' : null
+          };
+        });
     this.results.reset([].concat(history, favorite, qualifiers));
   },
 
@@ -211,7 +213,7 @@ export default Marionette.LayoutView.extend({
             q: domain.q,
             extra: index === 0 ? domain.name : null,
             url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) +
-                window.dashboardParameters(true)
+            window.dashboardParameters(true)
           }));
         });
       });

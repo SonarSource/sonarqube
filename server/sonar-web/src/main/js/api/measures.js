@@ -33,3 +33,10 @@ export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
   });
   return getJSON(url, data);
 }
+
+export const getMeasuresForComponents = (componentKeys, metricKeys) => (
+    getJSON('/api/measures/search', {
+      componentKeys: componentKeys.join(),
+      metricKeys: metricKeys.join()
+    })
+);

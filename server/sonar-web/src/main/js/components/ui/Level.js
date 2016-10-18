@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { formatMeasure } from '../../helpers/measures';
+import './Level.css';
 
 export default class Level extends React.Component {
   static propTypes = {

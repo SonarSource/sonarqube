@@ -119,7 +119,7 @@ export const DrilldownLink = React.createClass({
         this.propsToIssueParams());
 
     return (
-        <a href={url}>{this.props.children}</a>
+        <a className={this.props.className} href={url}>{this.props.children}</a>
     );
   },
 

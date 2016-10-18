@@ -25,6 +25,11 @@ import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { formatLeak, isDiffMetric, getRatingTooltip } from '../utils';
 
 export default class Measure extends React.Component {
+  static propTypes = {
+    measure: React.PropTypes.object,
+    metric: React.PropTypes.object
+  };
+
   renderRating (measure, metric) {
     const value = isDiffMetric(metric) ? measure.leak : measure.value;
     const tooltip = getRatingTooltip(metric.key, value);

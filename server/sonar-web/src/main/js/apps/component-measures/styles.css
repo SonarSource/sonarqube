@@ -54,6 +54,16 @@
   font-weight: 300;
 }
 
+.main-domain-measures .domain-measures-value .rating,
+.measure-details-value .rating {
+  vertical-align: top;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 40px;
+  font-size: 24px;
+}
+
 .main-domain-measures .domain-measures-name {
   margin-top: 8px;
 }
