@@ -216,7 +216,7 @@ public class DefaultIndex {
           .withValue(measure.getValue().intValue());
       } else if (Double.class.equals(metric.valueType())) {
         newMeasure = new DefaultMeasure<Double>().forMetric((Metric<Double>) metric)
-          .withValue(measure.getValue().doubleValue());
+          .withValue(measure.getValue());
       } else if (String.class.equals(metric.valueType())) {
         newMeasure = new DefaultMeasure<String>().forMetric((Metric<String>) metric)
           .withValue(measure.getData());

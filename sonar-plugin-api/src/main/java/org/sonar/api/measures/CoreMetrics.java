@@ -752,6 +752,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
+    .setHidden(true)
     .create();
 
   /**
@@ -774,6 +775,7 @@ public final class CoreMetrics {
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -814,6 +816,7 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -833,6 +836,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -853,6 +857,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -872,6 +877,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -894,6 +900,7 @@ public final class CoreMetrics {
     .setBestValue(100.0)
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -914,6 +921,7 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -971,6 +979,7 @@ public final class CoreMetrics {
     .setDescription("Uncovered conditions by integration tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -992,6 +1001,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_COVERAGE)
       .setBestValue(0.0)
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   /**
@@ -1013,6 +1023,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
+    .setHidden(true)
     .create();
 
   /**
@@ -1035,6 +1046,7 @@ public final class CoreMetrics {
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1098,6 +1110,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
+    .setHidden(true)
     .create();
 
   /**
@@ -1120,6 +1133,7 @@ public final class CoreMetrics {
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1160,6 +1174,7 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1179,6 +1194,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -1199,6 +1215,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1218,6 +1235,7 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -1240,6 +1258,7 @@ public final class CoreMetrics {
     .setBestValue(100.0)
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1319,6 +1338,7 @@ public final class CoreMetrics {
     .setDescription("Uncovered conditions by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_COVERAGE)
+    .setHidden(true)
     .create();
 
   /**
@@ -1340,6 +1360,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_COVERAGE)
       .setBestValue(0.0)
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   /**
@@ -1361,6 +1382,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
+    .setHidden(true)
     .create();
 
   /**
@@ -1384,6 +1406,7 @@ public final class CoreMetrics {
       .setWorstValue(0.0)
       .setBestValue(100.0)
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   /**
