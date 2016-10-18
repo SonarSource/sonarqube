@@ -59,7 +59,7 @@ public class PermissionRepositoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  private PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(dbTester);
+  private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
   private Settings settings = new MapSettings();
   private PermissionRepository underTest = new PermissionRepository(dbTester.getDbClient(), settings);

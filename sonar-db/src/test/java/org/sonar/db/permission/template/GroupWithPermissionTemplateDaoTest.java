@@ -44,7 +44,7 @@ public class GroupWithPermissionTemplateDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private DbSession session = db.getSession();
-  private PermissionTemplateDbTester permissionTemplateDbTester = new PermissionTemplateDbTester(db);
+  private PermissionTemplateDbTester permissionTemplateDbTester = db.permissionTemplates();
   private PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test

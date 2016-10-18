@@ -58,7 +58,7 @@ public class PermissionTemplateDaoTest {
   public DbTester db = DbTester.create(system);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(db);
+  private PermissionTemplateDbTester templateDb = db.permissionTemplates();
 
   private PermissionTemplateDao underTest = new PermissionTemplateDao(system);
 
