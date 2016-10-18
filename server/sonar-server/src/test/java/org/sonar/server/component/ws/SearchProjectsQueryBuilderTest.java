@@ -44,7 +44,7 @@ public class SearchProjectsQueryBuilderTest {
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
-        tuple("coverage", Operator.LT, 80d));
+        tuple("coverage", Operator.LTE, 80d));
   }
 
   @Test
@@ -53,7 +53,7 @@ public class SearchProjectsQueryBuilderTest {
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
-        tuple("coverage", Operator.LT, 80d));
+        tuple("coverage", Operator.LTE, 80d));
   }
 
   @Test
@@ -61,6 +61,13 @@ public class SearchProjectsQueryBuilderTest {
     assertThat(build("   ncloc    >    10   ").getMetricCriterias())
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(tuple("ncloc", Operator.GT, 10d));
+  }
+
+  @Test
+  public void accept_empty_query() throws Exception {
+    SearchProjectsCriteriaQuery result = build("");
+
+    assertThat(result.getMetricCriterias()).isEmpty();
   }
 
   @Test
@@ -96,12 +103,5 @@ public class SearchProjectsQueryBuilderTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criteria 'ncloc >='");
     build("ncloc >=");
-  }
-
-  @Test
-  public void fail_when_no_criteria_provided() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid criteria ''");
-    build("");
   }
 }

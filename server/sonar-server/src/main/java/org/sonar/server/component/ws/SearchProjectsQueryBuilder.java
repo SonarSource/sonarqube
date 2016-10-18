@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -43,7 +44,12 @@ public class SearchProjectsQueryBuilder {
   }
 
   public static SearchProjectsCriteriaQuery build(String filter) {
+    if (StringUtils.isBlank(filter)) {
+      return new SearchProjectsCriteriaQuery();
+    }
+
     SearchProjectsCriteriaQuery query = new SearchProjectsCriteriaQuery();
+
     CRITERIA_SPLITTER.split(filter.toLowerCase(ENGLISH))
       .forEach(criteria -> processCriteria(criteria, query));
     return query;
@@ -60,7 +66,7 @@ public class SearchProjectsQueryBuilder {
 
   public static class SearchProjectsCriteriaQuery {
     public enum Operator {
-      LT("<="), GT(">"), EQ("=");
+      LTE("<="), GT(">"), EQ("=");
 
       String value;
 
@@ -82,7 +88,7 @@ public class SearchProjectsQueryBuilder {
 
     private List<MetricCriteria> metricCriterias = new ArrayList<>();
 
-    SearchProjectsCriteriaQuery addMetricCriteria(MetricCriteria metricCriteria) {
+    public SearchProjectsCriteriaQuery addMetricCriteria(MetricCriteria metricCriteria) {
       metricCriterias.add(metricCriteria);
       return this;
     }
@@ -92,11 +98,11 @@ public class SearchProjectsQueryBuilder {
     }
 
     public static class MetricCriteria {
-      private String metricKey;
-      private Operator operator;
-      private double value;
+      private final String metricKey;
+      private final Operator operator;
+      private final double value;
 
-      private MetricCriteria(String metricKey, Operator operator, double value) {
+      public MetricCriteria(String metricKey, Operator operator, double value) {
         this.metricKey = metricKey;
         this.operator = operator;
         this.value = value;

@@ -19,11 +19,15 @@
  */
 package org.sonar.server.project.es;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.es.BaseDoc;
+
+import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
@@ -76,6 +80,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc setAnalysedAt(@Nullable Date d) {
     setField(ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT, d);
+    return this;
+  }
+
+  public Collection<Map<String, Object>> getMeasures() {
+    return getField(FIELD_MEASURES);
+  }
+
+  public ProjectMeasuresDoc setMeasures(Collection<Map<String, Object>> measures) {
+    setField(FIELD_MEASURES, measures);
     return this;
   }
 }

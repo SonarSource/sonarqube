@@ -38,6 +38,7 @@ import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
 import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.build;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -88,12 +89,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchResults searchProjects(DbSession dbSession, SearchProjectsRequest request) {
-    String filter = request.getFilter();
-    if (filter != null) {
-      SearchProjectsCriteriaQuery query = build(filter);
-      searchProjectsQueryBuilderValidator.validate(dbSession, query);
-    }
-    SearchIdResult<String> searchResult = index.search(new SearchOptions().setPage(request.getPage(), request.getPageSize()));
+    String filter = firstNonNull(request.getFilter(), "");
+    SearchProjectsCriteriaQuery query = build(filter);
+    searchProjectsQueryBuilderValidator.validate(dbSession, query);
+
+    SearchIdResult<String> searchResult = index.search(query, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
     Ordering<ComponentDto> ordering = Ordering.explicit(searchResult.getIds()).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResult.getIds()));

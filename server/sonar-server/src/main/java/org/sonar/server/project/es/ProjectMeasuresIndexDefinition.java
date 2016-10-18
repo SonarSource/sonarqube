@@ -30,6 +30,9 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
+  public static final String FIELD_MEASURES = "measures";
+  public static final String FIELD_MEASURES_KEY = "key";
+  public static final String FIELD_MEASURES_VALUE = "value";
 
   private final Settings settings;
 
@@ -47,6 +50,11 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableSorting().enableGramSearch().build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
+    mapping.nestedFieldBuilder(FIELD_MEASURES)
+      .addStringFied(FIELD_MEASURES_KEY)
+      .addStringFied(FIELD_MEASURES_VALUE)
+      .build();
+
     // do not store document but only indexation of information
     mapping.setEnableSource(false);
   }
