@@ -97,7 +97,7 @@ import static org.sonar.api.measures.CoreMetrics.IT_LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.IT_LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_LINES;
-import static org.sonar.api.measures.CoreMetrics.LINES;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.OVERALL_BRANCH_COVERAGE;
@@ -119,10 +119,6 @@ public class DefaultSensorStorage implements SensorStorage {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
 
-  private static final List<Metric<?>> INTERNAL_METRICS = Arrays.<Metric<?>>asList(
-    // Computed by LinesSensor
-    LINES);
-
   private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.asList(
     DEPENDENCY_MATRIX_KEY,
     DIRECTORY_CYCLES_KEY,
@@ -139,7 +135,10 @@ public class DefaultSensorStorage implements SensorStorage {
     COMMENTED_OUT_CODE_LINES_KEY);
 
   // Some Sensors still save those metrics
-  private static final List<String> COMPUTED_ON_CE_SIDE_METRICS_KEYS = Arrays.asList(
+  private static final List<String> PLATFORM_METRICS_KEYS = Arrays.asList(
+    // Computed on Scanner side
+    LINES_KEY,
+    // Computed on CE side
     TEST_SUCCESS_DENSITY_KEY,
     PUBLIC_DOCUMENTED_API_DENSITY_KEY);
 
@@ -156,6 +155,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new IdentityHashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
+  private Set<String> alreadyLogged = new HashSet<>();
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings,
@@ -212,30 +212,38 @@ public class DefaultSensorStorage implements SensorStorage {
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
+  private void logOnce(String metricKey, String msg, Object... params) {
+    if (!alreadyLogged.contains(metricKey)) {
+      LOG.warn(msg, params);
+      alreadyLogged.add(metricKey);
+    }
+  }
+
   public void saveMeasure(InputComponent component, DefaultMeasure<?> measure) {
-    if (isDeprecatedMetric(measure.metric().key()) || isComputedOnCeMetric(measure.metric().key())) {
-      LOG.debug("Metric '{}' should not be saved by Sensors. It will be ignored.", measure.metric().key());
-      // Ignore deprecated and CE side metrics
+    if (isDeprecatedMetric(measure.metric().key())) {
+      logOnce(measure.metric().key(), "Metric '{}' is deprecated. Provided value is ignored.", measure.metric().key());
       return;
     }
     Metric<?> metric = metricFinder.findByKey(measure.metric().key());
     if (metric == null) {
       throw new UnsupportedOperationException("Unknown metric: " + measure.metric().key());
     }
-    if (!scannerMetrics.getMetrics().contains(metric)) {
-      throw new UnsupportedOperationException("Metric '" + metric.key() + "' should not be computed by a Sensor");
-    }
-    if (!measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
-      LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
+    if (!measure.isFromCore() && isPlatformMetric(measure.metric().key())) {
+      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.", measure.metric().key());
       return;
     }
     if (deprecatedCoverageMetricMapping.containsKey(metric)) {
       metric = deprecatedCoverageMetricMapping.get(metric);
     }
+    if (!scannerMetrics.getMetrics().contains(metric)) {
+      throw new UnsupportedOperationException("Metric '" + metric.key() + "' should not be computed by a Sensor");
+    }
 
     if (coverageMetrics.contains(metric)) {
+      logOnce(metric.key(), "Coverage measure for metric '{}' should not be saved directly by a Sensor. Plugin should be updated to use SensorContext::newCoverage instead.",
+        metric.key());
       if (!component.isFile()) {
-        throw new UnsupportedOperationException("Saving coverage metric is only allowed on files. Attempt to save '" + metric.key() + "' on '" + component.key() + "'");
+        throw new UnsupportedOperationException("Saving coverage measure is only allowed on files. Attempt to save '" + metric.key() + "' on '" + component.key() + "'");
       }
       if (coverageExclusions.isExcluded((InputFile) component)) {
         return;
@@ -298,8 +306,8 @@ public class DefaultSensorStorage implements SensorStorage {
     return DEPRECATED_METRICS_KEYS.contains(metricKey);
   }
 
-  public boolean isComputedOnCeMetric(String metricKey) {
-    return COMPUTED_ON_CE_SIDE_METRICS_KEYS.contains(metricKey);
+  public boolean isPlatformMetric(String metricKey) {
+    return PLATFORM_METRICS_KEYS.contains(metricKey);
   }
 
   private boolean isLineMetrics(Metric<?> metric) {
