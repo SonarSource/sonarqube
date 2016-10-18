@@ -152,10 +152,10 @@ public class PermissionTemplateDao implements Dao {
 
   public void deleteById(DbSession session, long templateId) {
     PermissionTemplateMapper mapper = mapper(session);
-    mapper.deleteUserPermissions(templateId);
-    mapper.deleteGroupPermissions(templateId);
+    mapper.deleteUserPermissionsByTemplateId(templateId);
+    mapper.deleteGroupPermissionsByTemplateId(templateId);
     session.getMapper(PermissionTemplateCharacteristicMapper.class).deleteByTemplateId(templateId);
-    mapper.delete(templateId);
+    mapper.deleteById(templateId);
   }
 
   public PermissionTemplateDto update(DbSession session, PermissionTemplateDto permissionTemplate) {
@@ -230,5 +230,18 @@ public class PermissionTemplateDao implements Dao {
 
   private static PermissionTemplateMapper mapper(DbSession session) {
     return session.getMapper(PermissionTemplateMapper.class);
+  }
+
+  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
+    PermissionTemplateMapper templateMapper = mapper(dbSession);
+    PermissionTemplateCharacteristicMapper templateCharacteristicMapper = dbSession.getMapper(PermissionTemplateCharacteristicMapper.class);
+    List<Long> templateIds = templateMapper.selectTemplateIdsByOrganization(organizationUuid);
+    executeLargeInputsWithoutOutput(templateIds, subList -> {
+      templateCharacteristicMapper.deleteByTemplateIds(subList);
+      templateMapper.deleteGroupPermissionsByTemplateIds(subList);
+      templateMapper.deleteUserPermissionsByTemplateIds(subList);
+      templateMapper.deleteByIds(subList);
+      return null;
+    });
   }
 }

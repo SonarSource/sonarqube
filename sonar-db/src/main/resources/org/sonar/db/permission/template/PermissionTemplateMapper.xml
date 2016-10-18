@@ -21,25 +21,33 @@
     WHERE id = #{id}
   </update>
 
-  <delete id="delete" parameterType="long">
+  <delete id="deleteById" parameterType="long">
     DELETE FROM permission_templates
     WHERE id = #{templateId}
   </delete>
 
-  <delete id="deleteUserPermissions" parameterType="long">
+  <delete id="deleteByIds" parameterType="long">
+    delete from
+      permission_templates
+    where
+      id in <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+        #{templateId,jdbcType=BIGINT}
+      </foreach>
+  </delete>
+
+  <delete id="deleteUserPermissionsByTemplateId" parameterType="long">
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}
   </delete>
 
-  <delete id="deleteGroupPermissions" parameterType="long">
-    DELETE FROM perm_templates_groups
-    WHERE template_id = #{templateId}
+  <delete id="deleteUserPermissionsByTemplateIds">
+    delete from
+      perm_templates_users
+    where
+      template_id in <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+        #{templateId,jdbcType=BIGINT}
+      </foreach>
   </delete>
-
-  <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
-    INSERT INTO perm_templates_users (template_id, user_id, permission_reference, created_at, updated_at)
-    VALUES (#{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
-  </insert>
 
   <delete id="deleteUserPermission" parameterType="PermissionTemplateUser">
     DELETE FROM perm_templates_users
@@ -48,16 +56,19 @@
     AND permission_reference = #{permission}
   </delete>
 
-  <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
-    INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
-    VALUES (
-    #{templateId,jdbcType=BIGINT},
-    #{groupId,jdbcType=BIGINT},
-    #{permission,jdbcType=VARCHAR},
-    #{createdAt,jdbcType=TIMESTAMP},
-    #{updatedAt,jdbcType=TIMESTAMP}
-    )
-  </insert>
+  <delete id="deleteGroupPermissionsByTemplateId" parameterType="long">
+    DELETE FROM perm_templates_groups
+    WHERE template_id = #{templateId}
+  </delete>
+
+  <delete id="deleteGroupPermissionsByTemplateIds">
+    delete from
+      perm_templates_groups
+    where
+      template_id in <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+        #{templateId,jdbcType=BIGINT}
+      </foreach>
+  </delete>
 
   <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
     DELETE FROM perm_templates_groups
@@ -73,6 +84,22 @@
       </otherwise>
     </choose>
   </delete>
+
+  <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
+    INSERT INTO perm_templates_users (template_id, user_id, permission_reference, created_at, updated_at)
+    VALUES (#{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
+    INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
+    VALUES (
+    #{templateId,jdbcType=BIGINT},
+    #{groupId,jdbcType=BIGINT},
+    #{permission,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP}
+    )
+  </insert>
 
   <delete id="deleteByGroupId" parameterType="long">
     DELETE FROM perm_templates_groups
@@ -338,5 +365,14 @@
     <if test="groupId != null">
       ptg.group_id = #{groupId}
     </if>
+  </select>
+
+  <select id="selectTemplateIdsByOrganization" resultType="Long">
+    select
+      id
+    from
+      permission_templates
+    where
+      organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 </mapper>

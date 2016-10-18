@@ -36,4 +36,6 @@ public interface PermissionTemplateCharacteristicMapper {
   void update(PermissionTemplateCharacteristicDto templatePermissionDto);
 
   void deleteByTemplateId(long id);
+
+  void deleteByTemplateIds(@Param("templateIds") List<Long> subList);
 }

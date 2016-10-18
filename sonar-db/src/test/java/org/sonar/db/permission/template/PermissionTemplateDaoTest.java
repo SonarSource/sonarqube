@@ -32,9 +32,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -56,7 +56,7 @@ public class PermissionTemplateDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system);
-  private DbClient dbClient = db.getDbClient();
+
   private DbSession dbSession = db.getSession();
   private PermissionTemplateDbTester templateDb = db.permissionTemplates();
 
@@ -284,6 +284,79 @@ public class PermissionTemplateDaoTest {
     assertThat(resultWithUser).containsOnlyOnce(SCAN_EXECUTION, UserRole.ADMIN, UserRole.USER, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN);
     // only permission from anyone group
     assertThat(resultWithoutUser).containsOnly(UserRole.ISSUE_ADMIN);
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_on_empty_db() {
+    underTest.deleteByOrganization(dbSession, "some uuid");
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_when_organization_has_no_template() {
+    OrganizationDto organization = db.organizations().insert();
+
+    underTest.deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_delete_all_templates_of_organization_and_content_of_child_tables() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    OrganizationDto organization3 = db.organizations().insert();
+
+    PermissionTemplateDto[] templates = {
+      createTemplate(organization1),
+      createTemplate(organization2),
+      createTemplate(organization3),
+      createTemplate(organization1),
+      createTemplate(organization2)
+    };
+
+    verifyTemplateIdsInDb(templates[0].getId(), templates[1].getId(), templates[2].getId(), templates[3].getId(), templates[4].getId());
+
+    underTest.deleteByOrganization(dbSession, organization2.getUuid());
+    dbSession.commit();
+    verifyTemplateIdsInDb(templates[0].getId(), templates[2].getId(), templates[3].getId());
+
+    underTest.deleteByOrganization(dbSession, organization3.getUuid());
+    dbSession.commit();
+    verifyTemplateIdsInDb(templates[0].getId(), templates[3].getId());
+
+    underTest.deleteByOrganization(dbSession, organization1.getUuid());
+    dbSession.commit();
+    verifyTemplateIdsInDb();
+  }
+
+  private PermissionTemplateDto createTemplate(OrganizationDto organization) {
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    PermissionTemplateDto template = templateDb.insertTemplate(organization);
+    templateDb.addProjectCreatorToTemplate(template.getId(), SCAN_EXECUTION);
+    templateDb.addProjectCreatorToTemplate(template.getId(), UserRole.ADMIN);
+    templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.USER);
+    templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.ADMIN);
+    templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.CODEVIEWER);
+    templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.ADMIN);
+    templateDb.addGroupToTemplate(template.getId(), null, UserRole.ISSUE_ADMIN);
+    return template;
+  }
+
+  private void verifyTemplateIdsInDb(Long... expectedTemplateIds) {
+    assertThat(db.select("select distinct template_id as \"templateId\" from perm_templates_groups"))
+      .extracting((row) -> (Long) row.get("templateId"))
+      .containsOnly(expectedTemplateIds);
+    assertThat(db.select("select distinct template_id as \"templateId\" from perm_templates_users"))
+      .extracting((row) -> (Long) row.get("templateId"))
+      .containsOnly(expectedTemplateIds);
+    assertThat(db.select("select distinct template_id as \"templateId\" from perm_tpl_characteristics"))
+      .extracting((row) -> (Long) row.get("templateId"))
+      .containsOnly(expectedTemplateIds);
+    assertThat(db.select("select distinct id as \"templateId\" from permission_templates"))
+      .extracting((row) -> (Long) row.get("templateId"))
+      .containsOnly(expectedTemplateIds);
   }
 
   private void commit() {
