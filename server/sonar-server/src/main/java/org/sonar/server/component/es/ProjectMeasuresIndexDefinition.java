@@ -52,7 +52,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
     mapping.nestedFieldBuilder(FIELD_MEASURES)
       .addStringFied(FIELD_MEASURES_KEY)
-      .addStringFied(FIELD_MEASURES_VALUE)
+      .addDoubleField(FIELD_MEASURES_VALUE)
       .build();
 
     // do not store document but only indexation of information
