@@ -20,28 +20,33 @@
 package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.BaseIndexer;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsUtils;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_USERS;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
-import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
+import static java.util.Collections.singletonList;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 /**
  * Manages the synchronization of index issues/authorization with authorization settings defined in database :
@@ -50,76 +55,148 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATI
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class AuthorizationIndexer extends BaseIndexer {
+public class AuthorizationIndexer implements Startable {
 
+  private static final int MAX_BATCH_SIZE = 1000;
+
+  private static final String BULK_ERROR_MESSAGE = "Fail to index authorization";
+
+  private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
+  private final EsClient esClient;
 
   public AuthorizationIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, INDEX, TYPE_AUTHORIZATION, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
+    this.esClient = esClient;
   }
 
-  @Override
-  protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(), Collections.<String>emptyList());
+  /**
+   * Index issues authorization and project measures authorization indexes only when they are empty
+   */
+  public void indexAllIfEmpty() {
+    Future submit = executor.submit(() -> {
+      if (isIndexEmpty(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION) ||
+        isIndexEmpty(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)) {
+        truncate(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
+        truncate(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          index(new AuthorizationDao().selectAll(dbClient, dbSession));
+        }
+      }
+    });
+    try {
+      Uninterruptibles.getUninterruptibly(submit);
+    } catch (ExecutionException e) {
+      Throwables.propagate(e);
+    }
   }
 
-  public void index(String projectUuid) {
-    index(asList(projectUuid));
+  private boolean isIndexEmpty(String index, String type) {
+    SearchResponse issuesAuthorizationResponse = esClient.prepareSearch(index).setTypes(type).setSize(0).get();
+    return issuesAuthorizationResponse.getHits().getTotalHits() == 0;
+  }
+
+  private void truncate(String index, String type) {
+    BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(type).setQuery(matchAllQuery()));
   }
 
   public void index(List<String> projectUuids) {
     checkArgument(!projectUuids.isEmpty(), "ProjectUuids cannot be empty");
-    super.index(lastUpdatedAt -> doIndex(createBulkIndexer(), projectUuids));
-  }
-
-  private long doIndex(BulkIndexer bulk, List<String> projectUuids) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       AuthorizationDao dao = new AuthorizationDao();
-      Collection<AuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, projectUuids);
-      return doIndex(bulk, authorizations);
+      index(dao.selectByProjects(dbClient, dbSession, projectUuids));
+    }
+  }
+
+  private void index(Collection<AuthorizationDao.Dto> authorizations) {
+    if (authorizations.isEmpty()) {
+      return;
+    }
+    int count = 0;
+    BulkRequestBuilder bulkRequest = esClient.prepareBulk().setRefresh(false);
+    for (AuthorizationDao.Dto dto : authorizations) {
+      bulkRequest.add(newIssuesAuthorizationIndexRequest(dto));
+      bulkRequest.add(newProjectMeasuresAuthorizationIndexRequest(dto));
+      count++;
+      if (count >= MAX_BATCH_SIZE) {
+        EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
+        bulkRequest = esClient.prepareBulk().setRefresh(false);
+        count = 0;
+      }
+    }
+    EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
+    esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
+    esClient.prepareRefresh(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES).get();
+  }
+
+  public void index(String projectUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      AuthorizationDao dao = new AuthorizationDao();
+      List<AuthorizationDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
+      if (dtos.size() == 1) {
+        index(dtos.get(0));
+      }
     }
   }
 
   @VisibleForTesting
-  public void index(Collection<AuthorizationDao.Dto> authorizations) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
-    doIndex(bulk, authorizations);
+  void index(AuthorizationDao.Dto dto) {
+    index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, newIssuesAuthorizationIndexRequest(dto));
+    index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, newProjectMeasuresAuthorizationIndexRequest(dto));
   }
 
-  private static long doIndex(BulkIndexer bulk, Collection<AuthorizationDao.Dto> authorizations) {
-    long maxDate = 0L;
-    bulk.start();
-    for (AuthorizationDao.Dto authorization : authorizations) {
-      bulk.add(newIndexRequest(authorization));
-      maxDate = Math.max(maxDate, authorization.getUpdatedAt());
-    }
-    bulk.stop();
-    return maxDate;
+  private void index(String index, String type, IndexRequest indexRequest) {
+    esClient.prepareIndex(index, type)
+      .setId(indexRequest.id())
+      .setRouting(indexRequest.routing())
+      .setSource(indexRequest.source())
+      .setRefresh(true)
+      .get();
   }
 
   public void deleteProject(String uuid, boolean refresh) {
     esClient
-      .prepareDelete(INDEX, TYPE_AUTHORIZATION, uuid)
+      .prepareDelete(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, uuid)
+      .setRefresh(refresh)
+      .setRouting(uuid)
+      .get();
+    esClient
+      .prepareDelete(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, uuid)
       .setRefresh(refresh)
       .setRouting(uuid)
       .get();
   }
 
-  private BulkIndexer createBulkIndexer() {
-    // warning - do not enable large mode, else disabling of replicas
-    // will impact the type "issue" which is much bigger than issueAuthorization
-    return new BulkIndexer(esClient, INDEX);
-  }
-
-  private static IndexRequest newIndexRequest(AuthorizationDao.Dto dto) {
+  private static IndexRequest newIssuesAuthorizationIndexRequest(AuthorizationDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
-      FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
-      FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-      FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-      FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return new IndexRequest(INDEX, TYPE_AUTHORIZATION, dto.getProjectUuid())
+      IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
+      IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    return new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);
+  }
+
+  private static IndexRequest newProjectMeasuresAuthorizationIndexRequest(AuthorizationDao.Dto dto) {
+    Map<String, Object> doc = ImmutableMap.of(
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    return new IndexRequest(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+      .routing(dto.getProjectUuid())
+      .source(doc);
+  }
+
+  @Override
+  public void start() {
+    // nothing to do at startup
+  }
+
+  @Override
+  public void stop() {
+    executor.shutdown();
   }
 }

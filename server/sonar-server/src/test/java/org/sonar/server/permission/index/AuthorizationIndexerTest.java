@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.index;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,9 +29,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 
@@ -51,7 +55,7 @@ public class AuthorizationIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   UserDbTester userDbTester = new UserDbTester(dbTester);
@@ -60,14 +64,14 @@ public class AuthorizationIndexerTest {
   AuthorizationIndexer underTest = new AuthorizationIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
-  public void index_nothing() {
-    underTest.index();
+  public void index_all_does_nothing_when_no_data() {
+    underTest.indexAllIfEmpty();
 
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   @Test
-  public void index() {
+  public void index_all() {
     ComponentDto project = componentDbTester.insertProject();
     UserDto user = userDbTester.insertUser();
     userDbTester.insertProjectPermissionOnUser(user, USER, project);
@@ -76,9 +80,49 @@ public class AuthorizationIndexerTest {
     userDbTester.insertProjectPermissionOnGroup(group, USER, project);
     userDbTester.insertProjectPermissionOnAnyone(USER, project);
 
-    underTest.index();
+    underTest.indexAllIfEmpty();
 
     authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getLogin()));
+  }
+
+  @Test
+  public void index_all_with_huge_number_of_projects() throws Exception {
+    GroupDto group = userDbTester.insertGroup();
+    for (int i = 0; i < 1100; i++) {
+      ComponentDto project = ComponentTesting.newProjectDto();
+      dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
+      GroupPermissionDto dto = new GroupPermissionDto()
+        .setOrganizationUuid(group.getOrganizationUuid())
+        .setGroupId(group.getId())
+        .setRole(USER)
+        .setResourceId(project.getId());
+      dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
+    }
+    dbTester.getSession().commit();
+
+    underTest.indexAllIfEmpty();
+
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(1100);
+    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(1100);
+  }
+
+  @Test
+  public void index_all_is_first_truncating_indexes() throws Exception {
+    // Insert only one document in issues authorization => only one index is empty
+    esTester.client().prepareIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)
+      .setId("ABC")
+      .setRouting("ABC")
+      .setSource(ImmutableMap.of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, "ABC"))
+      .setRefresh(true)
+      .get();
+    GroupDto group = userDbTester.insertGroup();
+    ComponentDto project = componentDbTester.insertProject();
+    userDbTester.insertProjectPermissionOnGroup(group, USER, project);
+
+    underTest.indexAllIfEmpty();
+
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectDoesNotExist("ABC");
   }
 
   @Test
@@ -123,7 +167,7 @@ public class AuthorizationIndexerTest {
   }
 
   @Test
-  public void do_not_fail_when_deleting_unindexed_project() {
+  public void do_not_fail_when_deleting_unknown_project() {
     underTest.deleteProject("UNKNOWN", true);
 
     authorizationIndexerTester.verifyEmptyProjectAuthorization();
@@ -134,7 +178,7 @@ public class AuthorizationIndexerTest {
     authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
 
     // remove permissions -> dto has no users nor groups
-    underTest.index(singletonList(new AuthorizationDao.Dto("ABC", System.currentTimeMillis())));
+    underTest.index(new AuthorizationDao.Dto("ABC", System.currentTimeMillis()));
 
     authorizationIndexerTester.verifyProjectExistsWithoutAuthorization("ABC");
   }

@@ -23,19 +23,17 @@ package org.sonar.server.permission.index;
 import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_USERS;
 
 public class AuthorizationIndexerTester {
 
@@ -50,17 +48,19 @@ public class AuthorizationIndexerTester {
 
   public void insertProjectAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
     AuthorizationDao.Dto authorization = new AuthorizationDao.Dto(projectUuid, System.currentTimeMillis());
-    groupNames.forEach(authorization::addUser);
-    userLogins.forEach(authorization::addGroup);
-    authorizationIndexer.index(singletonList(authorization));
+    groupNames.forEach(authorization::addGroup);
+    userLogins.forEach(authorization::addUser);
+    authorizationIndexer.index(authorization);
   }
 
   public void verifyEmptyProjectAuthorization() {
-    assertThat(esTester.countDocuments("issues", "authorization")).isZero();
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isZero();
+    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isZero();
   }
 
   public void verifyProjectDoesNotExist(String projectUuid) {
-    assertThat(esTester.getIds("issues", "authorization")).doesNotContain(projectUuid);
+    assertThat(esTester.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
+    assertThat(esTester.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
   }
 
   public void verifyProjectExistsWithoutAuthorization(String projectUuid) {
@@ -68,21 +68,31 @@ public class AuthorizationIndexerTester {
   }
 
   public void verifyProjectExistsWithAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
-    assertThat(esTester.getIds("issues", "authorization")).contains(projectUuid);
-    BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(FIELD_AUTHORIZATION_PROJECT_UUID, projectUuid));
+    verifyProjectExistsWithAuthorizationInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
+      IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, IssueIndexDefinition.FIELD_AUTHORIZATION_USERS,
+      projectUuid, groupNames, userLogins);
+    verifyProjectExistsWithAuthorizationInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
+      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
+  }
+
+  private void verifyProjectExistsWithAuthorizationInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,
+    List<String> groupNames, List<String> userLogins) {
+    assertThat(esTester.getIds(index, type)).contains(projectUuid);
+    BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(projectField, projectUuid));
     if (groupNames.isEmpty()) {
-      queryBuilder.mustNot(existsQuery(FIELD_AUTHORIZATION_GROUPS));
+      queryBuilder.mustNot(existsQuery(groupField));
     } else {
-      queryBuilder.must(termsQuery(FIELD_AUTHORIZATION_GROUPS, groupNames));
+      queryBuilder.must(termsQuery(groupField, groupNames));
     }
     if (userLogins.isEmpty()) {
-      queryBuilder.mustNot(existsQuery(FIELD_AUTHORIZATION_USERS));
+      queryBuilder.mustNot(existsQuery(userField));
     } else {
-      queryBuilder.must(termsQuery(FIELD_AUTHORIZATION_USERS, userLogins));
+      queryBuilder.must(termsQuery(userField, userLogins));
     }
     SearchRequestBuilder request = esTester.client()
-      .prepareSearch("issues")
-      .setTypes("authorization")
+      .prepareSearch(index)
+      .setTypes(type)
       .setQuery(boolQuery().must(matchAllQuery()).filter(queryBuilder));
     assertThat(request.get().getHits()).hasSize(1);
   }

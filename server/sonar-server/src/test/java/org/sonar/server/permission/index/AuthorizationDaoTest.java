@@ -21,7 +21,6 @@ package org.sonar.server.permission.index;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -80,7 +79,7 @@ public class AuthorizationDaoTest {
   public void select_all() {
     insertTestDataForProject1And2();
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, Collections.emptyList());
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
     assertThat(dtos).hasSize(2);
 
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
@@ -98,7 +97,7 @@ public class AuthorizationDaoTest {
   public void select_by_project() throws Exception {
     insertTestDataForProject1And2();
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, singletonList(project1.uuid()));
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, singletonList(project1.uuid()));
     assertThat(dtos).hasSize(1);
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
@@ -110,7 +109,7 @@ public class AuthorizationDaoTest {
   public void select_by_projects() throws Exception {
     insertTestDataForProject1And2();
 
-    Map<String, AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, asList(project1.uuid(), project2.uuid()))
+    Map<String, AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, asList(project1.uuid(), project2.uuid()))
       .stream()
       .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(2);
@@ -142,7 +141,7 @@ public class AuthorizationDaoTest {
     }
     dbSession.commit();
 
-    Map<String, AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, projects)
+    Map<String, AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, projects)
       .stream()
       .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(350);
@@ -153,7 +152,7 @@ public class AuthorizationDaoTest {
     userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
     userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAfterDate(dbClient, dbSession, Collections.emptyList());
+    Collection<AuthorizationDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
 
     assertThat(dtos).hasSize(2);
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
@@ -41,13 +40,14 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.permission.index.AuthorizationDao;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
@@ -66,13 +66,12 @@ public class IssueIndexDebtTest {
   IssueIndex index;
 
   IssueIndexer issueIndexer;
-  AuthorizationIndexer issueAuthorizationIndexer;
+  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(tester);
   ViewIndexer viewIndexer;
 
   @Before
   public void setUp() {
     issueIndexer = new IssueIndexer(null, tester.client());
-    issueAuthorizationIndexer = new AuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
@@ -280,14 +279,14 @@ public class IssueIndexDebtTest {
   }
 
   private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(Arrays.asList(issues).iterator());
+    issueIndexer.index(asList(issues).iterator());
     for (IssueDoc issue : issues) {
       addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
     }
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
-    issueAuthorizationIndexer.index(newArrayList(new AuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+    authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
   }
 
   private Builder newQueryBuilder() {

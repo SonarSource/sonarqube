@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -61,7 +62,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private static final long SOME_DATE = 1000L;
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

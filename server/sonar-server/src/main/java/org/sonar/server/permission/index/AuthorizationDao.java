@@ -148,14 +148,15 @@ public class AuthorizationDao {
     "        AND group_roles.group_id IS NULL " +
     "    ) project_authorization";
 
-  List<Dto> selectAfterDate(DbClient dbClient, DbSession session, List<String> projectUuids) {
-    if (projectUuids.isEmpty()) {
-      return doSelectAfterDate(dbClient, session, Collections.emptyList());
-    }
-    return executeLargeInputs(projectUuids, subProjectUuids -> doSelectAfterDate(dbClient, session, subProjectUuids));
+  List<Dto> selectAll(DbClient dbClient, DbSession session) {
+    return doSelectByProjects(dbClient, session, Collections.emptyList());
   }
 
-  private List<Dto> doSelectAfterDate(DbClient dbClient, DbSession session, List<String> projectUuids) {
+  List<Dto> selectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
+    return executeLargeInputs(projectUuids, subProjectUuids -> doSelectByProjects(dbClient, session, subProjectUuids));
+  }
+
+  private static List<Dto> doSelectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
     try {
       Map<String, Dto> dtosByProjectUuid = new HashMap<>();
       PreparedStatement stmt = null;

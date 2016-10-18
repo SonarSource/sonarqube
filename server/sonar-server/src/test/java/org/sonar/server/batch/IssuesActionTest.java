@@ -43,13 +43,12 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.AuthorizationDao;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -78,7 +77,7 @@ public class IssuesActionTest {
 
   private IssueIndex issueIndex;
   private IssueIndexer issueIndexer;
-  private AuthorizationIndexer issueAuthorizationIndexer;
+  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(es);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
 
   WsTester tester;
@@ -89,7 +88,6 @@ public class IssuesActionTest {
   public void before() {
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
-    issueAuthorizationIndexer = new AuthorizationIndexer(null, es.client());
     issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
     tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));
@@ -329,7 +327,7 @@ public class IssuesActionTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
-    issueAuthorizationIndexer.index(newArrayList(new AuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+    authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
   }
 
   private void addBrowsePermissionOnComponent(String componentKey) {
