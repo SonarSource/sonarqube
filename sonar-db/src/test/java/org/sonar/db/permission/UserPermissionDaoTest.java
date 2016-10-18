@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
@@ -295,7 +294,7 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectGlobalPermissionsOfUser() {
-    OrganizationDto org = OrganizationTesting.insert(dbTester, newOrganizationDto());
+    OrganizationDto org = dbTester.organizations().insert(newOrganizationDto());
     addGlobalPermissionOnDefaultOrganization("perm1", user1);
     addGlobalPermissionOnDefaultOrganization("perm2", user2);
     addGlobalPermission(org, "perm3", user1);
@@ -310,7 +309,7 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectProjectPermissionsOfUser() {
-    OrganizationDto org = OrganizationTesting.insert(dbTester, newOrganizationDto());
+    OrganizationDto org = dbTester.organizations().insert(newOrganizationDto());
     ComponentDto project3 = dbTester.components().insertProject();
     addGlobalPermission(org, "perm1", user1);
     addProjectPermission(org, "perm2", user1, project1);

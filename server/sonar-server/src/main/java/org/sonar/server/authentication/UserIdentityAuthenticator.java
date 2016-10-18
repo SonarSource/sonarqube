@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -124,7 +125,8 @@ public class UserIdentityAuthenticator {
       Collection<String> groupsToRemove = Sets.difference(userGroups, identityGroups);
       Collection<String> allGroups = new ArrayList<>(groupsToAdd);
       allGroups.addAll(groupsToRemove);
-      Map<String, GroupDto> groupsByName = from(dbClient.groupDao().selectByNames(dbSession, allGroups)).uniqueIndex(GroupDtoToName.INSTANCE);
+      DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
+      Map<String, GroupDto> groupsByName = from(dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)).uniqueIndex(GroupDtoToName.INSTANCE);
 
       addGroups(dbSession, userDto, groupsToAdd, groupsByName);
       removeGroups(dbSession, userDto, groupsToRemove, groupsByName);

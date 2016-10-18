@@ -35,7 +35,7 @@ public interface GroupMapper {
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
-  List<GroupDto> selectByNames(@Param("names") List<String> names);
+  List<GroupDto> selectByNames(@Param("organizationUuid") String organizationUuid, @Param("names") List<String> names);
 
   void insert(GroupDto groupDto);
 
@@ -59,4 +59,6 @@ public interface GroupMapper {
   int updateNonRootUsersOfGroup(@Param("groupId") long groupId,
     @Param("defaultOrganizationUuid") String defaultOrganizationUuid,
     @Param("now") long now);
+
+  List<GroupDto> selectByIds(@Param("ids") List<Long> ids);
 }

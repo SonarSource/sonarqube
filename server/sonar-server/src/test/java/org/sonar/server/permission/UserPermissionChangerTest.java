@@ -27,10 +27,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -50,7 +51,8 @@ public class UserPermissionChangerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient());
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider);
   private OrganizationDto org1;
   private OrganizationDto org2;
   private UserDto user1;
@@ -59,8 +61,8 @@ public class UserPermissionChangerTest {
 
   @Before
   public void setUp() throws Exception {
-    org1 = OrganizationTesting.insert(db, newOrganizationDto());
-    org2 = OrganizationTesting.insert(db, newOrganizationDto());
+    org1 = db.organizations().insert(newOrganizationDto());
+    org2 = db.organizations().insert(newOrganizationDto());
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
     project = db.components().insertProject();

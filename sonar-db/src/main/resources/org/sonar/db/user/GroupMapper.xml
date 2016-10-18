@@ -20,6 +20,16 @@
     where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and g.name = #{name,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByIds" parameterType="long" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.id in
+    <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+      #{id,jdbcType=BIGINT}
+    </foreach>
+  </select>
+
   <select id="selectByKey" parameterType="string" resultType="Group">
     SELECT
     <include refid="groupColumns"/>
@@ -53,15 +63,15 @@
   </select>
 
   <select id="selectByNames" parameterType="map" resultType="Group">
-    SELECT
+    select
     <include refid="groupColumns"/>
-    FROM groups g
-    <where>
-      g.name IN
+    from groups g
+    where
+      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      g.name in
       <foreach item="name" index="index" collection="names" open="(" separator="," close=")">
-        #{name}
+        #{name,jdbcType=VARCHAR}
       </foreach>
-    </where>
   </select>
 
   <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

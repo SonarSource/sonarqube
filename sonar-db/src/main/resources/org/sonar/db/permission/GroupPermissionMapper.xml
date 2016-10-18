@@ -53,74 +53,87 @@
     ) groups
   </select>
 
-  <select id="selectGroupNamesByPermissionQuery" parameterType="map" resultType="string">
-    select distinct gr.name, lower(gr.name), gr.group_id
+  <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
+    select distinct sub.name, lower(sub.name), sub.groupId
     <include refid="groupsByQuery" />
-    order by lower(gr.name), gr.name, gr.group_id
+    order by lower(sub.name), sub.name, sub.groupId
   </select>
 
-  <select id="countGroupsByPermissionQuery" parameterType="map" resultType="int">
+  <select id="countGroupsByQuery" parameterType="map" resultType="int">
     select count(1)
     from (
-      select distinct gr.group_id
+      select distinct sub.groupId
       <include refid="groupsByQuery" />) g
   </select>
 
   <sql id="groupsByQuery">
     from (
-    select g.id as group_id, g.name as name, gr.role as permission, gr.resource_id as resource_id, gr.id as id
-    from groups g
+      select g.id as groupId, g.name as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
+      from groups g
       left join group_roles gr on g.id = gr.group_id
-    UNION ALL
-    select 0 as group_id, 'Anyone' as name, gr.role as permission, gr.resource_id as resource_id, gr.id as id
+      where
+      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+
+    union all
+
+    select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
     from group_roles gr
     <if test="query.withAtLeastOnePermission()">
-      where gr.group_id is null
+      where
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.group_id is null
     </if>
-    ) gr
-    left join projects p on gr.resource_id = p.id
+
+    ) sub
+    left join projects p on sub.componentId = p.id
     <where>
       <if test="query.searchQueryToSql != null">
-        and lower(gr.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+        and lower(sub.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
       </if>
       <!-- filter rows with group permissions -->
       <if test="query.withAtLeastOnePermission()">
-        and gr.permission is not null
+        and sub.permission is not null
         <if test="query.componentUuid==null">
-          and gr.resource_id is null
+          and sub.componentId is null
         </if>
         <if test="query.componentUuid!=null">
-          and p.uuid=#{query.componentUuid,jdbcType=VARCHAR}
+          and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
         </if>
         <if test="query.permission!=null">
-          and gr.permission=#{query.permission,jdbcType=VARCHAR}
+          and sub.permission = #{query.permission,jdbcType=VARCHAR}
         </if>
       </if>
     </where>
   </sql>
 
-  <select id="selectGroupPermissionByGroupNames" parameterType="map" resultType="GroupPermission">
-    SELECT sub.id, sub.groupId, sub.resourceId, sub.role
-    FROM
+  <select id="selectByGroupIds" parameterType="map" resultType="GroupPermission">
+    select sub.groupId as groupId, sub.componentId as resourceId, sub.permission as role, sub.organizationUuid as organizationUuid
+    from
       (
-      SELECT gr.id AS id, gr.group_id AS groupId, gr.resource_id AS resourceId, gr.role AS role, g.name AS name
-      FROM group_roles gr
-      INNER JOIN groups g ON g.id=gr.group_id
-      UNION ALL
-      SELECT gr.id as id, 0 AS group_id, gr.resource_id AS resource_id, gr.role AS role, 'Anyone' AS name
-      FROM group_roles gr
-      WHERE gr.group_id is null
+      select gr.group_id as groupId, gr.resource_id as componentId, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
+      from group_roles gr
+      inner join groups g ON g.id = gr.group_id
+      where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.group_id is not null
+
+      union all
+
+      select 0 as groupId, gr.resource_id as componentId, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
+      from group_roles gr
+      where
+      gr.group_id is null and
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
       ) sub
     where
-      sub.name IN
-      <foreach collection="groupNames" open="(" close=")" item="name" separator=",">
-        #{name}
+      sub.groupId in
+      <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">
+        #{groupId,jdbcType=BIGINT}
       </foreach>
-      <if test="projectId!=null">
-        AND sub.resourceId=#{projectId,jdbcType=BIGINT}
+      <if test="projectId != null">
+        and sub.componentId=#{projectId,jdbcType=BIGINT}
       </if>
       <if test="projectId==null">
-        AND sub.resourceId IS NULL
+        and sub.componentId is null
       </if>
   </select>
 
