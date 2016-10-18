@@ -102,4 +102,11 @@
     where
     resource_id = #{projectId,jdbcType=BIGINT}
   </delete>
+
+  <delete id="deleteByOrganization" parameterType="String">
+    delete from
+      user_roles
+    where
+      organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>

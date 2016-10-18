@@ -60,4 +60,5 @@ public interface UserPermissionMapper {
 
   void deleteProjectPermissions(@Param("projectId") long projectId);
 
+  void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 }

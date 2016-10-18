@@ -305,7 +305,6 @@ public class UserPermissionDaoTest {
     assertThatProjectHasNoPermissions(project1);
   }
 
-
   @Test
   public void projectHasPermissions() {
     addGlobalPermissionOnDefaultOrganization(SYSTEM_ADMIN, user1);
@@ -313,6 +312,57 @@ public class UserPermissionDaoTest {
 
     assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
     assertThat(underTest.hasRootComponentPermissions(dbSession, project2.getId())).isFalse();
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_if_table_is_empty() {
+    underTest.deleteByOrganization(dbSession, "some uuid");
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_if_organization_has_no_user_permission() {
+    OrganizationDto organization = dbTester.organizations().insert();
+
+    underTest.deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_deletes_all_user_permission_of_specified_organization() {
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    OrganizationDto organization3 = dbTester.organizations().insert();
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    UserDto user3 = dbTester.users().insertUser();
+    dbTester.users().insertPermissionOnUser(organization1, user1, "foo");
+    dbTester.users().insertPermissionOnUser(organization1, user2, "foo");
+    dbTester.users().insertPermissionOnUser(organization1, user2, "bar");
+    dbTester.users().insertPermissionOnUser(organization2, user2, "foo");
+    dbTester.users().insertPermissionOnUser(organization2, user3, "foo");
+    dbTester.users().insertPermissionOnUser(organization2, user3, "bar");
+    dbTester.users().insertPermissionOnUser(organization3, user3, "foo");
+    dbTester.users().insertPermissionOnUser(organization3, user1, "foo");
+    dbTester.users().insertPermissionOnUser(organization3, user1, "bar");
+
+    underTest.deleteByOrganization(dbSession, organization3.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization1.getUuid(), organization2.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization2.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization1.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization1.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable();
+  }
+
+  private void verifyOrganizationUuidsInTable(String... organizationUuids) {
+    assertThat(dbTester.select("select organization_uuid as \"organizationUuid\" from user_roles"))
+      .extracting((row) -> (String) row.get("organizationUuid"))
+      .containsOnly(organizationUuids);
   }
 
   private void expectCount(List<Long> projectIds, CountPerProjectPermission... expected) {
@@ -373,7 +423,8 @@ public class UserPermissionDaoTest {
   }
 
   private void assertThatProjectPermissionDoesNotExist(UserDto user, String permission, ComponentDto project) {
-    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where role='" + permission + "' and user_id=" + user.getId() + " and resource_id=" + project.getId())).isEqualTo(0);
+    assertThat(dbTester.countSql(dbSession, "select count(id) from user_roles where role='" + permission + "' and user_id=" + user.getId() + " and resource_id=" + project.getId()))
+      .isEqualTo(0);
   }
 
   private void assertThatProjectHasNoPermissions(ComponentDto project) {
