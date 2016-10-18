@@ -19,12 +19,14 @@
  */
 package org.sonar.server.component.es;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -91,4 +93,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
     setField(FIELD_MEASURES, measures);
     return this;
   }
+
+  public ProjectMeasuresDoc setMeasuresFromMap(Map<String, Object> measures) {
+    setMeasures(
+      measures.entrySet().stream()
+        .map(entry -> ImmutableMap.of(
+          ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY, entry.getKey(),
+          ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE, entry.getValue()))
+        .collect(Collectors.toList()));
+    return this;
+  }
+
 }
