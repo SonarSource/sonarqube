@@ -371,7 +371,7 @@ public class GroupDaoTest {
     };
     UserDto[] adminPerGroupPermissionUsers = {
       db.users().makeRoot(db.users().insertUser()),
-      db.users().insertUser()  // incorrectly not root
+      db.users().insertUser() // incorrectly not root
     };
     OrganizationDto otherOrganization = db.organizations().insert();
     GroupDto nonAdminGroup = db.users().insertGroup(otherOrganization);
@@ -390,6 +390,51 @@ public class GroupDaoTest {
     stream(nonAdminUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
     stream(adminPerUserPermissionUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_2));
     stream(adminPerGroupPermissionUsers).forEach(user -> db.rootFlag().verify(user, false, DATE_1));
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_when_table_is_empty() {
+    underTest.deleteByOrganization(dbSession, "some uuid");
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_does_not_fail_when_organization_has_no_group() {
+    OrganizationDto organization = db.organizations().insert();
+
+    underTest.deleteByOrganization(dbSession, organization.getUuid());
+    dbSession.commit();
+  }
+
+  @Test
+  public void deleteByOrganization_deletes_all_groups_in_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    OrganizationDto organization3 = db.organizations().insert();
+
+    db.users().insertGroup(organization1);
+    db.users().insertGroup(organization2);
+    db.users().insertGroup(organization3);
+    db.users().insertGroup(organization3);
+    db.users().insertGroup(organization2);
+
+    underTest.deleteByOrganization(dbSession, organization2.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization1.getUuid(), organization3.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization1.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable(organization3.getUuid());
+
+    underTest.deleteByOrganization(dbSession, organization3.getUuid());
+    dbSession.commit();
+    verifyOrganizationUuidsInTable();
+  }
+
+  private void verifyOrganizationUuidsInTable(String... organizationUuids) {
+    assertThat(db.select("select distinct organization_uuid as \"organizationUuid\" from groups"))
+      .extracting(row -> (String) row.get("organizationUuid"))
+      .containsOnly(organizationUuids);
   }
 
   private void call_updateRootFlagFromPermissions(GroupDto groupDto, long now) {

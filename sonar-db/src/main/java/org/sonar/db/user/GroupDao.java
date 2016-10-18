@@ -80,6 +80,10 @@ public class GroupDao implements Dao {
     mapper(dbSession).deleteById(groupId);
   }
 
+  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
+    mapper(dbSession).deleteByOrganization(organizationUuid);
+  }
+
   public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
     return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
   }

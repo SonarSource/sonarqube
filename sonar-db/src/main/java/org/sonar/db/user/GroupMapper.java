@@ -47,6 +47,8 @@ public interface GroupMapper {
 
   void deleteById(long groupId);
 
+  void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
+
   @CheckForNull
   GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 

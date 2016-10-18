@@ -43,6 +43,13 @@
     </where>
   </delete>
 
+  <delete id="deleteByOrganization" parameterType="String">
+    delete from
+      groups
+    where
+      organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
   <select id="selectByUserLogin" parameterType="string" resultType="Group">
     select
     <include refid="groupColumns"/>
