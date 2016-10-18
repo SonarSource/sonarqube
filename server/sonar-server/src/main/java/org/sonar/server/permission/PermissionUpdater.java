@@ -19,8 +19,10 @@
  */
 package org.sonar.server.permission;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
@@ -35,25 +37,27 @@ import org.sonar.server.permission.index.AuthorizationIndexer;
 public class PermissionUpdater {
 
   private final DbClient dbClient;
-  private final AuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer authorizationIndexer;
   private final UserPermissionChanger userPermissionChanger;
   private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(DbClient dbClient, AuthorizationIndexer issueAuthorizationIndexer,
-    UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
+  public PermissionUpdater(DbClient dbClient, AuthorizationIndexer authorizationIndexer,
+                           UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
     this.dbClient = dbClient;
-    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
+    this.authorizationIndexer = authorizationIndexer;
     this.userPermissionChanger = userPermissionChanger;
     this.groupPermissionChanger = groupPermissionChanger;
   }
 
   public void apply(DbSession dbSession, Collection<PermissionChange> changes) {
     Set<Long> projectIds = new HashSet<>();
+    List<String> projectUuids = new ArrayList<>();
     for (PermissionChange change : changes) {
       boolean changed = doApply(dbSession, change);
       Optional<ProjectId> projectId = change.getProjectId();
       if (changed && projectId.isPresent()) {
         projectIds.add(projectId.get().getId());
+        projectUuids.add(projectId.get().getUuid());
       }
     }
     for (Long projectId : projectIds) {
@@ -62,7 +66,7 @@ public class PermissionUpdater {
     dbSession.commit();
 
     if (!projectIds.isEmpty()) {
-      issueAuthorizationIndexer.index();
+      authorizationIndexer.index(projectUuids);
     }
   }
 

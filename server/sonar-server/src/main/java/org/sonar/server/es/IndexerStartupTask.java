@@ -34,7 +34,7 @@ public class IndexerStartupTask {
   private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
 
   private final TestIndexer testIndexer;
-  private final AuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer authorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
@@ -46,11 +46,11 @@ public class IndexerStartupTask {
    * because we need {@link AuthorizationIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexerStartupTask(TestIndexer testIndexer, AuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+  public IndexerStartupTask(TestIndexer testIndexer, AuthorizationIndexer authorizationIndexer, IssueIndexer issueIndexer,
                             UserIndexer userIndexer, ViewIndexer viewIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
                             Settings settings) {
     this.testIndexer = testIndexer;
-    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
+    this.authorizationIndexer = authorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.userIndexer = userIndexer;
     this.viewIndexer = viewIndexer;
@@ -61,8 +61,10 @@ public class IndexerStartupTask {
   public void execute() {
     if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
 
+      LOG.info("Index authorization");
+      authorizationIndexer.index();
+
       LOG.info("Index issues");
-      issueAuthorizationIndexer.index();
       issueIndexer.index();
 
       LOG.info("Index tests");

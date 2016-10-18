@@ -19,9 +19,11 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.web.UserRole;
@@ -34,17 +36,19 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
@@ -55,6 +59,9 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 
 public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateAction> {
 
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+
   private static final String ACTION = "apply_template";
 
   private UserDto user1;
@@ -64,13 +71,16 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private ComponentDto project;
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
-  private AuthorizationIndexer issueAuthorizationIndexer = mock(AuthorizationIndexer.class);
+
+  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
+
+  private AuthorizationIndexer authorizationIndexer = new AuthorizationIndexer(db.getDbClient(), esTester.client());
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
-    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issueAuthorizationIndexer, userSession, componentFinder);
+    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, authorizationIndexer, userSession, componentFinder);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport());
   }
 
@@ -109,7 +119,6 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     newRequest(template1.getUuid(), project.uuid(), null);
 
     assertTemplate1AppliedToProject();
-    verify(issueAuthorizationIndexer).index();
   }
 
   @Test
@@ -198,6 +207,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
     assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getLogin());
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
+
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), singletonList(group2.getName()), Collections.emptyList());
   }
 
   private WsTester.Result newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {

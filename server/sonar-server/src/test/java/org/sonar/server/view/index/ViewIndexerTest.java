@@ -51,7 +51,6 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class ViewIndexerTest {
 
   @Rule
@@ -144,7 +143,7 @@ public class ViewIndexerTest {
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule);
     IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
-    AuthorizationIndexer issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, esTester.client());
+    AuthorizationIndexer authorizationIndexer = new AuthorizationIndexer(dbClient, esTester.client());
 
     String viewUuid = "ABCD";
 
@@ -152,7 +151,7 @@ public class ViewIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
-    issueAuthorizationIndexer.index();
+    authorizationIndexer.index(project1.uuid());
 
     ComponentDto view = ComponentTesting.newView("ABCD");
     ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
@@ -169,7 +168,7 @@ public class ViewIndexerTest {
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
-    issueAuthorizationIndexer.index();
+    authorizationIndexer.index(project2.uuid());
 
     ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
     dbClient.componentDao().insert(dbSession, techProject2);

@@ -39,17 +39,17 @@ import org.sonar.server.test.index.TestIndexer;
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
-  private final AuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer authorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final TestIndexer testIndexer;
   private final ProjectMeasuresIndexer projectMeasuresIndexer;
   private final ResourceTypes resourceTypes;
   private final ComponentFinder componentFinder;
 
-  public ComponentCleanerService(DbClient dbClient, AuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+  public ComponentCleanerService(DbClient dbClient, AuthorizationIndexer authorizationIndexer, IssueIndexer issueIndexer,
                                  TestIndexer testIndexer, ProjectMeasuresIndexer projectMeasuresIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
+    this.authorizationIndexer = authorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.testIndexer = testIndexer;
     this.projectMeasuresIndexer = projectMeasuresIndexer;
@@ -85,7 +85,7 @@ public class ComponentCleanerService {
 
   private void deleteFromIndices(String projectUuid) {
     // optimization : index "issues" is refreshed once at the end
-    issueAuthorizationIndexer.deleteProject(projectUuid, false);
+    authorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid);
     testIndexer.deleteByProject(projectUuid);
     projectMeasuresIndexer.deleteProject(projectUuid);

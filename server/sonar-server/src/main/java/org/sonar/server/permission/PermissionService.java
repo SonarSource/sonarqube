@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -36,6 +37,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.permission.index.AuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 
 @ServerSide
@@ -43,15 +45,15 @@ public class PermissionService {
 
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
-  private final AuthorizationIndexer issueAuthorizationIndexer;
+  private final AuthorizationIndexer authorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, AuthorizationIndexer issueAuthorizationIndexer, UserSession userSession,
-                           ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, AuthorizationIndexer authorizationIndexer, UserSession userSession,
+    ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
-    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
+    this.authorizationIndexer = authorizationIndexer;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
@@ -85,7 +87,7 @@ public class PermissionService {
     Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
     permissionRepository.applyDefaultPermissionTemplate(session, component, userId);
     session.commit();
-    indexProjectPermissions();
+    indexProjectPermissions(asList(component.uuid()));
   }
 
   public boolean wouldCurrentUserHavePermissionWithDefaultTemplate(DbSession dbSession, String permission, @Nullable String branch, String projectKey, String qualifier) {
@@ -108,10 +110,10 @@ public class PermissionService {
       permissionRepository.apply(dbSession, template, project, null);
     }
     dbSession.commit();
-    indexProjectPermissions();
+    indexProjectPermissions(projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
   }
 
-  private void indexProjectPermissions() {
-    issueAuthorizationIndexer.index();
+  private void indexProjectPermissions(List<String> projectUuids) {
+    authorizationIndexer.index(projectUuids);
   }
 }

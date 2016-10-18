@@ -77,7 +77,7 @@ public class ApplyPermissionsStep implements ComputationStep {
       if (hasNoPermissions(dbSession, projectId)) {
         permissionRepository.applyDefaultPermissionTemplate(dbSession, projectId);
         dbSession.commit();
-        indexer.index();
+        indexer.index(project.getUuid());
       }
     }
   }
