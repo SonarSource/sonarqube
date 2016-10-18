@@ -24,7 +24,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.project.es.ProjectMeasuresIndexer;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;

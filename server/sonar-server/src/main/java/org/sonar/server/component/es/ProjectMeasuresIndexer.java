@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.project.es;
+package org.sonar.server.component.es;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -30,9 +30,9 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer extends BaseIndexer {
 

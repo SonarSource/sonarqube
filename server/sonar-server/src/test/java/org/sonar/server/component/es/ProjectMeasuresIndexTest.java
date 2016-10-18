@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.es;
+package org.sonar.server.component.es;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
@@ -27,17 +27,16 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.MetricCriteria;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.Operator;
+import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexTest {
 
@@ -50,7 +49,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void empty_search() {
-    List<String> result = underTest.search(new SearchProjectsCriteriaQuery(), new SearchOptions()).getIds();
+    List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
 
     assertThat(result).isEmpty();
   }
@@ -61,7 +60,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P3", "K3", "apachee"),
       newDoc("P2", "K2", "Apache"));
 
-    List<String> result = underTest.search(new SearchProjectsCriteriaQuery(), new SearchOptions()).getIds();
+    List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P2", "P3", "P1");
   }
@@ -71,7 +70,7 @@ public class ProjectMeasuresIndexTest {
     IntStream.rangeClosed(1, 9)
       .forEach(i -> addDocs(newDoc("P" + i, "K" + i, "P" + i)));
 
-    SearchIdResult<String> result = underTest.search(new SearchProjectsCriteriaQuery(), new SearchOptions().setPage(2, 3));
+    SearchIdResult<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().setPage(2, 3));
 
     assertThat(result.getIds()).containsExactly("P4", "P5", "P6");
     assertThat(result.getTotal()).isEqualTo(9);
@@ -84,8 +83,8 @@ public class ProjectMeasuresIndexTest {
       newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d))),
       newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 81d), newMeasure(NCLOC, 10_000d))));
 
-    SearchProjectsCriteriaQuery esQuery = new SearchProjectsCriteriaQuery()
-      .addMetricCriteria(new MetricCriteria(COVERAGE, Operator.LTE, 80d));
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriteria(COVERAGE, Operator.LTE, 80d));
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P1", "P2");
@@ -98,25 +97,11 @@ public class ProjectMeasuresIndexTest {
       newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d))),
       newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d))));
 
-    SearchProjectsCriteriaQuery esQuery = new SearchProjectsCriteriaQuery()
-      .addMetricCriteria(new MetricCriteria(NCLOC, Operator.GT, 10_000d));
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriteria(NCLOC, Operator.GT, 10_000d));
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P2", "P3");
-  }
-
-  @Test
-  public void filter_with_equals() {
-    addDocs(
-      newDoc("P1", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 79d), newMeasure(NCLOC, 10_000d))),
-      newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d))),
-      newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 81d), newMeasure(NCLOC, 10_000d))));
-
-    SearchProjectsCriteriaQuery esQuery = new SearchProjectsCriteriaQuery()
-      .addMetricCriteria(new MetricCriteria(COVERAGE, Operator.EQ, 80d));
-    List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
-
-    assertThat(result).containsExactly("P2");
   }
 
   @Test
@@ -126,9 +111,9 @@ public class ProjectMeasuresIndexTest {
       newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d))),
       newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 79d), newMeasure(NCLOC, 10_000d))));
 
-    SearchProjectsCriteriaQuery esQuery = new SearchProjectsCriteriaQuery()
-      .addMetricCriteria(new MetricCriteria(COVERAGE, Operator.LTE, 80d))
-      .addMetricCriteria(new MetricCriteria(NCLOC, Operator.GT, 10_000d));
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriteria(COVERAGE, Operator.LTE, 80d))
+      .addMetricCriterion(new MetricCriteria(NCLOC, Operator.GT, 10_000d));
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P2");

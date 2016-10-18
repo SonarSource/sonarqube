@@ -33,12 +33,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
-import org.sonar.server.project.es.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;

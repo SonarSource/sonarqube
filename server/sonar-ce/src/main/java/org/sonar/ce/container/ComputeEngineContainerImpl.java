@@ -116,7 +116,7 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
-import org.sonar.server.project.es.ProjectMeasuresIndexer;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;

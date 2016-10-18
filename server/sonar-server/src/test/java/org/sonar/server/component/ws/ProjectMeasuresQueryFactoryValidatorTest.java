@@ -20,7 +20,6 @@
 
 package org.sonar.server.component.ws;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,8 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricTesting;
 
-@Ignore
-public class SearchProjectsQueryBuilderValidatorTest {
+public class ProjectMeasuresQueryFactoryValidatorTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -42,13 +40,13 @@ public class SearchProjectsQueryBuilderValidatorTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  SearchProjectsQueryBuilderValidator validator = new SearchProjectsQueryBuilderValidator(dbClient);
+  ProjectMeasuresQueryValidator validator = new ProjectMeasuresQueryValidator(dbClient);
 
   @Test
   public void does_not_fail_when_metric_criteria_contains_an_existing_metric() throws Exception {
     insertMetric("ncloc");
 
-    validator.validate(dbSession, SearchProjectsQueryBuilder.build("ncloc > 10"));
+    validator.validate(dbSession, ProjectMeasuresQueryFactory.newProjectMeasuresQuery("ncloc > 10"));
   }
 
   @Test
@@ -57,7 +55,7 @@ public class SearchProjectsQueryBuilderValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown metric(s) [unknown]");
-    validator.validate(dbSession, SearchProjectsQueryBuilder.build("unknown > 10"));
+    validator.validate(dbSession, ProjectMeasuresQueryFactory.newProjectMeasuresQuery("unknown > 10"));
   }
 
   @Test
@@ -66,7 +64,7 @@ public class SearchProjectsQueryBuilderValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
-    validator.validate(dbSession, SearchProjectsQueryBuilder.build("debt > 10 AND ncloc <= 20 AND coverage > 30"));
+    validator.validate(dbSession, ProjectMeasuresQueryFactory.newProjectMeasuresQuery("debt > 10 AND ncloc <= 20 AND coverage > 30"));
   }
 
   private void insertMetric(String metricKey) {

@@ -49,7 +49,7 @@ import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.project.es.ProjectMeasuresIndexer;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;

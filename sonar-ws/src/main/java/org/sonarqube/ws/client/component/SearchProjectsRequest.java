@@ -83,6 +83,9 @@ public class SearchProjectsRequest {
       if (pageSize == null) {
         pageSize = DEFAULT_PAGE_SIZE;
       }
+      if (filter == null) {
+        filter = "";
+      }
 
       checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
 

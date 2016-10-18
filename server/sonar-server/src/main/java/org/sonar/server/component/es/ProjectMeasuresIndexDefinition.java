@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.es;
+package org.sonar.server.component.es;
 
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;

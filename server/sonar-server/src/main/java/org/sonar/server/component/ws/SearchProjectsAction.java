@@ -23,6 +23,7 @@ package org.sonar.server.component.ws;
 import com.google.common.collect.Ordering;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,17 +31,17 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.es.ProjectMeasuresIndex;
+import org.sonar.server.component.es.ProjectMeasuresQuery;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.project.es.ProjectMeasuresIndex;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.build;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
@@ -49,12 +50,12 @@ import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_S
 public class SearchProjectsAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
-  private final SearchProjectsQueryBuilderValidator searchProjectsQueryBuilderValidator;
+  private final ProjectMeasuresQueryValidator projectMeasuresQueryValidator;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, SearchProjectsQueryBuilderValidator searchProjectsQueryBuilderValidator) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryValidator projectMeasuresQueryValidator) {
     this.dbClient = dbClient;
     this.index = index;
-    this.searchProjectsQueryBuilderValidator = searchProjectsQueryBuilderValidator;
+    this.projectMeasuresQueryValidator = projectMeasuresQueryValidator;
   }
 
   @Override
@@ -69,8 +70,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     action
       .createParam(PARAM_FILTER)
-      .setDescription("TODO")
-      .setSince("6.2");
+      .setDescription("TODO");
   }
 
   @Override
@@ -90,8 +90,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchResults searchProjects(DbSession dbSession, SearchProjectsRequest request) {
     String filter = firstNonNull(request.getFilter(), "");
-    SearchProjectsCriteriaQuery query = build(filter);
-    searchProjectsQueryBuilderValidator.validate(dbSession, query);
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(filter);
+    projectMeasuresQueryValidator.validate(dbSession, query);
 
     SearchIdResult<String> searchResult = index.search(query, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
@@ -110,21 +110,22 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    SearchProjectsWsResponse.Builder response = SearchProjectsWsResponse.newBuilder();
-
-    response.setPaging(Common.Paging.newBuilder()
-      .setPageIndex(request.getPage())
-      .setPageSize(request.getPageSize())
-      .setTotal(searchResults.total));
-
     Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent();
 
-    searchResults.projects
-      .stream()
-      .map(dbToWsComponent)
-      .forEach(response::addComponents);
-
-    return response.build();
+    return Stream.of(SearchProjectsWsResponse.newBuilder())
+      .map(response -> response.setPaging(Common.Paging.newBuilder()
+        .setPageIndex(request.getPage())
+        .setPageSize(request.getPageSize())
+        .setTotal(searchResults.total)))
+      .map(response -> {
+        searchResults.projects.stream()
+          .map(dbToWsComponent)
+          .forEach(response::addComponents);
+        return response;
+      })
+      .map(SearchProjectsWsResponse.Builder::build)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("SearchProjectsWsResponse not built"));
   }
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {

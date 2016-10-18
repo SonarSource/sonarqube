@@ -27,25 +27,25 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
+import org.sonar.server.component.es.ProjectMeasuresQuery;
 
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.MetricCriteria;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
 
-public class SearchProjectsQueryBuilderValidator {
+public class ProjectMeasuresQueryValidator {
 
   private final DbClient dbClient;
 
-  public SearchProjectsQueryBuilderValidator(DbClient dbClient) {
+  public ProjectMeasuresQueryValidator(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
-  public void validate(DbSession dbSession, SearchProjectsCriteriaQuery query) {
-    List<String> metricKeys = new ArrayList<>(query.getMetricCriterias().stream().map(MetricCriteria::getMetricKey).collect(Collectors.toSet()));
-    List<MetricDto> metricDtos = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
-    if (metricDtos.size() == metricKeys.size()) {
+  public void validate(DbSession dbSession, ProjectMeasuresQuery query) {
+    List<String> metricKeys = new ArrayList<>(query.getMetricCriteria().stream().map(MetricCriteria::getMetricKey).collect(Collectors.toSet()));
+    List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
+    if (dbMetrics.size() == metricKeys.size()) {
       return;
     }
-    List<String> metricDtoKeys = metricDtos.stream().map(MetricDto::getKey).collect(Collectors.toList());
+    List<String> metricDtoKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
     Set<String> unknownKeys = metricKeys.stream().filter(metricKey -> !metricDtoKeys.contains(metricKey)).collect(Collectors.toSet());
     throw new IllegalArgumentException(String.format("Unknown metric(s) %s", unknownKeys));
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.es;
+package org.sonar.server.component.es;
 
 import java.util.Collection;
 import java.util.Date;
@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.es.BaseDoc;
 
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 

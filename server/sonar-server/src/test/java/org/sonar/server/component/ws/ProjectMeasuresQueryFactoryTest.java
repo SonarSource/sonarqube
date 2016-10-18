@@ -23,24 +23,25 @@ package org.sonar.server.component.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.server.component.es.ProjectMeasuresQuery;
+import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.build;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.MetricCriteria;
-import static org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.Operator;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 
-public class SearchProjectsQueryBuilderTest {
+public class ProjectMeasuresQueryFactoryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_query() throws Exception {
-    SearchProjectsCriteriaQuery query = build("ncloc > 10 and coverage <= 80");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc > 10 and coverage <= 80");
 
-    assertThat(query.getMetricCriterias())
+    assertThat(query.getMetricCriteria())
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
@@ -49,7 +50,7 @@ public class SearchProjectsQueryBuilderTest {
 
   @Test
   public void convert_upper_case_to_lower_case() throws Exception {
-    assertThat(build("NCLOC > 10 AND coVERage <= 80").getMetricCriterias())
+    assertThat(newProjectMeasuresQuery("NCLOC > 10 AND coVERage <= 80").getMetricCriteria())
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
@@ -58,50 +59,55 @@ public class SearchProjectsQueryBuilderTest {
 
   @Test
   public void ignore_white_spaces() throws Exception {
-    assertThat(build("   ncloc    >    10   ").getMetricCriterias())
+    assertThat(newProjectMeasuresQuery("   ncloc    >    10   ").getMetricCriteria())
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(tuple("ncloc", Operator.GT, 10d));
   }
 
   @Test
   public void accept_empty_query() throws Exception {
-    SearchProjectsCriteriaQuery result = build("");
+    ProjectMeasuresQuery result = newProjectMeasuresQuery("");
 
-    assertThat(result.getMetricCriterias()).isEmpty();
+    assertThat(result.getMetricCriteria()).isEmpty();
   }
 
   @Test
   public void fail_on_unknown_operator() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown operator '>='");
-    build("ncloc >= 10");
+    newProjectMeasuresQuery("ncloc >= 10");
   }
 
   @Test
   public void fail_on_invalid_criteria() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid criteria 'ncloc ? 10'");
-    build("ncloc ? 10");
+    expectedException.expectMessage("Invalid criterion 'ncloc ? 10'");
+    newProjectMeasuresQuery("ncloc ? 10");
   }
 
   @Test
   public void fail_when_no_operator() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid criteria 'ncloc 10'");
-    build("ncloc 10");
+    expectedException.expectMessage("Invalid criterion 'ncloc 10'");
+    newProjectMeasuresQuery("ncloc 10");
   }
 
   @Test
   public void fail_when_no_key() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid criteria '>= 10'");
-    build(">= 10");
+    expectedException.expectMessage("Invalid criterion '>= 10'");
+    newProjectMeasuresQuery(">= 10");
   }
 
   @Test
   public void fail_when_no_value() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid criteria 'ncloc >='");
-    build("ncloc >=");
+    expectedException.expectMessage("Invalid criterion 'ncloc >='");
+    newProjectMeasuresQuery("ncloc >=");
+  }
+
+  @Test
+  public void private_constructor() {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ProjectMeasuresQueryFactory.class)).isTrue();
   }
 }

@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.es;
+package org.sonar.server.component.es;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery;
-import org.sonar.server.component.ws.SearchProjectsQueryBuilder.SearchProjectsCriteriaQuery.MetricCriteria;
+import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -35,12 +34,12 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.FIELD_NAME;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -51,14 +50,14 @@ public class ProjectMeasuresIndex extends BaseIndex {
     super(client);
   }
 
-  public SearchIdResult<String> search(SearchProjectsCriteriaQuery query, SearchOptions searchOptions) {
+  public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     BoolQueryBuilder metricFilters = boolQuery();
-    query.getMetricCriterias().stream()
+    query.getMetricCriteria().stream()
       .map(criteria -> nestedQuery(FIELD_MEASURES, boolQuery()
         .filter(termQuery(FIELD_KEY, criteria.getMetricKey()))
         .filter(toValueQuery(criteria))))
       .forEach(metricFilters::filter);
-    QueryBuilder esQuery = query.getMetricCriterias().isEmpty() ? matchAllQuery() : metricFilters;
+    QueryBuilder esQuery = query.getMetricCriteria().isEmpty() ? matchAllQuery() : metricFilters;
 
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
@@ -76,8 +75,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
     String fieldName = FIELD_VALUE;
 
     switch (criteria.getOperator()) {
-      case EQ:
-        return termQuery(fieldName, criteria.getValue());
       case GT:
         return rangeQuery(fieldName).gt(criteria.getValue());
       case LTE:

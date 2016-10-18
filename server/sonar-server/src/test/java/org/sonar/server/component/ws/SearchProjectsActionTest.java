@@ -21,24 +21,29 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.es.ProjectMeasuresDoc;
+import org.sonar.server.component.es.ProjectMeasuresIndex;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.project.es.ProjectMeasuresDoc;
-import org.sonar.server.project.es.ProjectMeasuresIndex;
-import org.sonar.server.project.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -48,6 +53,8 @@ import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -55,9 +62,11 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.project.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 
 public class SearchProjectsActionTest {
   @Rule
@@ -66,12 +75,13 @@ public class SearchProjectsActionTest {
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client()), new SearchProjectsQueryBuilderValidator(dbClient)));
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client()), new ProjectMeasuresQueryValidator(dbClient)));
 
-  SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
+  private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
   @Test
   public void json_example() {
@@ -145,6 +155,32 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void filter_projects_with_query() {
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure("coverage", 81), newMeasure("ncloc", 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure("coverage", 80d), newMeasure("ncloc", 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure("coverage", 80d), newMeasure("ncloc", 10_001d)));
+    request.setFilter("coverage <= 80 and ncloc <= 10000");
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("coverage").setValueType(Metric.ValueType.FLOAT.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("ncloc").setValueType(Metric.ValueType.FLOAT.name()));
+    db.commit();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(1);
+    assertThat(result.getComponents(0).getName()).isEqualTo("Sonar Markdown");
+  }
+
+  @Test
+  public void fail_if_metric_is_unknown() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unknown metric(s) [coverage]");
+
+    request.setFilter("coverage > 80");
+
+    call(request);
+  }
+
+  @Test
   public void fail_if_page_size_greater_than_500() {
     expectedException.expect(IllegalArgumentException.class);
 
@@ -158,6 +194,7 @@ public class SearchProjectsActionTest {
 
     httpRequest.setParam(Param.PAGE, String.valueOf(wsRequest.getPage()));
     httpRequest.setParam(Param.PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
+    httpRequest.setParam(PARAM_FILTER, wsRequest.getFilter());
 
     try {
       return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());
@@ -178,12 +215,20 @@ public class SearchProjectsActionTest {
   }
 
   private void insertProjectInDbAndEs(ComponentDto project) {
+    insertProjectInDbAndEs(project, emptyList());
+  }
+
+  private void insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
     componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES,
-        new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()));
+        new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
     } catch (Exception e) {
       Throwables.propagate(e);
     }
+  }
+
+  private static Map<String, Object> newMeasure(String key, double value) {
+    return ImmutableMap.of("key", key, "value", value);
   }
 }
