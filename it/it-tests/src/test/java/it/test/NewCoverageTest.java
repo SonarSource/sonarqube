@@ -42,9 +42,7 @@ public class NewCoverageTest {
   private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
 
   private static final String[] ALL_NEW_COVERAGE_METRICS = new String[] {
-    "new_coverage", "new_line_coverage", "new_branch_coverage",
-    "new_it_coverage", "new_it_line_coverage", "new_it_branch_coverage",
-    "new_overall_coverage", "new_overall_line_coverage", "new_overall_branch_coverage"
+    "new_coverage", "new_line_coverage", "new_branch_coverage"
   };
 
   @BeforeClass
@@ -53,34 +51,17 @@ public class NewCoverageTest {
 
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v1"))
       .setProperty("sonar.projectDate", "2015-02-01")
-      .setProperty("sonar.scm.disabled", "false")
-      );
+      .setProperty("sonar.scm.disabled", "false"));
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v2"))
       .setProperty("sonar.scm.disabled", "false"));
   }
 
   @Test
-  public void new_unit_test_coverage() throws Exception {
+  public void new_coverage() throws Exception {
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, ALL_NEW_COVERAGE_METRICS).setIncludeTrends(true));
-    assertThat(project.getMeasure("new_coverage").getVariation1()).isEqualTo(62.5d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_line_coverage").getVariation1()).isEqualTo(80d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_branch_coverage").getVariation1()).isEqualTo(33.3, DEFAULT_OFFSET);
-  }
-
-  @Test
-  public void new_integration_test_coverage() throws Exception {
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, ALL_NEW_COVERAGE_METRICS).setIncludeTrends(true));
-    assertThat(project.getMeasure("new_it_coverage").getVariation1()).isEqualTo(85.7, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_it_line_coverage").getVariation1()).isEqualTo(100d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_it_branch_coverage").getVariation1()).isEqualTo(66.7, DEFAULT_OFFSET);
-  }
-
-  @Test
-  public void new_overall_coverage() throws Exception {
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, ALL_NEW_COVERAGE_METRICS).setIncludeTrends(true));
-    assertThat(project.getMeasure("new_overall_coverage").getVariation1()).isEqualTo(44.4d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_overall_line_coverage").getVariation1()).isEqualTo(50d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_overall_branch_coverage").getVariation1()).isEqualTo(42.85, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_coverage").getVariation1()).isEqualTo(66.6d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_line_coverage").getVariation1()).isEqualTo(100d, DEFAULT_OFFSET);
+    assertThat(project.getMeasure("new_branch_coverage").getVariation1()).isEqualTo(42.8, DEFAULT_OFFSET);
   }
 
 }

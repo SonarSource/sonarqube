@@ -21,10 +21,13 @@ package org.sonar.scanner.report;
 
 import com.google.common.base.Function;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -37,6 +40,14 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static com.google.common.collect.Iterables.transform;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
@@ -87,29 +98,48 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   }
 
-  private static final class MetricToKey implements Function<Metric, String> {
-    @Override
-    public String apply(Metric input) {
-      return input.key();
-    }
-  }
-
-  private final BatchComponentCache resourceCache;
+  private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
-  private final ScannerMetrics scannerMetrics;
 
-  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, ScannerMetrics scannerMetrics) {
-    this.resourceCache = resourceCache;
+  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache) {
+    this.componentCache = resourceCache;
     this.measureCache = measureCache;
-    this.scannerMetrics = scannerMetrics;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final BatchComponent resource : resourceCache.all()) {
-      Iterable<DefaultMeasure<?>> scannerMeasures = measureCache.byComponentKey(resource.key());
-      Iterable<ScannerReport.Measure> reportMeasures = transform(scannerMeasures, new MeasureToReportMeasure(resource));
-      writer.writeComponentMeasures(resource.batchId(), reportMeasures);
+    for (final BatchComponent component : componentCache.all()) {
+      // Recompute all coverage measures from line data to take into account the possible merge of several reports
+      DefaultMeasure<String> lineHitsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+      if (lineHitsMeasure != null) {
+        Map<Integer, Integer> lineHits = KeyValueFormat.parseIntInt(lineHitsMeasure.value());
+        measureCache.put(component.key(), LINES_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(lineHits.keySet().size()));
+        measureCache.put(component.key(), UNCOVERED_LINES_KEY,
+          new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue((int) lineHits.values()
+            .stream()
+            .filter(hit -> hit == 0)
+            .count()));
+      }
+      DefaultMeasure<String> conditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.CONDITIONS_BY_LINE_KEY);
+      DefaultMeasure<String> coveredConditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+      if (conditionsMeasure != null) {
+        Map<Integer, Integer> conditions = KeyValueFormat.parseIntInt(conditionsMeasure.value());
+        Map<Integer, Integer> coveredConditions = coveredConditionsMeasure != null ? KeyValueFormat.parseIntInt(coveredConditionsMeasure.value()) : Collections.emptyMap();
+        measureCache.put(component.key(), CONDITIONS_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(conditions
+          .values()
+          .stream()
+          .mapToInt(Integer::intValue)
+          .sum()));
+        measureCache.put(component.key(), UNCOVERED_CONDITIONS_KEY,
+          new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS)
+            .withValue((int) conditions.keySet()
+              .stream()
+              .mapToInt(line -> conditions.get(line) - coveredConditions.get(line))
+              .sum()));
+      }
+      Iterable<DefaultMeasure<?>> scannerMeasures = measureCache.byComponentKey(component.key());
+      Iterable<ScannerReport.Measure> reportMeasures = transform(scannerMeasures, new MeasureToReportMeasure(component));
+      writer.writeComponentMeasures(component.batchId(), reportMeasures);
     }
   }
 

@@ -144,13 +144,13 @@ public class CoverageTest {
     // Since SQ 6.2 all coverage reports are merged as coverage
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-overall-coverage", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
+    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(75.0);
     assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(25.0);
+    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(1);
+    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
     assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(3);
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(37.5);
+    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(2);
+    assertThat(project.getMeasureValue("coverage")).isEqualTo(62.5);
 
     assertThat(project.getMeasureValue("it_coverage")).isNull();
 

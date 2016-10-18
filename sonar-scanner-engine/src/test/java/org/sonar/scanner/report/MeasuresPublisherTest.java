@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
-import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -70,7 +69,7 @@ public class MeasuresPublisherTest {
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
-    publisher = new MeasuresPublisher(resourceCache, measureCache, new ScannerMetrics());
+    publisher = new MeasuresPublisher(resourceCache, measureCache);
   }
 
   @Test

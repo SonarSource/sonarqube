@@ -51,6 +51,7 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.duplications.block.Block;
@@ -134,8 +135,10 @@ public class DefaultSensorStorage implements SensorStorage {
     FILE_FEEDBACK_EDGES_KEY,
     FILE_TANGLE_INDEX_KEY,
     FILE_TANGLES_KEY,
+    // SONARPHP-621
     COMMENTED_OUT_CODE_LINES_KEY);
 
+  // Some Sensors still save those metrics
   private static final List<String> COMPUTED_ON_CE_SIDE_METRICS_KEYS = Arrays.asList(
     TEST_SUCCESS_DENSITY_KEY,
     PUBLIC_DOCUMENTED_API_DENSITY_KEY);
@@ -253,37 +256,42 @@ public class DefaultSensorStorage implements SensorStorage {
       if (previousMeasure != null) {
         measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
           .forMetric((Metric<String>) metric)
-          .withValue(KeyValueFormat.format(mergeLineMetric((String) previousMeasure.value(), (String) measure.value()))));
+          .withValue(KeyValueFormat.format(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value()))));
       } else {
         measureCache.put(file.key(), metric.key(), measure);
       }
     } else {
-      // Other coverage metrics are all integer values
-      DefaultMeasure<?> previousMeasure = measureCache.byMetric(file.key(), metric.key());
-      if (previousMeasure != null) {
-        measureCache.put(file.key(), metric.key(), new DefaultMeasure<Integer>()
-          .forMetric((Metric<Integer>) metric)
-          .withValue(Math.max((Integer) previousMeasure.value(), (Integer) measure.value())));
-      } else {
-        measureCache.put(file.key(), metric.key(), measure);
-      }
+      // Other coverage metrics are all integer values. Just erase value, it will be recomputed at the end anyway
+      measureCache.put(file.key(), metric.key(), measure);
     }
   }
 
   /**
-   * Merge the two line data measures, keeping max value in case they both contains a value for the same line.
+   * Merge the two line coverage data measures. For lines hits use the sum, and for conditions 
+   * keep max value in case they both contains a value for the same line.
    */
-  private Map<Integer, Integer> mergeLineMetric(String value1, String value2) {
+  private static Map<Integer, Integer> mergeCoverageLineMetric(Metric<?> metric, String value1, String value2) {
     Map<Integer, Integer> data1 = KeyValueFormat.parseIntInt(value1);
     Map<Integer, Integer> data2 = KeyValueFormat.parseIntInt(value2);
-    return Stream.of(data1, data2)
-      .map(Map::entrySet)
-      .flatMap(Collection::stream)
-      .collect(
-        Collectors.toMap(
-          Map.Entry::getKey,
-          Map.Entry::getValue,
-          Integer::max));
+    if (metric.key().equals(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)) {
+      return Stream.of(data1, data2)
+        .map(Map::entrySet)
+        .flatMap(Collection::stream)
+        .collect(
+          Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue,
+            Integer::sum));
+    } else {
+      return Stream.of(data1, data2)
+        .map(Map::entrySet)
+        .flatMap(Collection::stream)
+        .collect(
+          Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue,
+            Integer::max));
+    }
   }
 
   public boolean isDeprecatedMetric(String metricKey) {

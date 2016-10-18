@@ -105,9 +105,9 @@ public class CoverageMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
     File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(xooUtCoverageFile, "2:2:2:2");
+    FileUtils.write(xooUtCoverageFile, "2:2:2:2\n4:0");
     File xooItCoverageFile = new File(srcDir, "sample.xoo.itcoverage");
-    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1");
+    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1\n5:0");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -128,11 +128,14 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 3).getHits()).isTrue();
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0),
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1));
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value", "stringValue.value")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 4, ""), // 2, 3, 4, 5
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2, ""), // 4, 5
+        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""), // 2 x 2
+        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 0, ""),
+        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "2=4;3=1;4=0;5=0"),
+        tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "2=2"),
+        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "2=2"));
   }
 
   @Test

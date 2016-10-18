@@ -42,7 +42,7 @@
       "code": "\t\tif (foo == bar &amp;&amp; biz &gt; 1) {",
       "utLineHits": 0,
       "utConditions": 4,
-      "utCoveredConditions": 1
+      "utCoveredConditions": 2
     },
     {
       "line": 11,

@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,8 +37,8 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.scanner.scan.measure.MeasureCache;
+import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
-import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -61,9 +60,11 @@ public final class ZeroCoverageSensor implements Sensor {
   }
 
   private final MeasureCache measureCache;
+  private final CoverageExclusions coverageExclusions;
 
-  public ZeroCoverageSensor(MeasureCache measureCache) {
+  public ZeroCoverageSensor(MeasureCache measureCache, CoverageExclusions exclusions) {
     this.measureCache = measureCache;
+    this.coverageExclusions = exclusions;
   }
 
   @Override
@@ -75,26 +76,25 @@ public final class ZeroCoverageSensor implements Sensor {
   public void execute(final SensorContext context) {
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
+      if (coverageExclusions.isExcluded(f)) {
+        continue;
+      }
       if (!isCoverageMeasuresAlreadyDefined(f)) {
         DefaultMeasure<String> execLines = (DefaultMeasure<String>) measureCache.byMetric(f.key(), CoreMetrics.EXECUTABLE_LINES_DATA_KEY);
         if (execLines != null) {
           storeZeroCoverageForEachExecutableLine(context, f, execLines);
         }
-
       }
     }
   }
 
   private static void storeZeroCoverageForEachExecutableLine(final SensorContext context, InputFile f, DefaultMeasure<String> execLines) {
     NewCoverage newCoverage = context.newCoverage().onFile(f);
-    Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) execLines.value());
-    for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
+    Map<Integer, Integer> lineMeasures = KeyValueFormat.parseIntInt((String) execLines.value());
+    for (Map.Entry<Integer, Integer> lineMeasure : lineMeasures.entrySet()) {
       int lineIdx = lineMeasure.getKey();
-      if (lineIdx <= f.lines()) {
-        String value = lineMeasure.getValue();
-        if (StringUtils.isNotEmpty(value) && Integer.parseInt(value) > 0) {
-          newCoverage.lineHits(lineIdx, 0);
-        }
+      if (lineIdx <= f.lines() && lineMeasure.getValue() > 0) {
+        newCoverage.lineHits(lineIdx, 0);
       }
     }
     newCoverage.save();
@@ -103,9 +103,7 @@ public final class ZeroCoverageSensor implements Sensor {
   private boolean isCoverageMeasuresAlreadyDefined(InputFile f) {
     Set<String> metricKeys = newHashSet(transform(measureCache.byComponentKey(f.key()), new MeasureToMetricKey()));
     Function<Metric, String> metricToKey = new MetricToKey();
-    Set<String> allCoverageMetricKeys = newHashSet(concat(transform(CoverageType.UNIT.allMetrics(), metricToKey),
-      transform(CoverageType.IT.allMetrics(), metricToKey),
-      transform(CoverageType.OVERALL.allMetrics(), metricToKey)));
+    Set<String> allCoverageMetricKeys = newHashSet(transform(CoverageType.UNIT.allMetrics(), metricToKey));
     return !Sets.intersection(metricKeys, allCoverageMetricKeys).isEmpty();
   }
 
