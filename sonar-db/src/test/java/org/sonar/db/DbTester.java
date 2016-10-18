@@ -68,6 +68,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 
@@ -98,6 +99,7 @@ public class DbTester extends ExternalResource {
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final OrganizationDbTester organizationTester;
+  private final PermissionTemplateDbTester permissionTemplateTester;
   private final RootFlagAssertions rootFlagAssertions;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
@@ -107,6 +109,7 @@ public class DbTester extends ExternalResource {
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
+    this.permissionTemplateTester = new PermissionTemplateDbTester(this);
     this.rootFlagAssertions = new RootFlagAssertions(this);
   }
 
@@ -173,6 +176,10 @@ public class DbTester extends ExternalResource {
 
   public OrganizationDbTester organizations() {
     return organizationTester;
+  }
+
+  public PermissionTemplateDbTester permissionTemplates() {
+    return permissionTemplateTester;
   }
 
   public RootFlagAssertions rootFlag() {
