@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { formatMeasure } from '../../helpers/measures';
+import './Rating.css';
 
 export default class Rating extends React.Component {
   static propTypes = {

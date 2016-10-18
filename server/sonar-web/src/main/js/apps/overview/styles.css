@@ -16,13 +16,8 @@
   font-weight: 400;
 }
 
-.overview-title > .badge {
-  position: relative;
-  top: -2px;
+.overview-title > .level {
   margin-left: 15px;
-  padding: 6px 12px;
-  font-size: 14px;
-  letter-spacing: 0.05em;
 }
 
 .overview-title > a {

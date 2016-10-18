@@ -59,6 +59,7 @@
     "react-router-redux": "4.0.2",
     "react-select": "1.0.0-beta12",
     "react-transform-hmr": "1.0.4",
+    "react-virtualized": "8.1.1",
     "redux": "3.3.1",
     "redux-logger": "2.2.1",
     "redux-simple-router": "1.0.1",

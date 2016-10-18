@@ -110,6 +110,11 @@ export function getMyProjects (data) {
   return getJSON(url, data);
 }
 
+export function searchProjects (data) {
+  const url = '/api/components/search_projects';
+  return getJSON(url, data);
+}
+
 /**
  * Change component's key
  * @param {string} key

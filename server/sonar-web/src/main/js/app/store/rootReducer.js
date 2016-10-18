@@ -18,13 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
+import components, * as fromComponents from './components/reducer';
 import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/reducer';
+import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
+import globalMessages, * as fromGlobalMessages from '../../components/store/globalMessages';
 
 import issuesActivity, * as fromIssuesActivity from '../../apps/account/home/store/reducer';
+import projectsApp, * as fromProjectsApp from '../../apps/projects/store/reducer';
 
-export default combineReducers({ users, favorites, issuesActivity, measures });
+export default combineReducers({
+  components,
+  globalMessages,
+  favorites,
+  languages,
+  measures,
+  users,
+
+  // apps
+  issuesActivity,
+  projectsApp
+});
+
+export const getComponent = (state, key) => (
+    fromComponents.getComponent(state.components, key)
+);
+
+export const getGlobalMessages = state => (
+    fromGlobalMessages.getGlobalMessages(state.globalMessages)
+);
+
+export const getLanguages = (state, key) => (
+    fromLanguages.getLanguages(state.languages, key)
+);
 
 export const getCurrentUser = state => (
     fromUsers.getCurrentUser(state.users)
@@ -40,4 +67,20 @@ export const getIssuesActivity = state => (
 
 export const getComponentMeasure = (state, componentKey, metricKey) => (
     fromMeasures.getComponentMeasure(state.measures, componentKey, metricKey)
+);
+
+export const getComponentMeasures = (state, componentKey) => (
+    fromMeasures.getComponentMeasures(state.measures, componentKey)
+);
+
+export const getProjects = state => (
+    fromProjectsApp.getProjects(state.projectsApp)
+);
+
+export const getProjectsAppState = state => (
+    fromProjectsApp.getState(state.projectsApp)
+);
+
+export const getProjectsAppFilterStatus = (state, key) => (
+    fromProjectsApp.getFilterStatus(state.projectsApp, key)
 );

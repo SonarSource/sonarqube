@@ -23,6 +23,7 @@ import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
 import { ComponentType, MeasuresListType, PeriodsListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
+import Level from '../../../components/ui/Level';
 
 function parseQualityGateDetails (rawDetails) {
   return JSON.parse(rawDetails);
@@ -53,9 +54,7 @@ const QualityGate = ({ component, measures, periods }) => {
       <div className="overview-quality-gate" id="overview-quality-gate">
         <h2 className="overview-title">
           {translate('overview.quality_gate')}
-            <span className={'badge badge-' + level.toLowerCase()}>
-              {translate('overview.gate', level)}
-            </span>
+          <Level level={level}/>
         </h2>
 
         {conditions.length > 0 && (

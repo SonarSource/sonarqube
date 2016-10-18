@@ -28,6 +28,7 @@ import Navigation from './nav/app';
 import { installGlobal, requestMessages } from '../helpers/l10n';
 import * as measures from '../helpers/measures';
 import * as request from '../helpers/request';
+import './common-styles';
 
 import '../../less/sonar.less';
 

@@ -1,0 +1,45 @@
+.level {
+  display: inline-block;
+  width: 80px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  box-sizing: border-box;
+  color: #fff;
+  letter-spacing: 0.02em;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.level-small {
+  width: 64px;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 12px;
+}
+
+a > .level {
+  margin-bottom: -1px;
+  border-bottom: 1px solid;
+  transition: all 0.2s ease;
+}
+
+a > .level:hover {
+  opacity: 0.8;
+}
+
+.level-OK {
+  background-color: #85bb43;
+}
+
+.level-WARN {
+  background-color: #f90;
+}
+
+.level-ERROR {
+  background-color: #d4333f;
+}
