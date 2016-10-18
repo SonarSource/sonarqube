@@ -78,7 +78,7 @@ public class UserIdentityAuthenticatorTest {
     mock(UserIndexer.class),
     system2,
     defaultOrganizationProvider);
-  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater);
+  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider);
   private GroupDto defaultGroup;
 
   @Before

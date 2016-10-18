@@ -52,27 +52,17 @@ public class GroupPermissionDao implements Dao {
 
   /**
    * @return group names, sorted in alphabetical order
-   * @deprecated not compatible with organizations.
    */
-  @Deprecated
-  public List<String> selectGroupNamesByPermissionQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectGroupNamesByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  public List<String> selectGroupNamesByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    return mapper(dbSession).selectGroupNamesByQuery(organizationUuid, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
-  /**
-   * @deprecated not compatible with organizations.
-   */
-  @Deprecated
-  public int countGroupsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countGroupsByPermissionQuery(query);
+  public int countGroupsByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    return mapper(dbSession).countGroupsByQuery(organizationUuid, query);
   }
 
-  /**
-   * @deprecated group name parameter is not enough to identify a group. It is not compatible with organizations.
-   */
-  @Deprecated
-  public List<GroupPermissionDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
-    return executeLargeInputs(groupNames, groups -> mapper(dbSession).selectGroupPermissionByGroupNames(groups, projectId));
+  public List<GroupPermissionDto> selectByGroupIds(DbSession dbSession, String organizationUuid, List<Long> groupIds, @Nullable Long projectId) {
+    return executeLargeInputs(groupIds, groups -> mapper(dbSession).selectByGroupIds(organizationUuid, groups, projectId));
   }
 
   /**
@@ -98,7 +88,6 @@ public class GroupPermissionDao implements Dao {
   public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Long groupId) {
     return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupId);
   }
-
 
   /**
    * Selects the permissions granted to group and project. An empty list is returned if the
