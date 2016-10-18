@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -32,6 +31,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -68,7 +68,7 @@ public class UpdateAction implements OrganizationsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn();
 
     String key = request.mandatoryParam(PARAM_KEY);
     String name = wsSupport.getAndCheckName(request);
@@ -78,6 +78,9 @@ public class UpdateAction implements OrganizationsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto dto = getDto(dbSession, key);
+
+      userSession.checkOrganizationPermission(dto.getUuid(), SYSTEM_ADMIN);
+
       dto.setName(name)
         .setDescription(description)
         .setUrl(url)

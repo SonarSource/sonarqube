@@ -127,7 +127,7 @@ public class OrganizationIt {
 
     // verify anonymous can't create update nor delete an organization by default
     verifyAnonymousNotAuthorized(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyAnonymousNotAuthorized(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
     verifyAnonymousNotAuthorized(service -> service.delete(KEY));
 
     // verify logged in user without any permission can't create update nor delete an organization by default
@@ -139,15 +139,14 @@ public class OrganizationIt {
     ItUtils.setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
     // verify anonymous still can't create update nor delete an organization if property is true
     verifyUserNotAuthenticated(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyAnonymousNotAuthorized(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
     verifyAnonymousNotAuthorized(service -> service.delete(KEY));
 
-    // clean-up
-    adminOrganizationService.delete(KEY);
-
-    // verify logged in user without any permission can create not not update nor delete an organization if property is true
+    // verify logged in user without any permission can create nor update nor delete an organization if property is true
     verifyUserNotAuthorized("john", "doh", service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
     verifyUserNotAuthorized("john", "doh", service -> service.delete(KEY));
+    // clean-up
+    adminOrganizationService.delete(KEY);
     verifySingleSearchResult(
       verifyUserAuthorized("john", "doh", service -> service.create(new CreateWsRequest.Builder().setName("An org").build())).getOrganization(),
       "An org", null, null, null);
