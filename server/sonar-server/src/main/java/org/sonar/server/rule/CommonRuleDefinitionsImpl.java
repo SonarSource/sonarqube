@@ -58,7 +58,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
   private static void defineBranchCoverageRule(RulesDefinition.NewRepository repo) {
     RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE);
-    rule.setName("Branches should have sufficient coverage by unit tests")
+    rule.setName("Branches should have sufficient coverage by tests")
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the branch coverage on this file is less than the required threshold."
         + "It gives the number of branches to be covered in order to reach the required threshold.")
@@ -73,7 +73,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
   private static void defineLineCoverageRule(RulesDefinition.NewRepository repo) {
     RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE);
-    rule.setName("Lines should have sufficient coverage by unit tests")
+    rule.setName("Lines should have sufficient coverage by tests")
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the line coverage on this file is less than the required threshold. " +
         "It gives the number of lines to be covered in order to reach the required threshold.")
