@@ -36,13 +36,19 @@ public interface PermissionTemplateMapper {
 
   void update(PermissionTemplateDto permissionTemplate);
 
-  void delete(long templateId);
+  void deleteById(long templateId);
 
-  void deleteUserPermissions(long templateId);
+  void deleteByIds(@Param("templateIds") List<Long> templateIds);
+
+  void deleteUserPermissionsByTemplateId(long templateId);
+
+  void deleteUserPermissionsByTemplateIds(@Param("templateIds") List<Long> templateIds);
 
   void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
-  void deleteGroupPermissions(long templateId);
+  void deleteGroupPermissionsByTemplateId(long templateId);
+  
+  void deleteGroupPermissionsByTemplateIds(@Param("templateIds") List<Long> templateIds);
 
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
@@ -77,4 +83,7 @@ public interface PermissionTemplateMapper {
   List<String> selectPotentialPermissionsByUserIdAndTemplateId(@Param("userId") @Nullable Long currentUserId, @Param("templateId") long templateId);
 
   int countGroupsWithPermission(@Param("templateId") long templateId, @Param("permission") String permission, @Nullable @Param("groupId") Long groupId);
+
+  List<Long> selectTemplateIdsByOrganization(@Param("organizationUuid") String organizationUuid);
+
 }

@@ -54,4 +54,14 @@
     DELETE FROM perm_tpl_characteristics
     WHERE template_id = #{permissionTemplateId}
   </delete>
+
+  <delete id="deleteByTemplateIds" parameterType="long">
+    delete from
+      perm_tpl_characteristics
+    where
+      template_id in
+      <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+        #{templateId}
+      </foreach>
+  </delete>
 </mapper>
