@@ -77,7 +77,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private static final Logger LOG = Loggers.get(ServerPluginRepository.class);
   private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
   // List of plugins that are silently removed if installed
-  private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport");
+  private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport", "genericcoverage");
   // List of plugins that should prevent the server to finish its startup
   private static final Set<String> FORBIDDEN_COMPATIBLE_PLUGINS = ImmutableSet.of("sqale", "report", "views");
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
