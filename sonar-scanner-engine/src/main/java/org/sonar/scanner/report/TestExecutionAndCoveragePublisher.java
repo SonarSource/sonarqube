@@ -30,14 +30,14 @@ import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
+import org.sonar.scanner.deprecated.test.DefaultTestable;
+import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.scanner.protocol.output.ScannerReport.Test;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
-import org.sonar.scanner.test.DefaultTestable;
-import org.sonar.scanner.test.TestPlanBuilder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {

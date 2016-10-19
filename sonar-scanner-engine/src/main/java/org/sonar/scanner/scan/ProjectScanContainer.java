@@ -42,6 +42,8 @@ import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.deprecated.test.TestPlanBuilder;
+import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
@@ -90,8 +92,6 @@ import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.source.CodeColorizers;
 import org.sonar.scanner.storage.Storages;
-import org.sonar.scanner.test.TestPlanBuilder;
-import org.sonar.scanner.test.TestableBuilder;
 
 public class ProjectScanContainer extends ComponentContainer {
 
