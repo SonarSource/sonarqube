@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.permission.ProjectPermissions;
-import org.sonar.db.DbClient;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
@@ -44,13 +43,11 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
   private static final String DESCRIPTION_SUFFIX = ".desc";
 
-  private final DbClient dbClient;
   private final UserSession userSession;
   private final I18n i18n;
   private final SearchTemplatesDataLoader dataLoader;
 
-  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, SearchTemplatesDataLoader dataLoader) {
-    this.dbClient = dbClient;
+  public SearchTemplatesAction(UserSession userSession, I18n i18n, SearchTemplatesDataLoader dataLoader) {
     this.userSession = userSession;
     this.i18n = i18n;
     this.dataLoader = dataLoader;
