@@ -61,7 +61,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.users().insertPermissionOnUser(user1, QUALITY_PROFILE_ADMIN);
     db.users().insertPermissionOnUser(user2, SCAN_EXECUTION);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest().execute().outputAsString();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("users-example.json"));
@@ -71,7 +71,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_with_one_permission() throws Exception {
     insertUsersHavingGlobalPermissions();
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest().setParam("permission", "scan").execute().outputAsString();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
@@ -114,7 +114,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User has no permission
     UserDto withoutPermission = db.users().insertUser(newUserDto());
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
@@ -125,7 +125,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   }
 
   @Test
-  public void search_also_for_users_without_permission_when_search_query() throws Exception {
+  public void search_also_for_users_without_permission_when_filtering_name() throws Exception {
     // User with permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto());
     UserDto user = db.users().insertUser(newUserDto("with-permission", "with-permission", null));
@@ -135,14 +135,15 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission", "without-permission", null));
     UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", null));
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "with")
       .execute()
       .outputAsString();
 
-    assertThat(result).contains(user.getLogin())
+    assertThat(result)
+      .contains(user.getLogin())
       .contains(withoutPermission.getLogin())
       .doesNotContain(anotherUser.getLogin());
   }
@@ -151,7 +152,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_with_query_as_a_parameter() throws Exception {
     insertUsersHavingGlobalPermissions();
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest()
       .setParam("permission", "scan")
       .setParam(TEXT_QUERY, "ame-1")
@@ -167,7 +168,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_with_select_as_a_parameter() throws Exception {
     insertUsersHavingGlobalPermissions();
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     String result = newRequest()
       .execute()
       .outputAsString();
@@ -177,7 +178,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Test
   public void fail_if_project_permission_without_project() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
 
@@ -212,7 +213,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
     db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
@@ -226,7 +227,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Test
   public void fail_if_search_query_is_too_short() throws Exception {
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
@@ -245,9 +246,5 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   private WsTester.TestRequest newRequest() {
     return wsTester.newPostRequest(CONTROLLER, "users");
-  }
-
-  private void loginAsAdmin() {
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

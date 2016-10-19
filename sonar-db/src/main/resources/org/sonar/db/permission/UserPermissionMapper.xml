@@ -3,14 +3,12 @@
 
 <mapper namespace="org.sonar.db.permission.UserPermissionMapper">
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.permission.ExtendedUserPermissionDto">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
       u.id as userId,
       ur.organization_uuid as organizationUuid,
       ur.resource_id as componentId,
-      ur.role as permission,
-      u.login as userLogin,
-      p.uuid as componentUuid
+      ur.role as permission
     <include refid="sqlQuery" />
     order by lower(u.name), u.name, ur.role
   </select>
@@ -36,6 +34,7 @@
       </if>
       <!-- filter rows with user permissions -->
       <if test="query.withAtLeastOnePermission()">
+        and ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
         and ur.role is not null
         <if test="query.componentUuid==null">
           and ur.resource_id is null

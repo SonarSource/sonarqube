@@ -19,22 +19,19 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.io.IOException;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
@@ -44,74 +41,132 @@ import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.server.permission.ws.SearchGlobalPermissionsAction.ACTION;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 
-public class SearchGlobalPermissionsActionTest {
+public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<SearchGlobalPermissionsAction> {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  private WsActionTester ws;
   private I18nRule i18n = new I18nRule();
+
+  @Override
+  protected SearchGlobalPermissionsAction buildWsAction() {
+    return new SearchGlobalPermissionsAction(db.getDbClient(), userSession, i18n, newPermissionWsSupport());
+  }
 
   @Before
   public void setUp() {
     initI18nMessages();
-
-    ws = new WsActionTester(new SearchGlobalPermissionsAction(db.getDbClient(), userSession, i18n));
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
-  public void search() {
-    GroupDto adminGroup = db.users().insertGroup(newGroupDto("sonar-admins", "Administrators"));
-    GroupDto userGroup = db.users().insertGroup(newGroupDto("sonar-users", "Users"));
-    db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
+  public void search_in_organization() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdmin(org);
+    GroupDto adminGroup = db.users().insertGroup(newGroup(org, "sonar-admins", "Administrators"));
+    GroupDto userGroup = db.users().insertGroup(newGroup(org, "sonar-users", "Users"));
+    db.users().insertPermissionOnAnyone(org, SCAN_EXECUTION);
     db.users().insertPermissionOnGroup(userGroup, SCAN_EXECUTION);
     db.users().insertPermissionOnGroup(userGroup, PROVISIONING);
     db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
     UserDto user = db.users().insertUser(newUserDto("user", "user-name"));
     UserDto adminUser = db.users().insertUser(newUserDto("admin", "admin-name"));
-    db.users().insertPermissionOnUser(user, PROVISIONING);
-    db.users().insertPermissionOnUser(user, QUALITY_PROFILE_ADMIN);
-    db.users().insertPermissionOnUser(adminUser, QUALITY_PROFILE_ADMIN);
-    db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
-    db.users().insertPermissionOnUser(adminUser, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(org, user, PROVISIONING);
+    db.users().insertPermissionOnUser(org, user, QUALITY_PROFILE_ADMIN);
+    db.users().insertPermissionOnUser(org, adminUser, QUALITY_PROFILE_ADMIN);
+    db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(org, adminUser, QUALITY_GATE_ADMIN);
 
-    String result = ws.newRequest().execute().getInput();
+    // to be excluded, permission on another organization (the default one)
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), adminUser, QUALITY_GATE_ADMIN);
+
+    String result = wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam("organization", org.getKey())
+      .execute()
+      .outputAsString();
 
     assertJson(result).isSimilarTo(getClass().getResource("search_global_permissions-example.json"));
   }
 
   @Test
-  public void protobuf_response() throws IOException {
+  public void search_in_default_organization_by_default() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdmin(org, db.getDefaultOrganization());
+
+    UserDto user = db.users().insertUser();
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SCAN_EXECUTION);
+
+    // to be ignored, by default organization is used when searching for permissions
+    db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
+
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
-      ws.newRequest()
+      wsTester.newPostRequest(CONTROLLER, ACTION)
         .setMediaType(MediaTypes.PROTOBUF)
-        .execute().getInputStream());
+        .execute()
+        .output());
+
+    assertThat(result.getPermissionsCount()).isEqualTo(GlobalPermissions.ALL.size());
+    for (WsPermissions.Permission permission : result.getPermissionsList()) {
+      if (permission.getKey().equals(SCAN_EXECUTION)) {
+        assertThat(permission.getUsersCount()).isEqualTo(1);
+      } else {
+        assertThat(permission.getUsersCount()).isEqualTo(0);
+      }
+    }
+  }
+
+  @Test
+  public void supports_protobuf_response() throws Exception {
+    loginAsAdminOnDefaultOrganization();
+
+    WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
+      wsTester.newPostRequest(CONTROLLER, ACTION)
+        .setMediaType(MediaTypes.PROTOBUF)
+        .execute()
+        .output());
 
     assertThat(result).isNotNull();
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
-    userSession.login("login");
+  public void fail_if_not_admin_of_default_organization() throws Exception {
+    userSession.login();
 
     expectedException.expect(ForbiddenException.class);
 
-    ws.newRequest().execute();
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .execute();
   }
 
   @Test
-  public void fail_if_not_logged_in() {
+  public void fail_if_not_admin_of_specified_organization() throws Exception {
+    OrganizationDto org = OrganizationTesting.insert(db, newOrganizationDto());
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(ForbiddenException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam("organization", org.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_if_not_logged_in() throws Exception {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
 
-    ws.newRequest().execute();
+    wsTester.newPostRequest(CONTROLLER, ACTION).execute();
+  }
+
+  @Test
+  public void fail_if_organization_does_not_exist() throws Exception {
+    expectedException.expect(NotFoundException.class);
+
+    wsTester.newPostRequest(CONTROLLER, ACTION)
+      .setParam("organization", "does_not_exist")
+      .execute();
   }
 
   private void initI18nMessages() {
@@ -133,7 +188,7 @@ public class SearchGlobalPermissionsActionTest {
     return UserTesting.newUserDto().setLogin(login).setName(name).setActive(true);
   }
 
-  private static GroupDto newGroupDto(String name, String description) {
-    return GroupTesting.newGroupDto().setName(name).setDescription(description);
+  private static GroupDto newGroup(OrganizationDto org, String name, String description) {
+    return GroupTesting.newGroupDto().setName(name).setDescription(description).setOrganizationUuid(org.getUuid());
   }
 }
