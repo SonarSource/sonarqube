@@ -19,6 +19,9 @@
  */
 package org.sonar.server.component.es;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.stream.IntStream;
 import java.util.Set;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -26,6 +29,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.es.BaseIndex;
@@ -40,7 +44,13 @@ import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -64,19 +74,6 @@ public class ProjectMeasuresIndex extends BaseIndex {
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     QueryBuilder esQuery = createEsQuery(query);
 
-    AggregationBuilder locAggregation = AggregationBuilders.nested("nested_" + NCLOC_KEY)
-      .path("measures")
-      .subAggregation(
-        AggregationBuilders.filter("filter_" + NCLOC_KEY)
-          .filter(termsQuery("measures.key", NCLOC_KEY))
-          .subAggregation(AggregationBuilders.range(NCLOC_KEY)
-            .field("measures.value")
-            .addUnboundedTo(1_000d)
-            .addRange(1_000d, 10_000d)
-            .addRange(10_000d, 100_000d)
-            .addRange(100_000d, 500_000d)
-            .addUnboundedFrom(500_000)));
-
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
       .setTypes(TYPE_PROJECT_MEASURES)
@@ -84,10 +81,53 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .setQuery(esQuery)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit())
-      .addAggregation(locAggregation)
+      .addAggregation(createRangeFacet(DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d)))
+      .addAggregation(createRangeFacet(COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d)))
+      .addAggregation(createRangeFacet(NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d)))
+      .addAggregation(createRatingFacet(SQALE_RATING_KEY))
+      .addAggregation(createRatingFacet(RELIABILITY_RATING_KEY))
+      .addAggregation(createRatingFacet(SECURITY_RATING_KEY))
       .addSort(FIELD_NAME + "." + SORT_SUFFIX, SortOrder.ASC);
 
     return new SearchIdResult<>(request.get(), id -> id);
+  }
+
+  private static AggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
+    RangeBuilder rangeAgg = AggregationBuilders.range(metricKey).field(FIELD_VALUE);
+    final int lastIndex = thresholds.size() - 1;
+    IntStream.range(0, thresholds.size())
+      .forEach(i -> {
+        if (i == 0) {
+          rangeAgg.addUnboundedTo(thresholds.get(0));
+          rangeAgg.addRange(thresholds.get(0), thresholds.get(1));
+        } else if (i == lastIndex) {
+          rangeAgg.addUnboundedFrom(thresholds.get(lastIndex));
+        } else {
+          rangeAgg.addRange(thresholds.get(i), thresholds.get(i + 1));
+        }
+      });
+
+    return AggregationBuilders.nested("nested_" + metricKey)
+      .path(FIELD_MEASURES)
+      .subAggregation(
+        AggregationBuilders.filter("filter_" + metricKey)
+          .filter(termsQuery(FIELD_KEY, metricKey))
+          .subAggregation(rangeAgg));
+  }
+
+  private static AggregationBuilder createRatingFacet(String metricKey) {
+    return AggregationBuilders.nested("nested_" + metricKey)
+      .path(FIELD_MEASURES)
+      .subAggregation(
+        AggregationBuilders.filter("filter_" + metricKey)
+          .filter(termsQuery(FIELD_KEY, metricKey))
+          .subAggregation(filters(metricKey)
+            .filter("1", termQuery(FIELD_VALUE, 1d))
+            .filter("2", termQuery(FIELD_VALUE, 2d))
+            .filter("3", termQuery(FIELD_VALUE, 3d))
+            .filter("4", termQuery(FIELD_VALUE, 4d))
+            .filter("5", termQuery(FIELD_VALUE, 5d))
+          ));
   }
 
   private QueryBuilder createEsQuery(ProjectMeasuresQuery query) {

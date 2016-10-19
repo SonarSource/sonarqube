@@ -199,8 +199,9 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request);
 
-    assertThat(result.getFacets().getFacetsCount()).isEqualTo(1);
-    Common.Facet facet = result.getFacets().getFacets(0);
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NCLOC.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getProperty()).isEqualTo(NCLOC);
     assertThat(facet.getValuesCount()).isEqualTo(5);
     assertThat(facet.getValuesList())

@@ -30,9 +30,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
-import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
@@ -69,8 +69,8 @@ public class Facets {
       processDateHistogram((Histogram) aggregation);
     } else if (Sum.class.isAssignableFrom(aggregation.getClass())) {
       processSum((Sum) aggregation);
-    } else if (Range.class.isAssignableFrom(aggregation.getClass())) {
-      processRange((Range) aggregation);
+    } else if (MultiBucketsAggregation.class.isAssignableFrom(aggregation.getClass())) {
+      processMultiBucketAggregation((MultiBucketsAggregation) aggregation);
     } else {
       throw new IllegalArgumentException("Aggregation type not supported yet: " + aggregation.getClass());
     }
@@ -126,7 +126,7 @@ public class Facets {
     getOrCreateFacet(aggregation.getName()).put(TOTAL, Math.round(aggregation.getValue()));
   }
 
-  private void processRange(Range aggregation) {
+  private void processMultiBucketAggregation(MultiBucketsAggregation aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
     aggregation.getBuckets().forEach(bucket -> facet.put(bucket.getKeyAsString(), bucket.getDocCount()));
   }
