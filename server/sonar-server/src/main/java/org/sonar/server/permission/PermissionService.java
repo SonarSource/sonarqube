@@ -58,13 +58,6 @@ public class PermissionService {
     this.componentFinder = componentFinder;
   }
 
-  /**
-   * Used by Ruby on Rails
-   */
-  public List<String> globalPermissions() {
-    return GlobalPermissions.ALL;
-  }
-
   public void applyDefaultPermissionTemplate(String componentKey) {
     DbSession session = dbClient.openSession(false);
     try {
