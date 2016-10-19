@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.bootstrapper;
 
+/**
+ * @deprecated since 6.2 was used by initial version of SonarLint. No more used.
+ */
+@Deprecated
 @FunctionalInterface
 public interface IssueListener {
   void handle(Issue issue);
