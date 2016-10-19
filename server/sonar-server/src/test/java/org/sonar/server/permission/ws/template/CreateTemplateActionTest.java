@@ -27,12 +27,12 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
@@ -51,9 +51,9 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   public void create_full_permission_template() throws Exception {
     loginAsAdminOnDefaultOrganization();
 
-    WsTester.Result result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
+    TestResponse result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
-    assertJson(result.outputAsString())
+    assertJson(result.getInput())
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("create_template-example.json"));
     PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
@@ -129,8 +129,8 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
     newRequest("Finance", null, null);
   }
 
-  private WsTester.Result newRequest(@Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, "create_template");
+  private TestResponse newRequest(@Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
+    TestRequest request = newRequest();
     if (name != null) {
       request.setParam(PARAM_NAME, name);
     }

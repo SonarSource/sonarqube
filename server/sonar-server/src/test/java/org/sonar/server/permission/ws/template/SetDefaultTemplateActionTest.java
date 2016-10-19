@@ -36,21 +36,18 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaultTemplateAction> {
-
-  private static final String ACTION = "set_default_template";
 
   private I18nRule i18n = new I18nRule();
   private PersistentSettings persistentSettings = new PersistentSettings(new MapSettings(), db.getDbClient(), new SettingsChangeNotifier());
@@ -90,7 +87,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   @Test
   public void update_settings_for_project_qualifier_by_template_name() throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
     db.getSession().commit();
@@ -150,7 +147,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   }
 
   private String newRequest(@Nullable String templateUuid, @Nullable String qualifier) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+    TestRequest request = newRequest();
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }
@@ -158,6 +155,6 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
       request.setParam(PARAM_QUALIFIER, qualifier);
     }
 
-    return request.execute().outputAsString();
+    return request.execute().getInput();
   }
 }

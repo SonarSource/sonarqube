@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.io.InputStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.permission.GlobalPermissions;
@@ -31,7 +32,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,6 @@ import static org.sonar.db.permission.template.PermissionTemplateTesting.newPerm
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -75,7 +74,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     String response = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute().outputAsString();
+      .execute()
+      .getInput();
 
     assertJson(response)
       .ignoreFields("id")
@@ -106,11 +106,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
@@ -140,12 +140,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name");
@@ -170,11 +170,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
@@ -191,14 +191,14 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(PAGE, "2")
       .setParam(PAGE_SIZE, "1")
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-2-name");
@@ -215,12 +215,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(TEXT_QUERY, "-nam")
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name");
@@ -236,12 +236,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(TEXT_QUERY, "-name")
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name", "group-3-name");
@@ -258,12 +258,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     commit();
     loginAsAdminOnDefaultOrganization();
 
-    byte[] output = newRequest()
+    InputStream output = newRequest()
       .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(TEXT_QUERY, "nyo")
       .execute()
-      .output();
+      .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(output);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone");
@@ -363,9 +363,5 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   private void commit() {
     db.commit();
-  }
-
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, "template_groups");
   }
 }

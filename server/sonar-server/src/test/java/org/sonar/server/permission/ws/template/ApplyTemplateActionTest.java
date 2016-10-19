@@ -46,13 +46,13 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -62,8 +62,6 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
-
-  private static final String ACTION = "apply_template";
 
   private UserDto user1;
   private UserDto user2;
@@ -126,7 +124,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   public void apply_template_with_project_uuid_by_template_name() throws Exception {
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
@@ -212,8 +210,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), singletonList(group2.getName()), Collections.emptyList());
   }
 
-  private WsTester.Result newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+  private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {
+    TestRequest request = newRequest();
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }

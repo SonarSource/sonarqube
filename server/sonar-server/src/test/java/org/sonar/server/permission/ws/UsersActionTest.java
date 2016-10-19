@@ -28,7 +28,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -40,7 +39,6 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -62,7 +60,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.users().insertPermissionOnUser(user2, SCAN_EXECUTION);
 
     loginAsAdminOnDefaultOrganization();
-    String result = newRequest().execute().outputAsString();
+    String result = newRequest().execute().getInput();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("users-example.json"));
   }
@@ -72,7 +70,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     insertUsersHavingGlobalPermissions();
 
     loginAsAdminOnDefaultOrganization();
-    String result = newRequest().setParam("permission", "scan").execute().outputAsString();
+    String result = newRequest().setParam("permission", "scan").execute().getInput();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
   }
@@ -97,7 +95,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains(user.getLogin())
       .doesNotContain(userHavePermissionOnAnotherProject.getLogin())
@@ -118,7 +116,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains(user.getLogin())
       .doesNotContain(withoutPermission.getLogin());
@@ -140,7 +138,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "with")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result)
       .contains(user.getLogin())
@@ -157,7 +155,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
       .setParam("permission", "scan")
       .setParam(TEXT_QUERY, "ame-1")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("login-1")
       .doesNotContain("login-2")
@@ -171,7 +169,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     loginAsAdminOnDefaultOrganization();
     String result = newRequest()
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("login-1", "login-2", "login-3");
   }
@@ -244,7 +242,4 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.users().insertPermissionOnUser(user3, SYSTEM_ADMIN);
   }
 
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, "users");
-  }
 }

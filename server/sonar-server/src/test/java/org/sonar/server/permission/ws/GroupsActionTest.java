@@ -28,7 +28,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -40,7 +39,7 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
+import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -75,10 +74,12 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   @Test
   public void search_for_groups_with_one_permission() throws Exception {
     loginAsAdminOnDefaultOrganization();
-    newRequest()
+
+    String json = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .execute()
-      .assertJson("{\n" +
+      .getInput();
+      assertJson(json).isSimilarTo("{\n" +
         "  \"paging\": {\n" +
         "    \"pageIndex\": 1,\n" +
         "    \"pageSize\": 20,\n" +
@@ -115,7 +116,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2");
   }
@@ -128,7 +129,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PAGE_SIZE, "1")
       .setParam(PAGE, "3")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("group-2")
       .doesNotContain("group-1")
@@ -142,7 +143,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(TEXT_QUERY, "group-")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result)
       .contains("group-1", "group-2")
@@ -166,7 +167,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains(group.getName())
       .doesNotContain(anotherGroup.getName())
@@ -188,7 +189,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(TEXT_QUERY, "group-with")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains(group.getName())
       .doesNotContain(groupWithoutPermission.getName())
@@ -208,7 +209,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains(group.getName())
       .doesNotContain(groupWithoutPermission.getName());
@@ -225,7 +226,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "nyo")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("Anyone");
   }
@@ -241,7 +242,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("project-group-name")
       .doesNotContain("group-1")
@@ -283,7 +284,4 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, "groups");
-  }
 }

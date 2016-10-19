@@ -41,9 +41,7 @@ import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.server.permission.ws.SearchGlobalPermissionsAction.ACTION;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 
 public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<SearchGlobalPermissionsAction> {
 
@@ -80,10 +78,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     // to be excluded, permission on another organization (the default one)
     db.users().insertPermissionOnUser(db.getDefaultOrganization(), adminUser, QUALITY_GATE_ADMIN);
 
-    String result = wsTester.newPostRequest(CONTROLLER, ACTION)
+    String result = newRequest()
       .setParam("organization", org.getKey())
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("search_global_permissions-example.json"));
   }
@@ -100,10 +98,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     db.users().insertPermissionOnUser(org, user, QUALITY_GATE_ADMIN);
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
-      wsTester.newPostRequest(CONTROLLER, ACTION)
+      newRequest()
         .setMediaType(MediaTypes.PROTOBUF)
         .execute()
-        .output());
+        .getInputStream());
 
     assertThat(result.getPermissionsCount()).isEqualTo(GlobalPermissions.ALL.size());
     for (WsPermissions.Permission permission : result.getPermissionsList()) {
@@ -120,10 +118,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     loginAsAdminOnDefaultOrganization();
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
-      wsTester.newPostRequest(CONTROLLER, ACTION)
+      newRequest()
         .setMediaType(MediaTypes.PROTOBUF)
         .execute()
-        .output());
+        .getInputStream());
 
     assertThat(result).isNotNull();
   }
@@ -134,7 +132,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .execute();
   }
 
@@ -145,7 +143,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam("organization", org.getKey())
       .execute();
   }
@@ -156,14 +154,14 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
     expectedException.expect(UnauthorizedException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION).execute();
+    newRequest().execute();
   }
 
   @Test
   public void fail_if_organization_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam("organization", "does_not_exist")
       .execute();
   }
