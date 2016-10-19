@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+package org.sonar.scanner.storage;
 
 import com.persistit.Persistit;
 import com.persistit.exception.PersistitException;
@@ -32,17 +32,17 @@ import org.sonar.api.utils.TempFolder;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
- * Factory of caches
+ * Factory of storages
  *
  * @since 3.6
  */
 @ScannerSide
-public class CachesManager implements Startable {
+public class StoragesManager implements Startable {
   private File tempDir;
   private Persistit persistit;
   private final TempFolder tempFolder;
 
-  public CachesManager(TempFolder tempFolder) {
+  public StoragesManager(TempFolder tempFolder) {
     this.tempFolder = tempFolder;
     initPersistit();
   }

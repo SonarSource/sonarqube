@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+package org.sonar.scanner.storage;
 
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
@@ -32,40 +32,40 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * <p>
- * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
+ * This storage is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
  * </p>
  */
-public class Cache<V> {
+public class Storage<V> {
 
   private final String name;
   private final Exchange exchange;
 
-  Cache(String name, Exchange exchange) {
+  Storage(String name, Exchange exchange) {
     this.name = name;
     this.exchange = exchange;
   }
 
-  public Cache<V> put(Object key, V value) {
+  public Storage<V> put(Object key, V value) {
     resetKey(key);
     return doPut(value);
   }
 
-  public Cache<V> put(Object firstKey, Object secondKey, V value) {
+  public Storage<V> put(Object firstKey, Object secondKey, V value) {
     resetKey(firstKey, secondKey);
     return doPut(value);
   }
 
-  public Cache<V> put(Object firstKey, Object secondKey, Object thirdKey, V value) {
+  public Storage<V> put(Object firstKey, Object secondKey, Object thirdKey, V value) {
     resetKey(firstKey, secondKey, thirdKey);
     return doPut(value);
   }
 
-  public Cache<V> put(Object[] key, V value) {
+  public Storage<V> put(Object[] key, V value) {
     resetKey(key);
     return doPut(value);
   }
 
-  private Cache<V> doPut(V value) {
+  private Storage<V> doPut(V value) {
     try {
       exchange.getValue().put(value);
       exchange.store();
@@ -189,27 +189,27 @@ public class Cache<V> {
    *
    * @param group The group name.
    */
-  public Cache<V> clear(Object key) {
+  public Storage<V> clear(Object key) {
     resetKey(key);
     return doClear();
   }
 
-  public Cache<V> clear(Object firstKey, Object secondKey) {
+  public Storage<V> clear(Object firstKey, Object secondKey) {
     resetKey(firstKey, secondKey);
     return doClear();
   }
 
-  public Cache<V> clear(Object firstKey, Object secondKey, Object thirdKey) {
+  public Storage<V> clear(Object firstKey, Object secondKey, Object thirdKey) {
     resetKey(firstKey, secondKey, thirdKey);
     return doClear();
   }
 
-  public Cache<V> clear(Object[] key) {
+  public Storage<V> clear(Object[] key) {
     resetKey(key);
     return doClear();
   }
 
-  private Cache<V> doClear() {
+  private Storage<V> doClear() {
     try {
       Key to = new Key(exchange.getKey());
       to.append(Key.AFTER);

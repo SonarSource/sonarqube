@@ -29,11 +29,11 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
-import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Caches;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
+import org.sonar.scanner.storage.Storage;
+import org.sonar.scanner.storage.Storages;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
@@ -42,13 +42,13 @@ public class ServerIssueRepository {
   private static final Logger LOG = Loggers.get(ServerIssueRepository.class);
   private static final String LOG_MSG = "Load server issues";
 
-  private final Caches caches;
-  private Cache<ServerIssue> issuesCache;
+  private final Storages caches;
+  private Storage<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
   private final ImmutableProjectReactor reactor;
   private final BatchComponentCache resourceCache;
 
-  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, BatchComponentCache resourceCache) {
+  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, BatchComponentCache resourceCache) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.reactor = reactor;

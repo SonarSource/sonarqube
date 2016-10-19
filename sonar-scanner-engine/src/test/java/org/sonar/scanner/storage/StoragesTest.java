@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+package org.sonar.scanner.storage;
 
 import java.io.Serializable;
 
 import com.persistit.exception.PersistitException;
 import org.junit.Test;
-import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Caches;
+import org.sonar.scanner.index.AbstractCachesTest;
+import org.sonar.scanner.storage.Storage;
+import org.sonar.scanner.storage.Storages;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class CachesTest extends AbstractCachesTest {
+public class StoragesTest extends AbstractCachesTest {
   @Test
   public void should_create_cache() {
-    Cache<Element> cache = caches.createCache("foo");
+    Storage<Element> cache = caches.createCache("foo");
     assertThat(cache).isNotNull();
   }
 
@@ -49,7 +50,7 @@ public class CachesTest extends AbstractCachesTest {
 
   @Test
   public void should_clean_resources() {
-    Cache<String> c = caches.<String>createCache("test1");
+    Storage<String> c = caches.<String>createCache("test1");
     for (int i = 0; i < 1_000_000; i++) {
       c.put("a" + i, "a" + i);
     }
@@ -59,7 +60,7 @@ public class CachesTest extends AbstractCachesTest {
     // manager continues up
     assertThat(cachesManager.persistit().isInitialized()).isTrue();
 
-    caches = new Caches(cachesManager);
+    caches = new Storages(cachesManager);
     caches.start();
     caches.createCache("test1");
   }
@@ -75,9 +76,9 @@ public class CachesTest extends AbstractCachesTest {
     }
 
     for (int i = 0; i < 3; i++) {
-      caches = new Caches(cachesManager);
+      caches = new Storages(cachesManager);
       caches.start();
-      Cache<String> c = caches.<String>createCache("test" + i);
+      Storage<String> c = caches.<String>createCache("test" + i);
       c.put("key" + i, sb.toString());
       cachesManager.persistit().flush();
 

@@ -28,8 +28,8 @@ import com.google.common.collect.ImmutableMap;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalTempFolderProvider;
-import org.sonar.scanner.index.Caches;
-import org.sonar.scanner.index.CachesManager;
+import org.sonar.scanner.storage.Storages;
+import org.sonar.scanner.storage.StoragesManager;
 import java.util.Map;
 
 import org.junit.ClassRule;
@@ -39,14 +39,14 @@ public abstract class AbstractCachesTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  protected static CachesManager cachesManager;
-  protected Caches caches;
+  protected static StoragesManager cachesManager;
+  protected Storages caches;
 
-  private static CachesManager createCacheOnTemp() {
+  private static StoragesManager createCacheOnTemp() {
     Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
       CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
 
-    return new CachesManager(new GlobalTempFolderProvider().provide(new GlobalProperties(props)));
+    return new StoragesManager(new GlobalTempFolderProvider().provide(new GlobalProperties(props)));
   }
 
   @BeforeClass
@@ -57,7 +57,7 @@ public abstract class AbstractCachesTest {
 
   @Before
   public void start() {
-    caches = new Caches(cachesManager);
+    caches = new Storages(cachesManager);
     caches.start();
   }
 
