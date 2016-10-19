@@ -61,6 +61,7 @@ message BulkUpdateKeyWsResponse {
 message SearchProjectsWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Component components = 2;
+  optional sonarqube.ws.commons.Facets facets = 3;
 }
 
 message Component {

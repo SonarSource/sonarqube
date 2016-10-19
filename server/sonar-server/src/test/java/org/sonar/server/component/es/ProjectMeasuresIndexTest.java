@@ -32,6 +32,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -40,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
@@ -208,6 +210,43 @@ public class ProjectMeasuresIndexTest {
     List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
 
     assertThat(result).containsOnly("P1");
+  }
+
+  @Test
+  public void facet_ncloc() {
+    addDocs(
+      // 3 docs with ncloc<1K
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d))),
+      // 2 docs with ncloc>=1K and ncloc<10K
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 1_000d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 9_999d))),
+      // 4 docs with ncloc>=10K and ncloc<100K
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 10_000d))),
+      newDoc("P32", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 10_000d))),
+      newDoc("P33", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 11_000d))),
+      newDoc("P34", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 99_000d))),
+      // 2 docs with ncloc>=100K and ncloc<500K
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000d))),
+      newDoc("P42", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 499_000d))),
+      // 5 docs with ncloc>= 500K
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 500_000d))),
+      newDoc("P52", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000_000d))),
+      newDoc("P53", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 500_000d))),
+      newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 1_000_000d))),
+      newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000_000_000d)))
+    );
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 4L),
+      entry("100000.0-500000.0", 2L),
+      entry("500000.0-*", 5L)
+    );
   }
 
   private void addDocs(ProjectMeasuresDoc... docs) {

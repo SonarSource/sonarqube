@@ -23,6 +23,8 @@ import java.util.Set;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
@@ -37,6 +39,8 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -60,6 +64,19 @@ public class ProjectMeasuresIndex extends BaseIndex {
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     QueryBuilder esQuery = createEsQuery(query);
 
+    AggregationBuilder locAggregation = AggregationBuilders.nested("nested_" + NCLOC_KEY)
+      .path("measures")
+      .subAggregation(
+        AggregationBuilders.filter("filter_" + NCLOC_KEY)
+          .filter(termsQuery("measures.key", NCLOC_KEY))
+          .subAggregation(AggregationBuilders.range(NCLOC_KEY)
+            .field("measures.value")
+            .addUnboundedTo(1_000d)
+            .addRange(1_000d, 10_000d)
+            .addRange(10_000d, 100_000d)
+            .addRange(100_000d, 500_000d)
+            .addUnboundedFrom(500_000)));
+
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
       .setTypes(TYPE_PROJECT_MEASURES)
@@ -67,6 +84,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .setQuery(esQuery)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit())
+      .addAggregation(locAggregation)
       .addSort(FIELD_NAME + "." + SORT_SUFFIX, SortOrder.ASC);
 
     return new SearchIdResult<>(request.get(), id -> id);

@@ -21,7 +21,10 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.Ordering;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
@@ -33,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
+import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonarqube.ws.Common;
@@ -98,7 +102,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ComponentDto> ordering = Ordering.explicit(searchResult.getIds()).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResult.getIds()));
 
-    return new SearchResults(projects, searchResult.getTotal());
+    return new SearchResults(projects, searchResult.getFacets(), searchResult.getTotal());
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
@@ -123,9 +127,34 @@ public class SearchProjectsAction implements ComponentsWsAction {
           .forEach(response::addComponents);
         return response;
       })
+      .map(response -> addFacets(searchResults.facets, response))
       .map(SearchProjectsWsResponse.Builder::build)
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("SearchProjectsWsResponse not built"));
+  }
+
+  private static SearchProjectsWsResponse.Builder addFacets(Facets facets, SearchProjectsWsResponse.Builder wsResponse) {
+    Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
+    Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
+    for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
+      wsFacet.clear();
+      wsFacet.setProperty(facet.getKey());
+      LinkedHashMap<String, Long> buckets = facet.getValue();
+      if (buckets != null) {
+        for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
+          Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
+          valueBuilder.setVal(bucket.getKey());
+          valueBuilder.setCount(bucket.getValue());
+          valueBuilder.build();
+        }
+      } else {
+        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
+      }
+      wsFacets.addFacets(wsFacet);
+    }
+    wsResponse.setFacets(wsFacets);
+
+    return wsResponse;
   }
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
@@ -148,11 +177,13 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private static class SearchResults {
     private final List<ComponentDto> projects;
+    private final Facets facets;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, long total) {
+    private SearchResults(List<ComponentDto> projects, Facets facets, long total) {
       this.projects = projects;
       this.total = (int) total;
+      this.facets = facets;
     }
   }
 }

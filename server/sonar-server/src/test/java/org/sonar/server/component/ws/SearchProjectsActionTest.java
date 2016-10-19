@@ -61,6 +61,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -74,6 +75,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 
 public class SearchProjectsActionTest {
+  private static final String NCLOC = "ncloc";
+  private static final String COVERAGE = "coverage";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -170,18 +173,44 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filter_projects_with_query() {
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure("coverage", 81), newMeasure("ncloc", 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure("coverage", 80d), newMeasure("ncloc", 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure("coverage", 80d), newMeasure("ncloc", 10_001d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     request.setFilter("coverage <= 80 and ncloc <= 10000");
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("coverage").setValueType(Metric.ValueType.FLOAT.name()));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("ncloc").setValueType(Metric.ValueType.FLOAT.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(COVERAGE).setValueType(Metric.ValueType.FLOAT.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NCLOC).setValueType(Metric.ValueType.FLOAT.name()));
     db.commit();
 
     SearchProjectsWsResponse result = call(request);
 
     assertThat(result.getComponentsCount()).isEqualTo(1);
     assertThat(result.getComponents(0).getName()).isEqualTo("Sonar Markdown");
+  }
+
+  @Test
+  public void return_loc_facet() {
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(COVERAGE).setValueType(Metric.ValueType.FLOAT.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NCLOC).setValueType(Metric.ValueType.FLOAT.name()));
+    db.commit();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getFacets().getFacetsCount()).isEqualTo(1);
+    Common.Facet facet = result.getFacets().getFacets(0);
+    assertThat(facet.getProperty()).isEqualTo(NCLOC);
+    assertThat(facet.getValuesCount()).isEqualTo(5);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 2L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 1L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 1L));
   }
 
   @Test
