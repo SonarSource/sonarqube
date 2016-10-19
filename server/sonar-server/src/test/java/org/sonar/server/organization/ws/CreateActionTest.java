@@ -21,6 +21,8 @@ package org.sonar.server.organization.ws;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -30,10 +32,16 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserMembershipDto;
+import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -76,7 +84,7 @@ public class CreateActionTest {
     assertThat(action.key()).isEqualTo("create");
     assertThat(action.isPost()).isTrue();
     assertThat(action.description()).isEqualTo("Create an organization.<br />" +
-        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting).");
+      "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting).");
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
@@ -415,6 +423,30 @@ public class CreateActionTest {
 
     CreateWsResponse response = executeRequest("foo", "bar", null, null, avatar);
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", null, null, avatar, SOME_DATE);
+  }
+
+  @Test
+  public void request_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    UserDto user = dbTester.users().makeRoot(dbTester.users().insertUser());
+    userSession.login(user).setRoot();
+
+    executeRequest("orgFoo");
+
+    DbSession dbSession = dbTester.getSession();
+    OrganizationDto organization = dbTester.getDbClient().organizationDao().selectByKey(dbSession, "orgfoo").get();
+    Optional<GroupDto> groupDtoOptional = dbTester.getDbClient().groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
+    assertThat(groupDtoOptional).isNotEmpty();
+    GroupDto groupDto = groupDtoOptional.get();
+    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization orgFoo");
+    assertThat(dbTester.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+    List<UserMembershipDto> members = dbTester.getDbClient().groupMembershipDao().selectMembers(
+      dbSession,
+      UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+    assertThat(members)
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
   }
 
   private void makeUserRoot() {
