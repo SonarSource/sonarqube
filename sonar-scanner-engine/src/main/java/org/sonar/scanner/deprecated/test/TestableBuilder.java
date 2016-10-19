@@ -20,12 +20,12 @@
 package org.sonar.scanner.deprecated.test;
 
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 
 public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 
@@ -35,9 +35,9 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 
   @CheckForNull
   @Override
-  public MutableTestable loadPerspective(Class<MutableTestable> perspectiveClass, BatchComponent component) {
+  public MutableTestable loadPerspective(Class<MutableTestable> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
-      InputFile inputFile = (InputFile) component.inputComponent();
+      InputFile inputFile = (InputFile) component;
       if (inputFile.type() == Type.MAIN) {
         return new DefaultTestable((DefaultInputFile) inputFile);
       }

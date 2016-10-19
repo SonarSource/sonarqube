@@ -1,0 +1,15 @@
+<unitTest version="1">
+  <file path="src/main/java/com/example/EmptyClass.java"/>
+  <file path="src/main/java/com/example/ClassWithoutBranch.java">
+    <testCase name="test1" duration="5"/>
+    <testCase name="test2" duration="500">
+      <skipped message="short message">other</skipped>
+    </testCase>
+    <testCase name="test3" duration="100">
+      <failure message="short">stacktrace</failure>
+    </testCase>
+    <testCase name="test4" duration="500">
+      <error message="short">stacktrace</error>
+    </testCase>
+  </file>
+</unitTest>

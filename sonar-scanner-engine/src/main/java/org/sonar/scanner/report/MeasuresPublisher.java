@@ -20,14 +20,21 @@
 package org.sonar.scanner.report;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.test.TestCase.Status;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -44,6 +51,16 @@ import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS;
+import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.TESTS;
+import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS;
+import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS_KEY;
+import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
+import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME_KEY;
+import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
+import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES_KEY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
@@ -100,46 +117,75 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
+  private final TestPlanBuilder testPlanBuilder;
 
-  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache) {
+  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, TestPlanBuilder testPlanBuilder) {
     this.componentCache = resourceCache;
     this.measureCache = measureCache;
+    this.testPlanBuilder = testPlanBuilder;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
     for (final BatchComponent component : componentCache.all()) {
       // Recompute all coverage measures from line data to take into account the possible merge of several reports
-      DefaultMeasure<String> lineHitsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
-      if (lineHitsMeasure != null) {
-        Map<Integer, Integer> lineHits = KeyValueFormat.parseIntInt(lineHitsMeasure.value());
-        measureCache.put(component.key(), LINES_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(lineHits.keySet().size()));
-        measureCache.put(component.key(), UNCOVERED_LINES_KEY,
-          new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue((int) lineHits.values()
-            .stream()
-            .filter(hit -> hit == 0)
-            .count()));
-      }
-      DefaultMeasure<String> conditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.CONDITIONS_BY_LINE_KEY);
-      DefaultMeasure<String> coveredConditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
-      if (conditionsMeasure != null) {
-        Map<Integer, Integer> conditions = KeyValueFormat.parseIntInt(conditionsMeasure.value());
-        Map<Integer, Integer> coveredConditions = coveredConditionsMeasure != null ? KeyValueFormat.parseIntInt(coveredConditionsMeasure.value()) : Collections.emptyMap();
-        measureCache.put(component.key(), CONDITIONS_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(conditions
-          .values()
-          .stream()
-          .mapToInt(Integer::intValue)
-          .sum()));
-        measureCache.put(component.key(), UNCOVERED_CONDITIONS_KEY,
-          new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS)
-            .withValue((int) conditions.keySet()
-              .stream()
-              .mapToInt(line -> conditions.get(line) - coveredConditions.get(line))
-              .sum()));
-      }
+      updateCoverageFromLineData(component);
+      // Recompute test execution measures from MutableTestPlan to take into account the possible merge of several reports
+      updateTestExecutionFromTestPlan(component);
+
       Iterable<DefaultMeasure<?>> scannerMeasures = measureCache.byComponentKey(component.key());
       Iterable<ScannerReport.Measure> reportMeasures = transform(scannerMeasures, new MeasureToReportMeasure(component));
       writer.writeComponentMeasures(component.batchId(), reportMeasures);
+    }
+  }
+
+  private void updateTestExecutionFromTestPlan(final BatchComponent component) {
+    final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component.inputComponent());
+    if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
+      return;
+    }
+    long nonSkippedTests = StreamSupport.stream(testPlan.testCases().spliterator(), false).filter(t -> t.status() != Status.SKIPPED).count();
+    measureCache.put(component.key(), TESTS_KEY, new DefaultMeasure<Integer>().forMetric(TESTS).withValue((int) nonSkippedTests));
+    long executionTime = StreamSupport.stream(testPlan.testCases().spliterator(), false).mapToLong(t -> t.durationInMs() != null ? t.durationInMs().longValue() : 0L).sum();
+    measureCache.put(component.key(), TEST_EXECUTION_TIME_KEY, new DefaultMeasure<Long>().forMetric(TEST_EXECUTION_TIME).withValue(executionTime));
+    long errorTests = StreamSupport.stream(testPlan.testCases().spliterator(), false).filter(t -> t.status() == Status.ERROR).count();
+    measureCache.put(component.key(), TEST_ERRORS_KEY, new DefaultMeasure<Integer>().forMetric(TEST_ERRORS).withValue((int) errorTests));
+    long skippedTests = StreamSupport.stream(testPlan.testCases().spliterator(), false).filter(t -> t.status() == Status.SKIPPED).count();
+    measureCache.put(component.key(), SKIPPED_TESTS_KEY, new DefaultMeasure<Integer>().forMetric(SKIPPED_TESTS).withValue((int) skippedTests));
+    long failedTests = StreamSupport.stream(testPlan.testCases().spliterator(), false).filter(t -> t.status() == Status.FAILURE).count();
+    measureCache.put(component.key(), TEST_FAILURES_KEY, new DefaultMeasure<Integer>().forMetric(TEST_FAILURES).withValue((int) failedTests));
+  }
+
+  private void updateCoverageFromLineData(final BatchComponent component) {
+    if (!component.isFile() || ((InputFile) component.inputComponent()).type() != Type.MAIN) {
+      return;
+    }
+    DefaultMeasure<String> lineHitsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+    if (lineHitsMeasure != null) {
+      Map<Integer, Integer> lineHits = KeyValueFormat.parseIntInt(lineHitsMeasure.value());
+      measureCache.put(component.key(), LINES_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(lineHits.keySet().size()));
+      measureCache.put(component.key(), UNCOVERED_LINES_KEY,
+        new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue((int) lineHits.values()
+          .stream()
+          .filter(hit -> hit == 0)
+          .count()));
+    }
+    DefaultMeasure<String> conditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.CONDITIONS_BY_LINE_KEY);
+    DefaultMeasure<String> coveredConditionsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+    if (conditionsMeasure != null) {
+      Map<Integer, Integer> conditions = KeyValueFormat.parseIntInt(conditionsMeasure.value());
+      Map<Integer, Integer> coveredConditions = coveredConditionsMeasure != null ? KeyValueFormat.parseIntInt(coveredConditionsMeasure.value()) : Collections.emptyMap();
+      measureCache.put(component.key(), CONDITIONS_TO_COVER_KEY, new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(conditions
+        .values()
+        .stream()
+        .mapToInt(Integer::intValue)
+        .sum()));
+      measureCache.put(component.key(), UNCOVERED_CONDITIONS_KEY,
+        new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS)
+          .withValue((int) conditions.keySet()
+            .stream()
+            .mapToInt(line -> conditions.get(line) - coveredConditions.get(line))
+            .sum()));
     }
   }
 

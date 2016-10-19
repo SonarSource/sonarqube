@@ -29,13 +29,13 @@ import org.sonar.api.resources.Resource;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
 
-public class BatchPerspectives implements ResourcePerspectives {
+public class ScannerPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final DefaultIndex resourceIndex;
   private final BatchComponentCache componentCache;
 
-  public BatchPerspectives(PerspectiveBuilder[] builders, DefaultIndex resourceIndex, BatchComponentCache componentCache) {
+  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultIndex resourceIndex, BatchComponentCache componentCache) {
     this.resourceIndex = resourceIndex;
     this.componentCache = componentCache;
     for (PerspectiveBuilder builder : builders) {
@@ -52,7 +52,7 @@ public class BatchPerspectives implements ResourcePerspectives {
     }
     if (indexedResource != null) {
       PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-      return builder.loadPerspective(perspectiveClass, componentCache.get(indexedResource));
+      return builder.loadPerspective(perspectiveClass, componentCache.get(indexedResource).inputComponent());
     }
     return null;
   }
@@ -60,7 +60,7 @@ public class BatchPerspectives implements ResourcePerspectives {
   @Override
   public <P extends Perspective> P as(Class<P> perspectiveClass, InputPath inputPath) {
     PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-    return builder.loadPerspective(perspectiveClass, componentCache.get(inputPath));
+    return builder.loadPerspective(perspectiveClass, inputPath);
   }
 
   private <T extends Perspective> PerspectiveBuilder<T> builderFor(Class<T> clazz) {

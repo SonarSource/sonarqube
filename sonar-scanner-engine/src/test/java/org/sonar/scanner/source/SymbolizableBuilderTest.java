@@ -24,11 +24,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,21 +34,16 @@ public class SymbolizableBuilderTest {
 
   @Test
   public void should_load_perspective() {
-    Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
-    BatchComponent component = new BatchComponent(1, file, null).setInputComponent(new DefaultInputFile("foo", "foo.c"));
-
     SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
-    Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, component);
+    Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, new DefaultInputFile("foo", "foo.c"));
 
     assertThat(perspective).isInstanceOf(Symbolizable.class);
   }
 
   @Test
   public void project_should_not_be_highlightable() {
-    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null).setInputComponent(new DefaultInputModule("struts"));
-
     SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
-    Perspective perspective = builder.loadPerspective(Symbolizable.class, component);
+    Perspective perspective = builder.loadPerspective(Symbolizable.class, new DefaultInputModule("struts"));
 
     assertThat(perspective).isNull();
   }

@@ -1,0 +1,14 @@
+<coverage version="1">
+  <file path="src/main/java/com/example/NonExisting.java"/>
+  <file path="src/main/java/com/example/EmptyClass.java"/>
+  <file path="src/main/java/com/example/ClassWithoutBranch.java">
+    <lineToCover lineNumber="2" covered="false"/>
+    <lineToCover lineNumber="3" covered="true"/>
+    <lineToCover lineNumber="5" covered="true"/>
+    <lineToCover lineNumber="6" covered="false"/>
+  </file>
+  <file path="src/main/java/com/example/ClassWithBranches.java">
+    <lineToCover lineNumber="3" covered="true" branchesToCover="8" coveredBranches="5"/>
+    <lineToCover lineNumber="4" covered="true" branchesToCover="2"/>
+  </file>
+</coverage>

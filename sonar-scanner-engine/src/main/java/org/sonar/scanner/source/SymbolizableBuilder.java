@@ -21,11 +21,11 @@ package org.sonar.scanner.source;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 
 public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
@@ -41,9 +41,9 @@ public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
 
   @CheckForNull
   @Override
-  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, BatchComponent component) {
+  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
-      InputFile path = (InputFile) component.inputComponent();
+      InputFile path = (InputFile) component;
       return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage, analysisMode);
     }
     return null;

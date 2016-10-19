@@ -24,8 +24,6 @@ import com.google.common.collect.Iterables;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
@@ -115,16 +113,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
   @Override
   public void publish(ScannerReportWriter writer) {
     for (final BatchComponent component : componentCache.all()) {
-      if (!component.isFile()) {
-        continue;
-      }
-
-      DefaultInputFile inputFile = (DefaultInputFile) component.inputComponent();
-      if (inputFile.type() != Type.TEST) {
-        continue;
-      }
-
-      final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component);
+      final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component.inputComponent());
       if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
         continue;
       }
