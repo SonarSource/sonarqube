@@ -26,6 +26,6 @@ class IncludeOrganizationUuidInUniqueIndexOfGroupRoles < ActiveRecord::Migration
   def self.up
     drop_index_quietly :group_roles, :uniq_group_roles
 
-    add_index 'group_roles', ['organization_uuid', ''group_id', 'resource_id', 'role'], :unique => true, :name => 'uniq_group_roles'
+    add_index 'group_roles', ['organization_uuid', 'group_id', 'resource_id', 'role'], :unique => true, :name => 'uniq_group_roles'
   end
 end
