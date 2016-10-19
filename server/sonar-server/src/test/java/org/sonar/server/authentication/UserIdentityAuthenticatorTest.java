@@ -42,8 +42,10 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserIdentityAuthenticatorTest {
@@ -187,16 +189,13 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_user_and_remove_all_groups() throws Exception {
-    UserDto user = db.users().insertUser(newUserDto()
-      .setLogin(USER_LOGIN)
-      .setActive(true)
-      .setName("John"));
+    UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
-    authenticate(USER_LOGIN);
+    authenticate(user.getLogin());
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
   }
@@ -274,7 +273,6 @@ public class UserIdentityAuthenticatorTest {
 
     authenticate(rootUser.getLogin());
 
-
     db.rootFlag().verify(rootUser, true);
   }
 
@@ -327,6 +325,28 @@ public class UserIdentityAuthenticatorTest {
 
     authenticate(USER_LOGIN, otherSomeGroup.getName(), defaultSomeGroup.getName());
     db.rootFlag().verify(USER_LOGIN, false);
+  }
+
+  @Test
+  public void ignore_groups_on_non_default_organizations() throws Exception {
+    OrganizationDto org = db.organizations().insert(newOrganizationDto());
+    UserDto user = db.users().insertUser(newUserDto()
+      .setLogin(USER_LOGIN)
+      .setActive(true)
+      .setName("John"));
+    String groupName = "a-group";
+    GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), groupName);
+    GroupDto groupInOrg = db.users().insertGroup(org, groupName);
+
+    // adding a group with the same name than in non-default organization
+    underTest.authenticate(UserIdentity.builder()
+      .setProviderLogin("johndoo")
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .setGroups(newHashSet(groupName))
+      .build(), IDENTITY_PROVIDER);
+
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(groupInDefaultOrg.getId());
   }
 
   @Test
