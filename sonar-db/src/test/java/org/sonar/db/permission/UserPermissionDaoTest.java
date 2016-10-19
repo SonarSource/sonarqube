@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
@@ -42,6 +43,7 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserPermissionDaoTest {
@@ -305,7 +307,6 @@ public class UserPermissionDaoTest {
     assertThatProjectHasNoPermissions(project1);
   }
 
-
   @Test
   public void projectHasPermissions() {
     addGlobalPermissionOnDefaultOrganization(SYSTEM_ADMIN, user1);
@@ -313,6 +314,36 @@ public class UserPermissionDaoTest {
 
     assertThat(underTest.hasRootComponentPermissions(dbSession, project1.getId())).isTrue();
     assertThat(underTest.hasRootComponentPermissions(dbSession, project2.getId())).isFalse();
+  }
+
+  @Test
+  public void selectGlobalPermissionsOfUser() {
+    OrganizationDto org = OrganizationTesting.insert(dbTester, newOrganizationDto());
+    addGlobalPermissionOnDefaultOrganization("perm1", user1);
+    addGlobalPermissionOnDefaultOrganization("perm2", user2);
+    addGlobalPermission(org, "perm3", user1);
+    addProjectPermissionOnDefaultOrganization("perm4", user1, project1);
+    addProjectPermission(org, "perm5", user1, project1);
+
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), org.getUuid())).containsOnly("perm3");
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), dbTester.getDefaultOrganization().getUuid())).containsOnly("perm1");
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), "otherOrg")).isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user3.getId(), org.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void selectProjectPermissionsOfUser() {
+    OrganizationDto org = OrganizationTesting.insert(dbTester, newOrganizationDto());
+    ComponentDto project3 = dbTester.components().insertProject();
+    addGlobalPermission(org, "perm1", user1);
+    addProjectPermission(org, "perm2", user1, project1);
+    addProjectPermission(org, "perm3", user1, project1);
+    addProjectPermission(org, "perm4", user1, project2);
+    addProjectPermission(org, "perm5", user2, project1);
+
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project1.getId())).containsOnly("perm2", "perm3");
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project2.getId())).containsOnly("perm4");
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project3.getId())).isEmpty();
   }
 
   private void expectCount(List<Long> projectIds, CountPerProjectPermission... expected) {

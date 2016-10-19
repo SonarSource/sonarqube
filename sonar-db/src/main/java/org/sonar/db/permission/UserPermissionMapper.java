@@ -60,4 +60,7 @@ public interface UserPermissionMapper {
 
   void deleteProjectPermissions(@Param("projectId") long projectId);
 
+  List<String> selectGlobalPermissionsOfUser(@Param("userId") long userId, @Param("organizationUuid") String organizationUuid);
+
+  List<String> selectProjectPermissionsOfUser(@Param("userId") long userId, @Param("projectId") long projectId);
 }

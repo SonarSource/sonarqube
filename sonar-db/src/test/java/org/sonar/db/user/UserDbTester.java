@@ -21,7 +21,6 @@ package org.sonar.db.user;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
@@ -220,7 +219,11 @@ public class UserDbTester {
     return dto;
   }
 
-  public Set<String> selectUserPermissions(UserDto user, @Nullable ComponentDto project) {
-    return db.getDbClient().userPermissionDao().selectPermissionsByLogin(db.getSession(), user.getLogin(), project == null ? null : project.uuid());
+  public List<String> selectGlobalPermissionsOfUser(UserDto user, OrganizationDto organization) {
+    return db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(db.getSession(), user.getId(), organization.getUuid());
+  }
+
+  public List<String> selectProjectPermissionsOfUser(UserDto user, ComponentDto project) {
+    return db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getId(), project.getId());
   }
 }
