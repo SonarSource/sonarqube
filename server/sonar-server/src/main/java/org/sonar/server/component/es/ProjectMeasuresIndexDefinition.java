@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.es;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -26,6 +27,7 @@ import org.sonar.server.es.NewIndex;
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
   public static final String INDEX_PROJECT_MEASURES = "projectmeasures";
+
   public static final String TYPE_PROJECT_MEASURES = "projectmeasures";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
@@ -34,6 +36,12 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_MEASURES = "measures";
   public static final String FIELD_MEASURES_KEY = "key";
   public static final String FIELD_MEASURES_VALUE = "value";
+
+  public static final String TYPE_AUTHORIZATION = "authorization";
+  public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
+  public static final String FIELD_AUTHORIZATION_GROUPS = "groups";
+  public static final String FIELD_AUTHORIZATION_USERS = "users";
+  public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
 
@@ -47,6 +55,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
+    // type "projectmeasures"
     NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURES);
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableSorting().enableGramSearch().build();
@@ -59,5 +68,14 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
     // do not store document but only indexation of information
     mapping.setEnableSource(false);
+
+    // type "authorization"
+    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
+    authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
+    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
+    authorizationMapping.setEnableSource(false);
   }
 }
