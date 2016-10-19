@@ -26,15 +26,20 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.KEY_MAX_LENGTH;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.KEY_MIN_LENGTH;
@@ -46,6 +51,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements OrganizationsAction {
   private static final String ACTION = "create";
+  private static final String OWNERS_GROUP_NAME = "Owners";
+  private static final String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
 
   private final Settings settings;
   private final UserSession userSession;
@@ -103,10 +110,39 @@ public class CreateAction implements OrganizationsAction {
 
       OrganizationDto dto = createOrganizationDto(request, name, key);
       dbClient.organizationDao().insert(dbSession, dto);
+      GroupDto group = createOwnersGroup(dbSession, dto);
+      addCurrentUserToGroup(dbSession, group);
       dbSession.commit();
 
       writeResponse(request, response, dto);
     }
+  }
+
+  /**
+   * Owners group has an hard coded name, a description based on the organization's name and has all global permissions.
+   */
+  private GroupDto createOwnersGroup(DbSession dbSession, OrganizationDto organization) {
+    GroupDto group = dbClient.groupDao().insert(dbSession, new GroupDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setName(OWNERS_GROUP_NAME)
+      .setDescription(format(OWNERS_GROUP_DESCRIPTION_PATTERN, organization.getName())));
+    GlobalPermissions.ALL.forEach(permission -> addPermissionToGroup(dbSession, group, permission));
+    return group;
+  }
+
+  private void addPermissionToGroup(DbSession dbSession, GroupDto group, String permission) {
+    dbClient.groupPermissionDao().insert(
+      dbSession,
+      new GroupPermissionDto()
+        .setOrganizationUuid(group.getOrganizationUuid())
+        .setGroupId(group.getId())
+        .setRole(permission));
+  }
+
+  private void addCurrentUserToGroup(DbSession dbSession, GroupDto group) {
+    dbClient.userGroupDao().insert(
+      dbSession,
+      new UserGroupDto().setGroupId(group.getId()).setUserId(userSession.getUserId().longValue()));
   }
 
   @CheckForNull

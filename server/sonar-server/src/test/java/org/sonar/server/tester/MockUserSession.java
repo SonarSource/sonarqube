@@ -20,6 +20,7 @@
 package org.sonar.server.tester;
 
 import java.util.Objects;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -35,6 +36,14 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     this.login = login;
     setUserId(login.hashCode());
     setName(login + " name");
+  }
+
+  public MockUserSession(UserDto userDto) {
+    super(MockUserSession.class);
+    checkArgument(!userDto.getLogin().isEmpty());
+    this.login = userDto.getLogin();
+    setUserId(userDto.getId().intValue());
+    setName(userDto.getName());
   }
 
   @Override
