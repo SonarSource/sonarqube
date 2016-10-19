@@ -60,7 +60,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       builder.setBranch(branch);
     }
     for (QProfile qp : qProfiles.findAll()) {
-      builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
+      builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
         .setKey(qp.getKey())
         .setLanguage(qp.getLanguage())
         .setName(qp.getName())

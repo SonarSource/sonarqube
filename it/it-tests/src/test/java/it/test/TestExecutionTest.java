@@ -44,19 +44,33 @@ public class TestExecutionTest {
   }
 
   @Test
-  public void test_execution() throws Exception {
-    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-tests-execution")));
+  public void test_execution_details() throws Exception {
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-tests-execution-details")));
 
     Resource project = orchestrator.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics("sample-with-tests", "test_success_density", "test_failures", "test_errors", "tests", "skipped_tests", "test_execution_time"));
-    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(50.0);
+    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(33.3);
     assertThat(project.getMeasureIntValue("test_failures")).isEqualTo(1);
     assertThat(project.getMeasureIntValue("test_errors")).isEqualTo(1);
-    assertThat(project.getMeasureIntValue("tests")).isEqualTo(4);
+    assertThat(project.getMeasureIntValue("tests")).isEqualTo(3);
     assertThat(project.getMeasureIntValue("skipped_tests")).isEqualTo(1);
     assertThat(project.getMeasureIntValue("test_execution_time")).isEqualTo(8);
 
     String json = orchestrator.getServer().adminWsClient().get("api/tests/list", "testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/TestExecutionTest/expected.json"), "UTF-8"), json, false);
+  }
+
+  @Test
+  public void test_execution_measures() throws Exception {
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-tests-execution-measures")));
+
+    Resource project = orchestrator.getServer().getWsClient()
+      .find(ResourceQuery.createForMetrics("sample-with-tests", "test_success_density", "test_failures", "test_errors", "tests", "skipped_tests", "test_execution_time"));
+    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(33.3);
+    assertThat(project.getMeasureIntValue("test_failures")).isEqualTo(1);
+    assertThat(project.getMeasureIntValue("test_errors")).isEqualTo(1);
+    assertThat(project.getMeasureIntValue("tests")).isEqualTo(3);
+    assertThat(project.getMeasureIntValue("skipped_tests")).isEqualTo(1);
+    assertThat(project.getMeasureIntValue("test_execution_time")).isEqualTo(8);
   }
 }

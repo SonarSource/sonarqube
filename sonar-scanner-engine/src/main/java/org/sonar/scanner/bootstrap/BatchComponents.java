@@ -27,6 +27,8 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.scanner.cpd.CpdComponents;
+import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
+import org.sonar.scanner.genericcoverage.GenericTestExecutionSensor;
 import org.sonar.scanner.issue.tracking.ServerIssueFromWs;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.report.ConsoleReport;
@@ -71,6 +73,13 @@ public class BatchComponents {
 
       // CPD
       components.addAll(CpdComponents.all());
+
+      // Generic coverage
+      components.add(GenericCoverageSensor.class);
+      components.addAll(GenericCoverageSensor.properties());
+      components.add(GenericTestExecutionSensor.class);
+      components.addAll(GenericTestExecutionSensor.properties());
+
     } else {
       // Issues tracking
       components.add(new Tracker<TrackedIssue, ServerIssueFromWs>());

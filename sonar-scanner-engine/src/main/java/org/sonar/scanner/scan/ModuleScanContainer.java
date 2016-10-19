@@ -35,7 +35,7 @@ import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
-import org.sonar.scanner.deprecated.perspectives.BatchPerspectives;
+import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
@@ -162,7 +162,7 @@ public class ModuleScanContainer extends ComponentContainer {
       IgnoreIssuesFilter.class,
 
       // Perspectives
-      BatchPerspectives.class,
+      ScannerPerspectives.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 

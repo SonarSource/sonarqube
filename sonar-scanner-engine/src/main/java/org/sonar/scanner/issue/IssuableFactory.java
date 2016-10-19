@@ -19,10 +19,10 @@
  */
 package org.sonar.scanner.issue;
 
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.Issuable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 /**
@@ -39,7 +39,7 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
   }
 
   @Override
-  public Issuable loadPerspective(Class<Issuable> perspectiveClass, BatchComponent component) {
+  public Issuable loadPerspective(Class<Issuable> perspectiveClass, InputComponent component) {
     return new DefaultIssuable(component, sensorContext);
   }
 }

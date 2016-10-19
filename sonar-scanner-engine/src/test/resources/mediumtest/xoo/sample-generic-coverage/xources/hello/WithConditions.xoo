@@ -1,0 +1,6 @@
+  object HelloWorld {
+    def main(args: Array[String]) {
+      args.isEmpty ? println("Hello, world of xoo!") : println("Hello, world of empty!")
+    }
+  }
+  

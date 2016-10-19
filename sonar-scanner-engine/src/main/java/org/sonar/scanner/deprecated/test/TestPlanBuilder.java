@@ -22,11 +22,11 @@ package org.sonar.scanner.deprecated.test;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 
 public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
@@ -38,9 +38,9 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
   @CheckForNull
   @Override
-  public MutableTestPlan loadPerspective(Class<MutableTestPlan> perspectiveClass, BatchComponent component) {
+  public MutableTestPlan loadPerspective(Class<MutableTestPlan> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
-      InputFile inputFile = (InputFile) component.inputComponent();
+      InputFile inputFile = (InputFile) component;
       if (inputFile.type() == Type.TEST) {
         if (!testPlanByFile.containsKey(inputFile)) {
           testPlanByFile.put(inputFile, new DefaultTestPlan());

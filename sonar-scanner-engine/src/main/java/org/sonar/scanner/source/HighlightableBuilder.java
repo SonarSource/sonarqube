@@ -21,12 +21,12 @@ package org.sonar.scanner.source;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.source.Highlightable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
@@ -41,9 +41,9 @@ public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   @CheckForNull
   @Override
-  public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, BatchComponent component) {
+  public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
-      InputFile path = (InputFile) component.inputComponent();
+      InputFile path = (InputFile) component;
       return new DefaultHighlightable((DefaultInputFile) path, sensorStorage, analysisMode);
     }
     return null;

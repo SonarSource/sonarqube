@@ -17,26 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.deprecated.perspectives;
+@ParametersAreNonnullByDefault
+package org.sonar.scanner.genericcoverage;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.component.Perspective;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-@ScannerSide
-public abstract class PerspectiveBuilder<T extends Perspective> {
-
-  private final Class<T> perspectiveClass;
-
-  protected PerspectiveBuilder(Class<T> perspectiveClass) {
-    this.perspectiveClass = perspectiveClass;
-  }
-
-  public Class<T> getPerspectiveClass() {
-    return perspectiveClass;
-  }
-
-  @CheckForNull
-  public abstract T loadPerspective(Class<T> perspectiveClass, InputComponent component);
-}

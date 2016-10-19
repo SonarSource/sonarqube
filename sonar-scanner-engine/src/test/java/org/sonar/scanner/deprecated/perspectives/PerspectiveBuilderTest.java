@@ -20,18 +20,18 @@
 package org.sonar.scanner.deprecated.perspectives;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.component.Perspective;
-import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.scanner.index.BatchComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PerspectiveBuilderTest {
+
   @Test
   public void testGetPerspectiveClass() throws Exception {
     PerspectiveBuilder<FakePerspective> builder = new PerspectiveBuilder<FakePerspective>(FakePerspective.class) {
       @Override
-      public FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, BatchComponent component) {
+      public FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, InputComponent component) {
         return null;
       }
     };
