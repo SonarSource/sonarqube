@@ -71,18 +71,24 @@ public class UserPermissionDaoTest {
 
   @Test
   public void select_global_permissions() {
+    OrganizationDto org2 = dbTester.organizations().insert(newOrganizationDto());
     UserPermissionDto global1 = addGlobalPermissionOnDefaultOrganization(SYSTEM_ADMIN, user1);
     UserPermissionDto global2 = addGlobalPermissionOnDefaultOrganization(SYSTEM_ADMIN, user2);
     UserPermissionDto global3 = addGlobalPermissionOnDefaultOrganization(PROVISIONING, user2);
     UserPermissionDto project1Perm = addProjectPermissionOnDefaultOrganization(USER, user3, project1);
+    // permissions on another organization, to be excluded
+    UserPermissionDto org2Global1 = addGlobalPermission(org2, SYSTEM_ADMIN, user1);
+    UserPermissionDto org2Global2 = addGlobalPermission(org2, PROVISIONING, user2);
 
     // global permissions of users who has at least one global permission, ordered by user name then permission
     PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().build();
     expectPermissions(query, null, global2, global3, global1);
 
-    // default query returns all permissions
+    // default query returns all users, whatever their permissions nor organizations
+    // (that's a non-sense, but still this is required for api/permissions/groups
+    // when filtering users by name)
     query = PermissionQuery.builder().build();
-    expectPermissions(query, null, project1Perm, global2, global3, global1);
+    expectPermissions(query, null, project1Perm, global2, global3, org2Global2, global1, org2Global1);
 
     // return empty list if non-null but empty logins
     expectPermissions(query, Collections.emptyList());
@@ -209,20 +215,40 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void selectLogins() {
-    addProjectPermissionOnDefaultOrganization(USER, user1, project1);
-    addProjectPermissionOnDefaultOrganization(USER, user2, project1);
-    addProjectPermissionOnDefaultOrganization(ISSUE_ADMIN, user2, project1);
-    addProjectPermissionOnDefaultOrganization(ISSUE_ADMIN, user2, project2);
+  public void selectUserIds() {
+    OrganizationDto org1 = dbTester.organizations().insert(newOrganizationDto());
+    OrganizationDto org2 = dbTester.organizations().insert(newOrganizationDto());
+
+    addProjectPermission(org1, USER, user1, project1);
+    addProjectPermission(org1, USER, user2, project1);
+    addProjectPermission(org2, USER, user1, project2);
+    addProjectPermission(org1, ISSUE_ADMIN, user2, project1);
+    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
 
     // logins are ordered by user name: user2 ("Marie") then user1 ("Marius")
     PermissionQuery query = PermissionQuery.builder().setComponentUuid(project1.uuid()).withAtLeastOnePermission().build();
-    List<String> logins = underTest.selectLogins(dbSession, query);
-    assertThat(logins).containsExactly(user2.getLogin(), user1.getLogin());
+    assertThat(underTest.selectUserIds(dbSession, org1.getUuid(), query)).containsExactly(user2.getId(), user1.getId());
+    assertThat(underTest.selectUserIds(dbSession, "otherOrg", query)).isEmpty();
 
     // on a project without permissions
     query = PermissionQuery.builder().setComponentUuid("missing").withAtLeastOnePermission().build();
-    assertThat(underTest.selectLogins(dbSession, query)).isEmpty();
+    assertThat(underTest.selectUserIds(dbSession, org1.getUuid(), query)).isEmpty();
+
+    // search all users whose name matches "mar", whatever the permissions
+    query = PermissionQuery.builder().setSearchQuery("mar").build();
+    assertThat(underTest.selectUserIds(dbSession, org1.getUuid(), query)).containsExactly(user2.getId(), user1.getId());
+
+    // search all users whose name matches "mariu", whatever the permissions
+    query = PermissionQuery.builder().setSearchQuery("mariu").build();
+    assertThat(underTest.selectUserIds(dbSession, org1.getUuid(), query)).containsExactly(user1.getId());
+
+    // search all users whose name matches "mariu", whatever the permissions
+    query = PermissionQuery.builder().setSearchQuery("mariu").setComponentUuid(project1.uuid()).build();
+    assertThat(underTest.selectUserIds(dbSession, org1.getUuid(), query)).containsExactly(user1.getId());
+
+    // search all users whose name matches "mariu", whatever the organization
+    query = PermissionQuery.builder().setSearchQuery("mariu").build();
+    assertThat(underTest.selectUserIds(dbSession, "missingOrg", query)).containsExactly(user1.getId());
   }
 
   @Test
@@ -335,25 +361,25 @@ public class UserPermissionDaoTest {
   }
 
   private void expectPermissions(PermissionQuery query, @Nullable Collection<String> logins, UserPermissionDto... expected) {
+    expectPermissions(dbTester.getDefaultOrganization(), query, logins, expected);
+  }
+
+  private void expectPermissions(OrganizationDto org, PermissionQuery query, @Nullable Collection<String> logins, UserPermissionDto... expected) {
     // test method "select()"
-    List<ExtendedUserPermissionDto> permissions = underTest.select(dbSession, query, logins);
+    List<UserPermissionDto> permissions = underTest.select(dbSession, org.getUuid(), query, logins);
     assertThat(permissions).hasSize(expected.length);
     for (int i = 0; i < expected.length; i++) {
-      ExtendedUserPermissionDto got = permissions.get(i);
+      UserPermissionDto got = permissions.get(i);
       UserPermissionDto expect = expected[i];
       assertThat(got.getUserId()).isEqualTo(expect.getUserId());
       assertThat(got.getPermission()).isEqualTo(expect.getPermission());
       assertThat(got.getComponentId()).isEqualTo(expect.getComponentId());
-      assertThat(got.getUserLogin()).isNotNull();
-      if (got.getComponentId() != null) {
-        assertThat(got.getComponentUuid()).isNotNull();
-      }
     }
 
     if (logins == null) {
       // test method "countUsers()", which does not make sense if users are filtered
       long distinctUsers = Arrays.stream(expected).mapToLong(p -> p.getUserId()).distinct().count();
-      assertThat((long) underTest.countUsers(dbSession, query)).isEqualTo(distinctUsers);
+      assertThat((long) underTest.countUsers(dbSession, org.getUuid(), query)).isEqualTo(distinctUsers);
     }
   }
 

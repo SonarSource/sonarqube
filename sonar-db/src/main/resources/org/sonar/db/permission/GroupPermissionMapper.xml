@@ -24,35 +24,6 @@
     GROUP BY groups.permission, groups.componentId
   </select>
 
-  <select id="countGroups" parameterType="map" resultType="int">
-    SELECT count(1)
-    FROM
-    (SELECT g.name as name
-    FROM groups g
-    INNER JOIN group_roles group_role ON group_role.group_id=g.id
-    AND group_role.role=#{permission,jdbcType=VARCHAR}
-    <if test="componentId != null">
-      AND group_role.resource_id=#{componentId,jdbcType=BIGINT}
-    </if>
-    <if test="componentId == null">
-      AND group_role.resource_id IS NULL
-    </if>
-    UNION
-    -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name
-    FROM group_roles group_role
-    where
-      group_role.role=#{permission,jdbcType=VARCHAR}
-      AND group_role.group_id IS NULL
-      <if test="componentId != null">
-        AND group_role.resource_id=#{componentId,jdbcType=BIGINT}
-      </if>
-      <if test="componentId == null">
-        AND group_role.resource_id IS NULL
-      </if>
-    ) groups
-  </select>
-
   <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
     select distinct sub.name, lower(sub.name), sub.groupId
     <include refid="groupsByQuery" />

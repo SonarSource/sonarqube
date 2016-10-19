@@ -27,22 +27,15 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface UserPermissionMapper {
 
-  /**
-   * List of user permissions ordered by alphabetical order of user names
-   *
-   * @param query non-null query including optional filters.
-   * @param userLogins if null, then filter on all active users. If not null, then filter on logins, including disabled users.
-   *                   Must not be empty. If not null then maximum size is {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
-   */
-  List<ExtendedUserPermissionDto> selectByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
+  List<UserPermissionDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
 
   /**
-   * Count the number of distinct users returned by {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
+   * Count the number of distinct users returned by {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    *
-   * @param useNull must always be null. It is needed for using the sql of {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
+   * @param useNull must always be null. It is needed for using the sql of {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
    */
-  int countUsersByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> useNull);
+  int countUsersByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> useNull);
 
   /**
    * Count the number of users per permission for a given list of projects.

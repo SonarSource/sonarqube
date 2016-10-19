@@ -21,9 +21,9 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -35,9 +35,13 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class UserPermissionDao implements Dao {
 
   /**
-   * @see UserPermissionMapper#selectByQuery(PermissionQuery, Collection, RowBounds)
+   * List of user permissions ordered by alphabetical order of user names
+   *
+   * @param query non-null query including optional filters.
+   * @param userLogins if null, then filter on all active users. If not null, then filter on logins, including disabled users.
+   *                   Must not be empty. If not null then maximum size is {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
    */
-  public List<ExtendedUserPermissionDto> select(DbSession dbSession, PermissionQuery query, @Nullable Collection<String> userLogins) {
+  public List<UserPermissionDto> select(DbSession dbSession, String organizationUuid, PermissionQuery query, @Nullable Collection<String> userLogins) {
     if (userLogins != null) {
       if (userLogins.isEmpty()) {
         return emptyList();
@@ -46,24 +50,26 @@ public class UserPermissionDao implements Dao {
     }
 
     RowBounds rowBounds = new RowBounds(query.getPageOffset(), query.getPageSize());
-    return mapper(dbSession).selectByQuery(query, userLogins, rowBounds);
+    return mapper(dbSession).selectByQuery(organizationUuid, query, userLogins, rowBounds);
   }
 
   /**
-   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)} to return only logins, in the same order.
+   * Shortcut over {@link #select(DbSession, String, PermissionQuery, Collection)} to return only distinct user
+   * ids, keeping the same order.
    */
-  public List<String> selectLogins(DbSession dbSession, PermissionQuery query) {
-    return select(dbSession, query, null).stream()
-      .map(ExtendedUserPermissionDto::getUserLogin)
+  public List<Long> selectUserIds(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    List<UserPermissionDto> dtos = select(dbSession, organizationUuid, query, null);
+    return dtos.stream()
+      .map(UserPermissionDto::getUserId)
       .distinct()
-      .collect(Collectors.toList());
+      .collect(Collectors.toList(dtos.size()));
   }
 
   /**
-   * @see UserPermissionMapper#countUsersByQuery(PermissionQuery, Collection)
+   * @see UserPermissionMapper#countUsersByQuery(String, PermissionQuery, Collection)
    */
-  public int countUsers(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countUsersByQuery(query, null);
+  public int countUsers(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    return mapper(dbSession).countUsersByQuery(organizationUuid, query, null);
   }
 
   /**

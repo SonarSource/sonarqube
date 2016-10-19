@@ -310,12 +310,12 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN, otherOrganization);
     db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified permission
+    db.rootFlag().verify(rootByUserPermissionUser, true);
     db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
 
     executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN, otherOrganization);
     db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
+    db.rootFlag().verify(rootByUserPermissionUser, true);
     db.rootFlag().verify(rootByGroupPermissionUser, true);
   }
 

@@ -181,8 +181,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getLogin());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
+    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getId());
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
   }
 
   private void assertNoPermissionOnProject(ComponentDto project) throws Exception {
@@ -211,9 +211,9 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), db.getDefaultOrganization().getUuid(), query);
   }
 
-  private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
+  private List<Long> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponentUuid(project.uuid()).build();
-    return db.getDbClient().userPermissionDao().selectLogins(db.getSession(), query);
+    return db.getDbClient().userPermissionDao().selectUserIds(db.getSession(), db.getDefaultOrganization().getUuid(), query);
   }
 
   private WsTester.TestRequest newRequest() {

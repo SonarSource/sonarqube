@@ -32,8 +32,9 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.ExtendedUserPermissionDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
@@ -47,10 +48,12 @@ import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class UsersAction implements PermissionsWsAction {
@@ -82,6 +85,8 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
         "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
       .setExampleValue("eri");
+
+    createOrganizationParameter(action);
     createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
@@ -89,13 +94,14 @@ public class UsersAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
-      checkProjectAdmin(userSession, projectId);
+      checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionQuery query = buildPermissionQuery(request, projectId);
-      List<UserDto> users = findUsers(dbSession, query);
-      int total = dbClient.userPermissionDao().countUsers(dbSession, query);
-      List<ExtendedUserPermissionDto> userPermissions = findUserPermissions(dbSession, users, projectId);
+      List<UserDto> users = findUsers(dbSession, org, query);
+      int total = dbClient.userPermissionDao().countUsers(dbSession, org.getUuid(), query);
+      List<UserPermissionDto> userPermissions = findUserPermissions(dbSession, org, users, projectId);
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       UsersWsResponse usersWsResponse = buildResponse(users, userPermissions, paging);
       writeProtobuf(usersWsResponse, request, response);
@@ -129,7 +135,7 @@ public class UsersAction implements PermissionsWsAction {
     return permissionQuery.build();
   }
 
-  private static UsersWsResponse buildResponse(List<UserDto> users, List<ExtendedUserPermissionDto> userPermissions, Paging paging) {
+  private static UsersWsResponse buildResponse(List<UserDto> users, List<UserPermissionDto> userPermissions, Paging paging) {
     Multimap<Long, String> permissionsByUserId = TreeMultimap.create();
     userPermissions.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
@@ -156,12 +162,12 @@ public class UsersAction implements PermissionsWsAction {
     return response.build();
   }
 
-  private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query) {
-    List<String> orderedLogins = dbClient.userPermissionDao().selectLogins(dbSession, query);
-    return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
+  private List<UserDto> findUsers(DbSession dbSession, OrganizationDto org, PermissionQuery query) {
+    List<Long> orderedIds = dbClient.userPermissionDao().selectUserIds(dbSession, org.getUuid(), query);
+    return Ordering.explicit(orderedIds).onResultOf(UserDto::getId).immutableSortedCopy(dbClient.userDao().selectByIds(dbSession, orderedIds));
   }
 
-  private List<ExtendedUserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, Optional<ProjectId> project) {
+  private List<UserPermissionDto> findUserPermissions(DbSession dbSession, OrganizationDto org, List<UserDto> users, Optional<ProjectId> project) {
     if (users.isEmpty()) {
       return emptyList();
     }
@@ -170,6 +176,6 @@ public class UsersAction implements PermissionsWsAction {
       .setComponentUuid(project.isPresent() ? project.get().getUuid() : null)
       .withAtLeastOnePermission()
       .build();
-    return dbClient.userPermissionDao().select(dbSession, query, logins);
+    return dbClient.userPermissionDao().select(dbSession, org.getUuid(), query, logins);
   }
 }
