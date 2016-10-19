@@ -55,6 +55,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
   public void deleteProject(String uuid) {
     esClient
       .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, uuid)
+      .setRouting(uuid)
       .setRefresh(true)
       .get();
   }
@@ -91,6 +92,8 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
     return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, doc.getId())
+      .routing(doc.getId())
+      .parent(doc.getId())
       .source(doc.getFields());
   }
 }

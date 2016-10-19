@@ -44,12 +44,12 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return null;
+    return getId();
   }
 
   @Override
   public String getParent() {
-    return null;
+    return getId();
   }
 
   public ProjectMeasuresDoc setId(String s) {

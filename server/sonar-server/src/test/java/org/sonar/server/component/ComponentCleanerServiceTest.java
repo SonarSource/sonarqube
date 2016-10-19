@@ -38,15 +38,14 @@ import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.index.AuthorizationIndexer;
-import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -58,7 +57,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class ComponentCleanerServiceTest {
@@ -78,7 +76,7 @@ public class ComponentCleanerServiceTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  AuthorizationIndexer issueAuthorizationIndexer = new AuthorizationIndexer(dbClient, es.client());
+  AuthorizationIndexer authorizationIndexer = new AuthorizationIndexer(dbClient, es.client());
   IssueIndexer issueIndexer = new IssueIndexer(dbClient, es.client());
   TestIndexer testIndexer = new TestIndexer(dbClient, es.client());
   ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
@@ -86,7 +84,7 @@ public class ComponentCleanerServiceTest {
   ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
   ComponentCleanerService underTest = new ComponentCleanerService(dbClient,
-    issueAuthorizationIndexer, issueIndexer, testIndexer, projectMeasuresIndexer,
+    authorizationIndexer, issueIndexer, testIndexer, projectMeasuresIndexer,
     mockResourceTypes,
     new ComponentFinder(dbClient));
 
@@ -227,10 +225,10 @@ public class ComponentCleanerServiceTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     projectMeasuresIndexer.index();
+    authorizationIndexer.index(project.uuid());
 
     String issueKey = "issue-key-" + suffix;
     es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc(issueKey, project));
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);

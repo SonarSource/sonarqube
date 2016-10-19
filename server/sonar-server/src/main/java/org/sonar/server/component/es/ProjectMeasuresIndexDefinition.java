@@ -57,6 +57,8 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
     // type "projectmeasures"
     NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURES);
+    mapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
+    mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableSorting().enableGramSearch().build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE).build();
