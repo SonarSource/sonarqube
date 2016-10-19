@@ -20,6 +20,7 @@
 package org.sonar.server.permission;
 
 import javax.annotation.concurrent.Immutable;
+import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -45,5 +46,9 @@ public class UserId {
 
   public String getLogin() {
     return login;
+  }
+
+  public static UserId from(UserDto dto) {
+    return new UserId(dto.getId(), dto.getLogin());
   }
 }

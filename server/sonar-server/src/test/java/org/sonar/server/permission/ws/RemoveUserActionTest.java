@@ -77,7 +77,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, null)).containsOnly(PROVISIONING);
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).containsOnly(PROVISIONING);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last user with 'admin' permission. Permission cannot be removed.");
+    expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
 
     wsTester.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -108,7 +108,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(ISSUE_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
@@ -124,7 +124,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(CODEVIEWER);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(CODEVIEWER);
   }
 
   @Test
@@ -140,7 +140,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, view)).containsOnly(CODEVIEWER);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(CODEVIEWER);
   }
 
   @Test
@@ -329,7 +329,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(CODEVIEWER);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(CODEVIEWER);
   }
 
 }

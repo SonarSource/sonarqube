@@ -50,6 +50,23 @@
     </where>
   </sql>
 
+  <select id="selectGlobalPermissionsOfUser" parameterType="map" resultType="string">
+    select ur.role
+    from user_roles ur
+    where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    ur.user_id = #{userId,jdbcType=BIGINT} and
+    ur.resource_id is null
+  </select>
+
+  <select id="selectProjectPermissionsOfUser" parameterType="map" resultType="string">
+    select ur.role
+    from user_roles ur
+    where
+    ur.user_id = #{userId,jdbcType=BIGINT} and
+    ur.resource_id = #{projectId,jdbcType=BIGINT}
+  </select>
+
   <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.CountPerProjectPermission">
     select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
     from users u

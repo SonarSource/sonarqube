@@ -19,17 +19,19 @@
  */
 package org.sonar.server.permission;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionChange.Operation;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
+/**
+ * Adds and removes user permissions. Both global and project scopes are supported.
+ */
 public class UserPermissionChanger {
 
   private final DbClient dbClient;
@@ -41,44 +43,66 @@ public class UserPermissionChanger {
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
-    if (shouldSkipChange(dbSession, change)) {
-      return false;
-    }
-
     switch (change.getOperation()) {
       case ADD:
-        UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getNullableProjectId());
-        dbClient.userPermissionDao().insert(dbSession, dto);
-        break;
+        return addPermission(dbSession, change);
       case REMOVE:
-        checkOtherAdminUsersExist(dbSession, change);
-        Optional<ProjectId> projectId = change.getProjectId();
-        if (projectId.isPresent()) {
-          dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectId.get().getId());
-        } else {
-          dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
-        }
-        break;
+        return removePermission(dbSession, change);
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
-    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
-      dbClient.userDao().updateRootFlagFromPermissions(dbSession, change.getUserId().getId(), defaultOrganizationProvider.get().getUuid());
+  }
+
+  private boolean addPermission(DbSession dbSession, UserPermissionChange change) {
+    if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+      return false;
     }
+    UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getNullableProjectId());
+    dbClient.userPermissionDao().insert(dbSession, dto);
+    updateRootFlag(dbSession, change);
     return true;
   }
 
-  private boolean shouldSkipChange(DbSession dbSession, UserPermissionChange change) {
-    Set<String> existingPermissions = dbClient.userPermissionDao().selectPermissionsByLogin(dbSession, change.getUserId().getLogin(), change.getProjectUuid());
-    return (Operation.ADD == change.getOperation() && existingPermissions.contains(change.getPermission())) ||
-      (Operation.REMOVE == change.getOperation() && !existingPermissions.contains(change.getPermission()));
+  private boolean removePermission(DbSession dbSession, UserPermissionChange change) {
+    if (!loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+      return false;
+    }
+    checkOtherAdminsExist(dbSession, change);
+    Optional<ProjectId> projectId = change.getProjectId();
+    if (projectId.isPresent()) {
+      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectId.get().getId());
+    } else {
+      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
+    }
+    updateRootFlag(dbSession, change);
+    return true;
   }
 
-  private void checkOtherAdminUsersExist(DbSession session, PermissionChange change) {
-    if (SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getProjectId().isPresent() &&
-      dbClient.roleDao().countUserPermissions(session, change.getPermission(), null) <= 1) {
-      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", SYSTEM_ADMIN));
+  private List<String> loadExistingPermissions(DbSession dbSession, UserPermissionChange change) {
+    Optional<ProjectId> projectId = change.getProjectId();
+    if (projectId.isPresent()) {
+      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession,
+        change.getUserId().getId(),
+        projectId.get().getId());
+    }
+    return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession,
+      change.getUserId().getId(),
+      change.getOrganizationUuid());
+  }
+
+  private void checkOtherAdminsExist(DbSession dbSession, UserPermissionChange change) {
+    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
+      int remaining = dbClient.authorizationDao().countRemainingUsersWithGlobalPermissionExcludingUser(dbSession,
+        change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId());
+      if (remaining == 0) {
+        throw new BadRequestException(String.format("Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN));
+      }
+    }
+  }
+
+  private void updateRootFlag(DbSession dbSession, UserPermissionChange change) {
+    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
+      dbClient.userDao().updateRootFlagFromPermissions(dbSession, change.getUserId().getId(), defaultOrganizationProvider.get().getUuid());
     }
   }
 }

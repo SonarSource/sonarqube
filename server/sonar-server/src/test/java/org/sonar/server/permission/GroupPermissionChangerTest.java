@@ -27,9 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -55,7 +53,7 @@ public class GroupPermissionChangerTest {
   public void setUp() throws Exception {
     org = db.organizations().insert();
     group = db.users().insertGroup(org, "a-group");
-    project = new ComponentDbTester(db).insertComponent(ComponentTesting.newProjectDto());
+    project = db.components().insertProject();
   }
 
   @Test

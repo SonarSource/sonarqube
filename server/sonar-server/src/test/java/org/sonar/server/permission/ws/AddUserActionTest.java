@@ -68,7 +68,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
@@ -82,8 +82,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).isEmpty();
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
@@ -97,8 +97,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).isEmpty();
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
@@ -112,8 +112,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, null)).isEmpty();
-    assertThat(db.users().selectUserPermissions(user, view)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).isEmpty();
+    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
@@ -246,7 +246,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectUserPermissions(user, project)).containsOnly(ISSUE_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test

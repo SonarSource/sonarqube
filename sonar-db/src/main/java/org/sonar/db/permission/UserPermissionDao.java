@@ -100,6 +100,24 @@ public class UserPermissionDao implements Dao {
     return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
   }
 
+  /**
+   * Gets all the global permissions granted to user for the specified organization.
+   *
+   * @return the global permissions. An empty list is returned if user or organization do not exist.
+   */
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, long userId, String organizationUuid) {
+    return mapper(dbSession).selectGlobalPermissionsOfUser(userId, organizationUuid);
+  }
+
+  /**
+   * Gets all the project permissions granted to user for the specified project.
+   *
+   * @return the project permissions. An empty list is returned if project or user do not exist.
+   */
+  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, long userId, long projectId) {
+    return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectId);
+  }
+
   public void insert(DbSession dbSession, UserPermissionDto dto) {
     mapper(dbSession).insert(dto);
   }
