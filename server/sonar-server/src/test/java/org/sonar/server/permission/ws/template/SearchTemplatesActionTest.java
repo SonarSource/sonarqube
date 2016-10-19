@@ -40,8 +40,9 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -54,7 +55,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SearchTemplatesActionTest {
+public class SearchTemplatesActionTest extends BasePermissionWsTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -64,17 +65,13 @@ public class SearchTemplatesActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  WsActionTester ws;
-  I18nRule i18n = new I18nRule();
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
-  SearchTemplatesDataLoader dataLoader;
-  SearchTemplatesAction underTest;
+  private I18nRule i18n = new I18nRule();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
-  @Before
-  public void setUp() {
-    i18n.setProjectPermissions();
+  @Override
+  protected PermissionsWsAction buildWsAction() {
 
     Settings settings = new MapSettings();
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), UUID_EXAMPLE_01);
@@ -82,12 +79,13 @@ public class SearchTemplatesActionTest {
     settings.setProperty(defaultRootQualifierTemplateProperty("DEV"), UUID_EXAMPLE_03);
 
     DefaultPermissionTemplateFinder defaultPermissionTemplateFinder = new DefaultPermissionTemplateFinder(settings, resourceTypes);
+    SearchTemplatesDataLoader dataLoader = new SearchTemplatesDataLoader(dbClient, defaultPermissionTemplateFinder);
+    return new SearchTemplatesAction(userSession, i18n, dataLoader);
+  }
 
-    dataLoader = new SearchTemplatesDataLoader(dbClient, defaultPermissionTemplateFinder);
-    underTest = new SearchTemplatesAction(dbClient, userSession, i18n, dataLoader);
-
-    ws = new WsActionTester(underTest);
-
+  @Before
+  public void setUp() {
+    i18n.setProjectPermissions();
     userSession.login();
   }
 
@@ -122,7 +120,7 @@ public class SearchTemplatesActionTest {
 
     db.commit();
 
-    String result = newRequest();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
@@ -131,7 +129,7 @@ public class SearchTemplatesActionTest {
 
   @Test
   public void empty_result() {
-    String result = newRequest();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
@@ -146,9 +144,10 @@ public class SearchTemplatesActionTest {
     insertDeveloperTemplate();
     db.commit();
 
-    String result = ws.newRequest()
+    String result = newRequest()
       .setParam(TEXT_QUERY, "views")
-      .execute().getInput();
+      .execute()
+      .getInput();
 
     assertThat(result).contains("Default template for Views")
       .doesNotContain("projects")
@@ -160,21 +159,17 @@ public class SearchTemplatesActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    ws.newRequest().execute();
+    newRequest().execute();
   }
 
   @Test
   public void display_all_project_permissions() {
-    String result = newRequest();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
       .ignoreFields("defaultTemplates", "permissionTemplates")
       .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/display_all_project_permissions.json"));
-  }
-
-  private String newRequest() {
-    return ws.newRequest().execute().getInput();
   }
 
   private PermissionTemplateDto insertProjectTemplate() {
