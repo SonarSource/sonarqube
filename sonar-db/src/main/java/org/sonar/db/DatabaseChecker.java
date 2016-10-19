@@ -45,6 +45,7 @@ public class DatabaseChecker implements Startable {
     // MsSQL 2014 is 12.x
     // https://support.microsoft.com/en-us/kb/321185
     MsSql.ID, Version.create(11, 0, 0),
+    MsSql.ID, Version.create(10, 0, 0),
     MySql.ID, Version.create(5, 6, 0),
     Oracle.ID, Version.create(11, 0, 0),
     PostgreSql.ID, Version.create(8, 0, 0));
