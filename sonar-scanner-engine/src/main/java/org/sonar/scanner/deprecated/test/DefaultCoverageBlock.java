@@ -17,41 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.test;
+package org.sonar.scanner.deprecated.test;
 
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.test.CoverageBlock;
+import org.sonar.api.test.TestCase;
+import org.sonar.api.test.Testable;
 
-public class DefaultTestPlan implements MutableTestPlan {
-  private List<MutableTestCase> testCases = new ArrayList<>();
+public class DefaultCoverageBlock implements CoverageBlock {
 
-  @Override
-  @CheckForNull
-  public Iterable<MutableTestCase> testCasesByName(String name) {
-    List<MutableTestCase> result = Lists.newArrayList();
-    for (MutableTestCase testCase : testCases()) {
-      if (name.equals(testCase.name())) {
-        result.add(testCase);
-      }
-    }
-    return result;
+  private final TestCase testCase;
+  private final DefaultInputFile testable;
+  private final List<Integer> lines;
+
+  public DefaultCoverageBlock(TestCase testCase, DefaultInputFile testable, List<Integer> lines) {
+    this.testCase = testCase;
+    this.testable = testable;
+    this.lines = lines;
   }
 
   @Override
-  public MutableTestCase addTestCase(String name) {
-    DefaultTestCase testCase = new DefaultTestCase(this);
-    testCase.setName(name);
-    testCases.add(testCase);
+  public TestCase testCase() {
     return testCase;
   }
 
   @Override
-  public Iterable<MutableTestCase> testCases() {
-    return testCases;
+  public Testable testable() {
+    return new DefaultTestable(testable);
   }
 
+  @Override
+  public List<Integer> lines() {
+    return lines;
+  }
 }
