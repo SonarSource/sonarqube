@@ -51,7 +51,7 @@ module NeedAuthorization
     def has_role?(role, objects=nil)
       role = role.to_s
       if objects.nil?
-        if Internal.permissions.globalPermissions().include?(role)
+        if Java::OrgSonarCorePermission::GlobalPermissions::ALL.include?(role)
           AuthorizerFactory.authorizer.has_role?(self, role.to_sym)
         else
           # There's no concept of global users or global codeviewers.

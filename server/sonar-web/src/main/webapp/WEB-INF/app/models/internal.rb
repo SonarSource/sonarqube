@@ -38,15 +38,6 @@ class Internal
     component(Java::OrgSonarApiComponent::RubyComponentService.java_class)
   end
 
-  # TODO to delete
-  def self.permissions
-    component(Java::OrgSonarServerPermission::PermissionService.java_class)
-  end
-
-  def self.permission_templates
-    component(Java::OrgSonarServerPermission::PermissionTemplateService.java_class)
-  end
-
   def self.debt
     component(Java::OrgSonarServerDebt::DebtModelService.java_class)
   end
