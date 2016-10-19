@@ -19,17 +19,21 @@
  */
 package org.sonar.server.component.es;
 
+import java.util.Set;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -39,15 +43,18 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.*;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
   private static final String FIELD_KEY = FIELD_MEASURES + "." + FIELD_MEASURES_KEY;
   private static final String FIELD_VALUE = FIELD_MEASURES + "." + FIELD_MEASURES_VALUE;
 
-  public ProjectMeasuresIndex(EsClient client) {
+  private final UserSession userSession;
+
+  public ProjectMeasuresIndex(EsClient client, UserSession userSession) {
     super(client);
+    this.userSession = userSession;
   }
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
@@ -65,8 +72,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
     return new SearchIdResult<>(request.get(), id -> id);
   }
 
-  private static QueryBuilder createEsQuery(ProjectMeasuresQuery query) {
-    BoolQueryBuilder filters = boolQuery();
+  private QueryBuilder createEsQuery(ProjectMeasuresQuery query) {
+    BoolQueryBuilder filters = boolQuery()
+      .must(createAuthorizationFilter());
     query.getMetricCriteria().stream()
       .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
         .filter(termQuery(FIELD_KEY, criterion.getMetricKey()))
@@ -91,6 +99,19 @@ public class ProjectMeasuresIndex extends BaseIndex {
       default:
         throw new IllegalStateException("Metric criteria non supported: " + criterion.getOperator().name());
     }
+  }
 
+  private QueryBuilder createAuthorizationFilter() {
+    String userLogin = userSession.getLogin();
+    Set<String> userGroupNames = userSession.getUserGroups();
+    BoolQueryBuilder groupsAndUser = boolQuery();
+    if (userLogin != null) {
+      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userLogin));
+    }
+    for (String group : userGroupNames) {
+      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_GROUPS, group));
+    }
+    return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
+      QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
   }
 }

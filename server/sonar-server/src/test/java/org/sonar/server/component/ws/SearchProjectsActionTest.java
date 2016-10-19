@@ -23,6 +23,7 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -44,6 +46,8 @@ import org.sonar.server.component.es.ProjectMeasuresDoc;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -55,6 +59,7 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -71,15 +76,24 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 public class SearchProjectsActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client()), new ProjectMeasuresQueryValidator(dbClient)));
+  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(es);
+
+  private WsActionTester ws = new WsActionTester(
+    new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client(), userSession), new ProjectMeasuresQueryValidator(dbClient)));
 
   private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
@@ -223,6 +237,7 @@ public class SearchProjectsActionTest {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES,
         new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
+      authorizationIndexerTester.insertProjectAuthorization(project.uuid(), singletonList(DefaultGroups.ANYONE), Collections.emptyList());
     } catch (Exception e) {
       Throwables.propagate(e);
     }
