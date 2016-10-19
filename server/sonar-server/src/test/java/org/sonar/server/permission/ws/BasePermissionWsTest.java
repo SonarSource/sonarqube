@@ -95,8 +95,11 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     loginAsAdmin(db.getDefaultOrganization());
   }
 
-  protected void loginAsAdmin(OrganizationDto org) {
+  protected void loginAsAdmin(OrganizationDto org, OrganizationDto... otherOrgs) {
     userSession.login().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    for (OrganizationDto otherOrg : otherOrgs) {
+      userSession.addOrganizationPermission(otherOrg.getUuid(), SYSTEM_ADMIN);
+    }
   }
 
   protected PermissionTemplateDto selectTemplateInDefaultOrganization(String name) {

@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Locale;
+import java.util.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,50 +28,60 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsPermissions.Permission.newBuilder;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {
+
+  public static final String ACTION = "search_global_permissions";
   private static final String PROPERTY_PREFIX = "global_permissions.";
   private static final String DESCRIPTION_SUFFIX = ".desc";
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final I18n i18n;
+  private final PermissionWsSupport support;
 
-  public SearchGlobalPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n) {
+  public SearchGlobalPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
+    this.support = support;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("search_global_permissions")
+    WebService.NewAction action = context.createAction(ACTION)
       .setDescription("List global permissions. <br />" +
         "It requires administration permissions to access.")
       .setResponseExample(getClass().getResource("search_global_permissions-example.json"))
       .setSince("5.2")
       .setHandler(this);
+
+    createOrganizationParameter(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    checkGlobalAdminUser(userSession);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      WsSearchGlobalPermissionsResponse response = buildResponse(dbSession);
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
+      checkProjectAdmin(userSession, org.getUuid(), Optional.empty());
+
+      WsSearchGlobalPermissionsResponse response = buildResponse(dbSession, org);
       writeProtobuf(response, wsRequest, wsResponse);
     }
   }
 
-  private WsSearchGlobalPermissionsResponse buildResponse(DbSession dbSession) {
+  private WsSearchGlobalPermissionsResponse buildResponse(DbSession dbSession, OrganizationDto org) {
     WsSearchGlobalPermissionsResponse.Builder response = WsSearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
@@ -83,8 +94,8 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
           .setKey(permissionKey)
           .setName(i18nName(permissionKey))
           .setDescription(i18nDescriptionMessage(permissionKey))
-          .setUsersCount(countUsers(dbSession, permissionQuery))
-          .setGroupsCount(countGroups(dbSession, permissionKey)));
+          .setUsersCount(countUsers(dbSession, org, permissionQuery))
+          .setGroupsCount(countGroups(dbSession, org, permissionKey)));
     }
 
     return response.build();
@@ -98,12 +109,13 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
   }
 
-  private int countGroups(DbSession dbSession, String permissionKey) {
-    return dbClient.groupPermissionDao().countGroups(dbSession, permissionKey, null);
+  private int countGroups(DbSession dbSession, OrganizationDto org, String permission) {
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
+    return dbClient.groupPermissionDao().countGroupsByQuery(dbSession, org.getUuid(), query);
   }
 
-  private int countUsers(DbSession dbSession, PermissionQuery permissionQuery) {
-    return dbClient.userPermissionDao().countUsers(dbSession, permissionQuery);
+  private int countUsers(DbSession dbSession, OrganizationDto org, PermissionQuery permissionQuery) {
+    return dbClient.userPermissionDao().countUsers(dbSession, org.getUuid(), permissionQuery);
   }
 
   private static PermissionQuery permissionQuery(String permissionKey) {

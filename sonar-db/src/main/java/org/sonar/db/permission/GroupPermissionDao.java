@@ -34,21 +34,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class GroupPermissionDao implements Dao {
 
-  private static final String COMPONENT_ID_PARAMETER = "componentId";
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
-
-  /**
-   * @deprecated not compatible with organizations.
-   */
-  @Deprecated
-  public int countGroups(DbSession session, String permission, @Nullable Long componentId) {
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("permission", permission);
-    parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
-    parameters.put(COMPONENT_ID_PARAMETER, componentId);
-
-    return mapper(session).countGroups(parameters);
-  }
 
   /**
    * Returns the names of the groups that match the given query, for the given organization.
