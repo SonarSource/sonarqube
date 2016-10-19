@@ -24,11 +24,13 @@ import com.google.common.base.Splitter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 
 class ProjectMeasuresQueryFactory {
@@ -58,10 +60,16 @@ class ProjectMeasuresQueryFactory {
       checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should have a metric, an operator and a value");
       String metric = matcher.group(1).toLowerCase(ENGLISH);
       Operator operator = Operator.getByValue(matcher.group(2));
-      double value = Double.parseDouble(matcher.group(3));
-      query.addMetricCriterion(new MetricCriteria(metric, operator, value));
+      String value = matcher.group(3);
+      if (ALERT_STATUS_KEY.equals(metric)) {
+        checkArgument(operator.equals(Operator.EQ), "Only equals operator is available for quality gate criteria");
+        query.setQualityGateStatus(Level.valueOf(value));
+      } else {
+        double doubleValue = Double.parseDouble(matcher.group(3));
+        query.addMetricCriterion(new MetricCriterion(metric, operator, doubleValue));
+      }
     } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion), e);
+      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion.trim()), e);
     }
   }
 

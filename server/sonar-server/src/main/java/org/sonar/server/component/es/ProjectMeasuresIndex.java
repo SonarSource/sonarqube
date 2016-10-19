@@ -23,14 +23,13 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -38,6 +37,7 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_NAME;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
@@ -51,13 +51,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
-    BoolQueryBuilder metricFilters = boolQuery();
-    query.getMetricCriteria().stream()
-      .map(criteria -> nestedQuery(FIELD_MEASURES, boolQuery()
-        .filter(termQuery(FIELD_KEY, criteria.getMetricKey()))
-        .filter(toValueQuery(criteria))))
-      .forEach(metricFilters::filter);
-    QueryBuilder esQuery = query.getMetricCriteria().isEmpty() ? matchAllQuery() : metricFilters;
+    QueryBuilder esQuery = createEsQuery(query);
 
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
@@ -71,16 +65,31 @@ public class ProjectMeasuresIndex extends BaseIndex {
     return new SearchIdResult<>(request.get(), id -> id);
   }
 
-  private static QueryBuilder toValueQuery(MetricCriteria criteria) {
+  private static QueryBuilder createEsQuery(ProjectMeasuresQuery query) {
+    BoolQueryBuilder filters = boolQuery();
+    query.getMetricCriteria().stream()
+      .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
+        .filter(termQuery(FIELD_KEY, criterion.getMetricKey()))
+        .filter(toValueQuery(criterion))))
+      .forEach(filters::filter);
+    if (query.hasQualityGateStatus()) {
+      filters.filter(termQuery(FIELD_QUALITY_GATE, query.getQualityGateStatus().name()));
+    }
+    return filters;
+  }
+
+  private static QueryBuilder toValueQuery(MetricCriterion criterion) {
     String fieldName = FIELD_VALUE;
 
-    switch (criteria.getOperator()) {
+    switch (criterion.getOperator()) {
       case GT:
-        return rangeQuery(fieldName).gt(criteria.getValue());
+        return rangeQuery(fieldName).gt(criterion.getValue());
       case LTE:
-        return rangeQuery(fieldName).lte(criteria.getValue());
+        return rangeQuery(fieldName).lte(criterion.getValue());
+      case EQ:
+        return termQuery(fieldName, criterion.getValue());
       default:
-        throw new IllegalStateException("Metric criteria non supported: " + criteria.getOperator().name());
+        throw new IllegalStateException("Metric criteria non supported: " + criterion.getOperator().name());
     }
 
   }

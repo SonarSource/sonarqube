@@ -22,21 +22,38 @@ package org.sonar.server.component.es;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.measures.Metric;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectMeasuresQuery {
-  private List<MetricCriteria> metricCriteria = new ArrayList<>();
+  private List<MetricCriterion> metricCriteria = new ArrayList<>();
+  private Metric.Level qualityGateStatus;
 
-  public ProjectMeasuresQuery addMetricCriterion(MetricCriteria metricCriteria) {
-    this.metricCriteria.add(metricCriteria);
+  public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
+    this.metricCriteria.add(metricCriterion);
     return this;
   }
 
-  public List<MetricCriteria> getMetricCriteria() {
+  public List<MetricCriterion> getMetricCriteria() {
     return metricCriteria;
+  }
+
+  public ProjectMeasuresQuery setQualityGateStatus(Metric.Level qualityGateStatus) {
+    this.qualityGateStatus = requireNonNull(qualityGateStatus);
+    return this;
+  }
+
+  public boolean hasQualityGateStatus() {
+    return qualityGateStatus != null;
+  }
+
+  public Metric.Level getQualityGateStatus() {
+    checkState(qualityGateStatus != null);
+    return qualityGateStatus;
   }
 
   public enum Operator {
@@ -60,12 +77,12 @@ public class ProjectMeasuresQuery {
     }
   }
 
-  public static class MetricCriteria {
+  public static class MetricCriterion {
     private final String metricKey;
     private final Operator operator;
     private final double value;
 
-    public MetricCriteria(String metricKey, Operator operator, double value) {
+    public MetricCriterion(String metricKey, Operator operator, double value) {
       this.metricKey = requireNonNull(metricKey);
       this.operator = requireNonNull(operator);
       this.value = requireNonNull(value);

@@ -28,9 +28,10 @@ import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
+import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
 import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ProjectMeasuresQueryFactoryTest {
@@ -43,7 +44,7 @@ public class ProjectMeasuresQueryFactoryTest {
     ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc > 10 and coverage <= 80");
 
     assertThat(query.getMetricCriteria())
-      .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
         tuple("coverage", Operator.LTE, 80d));
@@ -54,8 +55,21 @@ public class ProjectMeasuresQueryFactoryTest {
     ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc = 10");
 
     assertThat(query.getMetricCriteria())
-      .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(tuple("ncloc", Operator.EQ, 10d));
+  }
+
+  @Test
+  public void create_query_on_quality_gate() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("alert_status = OK");
+
+    assertThat(query.getQualityGateStatus().name()).isEqualTo(OK.name());
+  }
+
+  @Test
+  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    newProjectMeasuresQuery("alert_status > OK");
   }
 
   @Test
@@ -66,7 +80,7 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void convert_metric_to_lower_case() throws Exception {
     assertThat(newProjectMeasuresQuery("NCLOC > 10 AND coVERage <= 80").getMetricCriteria())
-      .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
         tuple("coverage", Operator.LTE, 80d));
@@ -75,7 +89,7 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void ignore_white_spaces() throws Exception {
     assertThat(newProjectMeasuresQuery("   ncloc    >    10   ").getMetricCriteria())
-      .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(tuple("ncloc", Operator.GT, 10d));
   }
 

@@ -45,10 +45,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.WARN;
 
 public class ProjectMeasuresResultSetIteratorTest {
 
@@ -99,6 +101,19 @@ public class ProjectMeasuresResultSetIteratorTest {
     ProjectMeasuresDoc doc = docsById.get(project.uuid());
     assertThat(doc).isNotNull();
     assertThat(doc.getMeasures()).containsOnly(ImmutableMap.of("key", "new_lines", "value", 10d));
+  }
+
+  @Test
+  public void return_quality_gate_status_measure() throws Exception {
+    MetricDto metric = insertMetric("alert_status", LEVEL);
+    ComponentDto project = newProjectDto();
+    SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
+    insertMeasure(project, analysis, metric, WARN.name());
+
+    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById).hasSize(1);
+    assertThat(docsById.get(project.uuid()).getQualityGate()).isEqualTo("WARN");
   }
 
   @Test
@@ -268,8 +283,15 @@ public class ProjectMeasuresResultSetIteratorTest {
     return insertMeasure(project, analysis, metric, null, value);
   }
 
+  private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, String value) {
+    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setData(value));
+  }
+
   private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, @Nullable Double value, @Nullable Double leakValue) {
-    MeasureDto measure = MeasureTesting.newMeasureDto(metric, project, analysis).setValue(value).setVariation(1, leakValue);
+    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setValue(value).setVariation(1, leakValue));
+  }
+
+  private MeasureDto insertMeasure(MeasureDto measure) {
     dbClient.measureDao().insert(dbSession, measure);
     dbSession.commit();
     return measure;

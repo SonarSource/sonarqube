@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -35,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.db.DatabaseUtils.repeatCondition;
@@ -55,10 +57,10 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     "WHERE m.val_type NOT IN ('" + METRICS_JOINER.join(DATA.name(), DISTRIB.name()) + "') " +
     "AND m.enabled=? AND m.hidden=?";
 
-  private static final String SQL_MEASURES = "SELECT pm.metric_id, pm.value, pm.variation_value_1 FROM project_measures pm " +
+  private static final String SQL_MEASURES = "SELECT pm.metric_id, pm.value, pm.variation_value_1, pm.text_value FROM project_measures pm " +
     "WHERE pm.component_uuid = ? AND pm.analysis_uuid = ? " +
     "AND pm.metric_id IN ({metricIds}) " +
-    "AND (pm.value IS NOT NULL OR pm.variation_value_1 IS NOT NULL) " +
+    "AND (pm.value IS NOT NULL OR pm.variation_value_1 IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND pm.person_id IS NULL ";
 
   private final DbSession dbSession;
@@ -127,29 +129,45 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
   @Override
   protected ProjectMeasuresDoc read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
+    Measures measures = selectMeasures(projectUuid, rs.getString(4));
     ProjectMeasuresDoc doc = new ProjectMeasuresDoc()
       .setId(projectUuid)
       .setKey(rs.getString(2))
       .setName(rs.getString(3))
-      .setMeasuresFromMap(selectMeasures(projectUuid, rs.getString(4)));
+      .setQualityGate(measures.qualityGateStatus)
+      .setMeasuresFromMap(measures.numericMeasures);
     long analysisDate = rs.getLong(5);
     doc.setAnalysedAt(rs.wasNull() ? null : new Date(analysisDate));
     return doc;
   }
 
-  private Map<String, Object> selectMeasures(String projectUuid, String analysisUuid) {
-    Map<String, Object> measures = new HashMap<>();
+  private Measures selectMeasures(String projectUuid, String analysisUuid) {
+    Measures measures = new Measures();
     try (PreparedStatement stmt = createMeasuresStatement(projectUuid, analysisUuid);
       ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
-        String metricKey = metrics.get(rs.getLong(1));
-        Double value = metricKey.startsWith("new_") ? getDouble(rs, 3) : getDouble(rs, 2);
-        measures.put(metricKey, value);
+        readMeasure(rs, measures);
       }
       return measures;
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select measures", e);
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s, analysis %s", projectUuid, analysisUuid), e);
     }
+  }
+
+  private void readMeasure(ResultSet rs, Measures measures) throws SQLException {
+    String metricKey = metrics.get(rs.getLong(1));
+    Optional<Double> value = metricKey.startsWith("new_") ? getDouble(rs, 3) : getDouble(rs, 2);
+    if (value.isPresent()) {
+      measures.addNumericMeasure(metricKey, value.get());
+      return;
+    } else if (ALERT_STATUS_KEY.equals(metricKey)) {
+      String textValue = rs.getString(4);
+      if (!rs.wasNull()) {
+        measures.setQualityGateStatus(textValue);
+        return;
+      }
+    }
+    throw new IllegalArgumentException("Measure has no value");
   }
 
   private PreparedStatement createMeasuresStatement(String projectUuid, String analysisUuid) throws SQLException {
@@ -165,15 +183,30 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     return stmt;
   }
 
-  private static Double getDouble(ResultSet rs, int index) {
+  private static Optional<Double> getDouble(ResultSet rs, int index) {
     try {
       Double value = rs.getDouble(index);
       if (!rs.wasNull()) {
-        return value;
+        return Optional.of(value);
       }
-      throw new IllegalStateException("No value");
+      return Optional.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to get double value", e);
+    }
+  }
+
+  private static class Measures {
+    private Map<String, Object> numericMeasures = new HashMap<>();
+    private String qualityGateStatus;
+
+    Measures addNumericMeasure(String metricKey, double value) {
+      numericMeasures.put(metricKey, value);
+      return this;
+    }
+
+    Measures setQualityGateStatus(String qualityGateStatus) {
+      this.qualityGateStatus = qualityGateStatus;
+      return this;
     }
   }
 

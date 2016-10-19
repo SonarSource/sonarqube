@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
 
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
+import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 
 public class ProjectMeasuresQueryValidator {
 
@@ -40,7 +40,7 @@ public class ProjectMeasuresQueryValidator {
   }
 
   public void validate(DbSession dbSession, ProjectMeasuresQuery query) {
-    List<String> metricKeys = new ArrayList<>(query.getMetricCriteria().stream().map(MetricCriteria::getMetricKey).collect(Collectors.toSet()));
+    List<String> metricKeys = new ArrayList<>(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(Collectors.toSet()));
     List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
     if (dbMetrics.size() == metricKeys.size()) {
       return;
