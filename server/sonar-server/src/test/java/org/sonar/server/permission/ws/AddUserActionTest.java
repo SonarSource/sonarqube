@@ -30,7 +30,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -38,8 +38,6 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.permission.ws.AddUserAction.ACTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -63,7 +61,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void add_permission_to_user() throws Exception {
     loginAsAdminOnDefaultOrganization();
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -76,7 +74,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     ComponentDto project = db.components().insertProject();
 
     loginAsAdminOnDefaultOrganization();
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -91,7 +89,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     ComponentDto project = db.components().insertProject();
 
     loginAsAdminOnDefaultOrganization();
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -106,7 +104,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
 
     loginAsAdminOnDefaultOrganization();
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, view.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -122,7 +120,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(NotFoundException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -135,7 +133,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(BadRequestException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
@@ -148,7 +146,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(BadRequestException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -161,7 +159,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(ServerException.class);
 
-    wsTester.newGetRequest(CONTROLLER, ACTION)
+    newRequest()
+      .setMethod("GET")
       .setParam(PARAM_USER_LOGIN, "george.orwell")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -173,7 +172,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(IllegalArgumentException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -184,7 +183,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(NotFoundException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
       .execute();
   }
@@ -197,7 +196,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "project-uuid")
@@ -211,7 +210,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -224,7 +223,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_PROJECT_KEY, project.getKey())
@@ -240,7 +239,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
@@ -324,7 +323,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   private void executeRequest(UserDto userDto, String permission, @Nullable OrganizationDto organizationDto) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION)
+    TestRequest request = newRequest()
       .setParam(PARAM_USER_LOGIN, userDto.getLogin())
       .setParam(PARAM_PERMISSION, permission);
     if (organizationDto != null) {

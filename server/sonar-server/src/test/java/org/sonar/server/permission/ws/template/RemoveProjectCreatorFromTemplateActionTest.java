@@ -31,19 +31,15 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWsTest<RemoveProjectCreatorFromTemplateAction> {
-
-  private static final String ACTION = "remove_project_creator_from_template";
 
   private System2 system = mock(System2.class);
   private PermissionTemplateDto template;
@@ -146,10 +142,6 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
     Optional<PermissionTemplateCharacteristicDto> templatePermission = db.getDbClient().permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(db.getSession(),
       permission, template.getId());
     assertThat(templatePermission).isNotPresent();
-  }
-
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, ACTION);
   }
 
   private PermissionTemplateCharacteristicDto reload(PermissionTemplateCharacteristicDto characteristic) {
