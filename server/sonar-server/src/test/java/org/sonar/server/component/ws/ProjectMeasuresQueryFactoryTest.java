@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriteria;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ProjectMeasuresQueryFactoryTest {
 
@@ -49,7 +50,21 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void convert_upper_case_to_lower_case() throws Exception {
+  public void create_query_having_equal_operation() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc = 10");
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
+      .containsOnly(tuple("ncloc", Operator.EQ, 10d));
+  }
+
+  @Test
+  public void search_is_case_insensitive() throws Exception {
+    assertThat(newProjectMeasuresQuery("ncloc > 10 AnD coverage <= 80 AND debt = 10 AND issues = 20").getMetricCriteria()).hasSize(4);
+  }
+
+  @Test
+  public void convert_metric_to_lower_case() throws Exception {
     assertThat(newProjectMeasuresQuery("NCLOC > 10 AND coVERage <= 80").getMetricCriteria())
       .extracting(MetricCriteria::getMetricKey, MetricCriteria::getOperator, MetricCriteria::getValue)
       .containsOnly(
@@ -74,7 +89,7 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void fail_on_unknown_operator() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown operator '>='");
+    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("Unknown operator '>='"));
     newProjectMeasuresQuery("ncloc >= 10");
   }
 
@@ -83,6 +98,13 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc ? 10'");
     newProjectMeasuresQuery("ncloc ? 10");
+  }
+
+  @Test
+  public void fail_when_not_double() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Invalid criterion 'ncloc > ten'");
+    newProjectMeasuresQuery("ncloc > ten");
   }
 
   @Test

@@ -33,8 +33,8 @@ import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 
 class ProjectMeasuresQueryFactory {
 
-  private static final Splitter CRITERIA_SPLITTER = Splitter.on("and");
-  private static final Pattern CRITERIA_PATTERN = Pattern.compile("(\\w+)\\s*([<>][=]?)\\s*(\\w+)");
+  private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
+  private static final Pattern CRITERIA_PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(\\w+)");
 
   private ProjectMeasuresQueryFactory() {
     // Only static methods
@@ -47,18 +47,22 @@ class ProjectMeasuresQueryFactory {
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
 
-    CRITERIA_SPLITTER.split(filter.toLowerCase(ENGLISH))
-      .forEach(criteria -> processCriteria(criteria, query));
+    CRITERIA_SPLITTER.split(filter)
+      .forEach(criteria -> processCriterion(criteria, query));
     return query;
   }
 
-  private static void processCriteria(String criteria, ProjectMeasuresQuery query) {
-    Matcher matcher = CRITERIA_PATTERN.matcher(criteria);
-    checkArgument(matcher.find() && matcher.groupCount() == 3, "Invalid criterion '%s'", criteria);
-    String metric = matcher.group(1);
-    Operator operator = Operator.getByValue(matcher.group(2));
-    Double value = Double.parseDouble(matcher.group(3));
-    query.addMetricCriterion(new MetricCriteria(metric, operator, value));
+  private static void processCriterion(String criterion, ProjectMeasuresQuery query) {
+    try {
+      Matcher matcher = CRITERIA_PATTERN.matcher(criterion);
+      checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should have a metric, an operator and a value");
+      String metric = matcher.group(1).toLowerCase(ENGLISH);
+      Operator operator = Operator.getByValue(matcher.group(2));
+      double value = Double.parseDouble(matcher.group(3));
+      query.addMetricCriterion(new MetricCriteria(metric, operator, value));
+    } catch (Exception e) {
+      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion), e);
+    }
   }
 
 }

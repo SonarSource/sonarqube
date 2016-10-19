@@ -25,6 +25,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
 
 public class ProjectMeasuresQuery {
   private List<MetricCriteria> metricCriteria = new ArrayList<>();
@@ -39,7 +40,7 @@ public class ProjectMeasuresQuery {
   }
 
   public enum Operator {
-    LTE("<="), GT(">");
+    LTE("<="), GT(">"), EQ("=");
 
     String value;
 
@@ -65,9 +66,9 @@ public class ProjectMeasuresQuery {
     private final double value;
 
     public MetricCriteria(String metricKey, Operator operator, double value) {
-      this.metricKey = metricKey;
-      this.operator = operator;
-      this.value = value;
+      this.metricKey = requireNonNull(metricKey);
+      this.operator = requireNonNull(operator);
+      this.value = requireNonNull(value);
     }
 
     public String getMetricKey() {
