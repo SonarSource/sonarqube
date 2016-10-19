@@ -69,6 +69,10 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectUserPermissionsByTemplateIdAndUserLogins(templateId, Collections.emptyList());
   }
 
+  /**
+   * @deprecated does not support organizations. Should return group ids.
+   */
+  @Deprecated
   public List<String> selectGroupNamesByQueryAndTemplate(DbSession session, PermissionQuery query, long templateId) {
     return mapper(session).selectGroupNamesByQueryAndTemplate(query, templateId, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
@@ -97,11 +101,19 @@ public class PermissionTemplateDao implements Dao {
     return mapper(session).selectByUuid(templateUuid);
   }
 
+  /**
+   * @deprecated does not support organizations. Should return group ids.
+   */
+  @Deprecated
   public List<PermissionTemplateDto> selectAll(DbSession session, String nameMatch) {
     String uppercaseNameMatch = toUppercaseSqlQuery(nameMatch);
     return mapper(session).selectAll(uppercaseNameMatch);
   }
 
+  /**
+   * @deprecated does not support organizations. Should return group ids.
+   */
+  @Deprecated
   public List<PermissionTemplateDto> selectAll(DbSession session) {
     return mapper(session).selectAll(null);
   }
@@ -112,11 +124,9 @@ public class PermissionTemplateDao implements Dao {
 
   }
 
-  public PermissionTemplateDto insert(DbSession session, PermissionTemplateDto permissionTemplate) {
-    mapper(session).insert(permissionTemplate);
-    session.commit();
-
-    return permissionTemplate;
+  public PermissionTemplateDto insert(DbSession session, PermissionTemplateDto dto) {
+    mapper(session).insert(dto);
+    return dto;
   }
 
   /**
@@ -160,8 +170,6 @@ public class PermissionTemplateDao implements Dao {
 
   public PermissionTemplateDto update(DbSession session, PermissionTemplateDto permissionTemplate) {
     mapper(session).update(permissionTemplate);
-    session.commit();
-
     return permissionTemplate;
   }
 
@@ -220,7 +228,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Remove a group from all templates (used when removing a group)
    */
-  public void deleteByGroup(DbSession session, Long groupId) {
+  public void deleteByGroup(DbSession session, long groupId) {
     session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 

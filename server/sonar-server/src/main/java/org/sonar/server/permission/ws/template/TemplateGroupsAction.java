@@ -143,7 +143,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
     List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getId());
-    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
+    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));
     }

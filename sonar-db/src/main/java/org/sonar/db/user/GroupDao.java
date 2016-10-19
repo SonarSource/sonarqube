@@ -45,15 +45,6 @@ public class GroupDao implements Dao {
   }
 
   /**
-   * @deprecated replaced by {@link #selectByName(DbSession, String, String)}
-   */
-  @Deprecated
-  @CheckForNull
-  public GroupDto selectByName(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
-  }
-
-  /**
    * @param dbSession
    * @param organizationUuid non-null UUID of organization (no support of "default" organization)
    * @param name non-null group name
@@ -63,17 +54,17 @@ public class GroupDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByName(organizationUuid, name));
   }
 
-  /**
-   * @deprecated organization should be added as a parameter
-   */
-  @Deprecated
-  public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
-    return executeLargeInputs(names, mapper(session)::selectByNames);
+  public List<GroupDto> selectByNames(DbSession dbSession, String organizationUuid, Collection<String> names) {
+    return executeLargeInputs(names, pageOfNames -> mapper(dbSession).selectByNames(organizationUuid, pageOfNames));
   }
 
   @CheckForNull
   public GroupDto selectById(DbSession dbSession, long groupId) {
     return mapper(dbSession).selectById(groupId);
+  }
+
+  public List<GroupDto> selectByIds(DbSession dbSession, List<Long> ids) {
+    return executeLargeInputs(ids, mapper(dbSession)::selectByIds);
   }
 
   public void deleteById(DbSession dbSession, long groupId) {

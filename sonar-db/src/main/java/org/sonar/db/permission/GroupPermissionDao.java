@@ -51,28 +51,28 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
+   * Returns the names of the groups that match the given query, for the given organization.
+   * The virtual group "Anyone" may be returned as the value {@link DefaultGroups#ANYONE}.
    * @return group names, sorted in alphabetical order
-   * @deprecated not compatible with organizations.
    */
-  @Deprecated
-  public List<String> selectGroupNamesByPermissionQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectGroupNamesByPermissionQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+  public List<String> selectGroupNamesByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    return mapper(dbSession).selectGroupNamesByQuery(organizationUuid, query, new RowBounds(query.getPageOffset(), query.getPageSize()));
   }
 
   /**
-   * @deprecated not compatible with organizations.
+   * Count the number of groups returned by {@link #selectGroupNamesByQuery(DbSession, String, PermissionQuery)},
+   * without applying pagination.
    */
-  @Deprecated
-  public int countGroupsByPermissionQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).countGroupsByPermissionQuery(query);
+  public int countGroupsByQuery(DbSession dbSession, String organizationUuid, PermissionQuery query) {
+    return mapper(dbSession).countGroupsByQuery(organizationUuid, query);
   }
 
   /**
-   * @deprecated group name parameter is not enough to identify a group. It is not compatible with organizations.
+   * Select global or project permission of given groups and organization. Anyone virtual group is supported
+   * through the value "zero" (0L) in {@code groupIds}.
    */
-  @Deprecated
-  public List<GroupPermissionDto> selectGroupPermissionsByGroupNamesAndProject(DbSession dbSession, List<String> groupNames, @Nullable Long projectId) {
-    return executeLargeInputs(groupNames, groups -> mapper(dbSession).selectGroupPermissionByGroupNames(groups, projectId));
+  public List<GroupPermissionDto> selectByGroupIds(DbSession dbSession, String organizationUuid, List<Long> groupIds, @Nullable Long projectId) {
+    return executeLargeInputs(groupIds, groups -> mapper(dbSession).selectByGroupIds(organizationUuid, groups, projectId));
   }
 
   /**
@@ -98,7 +98,6 @@ public class GroupPermissionDao implements Dao {
   public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Long groupId) {
     return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupId);
   }
-
 
   /**
    * Selects the permissions granted to group and project. An empty list is returned if the

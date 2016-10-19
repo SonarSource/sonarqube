@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,6 +40,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 public class GroupDaoTest {
 
   private static final long NOW = 1_500_000L;
+  private static final long MISSING_ID = -1L;
   private static final OrganizationDto AN_ORGANIZATION = new OrganizationDto()
     .setKey("an-org")
     .setName("An Org")
@@ -50,8 +50,8 @@ public class GroupDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-  private final DbSession dbSession = db.getSession();
-  private GroupDao underTest = new GroupDao(system2);
+  private DbSession dbSession = db.getSession();
+  private GroupDao underTest = db.getDbClient().groupDao();
 
   // not static as group id is changed in each test
   private final GroupDto aGroup = new GroupDto()
@@ -96,15 +96,32 @@ public class GroupDaoTest {
 
   @Test
   public void selectByNames() {
-    underTest.insert(dbSession, newGroupDto().setName("group1"));
-    underTest.insert(dbSession, newGroupDto().setName("group2"));
-    underTest.insert(dbSession, newGroupDto().setName("group3"));
+    GroupDto group1InOrg1 = underTest.insert(dbSession, newGroupDto().setName("group1").setOrganizationUuid("org1"));
+    GroupDto group2InOrg1 = underTest.insert(dbSession, newGroupDto().setName("group2").setOrganizationUuid("org1"));
+    GroupDto group1InOrg2 = underTest.insert(dbSession, newGroupDto().setName("group1").setOrganizationUuid("org2"));
+    GroupDto group3InOrg2 = underTest.insert(dbSession, newGroupDto().setName("group3").setOrganizationUuid("org2"));
     dbSession.commit();
 
-    assertThat(underTest.selectByNames(dbSession, asList("group1", "group2", "group3"))).hasSize(3);
-    assertThat(underTest.selectByNames(dbSession, singletonList("group1"))).hasSize(1);
-    assertThat(underTest.selectByNames(dbSession, asList("group1", "unknown"))).hasSize(1);
-    assertThat(underTest.selectByNames(dbSession, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectByNames(dbSession, "org1", asList("group1", "group2", "group3", "missingGroup"))).extracting(GroupDto::getId)
+      .containsOnly(group1InOrg1.getId(), group2InOrg1.getId());
+
+    assertThat(underTest.selectByNames(dbSession, "org1", Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectByNames(dbSession, "missingOrg", asList("group1"))).isEmpty();
+  }
+
+  @Test
+  public void selectByIds() {
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
+
+    assertThat(underTest.selectByIds(dbSession, asList(group1.getId(), group2.getId())))
+      .extracting(GroupDto::getId).containsOnly(group1.getId(), group2.getId());
+
+    assertThat(underTest.selectByIds(dbSession, asList(group1.getId(), MISSING_ID)))
+      .extracting(GroupDto::getId).containsOnly(group1.getId());
+
+    assertThat(underTest.selectByIds(dbSession, Collections.emptyList())).isEmpty();
   }
 
   @Test

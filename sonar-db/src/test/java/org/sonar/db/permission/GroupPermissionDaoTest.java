@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -49,19 +50,26 @@ import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupPermissionDaoTest {
-  private static final long UNKNOWN_PROJECT_ID = -1L;
-  private static final long UNKNOWN_GROUP_ID = -1L;
+
+  private static final long ANYONE_ID = 0L;
+  private static final long MISSING_ID = -1L;
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private DbSession dbSession = db.getSession();
   private GroupPermissionDao underTest = new GroupPermissionDao();
+  private String defaultOrganizationUuid;
+
+  @Before
+  public void setUp() throws Exception {
+    defaultOrganizationUuid = db.getDefaultOrganization().getUuid();
+  }
 
   @Test
   public void group_count_by_permission_and_component_id() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
-    GroupDto group3 = db.users().insertGroup(newGroupDto());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
     ComponentDto project1 = db.components().insertProject();
     ComponentDto project2 = db.components().insertProject();
     ComponentDto project3 = db.components().insertProject();
@@ -86,52 +94,41 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
-  public void select_groups_by_query() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
-    GroupDto group3 = db.users().insertGroup(newGroupDto());
+  public void selectGroupNamesByQuery_is_ordered_by_group_names() {
+    GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
+    GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
+    GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
     db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
 
-    List<String> groupNames = underTest.selectGroupNamesByPermissionQuery(dbSession, PermissionQuery.builder().build());
-    assertThat(groupNames).containsOnly("Anyone", group1.getName(), group2.getName(), group3.getName());
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().build())).containsExactly(ANYONE, group1.getName(), group2.getName(), group3.getName());
   }
 
   @Test
-  public void select_groups_by_query_is_ordered_by_group_names() {
-    db.users().insertGroup(newGroupDto().setName("Group-2"));
-    db.users().insertGroup(newGroupDto().setName("Group-3"));
-    db.users().insertGroup(newGroupDto().setName("Group-1"));
-    db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
-
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().build())).containsExactly("Anyone", "Group-1", "Group-2", "Group-3");
-  }
-
-  @Test
-  public void count_groups_by_query() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+  public void countGroupsByQuery() {
+    GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
+    addGroupOnDefaultOrganization("Group-2");
+    addGroupOnDefaultOrganization("Group-3");
     db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
     db.users().insertPermissionOnGroup(group1, PROVISIONING);
 
-    assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().build())).isEqualTo(4);
-    assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().setPermission(PROVISIONING).build())).isEqualTo(1);
-    assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().withAtLeastOnePermission().build())).isEqualTo(2);
-    assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().setSearchQuery("Group-").build())).isEqualTo(3);
-    assertThat(underTest.countGroupsByPermissionQuery(dbSession,
-      PermissionQuery.builder().setSearchQuery("Any").build())).isEqualTo(1);
+    assertThat(underTest.countGroupsByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().build())).isEqualTo(4);
+    assertThat(underTest.countGroupsByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setPermission(PROVISIONING).build())).isEqualTo(1);
+    assertThat(underTest.countGroupsByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().withAtLeastOnePermission().build())).isEqualTo(2);
+    assertThat(underTest.countGroupsByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("Group-").build())).isEqualTo(3);
+    assertThat(underTest.countGroupsByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("Any").build())).isEqualTo(1);
   }
 
   @Test
-  public void select_groups_by_query_with_global_permission() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+  public void selectGroupNamesByQuery_with_global_permission() {
+    GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
+    GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
+    GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
 
     ComponentDto project = db.components().insertComponent(newProjectDto());
 
@@ -141,24 +138,24 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group3, SYSTEM_ADMIN);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().setPermission(SCAN_EXECUTION).build())).containsExactly(ANYONE, "Group-1");
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setPermission(SCAN_EXECUTION).build())).containsExactly(ANYONE, group1.getName());
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().setPermission(SYSTEM_ADMIN).build())).containsExactly("Group-3");
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setPermission(SYSTEM_ADMIN).build())).containsExactly(group3.getName());
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().setPermission(PROVISIONING).build())).containsExactly(ANYONE);
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setPermission(PROVISIONING).build())).containsExactly(ANYONE);
   }
 
   @Test
   public void select_groups_by_query_with_project_permissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
-    GroupDto group3 = db.users().insertGroup(newGroupDto());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
 
-    ComponentDto project = db.components().insertComponent(newProjectDto());
-    ComponentDto anotherProject = db.components().insertComponent(newProjectDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertProject();
 
     db.users().insertProjectPermissionOnGroup(group1, SCAN_EXECUTION, project);
     db.users().insertProjectPermissionOnGroup(group1, PROVISIONING, project);
@@ -170,113 +167,114 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group2, SCAN_EXECUTION);
 
     PermissionQuery.Builder builderOnComponent = PermissionQuery.builder().setComponentUuid(project.uuid());
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      builderOnComponent.setPermission(USER).build())).containsOnlyOnce(ANYONE);
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, builderOnComponent.setPermission(USER).build())).containsOnlyOnce(ANYONE);
   }
 
   @Test
-  public void select_groups_by_query_paginated() {
-    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertGroup(newGroupDto().setName(i + "-name")));
+  public void selectGroupNamesByQuery_is_paginated() {
+    IntStream.rangeClosed(0, 9).forEach(i -> addGroupOnDefaultOrganization(i + "-name"));
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().setPageIndex(2).setPageSize(3).build())).containsExactly("3-name", "4-name", "5-name");
+    List<String> groupNames = underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setPageIndex(2).setPageSize(3).build());
+    assertThat(groupNames).containsExactly("3-name", "4-name", "5-name");
   }
 
   @Test
-  public void select_groups_by_query_with_search_query() {
-    GroupDto group = db.users().insertGroup(newGroupDto().setName("group-anyone"));
-    db.users().insertGroup(newGroupDto().setName("unknown"));
+  public void selectGroupNamesByQuery_with_search_query() {
+    GroupDto group = addGroupOnDefaultOrganization("group-anyone");
+    addGroupOnDefaultOrganization("unknown");
     db.users().insertPermissionOnGroup(group, SCAN_EXECUTION);
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().setSearchQuery("any").build())).containsOnlyOnce(ANYONE, "group-anyone");
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().setSearchQuery("any").build())).containsOnlyOnce(ANYONE, group.getName());
   }
 
   @Test
-  public void select_groups_by_query_does_not_return_anyone_when_group_roles_is_empty() {
-    GroupDto group = db.users().insertGroup(newGroupDto());
+  public void selectGroupNamesByQuery_does_not_return_anyone_when_group_roles_is_empty() {
+    GroupDto group = db.users().insertGroup();
 
-    assertThat(underTest.selectGroupNamesByPermissionQuery(dbSession,
-      PermissionQuery.builder().build()))
+    assertThat(underTest.selectGroupNamesByQuery(dbSession,
+      defaultOrganizationUuid, PermissionQuery.builder().build()))
         .doesNotContain(ANYONE)
         .containsExactly(group.getName());
   }
 
   @Test
-  public void select_group_permissions_by_group_names_on_global_permissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+  public void selectByGroupIds_on_global_permissions() {
+    GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
     db.users().insertPermissionOnGroup(group1, SCAN_EXECUTION);
 
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
     ComponentDto project = db.components().insertComponent(newProjectDto());
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
     db.users().insertPermissionOnGroup(group3, SYSTEM_ADMIN);
 
     // Anyone
     db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
     db.users().insertPermissionOnAnyone(PROVISIONING);
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1"), null))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group1.getId()), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group1.getId(), SCAN_EXECUTION, null));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-2"), null)).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group2.getId()), null)).isEmpty();
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-3"), null))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group3.getId()), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group3.getId(), SYSTEM_ADMIN, null));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Anyone"), null))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(ANYONE_ID), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(
         tuple(0L, SCAN_EXECUTION, null),
         tuple(0L, PROVISIONING, null));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1", "Group-2", "Anyone"), null)).hasSize(3);
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Unknown"), null)).isEmpty();
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, Collections.emptyList(), null)).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group1.getId(), group2.getId(), ANYONE_ID), null)).hasSize(3);
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(MISSING_ID), null)).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, Collections.emptyList(), null)).isEmpty();
   }
 
   @Test
-  public void select_group_permissions_by_group_names_on_project_permissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
+  public void selectByGroupIds_on_projects() {
+    GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
     db.users().insertPermissionOnGroup(group1, PROVISIONING);
 
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
+    GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
     ComponentDto project = db.components().insertComponent(newProjectDto());
     db.users().insertProjectPermissionOnGroup(group2, USER, project);
 
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+    GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
     db.users().insertProjectPermissionOnGroup(group3, USER, project);
 
     // Anyone group
     db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
     db.users().insertProjectPermissionOnAnyone(PROVISIONING, project);
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1"), project.getId())).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group1.getId()), project.getId())).isEmpty();
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-2"), project.getId()))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group2.getId()), project.getId()))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group2.getId(), USER, project.getId()));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-3"), project.getId()))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group3.getId()), project.getId()))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(group3.getId(), USER, project.getId()));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Anyone"), project.getId()))
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(ANYONE_ID), project.getId()))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(tuple(0L, PROVISIONING, project.getId()));
 
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1", "Group-2", "Anyone"), project.getId())).hasSize(2);
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Unknown"), project.getId())).isEmpty();
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, asList("Group-1"), 123L)).isEmpty();
-    assertThat(underTest.selectGroupPermissionsByGroupNamesAndProject(dbSession, Collections.emptyList(), project.getId())).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group1.getId(), group2.getId(), ANYONE_ID), project.getId())).hasSize(2);
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(MISSING_ID), project.getId())).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, asList(group1.getId()), 123L)).isEmpty();
+    assertThat(underTest.selectByGroupIds(dbSession, defaultOrganizationUuid, Collections.emptyList(), project.getId())).isEmpty();
   }
 
   @Test
@@ -438,5 +436,9 @@ public class GroupPermissionDaoTest {
 
   private void assertThatNoPermission(String permission) {
     assertThat(db.countSql("select count(id) from group_roles where role='" + permission + "'")).isEqualTo(0);
+  }
+
+  private GroupDto addGroupOnDefaultOrganization(String name) {
+    return db.users().insertGroup(db.getDefaultOrganization(), name);
   }
 }

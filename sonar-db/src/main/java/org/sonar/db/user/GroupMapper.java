@@ -28,14 +28,11 @@ import org.apache.ibatis.session.RowBounds;
 public interface GroupMapper {
 
   @CheckForNull
-  GroupDto selectByKey(String name);
-
-  @CheckForNull
   GroupDto selectById(long groupId);
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
-  List<GroupDto> selectByNames(@Param("names") List<String> names);
+  List<GroupDto> selectByNames(@Param("organizationUuid") String organizationUuid, @Param("names") List<String> names);
 
   void insert(GroupDto groupDto);
 
@@ -51,4 +48,6 @@ public interface GroupMapper {
   GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
   List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
+
+  List<GroupDto> selectByIds(@Param("ids") List<Long> ids);
 }

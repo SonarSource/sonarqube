@@ -34,23 +34,11 @@ public interface GroupPermissionMapper {
   @Deprecated
   int countGroups(Map<String, Object> parameters);
 
-  /**
-   * @deprecated does not support organizations
-   */
-  @Deprecated
-  List<String> selectGroupNamesByPermissionQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  /**
-   * @deprecated does not support organizations
-   */
-  @Deprecated
-  int countGroupsByPermissionQuery(@Param("query") PermissionQuery query);
+  int countGroupsByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query);
 
-  /**
-   * @deprecated does not support organizations
-   */
-  @Deprecated
-  List<GroupPermissionDto> selectGroupPermissionByGroupNames(@Param("groupNames") List<String> groupNames, @Nullable @Param("projectId") Long projectId);
+  List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid, @Param("groupIds") List<Long> groupIds, @Nullable @Param("projectId") Long projectId);
 
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 

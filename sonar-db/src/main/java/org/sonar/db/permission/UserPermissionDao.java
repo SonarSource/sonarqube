@@ -21,7 +21,6 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
@@ -30,7 +29,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -62,22 +60,6 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)}
-   * @param userLogin the non-null user login
-   * @param projectUuid if null, then return global permissions, else return permissions of user on this project
-   */
-  public Set<String> selectPermissionsByLogin(DbSession dbSession, String userLogin, @Nullable String projectUuid) {
-    PermissionQuery query = PermissionQuery.builder()
-      .withAtLeastOnePermission()
-      .setComponentUuid(projectUuid)
-      .build();
-    return select(dbSession, query, asList(userLogin)).stream()
-      .map(ExtendedUserPermissionDto::getPermission)
-      .collect(Collectors.toSet());
-  }
-
-
-  /**
    * @see UserPermissionMapper#countUsersByQuery(PermissionQuery, Collection)
    */
   public int countUsers(DbSession dbSession, PermissionQuery query) {
@@ -98,6 +80,24 @@ public class UserPermissionDao implements Dao {
    */
   public boolean hasRootComponentPermissions(DbSession dbSession, long rootComponentId) {
     return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
+  }
+
+  /**
+   * Gets all the global permissions granted to user for the specified organization.
+   *
+   * @return the global permissions. An empty list is returned if user or organization do not exist.
+   */
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, long userId, String organizationUuid) {
+    return mapper(dbSession).selectGlobalPermissionsOfUser(userId, organizationUuid);
+  }
+
+  /**
+   * Gets all the project permissions granted to user for the specified project.
+   *
+   * @return the project permissions. An empty list is returned if project or user do not exist.
+   */
+  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, long userId, long projectId) {
+    return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectId);
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {

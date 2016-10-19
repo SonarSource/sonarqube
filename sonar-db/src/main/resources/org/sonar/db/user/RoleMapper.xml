@@ -23,56 +23,6 @@
     ORDER by resource_id
   </select>
 
-  <select id="selectGroupPermissions" parameterType="map" resultType="String">
-    SELECT gr.role
-    FROM group_roles gr
-    <if test="isAnyOneGroup != true">
-      INNER JOIN groups g ON g.id = gr.group_id
-    </if>
-    <where>
-      <choose>
-        <when test="isAnyOneGroup != true">
-          AND g.name = #{groupName}
-        </when>
-        <otherwise>
-          AND gr.group_id IS NULL
-        </otherwise>
-      </choose>
-      <choose>
-        <when test="resourceId != null">
-          AND resource_id=#{resourceId}
-        </when>
-        <otherwise>
-          AND resource_id IS NULL
-        </otherwise>
-      </choose>
-    </where>
-  </select>
-
-  <select id="countUsersWithPermission" parameterType="map" resultType="int">
-    SELECT count(c.id)
-    FROM (
-    SELECT DISTINCT ur.user_id as id
-    FROM user_roles ur
-    INNER JOIN users u ON u.id=ur.user_id AND u.active=${_true}
-    WHERE
-    ur.role = #{permission} and ur.resource_id IS NULL
-    UNION ALL
-    SELECT DISTINCT u.id as id
-    FROM users u
-    INNER JOIN groups_users gu ON gu.user_id = u.id
-    INNER JOIN group_roles gr ON gr.group_id = gu.group_id
-    INNER JOIN groups g ON g.id = gu.group_id
-    WHERE
-    gr.role = #{permission}
-    AND gr.resource_id IS NULL
-    AND u.active=${_true}
-    <if test="groupId!=null">
-      AND g.id!=#{groupId}
-    </if>
-    ) c
-  </select>
-
   <delete id="deleteGroupRolesByGroupId" parameterType="long">
     delete from group_roles where group_id=#{id}
   </delete>
