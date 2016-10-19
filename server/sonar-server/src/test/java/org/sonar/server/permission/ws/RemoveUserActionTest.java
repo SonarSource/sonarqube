@@ -40,8 +40,6 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -72,7 +70,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
       .execute();
@@ -89,7 +87,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, ADMIN)
       .execute();
@@ -102,7 +100,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
@@ -118,7 +116,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -134,7 +132,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, view);
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, view.getKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -149,7 +147,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(NotFoundException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -162,7 +160,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(BadRequestException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
@@ -175,7 +173,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(BadRequestException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -188,7 +186,8 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(ServerException.class);
 
-    wsTester.newGetRequest(CONTROLLER, ACTION)
+    newRequest()
+      .setMethod("GET")
       .setParam(PARAM_USER_LOGIN, "george.orwell")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -200,7 +199,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(IllegalArgumentException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -211,7 +210,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(IllegalArgumentException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .execute();
   }
@@ -224,7 +223,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -273,7 +272,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   }
 
   private void executeRequest(UserDto userDto, OrganizationDto organizationDto, String permission) throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, userDto.getLogin())
       .setParam(PARAM_PERMISSION, permission)
       .setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey())
@@ -281,7 +280,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   }
 
   private void executeRequest(UserDto userDto, String permission) throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, userDto.getLogin())
       .setParam(PARAM_PERMISSION, permission)
       .execute();
@@ -293,7 +292,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, PROVISIONING)
       .execute();
@@ -306,7 +305,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
     expectedException.expect(ForbiddenException.class);
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_KEY, project.key())
@@ -323,7 +322,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)

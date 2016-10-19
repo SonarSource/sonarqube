@@ -32,14 +32,13 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -192,7 +191,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) throws Exception {
-    WsTester.TestRequest request = newRequest();
+    TestRequest request = newRequest();
     if (groupName != null) {
       request.setParam(PARAM_GROUP_NAME, groupName);
     }
@@ -210,9 +209,5 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectGroupNamesByQueryAndTemplate(db.getSession(), query, templateId);
-  }
-
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, "add_group_to_template");
   }
 }

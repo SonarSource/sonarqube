@@ -32,13 +32,12 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -47,7 +46,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 
 public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<RemoveGroupFromTemplateAction> {
 
-  private static final String ACTION = "remove_group_from_template";
   private static final String PERMISSION = CODEVIEWER;
 
   private GroupDto group;
@@ -76,7 +74,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void remove_group_from_template_by_name_case_insensitive() throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, PERMISSION)
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
@@ -87,7 +85,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void remove_group_with_group_id() throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(PARAM_PERMISSION, PERMISSION)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
@@ -175,7 +173,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+    TestRequest request = newRequest();
     if (groupName != null) {
       request.setParam(PARAM_GROUP_NAME, groupName);
     }

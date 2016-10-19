@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -32,7 +33,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
@@ -46,7 +46,6 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
@@ -105,7 +104,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
     db.commit();
 
-    String result = newRequest().execute().outputAsString();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .ignoreFields("permissions")
@@ -114,7 +113,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void empty_result() throws Exception {
-    String result = newRequest().execute().outputAsString();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .ignoreFields("permissions")
@@ -128,7 +127,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(result).contains("project-uuid");
   }
@@ -143,7 +142,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     String result = newRequest()
       .setParam(PAGE, "1")
       .setParam(PAGE_SIZE, "3")
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(result)
       .contains("project-name-1", "project-name-2", "project-name-3")
@@ -158,7 +157,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(result).contains("project-name")
       .doesNotContain("another-name");
@@ -173,7 +172,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     String result = newRequest()
       .setParam(TEXT_QUERY, "project-key")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("project-key")
       .doesNotContain("another-key");
@@ -190,7 +189,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
       .setParam(TEXT_QUERY, "project")
       .setParam(PAGE_SIZE, "1001")
       .execute()
-      .outputAsString();
+      .getInput();
 
     assertThat(result).contains("project-uuid-1", "project-uuid-999", "project-uuid-1001");
   }
@@ -201,11 +200,11 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.components().insertComponent(newDeveloper("developer-name"));
     db.components().insertComponent(newProjectDto("project-uuid"));
 
-    byte[] wsResponse = newRequest()
+    InputStream wsResponse = newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
       .execute()
-      .output();
+      .getInputStream();
     WsPermissions.SearchProjectPermissionsWsResponse result = WsPermissions.SearchProjectPermissionsWsResponse.parseFrom(wsResponse);
 
     assertThat(result.getProjectsList())
@@ -235,7 +234,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void display_all_project_permissions() throws Exception {
-    String result = newRequest().execute().outputAsString();
+    String result = newRequest().execute().getInput();
 
     assertJson(result)
       .ignoreFields("permissions")
@@ -271,9 +270,5 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));
-  }
-
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, "search_project_permissions");
   }
 }

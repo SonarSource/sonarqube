@@ -37,20 +37,18 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 
 import static com.google.common.primitives.Longs.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.util.collections.Sets.newSet;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplateAction> {
-
-  private static final String ACTION = "delete_template";
 
   private DefaultPermissionTemplateFinder defaultTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
   private PermissionTemplateDto template;
@@ -69,15 +67,15 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
 
   @Test
   public void delete_template_in_db() throws Exception {
-    WsTester.Result result = newRequest(template.getUuid());
+    TestResponse result = newRequest(template.getUuid());
 
-    assertThat(result.outputAsString()).isEmpty();
+    assertThat(result.getInput()).isEmpty();
     assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
   }
 
   @Test
   public void delete_template_by_name_case_insensitive() throws Exception {
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
@@ -149,8 +147,8 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
     return dto;
   }
 
-  private WsTester.Result newRequest(@Nullable String id) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+  private TestResponse newRequest(@Nullable String id) throws Exception {
+    TestRequest request = newRequest();
     if (id != null) {
       request.setParam(PARAM_TEMPLATE_ID, id);
     }

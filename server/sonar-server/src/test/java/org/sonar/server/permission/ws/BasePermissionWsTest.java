@@ -38,7 +38,8 @@ import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -53,11 +54,11 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   protected UserSessionRule userSession = UserSessionRule.standalone();
-  protected WsTester wsTester;
+  protected WsActionTester wsTester;
 
   @Before
   public void initWsTester() {
-    wsTester = new WsTester(new PermissionsWs(buildWsAction()));
+    wsTester = new WsActionTester(buildWsAction());
   }
 
   protected abstract A buildWsAction();
@@ -80,6 +81,10 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
       mock(PermissionIndexer.class),
       new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider),
       new GroupPermissionChanger(db.getDbClient(), defaultOrganizationProvider));
+  }
+
+  protected TestRequest newRequest() {
+    return wsTester.newRequest().setMethod("POST");
   }
 
   protected PermissionTemplateDto insertTemplate() {

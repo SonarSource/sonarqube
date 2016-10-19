@@ -31,20 +31,17 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToTemplateAction> {
-
-  private static final String ACTION = "add_user_to_template";
 
   private UserDto user;
   private PermissionTemplateDto permissionTemplate;
@@ -73,7 +70,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   public void add_user_to_template_by_name() throws Exception {
     loginAsAdminOnDefaultOrganization();
 
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
@@ -158,7 +155,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+    TestRequest request = newRequest();
     if (userLogin != null) {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }

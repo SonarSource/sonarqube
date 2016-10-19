@@ -32,12 +32,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
@@ -45,7 +44,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<RemoveUserFromTemplateAction> {
 
   private static final String DEFAULT_PERMISSION = CODEVIEWER;
-  private static final String ACTION = "remove_user_from_template";
 
   private UserDto user;
   private PermissionTemplateDto template;
@@ -73,7 +71,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   @Test
   public void remove_user_from_template_by_name_case_insensitive() throws Exception {
     loginAsAdminOnDefaultOrganization();
-    wsTester.newPostRequest(CONTROLLER, ACTION)
+    newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION)
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
@@ -180,7 +178,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   }
 
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+    TestRequest request = newRequest();
     if (userLogin != null) {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }

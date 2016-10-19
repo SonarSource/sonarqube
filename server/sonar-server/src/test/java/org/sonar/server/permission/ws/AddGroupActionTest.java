@@ -30,7 +30,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -38,8 +37,6 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
@@ -191,7 +188,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     expectedException.expect(ServerException.class);
 
-    wsTester.newGetRequest(CONTROLLER, ACTION)
+    newRequest()
+      .setMethod("GET")
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -312,6 +310,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ISSUE_ADMIN);
   }
 
+
   @Test
   public void set_root_flag_to_true_on_all_users_in_group_when_admin_permission_to_group_of_default_organization_without_org_param() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
@@ -382,7 +381,4 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return wsTester.newPostRequest(CONTROLLER, ACTION);
-  }
 }

@@ -30,7 +30,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -38,15 +38,12 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplateAction> {
-
-  private static final String ACTION = "update_template";
 
   private System2 system = spy(System2.INSTANCE);
   private PermissionTemplateDto template;
@@ -201,7 +198,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest(CONTROLLER, ACTION);
+    TestRequest request = newRequest();
     if (key != null) {
       request.setParam(PARAM_ID, key);
     }
@@ -215,6 +212,6 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
       request.setParam(PARAM_PROJECT_KEY_PATTERN, projectPattern);
     }
 
-    return request.execute().outputAsString();
+    return request.execute().getInput();
   }
 }
