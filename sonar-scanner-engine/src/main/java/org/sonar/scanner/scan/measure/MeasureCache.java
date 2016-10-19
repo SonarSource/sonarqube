@@ -24,9 +24,9 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Cache.Entry;
-import org.sonar.scanner.index.Caches;
+import org.sonar.scanner.storage.Storage;
+import org.sonar.scanner.storage.Storages;
+import org.sonar.scanner.storage.Storage.Entry;
 
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
@@ -34,9 +34,9 @@ import org.sonar.scanner.index.Caches;
 @ScannerSide
 public class MeasureCache {
 
-  private final Cache<DefaultMeasure<?>> cache;
+  private final Storage<DefaultMeasure<?>> cache;
 
-  public MeasureCache(Caches caches, MetricFinder metricFinder) {
+  public MeasureCache(Storages caches, MetricFinder metricFinder) {
     caches.registerValueCoder(DefaultMeasure.class, new MeasureValueCoder(metricFinder));
     cache = caches.createCache("measures");
   }

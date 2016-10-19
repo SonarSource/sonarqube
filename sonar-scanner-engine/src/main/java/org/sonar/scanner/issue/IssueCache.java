@@ -20,9 +20,9 @@
 package org.sonar.scanner.issue;
 
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Caches;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.storage.Storage;
+import org.sonar.scanner.storage.Storages;
 import java.util.Collection;
 
 /**
@@ -32,9 +32,9 @@ import java.util.Collection;
 public class IssueCache {
 
   // component key -> issue key -> issue
-  private final Cache<TrackedIssue> cache;
+  private final Storage<TrackedIssue> cache;
 
-  public IssueCache(Caches caches) {
+  public IssueCache(Storages caches) {
     cache = caches.createCache("issues");
   }
 

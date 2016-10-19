@@ -28,7 +28,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.scanner.index.AbstractCachesTest;
-import org.sonar.scanner.index.Cache.Entry;
+import org.sonar.scanner.storage.Storage.Entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

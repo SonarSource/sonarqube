@@ -38,11 +38,11 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
-import org.sonar.scanner.index.CachesManager;
 import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesProvider;
+import org.sonar.scanner.storage.StoragesManager;
 import org.sonar.scanner.task.TaskContainer;
 
 public class GlobalContainer extends ComponentContainer {
@@ -82,7 +82,7 @@ public class GlobalContainer extends ComponentContainer {
 
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
-      CachesManager.class,
+      StoragesManager.class,
       GlobalSettings.class,
       new BatchWsClientProvider(),
       DefaultServer.class,

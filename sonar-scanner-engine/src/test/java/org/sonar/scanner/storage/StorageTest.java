@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+package org.sonar.scanner.storage;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
-import org.sonar.scanner.index.Cache;
-import org.sonar.scanner.index.Cache.Entry;
+import org.sonar.scanner.index.AbstractCachesTest;
+import org.sonar.scanner.storage.Storage;
+import org.sonar.scanner.storage.Storage.Entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CacheTest extends AbstractCachesTest {
+public class StorageTest extends AbstractCachesTest {
 
   @Test
   public void one_part_key() {
-    Cache<String> cache = caches.createCache("capitals");
+    Storage<String> cache = caches.createCache("capitals");
 
     assertThat(cache.get("france")).isNull();
 
@@ -45,7 +46,7 @@ public class CacheTest extends AbstractCachesTest {
     assertThat(cache.containsKey("france")).isTrue();
 
     Iterable<Entry<String>> iterable = cache.entries();
-    Cache.Entry[] entries = Iterables.toArray(iterable, Cache.Entry.class);
+    Storage.Entry[] entries = Iterables.toArray(iterable, Storage.Entry.class);
     assertThat(entries).hasSize(2);
     assertThat(iterable).hasSize(2);
     assertThat(entries[0].key()[0]).isEqualTo("france");
@@ -68,7 +69,7 @@ public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void test_key_being_prefix_of_another_key() throws Exception {
-    Cache<String> cache = caches.createCache("components");
+    Storage<String> cache = caches.createCache("components");
 
     cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTag", "the Tag");
     cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo", "the BeanInfo");
@@ -79,7 +80,7 @@ public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void two_parts_key() {
-    Cache<String> cache = caches.createCache("capitals");
+    Storage<String> cache = caches.createCache("capitals");
 
     assertThat(cache.get("europe", "france")).isNull();
 
@@ -101,7 +102,7 @@ public class CacheTest extends AbstractCachesTest {
     assertThat(cache.values("oceania")).isEmpty();
 
     Iterable<Entry<String>> iterable = cache.entries();
-    Cache.Entry[] allEntries = Iterables.toArray(iterable, Cache.Entry.class);
+    Storage.Entry[] allEntries = Iterables.toArray(iterable, Storage.Entry.class);
     assertThat(allEntries).hasSize(3);
     assertThat(iterable).hasSize(3);
     assertThat(allEntries[0].key()).isEqualTo(new String[] {"asia", "china"});
@@ -112,7 +113,7 @@ public class CacheTest extends AbstractCachesTest {
     assertThat(allEntries[2].value()).isEqualTo("rome");
 
     Iterable<Entry<String>> iterable2 = cache.entries("europe");
-    Cache.Entry[] subEntries = Iterables.toArray(iterable2, Cache.Entry.class);
+    Storage.Entry[] subEntries = Iterables.toArray(iterable2, Storage.Entry.class);
     assertThat(subEntries).hasSize(2);
     assertThat(iterable2).hasSize(2);
     assertThat(subEntries[0].key()).isEqualTo(new String[] {"europe", "france"});
@@ -135,7 +136,7 @@ public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void three_parts_key() {
-    Cache<String> cache = caches.createCache("places");
+    Storage<String> cache = caches.createCache("places");
     assertThat(cache.get("europe", "france", "paris")).isNull();
 
     cache.put("europe", "france", "paris", "eiffel tower");
@@ -162,7 +163,7 @@ public class CacheTest extends AbstractCachesTest {
     assertThat(cache.values("europe", "france")).containsOnly("eiffel tower", "lake", "notre dame");
 
     Iterable<Entry<String>> iterable = cache.entries();
-    Cache.Entry[] allEntries = Iterables.toArray(iterable, Cache.Entry.class);
+    Storage.Entry[] allEntries = Iterables.toArray(iterable, Storage.Entry.class);
     assertThat(allEntries).hasSize(7);
     assertThat(iterable).hasSize(7);
     assertThat(allEntries[0].key()).isEqualTo(new String[] {"america", "us", "new york"});
@@ -179,7 +180,7 @@ public class CacheTest extends AbstractCachesTest {
     assertThat(allEntries[5].value()).isEqualTo("colosseum");
 
     Iterable<Entry<String>> iterable2 = cache.entries("europe");
-    Cache.Entry[] subEntries = Iterables.toArray(iterable2, Cache.Entry.class);
+    Storage.Entry[] subEntries = Iterables.toArray(iterable2, Storage.Entry.class);
     assertThat(subEntries).hasSize(4);
     assertThat(iterable2).hasSize(4);
     assertThat(subEntries[0].key()).isEqualTo(new String[] {"europe", "france", "annecy"});
@@ -211,7 +212,7 @@ public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void remove_versus_clear() {
-    Cache<String> cache = caches.createCache("capitals");
+    Storage<String> cache = caches.createCache("capitals");
     cache.put("europe", "france", "paris");
     cache.put("europe", "italy", "rome");
 
@@ -226,7 +227,7 @@ public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void empty_cache() {
-    Cache<String> cache = caches.createCache("empty");
+    Storage<String> cache = caches.createCache("empty");
 
     assertThat(cache.get("foo")).isNull();
     assertThat(cache.get("foo", "bar")).isNull();

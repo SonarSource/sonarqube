@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+@ParametersAreNonnullByDefault
+package org.sonar.scanner.storage;
 
-import org.junit.Test;
-
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class CachesManagerTest extends AbstractCachesTest {
-  @Test
-  public void should_stop_and_clean_temp_dir() {
-    File tempDir = cachesManager.tempDir();
-    assertThat(tempDir).isDirectory().exists();
-    assertThat(cachesManager.persistit()).isNotNull();
-    assertThat(cachesManager.persistit().isInitialized()).isTrue();
-
-    cachesManager.stop();
-
-    assertThat(tempDir).doesNotExist();
-    assertThat(cachesManager.tempDir()).isNull();
-    assertThat(cachesManager.persistit()).isNull();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

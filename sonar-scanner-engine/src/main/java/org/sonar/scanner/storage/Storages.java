@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.index;
+package org.sonar.scanner.storage;
 
 import com.google.common.collect.Maps;
 
@@ -36,13 +36,13 @@ import org.picocontainer.Startable;
 import org.sonar.api.batch.ScannerSide;
 
 @ScannerSide
-public class Caches implements Startable {
+public class Storages implements Startable {
   private final Map<String, Exchange> cacheMap = Maps.newHashMap();
   private Persistit persistit;
   private Volume volume;
 
-  public Caches(CachesManager caches) {
-    persistit = caches.persistit();
+  public Storages(StoragesManager storagesManager) {
+    persistit = storagesManager.persistit();
     doStart();
   }
 
@@ -65,13 +65,13 @@ public class Caches implements Startable {
     cm.registerValueCoder(clazz, coder);
   }
 
-  public <V> Cache<V> createCache(String cacheName) {
+  public <V> Storage<V> createCache(String cacheName) {
     Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
     Preconditions.checkState(!cacheMap.containsKey(cacheName), "Cache is already created: " + cacheName);
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
       exchange.setMaximumValueSize(Value.MAXIMUM_SIZE);
-      Cache<V> cache = new Cache<>(cacheName, exchange);
+      Storage<V> cache = new Storage<>(cacheName, exchange);
       cacheMap.put(cacheName, exchange);
       return cache;
     } catch (Exception e) {
