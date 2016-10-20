@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.queue;
 
+import com.google.common.base.Optional;
 import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -47,59 +48,56 @@ public class ReportSubmitter {
   private final CeQueue queue;
   private final UserSession userSession;
   private final ComponentService componentService;
-  private final PermissionService permissionService;
+  private final PermissionService permissionTemplateService;
   private final DbClient dbClient;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession,
-    ComponentService componentService, PermissionService permissionService, DbClient dbClient) {
+                         ComponentService componentService, PermissionService permissionTemplateService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentService = componentService;
-    this.permissionService = permissionService;
+    this.permissionTemplateService = permissionTemplateService;
     this.dbClient = dbClient;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
-    String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
-    ComponentDto project = componentService.getNullableByKey(effectiveProjectKey);
-    if (project == null) {
-      project = createProject(projectKey, projectBranch, projectName);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
+      Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
+      ComponentDto project;
+      if (opt.isPresent()) {
+        project = opt.get();
+      } else {
+        project = createProject(dbSession, projectKey, projectBranch, projectName);
+      }
+
+      userSession.checkComponentUuidPermission(SCAN_EXECUTION, project.uuid());
+      return submitReport(dbSession, reportInput, project);
     }
-
-    userSession.checkComponentPermission(SCAN_EXECUTION, projectKey);
-
-    return submitReport(reportInput, project);
   }
 
   @CheckForNull
-  private ComponentDto createProject(String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      boolean wouldCurrentUserHaveScanPermission = permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(dbSession, SCAN_EXECUTION, projectBranch, projectKey,
-        Qualifiers.PROJECT);
-      if (!wouldCurrentUserHaveScanPermission) {
-        throw insufficientPrivilegesException();
-      }
-
-      NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
-      newProject.setBranch(projectBranch);
-      newProject.setQualifier(Qualifiers.PROJECT);
-      // "provisioning" permission is check in ComponentService
-      ComponentDto project = componentService.create(dbSession, newProject);
-      permissionService.applyDefaultPermissionTemplate(dbSession, project.getKey());
-      return project;
-    } finally {
-      dbClient.closeSession(dbSession);
+  private ComponentDto createProject(DbSession dbSession, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(dbSession, SCAN_EXECUTION, projectBranch, projectKey,
+      Qualifiers.PROJECT);
+    if (!wouldCurrentUserHaveScanPermission) {
+      throw insufficientPrivilegesException();
     }
+
+    NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
+    newProject.setBranch(projectBranch);
+    newProject.setQualifier(Qualifiers.PROJECT);
+    // "provisioning" permission is check in ComponentService
+    ComponentDto project = componentService.create(dbSession, newProject);
+    permissionTemplateService.applyDefaultPermissionTemplate(project.getKey());
+    return project;
   }
 
-  private CeTask submitReport(InputStream reportInput, ComponentDto project) {
+  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project) {
     // the report file must be saved before submitting the task
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
-      dbSession.commit();
-    }
+    dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
+    dbSession.commit();
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());
