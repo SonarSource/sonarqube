@@ -61,7 +61,6 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
-import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.Props;
@@ -319,7 +318,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UserIndex.class,
 
       // permissions
-      PermissionRepository.class,
       PermissionTemplateService.class,
       PermissionUpdater.class,
       UserPermissionChanger.class,

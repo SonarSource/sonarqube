@@ -33,7 +33,6 @@ import org.sonar.ce.CeModule;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
@@ -431,7 +430,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // permissions
       PermissionsWsModule.class,
-      PermissionRepository.class,
       PermissionTemplateService.class,
       PermissionUpdater.class,
       UserPermissionChanger.class,

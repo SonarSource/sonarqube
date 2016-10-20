@@ -21,7 +21,6 @@ package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
 import java.io.InputStream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -76,10 +75,12 @@ public class ReportSubmitter {
     }
   }
 
-  @CheckForNull
   private ComponentDto createProject(DbSession dbSession, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
-    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(dbSession, SCAN_EXECUTION, projectBranch, projectKey,
-      Qualifiers.PROJECT);
+    Integer userId = userSession.getUserId();
+    Long projectCreatorUserId = userId == null ? null : userId.longValue();
+
+    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(
+      dbSession, projectCreatorUserId, SCAN_EXECUTION, projectBranch, projectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
@@ -90,8 +91,7 @@ public class ReportSubmitter {
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
 
-    Integer currentUserId = userSession.getUserId();
-    permissionTemplateService.applyDefault(dbSession, project, currentUserId != null ? currentUserId.longValue() : null);
+    permissionTemplateService.applyDefault(dbSession, project, projectCreatorUserId);
     return project;
   }
 

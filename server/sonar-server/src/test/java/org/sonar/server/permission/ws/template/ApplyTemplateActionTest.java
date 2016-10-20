@@ -31,7 +31,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -76,8 +75,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
-    PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
-    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), repository, permissionIndexer, userSession);
+    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), new MapSettings(), permissionIndexer, userSession);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 
