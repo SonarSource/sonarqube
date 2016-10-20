@@ -102,7 +102,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     UpdateQualityProfilesLastUsedDateStep.class,
     IndexComponentsStep.class,
     PurgeDatastoresStep.class,
-    ApplyPermissionsStep.class,
 
     // ES indexing is done after all db changes
     IndexIssuesStep.class,
