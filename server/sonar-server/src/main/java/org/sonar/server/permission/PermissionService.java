@@ -33,12 +33,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
 public class PermissionService {
@@ -47,15 +47,12 @@ public class PermissionService {
   private final PermissionRepository permissionRepository;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
-  private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession,
-                           ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
-    this.componentFinder = componentFinder;
   }
 
   public void applyDefaultPermissionTemplate(String componentKey) {
@@ -73,7 +70,7 @@ public class PermissionService {
    */
   @Deprecated
   public void applyDefaultPermissionTemplate(DbSession session, String componentKey) {
-    ComponentDto component = componentFinder.getByKey(session, componentKey);
+    ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, componentKey), "Component key '%s' not found", componentKey);
     ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
     if (provisioned == null) {
       checkProjectAdminUserByComponentKey(userSession, componentKey);
