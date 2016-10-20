@@ -55,10 +55,10 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class ReportSubmitterTest {
 
-  static final String PROJECT_KEY = "MY_PROJECT";
-  static final String PROJECT_UUID = "P1";
-  static final String PROJECT_NAME = "My Project";
-  static final String TASK_UUID = "TASK_1";
+  private static final String PROJECT_KEY = "MY_PROJECT";
+  private static final String PROJECT_UUID = "P1";
+  private static final String PROJECT_NAME = "My Project";
+  private static final String TASK_UUID = "TASK_1";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -77,18 +77,17 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_existing_project() {
     userSession.setGlobalPermissions(SCAN_EXECUTION);
-
+    ComponentDto project = dbTester.components().insertProject();
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(new ComponentDto().setUuid(PROJECT_UUID));
 
-    underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionService);
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
-        return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(PROJECT_UUID) &&
+        return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(project.uuid()) &&
           submit.getUuid().equals(TASK_UUID);
       }
 
@@ -104,7 +103,6 @@ public class ReportSubmitterTest {
     userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(null);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
     when(permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
@@ -132,7 +130,6 @@ public class ReportSubmitterTest {
     userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(null);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
     when(permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
@@ -144,24 +141,24 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_a_report_on_existing_project_with_global_scan_permission() {
+    ComponentDto project = dbTester.components().insertProject();
     userSession.setGlobalPermissions(SCAN_EXECUTION);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(new ComponentDto().setUuid(PROJECT_UUID));
 
-    underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
 
   @Test
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
-    userSession.addProjectPermissions(SCAN_EXECUTION, PROJECT_KEY);
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(new ComponentDto().setUuid(PROJECT_UUID));
 
-    underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+    underTest.submit(project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -176,10 +173,9 @@ public class ReportSubmitterTest {
 
   @Test
   public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
-    userSession.addProjectPermissions(SCAN_EXECUTION, PROJECT_KEY);
+    userSession.addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.getNullableByKey(PROJECT_KEY)).thenReturn(null);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
 
     thrown.expect(ForbiddenException.class);
