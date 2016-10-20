@@ -101,12 +101,10 @@ public class AuthorizationIndexer implements Startable {
     BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(type).setQuery(matchAllQuery()));
   }
 
-  public void index(List<String> projectUuids) {
+  public void index(DbSession dbSession, List<String> projectUuids) {
     checkArgument(!projectUuids.isEmpty(), "ProjectUuids cannot be empty");
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      AuthorizationDao dao = new AuthorizationDao();
-      index(dao.selectByProjects(dbClient, dbSession, projectUuids));
-    }
+    AuthorizationDao dao = new AuthorizationDao();
+    index(dao.selectByProjects(dbClient, dbSession, projectUuids));
   }
 
   private void index(Collection<AuthorizationDao.Dto> authorizations) {
@@ -130,13 +128,11 @@ public class AuthorizationIndexer implements Startable {
     esClient.prepareRefresh(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES).get();
   }
 
-  public void index(String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      AuthorizationDao dao = new AuthorizationDao();
-      List<AuthorizationDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
-      if (dtos.size() == 1) {
-        index(dtos.get(0));
-      }
+  public void index(DbSession dbSession, String projectUuid) {
+    AuthorizationDao dao = new AuthorizationDao();
+    List<AuthorizationDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
+    if (dtos.size() == 1) {
+      index(dtos.get(0));
     }
   }
 

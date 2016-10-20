@@ -47,7 +47,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
 
   public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, AuthorizationIndexer indexer, PermissionRepository permissionRepository,
-                              TreeRootHolder treeRootHolder) {
+    TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
@@ -77,7 +77,7 @@ public class ApplyPermissionsStep implements ComputationStep {
       if (hasNoPermissions(dbSession, projectId)) {
         permissionRepository.applyDefaultPermissionTemplate(dbSession, projectId);
         dbSession.commit();
-        indexer.index(project.getUuid());
+        indexer.index(dbSession, project.getUuid());
       }
     }
   }

@@ -133,7 +133,7 @@ public class AuthorizationIndexerTest {
     ComponentDto project2 = componentDbTester.insertProject();
     userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
 
-    underTest.index(project1.uuid());
+    underTest.index(dbTester.getSession(), project1.uuid());
 
     authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
     authorizationIndexerTester.verifyProjectDoesNotExist(project2.uuid());
@@ -150,7 +150,7 @@ public class AuthorizationIndexerTest {
     userDbTester.insertProjectPermissionOnGroup(group, USER, project3);
 
     // Only index projects 1 and 2
-    underTest.index(asList(project1.uuid(), project2.uuid()));
+    underTest.index(dbTester.getSession(), asList(project1.uuid(), project2.uuid()));
 
     authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
     authorizationIndexerTester.verifyProjectExistsWithAuthorization(project2.uuid(), asList(group.getName(), ANYONE), emptyList());
@@ -170,6 +170,6 @@ public class AuthorizationIndexerTest {
   @Test
   public void fail_when_trying_to_index_empty_project_uuids() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    underTest.index(Collections.<String>emptyList());
+    underTest.index(dbTester.getSession(), Collections.emptyList());
   }
 }

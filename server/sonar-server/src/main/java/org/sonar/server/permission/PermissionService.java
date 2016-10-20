@@ -87,7 +87,7 @@ public class PermissionService {
     Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
     permissionRepository.applyDefaultPermissionTemplate(session, component, userId);
     session.commit();
-    indexProjectPermissions(asList(component.uuid()));
+    indexProjectPermissions(session, asList(component.uuid()));
   }
 
   public boolean wouldCurrentUserHavePermissionWithDefaultTemplate(DbSession dbSession, String permission, @Nullable String branch, String projectKey, String qualifier) {
@@ -110,10 +110,10 @@ public class PermissionService {
       permissionRepository.apply(dbSession, template, project, null);
     }
     dbSession.commit();
-    indexProjectPermissions(projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
+    indexProjectPermissions(dbSession, projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
   }
 
-  private void indexProjectPermissions(List<String> projectUuids) {
-    authorizationIndexer.index(projectUuids);
+  private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {
+    authorizationIndexer.index(dbSession, projectUuids);
   }
 }

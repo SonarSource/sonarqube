@@ -225,7 +225,7 @@ public class ComponentCleanerServiceTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     projectMeasuresIndexer.index();
-    authorizationIndexer.index(project.uuid());
+    authorizationIndexer.index(dbSession, project.uuid());
 
     String issueKey = "issue-key-" + suffix;
     es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc(issueKey, project));

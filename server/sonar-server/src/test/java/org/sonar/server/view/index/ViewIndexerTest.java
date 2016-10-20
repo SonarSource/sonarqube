@@ -151,7 +151,7 @@ public class ViewIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
-    authorizationIndexer.index(project1.uuid());
+    authorizationIndexer.index(dbSession, project1.uuid());
 
     ComponentDto view = ComponentTesting.newView("ABCD");
     ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
@@ -168,7 +168,7 @@ public class ViewIndexerTest {
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
-    authorizationIndexer.index(project2.uuid());
+    authorizationIndexer.index(dbSession, project2.uuid());
 
     ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
     dbClient.componentDao().insert(dbSession, techProject2);
