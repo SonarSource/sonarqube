@@ -19,9 +19,16 @@
  */
 package org.sonar.server.permission;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
@@ -31,12 +38,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.db.permission.PermissionRepository;
+import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -44,13 +57,13 @@ import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 public class PermissionTemplateService {
 
   private final DbClient dbClient;
-  private final PermissionRepository permissionRepository;
+  private final Settings settings;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
 
-  public PermissionTemplateService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession) {
+  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession) {
     this.dbClient = dbClient;
-    this.permissionRepository = permissionRepository;
+    this.settings = settings;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
   }
@@ -85,20 +98,22 @@ public class PermissionTemplateService {
 
     Integer currentUserId = userSession.getUserId();
     Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
-    permissionRepository.applyDefaultPermissionTemplate(session, component, userId);
-    session.commit();
-    indexProjectPermissions(session, asList(component.uuid()));
+    applyDefault(session, component, userId);
   }
 
-  public boolean wouldCurrentUserHavePermissionWithDefaultTemplate(DbSession dbSession, String permission, @Nullable String branch, String projectKey, String qualifier) {
+  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long userId, String permission, @Nullable String branch, String projectKey, String qualifier) {
     if (userSession.hasPermission(permission)) {
       return true;
     }
 
     String effectiveKey = ComponentKeys.createKey(projectKey, branch);
+    PermissionTemplateDto template = findDefaultTemplate(dbSession, new ComponentDto().setKey(effectiveKey).setQualifier(qualifier));
+    if (template == null) {
+      return false;
+    }
 
-    Long userId = userSession.getUserId() == null ? null : userSession.getUserId().longValue();
-    return permissionRepository.wouldUserHavePermissionWithDefaultTemplate(dbSession, userId, permission, effectiveKey, qualifier);
+    List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserIdAndTemplateId(dbSession, userId, template.getId());
+    return potentialPermissions.contains(permission);
   }
 
   /**
@@ -112,7 +127,7 @@ public class PermissionTemplateService {
     }
 
     for (ComponentDto project : projects) {
-      permissionRepository.apply(dbSession, template, project, null);
+      copyPermissions(dbSession, template, project, null);
     }
     dbSession.commit();
     indexProjectPermissions(dbSession, projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
@@ -128,7 +143,9 @@ public class PermissionTemplateService {
    *                             benefit from the permissions defined in the template for "project creator".
    */
   public void applyDefault(DbSession dbSession, ComponentDto component, @Nullable Long projectCreatorUserId) {
-    permissionRepository.applyDefaultPermissionTemplate(dbSession, component, projectCreatorUserId);
+    PermissionTemplateDto template = findDefaultTemplate(dbSession, component);
+    checkArgument(template != null, "Can not retrieve default permission template");
+    copyPermissions(dbSession, template, component, projectCreatorUserId);
     dbSession.commit();
     indexProjectPermissions(dbSession, asList(component.uuid()));
   }
@@ -136,4 +153,92 @@ public class PermissionTemplateService {
   private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {
     permissionIndexer.index(dbSession, projectUuids);
   }
+
+  private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Long projectCreatorUserId) {
+    dbClient.resourceDao().updateAuthorizationDate(project.getId(), dbSession);
+    dbClient.groupPermissionDao().deleteByRootComponentId(dbSession, project.getId());
+    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.getId());
+
+    List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId());
+    String organizationUuid = template.getOrganizationUuid();
+    usersPermissions
+      .forEach(up -> {
+        UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.getId());
+        dbClient.userPermissionDao().insert(dbSession, dto);
+      });
+
+    List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, template.getId());
+    groupsPermissions.forEach(gp -> {
+      GroupPermissionDto dto = new GroupPermissionDto()
+        .setOrganizationUuid(organizationUuid)
+        .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
+        .setRole(gp.getPermission())
+        .setResourceId(project.getId());
+      dbClient.groupPermissionDao().insert(dbSession, dto);
+    });
+
+    List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(template.getId()));
+    if (projectCreatorUserId != null) {
+      Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
+        .filter(userPermission -> projectCreatorUserId.equals(userPermission.getUserId()))
+        .map(PermissionTemplateUserDto::getPermission)
+        .collect(java.util.stream.Collectors.toSet());
+      characteristics.stream()
+        .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
+        .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
+        .forEach(c -> {
+          UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), projectCreatorUserId, project.getId());
+          dbClient.userPermissionDao().insert(dbSession, dto);
+        });
+    }
+  }
+
+  /**
+   * Return the permission template for the given component. If no template key pattern match then consider default
+   * template for the component qualifier.
+   */
+  @CheckForNull
+  private PermissionTemplateDto findDefaultTemplate(DbSession dbSession, ComponentDto component) {
+    // FIXME performance issue here, we should not load all templates
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession);
+    List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
+    for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
+      String keyPattern = permissionTemplateDto.getKeyPattern();
+      if (StringUtils.isNotBlank(keyPattern) && component.getKey().matches(keyPattern)) {
+        matchingTemplates.add(permissionTemplateDto);
+      }
+    }
+    checkAtMostOneMatchForComponentKey(component.getKey(), matchingTemplates);
+    if (matchingTemplates.size() == 1) {
+      return matchingTemplates.get(0);
+    }
+    String qualifierTemplateKey = settings.getString("sonar.permission.template." + component.qualifier() + ".default");
+    if (!StringUtils.isBlank(qualifierTemplateKey)) {
+      return dbClient.permissionTemplateDao().selectByUuid(dbSession, qualifierTemplateKey);
+    }
+
+    String defaultTemplateKey = settings.getString("sonar.permission.template.default");
+    if (StringUtils.isBlank(defaultTemplateKey)) {
+      throw new IllegalStateException("At least one default permission template should be defined");
+    }
+    return dbClient.permissionTemplateDao().selectByUuid(dbSession, defaultTemplateKey);
+  }
+
+  private static void checkAtMostOneMatchForComponentKey(String componentKey, List<PermissionTemplateDto> matchingTemplates) {
+    if (matchingTemplates.size() > 1) {
+      StringBuilder templatesNames = new StringBuilder();
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
+        templatesNames.append("\"").append(it.next().getName()).append("\"");
+        if (it.hasNext()) {
+          templatesNames.append(", ");
+        }
+      }
+      throw new IllegalStateException(MessageFormat.format(
+        "The \"{0}\" key matches multiple permission templates: {1}."
+          + " A system administrator must update these templates so that only one of them matches the key.",
+        componentKey,
+        templatesNames.toString()));
+    }
+  }
+
 }
