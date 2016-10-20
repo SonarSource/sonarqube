@@ -58,19 +58,17 @@ public class SearchActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  WsActionTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  SearchAction underTest;
+  private SearchAction underTest;
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
@@ -142,6 +140,24 @@ public class SearchActionTest {
 
     assertThat(response.getLinksCount()).isEqualTo(1);
     assertThat(response.getLinks(0).getId()).isEqualTo(customLink1.getIdAsString());
+  }
+
+  @Test
+  public void request_does_not_fail_when_link_has_no_name() throws IOException {
+    ComponentDto project = db.components().insertProject();
+    ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setType("type");
+    insertLink(foo);
+
+    callByKey(project.key());
+  }
+
+  @Test
+  public void request_does_not_fail_when_link_has_no_type() throws IOException {
+    ComponentDto project = db.components().insertProject();
+    ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setName("name");
+    insertLink(foo);
+
+    callByKey(project.key());
   }
 
   @Test
