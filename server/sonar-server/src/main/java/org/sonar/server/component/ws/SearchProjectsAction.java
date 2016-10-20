@@ -24,8 +24,9 @@ import com.google.common.collect.Ordering;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -97,12 +98,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(filter);
     projectMeasuresQueryValidator.validate(dbSession, query);
 
-    SearchIdResult<String> searchResult = index.search(query, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
+    SearchIdResult<String> searchResults = index.search(query, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
-    Ordering<ComponentDto> ordering = Ordering.explicit(searchResult.getIds()).onResultOf(ComponentDto::uuid);
-    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResult.getIds()));
+    Ordering<ComponentDto> ordering = Ordering.explicit(searchResults.getIds()).onResultOf(ComponentDto::uuid);
+    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResults.getIds()));
 
-    return new SearchResults(projects, searchResult.getFacets(), searchResult.getTotal());
+    return new SearchResults(projects, searchResults);
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
@@ -133,28 +134,62 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .orElseThrow(() -> new IllegalStateException("SearchProjectsWsResponse not built"));
   }
 
-  private static SearchProjectsWsResponse.Builder addFacets(Facets facets, SearchProjectsWsResponse.Builder wsResponse) {
-    Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
-    Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
-    for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
-      wsFacet.clear();
-      wsFacet.setProperty(facet.getKey());
-      LinkedHashMap<String, Long> buckets = facet.getValue();
-      if (buckets != null) {
-        for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
-          Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
-          valueBuilder.setVal(bucket.getKey());
-          valueBuilder.setCount(bucket.getValue());
-          valueBuilder.build();
-        }
-      } else {
-        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
-      }
-      wsFacets.addFacets(wsFacet);
-    }
+  private static SearchProjectsWsResponse.Builder addFacets(Facets esFacets, SearchProjectsWsResponse.Builder wsResponse) {
+    EsToWsFacet esToWsFacet = new EsToWsFacet();
+
+    Common.Facets wsFacets = esFacets.getAll().entrySet().stream()
+      .map(esToWsFacet)
+      .collect(Collector.of(
+        Common.Facets::newBuilder,
+        Common.Facets.Builder::addFacets,
+        (result1, result2) -> {
+          throw new IllegalStateException("Parallel execution forbidden");
+        },
+        Common.Facets.Builder::build));
+
     wsResponse.setFacets(wsFacets);
 
     return wsResponse;
+  }
+
+  private static class EsToWsFacet implements Function<Entry<String, LinkedHashMap<String, Long>>, Common.Facet> {
+    private final BucketToFacetValue bucketToFacetValue = new BucketToFacetValue();
+    private final Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
+
+    @Override
+    public Common.Facet apply(Entry<String, LinkedHashMap<String, Long>> esFacet) {
+      wsFacet
+        .clear()
+        .setProperty(esFacet.getKey());
+      LinkedHashMap<String, Long> buckets = esFacet.getValue();
+      if (buckets != null) {
+        buckets.entrySet()
+          .stream()
+          .map(bucketToFacetValue)
+          .forEach(wsFacet::addValues);
+      } else {
+        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
+      }
+
+      return wsFacet.build();
+    }
+  }
+
+  private static class BucketToFacetValue implements Function<Entry<String, Long>, Common.FacetValue> {
+    private final Common.FacetValue.Builder facetValue;
+
+    private BucketToFacetValue() {
+      this.facetValue = Common.FacetValue.newBuilder();
+    }
+
+    @Override
+    public Common.FacetValue apply(Entry<String, Long> bucket) {
+      return facetValue
+        .clear()
+        .setVal(bucket.getKey())
+        .setCount(bucket.getValue())
+        .build();
+    }
   }
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
@@ -180,10 +215,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Facets facets;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, Facets facets, long total) {
+    private SearchResults(List<ComponentDto> projects, SearchIdResult<String> searchResults) {
       this.projects = projects;
-      this.total = (int) total;
-      this.facets = facets;
+      this.total = (int) searchResults.getTotal();
+      this.facets = searchResults.getFacets();
     }
   }
 }
