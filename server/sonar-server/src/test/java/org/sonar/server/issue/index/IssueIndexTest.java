@@ -50,7 +50,7 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -79,7 +79,7 @@ public class IssueIndexTest {
   IssueIndex underTest;
 
   IssueIndexer issueIndexer;
-  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(tester);
+  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester);
   ViewIndexer viewIndexer;
 
   @Before
@@ -1289,7 +1289,7 @@ public class IssueIndexTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
-    authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
+    authorizationIndexerTester.indexProjectPermission(projectUuid, singletonList(group), singletonList(user));
   }
 
   private void indexView(String viewUuid, List<String> projects) {

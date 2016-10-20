@@ -34,7 +34,7 @@ import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Arrays.asList;
@@ -45,15 +45,15 @@ public class PermissionService {
 
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
-  private final AuthorizationIndexer authorizationIndexer;
+  private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, AuthorizationIndexer authorizationIndexer, UserSession userSession,
-    ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession,
+                           ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
-    this.authorizationIndexer = authorizationIndexer;
+    this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
@@ -114,6 +114,6 @@ public class PermissionService {
   }
 
   private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {
-    authorizationIndexer.index(dbSession, projectUuids);
+    permissionIndexer.index(dbSession, projectUuids);
   }
 }

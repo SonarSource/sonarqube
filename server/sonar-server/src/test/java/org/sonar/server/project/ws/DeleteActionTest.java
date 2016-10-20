@@ -42,14 +42,14 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexer;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -100,7 +100,7 @@ public class DeleteActionTest {
       new DeleteAction(
         new ComponentCleanerService(
           dbClient,
-          new AuthorizationIndexer(dbClient, es.client()),
+          new PermissionIndexer(dbClient, es.client()),
           new IssueIndexer(dbClient, es.client()),
           new TestIndexer(dbClient, es.client()),
           new ProjectMeasuresIndexer(dbClient, es.client()),

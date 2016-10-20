@@ -68,6 +68,7 @@ import org.sonar.process.Props;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
@@ -99,7 +100,7 @@ import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -116,7 +117,6 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
@@ -340,7 +340,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // issues
       IssueIndexer.class,
-      AuthorizationIndexer.class,
+      PermissionIndexer.class,
       IssueUpdater.class, // used in Web Services and CE's DebtCalculator
       FunctionExecutor.class, // used by IssueWorkflow
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator

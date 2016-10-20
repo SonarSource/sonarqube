@@ -45,7 +45,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -76,7 +76,7 @@ public class ComponentCleanerServiceTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  AuthorizationIndexer authorizationIndexer = new AuthorizationIndexer(dbClient, es.client());
+  PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client());
   IssueIndexer issueIndexer = new IssueIndexer(dbClient, es.client());
   TestIndexer testIndexer = new TestIndexer(dbClient, es.client());
   ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
@@ -84,7 +84,7 @@ public class ComponentCleanerServiceTest {
   ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
   ComponentCleanerService underTest = new ComponentCleanerService(dbClient,
-    authorizationIndexer, issueIndexer, testIndexer, projectMeasuresIndexer,
+    permissionIndexer, issueIndexer, testIndexer, projectMeasuresIndexer,
     mockResourceTypes,
     new ComponentFinder(dbClient));
 
@@ -225,7 +225,7 @@ public class ComponentCleanerServiceTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     projectMeasuresIndexer.index();
-    authorizationIndexer.index(dbSession, project.uuid());
+    permissionIndexer.index(dbSession, project.uuid());
 
     String issueKey = "issue-key-" + suffix;
     es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc(issueKey, project));

@@ -35,7 +35,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.WsTester;
@@ -77,7 +77,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(db.getDbClient(),
-      mock(AuthorizationIndexer.class),
+      mock(PermissionIndexer.class),
       new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider),
       new GroupPermissionChanger(db.getDbClient(), defaultOrganizationProvider));
   }

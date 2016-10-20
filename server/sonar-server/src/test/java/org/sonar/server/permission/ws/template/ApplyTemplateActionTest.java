@@ -43,8 +43,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.index.AuthorizationIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.WsTester;
 
@@ -73,15 +73,15 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
 
-  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
 
-  private AuthorizationIndexer authorizationIndexer = new AuthorizationIndexer(db.getDbClient(), esTester.client());
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), esTester.client());
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
     ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
-    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, authorizationIndexer, userSession, componentFinder);
+    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, permissionIndexer, userSession, componentFinder);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport());
   }
 
@@ -209,7 +209,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getLogin());
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getLogin());
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), singletonList(group2.getName()), Collections.emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), singletonList(group2.getName()), Collections.emptyList());
   }
 
   private WsTester.Result newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {

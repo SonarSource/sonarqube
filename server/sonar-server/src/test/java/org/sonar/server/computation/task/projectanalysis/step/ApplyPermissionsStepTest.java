@@ -44,8 +44,8 @@ import org.sonar.server.computation.task.projectanalysis.component.ViewsComponen
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.permission.index.AuthorizationIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -73,7 +73,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
-  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
 
   private DbSession dbSession;
   private DbClient dbClient = dbTester.getDbClient();
@@ -83,7 +83,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     dbSession = dbClient.openSession(false);
-    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, new AuthorizationIndexer(dbClient, esTester.client()), new PermissionRepository(dbClient, settings), treeRootHolder);
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, new PermissionIndexer(dbClient, esTester.client()), new PermissionRepository(dbClient, settings), treeRootHolder);
   }
 
   @After
@@ -108,7 +108,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(ROOT_UUID, singletonList(DefaultGroups.ANYONE), emptyList());
   }
 
   @Test

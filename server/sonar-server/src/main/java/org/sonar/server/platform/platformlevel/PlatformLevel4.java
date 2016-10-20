@@ -42,6 +42,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
@@ -139,7 +140,7 @@ import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.PersistentSettings;
@@ -177,7 +178,6 @@ import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
-import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.property.InternalPropertiesImpl;
@@ -457,7 +457,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // issues
       IssueIndexDefinition.class,
       IssueIndexer.class,
-      AuthorizationIndexer.class,
+      PermissionIndexer.class,
       ServerIssueStorage.class,
       IssueUpdater.class,
       FunctionExecutor.class,

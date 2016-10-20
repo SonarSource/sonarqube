@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,7 @@ public class ProjectMeasuresIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
+  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
 
   ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(dbTester.getDbClient(), esTester.client());
 
@@ -129,9 +129,9 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project3 = newProjectDto();
     componentDbTester.insertProjectAndSnapshot(project3);
     underTest.index();
-    authorizationIndexerTester.insertProjectAuthorization(project1.uuid(), emptyList(), emptyList());
-    authorizationIndexerTester.insertProjectAuthorization(project2.uuid(), emptyList(), emptyList());
-    authorizationIndexerTester.insertProjectAuthorization(project3.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.indexProjectPermission(project1.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.indexProjectPermission(project2.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.indexProjectPermission(project3.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject(project1.uuid());
 
@@ -144,7 +144,7 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project = newProjectDto();
     componentDbTester.insertProjectAndSnapshot(project);
     underTest.index();
-    authorizationIndexerTester.insertProjectAuthorization(project.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.indexProjectPermission(project.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject("UNKNOWN");
 

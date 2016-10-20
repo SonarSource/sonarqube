@@ -24,7 +24,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexer;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
@@ -34,7 +34,7 @@ public class IndexerStartupTask {
   private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
 
   private final TestIndexer testIndexer;
-  private final AuthorizationIndexer authorizationIndexer;
+  private final PermissionIndexer permissionIndexer;
   private final IssueIndexer issueIndexer;
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
@@ -43,14 +43,14 @@ public class IndexerStartupTask {
 
   /**
    * Limitation - {@link org.sonar.server.es.BaseIndexer} are not injected through an array or a collection
-   * because we need {@link AuthorizationIndexer} to be executed before
+   * because we need {@link PermissionIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexerStartupTask(TestIndexer testIndexer, AuthorizationIndexer authorizationIndexer, IssueIndexer issueIndexer,
-    UserIndexer userIndexer, ViewIndexer viewIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
-    Settings settings) {
+  public IndexerStartupTask(TestIndexer testIndexer, PermissionIndexer permissionIndexer, IssueIndexer issueIndexer,
+                            UserIndexer userIndexer, ViewIndexer viewIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
+                            Settings settings) {
     this.testIndexer = testIndexer;
-    this.authorizationIndexer = authorizationIndexer;
+    this.permissionIndexer = permissionIndexer;
     this.issueIndexer = issueIndexer;
     this.userIndexer = userIndexer;
     this.viewIndexer = viewIndexer;
@@ -62,7 +62,7 @@ public class IndexerStartupTask {
     if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
 
       LOG.info("Index authorization");
-      authorizationIndexer.indexAllIfEmpty();
+      permissionIndexer.indexAllIfEmpty();
 
       LOG.info("Index issues");
       issueIndexer.index();

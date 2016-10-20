@@ -55,7 +55,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class AuthorizationIndexer implements Startable {
+public class PermissionIndexer implements Startable {
 
   private static final int MAX_BATCH_SIZE = 1000;
 
@@ -65,7 +65,7 @@ public class AuthorizationIndexer implements Startable {
   private final DbClient dbClient;
   private final EsClient esClient;
 
-  public AuthorizationIndexer(DbClient dbClient, EsClient esClient) {
+  public PermissionIndexer(DbClient dbClient, EsClient esClient) {
     this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
     this.esClient = esClient;
@@ -81,7 +81,7 @@ public class AuthorizationIndexer implements Startable {
         truncate(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
         truncate(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
         try (DbSession dbSession = dbClient.openSession(false)) {
-          index(new AuthorizationDao().selectAll(dbClient, dbSession));
+          index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
         }
       }
     });
@@ -103,17 +103,17 @@ public class AuthorizationIndexer implements Startable {
 
   public void index(DbSession dbSession, List<String> projectUuids) {
     checkArgument(!projectUuids.isEmpty(), "ProjectUuids cannot be empty");
-    AuthorizationDao dao = new AuthorizationDao();
+    PermissionIndexerDao dao = new PermissionIndexerDao();
     index(dao.selectByProjects(dbClient, dbSession, projectUuids));
   }
 
-  private void index(Collection<AuthorizationDao.Dto> authorizations) {
+  private void index(Collection<PermissionIndexerDao.Dto> authorizations) {
     if (authorizations.isEmpty()) {
       return;
     }
     int count = 0;
     BulkRequestBuilder bulkRequest = esClient.prepareBulk().setRefresh(false);
-    for (AuthorizationDao.Dto dto : authorizations) {
+    for (PermissionIndexerDao.Dto dto : authorizations) {
       bulkRequest.add(newIssuesAuthorizationIndexRequest(dto));
       bulkRequest.add(newProjectMeasuresAuthorizationIndexRequest(dto));
       count++;
@@ -129,15 +129,15 @@ public class AuthorizationIndexer implements Startable {
   }
 
   public void index(DbSession dbSession, String projectUuid) {
-    AuthorizationDao dao = new AuthorizationDao();
-    List<AuthorizationDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
+    PermissionIndexerDao dao = new PermissionIndexerDao();
+    List<PermissionIndexerDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
     if (dtos.size() == 1) {
       index(dtos.get(0));
     }
   }
 
   @VisibleForTesting
-  void index(AuthorizationDao.Dto dto) {
+  void index(PermissionIndexerDao.Dto dto) {
     index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, newIssuesAuthorizationIndexRequest(dto));
     index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, newProjectMeasuresAuthorizationIndexRequest(dto));
   }
@@ -151,7 +151,7 @@ public class AuthorizationIndexer implements Startable {
       .get();
   }
 
-  private static IndexRequest newIssuesAuthorizationIndexRequest(AuthorizationDao.Dto dto) {
+  private static IndexRequest newIssuesAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
@@ -162,7 +162,7 @@ public class AuthorizationIndexer implements Startable {
       .source(doc);
   }
 
-  private static IndexRequest newProjectMeasuresAuthorizationIndexRequest(AuthorizationDao.Dto dto) {
+  private static IndexRequest newProjectMeasuresAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),

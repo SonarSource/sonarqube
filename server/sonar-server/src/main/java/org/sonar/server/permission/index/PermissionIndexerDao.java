@@ -39,7 +39,7 @@ import static org.sonar.db.DatabaseUtils.repeatCondition;
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
  */
-public class AuthorizationDao {
+public class PermissionIndexerDao {
 
   public static final class Dto {
     private final String projectUuid;

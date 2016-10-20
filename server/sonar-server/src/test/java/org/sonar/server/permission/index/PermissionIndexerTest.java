@@ -46,7 +46,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 
-public class AuthorizationIndexerTest {
+public class PermissionIndexerTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -59,9 +59,10 @@ public class AuthorizationIndexerTest {
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   UserDbTester userDbTester = new UserDbTester(dbTester);
-  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
 
-  AuthorizationIndexer underTest = new AuthorizationIndexer(dbTester.getDbClient(), esTester.client());
+  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
+
+  PermissionIndexer underTest = new PermissionIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_all_does_nothing_when_no_data() {
@@ -82,7 +83,7 @@ public class AuthorizationIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getId()));
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getId()));
   }
 
   @Test
@@ -121,7 +122,7 @@ public class AuthorizationIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), asList(group.getName(), ANYONE), emptyList());
     authorizationIndexerTester.verifyProjectDoesNotExist("ABC");
   }
 
@@ -135,7 +136,7 @@ public class AuthorizationIndexerTest {
 
     underTest.index(dbTester.getSession(), project1.uuid());
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
     authorizationIndexerTester.verifyProjectDoesNotExist(project2.uuid());
   }
 
@@ -152,19 +153,19 @@ public class AuthorizationIndexerTest {
     // Only index projects 1 and 2
     underTest.index(dbTester.getSession(), asList(project1.uuid(), project2.uuid()));
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project2.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project1.uuid(), asList(group.getName(), ANYONE), emptyList());
+    authorizationIndexerTester.verifyProjectExistsWithPermission(project2.uuid(), asList(group.getName(), ANYONE), emptyList());
     authorizationIndexerTester.verifyProjectDoesNotExist(project3.uuid());
   }
 
   @Test
   public void update_existing_permissions() {
-    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("dev"), singletonList(10L));
+    authorizationIndexerTester.indexProjectPermission("ABC", singletonList("dev"), singletonList(10L));
 
     // remove permissions -> dto has no users nor groups
-    underTest.index(new AuthorizationDao.Dto("ABC", System.currentTimeMillis()));
+    underTest.index(new PermissionIndexerDao.Dto("ABC", System.currentTimeMillis()));
 
-    authorizationIndexerTester.verifyProjectExistsWithoutAuthorization("ABC");
+    authorizationIndexerTester.verifyProjectExistsWithoutPermission("ABC");
   }
 
   @Test

@@ -46,7 +46,7 @@ import org.sonar.server.component.es.ProjectMeasuresDoc;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
@@ -90,7 +90,7 @@ public class SearchProjectsActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(es);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
 
   private WsActionTester ws = new WsActionTester(
     new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client(), userSession), new ProjectMeasuresQueryValidator(dbClient)));
@@ -237,7 +237,7 @@ public class SearchProjectsActionTest {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES,
         new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
-      authorizationIndexerTester.insertProjectAuthorization(project.uuid(), singletonList(DefaultGroups.ANYONE), Collections.emptyList());
+      authorizationIndexerTester.indexProjectPermission(project.uuid(), singletonList(DefaultGroups.ANYONE), Collections.emptyList());
     } catch (Exception e) {
       Throwables.propagate(e);
     }

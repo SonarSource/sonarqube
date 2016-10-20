@@ -35,25 +35,25 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
-public class AuthorizationIndexerTester {
+public class PermissionIndexerTester {
 
   private final EsTester esTester;
 
-  private final AuthorizationIndexer authorizationIndexer;
+  private final PermissionIndexer permissionIndexer;
 
-  public AuthorizationIndexerTester(EsTester esTester) {
+  public PermissionIndexerTester(EsTester esTester) {
     this.esTester = esTester;
-    this.authorizationIndexer = new AuthorizationIndexer(null, esTester.client());
+    this.permissionIndexer = new PermissionIndexer(null, esTester.client());
   }
 
-  public void insertProjectAuthorization(String projectUuid, List<String> groupNames, List<Long> userLogins) {
-    AuthorizationDao.Dto authorization = new AuthorizationDao.Dto(projectUuid, System.currentTimeMillis());
+  public void indexProjectPermission(String projectUuid, List<String> groupNames, List<Long> userLogins) {
+    PermissionIndexerDao.Dto authorization = new PermissionIndexerDao.Dto(projectUuid, System.currentTimeMillis());
     groupNames.forEach(authorization::addGroup);
     userLogins.forEach(authorization::addUser);
-    authorizationIndexer.index(authorization);
+    permissionIndexer.index(authorization);
   }
 
-  public void verifyEmptyProjectAuthorization() {
+  public void verifyEmptyProjectPermission() {
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isZero();
     assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isZero();
   }
@@ -63,21 +63,21 @@ public class AuthorizationIndexerTester {
     assertThat(esTester.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
   }
 
-  public void verifyProjectExistsWithoutAuthorization(String projectUuid) {
-    verifyProjectExistsWithAuthorization(projectUuid, emptyList(), emptyList());
+  public void verifyProjectExistsWithoutPermission(String projectUuid) {
+    verifyProjectExistsWithPermission(projectUuid, emptyList(), emptyList());
   }
 
-  public void verifyProjectExistsWithAuthorization(String projectUuid, List<String> groupNames, List<Long> userLogins) {
-    verifyProjectExistsWithAuthorizationInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
+  public void verifyProjectExistsWithPermission(String projectUuid, List<String> groupNames, List<Long> userLogins) {
+    verifyProjectExistsWithPermissionInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, IssueIndexDefinition.FIELD_AUTHORIZATION_USERS,
       projectUuid, groupNames, userLogins);
-    verifyProjectExistsWithAuthorizationInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
+    verifyProjectExistsWithPermissionInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
   }
 
-  private void verifyProjectExistsWithAuthorizationInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,
-    List<String> groupNames, List<Long> userLogins) {
+  private void verifyProjectExistsWithPermissionInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,
+                                                        List<String> groupNames, List<Long> userLogins) {
     assertThat(esTester.getIds(index, type)).contains(projectUuid);
     BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(projectField, projectUuid));
     if (groupNames.isEmpty()) {

@@ -43,7 +43,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -77,7 +77,7 @@ public class IssuesActionTest {
 
   private IssueIndex issueIndex;
   private IssueIndexer issueIndexer;
-  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(es);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
 
   WsTester tester;
@@ -327,7 +327,7 @@ public class IssuesActionTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
-    authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
+    authorizationIndexerTester.indexProjectPermission(projectUuid, singletonList(group), singletonList(user));
   }
 
   private void addBrowsePermissionOnComponent(String componentKey) {

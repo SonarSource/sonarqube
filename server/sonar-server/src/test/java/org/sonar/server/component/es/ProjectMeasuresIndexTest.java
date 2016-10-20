@@ -34,7 +34,7 @@ import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -56,7 +56,7 @@ public class ProjectMeasuresIndexTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(es);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
 
   private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), userSession);
 
@@ -218,7 +218,7 @@ public class ProjectMeasuresIndexTest {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, docs);
       for (ProjectMeasuresDoc doc : docs) {
-        authorizationIndexerTester.insertProjectAuthorization(doc.getId(),
+        authorizationIndexerTester.indexProjectPermission(doc.getId(),
           authorizedGroup != null ? singletonList(authorizedGroup) : Collections.emptyList(),
           authorizeUser != null ? singletonList(authorizeUser) : Collections.emptyList());
       }

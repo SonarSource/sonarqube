@@ -40,7 +40,7 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.permission.index.AuthorizationIndexerTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -66,7 +66,7 @@ public class IssueIndexDebtTest {
   IssueIndex index;
 
   IssueIndexer issueIndexer;
-  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(tester);
+  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester);
   ViewIndexer viewIndexer;
 
   @Before
@@ -286,7 +286,7 @@ public class IssueIndexDebtTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
-    authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
+    authorizationIndexerTester.indexProjectPermission(projectUuid, singletonList(group), singletonList(user));
   }
 
   private Builder newQueryBuilder() {

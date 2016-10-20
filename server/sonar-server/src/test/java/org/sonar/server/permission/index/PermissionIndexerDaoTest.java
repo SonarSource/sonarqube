@@ -47,7 +47,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 
-public class AuthorizationDaoTest {
+public class PermissionIndexerDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -64,7 +64,7 @@ public class AuthorizationDaoTest {
   UserDto user2;
   GroupDto group;
 
-  AuthorizationDao underTest = new AuthorizationDao();
+  PermissionIndexerDao underTest = new PermissionIndexerDao();
 
   @Before
   public void setUp() throws Exception {
@@ -79,15 +79,15 @@ public class AuthorizationDaoTest {
   public void select_all() {
     insertTestDataForProject1And2();
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
+    Collection<PermissionIndexerDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
     assertThat(dtos).hasSize(2);
 
-    AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
+    PermissionIndexerDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
     assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
 
-    AuthorizationDao.Dto project2Authorization = getByProjectUuid(project2.uuid(), dtos);
+    PermissionIndexerDao.Dto project2Authorization = getByProjectUuid(project2.uuid(), dtos);
     assertThat(project2Authorization.getGroups()).containsOnly(ANYONE);
     assertThat(project2Authorization.getUsers()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
@@ -97,9 +97,9 @@ public class AuthorizationDaoTest {
   public void select_by_project() throws Exception {
     insertTestDataForProject1And2();
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, singletonList(project1.uuid()));
+    Collection<PermissionIndexerDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, singletonList(project1.uuid()));
     assertThat(dtos).hasSize(1);
-    AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
+    PermissionIndexerDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
     assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
@@ -109,17 +109,17 @@ public class AuthorizationDaoTest {
   public void select_by_projects() throws Exception {
     insertTestDataForProject1And2();
 
-    Map<String, AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, asList(project1.uuid(), project2.uuid()))
+    Map<String, PermissionIndexerDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, asList(project1.uuid(), project2.uuid()))
       .stream()
-      .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
+      .collect(Collectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(2);
 
-    AuthorizationDao.Dto project1Authorization = dtos.get(project1.uuid());
+    PermissionIndexerDao.Dto project1Authorization = dtos.get(project1.uuid());
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
     assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
 
-    AuthorizationDao.Dto project2Authorization = dtos.get(project2.uuid());
+    PermissionIndexerDao.Dto project2Authorization = dtos.get(project2.uuid());
     assertThat(project2Authorization.getGroups()).containsOnly(ANYONE);
     assertThat(project2Authorization.getUsers()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
@@ -141,9 +141,9 @@ public class AuthorizationDaoTest {
     }
     dbSession.commit();
 
-    Map<String, AuthorizationDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, projects)
+    Map<String, PermissionIndexerDao.Dto> dtos = underTest.selectByProjects(dbClient, dbSession, projects)
       .stream()
-      .collect(Collectors.uniqueIndex(AuthorizationDao.Dto::getProjectUuid, Function.identity()));
+      .collect(Collectors.uniqueIndex(PermissionIndexerDao.Dto::getProjectUuid, Function.identity()));
     assertThat(dtos).hasSize(350);
   }
 
@@ -152,16 +152,16 @@ public class AuthorizationDaoTest {
     userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
     userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
 
-    Collection<AuthorizationDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
+    Collection<PermissionIndexerDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
 
     assertThat(dtos).hasSize(2);
-    AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
+    PermissionIndexerDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).isEmpty();
     assertThat(project1Authorization.getUsers()).isEmpty();
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
   }
 
-  private static AuthorizationDao.Dto getByProjectUuid(String projectUuid, Collection<AuthorizationDao.Dto> dtos) {
+  private static PermissionIndexerDao.Dto getByProjectUuid(String projectUuid, Collection<PermissionIndexerDao.Dto> dtos) {
     return dtos.stream().filter(dto -> dto.getProjectUuid().equals(projectUuid)).findFirst().orElseThrow(IllegalArgumentException::new);
   }
 
