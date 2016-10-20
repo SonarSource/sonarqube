@@ -367,8 +367,8 @@ public class PermissionTemplateDaoTest {
 
   private void checkTemplateTables(String fileName) {
     db.assertDbUnitTable(getClass(), fileName, "permission_templates", "id", "name", "description");
-    db.assertDbUnitTable(getClass(), fileName, "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
-    db.assertDbUnitTable(getClass(), fileName, "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
+    db.assertDbUnitTable(getClass(), fileName, "perm_templates_users", "template_id", "user_id", "permission_reference");
+    db.assertDbUnitTable(getClass(), fileName, "perm_templates_groups", "template_id", "group_id", "permission_reference");
   }
 
 }
