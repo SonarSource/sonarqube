@@ -76,9 +76,7 @@ public class SearchAction implements RootsWsAction {
 
   private static WsRoot.Root toRoot(WsRoot.Root.Builder builder, UserDto dto) {
     builder.clear();
-    if (dto.getLogin() != null) {
-      builder.setLogin(dto.getLogin());
-    }
+    builder.setLogin(dto.getLogin());
     if (dto.getName() != null) {
       builder.setName(dto.getName());
     }
