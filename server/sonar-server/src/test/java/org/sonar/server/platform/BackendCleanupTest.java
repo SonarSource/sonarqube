@@ -25,6 +25,8 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.component.es.ProjectMeasuresDoc;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -36,14 +38,14 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BackendCleanupMediumTest {
+public class BackendCleanupTest {
 
   @Rule
   public EsTester esTester = new EsTester(
     new RuleIndexDefinition(new MapSettings()),
     new IssueIndexDefinition(new MapSettings()),
-    new ViewIndexDefinition(new MapSettings())
-    );
+    new ViewIndexDefinition(new MapSettings()),
+    new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -95,6 +97,10 @@ public class BackendCleanupMediumTest {
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
     esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
+    esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, new ProjectMeasuresDoc()
+      .setId("PROJECT")
+      .setKey("Key")
+      .setName("Name"));
 
     backendCleanup.resetData();
 
@@ -103,6 +109,7 @@ public class BackendCleanupMediumTest {
     assertThat(dbTester.countRowsOfTable("properties")).isZero();
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isZero();
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isZero();
+    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES)).isZero();
 
     // Rules should not be removed
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(1);

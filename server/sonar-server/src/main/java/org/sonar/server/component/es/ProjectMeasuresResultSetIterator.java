@@ -141,7 +141,7 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     return doc;
   }
 
-  private Measures selectMeasures(String projectUuid, String analysisUuid) {
+  private Measures selectMeasures(String projectUuid, @Nullable String analysisUuid) {
     Measures measures = new Measures();
     try (PreparedStatement stmt = createMeasuresStatement(projectUuid, analysisUuid);
       ResultSet rs = stmt.executeQuery()) {

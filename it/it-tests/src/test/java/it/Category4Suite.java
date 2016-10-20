@@ -34,6 +34,7 @@ import it.duplication.NewDuplicationsTest;
 import it.http.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
+import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.LogsTest;
 import it.serverSystem.ServerSystemTest;
@@ -87,6 +88,8 @@ import static util.ItUtils.xooPlugin;
   DashboardTest.class,
   // project comparison
   ProjectComparisonTest.class,
+  // project search
+  SearchProjectsTest.class,
   // component search
   AllProjectsTest.class,
   // http

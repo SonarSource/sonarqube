@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -56,7 +57,7 @@ public class BackendCleanup {
     "organizations", BackendCleanup::truncateOrganizations,
     "users", BackendCleanup::truncateUsers,
     "internal_properties", BackendCleanup::truncateInternalProperties,
-      "schema_migrations", BackendCleanup::truncateSchemaMigrations);
+    "schema_migrations", BackendCleanup::truncateSchemaMigrations);
 
   private final EsClient esClient;
   private final MyBatis myBatis;
@@ -125,6 +126,7 @@ public class BackendCleanup {
 
       clearIndex(IssueIndexDefinition.INDEX);
       clearIndex(ViewIndexDefinition.INDEX);
+      clearIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES);
 
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to reset data", e);

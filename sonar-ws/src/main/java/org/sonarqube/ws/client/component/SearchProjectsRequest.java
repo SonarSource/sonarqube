@@ -20,6 +20,8 @@
 
 package org.sonarqube.ws.client.component;
 
+import javax.annotation.CheckForNull;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class SearchProjectsRequest {
@@ -36,6 +38,7 @@ public class SearchProjectsRequest {
     this.filter = builder.filter;
   }
 
+  @CheckForNull
   public String getFilter() {
     return filter;
   }
@@ -83,12 +86,7 @@ public class SearchProjectsRequest {
       if (pageSize == null) {
         pageSize = DEFAULT_PAGE_SIZE;
       }
-      if (filter == null) {
-        filter = "";
-      }
-
       checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
-
       return new SearchProjectsRequest(this);
     }
   }
