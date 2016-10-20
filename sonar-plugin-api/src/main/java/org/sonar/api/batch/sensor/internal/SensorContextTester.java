@@ -28,7 +28,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -41,7 +43,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -61,8 +62,8 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
@@ -210,30 +211,40 @@ public class SensorContextTester implements SensorContext {
   }
 
   @CheckForNull
-  public Integer lineHits(String fileKey, CoverageType type, int line) {
-    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
-    if (defaultCoverage == null) {
-      return null;
-    }
-    return defaultCoverage.hitsByLine().get(line);
+  public Integer lineHits(String fileKey, int line) {
+    return sensorStorage.coverageByComponent.get(fileKey).stream()
+      .map(c -> c.hitsByLine().get(line))
+      .flatMap(Stream::of)
+      .filter(Objects::nonNull)
+      .reduce(null, SensorContextTester::sumOrNull);
   }
 
   @CheckForNull
-  public Integer conditions(String fileKey, CoverageType type, int line) {
-    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
-    if (defaultCoverage == null) {
-      return null;
-    }
-    return defaultCoverage.conditionsByLine().get(line);
+  public static Integer sumOrNull(Integer o1, Integer o2) {
+    return o1 == null ? o2 : (o1 + o2);
   }
 
   @CheckForNull
-  public Integer coveredConditions(String fileKey, CoverageType type, int line) {
-    DefaultCoverage defaultCoverage = sensorStorage.coverageByComponentAndType.get(fileKey, type);
-    if (defaultCoverage == null) {
-      return null;
-    }
-    return defaultCoverage.coveredConditionsByLine().get(line);
+  public Integer conditions(String fileKey, int line) {
+    return sensorStorage.coverageByComponent.get(fileKey).stream()
+      .map(c -> c.conditionsByLine().get(line))
+      .flatMap(Stream::of)
+      .filter(Objects::nonNull)
+      .reduce(null, SensorContextTester::maxOrNull);
+  }
+
+  @CheckForNull
+  public Integer coveredConditions(String fileKey, int line) {
+    return sensorStorage.coverageByComponent.get(fileKey).stream()
+      .map(c -> c.coveredConditionsByLine().get(line))
+      .flatMap(Stream::of)
+      .filter(Objects::nonNull)
+      .reduce(null, SensorContextTester::maxOrNull);
+  }
+
+  @CheckForNull
+  public static Integer maxOrNull(Integer o1, Integer o2) {
+    return o1 == null ? o2 : Math.max(o1, o2);
   }
 
   @CheckForNull

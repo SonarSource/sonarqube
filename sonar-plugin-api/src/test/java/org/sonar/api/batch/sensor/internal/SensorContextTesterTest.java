@@ -34,15 +34,13 @@ import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
-import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
@@ -234,71 +232,65 @@ public class SensorContextTesterTest {
 
   @Test
   public void testCoverageAtLineZero() {
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 1)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 4)).isNull();
 
     exception.expect(IllegalStateException.class);
-    NewCoverage coverage = tester.newCoverage()
+    tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
-      .ofType(CoverageType.UNIT)
       .lineHits(0, 3);
   }
 
   @Test
   public void testCoverageAtLineOutOfRange() {
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 1)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 4)).isNull();
     exception.expect(IllegalStateException.class);
 
-    NewCoverage coverage = tester.newCoverage()
+    tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
-      .ofType(CoverageType.UNIT)
       .lineHits(4, 3);
   }
 
   @Test
   public void testLineHits() {
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 1)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", 4)).isNull();
     tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasdas"))))
-      .ofType(CoverageType.UNIT)
       .lineHits(1, 2)
       .lineHits(2, 3)
       .save();
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(2);
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
-    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 2)).isEqualTo(3);
+    assertThat(tester.lineHits("foo:src/Foo.java", 1)).isEqualTo(2);
+    assertThat(tester.lineHits("foo:src/Foo.java", 2)).isEqualTo(3);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void duplicateCoverage() {
+  public void multipleCoverage() {
     tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasdas"))))
-      .ofType(CoverageType.UNIT)
       .lineHits(1, 2)
+      .conditions(3, 4, 2)
       .save();
     tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasdas"))))
-      .ofType(CoverageType.UNIT)
       .lineHits(1, 2)
+      .conditions(3, 4, 3)
       .save();
+    assertThat(tester.lineHits("foo:src/Foo.java", 1)).isEqualTo(4);
+    assertThat(tester.conditions("foo:src/Foo.java", 3)).isEqualTo(4);
+    assertThat(tester.coveredConditions("foo:src/Foo.java", 3)).isEqualTo(3);
   }
 
   @Test
   public void testConditions() {
-    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
-    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
+    assertThat(tester.conditions("foo:src/Foo.java", 1)).isNull();
+    assertThat(tester.coveredConditions("foo:src/Foo.java", 1)).isNull();
     tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar\nasd\nasdas\nasdfas"))))
-      .ofType(CoverageType.UNIT)
       .conditions(1, 4, 2)
       .save();
-    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(4);
-    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(2);
-
-    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
-    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
+    assertThat(tester.conditions("foo:src/Foo.java", 1)).isEqualTo(4);
+    assertThat(tester.coveredConditions("foo:src/Foo.java", 1)).isEqualTo(2);
   }
 
   @Test

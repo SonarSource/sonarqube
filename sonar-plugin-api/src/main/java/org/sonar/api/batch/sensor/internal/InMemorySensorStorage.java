@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
@@ -46,7 +47,7 @@ class InMemorySensorStorage implements SensorStorage {
 
   Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
-  Table<String, CoverageType, DefaultCoverage> coverageByComponentAndType = HashBasedTable.create();
+  Multimap<String, DefaultCoverage> coverageByComponent = ArrayListMultimap.create();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
   Map<String, String> contextProperties = new HashMap<>();
 
@@ -79,11 +80,7 @@ class InMemorySensorStorage implements SensorStorage {
   @Override
   public void store(DefaultCoverage defaultCoverage) {
     String fileKey = defaultCoverage.inputFile().key();
-    // Emulate duplicate storage check
-    if (coverageByComponentAndType.contains(fileKey, defaultCoverage.type())) {
-      throw new UnsupportedOperationException("Trying to save coverage twice for the same file is not supported: " + defaultCoverage.inputFile().relativePath());
-    }
-    coverageByComponentAndType.row(fileKey).put(defaultCoverage.type(), defaultCoverage);
+    coverageByComponent.put(fileKey, defaultCoverage);
   }
 
   @Override
