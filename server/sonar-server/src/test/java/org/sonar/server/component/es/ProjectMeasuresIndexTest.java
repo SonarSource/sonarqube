@@ -22,6 +22,7 @@ package org.sonar.server.component.es;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -29,6 +30,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
@@ -42,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
@@ -451,6 +454,31 @@ public class ProjectMeasuresIndexTest {
       entry("3", 4L),
       entry("4", 2L),
       entry("5", 5L));
+  }
+
+  @Test
+  public void facet_quality_gate() {
+    addDocs(
+      // 2 docs with QG OK
+      newDoc("P11", "K1", "N1").setQualityGate(Level.OK.name()),
+      newDoc("P12", "K1", "N1").setQualityGate(Level.OK.name()),
+      // 3 docs with QG WARN
+      newDoc("P21", "K1", "N1").setQualityGate(Level.WARN.name()),
+      newDoc("P22", "K1", "N1").setQualityGate(Level.WARN.name()),
+      newDoc("P23", "K1", "N1").setQualityGate(Level.WARN.name()),
+      // 4 docs with QG ERROR
+      newDoc("P31", "K1", "N1").setQualityGate(Level.ERROR.name()),
+      newDoc("P32", "K1", "N1").setQualityGate(Level.ERROR.name()),
+      newDoc("P33", "K1", "N1").setQualityGate(Level.ERROR.name()),
+      newDoc("P34", "K1", "N1").setQualityGate(Level.ERROR.name()));
+
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets().get(ALERT_STATUS_KEY);
+
+    assertThat(result).containsExactly(
+      entry(Level.ERROR.name(), 4L),
+      entry(Level.WARN.name(), 3L),
+      entry(Level.OK.name(), 2L)
+    );
   }
 
   private void addDocs(ProjectMeasuresDoc... docs) {
