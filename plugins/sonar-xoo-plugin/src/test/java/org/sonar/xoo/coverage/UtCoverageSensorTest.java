@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.coverage;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,12 +28,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,9 +74,7 @@ public class UtCoverageSensorTest {
 
     sensor.execute(context);
 
-    assertThat(context.lineHits("foo:src/foo.xoo", CoverageType.UNIT, 1)).isEqualTo(3);
-    assertThat(context.lineHits("foo:src/foo.xoo", CoverageType.IT, 1)).isNull();
-    assertThat(context.lineHits("foo:src/foo.xoo", CoverageType.OVERALL, 1)).isNull();
+    assertThat(context.lineHits("foo:src/foo.xoo", 1)).isEqualTo(3);
   }
 
   @Test
@@ -90,12 +86,8 @@ public class UtCoverageSensorTest {
 
     sensor.execute(context);
 
-    assertThat(context.lineHits("foo:src/foo.xoo", CoverageType.UNIT, 1)).isEqualTo(3);
-    assertThat(context.conditions("foo:src/foo.xoo", CoverageType.UNIT, 1)).isEqualTo(4);
-    assertThat(context.conditions("foo:src/foo.xoo", CoverageType.IT, 1)).isNull();
-    assertThat(context.conditions("foo:src/foo.xoo", CoverageType.OVERALL, 1)).isNull();
-    assertThat(context.coveredConditions("foo:src/foo.xoo", CoverageType.UNIT, 1)).isEqualTo(2);
-    assertThat(context.coveredConditions("foo:src/foo.xoo", CoverageType.IT, 1)).isNull();
-    assertThat(context.coveredConditions("foo:src/foo.xoo", CoverageType.OVERALL, 1)).isNull();
+    assertThat(context.lineHits("foo:src/foo.xoo", 1)).isEqualTo(3);
+    assertThat(context.conditions("foo:src/foo.xoo", 1)).isEqualTo(4);
+    assertThat(context.coveredConditions("foo:src/foo.xoo", 1)).isEqualTo(2);
   }
 }
