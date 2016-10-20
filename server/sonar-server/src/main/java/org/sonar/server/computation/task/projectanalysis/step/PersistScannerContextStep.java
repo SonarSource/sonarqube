@@ -26,6 +26,8 @@ import org.sonar.db.DbSession;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static java.util.Collections.singleton;
+
 public class PersistScannerContextStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final DbClient dbClient;
@@ -47,6 +49,10 @@ public class PersistScannerContextStep implements ComputationStep {
     try (CloseableIterator<String> logsIterator = reportReader.readScannerLogs()) {
       if (logsIterator.hasNext()) {
         try (DbSession dbSession = dbClient.openSession(false)) {
+          // in case the task was restarted, the context might have been already persisted
+          // for total reliability, we rather delete the existing row as we don't want to assume the content
+          // consistent with the report
+          dbClient.ceScannerContextDao().deleteByUuids(dbSession, singleton(ceTask.getUuid()));
           dbClient.ceScannerContextDao().insert(dbSession, ceTask.getUuid(), logsIterator);
           dbSession.commit();
         }
