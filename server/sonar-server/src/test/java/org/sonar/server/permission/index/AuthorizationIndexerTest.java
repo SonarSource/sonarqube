@@ -158,22 +158,6 @@ public class AuthorizationIndexerTest {
   }
 
   @Test
-  public void delete_project() {
-    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
-
-    underTest.deleteProject("ABC", true);
-
-    authorizationIndexerTester.verifyEmptyProjectAuthorization();
-  }
-
-  @Test
-  public void do_not_fail_when_deleting_unknown_project() {
-    underTest.deleteProject("UNKNOWN", true);
-
-    authorizationIndexerTester.verifyEmptyProjectAuthorization();
-  }
-
-  @Test
   public void update_existing_permissions() {
     authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
 

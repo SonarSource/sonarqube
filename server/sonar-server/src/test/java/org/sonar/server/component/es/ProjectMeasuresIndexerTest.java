@@ -31,13 +31,16 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.AuthorizationIndexerTester;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexerTest {
@@ -49,6 +52,7 @@ public class ProjectMeasuresIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  AuthorizationIndexerTester authorizationIndexerTester = new AuthorizationIndexerTester(esTester);
 
   ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(dbTester.getDbClient(), esTester.client());
 
@@ -125,10 +129,14 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project3 = newProjectDto();
     componentDbTester.insertProjectAndSnapshot(project3);
     underTest.index();
+    authorizationIndexerTester.insertProjectAuthorization(project1.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.insertProjectAuthorization(project2.uuid(), emptyList(), emptyList());
+    authorizationIndexerTester.insertProjectAuthorization(project3.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject(project1.uuid());
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project2.uuid(), project3.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project2.uuid(), project3.uuid());
   }
 
   @Test
@@ -136,9 +144,11 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project = newProjectDto();
     componentDbTester.insertProjectAndSnapshot(project);
     underTest.index();
+    authorizationIndexerTester.insertProjectAuthorization(project.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject("UNKNOWN");
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project.uuid());
   }
 }

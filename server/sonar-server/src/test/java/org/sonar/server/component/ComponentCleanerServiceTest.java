@@ -250,11 +250,13 @@ public class ComponentCleanerServiceTest {
       assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).contains(data.project.uuid());
       assertThat(es.getIds(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE)).contains(data.testId);
       assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES)).contains(data.project.uuid());
+      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).contains(data.project.uuid());
     } else {
       assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).doesNotContain(data.issueKey);
       assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(data.project.uuid());
       assertThat(es.getIds(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE)).doesNotContain(data.testId);
       assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES)).doesNotContain(data.project.uuid());
+      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(data.project.uuid());
     }
   }
 

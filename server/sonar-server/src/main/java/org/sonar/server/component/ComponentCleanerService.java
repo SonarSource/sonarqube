@@ -29,9 +29,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.index.AuthorizationIndexer;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
@@ -84,8 +84,6 @@ public class ComponentCleanerService {
   }
 
   private void deleteFromIndices(String projectUuid) {
-    // optimization : index "issues" is refreshed once at the end
-    authorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid);
     testIndexer.deleteByProject(projectUuid);
     projectMeasuresIndexer.deleteProject(projectUuid);

@@ -32,6 +32,7 @@ import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer extends BaseIndexer {
@@ -55,6 +56,11 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
   public void deleteProject(String uuid) {
     esClient
       .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, uuid)
+      .setRouting(uuid)
+      .setRefresh(true)
+      .get();
+    esClient
+      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION, uuid)
       .setRouting(uuid)
       .setRefresh(true)
       .get();

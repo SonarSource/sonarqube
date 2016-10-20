@@ -155,19 +155,6 @@ public class AuthorizationIndexer implements Startable {
       .get();
   }
 
-  public void deleteProject(String uuid, boolean refresh) {
-    esClient
-      .prepareDelete(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, uuid)
-      .setRefresh(refresh)
-      .setRouting(uuid)
-      .get();
-    esClient
-      .prepareDelete(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, uuid)
-      .setRefresh(refresh)
-      .setRouting(uuid)
-      .get();
-  }
-
   private static IndexRequest newIssuesAuthorizationIndexRequest(AuthorizationDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
