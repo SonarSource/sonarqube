@@ -43,6 +43,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -67,17 +68,18 @@ public class ReportSubmitterTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private CeQueue queue = mock(CeQueueImpl.class);
   private ComponentService componentService = mock(ComponentService.class);
   private PermissionService permissionService = mock(PermissionService.class);
-  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionService, dbTester.getDbClient());
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionService, db.getDbClient());
 
   @Test
   public void submit_a_report_on_existing_project() {
     userSession.setGlobalPermissions(SCAN_EXECUTION);
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = db.components().insertProject();
+
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
 
     underTest.submit(project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
@@ -103,14 +105,15 @@ public class ReportSubmitterTest {
     userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
-    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto createdProject = new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
+    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
     when(permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(permissionService).applyDefaultPermissionTemplate(any(DbSession.class), eq(PROJECT_KEY));
+    verify(permissionService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -141,7 +144,7 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_a_report_on_existing_project_with_global_scan_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = db.components().insertProject();
     userSession.setGlobalPermissions(SCAN_EXECUTION);
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
@@ -153,7 +156,7 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = db.components().insertProject();
     userSession.addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
@@ -183,7 +186,7 @@ public class ReportSubmitterTest {
   }
 
   private void verifyReportIsPersisted(String taskUuid) {
-    assertThat(dbTester.selectFirst("select task_uuid from ce_task_input where task_uuid='" + taskUuid + "'")).isNotNull();
+    assertThat(db.selectFirst("select task_uuid from ce_task_input where task_uuid='" + taskUuid + "'")).isNotNull();
   }
 
 }

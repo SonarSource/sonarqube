@@ -67,6 +67,11 @@ public class PermissionService {
     }
   }
 
+  /**
+   * @deprecated replaced by {@link #applyDefault(DbSession, ComponentDto, Long)}, which <b>does not
+   * verify that user is authorized to administrate the component</b>.
+   */
+  @Deprecated
   public void applyDefaultPermissionTemplate(DbSession session, String componentKey) {
     ComponentDto component = componentFinder.getByKey(session, componentKey);
     ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
@@ -104,6 +109,21 @@ public class PermissionService {
     }
     dbSession.commit();
     indexProjectPermissions(dbSession, projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
+  }
+
+  /**
+   * Apply the default permission template to component, whatever it already exists (and has permissions) or if it's
+   * provisioned (and has no permissions yet).
+   *
+   * @param dbSession
+   * @param component
+   * @param projectCreatorUserId id of the user who creates the project, only if project is provisioned. He will
+   *                             benefit from the permissions defined in the template for "project creator".
+   */
+  public void applyDefault(DbSession dbSession, ComponentDto component, @Nullable Long projectCreatorUserId) {
+    permissionRepository.applyDefaultPermissionTemplate(dbSession, component, projectCreatorUserId);
+    dbSession.commit();
+    indexProjectPermissions(dbSession, asList(component.uuid()));
   }
 
   private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {

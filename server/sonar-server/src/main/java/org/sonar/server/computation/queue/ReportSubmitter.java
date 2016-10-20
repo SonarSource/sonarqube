@@ -89,7 +89,9 @@ public class ReportSubmitter {
     newProject.setQualifier(Qualifiers.PROJECT);
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
-    permissionTemplateService.applyDefaultPermissionTemplate(project.getKey());
+
+    Integer currentUserId = userSession.getUserId();
+    permissionTemplateService.applyDefault(dbSession, project, currentUserId != null ? currentUserId.longValue() : null);
     return project;
   }
 
