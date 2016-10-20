@@ -32,7 +32,6 @@ import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ProjectMeasuresQueryFactoryTest {
 
@@ -48,6 +47,42 @@ public class ProjectMeasuresQueryFactoryTest {
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
         tuple("coverage", Operator.LTE, 80d));
+  }
+
+  @Test
+  public void create_query_having_lesser_than_operation() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc < 10");
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
+      .containsOnly(tuple("ncloc", Operator.LT, 10d));
+  }
+
+  @Test
+  public void create_query_having_lesser_than_or_equals_operation() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc <= 10");
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
+      .containsOnly(tuple("ncloc", Operator.LTE, 10d));
+  }
+
+  @Test
+  public void create_query_having_greater_than_operation() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc > 10");
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
+      .containsOnly(tuple("ncloc", Operator.GT, 10d));
+  }
+
+  @Test
+  public void create_query_having_greater_than_or_equals_operation() throws Exception {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc >= 10");
+
+    assertThat(query.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
+      .containsOnly(tuple("ncloc", Operator.GTE, 10d));
   }
 
   @Test
@@ -98,13 +133,6 @@ public class ProjectMeasuresQueryFactoryTest {
     ProjectMeasuresQuery result = newProjectMeasuresQuery("");
 
     assertThat(result.getMetricCriteria()).isEmpty();
-  }
-
-  @Test
-  public void fail_on_unknown_operator() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("Unknown operator '>='"));
-    newProjectMeasuresQuery("ncloc >= 10");
   }
 
   @Test

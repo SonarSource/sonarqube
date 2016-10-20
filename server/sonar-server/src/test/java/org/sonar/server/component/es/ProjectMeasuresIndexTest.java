@@ -96,6 +96,20 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void filter_with_lower_than() {
+    addDocs(
+      newDoc("P1", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 79d), newMeasure(NCLOC, 10_000d))),
+      newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d))),
+      newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 81d), newMeasure(NCLOC, 10_000d))));
+
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 80d));
+    List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
+
+    assertThat(result).containsExactly("P1");
+  }
+
+  @Test
   public void filter_with_lower_than_or_equals() {
     addDocs(
       newDoc("P1", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 79d), newMeasure(NCLOC, 10_000d))),
@@ -119,6 +133,19 @@ public class ProjectMeasuresIndexTest {
     assertThat(underTest.search(new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 30_000d)),
       new SearchOptions()).getIds()).containsExactly("P2", "P3");
     assertThat(underTest.search(new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 100_000d)),
+      new SearchOptions()).getIds()).isEmpty();
+  }
+
+  @Test
+  public void filter_with_greater_than_or_equals() {
+    addDocs(
+      newDoc("P1", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 30_000d))),
+      newDoc("P2", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 30_001d))),
+      newDoc("P3", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 30_001d))));
+
+    assertThat(underTest.search(new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GTE, 30_001d)),
+      new SearchOptions()).getIds()).containsExactly("P2", "P3");
+    assertThat(underTest.search(new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GTE, 100_000d)),
       new SearchOptions()).getIds()).isEmpty();
   }
 

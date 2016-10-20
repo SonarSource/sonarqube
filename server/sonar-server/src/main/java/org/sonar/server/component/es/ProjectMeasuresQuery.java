@@ -57,7 +57,7 @@ public class ProjectMeasuresQuery {
   }
 
   public enum Operator {
-    LTE("<="), GT(">"), EQ("=");
+    LT("<"), LTE("<="), GT(">"), GTE(">="), EQ("=");
 
     String value;
 

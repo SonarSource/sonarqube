@@ -21,14 +21,14 @@ package org.sonar.server.component.es;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.stream.IntStream;
 import java.util.Set;
+import java.util.stream.IntStream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
@@ -51,13 +51,16 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.*;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
+import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -126,8 +129,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
             .filter("2", termQuery(FIELD_VALUE, 2d))
             .filter("3", termQuery(FIELD_VALUE, 3d))
             .filter("4", termQuery(FIELD_VALUE, 4d))
-            .filter("5", termQuery(FIELD_VALUE, 5d))
-          ));
+            .filter("5", termQuery(FIELD_VALUE, 5d))));
   }
 
   private QueryBuilder createEsQuery(ProjectMeasuresQuery query) {
@@ -150,6 +152,10 @@ public class ProjectMeasuresIndex extends BaseIndex {
     switch (criterion.getOperator()) {
       case GT:
         return rangeQuery(fieldName).gt(criterion.getValue());
+      case GTE:
+        return rangeQuery(fieldName).gte(criterion.getValue());
+      case LT:
+        return rangeQuery(fieldName).lt(criterion.getValue());
       case LTE:
         return rangeQuery(fieldName).lte(criterion.getValue());
       case EQ:
