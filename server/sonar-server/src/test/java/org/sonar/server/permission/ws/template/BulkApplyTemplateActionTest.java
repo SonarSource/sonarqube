@@ -32,7 +32,6 @@ import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
@@ -62,8 +61,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
-    ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
-    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issuePermissionIndexer, userSession, componentFinder);
+    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, issuePermissionIndexer, userSession);
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

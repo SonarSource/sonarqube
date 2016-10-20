@@ -78,8 +78,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
-    ComponentFinder componentFinder = new ComponentFinder(db.getDbClient());
-    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, permissionIndexer, userSession, componentFinder);
+    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, permissionIndexer, userSession);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport());
   }
 
