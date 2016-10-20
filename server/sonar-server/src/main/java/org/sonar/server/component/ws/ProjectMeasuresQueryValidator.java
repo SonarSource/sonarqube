@@ -23,6 +23,7 @@ package org.sonar.server.component.ws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,13 +41,42 @@ public class ProjectMeasuresQueryValidator {
   }
 
   public void validate(DbSession dbSession, ProjectMeasuresQuery query) {
-    List<String> metricKeys = new ArrayList<>(query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(Collectors.toSet()));
-    List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
-    if (dbMetrics.size() == metricKeys.size()) {
+    Set<String> metricKeys = query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(Collectors.toSet());
+    if (metricKeys.isEmpty()) {
       return;
     }
-    List<String> metricDtoKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
-    Set<String> unknownKeys = metricKeys.stream().filter(metricKey -> !metricDtoKeys.contains(metricKey)).collect(Collectors.toSet());
-    throw new IllegalArgumentException(String.format("Unknown metric(s) %s", unknownKeys));
+    List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, new ArrayList<>(metricKeys));
+    checkMetricKeysExists(dbMetrics, metricKeys);
+    checkMetricsAreEnabledAndVisible(dbMetrics);
+    checkMetricsAreNumerics(dbMetrics);
   }
+
+  private static void checkMetricKeysExists(List<MetricDto> dbMetrics, Set<String> inputMetricKeys) {
+    Set<String> dbMetricsKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
+    Set<String> unknownKeys = inputMetricKeys.stream().filter(metricKey -> !dbMetricsKeys.contains(metricKey)).collect(Collectors.toSet());
+    if (!unknownKeys.isEmpty()) {
+      throw new IllegalArgumentException(String.format("Unknown metric(s) %s", new TreeSet<>(unknownKeys)));
+    }
+  }
+
+  private static void checkMetricsAreEnabledAndVisible(List<MetricDto> dbMetrics) {
+    Set<String> invalidKeys = dbMetrics.stream()
+      .filter(metricDto -> !metricDto.isEnabled() || metricDto.isHidden())
+      .map(MetricDto::getKey)
+      .collect(Collectors.toSet());
+    if (!invalidKeys.isEmpty()) {
+      throw new IllegalArgumentException(String.format("Following metrics are disabled or hidden : %s", new TreeSet<>(invalidKeys)));
+    }
+  }
+
+  private static void checkMetricsAreNumerics(List<MetricDto> dbMetrics) {
+    Set<String> invalidKeys = dbMetrics.stream()
+      .filter(MetricDto::isDataType)
+      .map(MetricDto::getKey)
+      .collect(Collectors.toSet());
+    if (!invalidKeys.isEmpty()) {
+      throw new IllegalArgumentException(String.format("Following metrics are not numeric : %s", new TreeSet<>(invalidKeys)));
+    }
+  }
+
 }
