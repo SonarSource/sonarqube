@@ -104,11 +104,12 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
   public String getQualityGate() {
     return getField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE);
   }
 
-  public ProjectMeasuresDoc setQualityGate(String s) {
+  public ProjectMeasuresDoc setQualityGate(@Nullable String s) {
     setField(ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE, s);
     return this;
   }

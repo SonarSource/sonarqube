@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -129,21 +130,24 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
   @Override
   protected ProjectMeasuresDoc read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
-    Measures measures = selectMeasures(projectUuid, rs.getString(4));
+    Measures measures = selectMeasures(projectUuid, getString(rs, 4));
     ProjectMeasuresDoc doc = new ProjectMeasuresDoc()
       .setId(projectUuid)
       .setKey(rs.getString(2))
       .setName(rs.getString(3))
-      .setQualityGate(measures.qualityGateStatus)
-      .setMeasuresFromMap(measures.numericMeasures);
+      .setQualityGate(measures.getQualityGateStatus())
+      .setMeasuresFromMap(measures.getNumericMeasures());
     long analysisDate = rs.getLong(5);
     doc.setAnalysedAt(rs.wasNull() ? null : new Date(analysisDate));
     return doc;
   }
 
-  private Measures selectMeasures(String projectUuid, @Nullable String analysisUuid) {
+  private Measures selectMeasures(String projectUuid, Optional<String> analysisUuid) {
     Measures measures = new Measures();
-    try (PreparedStatement stmt = createMeasuresStatement(projectUuid, analysisUuid);
+    if (!analysisUuid.isPresent()) {
+      return measures;
+    }
+    try (PreparedStatement stmt = createMeasuresStatement(projectUuid, analysisUuid.get());
       ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         readMeasure(rs, measures);
@@ -195,6 +199,18 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
     }
   }
 
+  private static Optional<String> getString(ResultSet rs, int index) {
+    try {
+      String value = rs.getString(index);
+      if (!rs.wasNull()) {
+        return Optional.of(value);
+      }
+      return Optional.empty();
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to get string value", e);
+    }
+  }
+
   private static class Measures {
     private Map<String, Object> numericMeasures = new HashMap<>();
     private String qualityGateStatus;
@@ -204,9 +220,18 @@ public class ProjectMeasuresResultSetIterator extends ResultSetIterator<ProjectM
       return this;
     }
 
-    Measures setQualityGateStatus(String qualityGateStatus) {
+    public Map<String, Object> getNumericMeasures() {
+      return numericMeasures;
+    }
+
+    Measures setQualityGateStatus(@Nullable String qualityGateStatus) {
       this.qualityGateStatus = qualityGateStatus;
       return this;
+    }
+
+    @CheckForNull
+    public String getQualityGateStatus() {
+      return qualityGateStatus;
     }
   }
 

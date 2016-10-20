@@ -238,7 +238,10 @@ public class SearchProjectsActionTest {
 
     httpRequest.setParam(Param.PAGE, String.valueOf(wsRequest.getPage()));
     httpRequest.setParam(Param.PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
-    httpRequest.setParam(PARAM_FILTER, wsRequest.getFilter());
+    String filter = wsRequest.getFilter();
+    if (filter != null) {
+      httpRequest.setParam(PARAM_FILTER, filter);
+    }
 
     try {
       return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());
