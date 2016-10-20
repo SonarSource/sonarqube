@@ -42,7 +42,7 @@ public class AlwaysIncreasingSystem2 extends System2 {
     checkArgument(increment > 0, "increment must be > 0");
     long initialValue = initialValueSupplier.get();
     Preconditions.checkArgument(initialValue >= 0, "Initial value must be >= 0");
-    this.now = new AtomicLong();
+    this.now = new AtomicLong(initialValue);
     this.increment = increment;
   }
 
@@ -63,7 +63,7 @@ public class AlwaysIncreasingSystem2 extends System2 {
 
   @Override
   public long now() {
-    return now.addAndGet(increment);
+    return now.getAndAdd(increment);
   }
 
   private static long randomInitialValue() {
