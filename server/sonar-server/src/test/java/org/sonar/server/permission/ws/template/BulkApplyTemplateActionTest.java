@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
-import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -60,8 +59,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
-    PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
-    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), repository, issuePermissionIndexer, userSession);
+    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), new MapSettings(), issuePermissionIndexer, userSession);
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

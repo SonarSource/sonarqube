@@ -107,7 +107,7 @@ public class ReportSubmitterTest {
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
     ComponentDto createdProject = new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -134,7 +134,7 @@ public class ReportSubmitterTest {
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    when(permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
