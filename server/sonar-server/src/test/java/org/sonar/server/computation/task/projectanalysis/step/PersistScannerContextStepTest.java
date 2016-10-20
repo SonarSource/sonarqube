@@ -19,11 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.Arrays;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -78,4 +80,19 @@ public class PersistScannerContextStepTest {
       .isEmpty();
   }
 
+  /**
+   * @see SONAR-8306
+   */
+  @Test
+  public void execute_does_not_fail_if_scanner_context_has_already_been_persisted() {
+    dbClient.ceScannerContextDao().insert(dbTester.getSession(), ANALYSIS_UUID, CloseableIterator.from(Arrays.asList("a", "b", "c").iterator()));
+    dbTester.commit();
+    reportReader.setScannerLogs(asList("1", "2", "3"));
+    when(ceTask.getUuid()).thenReturn(ANALYSIS_UUID);
+
+    underTest.execute();
+
+    assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
+      .contains("1" + '\n' + "2" + '\n' + "3");
+  }
 }
