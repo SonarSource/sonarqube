@@ -108,12 +108,16 @@ public class SearchAction implements ProjectLinksWsAction {
   }
 
   private static Link buildLink(ComponentLinkDto link) {
-    return Link.newBuilder()
+    Link.Builder builder = Link.newBuilder()
       .setId(String.valueOf(link.getId()))
-      .setName(link.getName())
-      .setType(link.getType())
-      .setUrl(link.getHref())
-      .build();
+      .setUrl(link.getHref());
+    if (link.getName() != null) {
+      builder.setName(link.getName());
+    }
+    if (link.getType() != null) {
+      builder.setType(link.getType());
+    }
+    return builder.build();
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchWsRequest request) {
