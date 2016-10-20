@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
@@ -48,14 +48,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionService permissionService;
+  private final PermissionTemplateService permissionTemplateService;
   private final PermissionWsSupport wsSupport;
 
-  public ApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionService permissionService,
+  public ApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService,
     PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.permissionService = permissionService;
+    this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
   }
 
@@ -89,7 +89,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       ProjectId projectId = new ProjectId(project);
       checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.of(projectId));
 
-      permissionService.apply(dbSession, template, Collections.singletonList(project));
+      permissionTemplateService.apply(dbSession, template, Collections.singletonList(project));
     }
   }
 

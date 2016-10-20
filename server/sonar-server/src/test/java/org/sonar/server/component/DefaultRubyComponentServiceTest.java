@@ -38,7 +38,7 @@ import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -69,11 +69,11 @@ public class DefaultRubyComponentServiceTest {
   ResourceDao resourceDao = dbClient.resourceDao();
   ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient),
     new ProjectMeasuresIndexer(dbClient, es.client()));
-  PermissionService permissionService = mock(PermissionService.class);
+  PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionService);
+  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService);
 
   @Test
   public void find_by_key() {
@@ -110,7 +110,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.name()).isEqualTo(componentName);
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
-    verify(permissionService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
+    verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
   }
 
   @Test(expected = BadRequestException.class)

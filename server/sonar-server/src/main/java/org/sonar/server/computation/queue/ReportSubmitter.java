@@ -36,7 +36,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -48,11 +48,11 @@ public class ReportSubmitter {
   private final CeQueue queue;
   private final UserSession userSession;
   private final ComponentService componentService;
-  private final PermissionService permissionTemplateService;
+  private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession,
-                         ComponentService componentService, PermissionService permissionTemplateService, DbClient dbClient) {
+    ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentService = componentService;

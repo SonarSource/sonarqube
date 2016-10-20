@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,8 +72,8 @@ public class ReportSubmitterTest {
 
   private CeQueue queue = mock(CeQueueImpl.class);
   private ComponentService componentService = mock(ComponentService.class);
-  private PermissionService permissionService = mock(PermissionService.class);
-  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionService, db.getDbClient());
+  private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionTemplateService, db.getDbClient());
 
   @Test
   public void submit_a_report_on_existing_project() {
@@ -85,7 +85,7 @@ public class ReportSubmitterTest {
     underTest.submit(project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verifyZeroInteractions(permissionService);
+    verifyZeroInteractions(permissionTemplateService);
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -107,13 +107,13 @@ public class ReportSubmitterTest {
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
     ComponentDto createdProject = new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(permissionService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
+    verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -134,7 +134,7 @@ public class ReportSubmitterTest {
 
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    when(permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldCurrentUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));

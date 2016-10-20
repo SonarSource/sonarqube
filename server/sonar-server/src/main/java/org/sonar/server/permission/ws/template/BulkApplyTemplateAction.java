@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
@@ -57,16 +57,16 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionService permissionService;
+  private final PermissionTemplateService permissionTemplateService;
   private final PermissionWsSupport wsSupport;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
 
-  public BulkApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionService permissionService, PermissionWsSupport wsSupport, I18n i18n,
-    ResourceTypes resourceTypes) {
+  public BulkApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService, PermissionWsSupport wsSupport, I18n i18n,
+                                 ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.permissionService = permissionService;
+    this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
@@ -112,7 +112,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         ProjectId projectId = new ProjectId(project);
         checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.of(projectId));
       }
-      permissionService.apply(dbSession, template, projects);
+      permissionTemplateService.apply(dbSession, template, projects);
     }
   }
 

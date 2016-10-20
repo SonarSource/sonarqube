@@ -41,20 +41,25 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjec
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
-public class PermissionService {
+public class PermissionTemplateService {
 
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession) {
+  public PermissionTemplateService(DbClient dbClient, PermissionRepository permissionRepository, PermissionIndexer permissionIndexer, UserSession userSession) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
   }
 
+  /**
+   * @deprecated replaced by {@link #applyDefault(DbSession, ComponentDto, Long)}, which <b>does not
+   * verify that user is authorized to administrate the component</b>.
+   */
+  @Deprecated
   public void applyDefaultPermissionTemplate(String componentKey) {
     DbSession session = dbClient.openSession(false);
     try {
@@ -96,6 +101,11 @@ public class PermissionService {
     return permissionRepository.wouldUserHavePermissionWithDefaultTemplate(dbSession, userId, permission, effectiveKey, qualifier);
   }
 
+  /**
+   * Apply a permission template to a set of projects. Authorization to administrate these projects
+   * is not verified. The projects must exist, so the "project creator" permissions defined in the
+   * template are ignored.
+   */
   public void apply(DbSession dbSession, PermissionTemplateDto template, Collection<ComponentDto> projects) {
     if (projects.isEmpty()) {
       return;
@@ -109,8 +119,8 @@ public class PermissionService {
   }
 
   /**
-   * Apply the default permission template to component, whatever it already exists (and has permissions) or if it's
-   * provisioned (and has no permissions yet).
+   * Apply the default permission template to project. The project can already exist (so it has permissions) or
+   * can be provisioned (so has no permissions yet).
    *
    * @param dbSession
    * @param component
