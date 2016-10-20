@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.util.RubyUtils;
 
 public class DefaultRubyComponentService implements RubyComponentService {
@@ -39,13 +39,13 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final DbClient dbClient;
   private final ResourceDao resourceDao;
   private final ComponentService componentService;
-  private final PermissionService permissionService;
+  private final PermissionTemplateService permissionTemplateService;
 
-  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionService permissionService) {
+  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionTemplateService permissionTemplateService) {
     this.dbClient = dbClient;
     this.resourceDao = resourceDao;
     this.componentService = componentService;
-    this.permissionService = permissionService;
+    this.permissionTemplateService = permissionTemplateService;
   }
 
   @Override
@@ -80,7 +80,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
     ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-    permissionService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
+    permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
     return provisionedComponent.getId();
   }
 

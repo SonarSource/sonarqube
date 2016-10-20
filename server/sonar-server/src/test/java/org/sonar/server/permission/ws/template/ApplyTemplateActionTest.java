@@ -35,14 +35,13 @@ import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
@@ -78,8 +77,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionRepository repository = new PermissionRepository(db.getDbClient(), new MapSettings());
-    PermissionService permissionService = new PermissionService(db.getDbClient(), repository, permissionIndexer, userSession);
-    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionService, newPermissionWsSupport());
+    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), repository, permissionIndexer, userSession);
+    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 
   @Before
