@@ -253,7 +253,7 @@ public class IssueIndex extends BaseIndex {
 
   private Map<String, QueryBuilder> createFilters(IssueQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userLogin(), query.userGroups()));
+    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userId(), query.userGroups()));
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -332,11 +332,11 @@ public class IssueIndex extends BaseIndex {
     return viewsFilter;
   }
 
-  private static QueryBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
+  private static QueryBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable Integer userId, Set<String> userGroups) {
     if (checkAuthorization) {
       BoolQueryBuilder groupsAndUser = boolQuery();
-      if (userLogin != null) {
-        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
+      if (userId != null) {
+        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userId.longValue()));
       }
       for (String group : userGroups) {
         groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
@@ -687,7 +687,7 @@ public class IssueIndex extends BaseIndex {
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
     BoolQueryBuilder filter = boolQuery()
-      .must(createAuthorizationFilter(true, userSession.getLogin(), userSession.getUserGroups()))
+      .must(createAuthorizationFilter(true, userSession.getUserId(), userSession.getUserGroups()))
       .mustNot(termsQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
 
     switch (component.scope()) {

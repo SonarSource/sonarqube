@@ -82,7 +82,7 @@ public class AuthorizationIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getLogin()));
+    authorizationIndexerTester.verifyProjectExistsWithAuthorization(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getId()));
   }
 
   @Test
@@ -159,7 +159,7 @@ public class AuthorizationIndexerTest {
 
   @Test
   public void update_existing_permissions() {
-    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("guy"), singletonList("dev"));
+    authorizationIndexerTester.insertProjectAuthorization("ABC", singletonList("dev"), singletonList(10L));
 
     // remove permissions -> dto has no users nor groups
     underTest.index(new AuthorizationDao.Dto("ABC", System.currentTimeMillis()));

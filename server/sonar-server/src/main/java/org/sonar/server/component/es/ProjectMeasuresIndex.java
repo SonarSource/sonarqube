@@ -102,11 +102,11 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   private QueryBuilder createAuthorizationFilter() {
-    String userLogin = userSession.getLogin();
+    Integer userLogin = userSession.getUserId();
     Set<String> userGroupNames = userSession.getUserGroups();
     BoolQueryBuilder groupsAndUser = boolQuery();
     if (userLogin != null) {
-      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userLogin));
+      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userLogin.longValue()));
     }
     for (String group : userGroupNames) {
       groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_GROUPS, group));

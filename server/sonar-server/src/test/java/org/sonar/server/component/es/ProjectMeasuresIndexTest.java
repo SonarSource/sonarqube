@@ -160,10 +160,10 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void return_only_projects_authorized_for_user() throws Exception {
-    userSession.login("john");
-    addDocs("john", null, newDoc("P1", "K1", "Windows"));
-    addDocs("john", "dev", newDoc("P2", "K2", "apachee"));
-    addDocs("another user", null, newDoc("P10", "K10", "N10"));
+    userSession.login("john").setUserId(10);
+    addDocs(10L, null, newDoc("P1", "K1", "Windows"));
+    addDocs(10L, "dev", newDoc("P2", "K2", "apachee"));
+    addDocs(33L, null, newDoc("P10", "K10", "N10"));
 
     List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
 
@@ -173,7 +173,7 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void return_only_projects_authorized_for_user_groups() throws Exception {
     userSession.setUserGroups("dev");
-    addDocs("john", "dev", newDoc("P1", "K1", "apachee"));
+    addDocs(10L, "dev", newDoc("P1", "K1", "apachee"));
     addDocs(null, ANYONE, newDoc("P2", "K2", "N2"));
     addDocs(null, "admin", newDoc("P10", "K10", "N10"));
 
@@ -184,14 +184,14 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void return_only_projects_authorized_for_user_and_groups() throws Exception {
-    userSession.login("john").setUserGroups("dev");
-    addDocs("john", null, newDoc("P1", "K1", "Windows"));
+    userSession.login("john").setUserId(10).setUserGroups("dev");
+    addDocs(10L, null, newDoc("P1", "K1", "Windows"));
     addDocs(null, "dev", newDoc("P2", "K2", "Apache"));
-    addDocs("john", "dev", newDoc("P3", "K3", "apachee"));
+    addDocs(10L, "dev", newDoc("P3", "K3", "apachee"));
     // Current user is not able to see following projects
     addDocs(null, "another group", newDoc("P5", "K5", "N5"));
-    addDocs("another user", null, newDoc("P6", "K6", "N6"));
-    addDocs((String) null, null, newDoc("P7", "K7", "N7"));
+    addDocs(33L, null, newDoc("P6", "K6", "N6"));
+    addDocs((Long) null, null, newDoc("P7", "K7", "N7"));
 
     List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
 
@@ -202,7 +202,7 @@ public class ProjectMeasuresIndexTest {
   public void anyone_user_can_only_access_projects_authorized_for_anyone() throws Exception {
     userSession.anonymous();
     addDocs(null, ANYONE, newDoc("P1", "K1", "N1"));
-    addDocs("john", null, newDoc("P2", "K2", "Windows"));
+    addDocs(10L, null, newDoc("P2", "K2", "Windows"));
     addDocs(null, "admin", newDoc("P3", "K3", "N3"));
 
     List<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getIds();
@@ -214,7 +214,7 @@ public class ProjectMeasuresIndexTest {
     addDocs(null, ANYONE, docs);
   }
 
-  private void addDocs(@Nullable String authorizeUser, @Nullable String authorizedGroup, ProjectMeasuresDoc... docs) {
+  private void addDocs(@Nullable Long authorizeUser, @Nullable String authorizedGroup, ProjectMeasuresDoc... docs) {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, docs);
       for (ProjectMeasuresDoc doc : docs) {

@@ -1155,21 +1155,21 @@ public class IssueIndexTest {
     ComponentDto file3 = ComponentTesting.newFileDto(project3, null).setKey("file3");
 
     // project1 can be seen by john, project2 by max, project3 cannot be seen by anyone
-    indexIssue(IssueTesting.newDoc("ISSUE1", file1), null, "john");
-    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), null, 10L);
+    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, 11L);
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    userSessionRule.login("john");
+    userSessionRule.login("john").setUserId(10);
 
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.login("max");
+    userSessionRule.login("max").setUserId(11);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.login("another guy");
+    userSessionRule.login("another guy").setUserId(33);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(0);
 
-    userSessionRule.login("john");
+    userSessionRule.login("john").setUserId(10);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project3.key())).build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
@@ -1181,9 +1181,9 @@ public class IssueIndexTest {
     ComponentDto file1 = ComponentTesting.newFileDto(project1, null).setKey("file1");
     ComponentDto file2 = ComponentTesting.newFileDto(project2, null).setKey("file2");
 
-    // project1 can be seen by john and by sonar-users
-    indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", "john");
-    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
+    // project1 can be seen by user 10 and by sonar-users
+    indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", 10L);
+    indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, 11L);
 
     userSessionRule.login("john").setUserGroups("sonar-users");
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
@@ -1283,12 +1283,12 @@ public class IssueIndexTest {
     }
   }
 
-  private void indexIssue(IssueDoc issue, @Nullable String group, @Nullable String user) {
+  private void indexIssue(IssueDoc issue, @Nullable String group, @Nullable Long user) {
     issueIndexer.index(Iterators.singletonIterator(issue));
     addIssueAuthorization(issue.projectUuid(), group, user);
   }
 
-  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
+  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
     authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
   }
 

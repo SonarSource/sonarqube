@@ -83,7 +83,7 @@ public class IssueQuery {
   private final Boolean asc;
   private final String facetMode;
 
-  private final String userLogin;
+  private final Integer userId;
   private final Set<String> userGroups;
   private final boolean checkAuthorization;
 
@@ -115,7 +115,7 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
-    this.userLogin = builder.userLogin;
+    this.userId = builder.userId;
     this.userGroups = builder.userGroups;
     this.checkAuthorization = builder.checkAuthorization;
     this.facetMode = builder.facetMode;
@@ -246,8 +246,8 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public String userLogin() {
-    return userLogin;
+  public Integer userId() {
+    return userId;
   }
 
   public Set<String> userGroups() {
@@ -299,13 +299,13 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
-    private String userLogin;
+    private Integer userId;
     private Set<String> userGroups;
     private boolean checkAuthorization = true;
     private String facetMode;
 
     private Builder(UserSession userSession) {
-      this.userLogin = userSession.getLogin();
+      this.userId = userSession.getUserId();
       this.userGroups = userSession.getUserGroups();
     }
 
@@ -479,16 +479,6 @@ public class IssueQuery {
           + ")");
       }
       return new IssueQuery(this);
-    }
-
-    public Builder userLogin(@Nullable String userLogin) {
-      this.userLogin = userLogin;
-      return this;
-    }
-
-    public Builder userGroups(@Nullable Set<String> userGroups) {
-      this.userGroups = userGroups;
-      return this;
     }
 
     public Builder checkAuthorization(boolean checkAuthorization) {

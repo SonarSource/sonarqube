@@ -285,7 +285,7 @@ public class IssueIndexDebtTest {
     }
   }
 
-  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
+  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
     authorizationIndexerTester.insertProjectAuthorization(projectUuid, singletonList(group), singletonList(user));
   }
 

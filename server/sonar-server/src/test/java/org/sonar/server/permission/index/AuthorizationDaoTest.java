@@ -84,12 +84,12 @@ public class AuthorizationDaoTest {
 
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
-    assertThat(project1Authorization.getUsers()).containsOnly(user1.getLogin());
+    assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
 
     AuthorizationDao.Dto project2Authorization = getByProjectUuid(project2.uuid(), dtos);
     assertThat(project2Authorization.getGroups()).containsOnly(ANYONE);
-    assertThat(project2Authorization.getUsers()).containsOnly(user1.getLogin(), user2.getLogin());
+    assertThat(project2Authorization.getUsers()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
   }
 
@@ -101,7 +101,7 @@ public class AuthorizationDaoTest {
     assertThat(dtos).hasSize(1);
     AuthorizationDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
-    assertThat(project1Authorization.getUsers()).containsOnly(user1.getLogin());
+    assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
   }
 
@@ -116,12 +116,12 @@ public class AuthorizationDaoTest {
 
     AuthorizationDao.Dto project1Authorization = dtos.get(project1.uuid());
     assertThat(project1Authorization.getGroups()).containsOnly(ANYONE, group.getName());
-    assertThat(project1Authorization.getUsers()).containsOnly(user1.getLogin());
+    assertThat(project1Authorization.getUsers()).containsOnly(user1.getId());
     assertThat(project1Authorization.getUpdatedAt()).isNotNull();
 
     AuthorizationDao.Dto project2Authorization = dtos.get(project2.uuid());
     assertThat(project2Authorization.getGroups()).containsOnly(ANYONE);
-    assertThat(project2Authorization.getUsers()).containsOnly(user1.getLogin(), user2.getLogin());
+    assertThat(project2Authorization.getUsers()).containsOnly(user1.getId(), user2.getId());
     assertThat(project2Authorization.getUpdatedAt()).isNotNull();
   }
 

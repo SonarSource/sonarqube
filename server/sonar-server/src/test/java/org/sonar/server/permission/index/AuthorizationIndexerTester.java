@@ -46,7 +46,7 @@ public class AuthorizationIndexerTester {
     this.authorizationIndexer = new AuthorizationIndexer(null, esTester.client());
   }
 
-  public void insertProjectAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
+  public void insertProjectAuthorization(String projectUuid, List<String> groupNames, List<Long> userLogins) {
     AuthorizationDao.Dto authorization = new AuthorizationDao.Dto(projectUuid, System.currentTimeMillis());
     groupNames.forEach(authorization::addGroup);
     userLogins.forEach(authorization::addUser);
@@ -67,7 +67,7 @@ public class AuthorizationIndexerTester {
     verifyProjectExistsWithAuthorization(projectUuid, emptyList(), emptyList());
   }
 
-  public void verifyProjectExistsWithAuthorization(String projectUuid, List<String> groupNames, List<String> userLogins) {
+  public void verifyProjectExistsWithAuthorization(String projectUuid, List<String> groupNames, List<Long> userLogins) {
     verifyProjectExistsWithAuthorizationInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, IssueIndexDefinition.FIELD_AUTHORIZATION_USERS,
       projectUuid, groupNames, userLogins);
@@ -77,7 +77,7 @@ public class AuthorizationIndexerTester {
   }
 
   private void verifyProjectExistsWithAuthorizationInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,
-    List<String> groupNames, List<String> userLogins) {
+    List<String> groupNames, List<Long> userLogins) {
     assertThat(esTester.getIds(index, type)).contains(projectUuid);
     BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(projectField, projectUuid));
     if (groupNames.isEmpty()) {

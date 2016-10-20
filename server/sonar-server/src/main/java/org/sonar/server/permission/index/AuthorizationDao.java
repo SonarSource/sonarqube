@@ -44,7 +44,7 @@ public class AuthorizationDao {
   public static final class Dto {
     private final String projectUuid;
     private final long updatedAt;
-    private final List<String> users = Lists.newArrayList();
+    private final List<Long> users = Lists.newArrayList();
     private final List<String> groups = Lists.newArrayList();
 
     public Dto(String projectUuid, long updatedAt) {
@@ -60,11 +60,11 @@ public class AuthorizationDao {
       return updatedAt;
     }
 
-    public List<String> getUsers() {
+    public List<Long> getUsers() {
       return users;
     }
 
-    public Dto addUser(String s) {
+    public Dto addUser(Long s) {
       users.add(s);
       return this;
     }
@@ -81,7 +81,7 @@ public class AuthorizationDao {
 
   private static final String SQL_TEMPLATE = "SELECT " +
     "  project_authorization.project as project, " +
-    "  project_authorization.login as login, " +
+    "  project_authorization.user_id as user_id, " +
     "  project_authorization.permission_group as permission_group, " +
     "  project_authorization.updated_at as updated_at " +
     "FROM ( " +
@@ -90,7 +90,7 @@ public class AuthorizationDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
-    "      NULL AS login, " +
+    "      NULL AS user_id, " +
     "      NULL  AS permission_group " +
     "      FROM projects " +
     "      WHERE " +
@@ -104,11 +104,10 @@ public class AuthorizationDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
-    "      users.login  AS login, " +
+    "      user_roles.user_id  AS user_id, " +
     "      NULL  AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
-    "      INNER JOIN users ON users.id = user_roles.user_id " +
     "      WHERE " +
     "        projects.qualifier = 'TRK' " +
     "        AND projects.copy_component_uuid is NULL " +
@@ -120,7 +119,7 @@ public class AuthorizationDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
-    "      NULL  AS login, " +
+    "      NULL  AS user_id, " +
     "      groups.name  AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
@@ -137,7 +136,7 @@ public class AuthorizationDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
-    "      NULL         AS login, " +
+    "      NULL         AS user_id, " +
     "      'Anyone'     AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
@@ -199,7 +198,6 @@ public class AuthorizationDao {
 
   private static void processRow(ResultSet rs, Map<String, Dto> dtosByProjectUuid) throws SQLException {
     String projectUuid = rs.getString(1);
-    String userLogin = rs.getString(2);
     String group = rs.getString(3);
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
@@ -208,8 +206,9 @@ public class AuthorizationDao {
       dto = new Dto(projectUuid, updatedAt);
       dtosByProjectUuid.put(projectUuid, dto);
     }
-    if (StringUtils.isNotBlank(userLogin)) {
-      dto.addUser(userLogin);
+    Long userId = rs.getLong(2);
+    if (!rs.wasNull()) {
+      dto.addUser(userId);
     }
     if (StringUtils.isNotBlank(group)) {
       dto.addGroup(group);

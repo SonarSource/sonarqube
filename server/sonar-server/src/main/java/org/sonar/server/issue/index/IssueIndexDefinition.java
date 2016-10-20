@@ -35,7 +35,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String TYPE_ISSUE = "issue";
 
   public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
-  public static final String FIELD_AUTHORIZATION_GROUPS = "groups";
+  public static final String FIELD_AUTHORIZATION_GROUPS = "groupNames";
   public static final String FIELD_AUTHORIZATION_USERS = "users";
   public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
 
