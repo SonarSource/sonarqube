@@ -74,11 +74,14 @@ public class DefaultRubyComponentService implements RubyComponentService {
   @CheckForNull
   public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-      permissionService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
-      dbSession.commit();
-      return provisionedComponent.getId();
+      return createComponent(dbSession, key, branch, name, qualifier);
     }
+  }
+
+  public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
+    ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+    permissionService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
+    return provisionedComponent.getId();
   }
 
   // Used in GOV
