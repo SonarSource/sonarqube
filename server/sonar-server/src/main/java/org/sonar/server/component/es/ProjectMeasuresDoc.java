@@ -94,10 +94,10 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return this;
   }
 
-  public ProjectMeasuresDoc setMeasuresFromMap(Map<String, Object> measures) {
+  public ProjectMeasuresDoc setMeasuresFromMap(Map<String, Double> measures) {
     setMeasures(
       measures.entrySet().stream()
-        .map(entry -> ImmutableMap.of(
+        .map(entry -> ImmutableMap.<String, Object>of(
           ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY, entry.getKey(),
           ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE, entry.getValue()))
         .collect(Collectors.toList()));

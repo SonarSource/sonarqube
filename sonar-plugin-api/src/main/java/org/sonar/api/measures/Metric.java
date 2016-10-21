@@ -29,8 +29,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -223,7 +223,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param userManaged whether the metric is user managed
    */
   private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
-    boolean userManaged) {
+                 boolean userManaged) {
     this.key = key;
     this.description = description;
     this.type = type;

@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.es;
+package org.sonar.db.measure;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import java.util.Date;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -36,23 +34,24 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureTesting;
+import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.WARN;
 
-public class ProjectMeasuresResultSetIteratorTest {
+public class ProjectMeasuresIndexerIteratorTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -74,18 +73,16 @@ public class ProjectMeasuresResultSetIteratorTest {
     insertMeasure(project, analysis, metric1, 10d);
     insertMeasure(project, analysis, metric2, 20d);
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
     assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
+    ProjectMeasures doc = docsById.get(project.uuid());
     assertThat(doc).isNotNull();
-    assertThat(doc.getId()).isEqualTo(project.uuid());
-    assertThat(doc.getKey()).isEqualTo("Project-Key");
-    assertThat(doc.getName()).isEqualTo("Project Name");
-    assertThat(doc.getAnalysedAt()).isNotNull().isEqualTo(new Date(analysis.getCreatedAt()));
-    assertThat(doc.getMeasures()).containsOnly(
-      ImmutableMap.of("key", "ncloc", "value", 10d),
-      ImmutableMap.of("key", "coverage", "value", 20d));
+    assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
+    assertThat(doc.getProject().getKey()).isEqualTo("Project-Key");
+    assertThat(doc.getProject().getName()).isEqualTo("Project Name");
+    assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
+    assertThat(doc.getMeasures().getNumericMeasures()).containsOnly(entry("ncloc", 10d), entry("coverage", 20d));
   }
 
   @Test
@@ -95,12 +92,9 @@ public class ProjectMeasuresResultSetIteratorTest {
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
     insertMeasureOnLeak(project, analysis, metric, 10d);
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
-    assertThat(doc).isNotNull();
-    assertThat(doc.getMeasures()).containsOnly(ImmutableMap.of("key", "new_lines", "value", 10d));
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).containsOnly(entry("new_lines", 10d));
   }
 
   @Test
@@ -110,40 +104,37 @@ public class ProjectMeasuresResultSetIteratorTest {
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
     insertMeasure(project, analysis, metric, WARN.name());
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById).hasSize(1);
-    assertThat(docsById.get(project.uuid()).getQualityGate()).isEqualTo("WARN");
+    assertThat(docsById.get(project.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("WARN");
   }
 
   @Test
   public void does_not_return_none_numeric_metrics() throws Exception {
     MetricDto dataMetric = insertMetric("data", DATA);
     MetricDto distribMetric = insertMetric("distrib", DISTRIB);
+    MetricDto stringMetric = insertMetric("string", STRING);
     ComponentDto project = newProjectDto();
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, dataMetric, 10d);
-    insertMeasure(project, analysis, distribMetric, 10d);
+    insertMeasure(project, analysis, dataMetric, "dat");
+    insertMeasure(project, analysis, distribMetric, "dis");
+    insertMeasure(project, analysis, stringMetric, "str");
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
-    assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
-    assertThat(doc.getMeasures()).isEmpty();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).isEmpty();
   }
 
   @Test
-  public void does_not_return_disabled_and_hidden_metrics() throws Exception {
+  public void does_not_return_disabled_metrics() throws Exception {
     MetricDto disabledMetric = insertMetric("disabled", false, false, INT);
-    MetricDto hiddenMetric = insertMetric("hidden", true, true, INT);
     ComponentDto project = newProjectDto();
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
     insertMeasure(project, analysis, disabledMetric, 10d);
-    insertMeasure(project, analysis, hiddenMetric, 10d);
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
-    assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
-    assertThat(doc.getMeasures()).isEmpty();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).isEmpty();
   }
 
   @Test
@@ -172,11 +163,11 @@ public class ProjectMeasuresResultSetIteratorTest {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
     dbSession.commit();
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById();
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
     assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
-    assertThat(doc.getAnalysedAt()).isNull();
+    ProjectMeasures doc = docsById.get(project.uuid());
+    assertThat(doc.getProject().getAnalysisDate()).isNull();
   }
 
   @Test
@@ -205,15 +196,15 @@ public class ProjectMeasuresResultSetIteratorTest {
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById(0L, project.uuid());
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(0L, project.uuid());
 
     assertThat(docsById).hasSize(1);
-    ProjectMeasuresDoc doc = docsById.get(project.uuid());
+    ProjectMeasures doc = docsById.get(project.uuid());
     assertThat(doc).isNotNull();
-    assertThat(doc.getId()).isEqualTo(project.uuid());
-    assertThat(doc.getKey()).isNotNull().isEqualTo(project.getKey());
-    assertThat(doc.getName()).isNotNull().isEqualTo(project.name());
-    assertThat(doc.getAnalysedAt()).isNotNull().isEqualTo(new Date(analysis.getCreatedAt()));
+    assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
+    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project.getKey());
+    assertThat(doc.getProject().getName()).isNotNull().isEqualTo(project.name());
+    assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
   }
 
   @Test
@@ -226,7 +217,7 @@ public class ProjectMeasuresResultSetIteratorTest {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project2).setCreatedAt(2_000_000L));
     dbSession.commit();
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById(1_500_000L, null);
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(1_500_000L, null);
 
     assertThat(docsById).hasSize(1);
     assertThat(docsById.get(project2.uuid())).isNotNull();
@@ -236,18 +227,18 @@ public class ProjectMeasuresResultSetIteratorTest {
   public void return_nothing_on_unknown_project() throws Exception {
     componentDbTester.insertProjectAndSnapshot(newProjectDto());
 
-    Map<String, ProjectMeasuresDoc> docsById = createResultSetAndReturnDocsById(0L, "UNKNOWN");
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(0L, "UNKNOWN");
 
     assertThat(docsById).isEmpty();
   }
 
-  private Map<String, ProjectMeasuresDoc> createResultSetAndReturnDocsById() {
+  private Map<String, ProjectMeasures> createResultSetAndReturnDocsById() {
     return createResultSetAndReturnDocsById(0L, null);
   }
 
-  private Map<String, ProjectMeasuresDoc> createResultSetAndReturnDocsById(long date, @Nullable String projectUuid) {
-    ProjectMeasuresResultSetIterator it = ProjectMeasuresResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), date, projectUuid);
-    Map<String, ProjectMeasuresDoc> docsById = Maps.uniqueIndex(it, ProjectMeasuresDoc::getId);
+  private Map<String, ProjectMeasures> createResultSetAndReturnDocsById(long date, @Nullable String projectUuid) {
+    ProjectMeasuresIndexerIterator it = ProjectMeasuresIndexerIterator.create(dbTester.getSession(), date, projectUuid);
+    Map<String, ProjectMeasures> docsById = Maps.uniqueIndex(it, pm -> pm.getProject().getUuid());
     it.close();
     return docsById;
   }

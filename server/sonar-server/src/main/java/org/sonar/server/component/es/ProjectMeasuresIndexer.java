@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
+import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -67,24 +69,22 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectMeasuresResultSetIterator rowIt = ProjectMeasuresResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
-      long maxDate = doIndex(bulk, rowIt);
-      rowIt.close();
-      return maxDate;
+    try (DbSession dbSession = dbClient.openSession(false);
+      ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, lastUpdatedAt, projectUuid)) {
+      return doIndex(bulk, rowIt);
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<ProjectMeasuresDoc> docs) {
+  private static long doIndex(BulkIndexer bulk, Iterator<ProjectMeasures> docs) {
     bulk.start();
     long maxDate = 0L;
     while (docs.hasNext()) {
-      ProjectMeasuresDoc doc = docs.next();
-      bulk.add(newIndexRequest(doc));
+      ProjectMeasures doc = docs.next();
+      bulk.add(newIndexRequest(toProjectMeasuresDoc(doc)));
 
-      Date analysisDate = doc.getAnalysedAt();
+      Long analysisDate = doc.getProject().getAnalysisDate();
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, analysisDate == null ? 0L : analysisDate.getTime());
+      maxDate = Math.max(maxDate, analysisDate == null ? 0L : analysisDate);
     }
     bulk.stop();
     return maxDate;
@@ -97,9 +97,21 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
   }
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
-    return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, doc.getId())
-      .routing(doc.getId())
-      .parent(doc.getId())
+    String projectUuid = doc.getId();
+    return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, projectUuid)
+      .routing(projectUuid)
+      .parent(projectUuid)
       .source(doc.getFields());
+  }
+
+  private static ProjectMeasuresDoc toProjectMeasuresDoc(ProjectMeasures projectMeasures) {
+    Long analysisDate = projectMeasures.getProject().getAnalysisDate();
+    return new ProjectMeasuresDoc()
+      .setId(projectMeasures.getProject().getUuid())
+      .setKey(projectMeasures.getProject().getKey())
+      .setName(projectMeasures.getProject().getName())
+      .setQualityGate(projectMeasures.getMeasures().getQualityGateStatus())
+      .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
+      .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures());
   }
 }
