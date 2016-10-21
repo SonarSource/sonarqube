@@ -101,21 +101,9 @@ public class PermissionTemplateDao implements Dao {
     return mapper(session).selectByUuid(templateUuid);
   }
 
-  /**
-   * @deprecated does not support organizations. Should return group ids.
-   */
-  @Deprecated
-  public List<PermissionTemplateDto> selectAll(DbSession session, String nameMatch) {
-    String uppercaseNameMatch = toUppercaseSqlQuery(nameMatch);
-    return mapper(session).selectAll(uppercaseNameMatch);
-  }
-
-  /**
-   * @deprecated does not support organizations. Should return group ids.
-   */
-  @Deprecated
-  public List<PermissionTemplateDto> selectAll(DbSession session) {
-    return mapper(session).selectAll(null);
+  public List<PermissionTemplateDto> selectAll(DbSession session, String organizationUuid, @Nullable String nameMatch) {
+    String upperCaseNameLikeSql = nameMatch != null ? toUppercaseSqlQuery(nameMatch) : null;
+    return mapper(session).selectAll(organizationUuid, upperCaseNameLikeSql);
   }
 
   private static String toUppercaseSqlQuery(String nameMatch) {

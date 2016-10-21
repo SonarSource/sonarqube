@@ -74,7 +74,7 @@ public interface PermissionTemplateMapper {
 
   int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
-  List<PermissionTemplateDto> selectAll(@Nullable @Param("nameMatch") String nameMatch);
+  List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
   void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
