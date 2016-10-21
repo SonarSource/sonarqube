@@ -47,7 +47,7 @@ public class ProjectMeasuresQueryValidator {
     }
     List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, new ArrayList<>(metricKeys));
     checkMetricKeysExists(dbMetrics, metricKeys);
-    checkMetricsAreEnabledAndVisible(dbMetrics);
+    checkMetricsAreEnabled(dbMetrics);
     checkMetricsAreNumerics(dbMetrics);
   }
 
@@ -59,13 +59,13 @@ public class ProjectMeasuresQueryValidator {
     }
   }
 
-  private static void checkMetricsAreEnabledAndVisible(List<MetricDto> dbMetrics) {
+  private static void checkMetricsAreEnabled(List<MetricDto> dbMetrics) {
     Set<String> invalidKeys = dbMetrics.stream()
-      .filter(metricDto -> !metricDto.isEnabled() || metricDto.isHidden())
+      .filter(metricDto -> !metricDto.isEnabled())
       .map(MetricDto::getKey)
       .collect(Collectors.toSet());
     if (!invalidKeys.isEmpty()) {
-      throw new IllegalArgumentException(String.format("Following metrics are disabled or hidden : %s", new TreeSet<>(invalidKeys)));
+      throw new IllegalArgumentException(String.format("Following metrics are disabled : %s", new TreeSet<>(invalidKeys)));
     }
   }
 

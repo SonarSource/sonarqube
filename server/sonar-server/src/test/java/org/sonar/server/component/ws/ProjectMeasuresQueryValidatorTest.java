@@ -32,6 +32,7 @@ import org.sonar.db.metric.MetricDto;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
@@ -67,19 +68,11 @@ public class ProjectMeasuresQueryValidatorTest {
     insertMetric(createValidMetric("debt").setValueType(WORK_DUR.name()));
     insertMetric(createValidMetric("data").setValueType(DATA.name()));
     insertMetric(createValidMetric("distrib").setValueType(DISTRIB.name()));
+    insertMetric(createValidMetric("string").setValueType(STRING.name()));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are not numeric : [data, distrib]");
-    validator.validate(dbSession, newProjectMeasuresQuery("data > 10 and distrib = 11 and ncloc <= 20 and debt < 30"));
-  }
-
-  @Test
-  public void fail_when_metric_is_hidden() throws Exception {
-    insertMetric(createValidMetric("ncloc").setHidden(true));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are disabled or hidden : [ncloc]");
-    validator.validate(dbSession, newProjectMeasuresQuery("ncloc > 10"));
+    expectedException.expectMessage("Following metrics are not numeric : [data, distrib, string]");
+    validator.validate(dbSession, newProjectMeasuresQuery("data > 10 and distrib = 11 and ncloc <= 20 and debt < 30 and string = 40"));
   }
 
   @Test
@@ -87,7 +80,7 @@ public class ProjectMeasuresQueryValidatorTest {
     insertMetric(createValidMetric("ncloc").setEnabled(false));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are disabled or hidden : [ncloc]");
+    expectedException.expectMessage("Following metrics are disabled : [ncloc]");
     validator.validate(dbSession, newProjectMeasuresQuery("ncloc > 10"));
   }
 

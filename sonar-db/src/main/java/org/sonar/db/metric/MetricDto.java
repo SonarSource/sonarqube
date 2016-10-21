@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 public class MetricDto {
 
@@ -212,7 +213,7 @@ public class MetricDto {
   }
 
   public boolean isDataType() {
-    return DATA.name().equals(valueType) || DISTRIB.name().equals(valueType);
+    return DATA.name().equals(valueType) || DISTRIB.name().equals(valueType) || STRING.name().equals(valueType);
   }
 
 }
