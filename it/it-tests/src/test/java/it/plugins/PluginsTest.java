@@ -19,15 +19,17 @@
  */
 package it.plugins;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import it.plugins.checks.AbapCheck;
 import it.plugins.checks.CCheck;
 import it.plugins.checks.Check;
+import it.plugins.checks.CobolCheck;
 import it.plugins.checks.CppCheck;
+import it.plugins.checks.CssCheck;
 import it.plugins.checks.FlexCheck;
 import it.plugins.checks.GroovyCheck;
 import it.plugins.checks.JavaCheck;
@@ -35,6 +37,7 @@ import it.plugins.checks.JavascriptCheck;
 import it.plugins.checks.PhpCheck;
 import it.plugins.checks.PliCheck;
 import it.plugins.checks.PythonCheck;
+import it.plugins.checks.RpgCheck;
 import it.plugins.checks.SwiftCheck;
 import it.plugins.checks.Validation;
 import it.plugins.checks.VbCheck;
@@ -66,9 +69,6 @@ public class PluginsTest {
     "lits",
 
     "citymodel",
-    // temporary incompatibility with cobol 3.1
-    // https://jira.sonarsource.com/browse/MAIF-213
-    "maifcobolplugin",
 
     // Waiting for new release of C# and VB.NET plugins, since fxcop was previously part of those plugins => fail with duplicate props
     "fxcop",
@@ -77,24 +77,14 @@ public class PluginsTest {
     "crowd", "ldap", "pam");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
-    "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "report", "rpg",
+    "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "rpg",
     "swift", "vb", "vbnet");
 
-  static final Set<String> DISABLED_PLUGINS_FOR_PREVIEW_MODE = Sets.newHashSet("mantis",
-
-    // Caused by: Access to the secured property 'sonar.scm.user.secured' is not possible in preview mode. The SonarQube plugin which
-    // requires
-    // this property must be deactivated in preview mode.
-    "scmstats");
-
   static final List<Check> CHECKS = Arrays.<Check>asList(
-    // waiting for release of ABAP 3.3 (ABAP-287)
-    // new AbapCheck(),
+    new AbapCheck(),
     new CCheck(), new CppCheck(),
-    // waiting for new Cobol release (COBOL-1332)
-    // new CobolCheck(),
-    // waiting for release of CSS 2.1 (https://github.com/SonarQubeCommunity/sonar-css/issues/261)
-    // new CssCheck(),
+    new CobolCheck(),
+    new CssCheck(),
     new FlexCheck(),
     new GroovyCheck(),
     new JavaCheck(),
@@ -102,8 +92,7 @@ public class PluginsTest {
     new PhpCheck(),
     new PliCheck(),
     new PythonCheck(),
-    // waiting for new RPG release (RPG-136)
-    // new RpgCheck(),
+    new RpgCheck(),
     new SwiftCheck(),
     new VbCheck(),
     new WebCheck());
@@ -139,7 +128,7 @@ public class PluginsTest {
   public void analysis_of_project_with_all_supported_languages() {
     SonarScanner analysis = newAnalysis();
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
-    if (result.getStatus() != 0) {
+    if (result.getLastStatus() != 0) {
       fail(result.getLogs());
     }
     for (Check check : CHECKS) {
@@ -152,9 +141,8 @@ public class PluginsTest {
   public void preview_analysis_of_project_with_all_supported_languages() {
     SonarScanner analysis = newAnalysis();
     analysis.setProperty("sonar.analysis.mode", "issues");
-    analysis.setProperty("sonar.preview.excludePlugins", Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE));
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
-    if (result.getStatus() != 0) {
+    if (result.getLastStatus() != 0) {
       fail(result.getLogs());
     }
   }
