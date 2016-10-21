@@ -177,7 +177,7 @@ public class GroupPermissionChangerTest {
     GroupIdOrAnyone groupId = new GroupIdOrAnyone(group);
     db.users().insertPermissionOnGroup(group, GlobalPermissions.SYSTEM_ADMIN);
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, GlobalPermissions.SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(org, admin, GlobalPermissions.SYSTEM_ADMIN);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, GlobalPermissions.SYSTEM_ADMIN, null, groupId));
 

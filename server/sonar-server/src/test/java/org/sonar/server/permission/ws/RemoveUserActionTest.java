@@ -260,6 +260,10 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     OrganizationDto otherOrganization = db.organizations().insert();
     db.users().insertPermissionOnUser(otherOrganization, rootUser, SYSTEM_ADMIN);
     db.users().insertPermissionOnUser(otherOrganization, notRootUser, SYSTEM_ADMIN);
+    // another admin is required so that admin permission can be dropped
+    UserDto anotherAdmin = db.users().insertUser();
+    db.users().insertPermissionOnUser(otherOrganization, anotherAdmin, SYSTEM_ADMIN);
+
     loginAsAdmin(otherOrganization);
 
     executeRequest(rootUser, otherOrganization, SYSTEM_ADMIN);
