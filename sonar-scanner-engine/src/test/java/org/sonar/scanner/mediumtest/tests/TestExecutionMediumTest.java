@@ -90,11 +90,11 @@ public class TestExecutionMediumTest {
       .start();
 
     InputFile file = result.inputFile("test/sampleTest.xoo");
-    org.sonar.scanner.protocol.output.ScannerReport.Test success = result.testExecutionFor(file, "success");
+    org.sonar.scanner.protocol.output.ScannerReport.Test success = result.firstTestExecutionForName(file, "success");
     assertThat(success.getDurationInMs()).isEqualTo(4);
     assertThat(success.getStatus()).isEqualTo(TestStatus.OK);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Test error = result.testExecutionFor(file, "error");
+    org.sonar.scanner.protocol.output.ScannerReport.Test error = result.firstTestExecutionForName(file, "error");
     assertThat(error.getDurationInMs()).isEqualTo(2);
     assertThat(error.getStatus()).isEqualTo(TestStatus.ERROR);
     assertThat(error.getMsg()).isEqualTo("Error");

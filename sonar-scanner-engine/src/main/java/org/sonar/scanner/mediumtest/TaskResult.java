@@ -259,7 +259,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     return null;
   }
 
-  public ScannerReport.Test testExecutionFor(InputFile testFile, String testName) {
+  public ScannerReport.Test firstTestExecutionForName(InputFile testFile, String testName) {
     int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
       ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
