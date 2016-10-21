@@ -26,7 +26,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.permission.ProjectPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
@@ -37,48 +41,54 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 
 public class SearchTemplatesAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
   private static final String DESCRIPTION_SUFFIX = ".desc";
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final I18n i18n;
+  private final PermissionWsSupport support;
   private final SearchTemplatesDataLoader dataLoader;
 
-  public SearchTemplatesAction(UserSession userSession, I18n i18n, SearchTemplatesDataLoader dataLoader) {
+  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport support, SearchTemplatesDataLoader dataLoader) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
+    this.support = support;
     this.dataLoader = dataLoader;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("search_templates")
+    WebService.NewAction action = context.createAction("search_templates")
       .setDescription("List permission templates.<br />" +
         "It requires to be authenticated.")
       .setResponseExample(getClass().getResource("search_templates-example.json"))
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
       .setHandler(this);
+
+    createOrganizationParameter(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     userSession.checkLoggedIn();
 
-    SearchTemplatesWsResponse searchTemplatesWsResponse = doHandle(toSearchTemplatesWsRequest(wsRequest));
-    writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
-  }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
+      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
+        .setOrganizationUuid(org.getUuid())
+        .setQuery(wsRequest.param(Param.TEXT_QUERY));
 
-  private SearchTemplatesWsResponse doHandle(SearchTemplatesWsRequest wsRequest) {
-    SearchTemplatesData data = dataLoader.load(wsRequest);
-    return buildResponse(data);
-  }
-
-  private static SearchTemplatesWsRequest toSearchTemplatesWsRequest(Request request) {
-    return new SearchTemplatesWsRequest().setQuery(request.param(Param.TEXT_QUERY));
+      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
+      writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
+    }
   }
 
   private WsPermissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {

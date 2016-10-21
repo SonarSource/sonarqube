@@ -44,6 +44,7 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.user.UserSession;
 
@@ -60,12 +61,15 @@ public class PermissionTemplateService {
   private final Settings settings;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession) {
+  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -101,7 +105,8 @@ public class PermissionTemplateService {
     applyDefault(session, component, userId);
   }
 
-  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long userId, String permission, @Nullable String branch, String projectKey, String qualifier) {
+  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long userId, String permission, @Nullable String branch, String projectKey,
+    String qualifier) {
     if (userSession.hasPermission(permission)) {
       return true;
     }
@@ -199,8 +204,7 @@ public class PermissionTemplateService {
    */
   @CheckForNull
   private PermissionTemplateDto findDefaultTemplate(DbSession dbSession, ComponentDto component) {
-    // FIXME performance issue here, we should not load all templates
-    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession);
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, defaultOrganizationProvider.get().getUuid(), null);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();

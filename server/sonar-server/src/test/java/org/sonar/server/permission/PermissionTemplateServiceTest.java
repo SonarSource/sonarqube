@@ -37,6 +37,8 @@ import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -48,7 +50,6 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-
 
 public class PermissionTemplateServiceTest {
 
@@ -69,7 +70,9 @@ public class PermissionTemplateServiceTest {
   private DbSession session = dbTester.getSession();
   private Settings settings = new MapSettings();
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), settings, permissionIndexer, userSession);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), settings,
+    permissionIndexer, userSession, defaultOrganizationProvider);
 
   @Before
   public void setUp() {

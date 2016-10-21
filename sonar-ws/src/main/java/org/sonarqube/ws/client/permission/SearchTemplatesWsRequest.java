@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 public class SearchTemplatesWsRequest {
   private String query;
+  private String organizationUuid;
 
   @CheckForNull
   public String getQuery() {
@@ -32,6 +33,15 @@ public class SearchTemplatesWsRequest {
 
   public SearchTemplatesWsRequest setQuery(@Nullable String query) {
     this.query = query;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public SearchTemplatesWsRequest setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 }

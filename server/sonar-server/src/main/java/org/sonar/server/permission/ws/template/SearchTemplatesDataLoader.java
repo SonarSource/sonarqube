@@ -42,28 +42,23 @@ public class SearchTemplatesDataLoader {
     this.defaultPermissionTemplateFinder = defaultPermissionTemplateFinder;
   }
 
-  public SearchTemplatesData load(SearchTemplatesWsRequest request) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchTemplatesData.Builder data = builder();
-      List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
-      List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
-      List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
+  public SearchTemplatesData load(DbSession dbSession, SearchTemplatesWsRequest request) {
+    SearchTemplatesData.Builder data = builder();
+    List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
+    List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
+    List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
 
-      data.templates(templates)
-        .defaultTemplates(defaultTemplates)
-        .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
-        .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds))
-        .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));
+    data.templates(templates)
+      .defaultTemplates(defaultTemplates)
+      .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
+      .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds))
+      .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));
 
-      return data.build();
-    }
+    return data.build();
   }
 
   private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesWsRequest request) {
-    String nameMatch = request.getQuery();
-
-    return nameMatch == null ? dbClient.permissionTemplateDao().selectAll(dbSession)
-      : dbClient.permissionTemplateDao().selectAll(dbSession, nameMatch);
+    return dbClient.permissionTemplateDao().selectAll(dbSession, request.getOrganizationUuid(), request.getQuery());
   }
 
   private Table<Long, String, Integer> userCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {

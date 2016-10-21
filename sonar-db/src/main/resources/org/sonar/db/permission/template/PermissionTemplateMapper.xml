@@ -195,15 +195,15 @@
   </select>
 
   <select id="selectAll" parameterType="map" resultType="PermissionTemplate">
-    SELECT
+    select
     <include refid="templateColumns"/>
-    FROM permission_templates
-    <where>
-      <if test="nameMatch!=null">
-        AND (UPPER(name) LIKE #{nameMatch} ESCAPE '/')
-      </if>
-    </where>
-    ORDER BY UPPER(name), name
+    from permission_templates
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    <if test="upperCaseNameLikeSql != null">
+        and upper(name) like #{upperCaseNameLikeSql} escape '/'
+    </if>
+    order by upper(name), name
   </select>
 
   <select id="selectByName" parameterType="map" resultType="PermissionTemplate">
