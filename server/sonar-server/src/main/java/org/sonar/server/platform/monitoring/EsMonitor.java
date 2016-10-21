@@ -21,6 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
@@ -29,6 +30,7 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.breaker.CircuitBreaker;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
@@ -66,12 +68,19 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
   @Override
   public Map<String, Object> attributes() {
-    Map<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("State", getStateAsEnum());
-    attributes.put("Indices", indexAttributes());
-    attributes.put("Number of Nodes", getNumberOfNodes());
-    attributes.put("Nodes", nodeAttributes());
-    return attributes;
+    try {
+      Map<String, Object> attributes = new LinkedHashMap<>();
+      attributes.put("State", getStateAsEnum());
+      attributes.put("Indices", indexAttributes());
+      attributes.put("Number of Nodes", getNumberOfNodes());
+      attributes.put("Nodes", nodeAttributes());
+      return attributes;
+    } catch (Exception es) {
+      Loggers.get(EsMonitor.class).warn("Failed to retrieve ES attributes. There will be only a single \"state\" attribute.", es);
+      Map<String, Object> attributes = new LinkedHashMap<>();
+      attributes.put("State", (es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage()));
+      return attributes;
+    }
   }
 
   private LinkedHashMap<String, LinkedHashMap<String, Object>> indexAttributes() {
