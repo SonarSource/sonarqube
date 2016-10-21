@@ -49,7 +49,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchTest {
+public class ScannerTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
