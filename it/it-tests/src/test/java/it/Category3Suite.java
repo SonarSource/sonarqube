@@ -20,12 +20,11 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.analysis.BatchTest;
+import it.analysis.ScannerTest;
 import it.analysis.ExtensionLifecycleTest;
 import it.analysis.IssueJsonReportTest;
 import it.analysis.IssuesModeTest;
 import it.analysis.LinksTest;
-import it.analysis.MavenTest;
 import it.analysis.MultiLanguageTest;
 import it.analysis.ProjectBuilderTest;
 import it.analysis.ProjectProvisioningTest;
@@ -48,13 +47,12 @@ import static util.ItUtils.xooPlugin;
   // analysis
   ExtensionLifecycleTest.class,
   LinksTest.class,
-  MavenTest.class,
   ProjectBuilderTest.class,
   TempFolderTest.class,
   MultiLanguageTest.class,
   IssueJsonReportTest.class,
   ProjectProvisioningTest.class,
-  BatchTest.class,
+  ScannerTest.class,
   IssuesModeTest.class,
   SettingsEncryptionTest.class,
   ReportDumpTest.class,
