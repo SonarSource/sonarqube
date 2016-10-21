@@ -192,4 +192,15 @@ public class DefaultSensorStorageTest {
     underTest.validateCoverageMeasure(data, file);
   }
 
+  @Test
+  public void mergeCoverageLineMetrics_should_be_sorted() {
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1", "1=1")).isEqualTo("1=2");
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1", "2=1")).isEqualTo("1=1;2=1");
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "2=1", "1=1")).isEqualTo("1=1;2=1");
+
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=1", "1=1")).isEqualTo("1=1");
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=1", "2=1")).isEqualTo("1=1;2=1");
+    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "2=1", "1=1")).isEqualTo("1=1;2=1");
+  }
+
 }
