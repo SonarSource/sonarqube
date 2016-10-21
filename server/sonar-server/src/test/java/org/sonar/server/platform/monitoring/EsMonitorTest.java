@@ -20,21 +20,25 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EsMonitorTest {
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
-  EsMonitor underTest = new EsMonitor(esTester.client());
+  private EsMonitor underTest = new EsMonitor(esTester.client());
 
   @Test
   public void name() {
@@ -72,5 +76,38 @@ public class EsMonitorTest {
     assertThat(indexAttributes.get("Docs")).isEqualTo(0L);
     assertThat((int) indexAttributes.get("Shards")).isGreaterThan(0);
     assertThat(indexAttributes.get("Store Size")).isNotNull();
+  }
+
+  @Test
+  public void attributes_displays_exception_message_when_cause_null_when_client_fails() {
+    EsClient esClientMock = mock(EsClient.class);
+    EsMonitor underTest = new EsMonitor(esClientMock);
+    when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with no cause"));
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).hasSize(1);
+    assertThat(attributes.get("State")).isEqualTo("RuntimeException with no cause");
+  }
+
+  @Test
+  public void attributes_displays_exception_message_when_cause_is_not_ElasticSearchException_when_client_fails() {
+    EsClient esClientMock = mock(EsClient.class);
+    EsMonitor underTest = new EsMonitor(esClientMock);
+    when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with cause not ES", new IllegalArgumentException("some cause message")));
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).hasSize(1);
+    assertThat(attributes.get("State")).isEqualTo("RuntimeException with cause not ES");
+  }
+
+  @Test
+  public void attributes_displays_cause_message_when_cause_is_ElasticSearchException_when_client_fails() {
+    EsClient esClientMock = mock(EsClient.class);
+    EsMonitor underTest = new EsMonitor(esClientMock);
+    when(esClientMock.prepareClusterStats()).thenThrow(new RuntimeException("RuntimeException with ES cause", new ElasticsearchException("some cause message")));
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).hasSize(1);
+    assertThat(attributes.get("State")).isEqualTo("some cause message");
   }
 }
