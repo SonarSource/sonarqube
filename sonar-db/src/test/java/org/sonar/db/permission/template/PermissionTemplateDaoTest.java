@@ -94,17 +94,29 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_select_all_permission_templates() {
+  public void selectAll_without_name_filtering() {
     db.prepareDbUnit(getClass(), "selectAllPermissionTemplates.xml");
     commit();
 
-    List<PermissionTemplateDto> permissionTemplates = underTest.selectAll(dbSession);
-
+    List<PermissionTemplateDto> permissionTemplates = underTest.selectAll(dbSession, "org1", null);
     assertThat(permissionTemplates).hasSize(3);
     assertThat(permissionTemplates).extracting("id").containsOnly(1L, 2L, 3L);
     assertThat(permissionTemplates).extracting("name").containsOnly("template1", "template2", "template3");
     assertThat(permissionTemplates).extracting("kee").containsOnly("template1_20130102_030405", "template2_20130102_030405", "template3_20130102_030405");
     assertThat(permissionTemplates).extracting("description").containsOnly("description1", "description2", "description3");
+
+    assertThat(underTest.selectAll(dbSession, "missingOrg", null)).isEmpty();
+  }
+
+  @Test
+  public void selectAll_with_name_filtering() {
+    PermissionTemplateDto t1InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("aBcDeF").setOrganizationUuid("org1"));
+    PermissionTemplateDto t2InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("cdefgh").setOrganizationUuid("org1"));
+    PermissionTemplateDto t3InOrg1 = templateDb.insertTemplate(newPermissionTemplateDto().setName("hijkl").setOrganizationUuid("org2"));
+    PermissionTemplateDto t4InOrg2 = templateDb.insertTemplate(newPermissionTemplateDto().setName("cdefgh").setOrganizationUuid("org2"));
+
+    assertThat(underTest.selectAll(dbSession, "org1", "def")).extracting(PermissionTemplateDto::getId).containsExactly(t1InOrg1.getId(), t2InOrg1.getId());
+    assertThat(underTest.selectAll(dbSession, "org1", "missing")).isEmpty();
   }
 
   @Test
@@ -237,16 +249,6 @@ public class PermissionTemplateDaoTest {
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
     assertThat(result).extracting("templateId").containsOnly(template1.getId(), template2.getId());
     assertThat(result).extracting("count").containsOnly(3, 1);
-  }
-
-  @Test
-  public void select_by_name_query_and_pagination() {
-    templateDb.insertTemplate(newPermissionTemplateDto().setName("aaabbb"));
-    templateDb.insertTemplate(newPermissionTemplateDto().setName("aaaccc"));
-
-    List<PermissionTemplateDto> templates = underTest.selectAll(dbSession, "aaa");
-
-    assertThat(templates.get(0).getName()).isEqualTo("aaabbb");
   }
 
   @Test

@@ -22,18 +22,15 @@ package org.sonar.server.permission.ws.template;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -41,8 +38,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.tester.UserSessionRule;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -55,15 +52,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SearchTemplatesActionTest extends BasePermissionWsTest {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTemplatesAction> {
 
   private I18nRule i18n = new I18nRule();
   private DbClient dbClient = db.getDbClient();
@@ -71,8 +60,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
   @Override
-  protected PermissionsWsAction buildWsAction() {
-
+  protected SearchTemplatesAction buildWsAction() {
     Settings settings = new MapSettings();
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), UUID_EXAMPLE_01);
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.VIEW), UUID_EXAMPLE_02);
@@ -80,7 +68,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
 
     DefaultPermissionTemplateFinder defaultPermissionTemplateFinder = new DefaultPermissionTemplateFinder(settings, resourceTypes);
     SearchTemplatesDataLoader dataLoader = new SearchTemplatesDataLoader(dbClient, defaultPermissionTemplateFinder);
-    return new SearchTemplatesAction(userSession, i18n, dataLoader);
+    return new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoader);
   }
 
   @Before
@@ -91,7 +79,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
 
   @Test
   public void search_project_permissions() {
-    PermissionTemplateDto projectTemplate = insertProjectTemplate();
+    PermissionTemplateDto projectTemplate = insertProjectTemplateOnDefaultOrganization();
     PermissionTemplateDto viewsTemplate = insertViewsTemplate();
     PermissionTemplateDto developerTemplate = insertDeveloperTemplate();
 
@@ -138,8 +126,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
   }
 
   @Test
-  public void search_by_name() {
-    insertProjectTemplate();
+  public void search_by_name_in_default_organization() {
+    insertProjectTemplateOnDefaultOrganization();
     insertViewsTemplate();
     insertDeveloperTemplate();
     db.commit();
@@ -152,6 +140,23 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
     assertThat(result).contains("Default template for Views")
       .doesNotContain("projects")
       .doesNotContain("developers");
+  }
+
+  @Test
+  public void search_in_organization() throws Exception {
+    OrganizationDto org = db.organizations().insert();
+    PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
+    PermissionTemplateDto templateInDefaultOrg = insertProjectTemplateOnDefaultOrganization();
+    db.commit();
+
+    WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(newRequest()
+      .setParam("organization", org.getKey())
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputStream());
+
+    assertThat(result.getPermissionTemplatesCount()).isEqualTo(1);
+    assertThat(result.getPermissionTemplates(0).getId()).isEqualTo(templateInOrg.getUuid());
   }
 
   @Test
@@ -172,9 +177,13 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest {
       .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/display_all_project_permissions.json"));
   }
 
-  private PermissionTemplateDto insertProjectTemplate() {
+  private PermissionTemplateDto insertProjectTemplateOnDefaultOrganization() {
+    return insertProjectTemplate(db.getDefaultOrganization());
+  }
+
+  private PermissionTemplateDto insertProjectTemplate(OrganizationDto org) {
     return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .setOrganizationUuid(org.getUuid())
       .setUuid(UUID_EXAMPLE_01)
       .setName("Default template for Projects")
       .setDescription("Template for new projects")
