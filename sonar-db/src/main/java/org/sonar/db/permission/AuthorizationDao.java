@@ -81,18 +81,18 @@ public class AuthorizationDao implements Dao {
    * The number of users who will still have the permission when the group {@code excludedGroupId}
    * is deleted. The anyone virtual group is not taken into account.
    */
-  public int countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(DbSession dbSession, String organizationUuid,
+  public int countUsersWithGlobalPermissionExcludingGroup(DbSession dbSession, String organizationUuid,
     String permission, long excludedGroupId) {
-    return mapper(dbSession).countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(organizationUuid, permission, excludedGroupId);
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroup(organizationUuid, permission, excludedGroupId);
   }
 
   /**
    * The number of users who will still have the permission when the user {@code excludedUserId}
    * is deleted. The anyone virtual group is not taken into account.
    */
-  public int countRemainingUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
-                                                                  String permission, long excludedUSerId) {
-    return mapper(dbSession).countRemainingUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUSerId);
+  public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
+    String permission, long excludedUSerId) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUSerId);
   }
 
   public Collection<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {

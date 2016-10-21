@@ -106,7 +106,7 @@ public class GroupPermissionChanger {
       !change.getGroupIdOrAnyone().isAnyone() &&
       !change.getProjectId().isPresent()) {
       // removing global admin permission from group
-      int remaining = dbClient.authorizationDao().countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(dbSession,
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
         change.getOrganizationUuid(), SYSTEM_ADMIN, change.getGroupIdOrAnyone().getId());
 
       if (remaining == 0) {

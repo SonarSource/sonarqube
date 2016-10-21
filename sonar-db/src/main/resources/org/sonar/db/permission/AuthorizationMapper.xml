@@ -71,7 +71,7 @@
     gr.group_id is null
   </select>
 
-  <select id="countRemainingUserIdsWithGlobalPermissionIfExcludeGroup" parameterType="map" resultType="int">
+  <select id="countUsersWithGlobalPermissionExcludingGroup" parameterType="map" resultType="int">
     select count(1) from
     (
       select gu.user_id
@@ -89,12 +89,13 @@
       select ur.user_id
       from user_roles ur
       where
+      ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
       ur.resource_id is null and
       ur.role = #{permission,jdbcType=VARCHAR}
     ) remaining
   </select>
 
-  <select id="countRemainingUsersWithGlobalPermissionExcludingUser" parameterType="map" resultType="int">
+  <select id="countUsersWithGlobalPermissionExcludingUser" parameterType="map" resultType="int">
     select count(1) from
     (
     select gu.user_id
@@ -104,13 +105,15 @@
     gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     gr.role = #{permission,jdbcType=VARCHAR} and
     gr.resource_id is null and
-    gr.group_id is not null
+    gr.group_id is not null and
+    gu.user_id != #{excludedUserId,jdbcType=BIGINT}
 
     union
 
     select ur.user_id
     from user_roles ur
     where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     ur.resource_id is null and
     ur.role = #{permission,jdbcType=VARCHAR} and
     ur.user_id != #{excludedUserId,jdbcType=BIGINT}

@@ -173,7 +173,7 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void countRemainingUserIdsWithGlobalPermissionIfExcludeGroup() {
+  public void countUsersWithGlobalPermissionExcludingGroup() {
     // users with global permission "perm1" :
     // - "u1" and "u2" through group "g1"
     // - "u1" and "u3" through group "g2"
@@ -202,27 +202,67 @@ public class AuthorizationDaoTest {
     GroupDto group3 = db.users().insertGroup(org, "g2");
     db.users().insertPermissionOnGroup(group3, "perm1");
 
-    db.users().insertPermissionOnUser(user4, "perm1");
-    db.users().insertPermissionOnUser(user4, "perm2");
-
+    db.users().insertPermissionOnUser(org, user4, "perm1");
+    db.users().insertPermissionOnUser(org, user4, "perm2");
     db.users().insertPermissionOnAnyone(org, "perm1");
 
+    // other organizations are ignored
+    OrganizationDto org2 = db.organizations().insert();
+    db.users().insertPermissionOnUser(org2, user1, "perm1");
+
     // excluding group "g1" -> remain u1, u3 and u4
-    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
       org.getUuid(), "perm1", group1.getId())).isEqualTo(3);
 
     // excluding group "g2" -> remain u1, u2 and u4
-    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
       org.getUuid(), "perm1", group2.getId())).isEqualTo(3);
 
     // excluding group "g3" -> remain u1, u2, u3 and u4
-    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
       org.getUuid(), "perm1", group3.getId())).isEqualTo(4);
 
     // nobody has the permission
-    assertThat(underTest.countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(db.getSession(),
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
       org.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
+  }
 
+  @Test
+  public void countUsersWithGlobalPermissionExcludingUser() {
+    // group g1 has the permission p1 and has members user1 and user2
+    // user3 has the permission
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+
+    OrganizationDto org = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(org, "g1");
+    db.users().insertPermissionOnGroup(group1, "p1");
+    db.users().insertPermissionOnGroup(group1, "p2");
+    db.users().insertMember(group1, user1);
+    db.users().insertMember(group1, user2);
+    db.users().insertPermissionOnUser(org, user3, "p1");
+    db.users().insertPermissionOnAnyone(org, "p1");
+
+    // other organizations are ignored
+    OrganizationDto org2 = db.organizations().insert();
+    db.users().insertPermissionOnUser(org2, user1, "p1");
+
+    // excluding user1 -> remain user2 and user3
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+      org.getUuid(), "p1", user1.getId())).isEqualTo(2);
+
+    // excluding user3 -> remain the members of group g1
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+      org.getUuid(), "p1", user3.getId())).isEqualTo(2);
+
+    // excluding unknown user
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+      org.getUuid(), "p1", -1)).isEqualTo(3);
+
+    // nobody has the permission
+    assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
+      org.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
   }
 
   @Test

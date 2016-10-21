@@ -105,7 +105,7 @@ public class DeleteAction implements UserGroupsWsAction {
   }
 
   private void checkNotTryingToDeleteLastAdminGroup(DbSession dbSession, GroupId group) {
-    int remaining = dbClient.authorizationDao().countRemainingUserIdsWithGlobalPermissionIfExcludeGroup(dbSession,
+    int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
       group.getOrganizationUuid(), SYSTEM_ADMIN, group.getId());
 
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
