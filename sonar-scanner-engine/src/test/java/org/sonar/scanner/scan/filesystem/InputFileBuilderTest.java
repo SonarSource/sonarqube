@@ -20,8 +20,10 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +47,42 @@ public class InputFileBuilderTest {
   LanguageDetection langDetection = mock(LanguageDetection.class);
   StatusDetection statusDetection = mock(StatusDetection.class);
   DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+
+  @Test
+  public void should_detect_charset_from_BOM() {
+    File basedir = new File("src/test/resources/org/sonar/scanner/scan/filesystem/");
+    when(fs.baseDir()).thenReturn(basedir);
+    when(fs.encoding()).thenReturn(StandardCharsets.US_ASCII);
+    when(langDetection.language(any(InputFile.class))).thenReturn("java");
+    InputFileBuilder builder = new InputFileBuilder("moduleKey", new PathResolver(), langDetection, statusDetection, fs, new MapSettings(), new FileMetadata());
+
+    assertThat(createAndComplete(builder, new File(basedir, "without_BOM.txt")).charset())
+      .isEqualTo(StandardCharsets.US_ASCII);
+    assertThat(createAndComplete(builder, new File(basedir, "UTF-8.txt")).charset())
+      .isEqualTo(StandardCharsets.UTF_8);
+    assertThat(createAndComplete(builder, new File(basedir, "UTF-16BE.txt")).charset())
+      .isEqualTo(StandardCharsets.UTF_16BE);
+    assertThat(createAndComplete(builder, new File(basedir, "UTF-16LE.txt")).charset())
+      .isEqualTo(StandardCharsets.UTF_16LE);
+    assertThat(createAndComplete(builder, new File(basedir, "UTF-32BE.txt")).charset())
+      .isEqualTo(InputFileBuilder.UTF_32BE);
+    assertThat(createAndComplete(builder, new File(basedir, "UTF-32LE.txt")).charset())
+      .isEqualTo(InputFileBuilder.UTF_32LE);
+
+    try {
+      createAndComplete(builder, new File(basedir, "non_existing"));
+      Assert.fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Unable to read file " + new File(basedir, "non_existing").getAbsolutePath());
+      assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
+    }
+  }
+
+  private static DefaultInputFile createAndComplete(InputFileBuilder builder, File file) {
+    DefaultInputFile inputFile = builder.create(file);
+    builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
+    return inputFile;
+  }
 
   @Test
   public void complete_input_file() throws Exception {
