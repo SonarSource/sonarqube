@@ -29,6 +29,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -264,7 +265,7 @@ public class DefaultSensorStorage implements SensorStorage {
       if (previousMeasure != null) {
         measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
           .forMetric((Metric<String>) metric)
-          .withValue(KeyValueFormat.format(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value()))));
+          .withValue(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value())));
       } else {
         measureCache.put(file.key(), metric.key(), measure);
       }
@@ -278,27 +279,29 @@ public class DefaultSensorStorage implements SensorStorage {
    * Merge the two line coverage data measures. For lines hits use the sum, and for conditions 
    * keep max value in case they both contains a value for the same line.
    */
-  private static Map<Integer, Integer> mergeCoverageLineMetric(Metric<?> metric, String value1, String value2) {
+  static String mergeCoverageLineMetric(Metric<?> metric, String value1, String value2) {
     Map<Integer, Integer> data1 = KeyValueFormat.parseIntInt(value1);
     Map<Integer, Integer> data2 = KeyValueFormat.parseIntInt(value2);
     if (metric.key().equals(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)) {
-      return Stream.of(data1, data2)
+      return KeyValueFormat.format(Stream.of(data1, data2)
         .map(Map::entrySet)
         .flatMap(Collection::stream)
         .collect(
           Collectors.toMap(
             Map.Entry::getKey,
             Map.Entry::getValue,
-            Integer::sum));
+            Integer::sum,
+            TreeMap::new)));
     } else {
-      return Stream.of(data1, data2)
+      return KeyValueFormat.format(Stream.of(data1, data2)
         .map(Map::entrySet)
         .flatMap(Collection::stream)
         .collect(
           Collectors.toMap(
             Map.Entry::getKey,
             Map.Entry::getValue,
-            Integer::max));
+            Integer::max,
+            TreeMap::new)));
     }
   }
 
