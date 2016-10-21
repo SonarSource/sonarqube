@@ -135,12 +135,12 @@ public class GenericTestExecutionReportParser {
       } else if (ERROR.equals(elementName)) {
         status = TestCase.Status.ERROR;
       }
-      testCase.setStatus(status);
       if (TestCase.Status.OK != status) {
         testCase.setMessage(mandatoryAttribute(child, MESSAGE_ATTR));
         testCase.setStackTrace(child.collectDescendantText());
       }
     }
+    testCase.setStatus(status);
 
   }
 
