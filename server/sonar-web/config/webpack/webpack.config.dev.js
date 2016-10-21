@@ -18,14 +18,61 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 var webpack = require('webpack');
+var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
+var paths = require('../paths');
 var config = require('./webpack.config.base');
+var getClientEnvironment = require('../env');
 
-config.devtool = 'cheap-module-eval-source-map';
-config.output.publicPath = '/js/bundles/';
-config.entry.vendor.unshift('webpack-hot-middleware/client');
+// Webpack uses `publicPath` to determine where the app is being served from.
+var publicPath = '/js/bundles/';
+// `publicUrl` is just like `publicPath`, but we will provide it to our app
+// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
+// Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
+var publicUrl = '';
+
+// Get environment variables to inject into our app.
+var env = getClientEnvironment(publicUrl);
+
+// This makes the bundle appear split into separate modules in the devtools.
+// We don't use source maps here because they can be confusing:
+// https://github.com/facebookincubator/create-react-app/issues/343#issuecomment-237241875
+// You may want 'cheap-module-source-map' instead if you prefer source maps.
+config.devtool = 'eval';
+
+// Include an alternative client for WebpackDevServer. A client's job is to
+// connect to WebpackDevServer by a socket and get notified about changes.
+// When you save a file, the client will either apply hot updates (in case
+// of CSS changes), or refresh the page (in case of JS changes). When you
+// make a syntax error, this client will display a syntax error overlay.
+// Note: instead of the default WebpackDevServer client, we use a custom one
+// to bring better experience for Create React App users. You can replace
+// the line below with these two lines if you prefer the stock client:
+// require.resolve('webpack-dev-server/client') + '?/',
+// require.resolve('webpack/hot/dev-server'),
+config.entry.vendor.unshift(require.resolve('react-dev-utils/webpackHotDevClient'));
+
+// Add /* filename */ comments to generated require()s in the output.
+config.output.pathinfo = true;
+
+// This is the URL that app is served from.
+config.output.publicPath = publicPath;
+
 config.plugins = [].concat(config.plugins, [
-  new webpack.DefinePlugin({ 'process.env.NODE_ENV': '"development"' }),
-  new webpack.HotModuleReplacementPlugin()
+  // Makes some environment variables available to the JS code, for example:
+  // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
+  new webpack.DefinePlugin(env),
+  // This is necessary to emit hot updates (currently CSS only):
+  new webpack.HotModuleReplacementPlugin(),
+  // Watcher doesn't work well if you mistype casing in a path so we use
+  // a plugin that prints an error when you attempt to do this.
+  // See https://github.com/facebookincubator/create-react-app/issues/240
+  new CaseSensitivePathsPlugin(),
+  // If you require a missing module and then `npm install` it, you still have
+  // to restart the development server for Webpack to discover it. This plugin
+  // makes the discovery automatic so you don't have to restart.
+  // See https://github.com/facebookincubator/create-react-app/issues/186
+  new WatchMissingNodeModulesPlugin(paths.appNodeModules)
 ]);
 
 module.exports = config;

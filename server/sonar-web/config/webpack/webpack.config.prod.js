@@ -19,16 +19,48 @@
  */
 var webpack = require('webpack');
 var config = require('./webpack.config.base');
+var getClientEnvironment = require('../env');
+
+// Get environment variables to inject into our app.
+var env = getClientEnvironment(publicUrl);
+
+// Assert this just to be safe.
+// Development builds of React are slow and not intended for production.
+if (env['process.env.NODE_ENV'] !== '"production"') {
+  throw new Error('Production builds must have NODE_ENV=production.');
+}
+
+// Don't attempt to continue if there are any errors.
+config.bail = true;
+
+// We generate sourcemaps in production. This is slow but gives good results.
+// You can exclude the *.map files from the build during deployment.
+config.devtool = 'source-map';
 
 config.plugins = [].concat(config.plugins, [
-  new webpack.DefinePlugin({ 'process.env.NODE_ENV': '"production"' }),
+  // Makes some environment variables available to the JS code, for example:
+  // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
+  // It is absolutely essential that NODE_ENV was set to production here.
+  // Otherwise React will be compiled in the very slow development mode.
+  new webpack.DefinePlugin(env),
+  // This helps ensure the builds are consistent if source hasn't changed:
   new webpack.optimize.OccurrenceOrderPlugin(),
+  // Try to dedupe duplicated modules, if any:
   new webpack.optimize.DedupePlugin(),
+  // Minify the code.
   new webpack.optimize.UglifyJsPlugin({
-    compress: { screw_ie8: true, warnings: false },
-    mangle: { screw_ie8: true },
-    output: { screw_ie8: true, comments: false }
-  })
+    compress: {
+      screw_ie8: true, // React doesn't support IE8
+      warnings: false
+    },
+    mangle: {
+      screw_ie8: true
+    },
+    output: {
+      comments: false,
+      screw_ie8: true
+    }
+  }),
 ]);
 
 module.exports = config;
