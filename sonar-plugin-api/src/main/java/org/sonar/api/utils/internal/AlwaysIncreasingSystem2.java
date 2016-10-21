@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils.internal;
 
-import com.google.common.base.Preconditions;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
@@ -41,7 +40,7 @@ public class AlwaysIncreasingSystem2 extends System2 {
   private AlwaysIncreasingSystem2(Supplier<Long> initialValueSupplier, long increment) {
     checkArgument(increment > 0, "increment must be > 0");
     long initialValue = initialValueSupplier.get();
-    Preconditions.checkArgument(initialValue >= 0, "Initial value must be >= 0");
+    checkArgument(initialValue >= 0, "Initial value must be >= 0");
     this.now = new AtomicLong(initialValue);
     this.increment = increment;
   }
