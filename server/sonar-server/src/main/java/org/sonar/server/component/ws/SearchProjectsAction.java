@@ -46,6 +46,7 @@ import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.sonar.server.component.es.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -73,6 +74,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
+    action.createParam(Param.FACETS)
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
       .setDescription("TODO");
@@ -98,7 +102,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(filter);
     projectMeasuresQueryValidator.validate(dbSession, query);
 
-    SearchIdResult<String> searchResults = index.search(query, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
+    SearchIdResult<String> searchResults = index.search(query, new SearchOptions()
+      .addFacets(request.getFacets())
+      .setPage(request.getPage(), request.getPageSize()));
 
     Ordering<ComponentDto> ordering = Ordering.explicit(searchResults.getIds()).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResults.getIds()));
@@ -111,6 +117,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setFilter(httpRequest.param(PARAM_FILTER))
       .setPage(httpRequest.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(httpRequest.mandatoryParamAsInt(Param.PAGE_SIZE));
+    if (httpRequest.hasParam(Param.FACETS)) {
+      request.setFacets(httpRequest.paramAsStrings(Param.FACETS));
+    }
     return request.build();
   }
 

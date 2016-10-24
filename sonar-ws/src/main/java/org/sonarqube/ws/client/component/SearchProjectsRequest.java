@@ -20,9 +20,12 @@
 
 package org.sonarqube.ws.client.component;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class SearchProjectsRequest {
   public static final int MAX_PAGE_SIZE = 500;
@@ -31,16 +34,22 @@ public class SearchProjectsRequest {
   private final int page;
   private final int pageSize;
   private final String filter;
+  private final List<String> facets;
 
   private SearchProjectsRequest(Builder builder) {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
     this.filter = builder.filter;
+    this.facets = builder.facets;
   }
 
   @CheckForNull
   public String getFilter() {
     return filter;
+  }
+
+  public List<String> getFacets() {
+    return facets;
   }
 
   public int getPageSize() {
@@ -59,6 +68,7 @@ public class SearchProjectsRequest {
     private Integer page;
     private Integer pageSize;
     private String filter;
+    private List<String> facets = new ArrayList<>();
 
     private Builder() {
       // enforce static factory method
@@ -66,6 +76,11 @@ public class SearchProjectsRequest {
 
     public Builder setFilter(String filter) {
       this.filter = filter;
+      return this;
+    }
+
+    public Builder setFacets(List<String> facets) {
+      this.facets = requireNonNull(facets);
       return this;
     }
 

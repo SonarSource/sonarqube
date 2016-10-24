@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -186,13 +187,13 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void return_loc_facet() {
+  public void return_nloc_facet() {
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE, NCLOC);
-    SearchProjectsWsResponse result = call(request);
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
       .filter(oneFacet -> NCLOC.equals(oneFacet.getProperty()))
@@ -237,6 +238,7 @@ public class SearchProjectsActionTest {
     if (filter != null) {
       httpRequest.setParam(PARAM_FILTER, filter);
     }
+    httpRequest.setParam(Param.FACETS, Joiner.on(",").join(wsRequest.getFacets()));
 
     try {
       return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());

@@ -106,6 +106,7 @@ public class ComponentsService extends BaseService {
   public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH_PROJECTS))
       .setParam(PARAM_FILTER, request.getFilter())
+      .setParam(Param.FACETS, request.getFacets())
       .setParam(Param.PAGE, request.getPage())
       .setParam(Param.PAGE_SIZE, request.getPageSize());
     return call(get, SearchProjectsWsResponse.parser());

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchProjectsRequestTest {
@@ -40,6 +41,29 @@ public class SearchProjectsRequestTest {
       .build();
 
     assertThat(result.getFilter()).isEqualTo("ncloc > 10");
+  }
+
+  @Test
+  public void set_facets() throws Exception {
+    SearchProjectsRequest result = underTest
+      .setFacets(singletonList("ncloc"))
+      .build();
+
+    assertThat(result.getFacets()).containsOnly("ncloc");
+  }
+
+  @Test
+  public void facets_are_empty_by_default() throws Exception {
+    SearchProjectsRequest result = underTest.build();
+
+    assertThat(result.getFacets()).isEmpty();
+  }
+
+  @Test
+  public void fail_if_facets_is_null() {
+    expectedException.expect(NullPointerException.class);
+
+    underTest.setFacets(null);
   }
 
   @Test

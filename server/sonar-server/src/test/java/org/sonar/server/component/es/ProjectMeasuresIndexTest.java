@@ -44,6 +44,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
@@ -249,10 +250,21 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void does_not_return_facet_when_no_facets_in_options() throws Exception {
+    addDocs(
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 10d), newMeasure(COVERAGE_KEY, 30d), newMeasure(MAINTAINABILITY_RATING, 3d)))
+        .setQualityGate(OK.name()));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.getAll()).isEmpty();
+  }
+
+  @Test
   public void facet_ncloc() {
     addDocs(
       // 3 docs with ncloc<1K
-      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d), newMeasure(COVERAGE, 0d))),
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
       newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
       newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d))),
       // 2 docs with ncloc>=1K and ncloc<10K
@@ -273,7 +285,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 1_000_000d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000_000_000d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NCLOC)).getFacets();
 
     assertThat(facets.get(NCLOC)).containsExactly(
       entry("*-1000.0", 3L),
@@ -304,7 +316,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .addMetricCriterion(new MetricCriterion(NCLOC, Operator.LT, 10_000d))
       .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
-      new SearchOptions()).getFacets();
+      new SearchOptions().addFacets(NCLOC, COVERAGE)).getFacets();
 
     // Sticky facet on ncloc does not take into account ncloc filter
     assertThat(facets.get(NCLOC)).containsExactly(
@@ -345,7 +357,7 @@ public class ProjectMeasuresIndexTest {
       // doc with ncloc>= 500K
       newDoc("P53", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 501_000d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NCLOC)).getFacets();
 
     assertThat(facets.get(NCLOC)).containsExactly(
       entry("*-1000.0", 3L),
@@ -380,7 +392,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 90.5d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 100d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(COVERAGE)).getFacets();
 
     assertThat(facets.get(COVERAGE)).containsExactly(
       entry("*-30.0", 3L),
@@ -411,7 +423,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d))
       .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
-      new SearchOptions()).getFacets();
+      new SearchOptions().addFacets(COVERAGE, NCLOC)).getFacets();
 
     // Sticky facet on coverage does not take into account coverage filter
     assertThat(facets.get(COVERAGE)).containsExactly(
@@ -452,7 +464,7 @@ public class ProjectMeasuresIndexTest {
       // docs with coverage>= 80%
       newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 80d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(COVERAGE)).getFacets();
 
     assertThat(facets.get(COVERAGE)).containsExactly(
       entry("*-30.0", 3L),
@@ -487,7 +499,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 80d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 100d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(DUPLICATION)).getFacets();
 
     assertThat(facets.get(DUPLICATION)).containsExactly(
       entry("*-3.0", 3L),
@@ -516,7 +528,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d))
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
-      new SearchOptions()).getFacets();
+      new SearchOptions().addFacets(DUPLICATION, NCLOC)).getFacets();
 
     // Sticky facet on duplication does not take into account duplication filter
     assertThat(facets.get(DUPLICATION)).containsExactly(
@@ -557,7 +569,7 @@ public class ProjectMeasuresIndexTest {
       // docs with duplication>= 20%
       newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 20d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(DUPLICATION)).getFacets();
 
     assertThat(facets.get(DUPLICATION)).containsExactly(
       entry("*-3.0", 3L),
@@ -592,7 +604,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(MAINTAINABILITY_RATING)).getFacets();
 
     assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
       entry("1", 3L),
@@ -627,7 +639,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .addMetricCriterion(new MetricCriterion(MAINTAINABILITY_RATING, Operator.LT, 3d))
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
-      new SearchOptions()).getFacets();
+      new SearchOptions().addFacets(MAINTAINABILITY_RATING, NCLOC)).getFacets();
 
     // Sticky facet on maintainability rating does not take into account maintainability rating filter
     assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
@@ -668,7 +680,7 @@ public class ProjectMeasuresIndexTest {
       // docs with rating E
       newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(MAINTAINABILITY_RATING)).getFacets();
 
     assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
       entry("1", 3L),
@@ -703,7 +715,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(RELIABILITY_RATING, 5d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(RELIABILITY_RATING, 5d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(RELIABILITY_RATING)).getFacets();
 
     assertThat(facets.get(RELIABILITY_RATING)).containsExactly(
       entry("1", 3L),
@@ -738,7 +750,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P54", "K3", "N3").setMeasures(newArrayList(newMeasure(SECURITY_RATING, 5.0d))),
       newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(SECURITY_RATING, 5.0d))));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(SECURITY_RATING)).getFacets();
 
     assertThat(facets.get(SECURITY_RATING)).containsExactly(
       entry("1", 3L),
@@ -764,7 +776,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P33", "K1", "N1").setQualityGate(ERROR.name()),
       newDoc("P34", "K1", "N1").setQualityGate(ERROR.name()));
 
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets().get(ALERT_STATUS_KEY);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
 
     assertThat(result).containsExactly(
       entry(ERROR.name(), 4L),
@@ -791,7 +803,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .setQualityGateStatus(ERROR)
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 55d)),
-      new SearchOptions()).getFacets();
+      new SearchOptions().addFacets(ALERT_STATUS_KEY, NCLOC)).getFacets();
 
     // Sticky facet on quality gate does not take into account quality gate filter
     assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
@@ -829,7 +841,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P33", "K1", "N1").setQualityGate(ERROR.name()),
       newDoc("P34", "K1", "N1").setQualityGate(ERROR.name()));
 
-    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets().get(ALERT_STATUS_KEY);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
 
     assertThat(result).containsExactly(
       entry(ERROR.name(), 0L),

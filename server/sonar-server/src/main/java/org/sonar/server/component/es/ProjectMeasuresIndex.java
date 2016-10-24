@@ -71,6 +71,15 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
+  public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
+    NCLOC_KEY,
+    DUPLICATED_LINES_DENSITY_KEY,
+    COVERAGE_KEY,
+    SQALE_RATING_KEY,
+    RELIABILITY_RATING_KEY,
+    SECURITY_RATING_KEY,
+    ALERT_STATUS_KEY);
+
   private static final String FIELD_KEY = FIELD_MEASURES + "." + FIELD_MEASURES_KEY;
   private static final String FIELD_VALUE = FIELD_MEASURES + "." + FIELD_MEASURES_VALUE;
 
@@ -95,18 +104,34 @@ public class ProjectMeasuresIndex extends BaseIndex {
     filters.values().forEach(esFilter::must);
     requestBuilder.setQuery(esFilter);
 
-    addFacets(requestBuilder, filters);
+    addFacets(requestBuilder, searchOptions, filters);
     return new SearchIdResult<>(requestBuilder.get(), id -> id);
   }
 
-  private static void addFacets(SearchRequestBuilder esSearch, Map<String, QueryBuilder> filters) {
-    addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
-    addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
-    addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
-    addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
-    addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
-    addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
-    esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
+  private static void addFacets(SearchRequestBuilder esSearch, SearchOptions options, Map<String, QueryBuilder> filters) {
+    if (!options.getFacets().isEmpty()) {
+      if (options.getFacets().contains(NCLOC_KEY)) {
+        addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
+      }
+      if (options.getFacets().contains(DUPLICATED_LINES_DENSITY_KEY)) {
+        addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
+      }
+      if (options.getFacets().contains(COVERAGE_KEY)) {
+        addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
+      }
+      if (options.getFacets().contains(SQALE_RATING_KEY)) {
+        addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
+      }
+      if (options.getFacets().contains(RELIABILITY_RATING_KEY)) {
+        addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
+      }
+      if (options.getFacets().contains(SECURITY_RATING_KEY)) {
+        addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
+      }
+      if (options.getFacets().contains(ALERT_STATUS_KEY)) {
+        esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
+      }
+    }
   }
 
   private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, List<Double> thresholds, Map<String, QueryBuilder> filters) {

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 
@@ -40,6 +41,7 @@ public class ComponentsServiceTest {
   public void search_projects() {
     underTest.searchProjects(SearchProjectsRequest.builder()
       .setFilter("ncloc > 10")
+      .setFacets(singletonList("ncloc"))
       .setPage(3)
       .setPageSize(10)
       .build());
@@ -47,6 +49,7 @@ public class ComponentsServiceTest {
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search_projects")
       .hasParam(PARAM_FILTER, "ncloc > 10")
+      .hasParam(Param.FACETS, singletonList("ncloc"))
       .hasParam(Param.PAGE, 3)
       .hasParam(Param.PAGE_SIZE, 10)
       .andNoOtherParam();
