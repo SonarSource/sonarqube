@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 import ChangelogSearch from '../ChangelogSearch';
 import DateInput from '../../../../components/controls/DateInput';
-import { click } from '../../../../../../../tests/utils';
+import { click } from '../../../../helpers/testUtils';
 
 it('should render DateInput', () => {
   const onFromDateChange = jest.fn();

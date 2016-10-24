@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import Toggle from '../Toggle';
-import { click } from '../../../../../../tests/utils';
+import { click } from '../../../helpers/testUtils';
 
 function getSample (props) {
   return (

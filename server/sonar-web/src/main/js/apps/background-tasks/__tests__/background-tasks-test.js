@@ -23,7 +23,7 @@ import Stats from '../components/Stats';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
-import { change, click } from '../../../../../../tests/utils';
+import { change, click } from '../../../helpers/testUtils';
 
 const stub = jest.fn();
 

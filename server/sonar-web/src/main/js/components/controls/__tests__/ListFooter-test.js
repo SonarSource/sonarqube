@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import ListFooter from '../ListFooter';
-import { click } from '../../../../../../tests/utils';
+import { click } from '../../../helpers/testUtils';
 
 it('should render "3 of 5 shown"', () => {
   const listFooter = shallow(<ListFooter count={3} total={5}/>);

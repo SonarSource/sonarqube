@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import FavoriteBase from '../FavoriteBase';
-import { click } from '../../../../../../tests/utils';
+import { click } from '../../../helpers/testUtils';
 
 function renderFavoriteBase (props) {
   return shallow(

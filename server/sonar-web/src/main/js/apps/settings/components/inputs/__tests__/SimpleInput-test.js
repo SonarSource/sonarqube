@@ -20,7 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import SimpleInput from '../SimpleInput';
-import { change } from '../../../../../../../../tests/utils';
+import { change } from '../../../../../helpers/testUtils';
 
 it('should render input', () => {
   const onChange = jest.fn();
