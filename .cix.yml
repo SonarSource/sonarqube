@@ -28,8 +28,8 @@ RUN_ACTIVITY:
   - run-db-integration-tests-postgresql93-Category3
   - run-db-integration-tests-postgresql93-Category4
   - run-db-integration-tests-postgresql93-Category5
-#  - run-upgrade-tests-mssql2014
 #  - run-upgrade-tests-mysql56
+#  - run-upgrade-tests-mssql2014
 #  - run-upgrade-tests-oracle12c
 #  - run-upgrade-tests-postgresql93
   - run-it-released-plugins
@@ -47,6 +47,16 @@ exclude:
   - RUN_ACTIVITY: run-db-unit-tests-oracle12c
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-postgresql93
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category1
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category2
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category3
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category4
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category5
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
     SLAVE_TYPE: performance
@@ -78,9 +88,9 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-postgresql93-Category5
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
-    SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-upgrade-tests-mysql56
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-upgrade-tests-oracle12c
     SLAVE_TYPE: performance
@@ -104,6 +114,16 @@ exclude:
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-unit-tests-postgresql93
     SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category1
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category2
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category3
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category4
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mysql56-Category5
+    SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
@@ -134,9 +154,9 @@ exclude:
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-db-integration-tests-postgresql93-Category5
     SLAVE_TYPE: windows
-  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
-    SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-upgrade-tests-mysql56
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
     SLAVE_TYPE: windows
   - RUN_ACTIVITY: run-upgrade-tests-oracle12c
     SLAVE_TYPE: windows
