@@ -19,8 +19,12 @@
  */
 package org.sonar.server.component.es;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -37,6 +41,7 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -45,6 +50,7 @@ import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
@@ -76,29 +82,54 @@ public class ProjectMeasuresIndex extends BaseIndex {
   }
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
-    QueryBuilder esQuery = createEsQuery(query);
-
-    SearchRequestBuilder request = getClient()
+    SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
       .setTypes(TYPE_PROJECT_MEASURES)
       .setFetchSource(false)
-      .setQuery(esQuery)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit())
-      .addAggregation(createQualityGateFacet())
-      .addAggregation(createRatingFacet(SQALE_RATING_KEY))
-      .addAggregation(createRatingFacet(RELIABILITY_RATING_KEY))
-      .addAggregation(createRatingFacet(SECURITY_RATING_KEY))
-      .addAggregation(createRangeFacet(DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d)))
-      .addAggregation(createRangeFacet(COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d)))
-      .addAggregation(createRangeFacet(NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d)))
       .addSort(FIELD_NAME + "." + SORT_SUFFIX, SortOrder.ASC);
 
-    return new SearchIdResult<>(request.get(), id -> id);
+    BoolQueryBuilder esFilter = boolQuery();
+    Map<String, QueryBuilder> filters = createFilters(query);
+    filters.values().forEach(esFilter::must);
+    requestBuilder.setQuery(esFilter);
+
+    addFacets(requestBuilder, filters);
+    return new SearchIdResult<>(requestBuilder.get(), id -> id);
+  }
+
+  private static void addFacets(SearchRequestBuilder esSearch, Map<String, QueryBuilder> filters) {
+    addRangeFacet(esSearch, NCLOC_KEY, ImmutableList.of(1_000d, 10_000d, 100_000d, 500_000d), filters);
+    addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, ImmutableList.of(3d, 5d, 10d, 20d), filters);
+    addRangeFacet(esSearch, COVERAGE_KEY, ImmutableList.of(30d, 50d, 70d, 80d), filters);
+    addRatingFacet(esSearch, SQALE_RATING_KEY, filters);
+    addRatingFacet(esSearch, RELIABILITY_RATING_KEY, filters);
+    addRatingFacet(esSearch, SECURITY_RATING_KEY, filters);
+    esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, filters, createQualityGateFacet()));
+  }
+
+  private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, List<Double> thresholds, Map<String, QueryBuilder> filters) {
+    esSearch.addAggregation(createStickyFacet(metricKey, filters, createRangeFacet(metricKey, thresholds)));
+  }
+
+  private static void addRatingFacet(SearchRequestBuilder esSearch, String metricKey, Map<String, QueryBuilder> filters) {
+    esSearch.addAggregation(createStickyFacet(metricKey, filters, createRatingFacet(metricKey)));
+  }
+
+  private static AggregationBuilder createStickyFacet(String metricKey, Map<String, QueryBuilder> filters, AggregationBuilder aggregationBuilder) {
+    StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
+    BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(metricKey);
+    return AggregationBuilders
+      .global(metricKey)
+      .subAggregation(AggregationBuilders.filter("facet_filter_" + metricKey)
+        .filter(facetFilter)
+        .subAggregation(aggregationBuilder));
   }
 
   private static AggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
-    RangeBuilder rangeAgg = AggregationBuilders.range(metricKey).field(FIELD_VALUE);
+    RangeBuilder rangeAgg = AggregationBuilders.range(metricKey)
+      .field(FIELD_VALUE);
     final int lastIndex = thresholds.size() - 1;
     IntStream.range(0, thresholds.size())
       .forEach(i -> {
@@ -126,7 +157,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .subAggregation(
         AggregationBuilders.filter("filter_" + metricKey)
           .filter(termsQuery(FIELD_KEY, metricKey))
-          .subAggregation(AggregationBuilders.filters(metricKey)
+          .subAggregation(filters(metricKey)
             .filter("1", termQuery(FIELD_VALUE, 1d))
             .filter("2", termQuery(FIELD_VALUE, 2d))
             .filter("3", termQuery(FIELD_VALUE, 3d))
@@ -141,16 +172,24 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .filter(Metric.Level.OK.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.OK.name()));
   }
 
-  private QueryBuilder createEsQuery(ProjectMeasuresQuery query) {
-    BoolQueryBuilder filters = boolQuery()
-      .must(createAuthorizationFilter());
-    query.getMetricCriteria().stream()
-      .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
-        .filter(termQuery(FIELD_KEY, criterion.getMetricKey()))
-        .filter(toValueQuery(criterion))))
-      .forEach(filters::filter);
+  private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
+    Map<String, QueryBuilder> filters = new HashMap<>();
+    filters.put("__authorization", createAuthorizationFilter());
+    Multimap<String, MetricCriterion> metricCriterionMultimap = ArrayListMultimap.create();
+    query.getMetricCriteria().forEach(metricCriterion -> metricCriterionMultimap.put(metricCriterion.getMetricKey(), metricCriterion));
+    metricCriterionMultimap.asMap().entrySet().forEach(entry -> {
+      BoolQueryBuilder metricFilters = boolQuery();
+      entry.getValue()
+        .stream()
+        .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
+          .filter(termQuery(FIELD_KEY, criterion.getMetricKey()))
+          .filter(toValueQuery(criterion))))
+        .forEach(metricFilters::must);
+      filters.put(entry.getKey(), metricFilters);
+
+    });
     if (query.hasQualityGateStatus()) {
-      filters.filter(termQuery(FIELD_QUALITY_GATE, query.getQualityGateStatus().name()));
+      filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE, query.getQualityGateStatus().name()));
     }
     return filters;
   }

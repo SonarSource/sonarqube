@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
@@ -45,7 +44,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
@@ -175,7 +176,8 @@ public class ProjectMeasuresIndexTest {
 
     ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LTE, 80d))
-      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 10_000d));
+      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 10_000d))
+      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.LT, 11_000d));
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P2");
@@ -250,7 +252,7 @@ public class ProjectMeasuresIndexTest {
   public void facet_ncloc() {
     addDocs(
       // 3 docs with ncloc<1K
-      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d), newMeasure(COVERAGE, 0d))),
       newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
       newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d))),
       // 2 docs with ncloc>=1K and ncloc<10K
@@ -279,6 +281,78 @@ public class ProjectMeasuresIndexTest {
       entry("10000.0-100000.0", 4L),
       entry("100000.0-500000.0", 2L),
       entry("500000.0-*", 5L));
+  }
+
+  @Test
+  public void facet_ncloc_is_sticky() {
+    addDocs(
+      // 1 docs with ncloc<1K
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d), newMeasure(COVERAGE, 0d), newMeasure(DUPLICATION, 0d))),
+      // 2 docs with ncloc>=1K and ncloc<10K
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 1_000d), newMeasure(COVERAGE, 10d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 9_999d), newMeasure(COVERAGE, 20d), newMeasure(DUPLICATION, 0d))),
+      // 3 docs with ncloc>=10K and ncloc<100K
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 10_000d), newMeasure(COVERAGE, 31d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P33", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 11_000d), newMeasure(COVERAGE, 40d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P34", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 99_000d), newMeasure(COVERAGE, 50d), newMeasure(DUPLICATION, 0d))),
+      // 2 docs with ncloc>=100K and ncloc<500K
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000d), newMeasure(COVERAGE, 71d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P42", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 499_000d), newMeasure(COVERAGE, 80d), newMeasure(DUPLICATION, 0d))),
+      // 1 docs with ncloc>= 500K
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 501_000d), newMeasure(COVERAGE, 81d), newMeasure(DUPLICATION, 20d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.LT, 10_000d))
+      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
+      new SearchOptions()).getFacets();
+
+    // Sticky facet on ncloc does not take into account ncloc filter
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 3L),
+      entry("100000.0-500000.0", 2L),
+      entry("500000.0-*", 0L));
+    // But facet on coverage does well take into into filters
+    assertThat(facets.get(COVERAGE)).containsExactly(
+      entry("*-30.0", 3L),
+      entry("30.0-50.0", 0L),
+      entry("50.0-70.0", 0L),
+      entry("70.0-80.0", 0L),
+      entry("80.0-*", 0L));
+  }
+
+  @Test
+  public void facet_ncloc_contains_only_projects_authorized_for_user() throws Exception {
+    userSession.login("john").setUserId(10);
+
+    // User can see these projects
+    addDocs(10L, null,
+      // docs with ncloc<1K
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 0d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 100d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d))),
+      // docs with ncloc>=1K and ncloc<10K
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 1_000d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 9_999d))));
+
+    // User cannot see these projects
+    addDocs(33L, null,
+      // doc with ncloc>=10K and ncloc<100K
+      newDoc("P33", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 11_000d))),
+      // doc with ncloc>=100K and ncloc<500K
+      newDoc("P42", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 499_000d))),
+      // doc with ncloc>= 500K
+      newDoc("P53", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 501_000d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
   }
 
   @Test
@@ -317,6 +391,78 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_coverage_is_sticky() {
+    addDocs(
+      // docs with coverage<30%
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(NCLOC, 999d), newMeasure(COVERAGE, 0d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 1_000d), newMeasure(COVERAGE, 10d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(NCLOC, 9_999d), newMeasure(COVERAGE, 20d), newMeasure(DUPLICATION, 0d))),
+      // docs with coverage>=30% and coverage<50%
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 10_000d), newMeasure(COVERAGE, 31d), newMeasure(DUPLICATION, 0d))),
+      newDoc("P33", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 11_000d), newMeasure(COVERAGE, 40d), newMeasure(DUPLICATION, 0d))),
+      // docs with coverage>=50% and coverage<70%
+      newDoc("P34", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 99_000d), newMeasure(COVERAGE, 50d), newMeasure(DUPLICATION, 0d))),
+      // docs with coverage>=70% and coverage<80%
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 100_000d), newMeasure(COVERAGE, 71d), newMeasure(DUPLICATION, 0d))),
+      // docs with coverage>= 80%
+      newDoc("P42", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 499_000d), newMeasure(COVERAGE, 80d), newMeasure(DUPLICATION, 15d))),
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(NCLOC, 501_000d), newMeasure(COVERAGE, 810d), newMeasure(DUPLICATION, 20d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d))
+      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
+      new SearchOptions()).getFacets();
+
+    // Sticky facet on coverage does not take into account coverage filter
+    assertThat(facets.get(COVERAGE)).containsExactly(
+      entry("*-30.0", 3L),
+      entry("30.0-50.0", 2L),
+      entry("50.0-70.0", 1L),
+      entry("70.0-80.0", 1L),
+      entry("80.0-*", 0L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_coverage_contains_only_projects_authorized_for_user() throws Exception {
+    userSession.login("john").setUserId(10);
+
+    // User can see these projects
+    addDocs(10L, null,
+      // docs with coverage<30%
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 0d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 0d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(COVERAGE, 29d))),
+      // docs with coverage>=30% and coverage<50%
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 30d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(COVERAGE, 49d))));
+
+    // User cannot see these projects
+    addDocs(33L, null,
+      // docs with coverage>=50% and coverage<70%
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 50d))),
+      // docs with coverage>=70% and coverage<80%
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 70d))),
+      // docs with coverage>= 80%
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(COVERAGE, 80d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.get(COVERAGE)).containsExactly(
+      entry("*-30.0", 3L),
+      entry("30.0-50.0", 2L),
+      entry("50.0-70.0", 0L),
+      entry("70.0-80.0", 0L),
+      entry("80.0-*", 0L));
+  }
+
+  @Test
   public void facet_duplicated_lines_density() {
     addDocs(
       // 3 docs with duplication<3%
@@ -352,6 +498,76 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_duplicated_lines_density_is_sticky() {
+    addDocs(
+      // docs with duplication<3%
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(DUPLICATION, 0d), newMeasure(NCLOC, 999d), newMeasure(COVERAGE, 0d))),
+      // docs with duplication>=3% and duplication<5%
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(DUPLICATION, 3d), newMeasure(NCLOC, 5000d), newMeasure(COVERAGE, 0d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(DUPLICATION, 4.9d), newMeasure(NCLOC, 6000d), newMeasure(COVERAGE, 0d))),
+      // docs with duplication>=5% and duplication<10%
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 5d), newMeasure(NCLOC, 11000d), newMeasure(COVERAGE, 0d))),
+      // docs with duplication>=10% and duplication<20%
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 10d), newMeasure(NCLOC, 120000d), newMeasure(COVERAGE, 10d))),
+      newDoc("P42", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 19.9d), newMeasure(NCLOC, 130000d), newMeasure(COVERAGE, 20d))),
+      // docs with duplication>= 20%
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 20d), newMeasure(NCLOC, 1000000d), newMeasure(COVERAGE, 40d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d))
+      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
+      new SearchOptions()).getFacets();
+
+    // Sticky facet on duplication does not take into account duplication filter
+    assertThat(facets.get(DUPLICATION)).containsExactly(
+      entry("*-3.0", 1L),
+      entry("3.0-5.0", 2L),
+      entry("5.0-10.0", 1L),
+      entry("10.0-20.0", 2L),
+      entry("20.0-*", 0L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 1L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() throws Exception {
+    userSession.login("john").setUserId(10);
+
+    // User can see these projects
+    addDocs(10L, null,
+      // docs with duplication<3%
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(DUPLICATION, 0d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(DUPLICATION, 0d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(DUPLICATION, 2.9d))),
+      // docs with duplication>=3% and duplication<5%
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(DUPLICATION, 3d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(DUPLICATION, 4.9d))));
+
+    // User cannot see these projects
+    addDocs(33L, null,
+      // docs with duplication>=5% and duplication<10%
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 5d))),
+      // docs with duplication>=10% and duplication<20%
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 10d))),
+      // docs with duplication>= 20%
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(DUPLICATION, 20d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.get(DUPLICATION)).containsExactly(
+      entry("*-3.0", 3L),
+      entry("3.0-5.0", 2L),
+      entry("5.0-10.0", 0L),
+      entry("10.0-20.0", 0L),
+      entry("20.0-*", 0L));
+  }
+
+  @Test
   public void facet_maintainability_rating() {
     addDocs(
       // 3 docs with rating A
@@ -384,6 +600,82 @@ public class ProjectMeasuresIndexTest {
       entry("3", 4L),
       entry("4", 2L),
       entry("5", 5L));
+  }
+
+  @Test
+  public void facet_maintainability_rating_is_sticky() {
+    addDocs(
+      // docs with rating A
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d), newMeasure(NCLOC, 100d), newMeasure(COVERAGE, 0d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d), newMeasure(NCLOC, 200d), newMeasure(COVERAGE, 0d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d), newMeasure(NCLOC, 999d), newMeasure(COVERAGE, 0d))),
+      // docs with rating B
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 2d), newMeasure(NCLOC, 2000d), newMeasure(COVERAGE, 0d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 2d), newMeasure(NCLOC, 5000d), newMeasure(COVERAGE, 0d))),
+      // docs with rating C
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 3d), newMeasure(NCLOC, 20000d), newMeasure(COVERAGE, 0d))),
+      newDoc("P32", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 3d), newMeasure(NCLOC, 30000d), newMeasure(COVERAGE, 0d))),
+      newDoc("P33", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 3d), newMeasure(NCLOC, 40000d), newMeasure(COVERAGE, 0d))),
+      newDoc("P34", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 3d), newMeasure(NCLOC, 50000d), newMeasure(COVERAGE, 0d))),
+      // docs with rating D
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 4d), newMeasure(NCLOC, 120000d), newMeasure(COVERAGE, 0d))),
+      // docs with rating E
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d), newMeasure(NCLOC, 600000d), newMeasure(COVERAGE, 40d))),
+      newDoc("P52", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d), newMeasure(NCLOC, 700000d), newMeasure(COVERAGE, 50d))),
+      newDoc("P55", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d), newMeasure(NCLOC, 800000d), newMeasure(COVERAGE, 60d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .addMetricCriterion(new MetricCriterion(MAINTAINABILITY_RATING, Operator.LT, 3d))
+      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
+      new SearchOptions()).getFacets();
+
+    // Sticky facet on maintainability rating does not take into account maintainability rating filter
+    assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 4L),
+      entry("4", 1L),
+      entry("5", 0L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 0L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_maintainability_rating_contains_only_projects_authorized_for_user() throws Exception {
+    userSession.login("john").setUserId(10);
+
+    // User can see these projects
+    addDocs(10L, null,
+      // 3 docs with rating A
+      newDoc("P11", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d))),
+      newDoc("P12", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d))),
+      newDoc("P13", "K1", "N1").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 1d))),
+      // 2 docs with rating B
+      newDoc("P21", "K2", "N2").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 2d))),
+      newDoc("P22", "K2", "N2").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 2d))));
+
+    // User cannot see these projects
+    addDocs(33L, null,
+      // docs with rating C
+      newDoc("P31", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 3d))),
+      // docs with rating D
+      newDoc("P41", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 4d))),
+      // docs with rating E
+      newDoc("P51", "K3", "N3").setMeasures(newArrayList(newMeasure(MAINTAINABILITY_RATING, 5d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets();
+
+    assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 0L),
+      entry("4", 0L),
+      entry("5", 0L));
   }
 
   @Test
@@ -460,25 +752,89 @@ public class ProjectMeasuresIndexTest {
   public void facet_quality_gate() {
     addDocs(
       // 2 docs with QG OK
-      newDoc("P11", "K1", "N1").setQualityGate(Level.OK.name()),
-      newDoc("P12", "K1", "N1").setQualityGate(Level.OK.name()),
+      newDoc("P11", "K1", "N1").setQualityGate(OK.name()),
+      newDoc("P12", "K1", "N1").setQualityGate(OK.name()),
       // 3 docs with QG WARN
-      newDoc("P21", "K1", "N1").setQualityGate(Level.WARN.name()),
-      newDoc("P22", "K1", "N1").setQualityGate(Level.WARN.name()),
-      newDoc("P23", "K1", "N1").setQualityGate(Level.WARN.name()),
+      newDoc("P21", "K1", "N1").setQualityGate(WARN.name()),
+      newDoc("P22", "K1", "N1").setQualityGate(WARN.name()),
+      newDoc("P23", "K1", "N1").setQualityGate(WARN.name()),
       // 4 docs with QG ERROR
-      newDoc("P31", "K1", "N1").setQualityGate(Level.ERROR.name()),
-      newDoc("P32", "K1", "N1").setQualityGate(Level.ERROR.name()),
-      newDoc("P33", "K1", "N1").setQualityGate(Level.ERROR.name()),
-      newDoc("P34", "K1", "N1").setQualityGate(Level.ERROR.name()));
+      newDoc("P31", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P32", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P33", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P34", "K1", "N1").setQualityGate(ERROR.name()));
 
     LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets().get(ALERT_STATUS_KEY);
 
     assertThat(result).containsExactly(
-      entry(Level.ERROR.name(), 4L),
-      entry(Level.WARN.name(), 3L),
-      entry(Level.OK.name(), 2L)
-    );
+      entry(ERROR.name(), 4L),
+      entry(WARN.name(), 3L),
+      entry(OK.name(), 2L));
+  }
+
+  @Test
+  public void facet_quality_gate_is_sticky() {
+    addDocs(
+      // 2 docs with QG OK
+      newDoc("P11", "K1", "N1").setQualityGate(OK.name()).setMeasures(newArrayList(newMeasure(NCLOC, 10d), newMeasure(COVERAGE, 0d))),
+      newDoc("P12", "K1", "N1").setQualityGate(OK.name()).setMeasures(newArrayList(newMeasure(NCLOC, 10d), newMeasure(COVERAGE, 0d))),
+      // 3 docs with QG WARN
+      newDoc("P21", "K1", "N1").setQualityGate(WARN.name()).setMeasures(newArrayList(newMeasure(NCLOC, 100d), newMeasure(COVERAGE, 0d))),
+      newDoc("P22", "K1", "N1").setQualityGate(WARN.name()).setMeasures(newArrayList(newMeasure(NCLOC, 100d), newMeasure(COVERAGE, 0d))),
+      newDoc("P23", "K1", "N1").setQualityGate(WARN.name()).setMeasures(newArrayList(newMeasure(NCLOC, 100d), newMeasure(COVERAGE, 0d))),
+      // 4 docs with QG ERROR
+      newDoc("P31", "K1", "N1").setQualityGate(ERROR.name()).setMeasures(newArrayList(newMeasure(NCLOC, 100d), newMeasure(COVERAGE, 0d))),
+      newDoc("P32", "K1", "N1").setQualityGate(ERROR.name()).setMeasures(newArrayList(newMeasure(NCLOC, 5000d), newMeasure(COVERAGE, 40d))),
+      newDoc("P33", "K1", "N1").setQualityGate(ERROR.name()).setMeasures(newArrayList(newMeasure(NCLOC, 12000d), newMeasure(COVERAGE, 50d))),
+      newDoc("P34", "K1", "N1").setQualityGate(ERROR.name()).setMeasures(newArrayList(newMeasure(NCLOC, 13000d), newMeasure(COVERAGE, 60d))));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .setQualityGateStatus(ERROR)
+      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 55d)),
+      new SearchOptions()).getFacets();
+
+    // Sticky facet on quality gate does not take into account quality gate filter
+    assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
+      entry(OK.name(), 2L),
+      entry(WARN.name(), 3L),
+      entry(ERROR.name(), 3L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 1L),
+      entry("10000.0-100000.0", 1L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_quality_gate_contains_only_projects_authorized_for_user() throws Exception {
+    userSession.login("john").setUserId(10);
+
+    // User can see these projects
+    addDocs(10L, null,
+      // 2 docs with QG OK
+      newDoc("P11", "K1", "N1").setQualityGate(OK.name()),
+      newDoc("P12", "K1", "N1").setQualityGate(OK.name()),
+      // 3 docs with QG WARN
+      newDoc("P21", "K1", "N1").setQualityGate(WARN.name()),
+      newDoc("P22", "K1", "N1").setQualityGate(WARN.name()),
+      newDoc("P23", "K1", "N1").setQualityGate(WARN.name()));
+
+    // User cannot see these projects
+    addDocs(33L, null,
+      // 4 docs with QG ERROR
+      newDoc("P31", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P32", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P33", "K1", "N1").setQualityGate(ERROR.name()),
+      newDoc("P34", "K1", "N1").setQualityGate(ERROR.name()));
+
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions()).getFacets().get(ALERT_STATUS_KEY);
+
+    assertThat(result).containsExactly(
+      entry(ERROR.name(), 0L),
+      entry(WARN.name(), 3L),
+      entry(OK.name(), 2L));
   }
 
   private void addDocs(ProjectMeasuresDoc... docs) {
