@@ -28,11 +28,13 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface GroupPermissionMapper {
 
-  List<String> selectGroupNamesByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQuery(@Param("organizationUuid") String organizationUuid,
+    @Param("query") PermissionQuery query, RowBounds rowBounds);
 
   int countGroupsByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query);
 
-  List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid, @Param("groupIds") List<Long> groupIds, @Nullable @Param("projectId") Long projectId);
+  List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid,
+    @Param("groupIds") List<Long> groupIds, @Nullable @Param("projectId") Long projectId);
 
   void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
@@ -45,9 +47,11 @@ public interface GroupPermissionMapper {
 
   int countRowsByRootComponentId(@Param("rootComponentId") long rootComponentId);
 
-  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupId") Long groupId);
+  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
+    @Nullable @Param("groupId") Long groupId);
 
-  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid, @Nullable @Param("groupId") Long groupId, @Param("projectId") long projectId);
+  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
+    @Nullable @Param("groupId") Long groupId, @Param("projectId") long projectId);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
