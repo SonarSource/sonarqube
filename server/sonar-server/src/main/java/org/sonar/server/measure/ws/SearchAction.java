@@ -54,9 +54,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.dbToWsComponent;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.dbToWsMeasure;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
@@ -69,11 +66,10 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class SearchAction implements MeasuresWsAction {
-  static final String PARAM_COMPONENT_IDS = "componentIds";
-  static final String PARAM_COMPONENT_KEYS = "componentKeys";
 
   private final DbClient dbClient;
 
@@ -87,28 +83,23 @@ public class SearchAction implements MeasuresWsAction {
       .setInternal(true)
       .setDescription("Search for component measures ordered by component names.<br>" +
         "At most %d components can be provided.<br>" +
-        "Either '%s' or '%s' must be provided, not both.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         " <li>'Administer System'</li>" +
         " <li>'Administer' rights on the provided components</li>" +
         " <li>'Browse' on the provided components</li>" +
         "</ul>",
-        SearchRequest.MAX_NB_COMPONENTS, PARAM_COMPONENT_IDS, PARAM_COMPONENT_KEYS)
-      .setSince("6.1")
+        SearchRequest.MAX_NB_COMPONENTS)
+      .setSince("6.2")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
     createMetricKeysParameter(action);
 
-    action.createParam(PARAM_COMPONENT_IDS)
-      .setDescription("Comma-separated list of component ids")
-      .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02, UUID_EXAMPLE_03));
-
     action.createParam(PARAM_COMPONENT_KEYS)
       .setDescription("Comma-separated list of component keys")
-      .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_FILE_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002, KEY_FILE_EXAMPLE_002));
-
+      .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_FILE_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002, KEY_FILE_EXAMPLE_002))
+      .setRequired(true);
   }
 
   @Override
@@ -154,7 +145,6 @@ public class SearchAction implements MeasuresWsAction {
     private SearchRequest createRequest() {
       request = SearchRequest.builder()
         .setMetricKeys(httpRequest.mandatoryParamAsStrings(PARAM_METRIC_KEYS))
-        .setComponentIds(httpRequest.paramAsStrings(PARAM_COMPONENT_IDS))
         .setComponentKeys(httpRequest.paramAsStrings(PARAM_COMPONENT_KEYS))
         .build();
 
@@ -172,23 +162,11 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<ComponentDto> searchComponents() {
       requireNonNull(request);
-      if (request.hasComponentIds()) {
-        List<ComponentDto> componentsByUuid = searchByComponentUuids(dbSession, request.getComponentIds());
-        List<String> componentUuids = componentsByUuid.stream().map(ComponentDto::uuid).collect(Collectors.toList());
-        checkArgument(componentsByUuid.size() == request.getComponentIds().size(), "The following component ids are not found: %s",
-          String.join(", ", difference(request.getComponentIds(), componentUuids)));
-        return componentsByUuid;
-      } else {
-        List<ComponentDto> componentsByKey = searchByComponentKeys(dbSession, request.getComponentKeys());
-        List<String> componentKeys = componentsByKey.stream().map(ComponentDto::key).collect(Collectors.toList());
-        checkArgument(componentsByKey.size() == request.getComponentKeys().size(), "The following component keys are not found: %s",
-          String.join(", ", difference(request.getComponentKeys(), componentKeys)));
-        return componentsByKey;
-      }
-    }
-
-    private List<ComponentDto> searchByComponentUuids(DbSession dbSession, List<String> componentUuids) {
-      return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+      List<ComponentDto> componentsByKey = searchByComponentKeys(dbSession, request.getComponentKeys());
+      List<String> componentKeys = componentsByKey.stream().map(ComponentDto::key).collect(Collectors.toList());
+      checkArgument(componentsByKey.size() == request.getComponentKeys().size(), "The following component keys are not found: %s",
+        String.join(", ", difference(request.getComponentKeys(), componentKeys)));
+      return componentsByKey;
     }
 
     private List<ComponentDto> searchByComponentKeys(DbSession dbSession, List<String> componentKeys) {

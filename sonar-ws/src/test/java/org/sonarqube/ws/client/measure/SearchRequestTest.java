@@ -36,18 +36,6 @@ public class SearchRequestTest {
   SearchRequest.Builder underTest = SearchRequest.builder();
 
   @Test
-  public void with_component_ids() {
-    SearchRequest result = underTest
-      .setMetricKeys(singletonList("metric"))
-      .setComponentIds(singletonList("uuid"))
-      .build();
-
-    assertThat(result.getMetricKeys()).containsExactly("metric");
-    assertThat(result.getComponentIds()).containsExactly("uuid");
-    assertThat(result.hasComponentKeys()).isFalse();
-  }
-
-  @Test
   public void with_component_keys() {
     SearchRequest result = underTest
       .setMetricKeys(singletonList("metric"))
@@ -56,7 +44,6 @@ public class SearchRequestTest {
 
     assertThat(result.getMetricKeys()).containsExactly("metric");
     assertThat(result.getComponentKeys()).containsExactly("key");
-    assertThat(result.hasComponentIds()).isFalse();
   }
 
   @Test
@@ -81,27 +68,6 @@ public class SearchRequestTest {
   }
 
   @Test
-  public void fail_when_component_ids_and_keys_provided() {
-    expectExceptionOnComponents();
-
-    underTest
-      .setMetricKeys(singletonList("metric"))
-      .setComponentIds(singletonList("uuid"))
-      .setComponentKeys(singletonList("key"))
-      .build();
-  }
-
-  @Test
-  public void fail_when_component_ids_is_empty() {
-    expectExceptionOnComponents();
-
-    underTest
-      .setMetricKeys(singletonList("metric"))
-      .setComponentIds(emptyList())
-      .build();
-  }
-
-  @Test
   public void fail_when_component_keys_is_empty() {
     expectExceptionOnComponents();
 
@@ -118,6 +84,6 @@ public class SearchRequestTest {
 
   private void expectExceptionOnComponents() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either component ids or component keys must be provided, not both");
+    expectedException.expectMessage("Component keys must be provided");
   }
 }

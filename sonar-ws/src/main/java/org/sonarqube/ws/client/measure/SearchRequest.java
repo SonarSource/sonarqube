@@ -23,18 +23,15 @@ package org.sonarqube.ws.client.measure;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 public class SearchRequest {
   public static final int MAX_NB_COMPONENTS = 100;
 
   private final List<String> metricKeys;
-  private final List<String> componentIds;
   private final List<String> componentKeys;
 
   public SearchRequest(Builder builder) {
     metricKeys = builder.metricKeys;
-    componentIds = builder.componentIds;
     componentKeys = builder.componentKeys;
   }
 
@@ -42,20 +39,8 @@ public class SearchRequest {
     return metricKeys;
   }
 
-  public boolean hasComponentIds() {
-    return componentIds != null;
-  }
-
-  public List<String> getComponentIds() {
-    return requireNonNull(componentIds, "No component id in request");
-  }
-
-  public boolean hasComponentKeys() {
-    return componentKeys != null;
-  }
-
   public List<String> getComponentKeys() {
-    return requireNonNull(componentKeys, "No component key in request");
+    return componentKeys;
   }
 
   public static Builder builder() {
@@ -64,7 +49,6 @@ public class SearchRequest {
 
   public static class Builder {
     private List<String> metricKeys;
-    private List<String> componentIds;
     private List<String> componentKeys;
 
     private Builder() {
@@ -76,11 +60,6 @@ public class SearchRequest {
       return this;
     }
 
-    public Builder setComponentIds(List<String> componentIds) {
-      this.componentIds = componentIds;
-      return this;
-    }
-
     public Builder setComponentKeys(List<String> componentKeys) {
       this.componentKeys = componentKeys;
       return this;
@@ -88,16 +67,10 @@ public class SearchRequest {
 
     public SearchRequest build() {
       checkArgument(metricKeys != null && !metricKeys.isEmpty(), "Metric keys must be provided");
-      checkArgument(
-        (componentIds != null && !componentIds.isEmpty())
-          ^ (componentKeys != null && !componentKeys.isEmpty()),
-        "Either component ids or component keys must be provided, not both");
-      int nbComponents = componentIds == null ? componentKeys.size() : componentIds.size();
-      checkArgument((componentIds != null && componentIds.size() < MAX_NB_COMPONENTS)
-        || (componentKeys != null && componentKeys.size() < MAX_NB_COMPONENTS),
-        "%s components provided, more than maximum authorized (%s)",
-        nbComponents,
-        MAX_NB_COMPONENTS);
+      checkArgument(componentKeys != null && !componentKeys.isEmpty(), "Component keys must be provided");
+      int nbComponents = componentKeys.size();
+      checkArgument(nbComponents < MAX_NB_COMPONENTS,
+        "%s components provided, more than maximum authorized (%s)", nbComponents, MAX_NB_COMPONENTS);
       return new SearchRequest(this);
     }
   }

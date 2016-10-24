@@ -53,7 +53,6 @@ class ComponentDtoToWsComponent {
 
   static Function<ComponentDto, SearchWsResponse.Component> dbToWsComponent() {
     return dbComponent -> SearchWsResponse.Component.newBuilder()
-      .setId(dbComponent.uuid())
       .setKey(dbComponent.key())
       .setName(dbComponent.name())
       .build();
