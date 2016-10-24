@@ -20,6 +20,12 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -30,17 +36,15 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 class InputFileBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
+
+  @VisibleForTesting
+  static final Charset UTF_32BE = Charset.forName("UTF-32BE");
+
+  @VisibleForTesting
+  static final Charset UTF_32LE = Charset.forName("UTF-32LE");
 
   private final String moduleKey;
   private final PathResolver pathResolver;
@@ -140,11 +144,4 @@ class InputFileBuilder {
       throw new IllegalStateException("Unable to read file " + file.getAbsolutePath(), e);
     }
   }
-
-  @VisibleForTesting
-  static final Charset UTF_32BE = Charset.forName("UTF-32BE");
-
-  @VisibleForTesting
-  static final Charset UTF_32LE = Charset.forName("UTF-32LE");
-
 }

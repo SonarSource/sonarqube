@@ -27,15 +27,18 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface UserPermissionMapper {
 
-  List<UserPermissionDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
+  List<UserPermissionDto> selectByQuery(@Param("organizationUuid") String organizationUuid,
+    @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
 
   /**
    * Count the number of distinct users returned by {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    *
-   * @param useNull must always be null. It is needed for using the sql of {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
+   * @param useNull must always be null. It is needed for using the sql of 
+   * {@link #selectByQuery(String, PermissionQuery, Collection, RowBounds)}
    */
-  int countUsersByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> useNull);
+  int countUsersByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query,
+    @Nullable @Param("userLogins") Collection<String> useNull);
 
   /**
    * Count the number of users per permission for a given list of projects.
@@ -47,9 +50,11 @@ public interface UserPermissionMapper {
 
   int countRowsByRootComponentId(@Param("rootComponentId") long projectId);
 
-  void deleteGlobalPermission(@Param("userId") long userId, @Param("permission") String permission, @Param("organizationUuid") String organizationUuid);
+  void deleteGlobalPermission(@Param("userId") long userId, @Param("permission") String permission,
+    @Param("organizationUuid") String organizationUuid);
 
-  void deleteProjectPermission(@Param("userId") long userId, @Param("permission") String permission, @Param("projectId") long projectId);
+  void deleteProjectPermission(@Param("userId") long userId, @Param("permission") String permission,
+    @Param("projectId") long projectId);
 
   void deleteProjectPermissions(@Param("projectId") long projectId);
 
