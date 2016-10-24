@@ -26,13 +26,9 @@ var getClientEnvironment = require('../env');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 var publicPath = '/js/bundles/';
-// `publicUrl` is just like `publicPath`, but we will provide it to our app
-// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
-// Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
-var publicUrl = '';
 
 // Get environment variables to inject into our app.
-var env = getClientEnvironment(publicUrl);
+var env = getClientEnvironment();
 
 // This makes the bundle appear split into separate modules in the devtools.
 // We don't use source maps here because they can be confusing:

@@ -22,7 +22,7 @@ var config = require('./webpack.config.base');
 var getClientEnvironment = require('../env');
 
 // Get environment variables to inject into our app.
-var env = getClientEnvironment(publicUrl);
+var env = getClientEnvironment();
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -32,10 +32,6 @@ if (env['process.env.NODE_ENV'] !== '"production"') {
 
 // Don't attempt to continue if there are any errors.
 config.bail = true;
-
-// We generate sourcemaps in production. This is slow but gives good results.
-// You can exclude the *.map files from the build during deployment.
-config.devtool = 'source-map';
 
 config.plugins = [].concat(config.plugins, [
   // Makes some environment variables available to the JS code, for example:
