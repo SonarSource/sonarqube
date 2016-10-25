@@ -30,6 +30,10 @@ import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 public class ComponentTesting {
 
+  public static ComponentDto newFileDto(ComponentDto subProjectOrProject) {
+    return newFileDto(subProjectOrProject, null);
+  }
+
   public static ComponentDto newFileDto(ComponentDto subProjectOrProject, @Nullable ComponentDto directory) {
     return newFileDto(subProjectOrProject, directory, Uuids.create());
   }
@@ -53,21 +57,21 @@ public class ComponentTesting {
 
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
     return newChildComponent(uuid, module, module)
-        .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
-        .setName(path)
-        .setLongName(path)
-        .setPath(path)
-        .setScope(Scopes.DIRECTORY)
-        .setQualifier(Qualifiers.DIRECTORY);
+      .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
+      .setName(path)
+      .setLongName(path)
+      .setPath(path)
+      .setScope(Scopes.DIRECTORY)
+      .setQualifier(Qualifiers.DIRECTORY);
   }
 
   public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String key) {
     return newChildComponent(uuid, viewOrSubView, viewOrSubView)
-        .setKey(key)
-        .setName(key)
-        .setLongName(key)
-        .setScope(Scopes.PROJECT)
-        .setQualifier(Qualifiers.SUBVIEW);
+      .setKey(key)
+      .setName(key)
+      .setLongName(key)
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.SUBVIEW);
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
@@ -120,7 +124,7 @@ public class ComponentTesting {
       .setName(name)
       .setLongName(name)
       .setScope(Scopes.PROJECT)
-        // XXX No constant !
+      // XXX No constant !
       .setQualifier("DEV")
       .setPath(null)
       .setLanguage(null)

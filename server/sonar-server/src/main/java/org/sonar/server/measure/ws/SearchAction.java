@@ -32,11 +32,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -44,16 +45,20 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse.Component;
 import org.sonarqube.ws.client.measure.SearchRequest;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.dbToWsComponent;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.dbToWsMeasure;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
@@ -71,9 +76,11 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 
 public class SearchAction implements MeasuresWsAction {
 
+  private final UserSession userSession;
   private final DbClient dbClient;
 
-  public SearchAction(DbClient dbClient) {
+  public SearchAction(UserSession userSession, DbClient dbClient) {
+    this.userSession = userSession;
     this.dbClient = dbClient;
   }
 
@@ -138,7 +145,7 @@ public class SearchAction implements MeasuresWsAction {
     private List<SnapshotDto> searchSnapshots() {
       requireNonNull(components);
 
-      Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+      Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(toSet());
       return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
     }
 
@@ -154,7 +161,7 @@ public class SearchAction implements MeasuresWsAction {
     private List<MetricDto> searchMetrics() {
       requireNonNull(request);
       List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
-      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
+      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(toList());
       checkRequest(request.getMetricKeys().size() == dbMetrics.size(), "The following metrics are not found: %s",
         String.join(", ", difference(request.getMetricKeys(), metricKeys)));
       return dbMetrics;
@@ -162,11 +169,19 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<ComponentDto> searchComponents() {
       requireNonNull(request);
-      List<ComponentDto> componentsByKey = searchByComponentKeys(dbSession, request.getComponentKeys());
-      List<String> componentKeys = componentsByKey.stream().map(ComponentDto::key).collect(Collectors.toList());
-      checkArgument(componentsByKey.size() == request.getComponentKeys().size(), "The following component keys are not found: %s",
-        String.join(", ", difference(request.getComponentKeys(), componentKeys)));
-      return componentsByKey;
+      return getAuthorizedComponents(searchByComponentKeys(dbSession, request.getComponentKeys()));
+    }
+
+    private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> componentDtos) {
+      List<String> projectUuids = componentDtos.stream().map(ComponentDto::getRootUuid).collect(Collectors.toList());
+      List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
+      Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
+      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
+        projects.stream().map(ComponentDto::getId).collect(toList()),
+        userSession.getUserId(), UserRole.USER);
+      return componentDtos.stream()
+        .filter(c -> authorizedProjectIds.contains(projectIdsByUuids.get(c.projectUuid())))
+        .collect(Collectors.toList());
     }
 
     private List<ComponentDto> searchByComponentKeys(DbSession dbSession, List<String> componentKeys) {
@@ -178,8 +193,8 @@ public class SearchAction implements MeasuresWsAction {
       requireNonNull(metrics);
 
       return dbClient.measureDao().selectByQuery(dbSession, MeasureQuery.builder()
-        .setComponentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()))
-        .setMetricIds(metrics.stream().map(MetricDto::getId).collect(Collectors.toList()))
+        .setComponentUuids(components.stream().map(ComponentDto::uuid).collect(toList()))
+        .setMetricIds(metrics.stream().map(MetricDto::getId).collect(toList()))
         .build());
     }
 
@@ -189,7 +204,7 @@ public class SearchAction implements MeasuresWsAction {
       return expected.stream()
         .filter(value -> !actualSet.contains(value))
         .sorted(String::compareTo)
-        .collect(Collectors.toList());
+        .collect(toList());
     }
 
     private SearchWsResponse buildResponse() {
@@ -211,12 +226,12 @@ public class SearchAction implements MeasuresWsAction {
       return components.stream()
         .map(dbToWsComponent())
         .sorted(comparing(Component::getName))
-        .collect(Collectors.toList());
+        .collect(toList());
     }
 
     private List<Measure> buildWsMeasures() {
-      Map<String, String> componentNamesByUuid = components.stream().collect(Collectors.toMap(ComponentDto::uuid, ComponentDto::name));
-      Map<Integer, MetricDto> metricsById = metrics.stream().collect(Collectors.toMap(MetricDto::getId, identity()));
+      Map<String, String> componentNamesByUuid = components.stream().collect(toMap(ComponentDto::uuid, ComponentDto::name));
+      Map<Integer, MetricDto> metricsById = metrics.stream().collect(toMap(MetricDto::getId, identity()));
 
       Function<MeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
       Function<Measure, String> byMetricKey = Measure::getMetric;
@@ -226,13 +241,13 @@ public class SearchAction implements MeasuresWsAction {
         .concat(measures.stream(), buildBestMeasures().stream())
         .map(dbMeasure -> dbToWsMeasure(dbMeasure, dbMeasureToDbMetric.apply(dbMeasure)))
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
-        .collect(Collectors.toList());
+        .collect(toList());
     }
 
     private List<MeasureDto> buildBestMeasures() {
       Set<MetricDto> metricsWithBestValue = metrics.stream()
         .filter(metric -> metric.isOptimizedBestValue() && metric.getBestValue() != null)
-        .collect(Collectors.toSet());
+        .collect(toSet());
 
       Multimap<String, WsMeasures.Period> wsPeriodsByProjectUuid = snapshots.stream().collect(Collector.of(
         ImmutableMultimap::<String, WsMeasures.Period>builder,
@@ -256,7 +271,7 @@ public class SearchAction implements MeasuresWsAction {
         .flatMap(component -> metricsWithBestValue.stream()
           .filter(doesNotHaveAMeasureInDb.apply(component))
           .map(buildBestMeasure(component, wsPeriodsByProjectUuid.get(component.projectUuid()))))
-        .collect(Collectors.toList());
+        .collect(toList());
     }
   }
 }

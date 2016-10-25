@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +36,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -42,6 +44,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -49,8 +52,10 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
+import org.sonarqube.ws.WsMeasures.SearchWsResponse.Component;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +87,15 @@ public class SearchActionTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
-  WsActionTester ws = new WsActionTester(new SearchAction(dbClient));
+  UserDto user;
+
+  WsActionTester ws = new WsActionTester(new SearchAction(userSession, dbClient));
+
+  @Before
+  public void setUp() throws Exception {
+    user = db.users().insertUser("john");
+    userSession.login(user);
+  }
 
   @Test
   public void json_example() {
@@ -101,11 +114,12 @@ public class SearchActionTest {
   public void project_without_measures_map_all_fields() {
     ComponentDto dbComponent = componentDb.insertComponent(newProjectDto());
     insertComplexityMetric();
+    setBrowsePermissionOnUser(dbComponent);
 
     SearchWsResponse result = call(singletonList(dbComponent.key()), singletonList("complexity"));
 
     assertThat(result.getComponentsCount()).isEqualTo(1);
-    SearchWsResponse.Component wsComponent = result.getComponents(0);
+    Component wsComponent = result.getComponents(0);
     assertThat(wsComponent.getKey()).isEqualTo(dbComponent.key());
     assertThat(wsComponent.getName()).isEqualTo(dbComponent.name());
   }
@@ -113,6 +127,7 @@ public class SearchActionTest {
   @Test
   public void search_by_component_key() {
     ComponentDto project = componentDb.insertProject();
+    setBrowsePermissionOnUser(project);
     insertComplexityMetric();
 
     SearchWsResponse result = call(singletonList(project.key()), singletonList("complexity"));
@@ -125,6 +140,7 @@ public class SearchActionTest {
   public void return_measures() throws Exception {
     ComponentDto project = newProjectDto();
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project, projectSnapshot).setValue(15.5d));
     db.commit();
@@ -142,6 +158,7 @@ public class SearchActionTest {
   public void return_measures_on_periods() throws Exception {
     ComponentDto project = newProjectDto();
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(coverage, project, projectSnapshot)
@@ -186,6 +203,7 @@ public class SearchActionTest {
       newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d),
       newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(42.0d));
     db.commit();
+    setBrowsePermissionOnUser(projectDto);
 
     SearchWsResponse result = call(newArrayList(directoryDto.key(), file.key()), newArrayList("ncloc", "coverage", "new_violations"));
 
@@ -201,8 +219,23 @@ public class SearchActionTest {
   }
 
   @Test
+  public void only_returns_authorized_components() {
+    insertComplexityMetric();
+    ComponentDto project1 = componentDb.insertProject();
+    ComponentDto file1 = componentDb.insertComponent(newFileDto(project1));
+    setBrowsePermissionOnUser(project1);
+    ComponentDto project2 = componentDb.insertProject();
+    ComponentDto file2 = componentDb.insertComponent(newFileDto(project2));
+
+    SearchWsResponse result = call(asList(file1.key(), file2.key()), singletonList("complexity"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsOnly(file1.key());
+  }
+
+  @Test
   public void fail_if_no_metric() {
     ComponentDto project = componentDb.insertProject();
+    setBrowsePermissionOnUser(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'metricKeys' parameter is missing");
@@ -213,6 +246,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_empty_metric() {
     ComponentDto project = componentDb.insertProject();
+    setBrowsePermissionOnUser(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Metric keys must be provided");
@@ -223,6 +257,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_unknown_metric() {
     ComponentDto project = componentDb.insertProject();
+    setBrowsePermissionOnUser(project);
     insertComplexityMetric();
 
     expectedException.expect(BadRequestException.class);
@@ -249,31 +284,6 @@ public class SearchActionTest {
     expectedException.expectMessage("Component keys must be provided");
 
     call(emptyList(), singletonList("complexity"));
-  }
-
-  @Test
-  public void fail_if_unknown_component_key() {
-    insertComplexityMetric();
-    ComponentDto project = componentDb.insertProject();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The following component keys are not found: ANOTHER_PROJECT_KEY, YOUR_PROJECT_KEY");
-
-    call(newArrayList("YOUR_PROJECT_KEY", project.key(), "ANOTHER_PROJECT_KEY"), singletonList("complexity"));
-  }
-
-  @Test
-  public void fail_if_more_than_100_component_id() {
-    List<String> uuids = IntStream.rangeClosed(1, 101)
-      .mapToObj(i -> componentDb.insertProject())
-      .map(ComponentDto::uuid)
-      .collect(Collectors.toList());
-    insertComplexityMetric();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("101 components provided, more than maximum authorized (100)");
-
-    call(uuids, singletonList("complexity"));
   }
 
   @Test
@@ -476,8 +486,13 @@ public class SearchActionTest {
         .setVariation(1, 255.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 255.0d));
-
     db.commit();
+    setBrowsePermissionOnUser(project);
     return componentKeys;
+  }
+
+  private void setBrowsePermissionOnUser(ComponentDto project) {
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+    dbSession.commit();
   }
 }
