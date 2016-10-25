@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
@@ -53,6 +54,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -120,6 +122,47 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_measures() throws Exception {
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project, projectSnapshot).setValue(15.5d));
+    db.commit();
+
+    SearchWsResponse result = call(singletonList(project.key()), singletonList("coverage"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getValue()).isEqualTo("15.5");
+  }
+
+  @Test
+  public void return_measures_on_periods() throws Exception {
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(coverage, project, projectSnapshot)
+        .setValue(15.5d)
+        .setVariation(1, 10d)
+        .setVariation(2, 15.5d)
+        .setVariation(3, 20d));
+    db.commit();
+
+    SearchWsResponse result = call(singletonList(project.key()), singletonList("coverage"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getValue()).isEqualTo("15.5");
+    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getIndex, WsMeasures.PeriodValue::getValue)
+      .containsOnly(tuple(1, "10.0"), tuple(2, "15.5"), tuple(3, "20.0"));
+  }
+
+  @Test
   public void add_best_values_when_no_value() {
     ComponentDto projectDto = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
@@ -150,7 +193,7 @@ public class SearchActionTest {
     assertThat(result.getMeasuresList().stream()
       .filter(measure -> directoryDto.uuid().equals(measure.getComponent()))
       .map(Measure::getMetric))
-        .containsOnly("coverage");
+      .containsOnly("coverage");
     // file measures
     List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.uuid().equals(measure.getComponent())).collect(Collectors.toList());
     assertThat(fileMeasures).extracting(Measure::getMetric).containsOnly("ncloc", "coverage", "new_violations");
