@@ -177,6 +177,7 @@ import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroupRoles;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
+import org.sonar.db.version.v62.UpdateQualityGateConditionsOnCoverage;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -374,7 +375,7 @@ public class MigrationStepModule extends Module {
       MakeOrganizationUuidNotNullOnPermissionTemplates.class,
       AddOrganizationUuidToGroupRoles.class,
       PopulateOrganizationUuidOfGroupRoles.class,
-      MakeOrganizationUuidNotNullOnGroupRoles.class
-    );
+      MakeOrganizationUuidNotNullOnGroupRoles.class,
+      UpdateQualityGateConditionsOnCoverage.class);
   }
 }
