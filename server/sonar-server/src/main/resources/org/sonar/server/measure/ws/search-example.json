@@ -2,49 +2,48 @@
   "measures": [
     {
       "metric": "complexity",
-      "component": "AVIwDXE-bJbJqrw6wFv5",
-      "value": "12"
+      "value": "12",
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
     },
     {
       "metric": "complexity",
-      "component": "project-id",
-      "value": "42"
+      "value": "42",
+      "component": "MY_PROJECT"
     },
     {
       "metric": "complexity",
-      "component": "AVIwDXE-bJbJqrw6wFv8",
       "value": "35",
       "periods": [
         {
           "index": 2,
           "value": "0"
         }
-      ]
+      ],
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
     },
     {
       "metric": "ncloc",
-      "component": "AVIwDXE-bJbJqrw6wFv5",
-      "value": "114"
+      "value": "114",
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
     },
     {
       "metric": "ncloc",
-      "component": "project-id",
-      "value": "1984"
+      "value": "1984",
+      "component": "MY_PROJECT"
     },
     {
       "metric": "ncloc",
-      "component": "AVIwDXE-bJbJqrw6wFv8",
       "value": "217",
       "periods": [
         {
           "index": 2,
           "value": "0"
         }
-      ]
+      ],
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
     },
     {
       "metric": "new_violations",
-      "component": "AVIwDXE-bJbJqrw6wFv5",
       "periods": [
         {
           "index": 1,
@@ -58,11 +57,11 @@
           "index": 3,
           "value": "25"
         }
-      ]
+      ],
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
     },
     {
       "metric": "new_violations",
-      "component": "AVIwDXE_bJbJqrw6wFwJ",
       "periods": [
         {
           "index": 1,
@@ -76,11 +75,11 @@
           "index": 3,
           "value": "0"
         }
-      ]
+      ],
+      "component": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"
     },
     {
       "metric": "new_violations",
-      "component": "project-id",
       "periods": [
         {
           "index": 1,
@@ -94,11 +93,11 @@
           "index": 3,
           "value": "255"
         }
-      ]
+      ],
+      "component": "MY_PROJECT"
     },
     {
       "metric": "new_violations",
-      "component": "AVIwDXE-bJbJqrw6wFv8",
       "periods": [
         {
           "index": 1,
@@ -112,7 +111,8 @@
           "index": 3,
           "value": "25"
         }
-      ]
+      ],
+      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
     }
   ],
   "components": [

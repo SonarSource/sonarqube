@@ -230,16 +230,17 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<Measure> buildWsMeasures() {
-      Map<String, String> componentNamesByUuid = components.stream().collect(toMap(ComponentDto::uuid, ComponentDto::name));
+      Map<String, ComponentDto> componentsByUuid = components.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
+      Map<String, String> componentNamesByKey = components.stream().collect(toMap(ComponentDto::key, ComponentDto::name));
       Map<Integer, MetricDto> metricsById = metrics.stream().collect(toMap(MetricDto::getId, identity()));
 
       Function<MeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
       Function<Measure, String> byMetricKey = Measure::getMetric;
-      Function<Measure, String> byComponentName = wsMeasure -> componentNamesByUuid.get(wsMeasure.getComponent());
+      Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 
       return Stream
         .concat(measures.stream(), buildBestMeasures().stream())
-        .map(dbMeasure -> dbToWsMeasure(dbMeasure, dbMeasureToDbMetric.apply(dbMeasure)))
+        .map(dbMeasure -> dbToWsMeasure(dbMeasure, dbMeasureToDbMetric.apply(dbMeasure), componentsByUuid.get(dbMeasure.getComponentUuid())))
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
         .collect(toList());
     }

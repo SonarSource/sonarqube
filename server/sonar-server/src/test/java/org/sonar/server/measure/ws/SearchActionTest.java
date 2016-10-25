@@ -209,13 +209,41 @@ public class SearchActionTest {
 
     // directory is not eligible for best value
     assertThat(result.getMeasuresList().stream()
-      .filter(measure -> directoryDto.uuid().equals(measure.getComponent()))
+      .filter(measure -> directoryDto.key().equals(measure.getComponent()))
       .map(Measure::getMetric))
       .containsOnly("coverage");
     // file measures
-    List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.uuid().equals(measure.getComponent())).collect(Collectors.toList());
+    List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.key().equals(measure.getComponent())).collect(Collectors.toList());
     assertThat(fileMeasures).extracting(Measure::getMetric).containsOnly("ncloc", "coverage", "new_violations");
     assertThat(fileMeasures).extracting(Measure::getValue).containsOnly("100", "15.5", "");
+  }
+
+  @Test
+  public void sort_by_metric_key_then_component_name() throws Exception {
+    MetricDto coverage = insertCoverageMetric();
+    MetricDto complexity = insertComplexityMetric();
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    setBrowsePermissionOnUser(project);
+    ComponentDto file1 = componentDb.insertComponent(newFileDto(project).setName("C"));
+    ComponentDto file2 = componentDb.insertComponent(newFileDto(project).setName("A"));
+    ComponentDto file3 = componentDb.insertComponent(newFileDto(project).setName("B"));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file1, projectSnapshot).setValue(5.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file2, projectSnapshot).setValue(6.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file3, projectSnapshot).setValue(7.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file1, projectSnapshot).setValue(10d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file2, projectSnapshot).setValue(15d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file3, projectSnapshot).setValue(20d));
+    db.commit();
+
+    SearchWsResponse result = call(asList(file1.key(), file2.key(), file3.key()), asList("coverage", "complexity"));
+
+    assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
+      .containsExactly(
+        tuple("complexity", file2.key()), tuple("complexity", file3.key()), tuple("complexity", file1.key()),
+        tuple("coverage", file2.key()), tuple("coverage", file3.key()), tuple("coverage", file1.key())
+      );
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(file2.key(), file3.key(), file1.key());
   }
 
   @Test

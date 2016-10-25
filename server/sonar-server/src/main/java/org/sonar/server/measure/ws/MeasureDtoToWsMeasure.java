@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
@@ -38,8 +39,8 @@ class MeasureDtoToWsMeasure {
    * add component uuid to the WS Measure object
    *
    */
-  static Measure dbToWsMeasure(MeasureDto dbMeasure, MetricDto dbMetric) {
-    return map(dbMetric, dbMeasure).setComponent(dbMeasure.getComponentUuid()).build();
+  static Measure dbToWsMeasure(MeasureDto dbMeasure, MetricDto dbMetric, ComponentDto componentDto) {
+    return map(dbMetric, dbMeasure).setComponent(componentDto.getKey()).build();
   }
 
   static Measure measureDtoToWsMeasure(MetricDto metricDto, MeasureDto measureDto) {

@@ -49,15 +49,13 @@ const onFail = dispatch => error => {
 };
 
 const onReceiveMeasures = (dispatch, projects) => response => {
-  const projectsById = keyBy(projects, 'id');
-  const byComponentId = groupBy(response.measures, 'component');
+  const byComponentKey = groupBy(response.measures, 'component');
 
   const toStore = {};
 
-  Object.keys(byComponentId).forEach(componentId => {
-    const componentKey = projectsById[componentId].key;
+  Object.keys(byComponentKey).forEach(componentKey => {
     const measures = {};
-    byComponentId[componentId].forEach(measure => {
+    byComponentKey[componentKey].forEach(measure => {
       measures[measure.metric] = measure.value;
     });
     toStore[componentKey] = measures;
