@@ -49,7 +49,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse.Component;
 import org.sonarqube.ws.client.measure.SearchRequest;
 
 import static java.util.Comparator.comparing;
@@ -59,7 +58,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.core.util.stream.Collectors.toSet;
 import static org.sonar.core.util.stream.Collectors.uniqueIndex;
-import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.dbToWsComponent;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.dbToWsMeasure;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoWithBestValue.buildBestMeasure;
@@ -214,19 +212,9 @@ public class SearchAction implements MeasuresWsAction {
       requireNonNull(snapshots);
 
       List<Measure> wsMeasures = buildWsMeasures();
-      List<Component> wsComponents = buildWsComponents();
-
       return SearchWsResponse.newBuilder()
         .addAllMeasures(wsMeasures)
-        .addAllComponents(wsComponents)
         .build();
-    }
-
-    private List<Component> buildWsComponents() {
-      return components.stream()
-        .map(dbToWsComponent())
-        .sorted(comparing(Component::getName))
-        .collect(toList());
     }
 
     private List<Measure> buildWsMeasures() {

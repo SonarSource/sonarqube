@@ -114,23 +114,5 @@
       ],
       "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
     }
-  ],
-  "components": [
-    {
-      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
-      "name": "ElementImpl.java"
-    },
-    {
-      "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
-      "name": "ElementImplTest.java"
-    },
-    {
-      "key": "MY_PROJECT",
-      "name": "My Project"
-    },
-    {
-      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
-      "name": "src/main/java/com/sonarsource/markdown/impl"
-    }
   ]
 }

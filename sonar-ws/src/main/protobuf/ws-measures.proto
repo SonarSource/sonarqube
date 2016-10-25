@@ -45,13 +45,6 @@ message ComponentWsResponse {
 // WS api/measures/search
 message SearchWsResponse {
   repeated Measure measures = 1;
-  repeated Component components = 2;
-
-  message Component {
-    optional string id = 1;
-    optional string key = 2;
-    optional string name = 3;
-  }
 }
 
 message Component {

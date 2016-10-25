@@ -52,7 +52,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchWsResponse;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse.Component;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -108,32 +107,6 @@ public class SearchActionTest {
       .getInput();
 
     assertJson(result).withStrictArrayOrder().isSimilarTo(ws.getDef().responseExampleAsString());
-  }
-
-  @Test
-  public void project_without_measures_map_all_fields() {
-    ComponentDto dbComponent = componentDb.insertComponent(newProjectDto());
-    insertComplexityMetric();
-    setBrowsePermissionOnUser(dbComponent);
-
-    SearchWsResponse result = call(singletonList(dbComponent.key()), singletonList("complexity"));
-
-    assertThat(result.getComponentsCount()).isEqualTo(1);
-    Component wsComponent = result.getComponents(0);
-    assertThat(wsComponent.getKey()).isEqualTo(dbComponent.key());
-    assertThat(wsComponent.getName()).isEqualTo(dbComponent.name());
-  }
-
-  @Test
-  public void search_by_component_key() {
-    ComponentDto project = componentDb.insertProject();
-    setBrowsePermissionOnUser(project);
-    insertComplexityMetric();
-
-    SearchWsResponse result = call(singletonList(project.key()), singletonList("complexity"));
-
-    assertThat(result.getComponentsCount()).isEqualTo(1);
-    assertThat(result.getComponents(0).getKey()).isEqualTo(project.key());
   }
 
   @Test
@@ -211,7 +184,7 @@ public class SearchActionTest {
     assertThat(result.getMeasuresList().stream()
       .filter(measure -> directoryDto.key().equals(measure.getComponent()))
       .map(Measure::getMetric))
-      .containsOnly("coverage");
+        .containsOnly("coverage");
     // file measures
     List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.key().equals(measure.getComponent())).collect(Collectors.toList());
     assertThat(fileMeasures).extracting(Measure::getMetric).containsOnly("ncloc", "coverage", "new_violations");
@@ -241,23 +214,27 @@ public class SearchActionTest {
     assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
       .containsExactly(
         tuple("complexity", file2.key()), tuple("complexity", file3.key()), tuple("complexity", file1.key()),
-        tuple("coverage", file2.key()), tuple("coverage", file3.key()), tuple("coverage", file1.key())
-      );
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(file2.key(), file3.key(), file1.key());
+        tuple("coverage", file2.key()), tuple("coverage", file3.key()), tuple("coverage", file1.key()));
   }
 
   @Test
   public void only_returns_authorized_components() {
-    insertComplexityMetric();
-    ComponentDto project1 = componentDb.insertProject();
+    MetricDto metricDto = insertComplexityMetric();
+    ComponentDto project1 = newProjectDto();
+    SnapshotDto projectSnapshot1 = componentDb.insertProjectAndSnapshot(project1);
     ComponentDto file1 = componentDb.insertComponent(newFileDto(project1));
-    setBrowsePermissionOnUser(project1);
-    ComponentDto project2 = componentDb.insertProject();
+    ComponentDto project2 = newProjectDto();
+    SnapshotDto projectSnapshot2 = componentDb.insertProjectAndSnapshot(project2);
     ComponentDto file2 = componentDb.insertComponent(newFileDto(project2));
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(metricDto, file1, projectSnapshot1).setValue(15.5d),
+      newMeasureDto(metricDto, file2, projectSnapshot2).setValue(42.0d));
+    db.commit();
+    setBrowsePermissionOnUser(project1);
 
     SearchWsResponse result = call(asList(file1.key(), file2.key()), singletonList("complexity"));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey).containsOnly(file1.key());
+    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(file1.key());
   }
 
   @Test

@@ -20,12 +20,10 @@
 package org.sonar.server.measure.ws;
 
 import java.util.Map;
-import java.util.function.Function;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures.Component;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse;
 
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.measureDtoToWsMeasure;
 
@@ -49,13 +47,6 @@ class ComponentDtoToWsComponent {
     }
 
     return wsComponent;
-  }
-
-  static Function<ComponentDto, SearchWsResponse.Component> dbToWsComponent() {
-    return dbComponent -> SearchWsResponse.Component.newBuilder()
-      .setKey(dbComponent.key())
-      .setName(dbComponent.name())
-      .build();
   }
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component) {
