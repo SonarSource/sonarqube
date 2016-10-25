@@ -110,6 +110,18 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
+  public void does_not_fail_when_quality_gate_has_no_value() throws Exception {
+    MetricDto metric = insertMetric("alert_status", LEVEL);
+    ComponentDto project = newProjectDto();
+    SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
+    insertMeasure(project, analysis, metric, null);
+
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).isEmpty();
+  }
+
+  @Test
   public void does_not_return_none_numeric_metrics() throws Exception {
     MetricDto dataMetric = insertMetric("data", DATA);
     MetricDto distribMetric = insertMetric("distrib", DISTRIB);
