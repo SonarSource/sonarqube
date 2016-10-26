@@ -64,19 +64,11 @@ import static org.sonar.server.computation.task.projectanalysis.period.PeriodPre
  */
 public class NewCoverageMeasuresStep implements ComputationStep {
 
-  private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
+  private static final List<Formula> FORMULAS = ImmutableList.of(
     // UT coverage
     new NewCoverageFormula(),
     new NewBranchCoverageFormula(),
-    new NewLineCoverageFormula(),
-    // IT File coverage
-    new NewItCoverageFormula(),
-    new NewItBranchCoverageFormula(),
-    new NewItLinesCoverageFormula(),
-    // Overall coverage
-    new NewOverallCodeCoverageFormula(),
-    new NewOverallBranchCoverageFormula(),
-    new NewOverallLineCoverageFormula());
+    new NewLineCoverageFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
@@ -115,12 +107,8 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .withVariationSupport(periodsHolder)
         .buildFor(
-          Iterables.concat(
-            NewLinesAndConditionsCoverageFormula.from(scmInfoRepository),
-            NewItLinesAndConditionsCoverageFormula.from(scmInfoRepository),
-            NewOverallLinesAndConditionsCoverageFormula.from(scmInfoRepository),
-            FORMULAS)))
-      .visit(treeRootHolder.getRoot());
+          Iterables.concat(NewLinesAndConditionsCoverageFormula.from(scmInfoRepository), FORMULAS)))
+            .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -148,6 +136,18 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       }
       return Collections.<Formula<?>>singleton(new NewLinesAndConditionsCoverageFormula(scmInfoRepository));
     }
+
+    /**
+     * Creates a List of {@link org.sonar.server.computation.task.projectanalysis.formula.SumFormula.IntSumFormula} for each
+     * metric key of the specified {@link NewCoverageOutputMetricKeys} instance.
+     */
+    private static Iterable<Formula<?>> variationSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
+      return ImmutableList.of(
+        new VariationSumFormula(outputMetricKeys.getNewLinesToCover(), viewsRestrictedPeriods()),
+        new VariationSumFormula(outputMetricKeys.getNewUncoveredLines(), viewsRestrictedPeriods()),
+        new VariationSumFormula(outputMetricKeys.getNewConditionsToCover(), viewsRestrictedPeriods()),
+        new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions(), viewsRestrictedPeriods()));
+    }
   }
 
   private static class NewCoverageFormula extends LinesAndConditionsWithUncoveredVariationFormula {
@@ -174,117 +174,6 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         new SingleWithUncoveredMetricKeys(CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY),
         CoreMetrics.NEW_LINE_COVERAGE_KEY);
     }
-  }
-
-  private static class NewItLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-
-    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
-      CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY,
-      CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
-
-    private NewItLinesAndConditionsCoverageFormula(ScmInfoRepository scmInfoRepository) {
-      super(scmInfoRepository,
-        new NewCoverageInputMetricKeys(
-          CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY),
-        OUTPUT_METRIC_KEYS);
-    }
-
-    public static Iterable<Formula<?>> from(@Nullable ScmInfoRepository scmInfoRepository) {
-      if (scmInfoRepository == null) {
-        return VIEWS_FORMULAS;
-      }
-      return Collections.<Formula<?>>singleton(new NewItLinesAndConditionsCoverageFormula(scmInfoRepository));
-    }
-  }
-
-  private static class NewItCoverageFormula extends LinesAndConditionsWithUncoveredVariationFormula {
-    private NewItCoverageFormula() {
-      super(
-        new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY),
-        CoreMetrics.NEW_IT_COVERAGE_KEY);
-    }
-  }
-
-  private static class NewItBranchCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewItBranchCoverageFormula() {
-      super(
-        new SingleWithUncoveredMetricKeys(
-          CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY),
-        CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY);
-    }
-  }
-
-  private static class NewItLinesCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewItLinesCoverageFormula() {
-      super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY),
-        CoreMetrics.NEW_IT_LINE_COVERAGE_KEY);
-    }
-  }
-
-  private static class NewOverallLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-
-    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
-      CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY,
-      CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
-
-    private NewOverallLinesAndConditionsCoverageFormula(ScmInfoRepository scmInfoRepository) {
-      super(scmInfoRepository,
-        new NewCoverageInputMetricKeys(
-          CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY),
-        OUTPUT_METRIC_KEYS);
-    }
-
-    public static Iterable<Formula<?>> from(@Nullable ScmInfoRepository scmInfoRepository) {
-      if (scmInfoRepository == null) {
-        return VIEWS_FORMULAS;
-      }
-      return Collections.<Formula<?>>singleton(new NewOverallLinesAndConditionsCoverageFormula(scmInfoRepository));
-    }
-  }
-
-  private static class NewOverallCodeCoverageFormula extends LinesAndConditionsWithUncoveredVariationFormula {
-    public NewOverallCodeCoverageFormula() {
-      super(
-        new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY),
-        CoreMetrics.NEW_OVERALL_COVERAGE_KEY);
-    }
-  }
-
-  private static class NewOverallBranchCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewOverallBranchCoverageFormula() {
-      super(
-        new SingleWithUncoveredMetricKeys(
-          CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY),
-        CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY);
-    }
-  }
-
-  private static class NewOverallLineCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewOverallLineCoverageFormula() {
-      super(
-        new SingleWithUncoveredMetricKeys(
-          CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY),
-        CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY);
-    }
-  }
-
-  /**
-   * Creates a List of {@link org.sonar.server.computation.task.projectanalysis.formula.SumFormula.IntSumFormula} for each
-   * metric key of the specified {@link NewCoverageOutputMetricKeys} instance.
-   */
-  private static Iterable<Formula<?>> variationSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
-    return ImmutableList.<Formula<?>>of(
-      new VariationSumFormula(outputMetricKeys.getNewLinesToCover(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewUncoveredLines(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewConditionsToCover(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions(), viewsRestrictedPeriods()));
   }
 
   public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {

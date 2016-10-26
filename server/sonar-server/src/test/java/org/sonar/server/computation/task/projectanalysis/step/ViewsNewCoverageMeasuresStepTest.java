@@ -90,29 +90,7 @@ public class ViewsNewCoverageMeasuresStepTest {
     .add(CoreMetrics.NEW_UNCOVERED_CONDITIONS)
     .add(CoreMetrics.NEW_COVERAGE)
     .add(CoreMetrics.NEW_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_LINE_COVERAGE)
-
-  .add(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA)
-    .add(CoreMetrics.IT_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.NEW_IT_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_IT_UNCOVERED_LINES)
-    .add(CoreMetrics.NEW_IT_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.NEW_IT_COVERAGE)
-    .add(CoreMetrics.NEW_IT_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_IT_LINE_COVERAGE)
-
-  .add(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA)
-    .add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.NEW_OVERALL_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES)
-    .add(CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.NEW_OVERALL_COVERAGE)
-    .add(CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_OVERALL_LINE_COVERAGE);
+    .add(CoreMetrics.NEW_LINE_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -128,10 +106,10 @@ public class ViewsNewCoverageMeasuresStepTest {
 
   @Test
   public void verify_aggregation_of_measures_for_new_conditions() {
-    String newLinesToCover = CoreMetrics.NEW_IT_LINES_TO_COVER_KEY;
-    String newUncoveredLines = CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY;
+    String newLinesToCover = CoreMetrics.NEW_LINES_TO_COVER_KEY;
+    String newUncoveredLines = CoreMetrics.NEW_UNCOVERED_LINES_KEY;
+    String newConditionsToCover = CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY;
+    String newUncoveredConditions = CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY;
 
     MetricKeys metricKeys = new MetricKeys(newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
 
@@ -178,30 +156,6 @@ public class ViewsNewCoverageMeasuresStepTest {
     verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
   }
 
-  @Test
-  public void verify_aggregates_variations_for_new_IT_code_line_and_branch_Coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.NEW_IT_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.NEW_IT_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY;
-
-    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
-  @Test
-  public void verify_aggregates_variations_for_new_Overall_code_line_and_branch_Coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.NEW_OVERALL_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY;
-
-    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
   private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     treeRootHolder.setRoot(VIEWS_TREE);
     measureRepository
@@ -234,13 +188,13 @@ public class ViewsNewCoverageMeasuresStepTest {
       entryOf(lineCoverageKey, createMeasure(90d, NO_PERIOD_4_OR_5_IN_VIEWS)),
       entryOf(branchCoverageKey, createMeasure(96d, NO_PERIOD_4_OR_5_IN_VIEWS)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUBVIEW_REF))).contains(
-        entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-        entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-        entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
+      entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
+      entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(
-        entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-        entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-        entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
+      entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
+      entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
   }
 
   private static final class MetricKeys {

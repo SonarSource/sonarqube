@@ -76,7 +76,7 @@ public class AppActionTest {
     insertComponentsAndAnalysis();
     dbTester.commit();
 
-    userSessionRule.login("john").addComponentPermission(UserRole.USER, MODULE_KEY, FILE_KEY);
+    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app.json");
   }
@@ -95,47 +95,21 @@ public class AppActionTest {
     userSessionRule
       .login("john")
       .setLocale(Locale.ENGLISH)
-      .addComponentPermission(UserRole.USER, PROJECT_KEY, FILE_KEY);
+      .addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
   }
 
   @Test
-  public void file_with_overall_coverage() throws Exception {
-    insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(CoreMetrics.OVERALL_COVERAGE_KEY).getId(), 90.1, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.COVERAGE_KEY).getId(), 95.4, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.IT_COVERAGE_KEY).getId(), 85.2, null);
-    dbTester.commit();
-
-    userSessionRule.login("john").addComponentPermission(UserRole.USER, PROJECT_KEY, FILE_KEY);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
-    request.execute().assertJson(getClass(), "app_with_overall_measure.json");
-  }
-
-  @Test
-  public void file_with_ut_coverage() throws Exception {
+  public void file_with_coverage() throws Exception {
     insertComponentsAndAnalysis();
     insertFileMeasure(metricsByKey.get(CoreMetrics.COVERAGE_KEY).getId(), 95.4, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.IT_COVERAGE_KEY).getId(), 85.2, null);
     dbTester.commit();
 
-    userSessionRule.login("john").addComponentPermission(UserRole.USER, PROJECT_KEY, FILE_KEY);
+    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_ut_measure.json");
   }
-
-  @Test
-  public void file_with_it_coverage_only() throws Exception {
-    insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(CoreMetrics.IT_COVERAGE_KEY).getId(), 85.2, null);
-    dbTester.commit();
-
-    userSessionRule.login("john").addComponentPermission(UserRole.USER, PROJECT_KEY, FILE_KEY);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
-    request.execute().assertJson(getClass(), "app_with_it_measure.json");
-  }
-
 
   private void insertMetrics() {
     metricsByKey = new HashMap<>();
@@ -174,98 +148,4 @@ public class AppActionTest {
       .setData(data);
     dbTester.getDbClient().measureDao().insert(dbTester.getSession(), measure);
   }
-
-  // @Test
-  // public void app_with_overall_measure() throws Exception {
-  // userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, FILE_KEY);
-  // ComponentDto project = newProject();
-  // newComponent(project);
-  //
-  // addMeasure(CoreMetrics.OVERALL_COVERAGE_KEY, 90.1);
-  // addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
-  // addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
-  //
-  // WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
-  // request.execute().assertJson(getClass(), "app_with_overall_measure.json");
-  // }
-  //
-  // @Test
-  // public void app_with_ut_measure() throws Exception {
-  // userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, FILE_KEY);
-  // ComponentDto project = newProject();
-  // newComponent(project);
-  //
-  // addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
-  // addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
-  //
-  // WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
-  // request.execute().assertJson(getClass(), "app_with_ut_measure.json");
-  // }
-  //
-  // @Test
-  // public void app_with_it_measure() throws Exception {
-  // userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, FILE_KEY);
-  // ComponentDto project = newProject();
-  // newComponent(project);
-  //
-  // addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
-  //
-  // WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
-  // request.execute().assertJson(getClass(), "app_with_it_measure.json");
-  // }
-  //
-  // @Test
-  // public void fail_on_unknown_component() {
-  // userSessionRule.login("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, FILE_KEY);
-  // when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.<ComponentDto>absent());
-  //
-  // try {
-  // wsTester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID).execute();
-  // fail();
-  // } catch (Exception e) {
-  // assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component id 'ABCDE' not found");
-  // }
-  // }
-  //
-  // private ComponentDto newProject() {
-  // return ComponentTesting.newProjectDto()
-  // .setId(1L)
-  // .setName("SonarQube")
-  // .setUuid(PROJECT_UUID)
-  // .setLongName("SonarQube")
-  // .setKey("org.codehaus.sonar:sonar");
-  // }
-  //
-  // private ComponentDto newComponent(ComponentDto project) {
-  // ComponentDto file = ComponentTesting.newFileDto(project)
-  // .setId(10L)
-  // .setQualifier("FIL")
-  // .setKey(FILE_KEY)
-  // .setUuid(COMPONENT_UUID)
-  // .setProjectUuid(PROJECT_UUID)
-  // .setName("Plugin.java")
-  // .setLongName("src/main/java/org/sonar/api/Plugin.java")
-  // .setPath("src/main/java/org/sonar/api/Plugin.java")
-  // .setRootUuid("uuid_5");
-  // when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
-  // when(componentDao.selectOrFailByUuid(session, "uuid_5")).thenReturn(new ComponentDto().setUuid("uuid_5").setLongName("SonarQube ::
-  // Plugin API").setKey(SUB_PROJECT_KEY));
-  // when(componentDao.selectOrFailByUuid(session, project.uuid())).thenReturn(project);
-  // return file;
-  // }
-  //
-  // private void addMeasure(String metricKey, Integer value) {
-  // measures.add(new MeasureDto().setMetricKey(metricKey).setValue(value.doubleValue()));
-  // when(i18n.formatInteger(any(Locale.class), eq(value.intValue()))).thenReturn(Integer.toString(value));
-  // }
-  //
-  // private void addMeasure(String metricKey, Double value) {
-  // measures.add(new MeasureDto().setMetricKey(metricKey).setValue(value));
-  // when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
-  // }
-  //
-  // private void addMeasure(String metricKey, String value) {
-  // measures.add(new MeasureDto().setMetricKey(metricKey).setData(value));
-  // }
-
 }

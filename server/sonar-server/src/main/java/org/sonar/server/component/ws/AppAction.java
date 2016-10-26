@@ -55,8 +55,7 @@ public class AppAction implements RequestHandler {
   private static final String PARAM_UUID = "uuid";
   private static final String PARAM_PERIOD = "period";
   static final List<String> METRIC_KEYS = newArrayList(CoreMetrics.LINES_KEY, CoreMetrics.VIOLATIONS_KEY,
-    CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
-    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
+    CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TESTS_KEY,
     CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY);
 
   private final DbClient dbClient;
@@ -100,7 +99,7 @@ public class AppAction implements RequestHandler {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByUuid(session, componentUuid);
-      userSession.checkComponentPermission(UserRole.USER, component.getKey());
+      userSession.checkComponentUuidPermission(UserRole.USER, component.uuid());
 
       Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
       appendComponent(json, component, userSession, session);
@@ -121,8 +120,7 @@ public class AppAction implements RequestHandler {
       .setComponentId(component.getId())
       .setUserId(userSession.getUserId())
       .build(),
-      session
-      );
+      session);
     boolean isFavourite = propertyDtos.size() == 1;
 
     json.prop("key", component.key());
@@ -146,7 +144,7 @@ public class AppAction implements RequestHandler {
   }
 
   private static void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
-    boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component.key());
+    boolean hasBrowsePermission = userSession.hasComponentUuidPermission(UserRole.USER, component.uuid());
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
@@ -179,16 +177,8 @@ public class AppAction implements RequestHandler {
 
   @CheckForNull
   private static String formatCoverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
-    MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
-    if (overallCoverage != null) {
-      return formatMeasure(overallCoverage, CoreMetrics.OVERALL_COVERAGE);
-    }
-    MeasureDto utCoverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);
-    if (utCoverage != null) {
-      return formatMeasure(utCoverage, CoreMetrics.COVERAGE);
-    }
-    MeasureDto itCoverage = measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY);
-    return formatMeasure(itCoverage, CoreMetrics.IT_COVERAGE);
+    MeasureDto coverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);
+    return formatMeasure(coverage, CoreMetrics.COVERAGE);
   }
 
   @CheckForNull

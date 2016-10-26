@@ -24,10 +24,10 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -40,7 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRul
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.MODULE;
@@ -86,7 +86,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     .add(CoreMetrics.LINES)
     .add(CoreMetrics.NCLOC)
     .add(CoreMetrics.NEW_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_IT_COVERAGE);
+    .add(CoreMetrics.NEW_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
@@ -127,28 +127,28 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(30)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(120)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(120)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_1_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(118)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(118)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(20)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(110)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(110)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(18)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(108)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(108)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_2_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_3_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
-      entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
   }
 
   @Test
@@ -229,7 +229,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
   private void assertAddedRawMeasure(int componentRef, int variation2Value, int variation5Value) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
+      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
   }
 
   private class FakeFormula implements Formula<FakeCounter> {
@@ -268,7 +268,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric())
-        .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+        .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_COVERAGE_KEY));
 
       return Optional.of(Measure.newMeasureBuilder().create(counter.value + metricOffset(context.getMetric())));
     }
@@ -277,7 +277,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
       if (metric.getKey().equals(NEW_LINES_TO_COVER_KEY)) {
         return 10;
       }
-      if (metric.getKey().equals(NEW_IT_COVERAGE_KEY)) {
+      if (metric.getKey().equals(NEW_COVERAGE_KEY)) {
         return 100;
       }
       throw new IllegalArgumentException("Unsupported metric " + metric);
@@ -285,7 +285,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_LINES_TO_COVER_KEY, NEW_IT_COVERAGE_KEY};
+      return new String[] {NEW_LINES_TO_COVER_KEY, NEW_COVERAGE_KEY};
     }
   }
 
@@ -322,7 +322,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
       // verify the context which is passed to the method
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
       assertThat(context.getComponent()).isNotNull();
-      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_COVERAGE_KEY));
 
       Optional<MeasureVariations> measureVariations = counter.values.toMeasureVariations();
       if (measureVariations.isPresent()) {
@@ -336,7 +336,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_IT_COVERAGE_KEY};
+      return new String[] {NEW_COVERAGE_KEY};
     }
   }
 

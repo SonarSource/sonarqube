@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -60,23 +60,7 @@ public class ReportCoverageMeasuresStepTest {
     .add(CoreMetrics.UNCOVERED_CONDITIONS)
     .add(CoreMetrics.COVERAGE)
     .add(CoreMetrics.BRANCH_COVERAGE)
-    .add(CoreMetrics.LINE_COVERAGE)
-
-  .add(CoreMetrics.IT_LINES_TO_COVER)
-    .add(CoreMetrics.IT_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.IT_UNCOVERED_LINES)
-    .add(CoreMetrics.IT_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.IT_COVERAGE)
-    .add(CoreMetrics.IT_BRANCH_COVERAGE)
-    .add(CoreMetrics.IT_LINE_COVERAGE)
-
-  .add(CoreMetrics.OVERALL_LINES_TO_COVER)
-    .add(CoreMetrics.OVERALL_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.OVERALL_UNCOVERED_LINES)
-    .add(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.OVERALL_COVERAGE)
-    .add(CoreMetrics.OVERALL_BRANCH_COVERAGE)
-    .add(CoreMetrics.OVERALL_LINE_COVERAGE);
+    .add(CoreMetrics.LINE_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -110,22 +94,6 @@ public class ReportCoverageMeasuresStepTest {
     verify_lines_and_conditions_aggregates_values(metricKeys);
   }
 
-  @Test
-  public void verify_aggregates_values_for_it_lines_and_conditions() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.IT_UNCOVERED_LINES_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY);
-    verify_lines_and_conditions_aggregates_values(metricKeys);
-  }
-
-  @Test
-  public void verify_aggregates_values_for_overall_lines_and_conditions() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.OVERALL_LINES_TO_COVER_KEY, CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY);
-    verify_lines_and_conditions_aggregates_values(metricKeys);
-  }
-
   private void verify_lines_and_conditions_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys) {
     measureRepository
       .addRawMeasure(FILE_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
@@ -133,7 +101,7 @@ public class ReportCoverageMeasuresStepTest {
       .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
       .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
 
-    .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
+      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
       .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));
@@ -165,30 +133,6 @@ public class ReportCoverageMeasuresStepTest {
     verify_coverage_aggregates_values(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
   }
 
-  @Test
-  public void verify_aggregates_values_for_IT_code_line_and_branch_coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.IT_UNCOVERED_LINES_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.IT_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.IT_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.IT_BRANCH_COVERAGE_KEY;
-
-    verify_coverage_aggregates_values(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
-  @Test
-  public void verify_aggregates_values_for_Overall_code_line_and_branch_coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.OVERALL_LINES_TO_COVER_KEY, CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.OVERALL_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.OVERALL_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.OVERALL_BRANCH_COVERAGE_KEY;
-
-    verify_coverage_aggregates_values(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
   private void verify_coverage_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     measureRepository
       .addRawMeasure(FILE_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
@@ -196,7 +140,7 @@ public class ReportCoverageMeasuresStepTest {
       .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
       .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
 
-    .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
+      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
       .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));

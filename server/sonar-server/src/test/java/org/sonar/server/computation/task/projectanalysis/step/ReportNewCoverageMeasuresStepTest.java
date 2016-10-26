@@ -45,15 +45,7 @@ import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_LINES_KEY;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -114,29 +106,8 @@ public class ReportNewCoverageMeasuresStepTest {
     .add(CoreMetrics.NEW_UNCOVERED_CONDITIONS)
     .add(CoreMetrics.NEW_COVERAGE)
     .add(CoreMetrics.NEW_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_LINE_COVERAGE)
+    .add(CoreMetrics.NEW_LINE_COVERAGE);
 
-    .add(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA)
-    .add(CoreMetrics.IT_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.NEW_IT_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_IT_UNCOVERED_LINES)
-    .add(CoreMetrics.NEW_IT_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.NEW_IT_COVERAGE)
-    .add(CoreMetrics.NEW_IT_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_IT_LINE_COVERAGE)
-
-    .add(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA)
-    .add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE)
-    .add(CoreMetrics.NEW_OVERALL_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES)
-    .add(CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS)
-    .add(CoreMetrics.NEW_OVERALL_COVERAGE)
-    .add(CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE)
-    .add(CoreMetrics.NEW_OVERALL_LINE_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -239,30 +210,6 @@ public class ReportNewCoverageMeasuresStepTest {
       newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
   }
 
-  @Test
-  public void verify_computation_of_measures_for_new_lines_for_IT_FILE() {
-    String coverageLineHitsData = CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY;
-    String newLinesToCover = NEW_IT_LINES_TO_COVER_KEY;
-    String newUncoveredLines = NEW_IT_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = NEW_IT_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = NEW_IT_UNCOVERED_CONDITIONS_KEY;
-
-    verify_computation_of_measures_for_new_lines(coverageLineHitsData,
-      newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
-  }
-
-  @Test
-  public void verify_computation_of_measures_for_new_lines_for_Overall() {
-    String coverageLineHitsData = CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY;
-    String newLinesToCover = NEW_OVERALL_LINES_TO_COVER_KEY;
-    String newUncoveredLines = NEW_OVERALL_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = NEW_OVERALL_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = NEW_OVERALL_UNCOVERED_CONDITIONS_KEY;
-
-    verify_computation_of_measures_for_new_lines(coverageLineHitsData,
-      newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
-  }
-
   private void verify_computation_of_measures_for_new_lines(String coverageLineHitsData,
     String newLinesToCover, String newUncoveredLines, String newConditionsToCover, String newUncoveredConditions) {
     treeRootHolder.setRoot(FILE_COMPONENT);
@@ -298,42 +245,14 @@ public class ReportNewCoverageMeasuresStepTest {
   }
 
   @Test
-  public void verify_computation_of_measures_for_new_conditions_for_IT_FILE() {
-    String coverageLineHitsData = CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY;
-    String conditionsByLine = CoreMetrics.IT_CONDITIONS_BY_LINE_KEY;
-    String coveredConditionsByLine = CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY;
-    String newLinesToCover = NEW_IT_LINES_TO_COVER_KEY;
-    String newUncoveredLines = NEW_IT_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = NEW_IT_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = NEW_IT_UNCOVERED_CONDITIONS_KEY;
-
-    verify_computation_of_measures_for_new_conditions(new MetricKeys(coverageLineHitsData, conditionsByLine, coveredConditionsByLine,
-      newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions));
-  }
-
-  @Test
-  public void verify_computation_of_measures_for_new_conditions_Overall() {
-    String coverageLineHitsData = CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY;
-    String conditionsByLine = CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY;
-    String coveredConditionsByLine = CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY;
-    String newLinesToCover = NEW_OVERALL_LINES_TO_COVER_KEY;
-    String newUncoveredLines = NEW_OVERALL_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = NEW_OVERALL_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = NEW_OVERALL_UNCOVERED_CONDITIONS_KEY;
-
-    verify_computation_of_measures_for_new_conditions(new MetricKeys(coverageLineHitsData, conditionsByLine, coveredConditionsByLine,
-      newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions));
-  }
-
-  @Test
   public void verify_aggregation_of_measures_for_new_conditions() {
-    String coverageLineHitsData = CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY;
-    String conditionsByLine = CoreMetrics.IT_CONDITIONS_BY_LINE_KEY;
-    String coveredConditionsByLine = CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY;
-    String newLinesToCover = NEW_IT_LINES_TO_COVER_KEY;
-    String newUncoveredLines = NEW_IT_UNCOVERED_LINES_KEY;
-    String newConditionsToCover = NEW_IT_CONDITIONS_TO_COVER_KEY;
-    String newUncoveredConditions = NEW_IT_UNCOVERED_CONDITIONS_KEY;
+    String coverageLineHitsData = CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
+    String conditionsByLine = CoreMetrics.CONDITIONS_BY_LINE_KEY;
+    String coveredConditionsByLine = CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
+    String newLinesToCover = NEW_LINES_TO_COVER_KEY;
+    String newUncoveredLines = NEW_UNCOVERED_LINES_KEY;
+    String newConditionsToCover = NEW_CONDITIONS_TO_COVER_KEY;
+    String newUncoveredConditions = NEW_UNCOVERED_CONDITIONS_KEY;
 
     MetricKeys metricKeys = new MetricKeys(coverageLineHitsData, conditionsByLine, coveredConditionsByLine,
       newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
@@ -396,30 +315,6 @@ public class ReportNewCoverageMeasuresStepTest {
     verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
   }
 
-  @Test
-  public void verify_aggregates_variations_for_new_IT_code_line_and_branch_Coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      NEW_IT_LINES_TO_COVER_KEY, NEW_IT_CONDITIONS_TO_COVER_KEY,
-      NEW_IT_UNCOVERED_LINES_KEY, NEW_IT_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.NEW_IT_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.NEW_IT_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY;
-
-    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
-  @Test
-  public void verify_aggregates_variations_for_new_Overall_code_line_and_branch_Coverage() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      NEW_OVERALL_LINES_TO_COVER_KEY, NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
-      NEW_OVERALL_UNCOVERED_LINES_KEY, NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
-    String codeCoverageKey = CoreMetrics.NEW_OVERALL_COVERAGE_KEY;
-    String lineCoverageKey = CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY;
-    String branchCoverageKey = CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY;
-
-    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
-  }
-
   private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
     measureRepository
@@ -471,17 +366,7 @@ public class ReportNewCoverageMeasuresStepTest {
       entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(0d, 0d)),
       entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(0d, 0d)),
       entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0d, 0d)),
-
-      entryOf(NEW_IT_LINES_TO_COVER_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_IT_UNCOVERED_LINES_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_IT_CONDITIONS_TO_COVER_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_IT_UNCOVERED_CONDITIONS_KEY, createMeasure(0d, 0d)),
-
-      entryOf(NEW_OVERALL_LINES_TO_COVER_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_OVERALL_UNCOVERED_LINES_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, createMeasure(0d, 0d)),
-      entryOf(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY, createMeasure(0d, 0d)));
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0d, 0d)));
   }
 
   private void defineChangeSetsAndMeasures(int componentRef, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {

@@ -25,8 +25,8 @@ import org.assertj.core.api.AbstractIterableAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_IT_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -86,7 +86,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     .add(CoreMetrics.LINES)
     .add(CoreMetrics.NCLOC)
     .add(CoreMetrics.NEW_LINES_TO_COVER)
-    .add(CoreMetrics.NEW_IT_COVERAGE);
+    .add(CoreMetrics.NEW_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
@@ -155,7 +155,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   private AbstractIterableAssert<?, ? extends Iterable<? extends MeasureRepoEntry>, MeasureRepoEntry> verifySingleMetricWithVariations(int componentRef, int variation2Value,
     int variation5Value) {
     return assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
+      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
   }
 
   private MeasureRepositoryRule addRawMeasureWithVariation(int componentRef, String metricKey, int variation2Value, int variation5Value) {
@@ -244,7 +244,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric())
-        .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+        .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_COVERAGE_KEY));
 
       return Optional.of(Measure.newMeasureBuilder().create(counter.value + metricOffset(context.getMetric())));
     }
@@ -253,7 +253,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       if (metric.getKey().equals(NEW_LINES_TO_COVER_KEY)) {
         return 10;
       }
-      if (metric.getKey().equals(NEW_IT_COVERAGE_KEY)) {
+      if (metric.getKey().equals(NEW_COVERAGE_KEY)) {
         return 100;
       }
       throw new IllegalArgumentException("Unsupported metric " + metric);
@@ -261,7 +261,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_LINES_TO_COVER_KEY, NEW_IT_COVERAGE_KEY};
+      return new String[] {NEW_LINES_TO_COVER_KEY, NEW_COVERAGE_KEY};
     }
   }
 
@@ -296,7 +296,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       // verify the context which is passed to the method
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
       assertThat(context.getComponent()).isNotNull();
-      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_COVERAGE_KEY));
 
       Optional<MeasureVariations> measureVariations = counter.values.toMeasureVariations();
       if (measureVariations.isPresent()) {
@@ -310,7 +310,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_IT_COVERAGE_KEY};
+      return new String[] {NEW_COVERAGE_KEY};
     }
   }
 
@@ -364,7 +364,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(
         entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(valueLinesToCover)),
-        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(valueItCoverage)));
+        entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(valueItCoverage)));
   }
 
   private void verifyLeafContext(CounterInitializationContext context) {
