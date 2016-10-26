@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.Select;
@@ -47,6 +49,8 @@ import static org.sonar.db.DatabaseUtils.repeatCondition;
  * Same strategy is applied on new_XXX, (it_|overall_)lines_to_cover, (it_|overall_)uncovered_lines, etc. related coverage metrics.
  */
 public class UpdateQualityGateConditionsOnCoverage extends BaseDataChange {
+
+  private static final Logger LOGGER = Loggers.get(UpdateQualityGateConditionsOnCoverage.class);
 
   private static final List<String> COVERAGE_METRIC_KEYS = ImmutableList.of(
     "coverage", "lines_to_cover", "uncovered_lines", "line_coverage", "conditions_to_cover", "uncovered_conditions", "branch_coverage");
@@ -69,6 +73,7 @@ public class UpdateQualityGateConditionsOnCoverage extends BaseDataChange {
     if (qualityGateIds.isEmpty()) {
       return;
     }
+    LOGGER.info("Migrating {} quality gates", qualityGateIds.size());
     new Migration(context, metrics, qualityGateIds).execute();
   }
 
