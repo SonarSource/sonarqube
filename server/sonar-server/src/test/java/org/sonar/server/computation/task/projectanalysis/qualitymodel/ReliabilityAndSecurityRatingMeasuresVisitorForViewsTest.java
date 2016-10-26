@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -29,9 +28,9 @@ import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRe
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
@@ -89,13 +88,10 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForViewsTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
-
-  @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
 
   VisitorsCrawler underTest = new VisitorsCrawler(
-    Arrays.asList(new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, periodsHolder)));
+    singletonList(new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule)));
 
   @Test
   public void measures_created_for_view_are_all_zero_when_no_child() {

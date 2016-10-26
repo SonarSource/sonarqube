@@ -48,7 +48,7 @@ const onFail = dispatch => error => {
   dispatch(updateState({ loading: false }));
 };
 
-const onReceiveMeasures = (dispatch, projects) => response => {
+const onReceiveMeasures = dispatch => response => {
   const byComponentKey = groupBy(response.measures, 'component');
 
   const toStore = {};

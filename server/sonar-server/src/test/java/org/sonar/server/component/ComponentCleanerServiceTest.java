@@ -83,9 +83,7 @@ public class ComponentCleanerServiceTest {
 
   ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
-  ComponentCleanerService underTest = new ComponentCleanerService(dbClient,
-    permissionIndexer, issueIndexer, testIndexer, projectMeasuresIndexer,
-    mockResourceTypes,
+  ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, mockResourceTypes,
     new ComponentFinder(dbClient));
 
   @Test

@@ -31,7 +31,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
@@ -39,17 +38,15 @@ import org.sonar.server.test.index.TestIndexer;
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
-  private final PermissionIndexer permissionIndexer;
   private final IssueIndexer issueIndexer;
   private final TestIndexer testIndexer;
   private final ProjectMeasuresIndexer projectMeasuresIndexer;
   private final ResourceTypes resourceTypes;
   private final ComponentFinder componentFinder;
 
-  public ComponentCleanerService(DbClient dbClient, PermissionIndexer permissionIndexer, IssueIndexer issueIndexer,
-                                 TestIndexer testIndexer, ProjectMeasuresIndexer projectMeasuresIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+  public ComponentCleanerService(DbClient dbClient, IssueIndexer issueIndexer, TestIndexer testIndexer, ProjectMeasuresIndexer projectMeasuresIndexer, ResourceTypes resourceTypes,
+    ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.permissionIndexer = permissionIndexer;
     this.issueIndexer = issueIndexer;
     this.testIndexer = testIndexer;
     this.projectMeasuresIndexer = projectMeasuresIndexer;

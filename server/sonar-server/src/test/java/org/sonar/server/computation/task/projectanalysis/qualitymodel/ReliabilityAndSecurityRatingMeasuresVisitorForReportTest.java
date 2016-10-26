@@ -38,8 +38,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.FillComponentIssu
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -104,16 +102,13 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorForReportTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriods(new Period(1, "mode", null, 12323l, "UUID"));
-
-  @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
 
   @Rule
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
-  VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
-    new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, periodsHolder)));
+  VisitorsCrawler underTest = new VisitorsCrawler(
+    Arrays.asList(fillComponentIssuesVisitorRule, new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule)));
 
   @Test
   public void measures_created_for_project_are_all_A_when_they_have_no_FILE_child() {

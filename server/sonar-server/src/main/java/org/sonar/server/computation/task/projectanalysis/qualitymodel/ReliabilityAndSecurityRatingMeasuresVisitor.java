@@ -33,7 +33,6 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -71,7 +70,6 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
 
   private final MeasureRepository measureRepository;
   private final ComponentIssuesRepository componentIssuesRepository;
-  private final PeriodsHolder periodsHolder;
 
   // Output metrics
   private final Metric reliabilityRatingMetric;
@@ -79,12 +77,10 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
 
   private final Map<String, Metric> metricsByKey;
 
-  public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository,
-    PeriodsHolder periodsHolder) {
+  public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository) {
     super(LEAVES, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
-    this.periodsHolder = periodsHolder;
 
     // Output metrics
     this.reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
@@ -147,7 +143,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
-      .forEach(issue -> path.current().processIssue(issue));
+      .forEach(path.current()::processIssue);
   }
 
   private static void addToParent(Path<Counter> path) {
