@@ -70,7 +70,7 @@ const fetchProjectMeasures = projects => dispatch => {
   }
 
   const projectKeys = projects.map(project => project.key);
-  return getMeasuresForComponents(projectKeys, METRICS).then(onReceiveMeasures(dispatch, projects), onFail(dispatch));
+  return getMeasuresForComponents(projectKeys, METRICS).then(onReceiveMeasures(dispatch), onFail(dispatch));
 };
 
 const onReceiveProjects = dispatch => response => {
