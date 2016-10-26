@@ -20,9 +20,9 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -56,7 +56,7 @@ public class LinesAction implements SourcesWsAction {
   private final UserSession userSession;
 
   public LinesAction(ComponentFinder componentFinder, DbClient dbClient, SourceService sourceService,
-                     HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
+    HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
     this.componentFinder = componentFinder;
     this.sourceService = sourceService;
     this.htmlSourceDecorator = htmlSourceDecorator;
@@ -75,13 +75,12 @@ public class LinesAction implements SourcesWsAction {
         "<li>Author of the line (from SCM information)</li>" +
         "<li>Revision of the line (from SCM information)</li>" +
         "<li>Last commit date of the line (from SCM information)</li>" +
-        "<li>Line hits from unit test coverage</li>" +
-        "<li>Number of conditions to cover in unit tests</li>" +
-        "<li>Number of conditions covered by unit tests</li>" +
-        "<li>Line hits from integration test coverage</li>" +
-        "<li>Number of conditions to cover in integration tests</li>" +
-        "<li>Number of conditions covered by integration tests</li>" +
-        "</ol>")
+        "<li>Line hits from coverage</li>" +
+        "<li>Number of conditions to cover in tests</li>" +
+        "<li>Number of conditions covered by tests</li>" +
+        "</ol>" +
+        "Since 6.2, response fields utLineHits, utConditions and utCoveredConditions has been renamed lineHits, conditions and coveredConditions<br/>" +
+        "Since 6.2, response fields itLineHits, itConditions and itCoveredConditions are no more returned<br/>")
       .setSince("5.0")
       .setInternal(true)
       .setResponseExample(Resources.getResource(getClass(), "example-lines.json"))
@@ -121,7 +120,7 @@ public class LinesAction implements SourcesWsAction {
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
-      Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, file.uuid(), from, to);
+      com.google.common.base.Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, file.uuid(), from, to);
       if (!lines.isPresent()) {
         throw new NotFoundException();
       }
@@ -145,28 +144,64 @@ public class LinesAction implements SourcesWsAction {
       if (line.hasScmDate()) {
         json.prop("scmDate", DateUtils.formatDateTime(new Date(line.getScmDate())));
       }
-      if (line.hasUtLineHits()) {
-        json.prop("utLineHits", line.getUtLineHits());
+      Optional<Integer> lineHits = getLineHits(line);
+      if (lineHits.isPresent()) {
+        json.prop("utLineHits", lineHits.get());
+        json.prop("lineHits", lineHits.get());
       }
-      if (line.hasUtConditions()) {
-        json.prop("utConditions", line.getUtConditions());
+      Optional<Integer> conditions = getConditions(line);
+      if (conditions.isPresent()) {
+        json.prop("utConditions", conditions.get());
+        json.prop("conditions", conditions.get());
       }
-      if (line.hasUtCoveredConditions()) {
-        json.prop("utCoveredConditions", line.getUtCoveredConditions());
-      }
-      if (line.hasItLineHits()) {
-        json.prop("itLineHits", line.getItLineHits());
-      }
-      if (line.hasItConditions()) {
-        json.prop("itConditions", line.getItConditions());
-      }
-      if (line.hasItCoveredConditions()) {
-        json.prop("itCoveredConditions", line.getItCoveredConditions());
+      Optional<Integer> coveredConditions = getCoveredConditions(line);
+      if (coveredConditions.isPresent()) {
+        json.prop("utCoveredConditions", coveredConditions.get());
+        json.prop("coveredConditions", coveredConditions.get());
       }
       json.prop("duplicated", line.getDuplicationCount() > 0);
       json.endObject();
     }
     json.endArray();
+  }
+
+  private static Optional<Integer> getLineHits(DbFileSources.Line line) {
+    if (line.hasLineHits()) {
+      return Optional.of(line.getLineHits());
+    } else if (line.hasDeprecatedOverallLineHits()) {
+      return Optional.of(line.getDeprecatedOverallLineHits());
+    } else if (line.hasDeprecatedUtLineHits()) {
+      return Optional.of(line.getDeprecatedUtLineHits());
+    } else if (line.hasDeprecatedItLineHits()) {
+      return Optional.of(line.getDeprecatedItLineHits());
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<Integer> getConditions(DbFileSources.Line line) {
+    if (line.hasConditions()) {
+      return Optional.of(line.getConditions());
+    } else if (line.hasDeprecatedOverallConditions()) {
+      return Optional.of(line.getDeprecatedOverallConditions());
+    } else if (line.hasDeprecatedUtConditions()) {
+      return Optional.of(line.getDeprecatedUtConditions());
+    } else if (line.hasDeprecatedItConditions()) {
+      return Optional.of(line.getDeprecatedItConditions());
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<Integer> getCoveredConditions(DbFileSources.Line line) {
+    if (line.hasCoveredConditions()) {
+      return Optional.of(line.getCoveredConditions());
+    } else if (line.hasDeprecatedOverallCoveredConditions()) {
+      return Optional.of(line.getDeprecatedOverallCoveredConditions());
+    } else if (line.hasDeprecatedUtCoveredConditions()) {
+      return Optional.of(line.getDeprecatedUtCoveredConditions());
+    } else if (line.hasDeprecatedItCoveredConditions()) {
+      return Optional.of(line.getDeprecatedItCoveredConditions());
+    }
+    return Optional.empty();
   }
 
 }

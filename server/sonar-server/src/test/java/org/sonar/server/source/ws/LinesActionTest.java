@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,8 +43,6 @@ import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +54,7 @@ public class LinesActionTest {
   private static final String FILE_KEY = "Foo.java";
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -87,44 +87,26 @@ public class LinesActionTest {
 
   @Test
   public void show_source() throws Exception {
-    newFile();
-
-    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID)
-      .setSourceData(FileSourceTesting.newFakeData(3).build()));
-
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    setUserWithValidPermission();
+    insertFileWithData(FileSourceTesting.newFakeData(3).build());
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "show_source.json");
   }
 
   @Test
-  public void fail_to_show_source_if_no_source_found() {
-    newFile();
+  public void fail_to_show_source_if_no_source_found() throws Exception {
+    setUserWithValidPermission();
+    insertFile();
 
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
-
-    try {
-      WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+    expectedException.expect(NotFoundException.class);
+    wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID).execute();
   }
 
   @Test
   public void show_paginated_lines() throws Exception {
-    newFile();
-
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
-
-    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID)
-      .setSourceData(FileSourceTesting.newFakeData(3).build()));
+    setUserWithValidPermission();
+    insertFileWithData(FileSourceTesting.newFakeData(3).build());
 
     WsTester.TestRequest request = wsTester
       .newGetRequest("api/sources", "lines")
@@ -136,8 +118,8 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Either 'uuid' or 'key' must be provided, not both");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'uuid' or 'key' must be provided, not both");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
     request.execute();
@@ -145,8 +127,8 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_file_key_does_not_exist() throws Exception {
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Component key 'Foo.java' not found");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'Foo.java' not found");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
     request.execute();
@@ -154,8 +136,8 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_file_uuid_does_not_exist() throws Exception {
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Component id 'ABCD' not found");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component id 'ABCD' not found");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", "ABCD");
     request.execute();
@@ -163,7 +145,7 @@ public class LinesActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void should_check_permission() throws Exception {
-    newFile();
+    insertFileWithData(FileSourceTesting.newFakeData(1).build());
 
     userSessionRule.login("login");
 
@@ -172,10 +154,100 @@ public class LinesActionTest {
       .execute();
   }
 
-  private void newFile() {
+  @Test
+  public void display_deprecated_fields() throws Exception {
+    setUserWithValidPermission();
+    insertFileWithData(FileSourceTesting.newFakeData(1).build());
+
+    WsTester.TestRequest request = wsTester
+      .newGetRequest("api/sources", "lines")
+      .setParam("uuid", FILE_UUID);
+
+    request.execute().assertJson(getClass(), "display_deprecated_fields.json");
+  }
+
+  @Test
+  public void use_deprecated_overall_coverage_fields_if_exists() throws Exception {
+    setUserWithValidPermission();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    insertFileWithData(dataBuilder.addLines(newLineBuilder()
+      .setDeprecatedOverallLineHits(1)
+      .setDeprecatedOverallConditions(2)
+      .setDeprecatedOverallCoveredConditions(3)
+      .setDeprecatedUtLineHits(1)
+      .setDeprecatedUtConditions(2)
+      .setDeprecatedUtCoveredConditions(3)
+      .setDeprecatedItLineHits(1)
+      .setDeprecatedItConditions(2)
+      .setDeprecatedItCoveredConditions(3)).build());
+
+    WsTester.TestRequest request = wsTester
+      .newGetRequest("api/sources", "lines")
+      .setParam("uuid", FILE_UUID);
+
+    request.execute().assertJson(getClass(), "convert_deprecated_data.json");
+  }
+
+  @Test
+  public void use_deprecated_ut_coverage_fields_if_exists() throws Exception {
+    setUserWithValidPermission();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    insertFileWithData(dataBuilder.addLines(newLineBuilder()
+      .setDeprecatedUtLineHits(1)
+      .setDeprecatedUtConditions(2)
+      .setDeprecatedUtCoveredConditions(3)
+      .setDeprecatedItLineHits(1)
+      .setDeprecatedItConditions(2)
+      .setDeprecatedItCoveredConditions(3)).build());
+
+    WsTester.TestRequest request = wsTester
+      .newGetRequest("api/sources", "lines")
+      .setParam("uuid", FILE_UUID);
+
+    request.execute().assertJson(getClass(), "convert_deprecated_data.json");
+  }
+
+  @Test
+  public void use_deprecated_it_coverage_fields_if_exists() throws Exception {
+    setUserWithValidPermission();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    insertFileWithData(dataBuilder.addLines(newLineBuilder()
+      .setDeprecatedItLineHits(1)
+      .setDeprecatedItConditions(2)
+      .setDeprecatedItCoveredConditions(3)).build());
+
+    WsTester.TestRequest request = wsTester
+      .newGetRequest("api/sources", "lines")
+      .setParam("uuid", FILE_UUID);
+
+    request.execute().assertJson(getClass(), "convert_deprecated_data.json");
+  }
+
+  private void insertFileWithData(DbFileSources.Data fileData) throws IOException {
+    insertFile();
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(fileData));
+  }
+
+  private void setUserWithValidPermission() {
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+  }
+
+  private void insertFile() throws IOException {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     componentDao.insert(dbTester.getSession(), project, file);
     dbTester.getSession().commit();
+  }
+
+  private DbFileSources.Line.Builder newLineBuilder() {
+    return DbFileSources.Line.newBuilder()
+      .setLine(1)
+      .setScmRevision("REVISION_" + 1)
+      .setScmAuthor("AUTHOR_" + 1)
+      .setScmDate(1_500_000_000_00L)
+      .setSource("SOURCE_" + 1);
   }
 }

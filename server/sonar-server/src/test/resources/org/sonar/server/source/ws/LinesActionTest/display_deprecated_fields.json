@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "line": 1,
+      "code": "<p>SOURCE_1</p>",
+      "scmAuthor": "AUTHOR_1",
+      "scmRevision": "REVISION_1",
+      "scmDate": "1974-10-03T03:40:00+0100",
+      "lineHits": 1,
+      "utLineHits": 1,
+      "conditions": 2,
+      "utConditions": 2,
+      "coveredConditions": 3,
+      "utCoveredConditions": 3,
+      "duplicated": true
+    }
+  ]
+}

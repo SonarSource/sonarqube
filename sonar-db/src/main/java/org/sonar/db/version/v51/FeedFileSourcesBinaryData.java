@@ -93,39 +93,39 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
             }
             s = row.get(3);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setUtLineHits(Integer.parseInt(s));
+              lineBuilder.setDeprecatedUtLineHits(Integer.parseInt(s));
             }
             s = row.get(4);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setUtConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedUtConditions(Integer.parseInt(s));
             }
             s = row.get(5);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setUtCoveredConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedUtCoveredConditions(Integer.parseInt(s));
             }
             s = row.get(6);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setItLineHits(Integer.parseInt(s));
+              lineBuilder.setDeprecatedItLineHits(Integer.parseInt(s));
             }
             s = row.get(7);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setItConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedItConditions(Integer.parseInt(s));
             }
             s = row.get(8);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setItCoveredConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedItCoveredConditions(Integer.parseInt(s));
             }
             s = row.get(9);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setOverallLineHits(Integer.parseInt(s));
+              lineBuilder.setDeprecatedOverallLineHits(Integer.parseInt(s));
             }
             s = row.get(10);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setOverallConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedOverallConditions(Integer.parseInt(s));
             }
             s = row.get(11);
             if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setOverallCoveredConditions(Integer.parseInt(s));
+              lineBuilder.setDeprecatedOverallCoveredConditions(Integer.parseInt(s));
             }
             s = row.get(12);
             if (StringUtils.isNotEmpty(s)) {

@@ -150,9 +150,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(data.getLinesList()).hasSize(1);
 
-    assertThat(data.getLines(0).getUtLineHits()).isEqualTo(1);
-    assertThat(data.getLines(0).getUtConditions()).isEqualTo(10);
-    assertThat(data.getLines(0).getUtCoveredConditions()).isEqualTo(2);
+    assertThat(data.getLines(0).getLineHits()).isEqualTo(1);
+    assertThat(data.getLines(0).getConditions()).isEqualTo(10);
+    assertThat(data.getLines(0).getCoveredConditions()).isEqualTo(2);
   }
 
   @Test

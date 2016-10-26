@@ -40,24 +40,26 @@ message Line {
   optional string scm_author = 4;
   optional int64 scm_date = 5;
 
-  // unit tests
-  optional int32 ut_line_hits = 6;
-  optional int32 ut_conditions = 7;
-  optional int32 ut_covered_conditions = 8;
-
-  // integration tests
-  optional int32 it_line_hits = 9;
-  optional int32 it_conditions = 10;
-  optional int32 it_covered_conditions = 11;
-
-  // overall tests
-  optional int32 overall_line_hits = 12;
-  optional int32 overall_conditions = 13;
-  optional int32 overall_covered_conditions = 14;
+  // Deprecated fields in 6.2 (has been deprecated when merging coverage into a single metric)
+  // They are still used to read coverage info from sources that have not be re-analyzed
+  optional int32 deprecated_ut_line_hits = 6;
+  optional int32 deprecated_ut_conditions = 7;
+  optional int32 deprecated_ut_covered_conditions = 8;
+  optional int32 deprecated_it_line_hits = 9;
+  optional int32 deprecated_it_conditions = 10;
+  optional int32 deprecated_it_covered_conditions = 11;
+  optional int32 deprecated_overall_line_hits = 12;
+  optional int32 deprecated_overall_conditions = 13;
+  optional int32 deprecated_overall_covered_conditions = 14;
 
   optional string highlighting = 15;
   optional string symbols = 16;
   repeated int32 duplication = 17 [packed = true];
+
+  // coverage info (since 6.2)
+  optional int32 line_hits = 18;
+  optional int32 conditions = 19;
+  optional int32 covered_conditions = 20;
 }
 
 // TODO should be dropped as it prevents streaming

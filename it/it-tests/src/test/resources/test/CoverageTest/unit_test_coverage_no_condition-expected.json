@@ -23,6 +23,7 @@
     {
       "line": 6,
       "code": "\t\tint j = i++;",
+      "lineHits": 1,
       "utLineHits": 1
     },
     {
@@ -40,11 +41,13 @@
     {
       "line": 10,
       "code": "\t\tif (foo == bar) {",
+      "lineHits": 0,
       "utLineHits": 0
     },
     {
       "line": 11,
       "code": "\t\t\treturn \"hello\";",
+      "lineHits": 1,
       "utLineHits": 1
     },
     {
@@ -54,6 +57,7 @@
     {
       "line": 13,
       "code": "\t\t\tthrow new IllegalStateException();",
+      "lineHits": 0,
       "utLineHits": 0
     },
     {

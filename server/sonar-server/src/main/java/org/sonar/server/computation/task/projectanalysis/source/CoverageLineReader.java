@@ -39,29 +39,18 @@ public class CoverageLineReader implements LineReader {
   public void read(DbFileSources.Line.Builder lineBuilder) {
     ScannerReport.LineCoverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
-      processUnitTest(lineBuilder, reportCoverage);
-      processOverallTest(lineBuilder, reportCoverage);
+      processCoverage(lineBuilder, reportCoverage);
       coverage = null;
     }
   }
 
-  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
+  private static void processCoverage(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
     if (reportCoverage.getHasHitsCase() == HasHitsCase.HITS) {
-      lineBuilder.setUtLineHits(reportCoverage.getHits() ? 1 : 0);
+      lineBuilder.setLineHits(reportCoverage.getHits() ? 1 : 0);
     }
     if (reportCoverage.getHasCoveredConditionsCase() == HasCoveredConditionsCase.COVERED_CONDITIONS) {
-      lineBuilder.setUtConditions(reportCoverage.getConditions());
-      lineBuilder.setUtCoveredConditions(reportCoverage.getCoveredConditions());
-    }
-  }
-
-  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
-    if (reportCoverage.getHasHitsCase() == HasHitsCase.HITS) {
-      lineBuilder.setOverallLineHits(reportCoverage.getHits() ? 1 : 0);
-    }
-    if (reportCoverage.getHasCoveredConditionsCase() == HasCoveredConditionsCase.COVERED_CONDITIONS) {
-      lineBuilder.setOverallConditions(reportCoverage.getConditions());
-      lineBuilder.setOverallCoveredConditions(reportCoverage.getCoveredConditions());
+      lineBuilder.setConditions(reportCoverage.getConditions());
+      lineBuilder.setCoveredConditions(reportCoverage.getCoveredConditions());
     }
   }
 
