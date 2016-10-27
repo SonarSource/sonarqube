@@ -19,9 +19,16 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -56,6 +63,28 @@ public class DefaultInputFileTest {
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.TEST);
     assertThat(inputFile.lines()).isEqualTo(42);
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.ISO_8859_1);
+  }
+
+  @Test
+  public void test_content() throws IOException {
+    Path baseDir = temp.newFolder().toPath();
+    Path testFile = baseDir.resolve("src").resolve("Foo.php");
+    Files.createDirectories(testFile.getParent());
+    Files.write(testFile, "test string".getBytes(StandardCharsets.UTF_8));
+    DefaultInputFile inputFile = new DefaultInputFile("ABCDE", "src/Foo.php")
+      .setModuleBaseDir(baseDir)
+      .setLines(42)
+      .setLanguage("php")
+      .setStatus(InputFile.Status.ADDED)
+      .setType(InputFile.Type.TEST)
+      .setCharset(StandardCharsets.ISO_8859_1);
+
+    assertThat(inputFile.contents()).isEqualTo("test string");
+    try (InputStream inputStream = inputFile.inputStream()) {
+      String result = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining());
+      assertThat(result).isEqualTo("test string");
+    }
+
   }
 
   @Test
