@@ -1,4 +1,4 @@
-<unitTest version="1">
+<testExecutions version="1">
   <file path="testx/ClassOneTest.xoo">
     <testCase name="test1" duration="5"/>
     <testCase name="test2" duration="500">
@@ -11,4 +11,4 @@
       <error message="short">stacktrace</error>
     </testCase>
   </file>
-</unitTest>
+</testExecutions>

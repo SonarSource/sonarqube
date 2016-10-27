@@ -37,12 +37,12 @@ public class GenericTestExecutionSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(GenericTestExecutionSensor.class);
 
-  private static final String REPORT_PATHS_PROPERTY_KEY = "sonar.testExecutionReportPaths";
+  static final String REPORT_PATHS_PROPERTY_KEY = "sonar.testExecutionReportPaths";
   /**
    * @deprecated since 6.2
    */
   @Deprecated
-  private static final String OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.unitTestReportPaths";
+  static final String OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.unitTestReportPaths";
 
   private final TestPlanBuilder testPlanBuilder;
 
@@ -65,21 +65,24 @@ public class GenericTestExecutionSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("Generic Tests Excution Report")
+    descriptor.name("Generic Test Executions Report")
       .requireProperty(REPORT_PATHS_PROPERTY_KEY);
   }
 
   @Override
   public void execute(SensorContext context) {
+    if (context.settings().hasKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)) {
+      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, REPORT_PATHS_PROPERTY_KEY);
+    }
     for (String reportPath : context.settings().getStringArray(REPORT_PATHS_PROPERTY_KEY)) {
       File reportFile = context.fileSystem().resolvePath(reportPath);
       LOG.info("Parsing {}", reportFile);
       GenericTestExecutionReportParser parser = new GenericTestExecutionReportParser(testPlanBuilder);
       parser.parse(reportFile, context);
-      LOG.info("Imported coverage data for {} files", parser.numberOfMatchedFiles());
+      LOG.info("Imported test execution data for {} files", parser.numberOfMatchedFiles());
       int numberOfUnknownFiles = parser.numberOfUnknownFiles();
       if (numberOfUnknownFiles > 0) {
-        LOG.info("Coverage data ignored for " + numberOfUnknownFiles + " unknown files, including:\n" + parser.firstUnknownFiles().stream().collect(Collectors.joining("\n")));
+        LOG.info("Test execution data ignored for {} unknown files, including:\n{}", numberOfUnknownFiles, parser.firstUnknownFiles().stream().collect(Collectors.joining("\n")));
       }
     }
 

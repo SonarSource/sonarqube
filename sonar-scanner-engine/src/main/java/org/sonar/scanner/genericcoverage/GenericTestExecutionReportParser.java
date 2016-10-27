@@ -35,6 +35,8 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.utils.StaxParser;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
 import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.checkElementName;
@@ -42,6 +44,12 @@ import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.long
 import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.mandatoryAttribute;
 
 public class GenericTestExecutionReportParser {
+
+  private static final String ROOT_ELEMENT = "testExecutions";
+
+  private static final String OLD_ROOT_ELEMENT = "unitTest";
+
+  private static final Logger LOG = Loggers.get(GenericTestExecutionReportParser.class);
 
   private static final String NAME_ATTR = "name";
   private static final String DURATION_ATTR = "duration";
@@ -79,7 +87,14 @@ public class GenericTestExecutionReportParser {
   }
 
   private void parseRootNode(SMHierarchicCursor rootCursor, SensorContext context) throws XMLStreamException {
-    checkElementName(rootCursor, "unitTest");
+    String elementName = rootCursor.getLocalName();
+    if (!OLD_ROOT_ELEMENT.equals(elementName) && !ROOT_ELEMENT.equals(elementName)) {
+      throw new IllegalStateException(
+        "Unknown XML node, expected \"" + ROOT_ELEMENT + "\" but got \"" + elementName + "\" at line " + rootCursor.getCursorLocation().getLineNumber());
+    }
+    if (OLD_ROOT_ELEMENT.equals(elementName)) {
+      LOG.warn("Using '" + OLD_ROOT_ELEMENT + "' as root element of the report is deprecated. Please change to '" + ROOT_ELEMENT + "'.");
+    }
     String version = rootCursor.getAttrValue("version");
     if (!"1".equals(version)) {
       throw new IllegalStateException("Unknown report version: " + version + ". This parser only handles version 1.");
