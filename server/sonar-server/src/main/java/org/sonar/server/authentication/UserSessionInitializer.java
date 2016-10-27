@@ -72,14 +72,16 @@ public class UserSessionInitializer {
   private final Settings settings;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
+  private final SsoAuthenticator ssoAuthenticator;
   private final ThreadLocalUserSession threadLocalSession;
 
   public UserSessionInitializer(DbClient dbClient, Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
-                                ThreadLocalUserSession threadLocalSession) {
+    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
+    this.ssoAuthenticator = ssoAuthenticator;
     this.threadLocalSession = threadLocalSession;
   }
 
@@ -121,9 +123,14 @@ public class UserSessionInitializer {
     threadLocalSession.unload();
   }
 
-  // Try first to authenticate from JWT token, then try from basic http header
+  // Try first to authenticate from SSO, then JWT token, then try from basic http header
   private Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
-    Optional<UserDto> user = jwtHttpHandler.validateToken(request, response);
+    // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
+    Optional<UserDto> user = ssoAuthenticator.authenticate(request, response);
+    if (user.isPresent()) {
+      return user;
+    }
+    user = jwtHttpHandler.validateToken(request, response);
     if (user.isPresent()) {
       return user;
     }

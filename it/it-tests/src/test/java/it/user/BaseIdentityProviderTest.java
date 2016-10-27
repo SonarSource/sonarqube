@@ -32,7 +32,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsResponse;
 import util.selenium.SeleneseTest;
 import util.user.UserRule;
 import util.user.Users;
@@ -277,9 +276,9 @@ public class BaseIdentityProviderTest {
   }
 
   private static void authenticateWithFakeAuthProvider() {
-    WsResponse response = adminWsClient.wsConnector().call(
-      new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)));
-    assertThat(response.code()).isEqualTo(200);
+    adminWsClient.wsConnector().call(
+      new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)))
+      .failIfNotSuccessful();
   }
 
 }

@@ -22,13 +22,14 @@ package org.sonar.server.authentication;
 
 import com.google.common.collect.ImmutableMap;
 import io.jsonwebtoken.Claims;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -37,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.server.authentication.CookieUtils.findCookie;
 
@@ -74,32 +76,38 @@ public class JwtHttpHandler {
     this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
-  public void generateToken(UserDto user, HttpServletRequest request, HttpServletResponse response) {
+  public void generateToken(UserDto user, Map<String, Object> properties, HttpServletRequest request, HttpServletResponse response) {
     String csrfState = jwtCsrfVerifier.generateState(request, response, sessionTimeoutInSeconds);
 
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
       user.getLogin(),
       sessionTimeoutInSeconds,
-      ImmutableMap.of(
-        LAST_REFRESH_TIME_PARAM, system2.now(),
-        CSRF_JWT_PARAM, csrfState)));
+      ImmutableMap.<String, Object>builder()
+        .putAll(properties)
+        .put(LAST_REFRESH_TIME_PARAM, system2.now())
+        .put(CSRF_JWT_PARAM, csrfState)
+        .build()));
     response.addCookie(createCookie(request, JWT_COOKIE, token, sessionTimeoutInSeconds));
   }
 
+  public void generateToken(UserDto user, HttpServletRequest request, HttpServletResponse response) {
+    generateToken(user, Collections.emptyMap(), request, response);
+  }
+
   public Optional<UserDto> validateToken(HttpServletRequest request, HttpServletResponse response) {
-    Optional<UserDto> userDto = validate(request, response);
-    if (userDto.isPresent()) {
-      return userDto;
+    Optional<Token> token = getToken(request, response);
+    if (token.isPresent()) {
+      return Optional.of(token.get().getUserDto());
     }
     return Optional.empty();
   }
 
-  private Optional<UserDto> validate(HttpServletRequest request, HttpServletResponse response) {
-    Optional<String> token = getTokenFromCookie(request);
-    if (!token.isPresent()) {
+  public Optional<Token> getToken(HttpServletRequest request, HttpServletResponse response) {
+    Optional<String> encodedToken = getTokenFromCookie(request);
+    if (!encodedToken.isPresent()) {
       return Optional.empty();
     }
-    return validateToken(token.get(), request, response);
+    return validateToken(encodedToken.get(), request, response);
   }
 
   private static Optional<String> getTokenFromCookie(HttpServletRequest request) {
@@ -115,7 +123,7 @@ public class JwtHttpHandler {
     return Optional.of(token);
   }
 
-  private Optional<UserDto> validateToken(String tokenEncoded, HttpServletRequest request, HttpServletResponse response) {
+  private Optional<Token> validateToken(String tokenEncoded, HttpServletRequest request, HttpServletResponse response) {
     Optional<Claims> claims = jwtSerializer.decode(tokenEncoded);
     if (!claims.isPresent()) {
       return Optional.empty();
@@ -123,12 +131,12 @@ public class JwtHttpHandler {
 
     Date now = new Date(system2.now());
     Claims token = claims.get();
-    if (now.after(DateUtils.addSeconds(token.getIssuedAt(), SESSION_DISCONNECT_IN_SECONDS))) {
+    if (now.after(addSeconds(token.getIssuedAt(), SESSION_DISCONNECT_IN_SECONDS))) {
       return Optional.empty();
     }
     jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
 
-    if (now.after(DateUtils.addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
+    if (now.after(addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
       refreshToken(token, request, response);
     }
 
@@ -136,7 +144,7 @@ public class JwtHttpHandler {
     if (!user.isPresent()) {
       return Optional.empty();
     }
-    return Optional.of(user.get());
+    return Optional.of(new Token(user.get(), claims.get()));
   }
 
   private static Date getLastRefreshDate(Claims token) {
@@ -175,5 +183,23 @@ public class JwtHttpHandler {
       return propertyFromSettings * 60 * 60;
     }
     return SESSION_TIMEOUT_DEFAULT_VALUE_IN_SECONDS;
+  }
+
+  public static class Token {
+    private final UserDto userDto;
+    private final Map<String, Object> properties;
+
+    Token(UserDto userDto, Map<String, Object> properties) {
+      this.userDto = userDto;
+      this.properties = properties;
+    }
+
+    public UserDto getUserDto() {
+      return userDto;
+    }
+
+    public Map<String, Object> getProperties() {
+      return properties;
+    }
   }
 }

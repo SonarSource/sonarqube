@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -66,12 +66,13 @@ public class UserSessionInitializerTest {
 
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
+  SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
 
   Settings settings = new MapSettings();
 
   UserDto user = newUserDto();
 
-  UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator, userSession);
+  UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator, ssoAuthenticator, userSession);
 
   @Before
   public void setUp() throws Exception {
@@ -112,6 +113,7 @@ public class UserSessionInitializerTest {
   @Test
   public void validate_session_from_token() throws Exception {
     when(userSession.isLoggedIn()).thenReturn(true);
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(user));
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
@@ -124,6 +126,7 @@ public class UserSessionInitializerTest {
   public void validate_session_from_basic_authentication() throws Exception {
     when(userSession.isLoggedIn()).thenReturn(false).thenReturn(true);
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(user));
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
@@ -135,7 +138,21 @@ public class UserSessionInitializerTest {
   }
 
   @Test
+  public void validate_session_from_sso() throws Exception {
+    when(userSession.isLoggedIn()).thenReturn(true);
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.of(user));
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verify(ssoAuthenticator).authenticate(request, response);
+    verify(jwtHttpHandler, never()).validateToken(request, response);
+    verify(response, never()).setStatus(anyInt());
+  }
+
+  @Test
   public void return_code_401_when_invalid_token_exception() throws Exception {
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
@@ -148,6 +165,7 @@ public class UserSessionInitializerTest {
   public void return_code_401_when_not_authenticated_and_with_force_authentication() throws Exception {
     when(userSession.isLoggedIn()).thenReturn(false);
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
     settings.setProperty("sonar.forceAuthentication", true);
 
@@ -160,6 +178,7 @@ public class UserSessionInitializerTest {
   @Test
   public void return_401_and_stop_on_ws() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/issues");
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
@@ -171,6 +190,7 @@ public class UserSessionInitializerTest {
   @Test
   public void return_401_and_stop_on_batch_ws() throws Exception {
     when(request.getRequestURI()).thenReturn("/batch/global");
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
@@ -190,6 +210,7 @@ public class UserSessionInitializerTest {
 
   private void assertPathIsNotIgnored(String path) {
     when(request.getRequestURI()).thenReturn(path);
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(user));
 
     assertThat(underTest.initUserSession(request, response)).isTrue();

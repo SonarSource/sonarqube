@@ -26,6 +26,7 @@ import it.settings.LicensesPageTest;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.updateCenter.UpdateCenterTest;
 import it.user.RealmAuthenticationTest;
+import it.user.SsoAuthenticationTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -43,8 +44,9 @@ import org.junit.runners.Suite;
   LicensesPageTest.class,
   // update center
   UpdateCenterTest.class,
-  RealmAuthenticationTest.class
-  })
+  RealmAuthenticationTest.class,
+  SsoAuthenticationTest.class
+})
 public class Category5Suite {
 
 }
