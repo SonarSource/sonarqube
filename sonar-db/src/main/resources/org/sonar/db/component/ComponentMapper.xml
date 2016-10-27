@@ -346,12 +346,9 @@
 
   <sql id="sqlChildren">
     from projects p
-    inner join projects base on base.project_uuid = p.project_uuid
-    inner join snapshots s on s.component_uuid = base.project_uuid
+    inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{query.baseUuid}
     where
-    base.uuid = #{query.baseUuid}
-    and p.enabled = ${_true}
-    and s.islast = ${_true}
+    p.enabled = ${_true}
     and p.uuid_path = #{baseUuidPath}
     <include refid="sqlTreeFilters"/>
   </sql>
@@ -397,13 +394,10 @@
 
   <sql id="sqlDescendants">
     from projects p
-    inner join projects base on base.project_uuid=p.project_uuid
-    inner join snapshots s on s.component_uuid = base.project_uuid
+    inner join projects base on base.project_uuid=p.project_uuid and base.uuid = #{query.baseUuid}
     where
-    base.uuid = #{query.baseUuid}
-    and p.enabled = ${_true}
+    p.enabled = ${_true}
     and p.uuid_path like #{baseUuidPathLike} ESCAPE '/'
-    and s.islast = ${_true}
     <include refid="sqlTreeFilters"/>
   </sql>
 
