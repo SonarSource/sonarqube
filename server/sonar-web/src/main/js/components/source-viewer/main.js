@@ -215,8 +215,15 @@ export default Marionette.LayoutView.extend({
   requestSource (aroundLine) {
     const that = this;
     const url = window.baseUrl + '/api/sources/lines';
-    const options = _.extend({ uuid: this.model.id }, this.linesLimit(aroundLine));
-    return $.get(url, options).done(function (data) {
+    const data = _.extend({ uuid: this.model.id }, this.linesLimit(aroundLine));
+    return $.ajax({
+      url,
+      data,
+      statusCode: {
+        // don't display global error
+        403: null
+      }
+    }).done(function (data) {
       let source = (data.sources || []).slice(0);
       if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
         source.unshift({ line: 0 });
@@ -228,7 +235,7 @@ export default Marionette.LayoutView.extend({
         });
       });
       const firstLine = _.first(source).line;
-      const linesRequested = options.to - options.from + 1;
+      const linesRequested = data.to - data.from + 1;
       that.model.set({
         source,
         hasUTCoverage: that.model.hasUTCoverage(source),
