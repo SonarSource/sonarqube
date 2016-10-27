@@ -1,14 +1,17 @@
 /* eslint no-var: 0 */
 var path = require('path');
-var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
+var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var autoprefixerOptions = require('./../autoprefixer');
-var paths = require('./../paths');
+var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+var url = require('url');
+var paths = require('../paths');
+var autoprefixerOptions = require('../autoprefixer');
 
 module.exports = {
   entry: {
     'vendor': [
+      require.resolve('../polyfills'),
       'jquery',
       'underscore',
       'd3',
@@ -56,7 +59,7 @@ module.exports = {
     'widgets': './src/main/js/widgets/widgets.js'
   },
   output: {
-    path: paths.jsBuild,
+    path: paths.appBuild,
     filename: '[name].js'
   },
   plugins: [
@@ -64,9 +67,23 @@ module.exports = {
     new ExtractTextPlugin('../../css/sonar.css', { allChunks: true })
   ],
   resolve: {
-    root: path.join(__dirname, '../../src/main/js')
+    // This allows you to set a fallback for where Webpack should look for modules.
+    // We read `NODE_PATH` environment variable in `paths.js` and pass paths here.
+    // We use `fallback` instead of `root` because we want `node_modules` to "win"
+    // if there any conflicts. This matches Node resolution mechanism.
+    // https://github.com/facebookincubator/create-react-app/issues/253
+    fallback: paths.nodePaths
   },
   module: {
+    // First, run the linter.
+    // It's important to do this before Babel processes the JS.
+    preLoaders: [
+      {
+        test: /\.js$/,
+        loader: 'eslint',
+        include: paths.appSrc
+      }
+    ],
     loaders: [
       {
         test: /\.js$/,
@@ -103,5 +120,12 @@ module.exports = {
   },
   postcss: function () {
     return [autoprefixer(autoprefixerOptions)];
+  },
+  // Some libraries import Node modules but don't use them in the browser.
+  // Tell Webpack to provide empty mocks for them so importing them works.
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
   }
 };

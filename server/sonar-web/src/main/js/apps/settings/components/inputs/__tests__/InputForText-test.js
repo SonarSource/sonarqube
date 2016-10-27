@@ -20,7 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import InputForText from '../InputForText';
-import { change } from '../../../../../../../../tests/utils';
+import { change } from '../../../../../helpers/testUtils';
 
 it('should render textarea', () => {
   const onChange = jest.fn();

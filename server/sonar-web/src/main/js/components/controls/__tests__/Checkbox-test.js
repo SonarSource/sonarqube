@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import Checkbox from '../Checkbox';
-import { click } from '../../../../../../tests/utils';
+import { click } from '../../../helpers/testUtils';
 
 it('should render unchecked', () => {
   const checkbox = shallow(<Checkbox checked={false} onCheck={() => true}/>);

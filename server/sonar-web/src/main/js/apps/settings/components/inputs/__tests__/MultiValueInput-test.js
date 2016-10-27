@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
-import { click } from '../../../../../../../../tests/utils';
+import { click } from '../../../../../helpers/testUtils';
 
 const definition = { multiValues: true };
 

@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import Select from 'react-select';
 import ThresholdInput from '../ThresholdInput';
-import { change } from '../../../../../../../tests/utils';
+import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {
   it('should render text input', () => {

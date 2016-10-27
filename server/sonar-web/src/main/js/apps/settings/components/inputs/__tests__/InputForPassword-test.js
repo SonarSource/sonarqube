@@ -20,7 +20,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import InputForPassword from '../InputForPassword';
-import { click, submit, change } from '../../../../../../../../tests/utils';
+import { click, change, submit } from '../../../../../helpers/testUtils';
 
 it('should render lock icon, but no form', () => {
   const onChange = jest.fn();

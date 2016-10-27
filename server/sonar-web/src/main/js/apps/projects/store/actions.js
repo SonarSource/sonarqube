@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import groupBy from 'lodash/groupBy';
-import keyBy from 'lodash/keyBy';
 import { searchProjects } from '../../../api/components';
 import { addGlobalErrorMessage } from '../../../components/store/globalMessages';
 import { parseError } from '../../code/utils';

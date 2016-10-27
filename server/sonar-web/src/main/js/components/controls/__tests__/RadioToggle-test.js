@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import RadioToggle from '../RadioToggle';
-import { change } from '../../../../../../tests/utils';
+import { change } from '../../../helpers/testUtils';
 
 function getSample (props) {
   const options = [
