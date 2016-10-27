@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -136,7 +137,7 @@ public class UserIdentityAuthenticator {
   }
 
   private void addGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToAdd, Map<String, GroupDto> groupsByName) {
-    groupsToAdd.stream().map(groupsByName::get).filter(groupDto -> groupDto != null).forEach(
+    groupsToAdd.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
       groupDto -> {
         LOGGER.debug("Adding group '{}' to user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(groupDto.getId()).setUserId(userDto.getId()));
@@ -144,7 +145,7 @@ public class UserIdentityAuthenticator {
   }
 
   private void removeGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToRemove, Map<String, GroupDto> groupsByName) {
-    groupsToRemove.stream().map(groupsByName::get).filter(groupDto -> groupDto != null).forEach(
+    groupsToRemove.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
       groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());

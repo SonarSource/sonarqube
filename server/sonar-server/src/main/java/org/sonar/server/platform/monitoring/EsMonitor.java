@@ -78,7 +78,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
     } catch (Exception es) {
       Loggers.get(EsMonitor.class).warn("Failed to retrieve ES attributes. There will be only a single \"state\" attribute.", es);
       Map<String, Object> attributes = new LinkedHashMap<>();
-      attributes.put("State", (es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage()));
+      attributes.put("State", es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage());
       return attributes;
     }
   }

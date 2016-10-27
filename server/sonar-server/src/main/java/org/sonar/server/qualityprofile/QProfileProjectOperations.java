@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
@@ -29,6 +30,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -119,7 +121,7 @@ public class QProfileProjectOperations {
 
   private QualityProfileDto findNotNull(String key, DbSession session) {
     QualityProfileDto qualityProfile = db.qualityProfileDao().selectByKey(session, key);
-    QProfileValidations.checkProfileIsNotNull(qualityProfile);
+    checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }
 
@@ -131,6 +133,13 @@ public class QProfileProjectOperations {
     if (!userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasComponentPermission(UserRole.ADMIN, projectKey)) {
       throw new ForbiddenException("Insufficient privileges");
     }
+  }
+
+  private static QualityProfileDto checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
+    if (profile == null) {
+      throw new NotFoundException("This quality profile does not exists.");
+    }
+    return profile;
   }
 
 }
