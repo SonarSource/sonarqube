@@ -33,12 +33,15 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class MeasureDaoTest {
 
@@ -59,7 +62,9 @@ public class MeasureDaoTest {
 
   @Test
   public void test_inserted_and_selected_columns() {
-    insertAnalysis(LAST_ANALYSIS_UUID, true);
+    ComponentDto project = db.components().insertProject();
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    db.components().insertComponent(newFileDto(project).setUuid("C4"));
 
     MeasureDto inserted = new MeasureDto()
       .setAnalysisUuid(LAST_ANALYSIS_UUID)
@@ -100,8 +105,12 @@ public class MeasureDaoTest {
 
   @Test
   public void selectByQuery() {
-    insertAnalysis(LAST_ANALYSIS_UUID, true);
-    insertAnalysis(OTHER_ANALYSIS_UUID, false);
+    ComponentDto project = db.components().insertProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    db.components().insertComponent(newFileDto(module).setUuid("C1"));
+    db.components().insertComponent(newFileDto(module).setUuid("C2"));
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
     // component C1
     insertMeasure("M1", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
     insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
@@ -167,8 +176,11 @@ public class MeasureDaoTest {
 
   @Test
   public void selectByQuery_with_handler() {
-    insertAnalysis(LAST_ANALYSIS_UUID, true);
-    insertAnalysis(OTHER_ANALYSIS_UUID, false);
+    ComponentDto project = db.components().insertProject();
+    db.components().insertComponent(newFileDto(project).setUuid("C1"));
+    db.components().insertComponent(newFileDto(project).setUuid("C2"));
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
     // component C1
     insertMeasure("M1", OTHER_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
     insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
@@ -235,7 +247,9 @@ public class MeasureDaoTest {
 
   @Test
   public void selectSingle() {
-    insertAnalysis(LAST_ANALYSIS_UUID, true);
+    ComponentDto project = db.components().insertProject();
+    db.components().insertComponent(newFileDto(project).setUuid("C1"));
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
     insertMeasure("M1", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
     insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", COMPLEXITY_METRIC_ID);
     db.commit();
@@ -254,10 +268,11 @@ public class MeasureDaoTest {
 
   @Test
   public void selectProjectMeasuresOfDeveloper() {
-    insertAnalysis(LAST_ANALYSIS_UUID, true);
-    insertAnalysis(PREVIOUS_ANALYSIS_UUID, false);
+    ComponentDto dev = db.components().insertComponent(newDeveloper("DEV"));
+    insertAnalysis(LAST_ANALYSIS_UUID, dev.uuid(), true);
+    insertAnalysis(PREVIOUS_ANALYSIS_UUID, dev.uuid(), false);
     List<Integer> allMetricIds = Arrays.asList(NCLOC_METRIC_ID, COMPLEXITY_METRIC_ID, COVERAGE_METRIC_ID);
-    long developerId = 123L;
+    long developerId = dev.getId();
     assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds)).isEmpty();
 
     String projectUuid = insertComponent(Scopes.PROJECT, Qualifiers.PROJECT, true);
@@ -362,9 +377,10 @@ public class MeasureDaoTest {
     db.getDbClient().measureDao().insert(db.getSession(), measure);
   }
 
-  private void insertAnalysis(String uuid, boolean isLast) {
+  private void insertAnalysis(String uuid, String projectUuid, boolean isLast) {
     db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshot()
       .setUuid(uuid)
+      .setComponentUuid(projectUuid)
       .setLast(isLast));
   }
 

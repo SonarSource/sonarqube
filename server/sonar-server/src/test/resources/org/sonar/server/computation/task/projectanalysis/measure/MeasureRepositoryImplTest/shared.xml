@@ -2,6 +2,7 @@
   <projects uuid="uuid_1"
             uuid_path="NOT_USED"
             root_uuid="uuid_1"
+            project_uuid="uuid_1"
             kee="file cpt key"
             enabled="[true]"
             id="567"/>

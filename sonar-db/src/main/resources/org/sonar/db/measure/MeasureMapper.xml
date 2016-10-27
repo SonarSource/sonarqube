@@ -30,7 +30,8 @@
     <include refid="measureColumns"/>
     from
       project_measures pm
-      inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+      inner join projects p on p.uuid=pm.component_uuid
+      inner join snapshots analysis on analysis.component_uuid = p.project_uuid and analysis.uuid = pm.analysis_uuid
       <if test="query.getMetricKeys() != null">
         inner join metrics m on m.id = pm.metric_id
       </if>
@@ -41,7 +42,7 @@
       <if test="query.getAnalysisUuid() != null">
         analysis.uuid = #{query.analysisUuid}
       </if>
-      and pm.component_uuid in
+      and p.uuid in
       <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
         #{componentUuid}
       </foreach>

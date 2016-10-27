@@ -134,8 +134,7 @@ public class AppActionTest {
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java");
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, module, file);
-    SnapshotDto analysis = SnapshotTesting.newAnalysis(project)
-      .setUuid(ANALYSIS_UUID);
+    SnapshotDto analysis = SnapshotTesting.newAnalysis(project).setUuid(ANALYSIS_UUID);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), analysis);
   }
 
