@@ -20,6 +20,7 @@
 import React from 'react';
 
 import InternalBadge from './InternalBadge';
+import DeprecatedBadge from './DeprecatedBadge';
 
 export default function Params ({ params }) {
   return (
@@ -31,7 +32,7 @@ export default function Params ({ params }) {
                 <td style={{ width: 180 }}>
                   <code>{param.key}</code>
                   {param.internal && (
-                      <span className="spacer-left">
+                    <span className="spacer-left">
                       <InternalBadge/>
                     </span>
                   )}
@@ -48,9 +49,7 @@ export default function Params ({ params }) {
 
                   {param.deprecatedSince && (
                       <div className="little-spacer-top">
-                        <span className="badge badge-danger">
-                          deprecated since {param.deprecatedSince}
-                        </span>
+                        <DeprecatedBadge since={param.deprecatedSince}/>
                       </div>
                   )}
                 </td>
