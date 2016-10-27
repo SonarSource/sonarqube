@@ -54,9 +54,8 @@ public class GlobalSettings extends Settings {
   public GlobalSettings(GlobalProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
     GlobalRepositories globalReferentials, GlobalMode mode) {
 
-    super(propertyDefinitions, new Encryption(null));
+    super(propertyDefinitions, new Encryption(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
     this.mode = mode;
-    getEncryption().setPathToSecretKey(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.bootstrapProps = bootstrapProps;
     this.globalReferentials = globalReferentials;
     init();
