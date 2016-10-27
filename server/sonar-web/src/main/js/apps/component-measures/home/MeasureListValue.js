@@ -21,7 +21,6 @@ import React from 'react';
 
 import Measure from '../components/Measure';
 import { isDiffMetric } from '../utils';
-import { formatMeasure } from '../../../helpers/measures';
 
 const MeasureListValue = ({ measure }) => {
   const { metric } = measure;
@@ -29,7 +28,7 @@ const MeasureListValue = ({ measure }) => {
   if (isDiffMetric(metric)) {
     return (
         <div id={`measure-${measure.metric.key}-leak`} className="domain-measures-value domain-measures-leak">
-          {formatMeasure(measure.leak, measure.metric.type)}
+          <Measure measure={measure}/>
         </div>
     );
   }

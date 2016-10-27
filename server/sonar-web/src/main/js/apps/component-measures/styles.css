@@ -105,6 +105,7 @@
 
 .domain-measures .domain-measures-name {
   width: calc(100% - 160px);
+  line-height: 24px;
 }
 
 .domain-measures .domain-measures-name > span {

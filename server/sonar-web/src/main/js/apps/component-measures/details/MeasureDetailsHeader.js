@@ -23,7 +23,7 @@ import Measure from './../components/Measure';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
-import { isDiffMetric, formatLeak } from '../utils';
+import { isDiffMetric } from '../utils';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 
@@ -45,7 +45,7 @@ export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasur
 
             {isDiffMetric(metric) ? (
                 <div className="measure-details-value-leak">
-                  {formatLeak(measure.leak, metric)}
+                  <Measure measure={measure} metric={metric}/>
                 </div>
             ) : (
                 <div className="measure-details-value-absolute">
