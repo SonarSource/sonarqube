@@ -57,6 +57,6 @@ public class LineCoverageRuleTest extends CoverageRuleTest {
 
   @Override
   protected String getExpectedIssueMessage() {
-    return "23 more lines of code need to be covered by unit tests to reach the minimum threshold of 65.0% lines coverage.";
+    return "23 more lines of code need to be covered by tests to reach the minimum threshold of 65.0% lines coverage.";
   }
 }

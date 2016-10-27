@@ -40,6 +40,6 @@ public class LineCoverageRule extends AbstractCoverageRule {
   @Override
   protected String formatMessage(int effortToFix, double minCoverage) {
     // TODO declare min threshold as int but not float ?
-    return format("%d more lines of code need to be covered by unit tests to reach the minimum threshold of %s%% lines coverage.", effortToFix, minCoverage);
+    return format("%d more lines of code need to be covered by tests to reach the minimum threshold of %s%% lines coverage.", effortToFix, minCoverage);
   }
 }
