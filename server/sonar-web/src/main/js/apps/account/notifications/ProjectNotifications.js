@@ -72,10 +72,12 @@ export default function ProjectNotifications ({ notifications, channels, onAddPr
           </span>
           <Select.Async
               name="new_project"
-              style={{ width: '150px' }}
+              style={{ width: '300px' }}
               loadOptions={loadOptions}
+              minimumInput={2}
               onChange={handleAddProject}
-              placeholder="Search Project"/>
+              placeholder="Search Project"
+              searchPromptText="Type at least 2 characters to search"/>
         </div>
       </section>
   );
