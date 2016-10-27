@@ -89,7 +89,8 @@
     "build-fast": "node scripts/build.js --fast",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "coverage": "npm test -- --coverage"
+    "coverage": "npm test -- --coverage",
+    "lint": "eslint src/main/js"
   },
   "engines": {
     "node": ">=4"
