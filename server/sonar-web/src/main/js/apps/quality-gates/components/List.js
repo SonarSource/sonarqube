@@ -28,7 +28,7 @@ export default function List ({ qualityGates }) {
         {qualityGates.map(qualityGate => (
             <Link
                 key={qualityGate.id}
-                to={`/show/${qualityGate.id}`}
+                to={`/quality_gates/show/${qualityGate.id}`}
                 activeClassName="active"
                 className="list-group-item"
                 data-id={qualityGate.id}>
