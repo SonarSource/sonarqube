@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Route, IndexRoute, Redirect } from 'react-router';
-import App from './components/App';
+import AppContainer from './components/AppContainer';
 import ProfileContainer from './components/ProfileContainer';
 import HomeContainer from './home/HomeContainer';
 import ProfileDetails from './details/ProfileDetails';
@@ -27,7 +27,7 @@ import ChangelogContainer from './changelog/ChangelogContainer';
 import ComparisonContainer from './compare/ComparisonContainer';
 
 export default (
-    <Route path="profiles" component={App}>
+    <Route path="profiles" component={AppContainer}>
       <Redirect from="/profiles/index" to="/profiles/"/>
 
       <IndexRoute component={HomeContainer}/>

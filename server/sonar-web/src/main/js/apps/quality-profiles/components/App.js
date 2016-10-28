@@ -18,11 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { getLanguages } from '../../../api/languages';
-import {
-    getQualityProfiles,
-    getExporters
-} from '../../../api/quality-profiles';
+import { getQualityProfiles, getExporters } from '../../../api/quality-profiles';
 import { getCurrentUser } from '../../../api/users';
 import '../styles.css';
 import { sortProfiles } from '../utils';
@@ -49,15 +45,13 @@ export default class App extends React.Component {
     this.setState({ loading: true });
     Promise.all([
       getCurrentUser(),
-      getLanguages(),
       getExporters(),
       getQualityProfiles()
     ]).then(responses => {
       if (this.mounted) {
-        const [user, languages, exporters, profiles] = responses;
+        const [user, exporters, profiles] = responses;
         const canAdmin = user.permissions.global.includes('profileadmin');
         this.setState({
-          languages,
           exporters,
           canAdmin,
           profiles: sortProfiles(profiles),
@@ -76,13 +70,16 @@ export default class App extends React.Component {
   }
 
   renderChild () {
-    if (this.state.loading) {
+    const areLanguagesLoading = Object.keys(this.props.languages).length === 0;
+    if (this.state.loading || areLanguagesLoading) {
       return <i className="spinner"/>;
     }
 
+    const finalLanguages = Object.values(this.props.languages);
+
     return React.cloneElement(this.props.children, {
       profiles: this.state.profiles,
-      languages: this.state.languages,
+      languages: finalLanguages,
       exporters: this.state.exporters,
       canAdmin: this.state.canAdmin,
       updateProfiles: this.updateProfiles
