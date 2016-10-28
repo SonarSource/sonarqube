@@ -27,69 +27,70 @@ export default function Params ({ params }) {
       <div className="web-api-params">
         <table>
           <tbody>
-          {params.map(param => (
-              <tr key={param.key}>
-                <td style={{ width: 180 }}>
-                  <code>{param.key}</code>
-                  {param.internal && (
-                    <span className="spacer-left">
-                      <InternalBadge/>
-                    </span>
-                  )}
+            {params.map(param => (
+                <tr key={param.key}>
+                  <td style={{ width: 180 }}>
+                    <code>{param.key}</code>
 
-                  <div className="note little-spacer-top">
-                    {param.required ? 'required' : 'optional'}
-                  </div>
+                    {param.internal && (
+                        <div className="little-spacer-top">
+                          <InternalBadge/>
+                        </div>
+                    )}
 
-                  {param.since && (
-                      <div className="note little-spacer-top">
-                        since {param.since}
-                      </div>
-                  )}
+                    {param.deprecatedSince && (
+                        <div className="little-spacer-top">
+                          <DeprecatedBadge since={param.deprecatedSince}/>
+                        </div>
+                    )}
 
-                  {param.deprecatedSince && (
-                      <div className="little-spacer-top">
-                        <DeprecatedBadge since={param.deprecatedSince}/>
-                      </div>
-                  )}
-                </td>
+                    <div className="note little-spacer-top">
+                      {param.required ? 'required' : 'optional'}
+                    </div>
 
-                <td>
-                  <div
-                      className="markdown"
-                      dangerouslySetInnerHTML={{ __html: param.description }}/>
-                </td>
+                    {param.since && (
+                        <div className="note little-spacer-top">
+                          since {param.since}
+                        </div>
+                    )}
+                  </td>
 
-                <td style={{ width: 250 }}>
-                  {param.possibleValues && (
-                      <div>
-                        <h4>Possible values</h4>
-                        <ul className="list-styled">
-                          {param.possibleValues.map(value => (
-                              <li key={value} className="little-spacer-top">
-                                <code>{value}</code>
-                              </li>
-                          ))}
-                        </ul>
-                      </div>
-                  )}
+                  <td>
+                    <div
+                        className="markdown"
+                        dangerouslySetInnerHTML={{ __html: param.description }}/>
+                  </td>
 
-                  {param.defaultValue && (
-                      <div className="little-spacer-top">
-                        <h4>Default value</h4>
-                        <code>{param.defaultValue}</code>
-                      </div>
-                  )}
+                  <td style={{ width: 250 }}>
+                    {param.possibleValues && (
+                        <div>
+                          <h4>Possible values</h4>
+                          <ul className="list-styled">
+                            {param.possibleValues.map(value => (
+                                <li key={value} className="little-spacer-top">
+                                  <code>{value}</code>
+                                </li>
+                            ))}
+                          </ul>
+                        </div>
+                    )}
 
-                  {param.exampleValue && (
-                      <div className="little-spacer-top">
-                        <h4>Example value</h4>
-                        <code>{param.exampleValue}</code>
-                      </div>
-                  )}
-                </td>
-              </tr>
-          ))}
+                    {param.defaultValue && (
+                        <div className="little-spacer-top">
+                          <h4>Default value</h4>
+                          <code>{param.defaultValue}</code>
+                        </div>
+                    )}
+
+                    {param.exampleValue && (
+                        <div className="little-spacer-top">
+                          <h4>Example value</h4>
+                          <code>{param.exampleValue}</code>
+                        </div>
+                    )}
+                  </td>
+                </tr>
+            ))}
           </tbody>
         </table>
       </div>
