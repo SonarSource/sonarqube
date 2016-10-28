@@ -176,7 +176,7 @@ export default class Condition extends Component {
     const isRating = metric.type === 'RATING';
     const isLeakSelected = !!this.state.period;
 
-    if (isRating || (isDiffMetric && !edit)) {
+    if (isRating || isDiffMetric || !edit) {
       return this.renderPeriodValue();
     }
 
