@@ -26,6 +26,7 @@ import App from './components/App';
 import accountRoutes from '../apps/account/routes';
 import projectsRoutes from '../apps/projects/routes';
 import qualityGatesRoutes from '../apps/quality-gates/routes';
+import qualityProfilesRoutes from '../apps/quality-profiles/routes';
 import configureStore from '../components/store/configureStore';
 import rootReducer from './store/rootReducer';
 import './styles/index';
@@ -46,6 +47,7 @@ window.sonarqube.appStarted.then(options => {
             {accountRoutes}
             {projectsRoutes}
             {qualityGatesRoutes}
+            {qualityProfilesRoutes}
           </Route>
         </Router>
       </Provider>

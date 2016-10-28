@@ -26,7 +26,7 @@ export default class ProfileNotFound extends React.Component {
     return (
         <div className="quality-profile-not-found">
           <div className="note spacer-bottom">
-            <IndexLink to="/" className="text-muted">
+            <IndexLink to="/profiles/" className="text-muted">
               {translate('quality_profiles.page')}
             </IndexLink>
           </div>

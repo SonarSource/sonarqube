@@ -86,12 +86,12 @@ export default class ProfileHeader extends React.Component {
     return (
         <header className="page-header quality-profile-header">
           <div className="note spacer-bottom">
-            <IndexLink to="/" className="text-muted">
+            <IndexLink to="/profiles/" className="text-muted">
               {translate('quality_profiles.page')}
             </IndexLink>
             {' / '}
             <Link
-                to={{ pathname: '/', query: { language: profile.language } }}
+                to={{ pathname: '/profiles/', query: { language: profile.language } }}
                 className="text-muted">
               {profile.languageName}
             </Link>
@@ -111,7 +111,7 @@ export default class ProfileHeader extends React.Component {
               {this.renderUsageDate()}
               <li>
                 <Link
-                    to={{ pathname: '/changelog', query: { key: profile.key } }}
+                    to={{ pathname: '/profiles/changelog', query: { key: profile.key } }}
                     className="button">
                   {translate('changelog')}
                 </Link>

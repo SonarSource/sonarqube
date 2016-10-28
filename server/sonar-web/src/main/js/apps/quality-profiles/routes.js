@@ -18,15 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import {
-    Router,
-    Route,
-    IndexRoute,
-    Redirect,
-    useRouterHistory
-} from 'react-router';
-import { createHistory } from 'history';
+import { Route, IndexRoute, Redirect } from 'react-router';
 import App from './components/App';
 import ProfileContainer from './components/ProfileContainer';
 import HomeContainer from './home/HomeContainer';
@@ -34,26 +26,16 @@ import ProfileDetails from './details/ProfileDetails';
 import ChangelogContainer from './changelog/ChangelogContainer';
 import ComparisonContainer from './compare/ComparisonContainer';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+export default (
+    <Route path="profiles" component={App}>
+      <Redirect from="/profiles/index" to="/profiles/"/>
 
-  const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/profiles'
-  });
+      <IndexRoute component={HomeContainer}/>
 
-  render((
-      <Router history={history}>
-        <Route path="/" component={App}>
-          <Redirect from="/index" to="/"/>
-
-          <IndexRoute component={HomeContainer}/>
-
-          <Route component={ProfileContainer}>
-            <Route path="show" component={ProfileDetails}/>
-            <Route path="changelog" component={ChangelogContainer}/>
-            <Route path="compare" component={ComparisonContainer}/>
-          </Route>
-        </Route>
-      </Router>
-  ), el);
-});
+      <Route component={ProfileContainer}>
+        <Route path="show" component={ProfileDetails}/>
+        <Route path="changelog" component={ChangelogContainer}/>
+        <Route path="compare" component={ComparisonContainer}/>
+      </Route>
+    </Route>
+);
