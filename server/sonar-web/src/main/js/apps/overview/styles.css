@@ -54,60 +54,52 @@
   background-color: #fff;
 }
 
-.overview-quality-gate-condition-metric {
-  max-width: 120px;
+.overview-quality-gate-condition-leak {
+  background-color: #fbf3d5;
 }
 
 .overview-quality-gate-condition-metric,
 .overview-quality-gate-condition-period {
-  margin-bottom: 2px;
+  max-width: 120px;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.overview-quality-gate-condition-period {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .overview-quality-gate-condition-container {
   float: left;
   display: flex;
   align-items: center;
-  padding-left: 20px;
+  padding: 10px 10px 10px 20px;
 }
 
 .overview-quality-gate-condition-value {
   line-height: 1;
-  margin-right: 12px;
-  font-size: 32px;
-  font-weight: 300;
+  margin-right: 20px;
+  font-size: 24px;
+  font-weight: normal;
 }
 
-.overview-quality-gate-condition-threshold {
+.overview-quality-gate-condition-value span {
+  display: inline-block;
+  vertical-align: top;
 }
 
 .overview-quality-gate-warning {
   margin: 15px 0 0;
 }
 
-.overview-quality-gate-level {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 4px;
-  height: 80px;
-  margin-left: 20px;
-  content: "";
-}
-
 .overview-quality-gate-condition-error {
   border-color: #d4333f;
 }
 
-.overview-quality-gate-condition-error .overview-quality-gate-level {
-  background-color: #d4333f;
-}
-
 .overview-quality-gate-condition-warn {
   border-color: #f90;
-}
-
-.overview-quality-gate-condition-warn .overview-quality-gate-level {
-  background-color: #f90;
 }
 
 

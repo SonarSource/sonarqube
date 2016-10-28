@@ -18,16 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import { ComponentType, PeriodsListType, EnhancedConditionType } from '../propTypes';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import Measure from '../../component-measures/components/Measure';
-import { getPeriodValue } from '../../../helpers/measures';
+import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import { getPeriod, getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
+import { getPeriod, getPeriodDate } from '../../../helpers/periods';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 const QualityGateCondition = ({ component, periods, condition }) => {
   const { measure } = condition;
   const { metric } = measure;
+
+  const isRating = metric.type === 'RATING';
+  const isDiff = isDiffMetric(metric.key);
 
   const threshold = condition.level === 'ERROR' ?
       condition.error :
@@ -36,49 +41,49 @@ const QualityGateCondition = ({ component, periods, condition }) => {
   const actual = condition.period ?
       getPeriodValue(measure, condition.period) :
       measure.value;
-
   const period = getPeriod(periods, condition.period);
-  const periodLabel = getPeriodLabel(period);
-  const periodDate = getPeriodDate(period);
 
-  const operator = metric.type === 'RATING' ?
+  const periodDate = getPeriodDate(period);
+  const operator = isRating ?
       translate('quality_gates.operator', condition.op, 'rating') :
       translate('quality_gates.operator', condition.op, 'short');
 
-  const className = 'overview-quality-gate-condition overview-quality-gate-condition-' + condition.level.toLowerCase();
+  const className = classNames(
+      'overview-quality-gate-condition',
+      'overview-quality-gate-condition-' + condition.level.toLowerCase(),
+      { 'overview-quality-gate-condition-leak': period != null }
+  );
 
   return (
-      <li className={className}>
-        <div className="overview-quality-gate-condition-container">
-          <div className="overview-quality-gate-condition-value">
-            <DrilldownLink
-                component={component.key}
-                metric={metric.key}
-                period={condition.period}
-                periodDate={periodDate}>
-              <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
-            </DrilldownLink>
-          </div>
-
-          <div>
-            <div className="overview-quality-gate-condition-metric">
-              {metric.name}
+      <TooltipsContainer>
+        <li className={className}>
+          <div className="overview-quality-gate-condition-container"
+               title={`${operator} ${formatMeasure(threshold, metric.type)}`}
+               data-toggle="tooltip">
+            <div className="overview-quality-gate-condition-value">
+              <DrilldownLink
+                  className={isRating ? 'link-no-underline' : null}
+                  component={component.key}
+                  metric={metric.key}
+                  period={condition.period}
+                  periodDate={periodDate}>
+                <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
+              </DrilldownLink>
             </div>
-            {period != null && (
-                <div className="overview-quality-gate-condition-period">
-                  {periodLabel}
-                </div>
-            )}
-            <div className="overview-quality-gate-condition-threshold">
-              {operator}
-              {' '}
-              <Measure measure={{ value: threshold, leak: threshold }} metric={metric}/>
+
+            <div>
+              <div className="overview-quality-gate-condition-metric">
+                {metric.name}
+              </div>
+              {!isDiff && period != null && (
+                  <div className="overview-quality-gate-condition-period">
+                    {translate('quality_gates.conditions.leak')}
+                  </div>
+              )}
             </div>
           </div>
-
-          <div className="overview-quality-gate-level"/>
-        </div>
-      </li>
+        </li>
+      </TooltipsContainer>
   );
 };
 

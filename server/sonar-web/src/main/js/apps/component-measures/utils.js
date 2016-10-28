@@ -119,9 +119,10 @@ export function filterOutEmptyMeasures (components) {
 }
 
 export function getRatingTooltip (metricKey, value) {
+  const finalMetricKey = metricKey.indexOf('new_') === 0 ? metricKey.substr(4) : metricKey;
   const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
-  if (KNOWN_RATINGS.includes(metricKey)) {
-    return nextGetRatingTooltip(metricKey, value);
+  if (KNOWN_RATINGS.includes(finalMetricKey)) {
+    return nextGetRatingTooltip(finalMetricKey, value);
   }
   return null;
 }
