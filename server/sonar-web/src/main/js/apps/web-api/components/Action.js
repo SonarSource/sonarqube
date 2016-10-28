@@ -28,6 +28,10 @@ import InternalBadge from './InternalBadge';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 export default class Action extends React.Component {
+  static propTypes = {
+    showInternal: React.PropTypes.bool
+  };
+
   state = {
     showParams: false,
     showResponse: false
@@ -111,7 +115,7 @@ export default class Action extends React.Component {
               </ul>
           )}
 
-          {showParams && action.params && <Params params={action.params}/>}
+          {showParams && action.params && <Params params={action.params} showInternal={this.props.showInternal}/>}
 
           {showResponse && action.hasResponseExample && <ResponseExample domain={domain} action={action}/>}
         </div>

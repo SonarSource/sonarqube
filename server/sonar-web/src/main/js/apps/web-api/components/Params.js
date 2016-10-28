@@ -22,12 +22,14 @@ import React from 'react';
 import InternalBadge from './InternalBadge';
 import DeprecatedBadge from './DeprecatedBadge';
 
-export default function Params ({ params }) {
+export default function Params ({ params, showInternal }) {
+  const displayedParameters = showInternal ? params : params.filter(p => !p.internal);
+
   return (
       <div className="web-api-params">
         <table>
           <tbody>
-            {params.map(param => (
+            {displayedParameters.map(param => (
                 <tr key={param.key}>
                   <td style={{ width: 180 }}>
                     <code>{param.key}</code>

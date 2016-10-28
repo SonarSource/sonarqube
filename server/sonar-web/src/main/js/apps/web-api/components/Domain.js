@@ -58,7 +58,8 @@ export default function Domain ({ domain, showInternal, showOnlyDeprecated, sear
                   key={getActionKey(domain.path, action.key)}
                   action={action}
                   domain={domain}
-                  location={location}/>
+                  location={location}
+                  showInternal={showInternal}/>
           ))}
         </div>
       </div>
