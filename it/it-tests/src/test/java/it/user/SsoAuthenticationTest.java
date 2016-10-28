@@ -89,6 +89,16 @@ public class SsoAuthenticationTest {
   }
 
   @Test
+  public void update_user_when_headers_are_updated() {
+    call(USER_LOGIN, USER_NAME, USER_EMAIL, null);
+    USER_RULE.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+
+    // As we don't keep the JWT token is the test, the user is updated
+    call(USER_LOGIN, "new name", "new email", null);
+    USER_RULE.verifyUserExists(USER_LOGIN, "new name", "new email");
+  }
+
+  @Test
   public void authenticate_with_groups() {
     call(USER_LOGIN, null, null, GROUP_1);
 
@@ -116,12 +126,15 @@ public class SsoAuthenticationTest {
   }
 
   @Test
-  public void fail_when_login_is_invalid() throws Exception {
+  public void display_message_in_ui_but_not_in_log_when_unauthorized_exception() throws Exception {
     Response response = doCall("invalid login $", null, null, null);
 
-    assertThat(response.code()).isEqualTo(500);
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(response.body().string()).contains("You're not authorized to access this page. Please contact the administrator");
+
     List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getLogs(), Charsets.UTF_8);
-    assertThat(logsLines).contains("org.sonar.server.exceptions.BadRequestException: user.bad_login");
+    assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: user.bad_login");
+    USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
   }
 
   private static Response call(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {

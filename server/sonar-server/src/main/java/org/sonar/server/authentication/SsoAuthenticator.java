@@ -35,9 +35,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
@@ -86,6 +88,14 @@ public class SsoAuthenticator {
   }
 
   public Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      return doAuthenticate(request, response);
+    } catch (BadRequestException e) {
+      throw new UnauthorizedException(e.getMessage(), e);
+    }
+  }
+
+  private Optional<UserDto> doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
     if (!settings.getBoolean(ENABLE_PARAM)) {
       return Optional.empty();
     }

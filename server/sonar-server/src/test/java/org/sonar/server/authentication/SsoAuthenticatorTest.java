@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.stream.Collectors;
@@ -313,6 +314,16 @@ public class SsoAuthenticatorTest {
 
     verifyUserNotAuthenticated();
     verifyZeroInteractions(jwtHttpHandler);
+  }
+
+  @Test
+  public void throw_UnauthorizedException_when_BadRequestException_is_generated() throws Exception {
+    enableSso();
+    setNotUserInToken();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("user.bad_login");
+    underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
   }
 
   private void enableSso() {
