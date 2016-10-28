@@ -29,6 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -102,25 +103,17 @@ public class AppActionTest {
   }
 
   @Test
-  public void return_rating_metrics() throws Exception {
-    dbClient.metricDao().insert(dbSession, newMetricDto()
-      .setKey("reliability_rating")
-      .setShortName("Reliability Rating")
-      .setDomain("Reliability")
-      .setValueType(RATING.name())
-      .setHidden(false));
-    dbSession.commit();
+  public void return_rating_metrics_only_from_core_metrics() throws Exception {
+    insertMetrics(
+      newMetricDto().setKey("reliability_rating").setValueType(RATING.name()).setHidden(false),
+      newMetricDto().setKey("new_reliability_rating").setValueType(RATING.name()).setHidden(false),
+      newMetricDto().setKey("sqale_rating").setValueType(RATING.name()).setHidden(false),
+      newMetricDto().setKey("none_core_rating").setValueType(RATING.name()).setHidden(false));
 
     AppWsResponse response = executeRequest();
 
-    List<AppWsResponse.Metric> metrics = response.getMetricsList();
-    assertThat(metrics).hasSize(1);
-    AppWsResponse.Metric metric = metrics.get(0);
-    assertThat(metric.getKey()).isEqualTo("reliability_rating");
-    assertThat(metric.getName()).isEqualTo("Reliability Rating");
-    assertThat(metric.getDomain()).isEqualTo("Reliability");
-    assertThat(metric.getType()).isEqualTo(RATING.name());
-    assertThat(metric.getHidden()).isFalse();
+    assertThat(response.getMetricsList()).extracting(AppWsResponse.Metric::getKey).containsOnly(
+      "reliability_rating", "new_reliability_rating", "sqale_rating");
   }
 
   @Test
@@ -219,6 +212,13 @@ public class AppActionTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).isEmpty();
+  }
+
+  private void insertMetrics(MetricDto... metricDtos) {
+    for (MetricDto metricDto : metricDtos) {
+      dbClient.metricDao().insert(dbSession, metricDto);
+    }
+    dbSession.commit();
   }
 
   private AppWsResponse executeRequest() {

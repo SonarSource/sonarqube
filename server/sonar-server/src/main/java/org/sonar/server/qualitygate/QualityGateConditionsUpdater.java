@@ -48,6 +48,7 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.valueOf;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
+import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 
 public class QualityGateConditionsUpdater {
 
@@ -186,6 +187,9 @@ public class QualityGateConditionsUpdater {
   private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, Errors errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
+    }
+    if (!isCoreRatingMetric(metric.getKey())) {
+      errors.add(Message.of(format("The metric '%s' cannot be used", metric.getShortName())));
     }
     if (period != null && !metric.getKey().startsWith("new_")) {
       errors.add(Message.of(format("The metric '%s' cannot be used on the leak period", metric.getShortName())));
