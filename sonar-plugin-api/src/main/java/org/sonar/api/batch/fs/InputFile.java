@@ -79,13 +79,18 @@ public interface InputFile extends InputPath {
   String absolutePath();
 
   /**
-   * The underlying absolute {@link java.io.File}
+   * The underlying absolute {@link java.io.File}. It should not be used to read the file in the filesystem.
+   * @see #contents()
+   * @see #inputStream()
    */
   @Override
   File file();
 
   /**
-   * The underlying absolute {@link Path}
+   * The underlying absolute {@link Path}.
+   * It should not be used to read the file in the filesystem.
+   * @see #contents()
+   * @see #inputStream()
    * @since 5.1
    */
   @Override
