@@ -31,7 +31,9 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsQualityGates.AppWsResponse;
 
@@ -84,7 +86,8 @@ public class AppAction implements QualityGatesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       return dbClient.metricDao().selectEnabled(dbSession).stream()
-        .filter(metric -> !metric.isDataType() && !ALERT_STATUS_KEY.equals(metric.getKey()))
+        .filter(metric -> !metric.isDataType() && !ALERT_STATUS_KEY.equals(metric.getKey()) &&
+          (!RATING.name().equals(metric.getValueType()) || isCoreRatingMetric(metric.getKey())))
         .collect(Collectors.toList());
     } finally {
       dbClient.closeSession(dbSession);
