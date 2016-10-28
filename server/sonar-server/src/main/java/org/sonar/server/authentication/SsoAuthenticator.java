@@ -32,12 +32,15 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -45,7 +48,9 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
 import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
 
-public class SsoAuthenticator {
+public class SsoAuthenticator implements Startable {
+
+  private static final Logger LOG = Loggers.get(SsoAuthenticator.class);
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
@@ -68,7 +73,7 @@ public class SsoAuthenticator {
 
   private static final String LAST_REFRESH_TIME_TOKEN_PARAM = "ssoLastRefreshTime";
 
-  private static final Map<String, String> DEFAULT_VALUES_BY_PARAMETERS = ImmutableMap.of(
+  private static final Map<String, String> DEFAULT_VALUES_BY_SETTING_KEYS = ImmutableMap.of(
     LOGIN_HEADER_PARAM, LOGIN_HEADER_DEFAULT_VALUE,
     NAME_HEADER_PARAM, NAME_HEADER_DEFAULT_VALUE,
     EMAIL_HEADER_PARAM, EMAIL_HEADER_DEFAULT_VALUE,
@@ -80,11 +85,29 @@ public class SsoAuthenticator {
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
 
+  private boolean enabled = false;
+  private Map<String, String> settingsByKey = new HashMap<>();
+
   public SsoAuthenticator(System2 system2, Settings settings, UserIdentityAuthenticator userIdentityAuthenticator, JwtHttpHandler jwtHttpHandler) {
     this.system2 = system2;
     this.settings = settings;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
+  }
+
+  @Override
+  public void start() {
+    if (settings.getBoolean(ENABLE_PARAM)) {
+      LOG.info("SSO Authentication enabled");
+      enabled = true;
+      DEFAULT_VALUES_BY_SETTING_KEYS.entrySet()
+        .forEach(entry -> settingsByKey.put(entry.getKey(), defaultIfBlank(settings.getString(entry.getKey()), DEFAULT_VALUES_BY_SETTING_KEYS.get(entry.getKey()))));
+    }
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
   }
 
   public Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
@@ -96,7 +119,7 @@ public class SsoAuthenticator {
   }
 
   private Optional<UserDto> doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
-    if (!settings.getBoolean(ENABLE_PARAM)) {
+    if (!enabled) {
       return Optional.empty();
     }
     Map<String, String> headerValuesByNames = getHeaders(request);
@@ -120,7 +143,7 @@ public class SsoAuthenticator {
       return Optional.empty();
     }
     Date now = new Date(system2.now());
-    int refreshIntervalInMinutes = Integer.parseInt(getSettingValue(REFRESH_INTERVAL_PARAM));
+    int refreshIntervalInMinutes = Integer.parseInt(settingsByKey.get(REFRESH_INTERVAL_PARAM));
     Long lastFreshTime = (Long) token.get().getProperties().get(LAST_REFRESH_TIME_TOKEN_PARAM);
     if (lastFreshTime == null || now.after(addMinutes(new Date(lastFreshTime), refreshIntervalInMinutes))) {
       return Optional.empty();
@@ -145,7 +168,7 @@ public class SsoAuthenticator {
 
   @CheckForNull
   private String getHeaderValue(Map<String, String> headerValuesByNames, String settingKey) {
-    return headerValuesByNames.get(getSettingValue(settingKey).toLowerCase(Locale.ENGLISH));
+    return headerValuesByNames.get(settingsByKey.get(settingKey).toLowerCase(Locale.ENGLISH));
   }
 
   private static Map<String, String> getHeaders(HttpServletRequest request) {
@@ -155,11 +178,7 @@ public class SsoAuthenticator {
   }
 
   private boolean hasHeader(Map<String, String> headerValuesByNames, String settingKey) {
-    return headerValuesByNames.keySet().contains(getSettingValue(settingKey).toLowerCase(Locale.ENGLISH));
-  }
-
-  private String getSettingValue(String settingKey) {
-    return defaultIfBlank(settings.getString(settingKey), DEFAULT_VALUES_BY_PARAMETERS.get(settingKey));
+    return headerValuesByNames.keySet().contains(settingsByKey.get(settingKey).toLowerCase(Locale.ENGLISH));
   }
 
   private static class SsoIdentityProvider implements IdentityProvider {

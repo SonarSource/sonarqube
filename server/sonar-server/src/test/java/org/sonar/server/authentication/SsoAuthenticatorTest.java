@@ -112,7 +112,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void create_user_when_authenticating_new_user() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS);
 
@@ -124,7 +124,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void use_login_when_name_is_not_provided() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
 
     underTest.authenticate(createRequest(DEFAULT_LOGIN, null, null, null), response);
@@ -134,7 +134,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void update_user_when_authenticating_exiting_user() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setName("old name").setEmail("old email"), group1);
     // Name, email and groups are different
@@ -148,7 +148,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void remove_groups_when_group_headers_is_empty() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
 
@@ -159,7 +159,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void remove_groups_when_group_headers_is_null() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
     Map<String, String> headerValuesByName = new HashMap<>();
@@ -173,7 +173,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void does_not_update_groups_when_no_group_headers() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
 
@@ -184,7 +184,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void does_not_update_user_when_user_is_in_token_and_refresh_time_is_close() throws Exception {
-    enableSso();
+    startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     setUserInToken(user, CLOSE_REFRESH_TIME);
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
@@ -198,7 +198,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void update_user_when_user_in_token_but_refresh_time_is_old() throws Exception {
-    enableSso();
+    startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => more than 5 minutes
     setUserInToken(user, NOW - 6 * 60 * 1000L);
@@ -213,7 +213,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void update_user_when_user_in_token_but_no_refresh_time() throws Exception {
-    enableSso();
+    startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     setUserInToken(user, null);
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
@@ -227,8 +227,8 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void use_refresh_time_from_settings() throws Exception {
-    enableSso();
     settings.setProperty("sonar.sso.refreshIntervalInMinutes", "10");
+    startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => less than 10 minutes ago so not updated
     setUserInToken(user, NOW - 6 * 60 * 1000L);
@@ -243,7 +243,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void update_user_when_login_from_token_is_different_than_login_from_request() throws Exception {
-    enableSso();
+    startWithSso();
     insertUser(DEFAULT_USER, group1);
     setUserInToken(DEFAULT_USER, CLOSE_REFRESH_TIME);
     HttpServletRequest request = createRequest("AnotherLogin", "Another name", "Another email", GROUP2);
@@ -256,12 +256,12 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void use_headers_from_settings() throws Exception {
-    enableSso();
-    setNotUserInToken();
     settings.setProperty("sonar.sso.loginHeader", "head-login");
     settings.setProperty("sonar.sso.nameHeader", "head-name");
     settings.setProperty("sonar.sso.emailHeader", "head-email");
     settings.setProperty("sonar.sso.groupsHeader", "head-groups");
+    startWithSso();
+    setNotUserInToken();
     HttpServletRequest request = createRequest(ImmutableMap.of("head-login", DEFAULT_LOGIN, "head-name", DEFAULT_NAME, "head-email", DEFAULT_EMAIL, "head-groups", GROUPS));
 
     underTest.authenticate(request, response);
@@ -271,12 +271,12 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void detect_group_header_even_with_wrong_case() throws Exception {
-    enableSso();
-    setNotUserInToken();
     settings.setProperty("sonar.sso.loginHeader", "login");
     settings.setProperty("sonar.sso.nameHeader", "name");
     settings.setProperty("sonar.sso.emailHeader", "email");
     settings.setProperty("sonar.sso.groupsHeader", "Groups");
+    startWithSso();
+    setNotUserInToken();
     HttpServletRequest request = createRequest(ImmutableMap.of("login", DEFAULT_LOGIN, "name", DEFAULT_NAME, "email", DEFAULT_EMAIL, "groups", GROUPS));
 
     underTest.authenticate(request, response);
@@ -286,7 +286,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void trim_groups() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, null, null, "  dev ,    admin ");
 
@@ -297,7 +297,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void does_not_authenticate_when_no_header() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
 
     underTest.authenticate(createRequest(Collections.emptyMap()), response);
@@ -308,7 +308,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void does_not_authenticate_when_not_enabled() throws Exception {
-    settings.setProperty("sonar.sso.enable", false);
+    startWithoutSso();
 
     underTest.authenticate(createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
 
@@ -318,7 +318,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void throw_UnauthorizedException_when_BadRequestException_is_generated() throws Exception {
-    enableSso();
+    startWithSso();
     setNotUserInToken();
 
     expectedException.expect(UnauthorizedException.class);
@@ -326,8 +326,14 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
   }
 
-  private void enableSso() {
+  private void startWithSso() {
     settings.setProperty("sonar.sso.enable", true);
+    underTest.start();
+  }
+
+  private void startWithoutSso() {
+    settings.setProperty("sonar.sso.enable", false);
+    underTest.start();
   }
 
   private void setUserInToken(UserDto user, @Nullable Long lastRefreshTime) {
