@@ -266,7 +266,7 @@ function shouldDisplayDays (days) {
   return days > 0;
 }
 
-function shouldDisplayDaysInShortFormat(days) {
+function shouldDisplayDaysInShortFormat (days) {
   return days > 0.9;
 }
 
@@ -366,7 +366,6 @@ function shortDurationVariationFormatter (value) {
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
-
 let maintainabilityRatingGrid;
 function getMaintainabilityRatingGrid () {
   if (maintainabilityRatingGrid) {
@@ -395,7 +394,8 @@ function getMaintainabilityRatingTooltip (rating) {
   if (rating < 2) {
     return translateWithParameters(
         'metric.sqale_rating.tooltip.A',
-        `${maintainabilityGrid[0]}%`);
+        formatMeasure(maintainabilityGrid[0] * 100, 'PERCENT')
+    );
   }
 
   const ratingLetter = formatMeasure(rating, 'RATING');
@@ -403,7 +403,8 @@ function getMaintainabilityRatingTooltip (rating) {
   return translateWithParameters(
       'metric.sqale_rating.tooltip',
       ratingLetter,
-      `${maintainabilityRatingThreshold}%`);
+      formatMeasure(maintainabilityRatingThreshold * 100, 'PERCENT')
+  );
 }
 
 export function getRatingTooltip (metricKey, value) {
