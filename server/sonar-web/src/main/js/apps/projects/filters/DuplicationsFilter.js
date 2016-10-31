@@ -21,7 +21,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
-import { translate } from '../../../helpers/l10n';
 import { getDuplicationsRatingLabel, getDuplicationsRatingAverageValue } from '../../../helpers/ratings';
 
 export default class DuplicationsFilter extends React.Component {
@@ -51,31 +50,18 @@ export default class DuplicationsFilter extends React.Component {
   renderOptions () {
     const options = [1, 2, 3, 4, 5];
 
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={option === this.props.value ? 'active' : ''}
-                    to={this.props.getFilterUrl({ 'duplications': option })}
-                    onClick={this.props.toggleFilter}>
-                <DuplicationsRating value={getDuplicationsRatingAverageValue(option)}/>
-                <span className="spacer-left">
-                  {getDuplicationsRatingLabel(option)}
-                </span>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center"
-                      to={this.props.getFilterUrl({ 'duplications': null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
+    return options.map(option => (
+        <Link key={option}
+              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
+              to={this.props.getFilterUrl({ 'duplications': option })}>
+          <span className="facet-name projects-facet-name">
+            <DuplicationsRating value={getDuplicationsRatingAverageValue(option)}/>
+            <span className="spacer-left">
+              {getDuplicationsRatingLabel(option)}
+            </span>
+          </span>
+        </Link>
+    ));
   }
 
   render () {

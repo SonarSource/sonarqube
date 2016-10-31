@@ -22,16 +22,10 @@ import { TOGGLE_FILTER } from './actions';
 export const OPEN = 'OPEN';
 export const CLOSED = 'CLOSED';
 
-const allClosedState = {
-  coverage: CLOSED,
-  duplications: CLOSED,
-  size: CLOSED
-};
-
-const reducer = (state = allClosedState, action = {}) => {
+const reducer = (state = {}, action = {}) => {
   if (action.type === TOGGLE_FILTER) {
     const newStatus = state[action.key] === OPEN ? CLOSED : OPEN;
-    return { ...allClosedState, [action.key]: newStatus };
+    return { ...state, [action.key]: newStatus };
   }
 
   return state;

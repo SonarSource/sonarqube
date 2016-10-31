@@ -21,7 +21,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import Rating from '../../../components/ui/Rating';
-import { translate } from '../../../helpers/l10n';
 
 export default class IssuesFilter extends React.Component {
   static propTypes = {
@@ -30,45 +29,19 @@ export default class IssuesFilter extends React.Component {
     toggleFilter: React.PropTypes.func.isRequired
   };
 
-  isOptionAction (value) {
-    return value === this.props.value;
-  }
-
-  renderValue () {
-    const { value } = this.props;
-
-    return (
-        <div className="projects-filter-value">
-          <Rating value={value}/>
-        </div>
-    );
-  }
-
   renderOptions () {
-    const options = [1, 2, 3, 4, 5];
+    const options = [1, 4, 2, 5, 3];
 
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={this.isOptionAction(option) ? 'active' : ''}
-                    to={this.props.getFilterUrl({ [this.props.property]: option })}
-                    onClick={this.props.toggleFilter}>
-                <Rating value={option}/>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center"
-                      to={this.props.getFilterUrl({ [this.props.property]: null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
+    return options.map(option => (
+        <Link key={option}
+              className={'facet search-navigator-facet search-navigator-facet-half ' +
+              (option === this.props.value ? 'active' : '')}
+              to={this.props.getFilterUrl({ [this.props.property]: option })}>
+          <span className="facet-name projects-facet-name">
+            <Rating value={option}/>
+          </span>
+        </Link>
+    ));
   }
 
   render () {
@@ -76,7 +49,6 @@ export default class IssuesFilter extends React.Component {
         <Filter
             renderName={() => this.props.name}
             renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
             {...this.props}/>
     );
   }

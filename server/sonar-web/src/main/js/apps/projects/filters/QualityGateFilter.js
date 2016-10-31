@@ -21,7 +21,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import Level from '../../../components/ui/Level';
-import { translate } from '../../../helpers/l10n';
 
 export default class QualityGateFilter extends React.Component {
   static propTypes = {
@@ -30,38 +29,19 @@ export default class QualityGateFilter extends React.Component {
     toggleFilter: React.PropTypes.func.isRequired
   };
 
-  renderValue () {
-    return (
-        <div className="projects-filter-value">
-          <Level level={this.props.value}/>
-        </div>
-    );
-  }
-
   renderOptions () {
     const options = ['ERROR', 'WARN', 'OK'];
 
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={option === this.props.value ? 'active' : ''}
-                    to={this.props.getFilterUrl({ gate: option })}
-                    onClick={this.props.toggleFilter}>
-                <Level level={option}/>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center" to={this.props.getFilterUrl({ gate: null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
+    return options.map(option => (
+        <Link key={option}
+              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
+              to={this.props.getFilterUrl({ gate: option })}
+              onClick={this.props.toggleFilter}>
+          <span className="facet-name projects-facet-name">
+            <Level level={option}/>
+          </span>
+        </Link>
+    ));
   }
 
   render () {
@@ -69,7 +49,6 @@ export default class QualityGateFilter extends React.Component {
         <Filter
             renderName={() => 'Quality Gate'}
             renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
             {...this.props}/>
     );
   }

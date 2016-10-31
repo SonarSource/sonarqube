@@ -21,7 +21,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import CoverageRating from '../../../components/ui/CoverageRating';
-import { translate } from '../../../helpers/l10n';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 
 export default class CoverageFilter extends React.Component {
@@ -51,31 +50,18 @@ export default class CoverageFilter extends React.Component {
   renderOptions () {
     const options = [1, 2, 3, 4, 5];
 
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={option === this.props.value ? 'active' : ''}
-                    to={this.props.getFilterUrl({ 'coverage': option })}
-                    onClick={this.props.toggleFilter}>
-                <CoverageRating value={getCoverageRatingAverageValue(option)}/>
-                <span className="spacer-left">
-                  {getCoverageRatingLabel(option)}
-                </span>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center"
-                      to={this.props.getFilterUrl({ 'coverage': null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
+    return options.map(option => (
+        <Link key={option}
+              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
+              to={this.props.getFilterUrl({ 'coverage': option })}>
+          <span className="facet-name projects-facet-name">
+            <CoverageRating value={getCoverageRatingAverageValue(option)}/>
+            <span className="spacer-left">
+              {getCoverageRatingLabel(option)}
+            </span>
+          </span>
+        </Link>
+    ));
   }
 
   render () {

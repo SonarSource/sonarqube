@@ -21,7 +21,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import SizeRating from '../../../components/ui/SizeRating';
-import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.Component {
@@ -31,51 +30,23 @@ export default class SizeFilter extends React.Component {
     toggleFilter: React.PropTypes.func.isRequired
   };
 
-  renderValue () {
-    const { value } = this.props;
-
-    const average = getSizeRatingAverageValue(value);
-    const label = getSizeRatingLabel(value);
-
-    return (
-        <div className="projects-filter-value">
-          <SizeRating value={average}/>
-
-          <div className="projects-filter-hint note">
-            {label}
-          </div>
-        </div>
-    );
-  }
-
   renderOptions () {
     const options = [1, 2, 3, 4, 5];
 
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={option === this.props.value ? 'active' : ''}
-                    to={this.props.getFilterUrl({ 'size': option })}
-                    onClick={this.props.toggleFilter}>
-                <SizeRating value={getSizeRatingAverageValue(option)}/>
-                <span className="spacer-left">
-                  {getSizeRatingLabel(option)}
-                </span>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center"
-                      to={this.props.getFilterUrl({ 'size': null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
+    return options.map(option => (
+        <Link key={option}
+              className={'facet search-navigator-facet search-navigator-facet-half ' +
+              (option === this.props.value ? 'active' : '')}
+              to={this.props.getFilterUrl({ 'size': option })}
+              onClick={this.props.toggleFilter}>
+          <span className="facet-name projects-facet-name">
+            <SizeRating value={getSizeRatingAverageValue(option)}/>
+            <span className="spacer-left">
+              {getSizeRatingLabel(option)}
+            </span>
+          </span>
+        </Link>
+    ));
   }
 
   render () {
@@ -83,7 +54,6 @@ export default class SizeFilter extends React.Component {
         <Filter
             renderName={() => 'Size'}
             renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
             {...this.props}/>
     );
   }

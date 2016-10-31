@@ -26,7 +26,6 @@ export default class Filter extends React.Component {
     isOpen: React.PropTypes.bool.isRequired,
     renderName: React.PropTypes.func.isRequired,
     renderOptions: React.PropTypes.func.isRequired,
-    renderValue: React.PropTypes.func.isRequired,
     toggleFilter: React.PropTypes.func.isRequired,
     value: React.PropTypes.any
   };
@@ -39,28 +38,23 @@ export default class Filter extends React.Component {
 
   render () {
     const { value, isOpen } = this.props;
-    const { renderName, renderOptions, renderValue } = this.props;
-    const className = classNames('projects-filter', {
-      'projects-filter-active': value != null,
-      'projects-filter-open': isOpen
+    const { renderName, renderOptions } = this.props;
+    const hasValue = value != null;
+    const className = classNames('search-navigator-facet-box', {
+      'search-navigator-facet-box-collapsed': !hasValue && !isOpen
     });
-
     return (
         <div className={className}>
-          <a className="projects-filter-header clearfix" href="#" onClick={e => this.handleClick(e)}>
-            <div className="projects-filter-name">
-              {renderName()}
-              {' '}
-              {!isOpen && (
-                  <i className="icon-dropdown"/>
-              )}
-            </div>
-
-            {value != null && renderValue()}
+          <a className="search-navigator-facet-header projects-facet-header"
+             href="#"
+             onClick={e => this.handleClick(e)}>
+            <i className={'icon-checkbox ' + ((hasValue || isOpen) ? 'icon-checkbox-checked' : '')}/>
+            {' '}
+            {renderName()}
           </a>
 
-          {isOpen && (
-              <div className="projects-filter-options">
+          {(hasValue || isOpen) && (
+              <div className="search-navigator-facet-list">
                 {renderOptions()}
               </div>
           )}

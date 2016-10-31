@@ -29,7 +29,7 @@ import MaintainabilityFilterContainer from '../filters/MaintainabilityFilterCont
 export default class PageSidebar extends React.Component {
   render () {
     return (
-        <div>
+        <div className="search-navigator-facets-list">
           <ReliabilityFilterContainer query={this.props.query}/>
           <SecurityFilterContainer query={this.props.query}/>
           <MaintainabilityFilterContainer query={this.props.query}/>
