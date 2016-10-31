@@ -34,11 +34,17 @@ export default class Filter extends React.Component {
 
     getFacetValueForOption: React.PropTypes.func,
 
+    halfWidth: React.PropTypes.bool,
+
     getFilterUrl: React.PropTypes.func.isRequired,
     openFilter: React.PropTypes.func.isRequired,
     closeFilter: React.PropTypes.func.isRequired,
 
     router: React.PropTypes.object
+  };
+
+  static defaultProps = {
+    halfWidth: false
   };
 
   handleHeaderClick = e => {
@@ -76,7 +82,10 @@ export default class Filter extends React.Component {
 
   renderOption (option) {
     const { property, value, facet, getFacetValueForOption } = this.props;
-    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', { active: option === value });
+    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
+      active: option === value,
+      'search-navigator-facet-half': this.props.halfWidth
+    });
     const path = this.props.getFilterUrl({ [property]: option });
 
     const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
