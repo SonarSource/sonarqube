@@ -65,7 +65,8 @@ export default class ProjectsList extends React.Component {
                         rowCount={projects.length}
                         rowHeight={135}
                         rowRenderer={rowRenderer}
-                        scrollTop={scrollTop}/>
+                        scrollTop={scrollTop}
+                        overscanRowCount={100}/>
                 )}
               </AutoSizer>
           )}

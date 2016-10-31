@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import { getComponentUrl } from '../../../helpers/urls';
 
@@ -33,8 +34,10 @@ export default class ProjectCard extends React.Component {
       return null;
     }
 
+    const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': this.props.measures == null });
+
     return (
-        <div className="boxed-group project-card">
+        <div className={className}>
           <h2 className="project-card-name">
             <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
           </h2>
