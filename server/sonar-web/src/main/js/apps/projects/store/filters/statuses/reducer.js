@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TOGGLE_FILTER } from './actions';
+import { OPEN_FILTER, CLOSE_FILTER } from './actions';
 
 export const OPEN = 'OPEN';
 export const CLOSED = 'CLOSED';
 
 const reducer = (state = {}, action = {}) => {
-  if (action.type === TOGGLE_FILTER) {
-    const newStatus = state[action.key] === OPEN ? CLOSED : OPEN;
-    return { ...state, [action.key]: newStatus };
+  switch (action.type) {
+    case OPEN_FILTER:
+      return { ...state, [action.key]: OPEN };
+    case CLOSE_FILTER:
+      return { ...state, [action.key]: CLOSED };
+    default:
+      return state;
   }
-
-  return state;
 };
 
 export default reducer;

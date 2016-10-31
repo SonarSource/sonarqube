@@ -32,13 +32,29 @@ export default class Filter extends React.Component {
     renderOption: React.PropTypes.func.isRequired,
 
     getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
+    openFilter: React.PropTypes.func.isRequired,
+    closeFilter: React.PropTypes.func.isRequired,
+
+    router: React.PropTypes.object
   };
 
-  handleClick = e => {
+  handleHeaderClick = e => {
     e.preventDefault();
     e.target.blur();
-    this.props.toggleFilter();
+
+    const { value, isOpen, property } = this.props;
+    const hasValue = value != null;
+    const isDisplayedOpen = isOpen || hasValue;
+
+    if (isDisplayedOpen) {
+      this.props.closeFilter();
+    } else {
+      this.props.openFilter();
+    }
+
+    if (hasValue) {
+      this.props.router.push(this.props.getFilterUrl({ [property]: null }));
+    }
   };
 
   renderHeader () {
@@ -49,7 +65,7 @@ export default class Filter extends React.Component {
     });
 
     return (
-        <a className="search-navigator-facet-header projects-facet-header" href="#" onClick={this.handleClick}>
+        <a className="search-navigator-facet-header projects-facet-header" href="#" onClick={this.handleHeaderClick}>
           <i className={checkboxClassName}/> {renderName()}
         </a>
     );

@@ -19,10 +19,11 @@
  */
 import Filter from './Filter';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
 import { getProjectsAppFilterStatus } from '../../../app/store/rootReducer';
-import { toggleFilter } from '../store/filters/statuses/actions';
+import { openFilter, closeFilter } from '../store/filters/statuses/actions';
 import { OPEN } from '../store/filters/statuses/reducer';
 
 const mapStateToProps = (state, ownProps) => ({
@@ -35,10 +36,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  toggleFilter: () => dispatch(toggleFilter(ownProps.property))
+  openFilter: () => dispatch(openFilter(ownProps.property)),
+  closeFilter: () => dispatch(closeFilter(ownProps.property))
 });
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Filter);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Filter));
