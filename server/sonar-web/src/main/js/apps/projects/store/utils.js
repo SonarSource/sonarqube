@@ -34,6 +34,12 @@ const getAsLevel = value => {
 export const parseUrlQuery = urlQuery => ({
   'gate': getAsLevel(urlQuery['gate']),
 
+  'reliability': getAsNumber(urlQuery['reliability']),
+
+  'security': getAsNumber(urlQuery['security']),
+
+  'maintainability': getAsNumber(urlQuery['maintainability']),
+
   'coverage__gte': getAsNumber(urlQuery['coverage__gte']),
   'coverage__lt': getAsNumber(urlQuery['coverage__lt']),
 
@@ -73,6 +79,18 @@ export const convertToFilter = query => {
 
   if (query['size__lt'] != null) {
     conditions.push('ncloc < ' + query['size__lt']);
+  }
+
+  if (query['reliability'] != null) {
+    conditions.push('reliability_rating = ' + query['reliability']);
+  }
+
+  if (query['security'] != null) {
+    conditions.push('security_rating = ' + query['security']);
+  }
+
+  if (query['maintainability'] != null) {
+    conditions.push('sqale_rating = ' + query['maintainability']);
   }
 
   return conditions.join(' and ');

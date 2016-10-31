@@ -22,11 +22,17 @@ import CoverageFilterContainer from '../filters/CoverageFilterContainer';
 import DuplicationsFilterContainer from '../filters/DuplicationsFilterContainer';
 import SizeFilterContainer from '../filters/SizeFilterContainer';
 import QualityGateFilterContainer from '../filters/QualityGateFilterContainer';
+import ReliabilityFilterContainer from '../filters/ReliabilityFilterContainer';
+import SecurityFilterContainer from '../filters/SecurityFilterContainer';
+import MaintainabilityFilterContainer from '../filters/MaintainabilityFilterContainer';
 
 export default class PageSidebar extends React.Component {
   render () {
     return (
         <div>
+          <ReliabilityFilterContainer query={this.props.query}/>
+          <SecurityFilterContainer query={this.props.query}/>
+          <MaintainabilityFilterContainer query={this.props.query}/>
           <CoverageFilterContainer query={this.props.query}/>
           <DuplicationsFilterContainer query={this.props.query}/>
           <SizeFilterContainer query={this.props.query}/>
