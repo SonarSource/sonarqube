@@ -17,28 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import Filter from './Filter';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
-import { getProjectsAppFilterStatus } from '../../../app/store/rootReducer';
-import { toggleFilter } from '../store/filters/statuses/actions';
+import { getProjectsAppFilterStatus, getProjectsAppFacetByProperty } from '../../../app/store/rootReducer';
+import { openFilter, closeFilter } from '../store/filters/statuses/actions';
 import { OPEN } from '../store/filters/statuses/reducer';
 
-const connectFilter = (key, getValue) => Component => {
-  const mapStateToProps = (state, ownProps) => ({
-    isOpen: getProjectsAppFilterStatus(state, key) === OPEN,
-    value: getValue(ownProps.query),
-    getFilterUrl: part => {
-      const query = omitBy({ ...ownProps.query, ...part }, isNil);
-      return { pathname: '/projects', query };
-    }
-  });
+const mapStateToProps = (state, ownProps) => ({
+  isOpen: getProjectsAppFilterStatus(state, ownProps.property) === OPEN,
+  value: ownProps.query[ownProps.property],
+  facet: getProjectsAppFacetByProperty(state, ownProps.property),
+  getFilterUrl: part => {
+    const query = omitBy({ ...ownProps.query, ...part }, isNil);
+    return { pathname: '/projects', query };
+  }
+});
 
-  const mapDispatchToProps = dispatch => ({
-    toggleFilter: () => dispatch(toggleFilter(key))
-  });
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  openFilter: () => dispatch(openFilter(ownProps.property)),
+  closeFilter: () => dispatch(closeFilter(ownProps.property))
+});
 
-  return connect(mapStateToProps, mapDispatchToProps)(Component);
-};
-
-export default connectFilter;
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Filter));

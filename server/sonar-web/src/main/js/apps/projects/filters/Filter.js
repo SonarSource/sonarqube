@@ -19,51 +19,117 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import { Link } from 'react-router';
+import { formatMeasure } from '../../../helpers/measures';
 
 export default class Filter extends React.Component {
   static propTypes = {
-    getFilterUrl: React.PropTypes.func.isRequired,
     isOpen: React.PropTypes.bool.isRequired,
+    value: React.PropTypes.any,
+    property: React.PropTypes.string.isRequired,
+    options: React.PropTypes.array.isRequired,
+
     renderName: React.PropTypes.func.isRequired,
-    renderOptions: React.PropTypes.func.isRequired,
-    renderValue: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired,
-    value: React.PropTypes.any
+    renderOption: React.PropTypes.func.isRequired,
+
+    getFacetValueForOption: React.PropTypes.func,
+
+    halfWidth: React.PropTypes.bool,
+
+    getFilterUrl: React.PropTypes.func.isRequired,
+    openFilter: React.PropTypes.func.isRequired,
+    closeFilter: React.PropTypes.func.isRequired,
+
+    router: React.PropTypes.object
   };
 
-  handleClick (e) {
+  static defaultProps = {
+    halfWidth: false
+  };
+
+  handleHeaderClick = e => {
     e.preventDefault();
     e.target.blur();
-    this.props.toggleFilter();
+
+    const { value, isOpen, property } = this.props;
+    const hasValue = value != null;
+    const isDisplayedOpen = isOpen || hasValue;
+
+    if (isDisplayedOpen) {
+      this.props.closeFilter();
+    } else {
+      this.props.openFilter();
+    }
+
+    if (hasValue) {
+      this.props.router.push(this.props.getFilterUrl({ [property]: null }));
+    }
+  };
+
+  renderHeader () {
+    const { value, isOpen, renderName } = this.props;
+    const hasValue = value != null;
+    const checkboxClassName = classNames('icon-checkbox', {
+      'icon-checkbox-checked': hasValue || isOpen
+    });
+
+    return (
+        <a className="search-navigator-facet-header projects-facet-header" href="#" onClick={this.handleHeaderClick}>
+          <i className={checkboxClassName}/> {renderName()}
+        </a>
+    );
+  }
+
+  renderOption (option) {
+    const { property, value, facet, getFacetValueForOption } = this.props;
+    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
+      active: option === value,
+      'search-navigator-facet-half': this.props.halfWidth
+    });
+    const path = this.props.getFilterUrl({ [property]: option });
+
+    const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
+
+    return (
+        <Link key={option} className={className} to={path}>
+          <span className="facet-name">
+            {this.props.renderOption(option)}
+          </span>
+          {facetValue != null && (
+              <span className="facet-stat">
+                {formatMeasure(facetValue, 'SHORT_INT')}
+              </span>
+          )}
+        </Link>
+    );
+  }
+
+  renderOptions () {
+    const { value, isOpen, options } = this.props;
+    const hasValue = value != null;
+
+    if (!hasValue && !isOpen) {
+      return null;
+    }
+
+    return (
+        <div className="search-navigator-facet-list">
+          {options.map(option => this.renderOption(option))}
+        </div>
+    );
   }
 
   render () {
     const { value, isOpen } = this.props;
-    const { renderName, renderOptions, renderValue } = this.props;
-    const className = classNames('projects-filter', {
-      'projects-filter-active': value != null,
-      'projects-filter-open': isOpen
+    const hasValue = value != null;
+    const className = classNames('search-navigator-facet-box', {
+      'search-navigator-facet-box-collapsed': !hasValue && !isOpen
     });
 
     return (
         <div className={className}>
-          <a className="projects-filter-header clearfix" href="#" onClick={e => this.handleClick(e)}>
-            <div className="projects-filter-name">
-              {renderName()}
-              {' '}
-              {!isOpen && (
-                  <i className="icon-dropdown"/>
-              )}
-            </div>
-
-            {value != null && renderValue()}
-          </a>
-
-          {isOpen && (
-              <div className="projects-filter-options">
-                {renderOptions()}
-              </div>
-          )}
+          {this.renderHeader()}
+          {this.renderOptions()}
         </div>
     );
   }

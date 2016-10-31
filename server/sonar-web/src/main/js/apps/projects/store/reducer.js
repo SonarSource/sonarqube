@@ -21,8 +21,9 @@ import { combineReducers } from 'redux';
 import projects, * as fromProjects from './projects/reducer';
 import state from './state/reducer';
 import filters, * as fromFilters from './filters/reducer';
+import facets, * as fromFacets from './facets/reducer';
 
-export default combineReducers({ projects, state, filters });
+export default combineReducers({ projects, state, filters, facets });
 
 export const getProjects = state => (
     fromProjects.getProjects(state.projects)
@@ -34,4 +35,8 @@ export const getState = state => (
 
 export const getFilterStatus = (state, key) => (
     fromFilters.getFilterStatus(state.filters, key)
+);
+
+export const getFacetByProperty = (state, property) => (
+    fromFacets.getFacetByProperty(state.facets, property)
 );

@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import CoverageFilter from './CoverageFilter';
-import connectFilter from './connectFilter';
+import { connect } from 'react-redux';
+import PageSidebar from './PageSidebar';
+import { closeAllFilters } from '../store/filters/statuses/actions';
 
-const getValue = query => {
-  const from = query['coverage__gte'];
-  const to = query['coverage__lt'];
-  return from == null && to == null ? null : { from, to };
-};
-
-export default connectFilter('coverage', getValue)(CoverageFilter);
+export default connect(
+    () => ({}),
+    { closeAllFilters }
+)(PageSidebar);

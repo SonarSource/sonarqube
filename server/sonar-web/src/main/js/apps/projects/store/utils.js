@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const getAsNumber = value => {
-  if (value === '' || value == null) {
+const getAsNumericRating = value => {
+  if (value === '' || value == null || isNaN(value)) {
     return null;
   }
-  return isNaN(value) ? null : Number(value);
+  const num = Number(value);
+  return (num > 0 && num < 6) ? num : null;
 };
 
 const getAsLevel = value => {
@@ -33,16 +34,64 @@ const getAsLevel = value => {
 
 export const parseUrlQuery = urlQuery => ({
   'gate': getAsLevel(urlQuery['gate']),
-
-  'coverage__gte': getAsNumber(urlQuery['coverage__gte']),
-  'coverage__lt': getAsNumber(urlQuery['coverage__lt']),
-
-  'duplications__gte': getAsNumber(urlQuery['duplications__gte']),
-  'duplications__lt': getAsNumber(urlQuery['duplications__lt']),
-
-  'size__gte': getAsNumber(urlQuery['size__gte']),
-  'size__lt': getAsNumber(urlQuery['size__lt'])
+  'reliability': getAsNumericRating(urlQuery['reliability']),
+  'security': getAsNumericRating(urlQuery['security']),
+  'maintainability': getAsNumericRating(urlQuery['maintainability']),
+  'coverage': getAsNumericRating(urlQuery['coverage']),
+  'duplications': getAsNumericRating(urlQuery['duplications']),
+  'size': getAsNumericRating(urlQuery['size']),
 });
+
+const convertCoverage = coverage => {
+  switch (coverage) {
+    case 1:
+      return 'coverage < 30';
+    case 2:
+      return 'coverage >= 30 and coverage < 50';
+    case 3:
+      return 'coverage >= 50 and coverage < 70';
+    case 4:
+      return 'coverage >= 70 and coverage < 80';
+    case 5:
+      return 'coverage >= 80';
+    default:
+      return '';
+  }
+};
+
+const convertDuplications = duplications => {
+  switch (duplications) {
+    case 1:
+      return 'duplicated_lines_density < 3';
+    case 2:
+      return 'duplicated_lines_density >= 3 and duplicated_lines_density < 5';
+    case 3:
+      return 'duplicated_lines_density >= 5 and duplicated_lines_density < 10';
+    case 4:
+      return 'duplicated_lines_density >= 10 duplicated_lines_density < 20';
+    case 5:
+      return 'duplicated_lines_density >= 20';
+    default:
+      return '';
+  }
+};
+
+const convertSize = size => {
+  switch (size) {
+    case 1:
+      return 'ncloc < 1000';
+    case 2:
+      return 'ncloc >= 1000 and ncloc < 10000';
+    case 3:
+      return 'ncloc >= 10000 and ncloc < 100000';
+    case 4:
+      return 'ncloc >= 100000 ncloc < 500000';
+    case 5:
+      return 'ncloc >= 500000';
+    default:
+      return '';
+  }
+};
 
 export const convertToFilter = query => {
   const conditions = [];
@@ -51,29 +100,42 @@ export const convertToFilter = query => {
     conditions.push('alert_status = ' + query['gate']);
   }
 
-  if (query['coverage__gte'] != null) {
-    conditions.push('coverage >= ' + query['coverage__gte']);
+  if (query['coverage'] != null) {
+    conditions.push(convertCoverage(query['coverage']));
   }
 
-  if (query['coverage__lt'] != null) {
-    conditions.push('coverage < ' + query['coverage__lt']);
+  if (query['duplications'] != null) {
+    conditions.push(convertDuplications(query['duplications']));
   }
 
-  if (query['duplications__gte'] != null) {
-    conditions.push('duplicated_lines_density >= ' + query['duplications__gte']);
+  if (query['size'] != null) {
+    conditions.push(convertSize(query['size']));
   }
 
-  if (query['duplications__lt'] != null) {
-    conditions.push('duplicated_lines_density < ' + query['duplications__lt']);
+  if (query['reliability'] != null) {
+    conditions.push('reliability_rating = ' + query['reliability']);
   }
 
-  if (query['size__gte'] != null) {
-    conditions.push('ncloc >= ' + query['size__gte']);
+  if (query['security'] != null) {
+    conditions.push('security_rating = ' + query['security']);
   }
 
-  if (query['size__lt'] != null) {
-    conditions.push('ncloc < ' + query['size__lt']);
+  if (query['maintainability'] != null) {
+    conditions.push('sqale_rating = ' + query['maintainability']);
   }
 
   return conditions.join(' and ');
+};
+
+export const mapMetricToProperty = metricKey => {
+  const map = {
+    'reliability_rating': 'reliability',
+    'security_rating': 'security',
+    'sqale_rating': 'maintainability',
+    'coverage': 'coverage',
+    'duplicated_lines_density': 'duplications',
+    'ncloc': 'size',
+    'alert_status': 'gate'
+  };
+  return map[metricKey];
 };

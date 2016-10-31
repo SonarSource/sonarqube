@@ -17,9 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const TOGGLE_FILTER = 'projects/TOGGLE_FILTER';
+export const OPEN_FILTER = 'projects/OPEN_FILTER';
 
-export const toggleFilter = key => ({
-  type: TOGGLE_FILTER,
+export const openFilter = key => ({
+  type: OPEN_FILTER,
   key
+});
+
+export const CLOSE_FILTER = 'projects/CLOSE_FILTER';
+
+export const closeFilter = key => ({
+  type: CLOSE_FILTER,
+  key
+});
+
+export const CLOSE_ALL_FILTERS = 'projects/CLOSE_ALL_FILTERS';
+
+export const closeAllFilters = () => ({
+  type: CLOSE_ALL_FILTERS
 });

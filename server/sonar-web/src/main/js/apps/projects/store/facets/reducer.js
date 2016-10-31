@@ -17,13 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import DuplicationsFilter from './DuplicationsFilter';
-import connectFilter from './connectFilter';
+import { createMap } from '../../../../components/store/generalReducers';
+import { RECEIVE_PROJECTS } from '../projects/actions';
+import { mapMetricToProperty } from '../utils';
 
-const getValue = query => {
-  const from = query['duplications__gte'];
-  const to = query['duplications__lt'];
-  return from == null && to == null ? null : { from, to };
+const mapFacetValues = values => {
+  const map = {};
+  values.forEach(value => {
+    map[value.val] = value.count;
+  });
+  return map;
 };
 
-export default connectFilter('duplications', getValue)(DuplicationsFilter);
+const getFacetsMap = facets => {
+  const map = {};
+  facets.forEach(facet => {
+    const property = mapMetricToProperty(facet.property);
+    map[property] = mapFacetValues(facet.values);
+  });
+  return map;
+};
+
+const reducer = createMap(
+    (state, action) => action.type === RECEIVE_PROJECTS,
+    () => false,
+    (state, action) => getFacetsMap(action.facets)
+);
+
+export default reducer;
+
+export const getFacetByProperty = (state, property) => (
+    state[property]
+);
+

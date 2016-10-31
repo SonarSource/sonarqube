@@ -17,9 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import QualityGateFilter from './QualityGateFilter';
-import connectFilter from './connectFilter';
+import React from 'react';
+import FilterContainer from './FilterContainer';
+import Rating from '../../../components/ui/Rating';
 
-const getValue = query => query.gate;
+export default class IssuesFilter extends React.Component {
+  renderOption = option => {
+    return (
+        <Rating value={option}/>
+    );
+  };
 
-export default connectFilter('gate', getValue)(QualityGateFilter);
+  getFacetValueForOption = (facet, option) => {
+    return facet[option];
+  };
+
+  render () {
+    return (
+        <FilterContainer
+            property={this.props.property}
+            options={[1, 4, 2, 5, 3]}
+            renderName={() => this.props.name}
+            renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
+            halfWidth={true}
+            query={this.props.query}/>
+    );
+  }
+}

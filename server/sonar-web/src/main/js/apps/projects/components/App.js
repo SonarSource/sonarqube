@@ -22,7 +22,7 @@ import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
-import PageSidebar from './PageSidebar';
+import PageSidebarContainer from './PageSidebarContainer';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { parseUrlQuery } from '../store/utils';
 import '../styles.css';
@@ -73,7 +73,7 @@ export default class App extends React.Component {
               <ProjectsListFooterContainer query={this.state.query}/>
             </div>
             <aside className="page-sidebar-fixed">
-              <PageSidebar query={this.state.query}/>
+              <PageSidebarContainer query={this.state.query}/>
             </aside>
           </div>
         </div>

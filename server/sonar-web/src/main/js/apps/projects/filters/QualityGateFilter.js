@@ -18,59 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import Level from '../../../components/ui/Level';
-import { translate } from '../../../helpers/l10n';
 
 export default class QualityGateFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.any,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
+  renderOption = option => {
+    return (
+        <Level level={option}/>
+    );
   };
 
-  renderValue () {
-    return (
-        <div className="projects-filter-value">
-          <Level level={this.props.value}/>
-        </div>
-    );
-  }
-
-  renderOptions () {
-    const options = ['ERROR', 'WARN', 'OK'];
-
-    return (
-        <div>
-          {options.map(option => (
-              <Link key={option}
-                    className={option === this.props.value ? 'active' : ''}
-                    to={this.props.getFilterUrl({ gate: option })}
-                    onClick={this.props.toggleFilter}>
-                <Level level={option}/>
-              </Link>
-          ))}
-          {this.props.value != null && (
-              <div>
-                <hr/>
-                <Link className="text-center" to={this.props.getFilterUrl({ gate: null })}
-                      onClick={this.props.toggleFilter}>
-                  <span className="text-danger">{translate('reset_verb')}</span>
-                </Link>
-              </div>
-          )}
-        </div>
-    );
-  }
+  getFacetValueForOption = (facet, option) => {
+    return facet[option];
+  };
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property="gate"
+            options={['ERROR', 'WARN', 'OK']}
             renderName={() => 'Quality Gate'}
-            renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
+            query={this.props.query}/>
     );
   }
 }
