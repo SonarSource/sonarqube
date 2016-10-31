@@ -21,54 +21,21 @@ import React from 'react';
 import { Link } from 'react-router';
 import Filter from './Filter';
 import SizeRating from '../../../components/ui/SizeRating';
-import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
+import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.Component {
   static propTypes = {
-    value: React.PropTypes.shape({
-      from: React.PropTypes.number,
-      to: React.PropTypes.number
-    }),
+    value: React.PropTypes.number,
     getFilterUrl: React.PropTypes.func.isRequired,
     toggleFilter: React.PropTypes.func.isRequired
   };
 
-  isOptionAction (from, to) {
-    const { value } = this.props;
-
-    if (value == null) {
-      return false;
-    }
-
-    return value.from === from && value.to === to;
-  }
-
-  renderLabel (value) {
-    let label;
-    if (value.to == null) {
-      label = '>' + formatMeasure(value.from, 'SHORT_INT');
-    } else if (value.from == null) {
-      label = '<' + formatMeasure(value.to, 'SHORT_INT');
-    } else {
-      label = formatMeasure(value.from, 'SHORT_INT') + '–' + formatMeasure(value.to, 'SHORT_INT');
-    }
-    return label;
-  }
-
   renderValue () {
     const { value } = this.props;
 
-    let average;
-    if (value.to == null) {
-      average = value.from;
-    } else if (value.from == null) {
-      average = value.to / 2;
-    } else {
-      average = (value.from + value.to) / 2;
-    }
-
-    const label = this.renderLabel(value);
+    const average = getSizeRatingAverageValue(value);
+    const label = getSizeRatingLabel(value);
 
     return (
         <div className="projects-filter-value">
@@ -82,30 +49,26 @@ export default class SizeFilter extends React.Component {
   }
 
   renderOptions () {
-    const options = [
-      [null, 1000, 0],
-      [1000, 10000, 1000],
-      [10000, 100000, 10000],
-      [100000, 500000, 100000],
-      [500000, null, 500000],
-    ];
+    const options = [1, 2, 3, 4, 5];
 
     return (
         <div>
           {options.map(option => (
-              <Link key={option[2]}
-                    className={this.isOptionAction(option[0], option[1]) ? 'active' : ''}
-                    to={this.props.getFilterUrl({ 'size__gte': option[0], 'size__lt': option[1] })}
+              <Link key={option}
+                    className={option === this.props.value ? 'active' : ''}
+                    to={this.props.getFilterUrl({ 'size': option })}
                     onClick={this.props.toggleFilter}>
-                <SizeRating value={option[2]}/>
-                <span className="spacer-left">{this.renderLabel({ from: option[0], to: option[1] })}</span>
+                <SizeRating value={getSizeRatingAverageValue(option)}/>
+                <span className="spacer-left">
+                  {getSizeRatingLabel(option)}
+                </span>
               </Link>
           ))}
           {this.props.value != null && (
               <div>
                 <hr/>
                 <Link className="text-center"
-                      to={this.props.getFilterUrl({ 'size__gte': null, 'size__lt': null })}
+                      to={this.props.getFilterUrl({ 'size': null })}
                       onClick={this.props.toggleFilter}>
                   <span className="text-danger">{translate('reset_verb')}</span>
                 </Link>

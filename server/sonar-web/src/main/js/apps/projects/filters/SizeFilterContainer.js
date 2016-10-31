@@ -21,9 +21,7 @@ import SizeFilter from './SizeFilter';
 import connectFilter from './connectFilter';
 
 const getValue = query => {
-  const from = query['size__gte'];
-  const to = query['size__lt'];
-  return from == null && to == null ? null : { from, to };
+  return query['size'];
 };
 
 export default connectFilter('size', getValue)(SizeFilter);

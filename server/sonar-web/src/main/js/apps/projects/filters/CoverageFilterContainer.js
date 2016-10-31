@@ -21,9 +21,7 @@ import CoverageFilter from './CoverageFilter';
 import connectFilter from './connectFilter';
 
 const getValue = query => {
-  const from = query['coverage__gte'];
-  const to = query['coverage__lt'];
-  return from == null && to == null ? null : { from, to };
+  return query['coverage'];
 };
 
 export default connectFilter('coverage', getValue)(CoverageFilter);

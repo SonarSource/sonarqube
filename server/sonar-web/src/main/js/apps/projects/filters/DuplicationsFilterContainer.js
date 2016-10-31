@@ -21,9 +21,7 @@ import DuplicationsFilter from './DuplicationsFilter';
 import connectFilter from './connectFilter';
 
 const getValue = query => {
-  const from = query['duplications__gte'];
-  const to = query['duplications__lt'];
-  return from == null && to == null ? null : { from, to };
+  return query['duplications'];
 };
 
 export default connectFilter('duplications', getValue)(DuplicationsFilter);

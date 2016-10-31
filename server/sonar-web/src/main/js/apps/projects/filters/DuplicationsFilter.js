@@ -22,52 +22,20 @@ import { Link } from 'react-router';
 import Filter from './Filter';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import { translate } from '../../../helpers/l10n';
+import { getDuplicationsRatingLabel, getDuplicationsRatingAverageValue } from '../../../helpers/ratings';
 
 export default class DuplicationsFilter extends React.Component {
   static propTypes = {
-    value: React.PropTypes.shape({
-      from: React.PropTypes.number,
-      to: React.PropTypes.number
-    }),
+    value: React.PropTypes.number,
     getFilterUrl: React.PropTypes.func.isRequired,
     toggleFilter: React.PropTypes.func.isRequired
   };
 
-  isOptionAction (from, to) {
-    const { value } = this.props;
-
-    if (value == null) {
-      return false;
-    }
-
-    return value.from === from && value.to === to;
-  }
-
-  renderLabel (value) {
-    let label;
-    if (value.to == null) {
-      label = '>' + value.from;
-    } else if (value.from == null) {
-      label = '<' + value.to;
-    } else {
-      label = value.from + '–' + value.to;
-    }
-    return label + '%';
-  }
-
   renderValue () {
     const { value } = this.props;
 
-    let average;
-    if (value.to == null) {
-      average = value.from;
-    } else if (value.from == null) {
-      average = value.to / 2;
-    } else {
-      average = (value.from + value.to) / 2;
-    }
-
-    const label = this.renderLabel(value);
+    const average = getDuplicationsRatingAverageValue(value);
+    const label = getDuplicationsRatingLabel(value);
 
     return (
         <div className="projects-filter-value">
@@ -81,30 +49,26 @@ export default class DuplicationsFilter extends React.Component {
   }
 
   renderOptions () {
-    const options = [
-      [null, 3, 1.5],
-      [3, 5, 4],
-      [5, 10, 7.5],
-      [10, 20, 15],
-      [20, null, 30],
-    ];
+    const options = [1, 2, 3, 4, 5];
 
     return (
         <div>
           {options.map(option => (
-              <Link key={option[2]}
-                    className={this.isOptionAction(option[0], option[1]) ? 'active' : ''}
-                    to={this.props.getFilterUrl({ 'duplications__gte': option[0], 'duplications__lt': option[1] })}
+              <Link key={option}
+                    className={option === this.props.value ? 'active' : ''}
+                    to={this.props.getFilterUrl({ 'duplications': option })}
                     onClick={this.props.toggleFilter}>
-                <DuplicationsRating value={option[2]}/>
-                <span className="spacer-left">{this.renderLabel({ from: option[0], to: option[1] })}</span>
+                <DuplicationsRating value={getDuplicationsRatingAverageValue(option)}/>
+                <span className="spacer-left">
+                  {getDuplicationsRatingLabel(option)}
+                </span>
               </Link>
           ))}
           {this.props.value != null && (
               <div>
                 <hr/>
                 <Link className="text-center"
-                      to={this.props.getFilterUrl({ 'duplications__gte': null, 'duplications__lt': null })}
+                      to={this.props.getFilterUrl({ 'duplications': null })}
                       onClick={this.props.toggleFilter}>
                   <span className="text-danger">{translate('reset_verb')}</span>
                 </Link>
