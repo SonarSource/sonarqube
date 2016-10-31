@@ -30,3 +30,9 @@ export const closeFilter = key => ({
   type: CLOSE_FILTER,
   key
 });
+
+export const CLOSE_ALL_FILTERS = 'projects/CLOSE_ALL_FILTERS';
+
+export const closeAllFilters = () => ({
+  type: CLOSE_ALL_FILTERS
+});

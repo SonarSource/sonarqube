@@ -77,3 +77,14 @@
 .projects-facet .facet-stat {
   line-height: 24px !important;
 }
+
+.projects-facets-reset {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid #e6e6e6;
+  text-align: center;
+}
+
+.projects-facets-reset .button {
+
+}

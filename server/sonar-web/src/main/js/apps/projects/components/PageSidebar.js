@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import SizeFilter from '../filters/SizeFilter';
@@ -25,9 +26,17 @@ import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
+import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.Component {
+  static propTypes = {
+    query: React.PropTypes.object.isRequired,
+    closeAllFilters: React.PropTypes.func.isRequired
+  };
+
   render () {
+    const isFiltered = Object.keys(this.props.query).some(key => this.props.query[key] != null);
+
     return (
         <div className="search-navigator-facets-list">
           <ReliabilityFilter query={this.props.query}/>
@@ -37,6 +46,14 @@ export default class PageSidebar extends React.Component {
           <DuplicationsFilter query={this.props.query}/>
           <SizeFilter query={this.props.query}/>
           <QualityGateFilter query={this.props.query}/>
+
+          {isFiltered && (
+              <div className="projects-facets-reset">
+                <Link to="/projects" className="button button-red" onClick={this.props.closeAllFilters}>
+                  {translate('reset_verb')}
+                </Link>
+              </div>
+          )}
         </div>
     );
   }
