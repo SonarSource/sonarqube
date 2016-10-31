@@ -18,38 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import Rating from '../../../components/ui/Rating';
 
 export default class IssuesFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.number,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
+  renderOption = option => {
+    return (
+        <Rating value={option}/>
+    );
   };
-
-  renderOptions () {
-    const options = [1, 4, 2, 5, 3];
-
-    return options.map(option => (
-        <Link key={option}
-              className={'facet search-navigator-facet search-navigator-facet-half ' +
-              (option === this.props.value ? 'active' : '')}
-              to={this.props.getFilterUrl({ [this.props.property]: option })}>
-          <span className="facet-name projects-facet-name">
-            <Rating value={option}/>
-          </span>
-        </Link>
-    ));
-  }
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property={this.props.property}
+            options={[1, 2, 3, 4, 5]}
             renderName={() => this.props.name}
-            renderOptions={() => this.renderOptions()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            query={this.props.query}/>
     );
   }
 }

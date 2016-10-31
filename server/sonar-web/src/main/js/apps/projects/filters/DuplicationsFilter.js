@@ -18,59 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import { getDuplicationsRatingLabel, getDuplicationsRatingAverageValue } from '../../../helpers/ratings';
 
 export default class DuplicationsFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.number,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
-  };
-
-  renderValue () {
-    const { value } = this.props;
-
-    const average = getDuplicationsRatingAverageValue(value);
-    const label = getDuplicationsRatingLabel(value);
-
+  renderOption = option => {
     return (
-        <div className="projects-filter-value">
-          <DuplicationsRating value={average}/>
-
-          <div className="projects-filter-hint note">
-            {label}
-          </div>
-        </div>
-    );
-  }
-
-  renderOptions () {
-    const options = [1, 2, 3, 4, 5];
-
-    return options.map(option => (
-        <Link key={option}
-              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
-              to={this.props.getFilterUrl({ 'duplications': option })}>
-          <span className="facet-name projects-facet-name">
-            <DuplicationsRating value={getDuplicationsRatingAverageValue(option)}/>
-            <span className="spacer-left">
-              {getDuplicationsRatingLabel(option)}
-            </span>
+        <span>
+          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)}/>
+          <span className="spacer-left">
+            {getDuplicationsRatingLabel(option)}
           </span>
-        </Link>
-    ));
-  }
+        </span>
+    );
+  };
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property="duplications"
+            options={[1, 2, 3, 4, 5]}
             renderName={() => 'Duplications'}
-            renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            query={this.props.query}/>
     );
   }
 }

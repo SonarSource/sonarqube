@@ -18,25 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import CoverageFilterContainer from '../filters/CoverageFilterContainer';
-import DuplicationsFilterContainer from '../filters/DuplicationsFilterContainer';
-import SizeFilterContainer from '../filters/SizeFilterContainer';
-import QualityGateFilterContainer from '../filters/QualityGateFilterContainer';
-import ReliabilityFilterContainer from '../filters/ReliabilityFilterContainer';
-import SecurityFilterContainer from '../filters/SecurityFilterContainer';
-import MaintainabilityFilterContainer from '../filters/MaintainabilityFilterContainer';
+import CoverageFilter from '../filters/CoverageFilter';
+import DuplicationsFilter from '../filters/DuplicationsFilter';
+import SizeFilter from '../filters/SizeFilter';
+import QualityGateFilter from '../filters/QualityGateFilter';
+import ReliabilityFilter from '../filters/ReliabilityFilter';
+import SecurityFilter from '../filters/SecurityFilter';
+import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 
 export default class PageSidebar extends React.Component {
   render () {
     return (
         <div className="search-navigator-facets-list">
-          <ReliabilityFilterContainer query={this.props.query}/>
-          <SecurityFilterContainer query={this.props.query}/>
-          <MaintainabilityFilterContainer query={this.props.query}/>
-          <CoverageFilterContainer query={this.props.query}/>
-          <DuplicationsFilterContainer query={this.props.query}/>
-          <SizeFilterContainer query={this.props.query}/>
-          <QualityGateFilterContainer query={this.props.query}/>
+          <ReliabilityFilter query={this.props.query}/>
+          <SecurityFilter query={this.props.query}/>
+          <MaintainabilityFilter query={this.props.query}/>
+          <CoverageFilter query={this.props.query}/>
+          <DuplicationsFilter query={this.props.query}/>
+          <SizeFilter query={this.props.query}/>
+          <QualityGateFilter query={this.props.query}/>
         </div>
     );
   }

@@ -18,38 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import Level from '../../../components/ui/Level';
 
 export default class QualityGateFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.any,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
+  renderOption = option => {
+    return (
+        <Level level={option}/>
+    );
   };
-
-  renderOptions () {
-    const options = ['ERROR', 'WARN', 'OK'];
-
-    return options.map(option => (
-        <Link key={option}
-              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
-              to={this.props.getFilterUrl({ gate: option })}
-              onClick={this.props.toggleFilter}>
-          <span className="facet-name projects-facet-name">
-            <Level level={option}/>
-          </span>
-        </Link>
-    ));
-  }
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property="gate"
+            options={['ERROR', 'WARN', 'OK']}
             renderName={() => 'Quality Gate'}
-            renderOptions={() => this.renderOptions()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            query={this.props.query}/>
     );
   }
 }

@@ -18,59 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 
 export default class CoverageFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.number,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
-  };
-
-  renderValue () {
-    const { value } = this.props;
-
-    const average = getCoverageRatingAverageValue(value);
-    const label = getCoverageRatingLabel(value);
-
+  renderOption = option => {
     return (
-        <div className="projects-filter-value">
-          <CoverageRating value={average}/>
-
-          <div className="projects-filter-hint note">
-            {label}
-          </div>
-        </div>
-    );
-  }
-
-  renderOptions () {
-    const options = [1, 2, 3, 4, 5];
-
-    return options.map(option => (
-        <Link key={option}
-              className={'facet search-navigator-facet ' + (option === this.props.value ? 'active' : '')}
-              to={this.props.getFilterUrl({ 'coverage': option })}>
-          <span className="facet-name projects-facet-name">
-            <CoverageRating value={getCoverageRatingAverageValue(option)}/>
-            <span className="spacer-left">
-              {getCoverageRatingLabel(option)}
-            </span>
+        <span>
+          <CoverageRating value={getCoverageRatingAverageValue(option)}/>
+          <span className="spacer-left">
+            {getCoverageRatingLabel(option)}
           </span>
-        </Link>
-    ));
-  }
+        </span>
+    );
+  };
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property="coverage"
+            options={[1, 2, 3, 4, 5]}
             renderName={() => 'Coverage'}
-            renderOptions={() => this.renderOptions()}
-            renderValue={() => this.renderValue()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            query={this.props.query}/>
     );
   }
 }

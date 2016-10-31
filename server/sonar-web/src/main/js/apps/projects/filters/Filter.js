@@ -19,45 +19,82 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import { Link } from 'react-router';
 
 export default class Filter extends React.Component {
   static propTypes = {
-    getFilterUrl: React.PropTypes.func.isRequired,
     isOpen: React.PropTypes.bool.isRequired,
+    value: React.PropTypes.any,
+    property: React.PropTypes.string.isRequired,
+    options: React.PropTypes.array.isRequired,
+
     renderName: React.PropTypes.func.isRequired,
-    renderOptions: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired,
-    value: React.PropTypes.any
+    renderOption: React.PropTypes.func.isRequired,
+
+    getFilterUrl: React.PropTypes.func.isRequired,
+    toggleFilter: React.PropTypes.func.isRequired
   };
 
-  handleClick (e) {
+  handleClick = e => {
     e.preventDefault();
     e.target.blur();
     this.props.toggleFilter();
+  };
+
+  renderHeader () {
+    const { value, isOpen, renderName } = this.props;
+    const hasValue = value != null;
+    const checkboxClassName = classNames('icon-checkbox', {
+      'icon-checkbox-checked': hasValue || isOpen
+    });
+
+    return (
+        <a className="search-navigator-facet-header projects-facet-header" href="#" onClick={this.handleClick}>
+          <i className={checkboxClassName}/> {renderName()}
+        </a>
+    );
+  }
+
+  renderOption (option) {
+    const { property, value } = this.props;
+    const className = classNames('facet', 'search-navigator-facet', { active: option === value });
+    const path = this.props.getFilterUrl({ [property]: option });
+
+    return (
+        <Link key={option} className={className} to={path}>
+          <span className="facet-name projects-facet-name">
+            {this.props.renderOption(option)}
+          </span>
+        </Link>
+    );
+  }
+
+  renderOptions () {
+    const { value, isOpen, options } = this.props;
+    const hasValue = value != null;
+
+    if (!hasValue && !isOpen) {
+      return null;
+    }
+
+    return (
+        <div className="search-navigator-facet-list">
+          {options.map(option => this.renderOption(option))}
+        </div>
+    );
   }
 
   render () {
     const { value, isOpen } = this.props;
-    const { renderName, renderOptions } = this.props;
     const hasValue = value != null;
     const className = classNames('search-navigator-facet-box', {
       'search-navigator-facet-box-collapsed': !hasValue && !isOpen
     });
+
     return (
         <div className={className}>
-          <a className="search-navigator-facet-header projects-facet-header"
-             href="#"
-             onClick={e => this.handleClick(e)}>
-            <i className={'icon-checkbox ' + ((hasValue || isOpen) ? 'icon-checkbox-checked' : '')}/>
-            {' '}
-            {renderName()}
-          </a>
-
-          {(hasValue || isOpen) && (
-              <div className="search-navigator-facet-list">
-                {renderOptions()}
-              </div>
-          )}
+          {this.renderHeader()}
+          {this.renderOptions()}
         </div>
     );
   }

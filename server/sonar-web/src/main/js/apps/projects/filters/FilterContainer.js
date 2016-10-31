@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import Filter from './Filter';
 import { connect } from 'react-redux';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
@@ -24,21 +25,20 @@ import { getProjectsAppFilterStatus } from '../../../app/store/rootReducer';
 import { toggleFilter } from '../store/filters/statuses/actions';
 import { OPEN } from '../store/filters/statuses/reducer';
 
-const connectFilter = (key, getValue) => Component => {
-  const mapStateToProps = (state, ownProps) => ({
-    isOpen: getProjectsAppFilterStatus(state, key) === OPEN,
-    value: getValue(ownProps.query),
-    getFilterUrl: part => {
-      const query = omitBy({ ...ownProps.query, ...part }, isNil);
-      return { pathname: '/projects', query };
-    }
-  });
+const mapStateToProps = (state, ownProps) => ({
+  isOpen: getProjectsAppFilterStatus(state, ownProps.property) === OPEN,
+  value: ownProps.query[ownProps.property],
+  getFilterUrl: part => {
+    const query = omitBy({ ...ownProps.query, ...part }, isNil);
+    return { pathname: '/projects', query };
+  }
+});
 
-  const mapDispatchToProps = dispatch => ({
-    toggleFilter: () => dispatch(toggleFilter(key))
-  });
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  toggleFilter: () => dispatch(toggleFilter(ownProps.property))
+});
 
-  return connect(mapStateToProps, mapDispatchToProps)(Component);
-};
-
-export default connectFilter;
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Filter);

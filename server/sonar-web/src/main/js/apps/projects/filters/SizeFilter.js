@@ -18,43 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
-import Filter from './Filter';
+import FilterContainer from './FilterContainer';
 import SizeRating from '../../../components/ui/SizeRating';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.number,
-    getFilterUrl: React.PropTypes.func.isRequired,
-    toggleFilter: React.PropTypes.func.isRequired
-  };
-
-  renderOptions () {
-    const options = [1, 2, 3, 4, 5];
-
-    return options.map(option => (
-        <Link key={option}
-              className={'facet search-navigator-facet search-navigator-facet-half ' +
-              (option === this.props.value ? 'active' : '')}
-              to={this.props.getFilterUrl({ 'size': option })}
-              onClick={this.props.toggleFilter}>
-          <span className="facet-name projects-facet-name">
-            <SizeRating value={getSizeRatingAverageValue(option)}/>
-            <span className="spacer-left">
-              {getSizeRatingLabel(option)}
-            </span>
+  renderOption = option => {
+    return (
+        <span>
+          <SizeRating value={getSizeRatingAverageValue(option)}/>
+          <span className="spacer-left">
+            {getSizeRatingLabel(option)}
           </span>
-        </Link>
-    ));
-  }
+        </span>
+    );
+  };
 
   render () {
     return (
-        <Filter
+        <FilterContainer
+            property="size"
+            options={[1, 2, 3, 4, 5]}
             renderName={() => 'Size'}
-            renderOptions={() => this.renderOptions()}
-            {...this.props}/>
+            renderOption={this.renderOption}
+            query={this.props.query}/>
     );
   }
 }
