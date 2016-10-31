@@ -19,9 +19,10 @@
  */
 export const RECEIVE_PROJECTS = 'projects/RECEIVE_PROJECTS';
 
-export const receiveProjects = projects => ({
+export const receiveProjects = (projects, facets) => ({
   type: RECEIVE_PROJECTS,
-  projects
+  projects,
+  facets
 });
 
 export const RECEIVE_MORE_PROJECTS = 'projects/RECEIVE_MORE_PROJECTS';

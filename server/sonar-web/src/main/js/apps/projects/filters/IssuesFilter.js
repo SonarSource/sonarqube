@@ -28,6 +28,10 @@ export default class IssuesFilter extends React.Component {
     );
   };
 
+  getFacetValueForOption = (facet, option) => {
+    return facet[option];
+  };
+
   render () {
     return (
         <FilterContainer
@@ -35,6 +39,7 @@ export default class IssuesFilter extends React.Component {
             options={[1, 2, 3, 4, 5]}
             renderName={() => this.props.name}
             renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}/>
     );
   }

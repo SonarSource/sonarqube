@@ -28,6 +28,10 @@ export default class QualityGateFilter extends React.Component {
     );
   };
 
+  getFacetValueForOption = (facet, option) => {
+    return facet[option];
+  };
+
   render () {
     return (
         <FilterContainer
@@ -35,6 +39,7 @@ export default class QualityGateFilter extends React.Component {
             options={['ERROR', 'WARN', 'OK']}
             renderName={() => 'Quality Gate'}
             renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}/>
     );
   }

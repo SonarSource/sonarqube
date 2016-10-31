@@ -84,3 +84,7 @@ export const getProjectsAppState = state => (
 export const getProjectsAppFilterStatus = (state, key) => (
     fromProjectsApp.getFilterStatus(state.projectsApp, key)
 );
+
+export const getProjectsAppFacetByProperty = (state, property) => (
+    fromProjectsApp.getFacetByProperty(state.projectsApp, property)
+);

@@ -34,6 +34,11 @@ export default class SizeFilter extends React.Component {
     );
   };
 
+  getFacetValueForOption = (facet, option) => {
+    const map = ['*-1000.0', '1000.0-10000.0', '10000.0-100000.0', '100000.0-500000.0', '500000.0-*'];
+    return facet[map[option - 1]];
+  };
+
   render () {
     return (
         <FilterContainer
@@ -41,6 +46,7 @@ export default class SizeFilter extends React.Component {
             options={[1, 2, 3, 4, 5]}
             renderName={() => 'Size'}
             renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}/>
     );
   }

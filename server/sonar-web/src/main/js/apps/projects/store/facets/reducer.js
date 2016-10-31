@@ -17,26 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { combineReducers } from 'redux';
-import projects, * as fromProjects from './projects/reducer';
-import state from './state/reducer';
-import filters, * as fromFilters from './filters/reducer';
-import facets, * as fromFacets from './facets/reducer';
+import { createMap } from '../../../../components/store/generalReducers';
+import { RECEIVE_PROJECTS } from '../projects/actions';
+import { mapMetricToProperty } from '../utils';
 
-export default combineReducers({ projects, state, filters, facets });
+const mapFacetValues = values => {
+  const map = {};
+  values.forEach(value => {
+    map[value.val] = value.count;
+  });
+  return map;
+};
 
-export const getProjects = state => (
-    fromProjects.getProjects(state.projects)
+const getFacetsMap = facets => {
+  const map = {};
+  facets.forEach(facet => {
+    const property = mapMetricToProperty(facet.property);
+    map[property] = mapFacetValues(facet.values);
+  });
+  return map;
+};
+
+const reducer = createMap(
+    (state, action) => action.type === RECEIVE_PROJECTS,
+    () => false,
+    (state, action) => getFacetsMap(action.facets)
 );
 
-export const getState = state => (
-    state.state
-);
-
-export const getFilterStatus = (state, key) => (
-    fromFilters.getFilterStatus(state.filters, key)
-);
+export default reducer;
 
 export const getFacetByProperty = (state, property) => (
-    fromFacets.getFacetByProperty(state.facets, property)
+    state[property]
 );
+

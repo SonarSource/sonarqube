@@ -20,6 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
+import { formatMeasure } from '../../../helpers/measures';
 
 export default class Filter extends React.Component {
   static propTypes = {
@@ -30,6 +31,8 @@ export default class Filter extends React.Component {
 
     renderName: React.PropTypes.func.isRequired,
     renderOption: React.PropTypes.func.isRequired,
+
+    getFacetValueForOption: React.PropTypes.func,
 
     getFilterUrl: React.PropTypes.func.isRequired,
     openFilter: React.PropTypes.func.isRequired,
@@ -72,15 +75,22 @@ export default class Filter extends React.Component {
   }
 
   renderOption (option) {
-    const { property, value } = this.props;
-    const className = classNames('facet', 'search-navigator-facet', { active: option === value });
+    const { property, value, facet, getFacetValueForOption } = this.props;
+    const className = classNames('facet', 'search-navigator-facet', 'projects-facet', { active: option === value });
     const path = this.props.getFilterUrl({ [property]: option });
+
+    const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
 
     return (
         <Link key={option} className={className} to={path}>
-          <span className="facet-name projects-facet-name">
+          <span className="facet-name">
             {this.props.renderOption(option)}
           </span>
+          {facetValue != null && (
+              <span className="facet-stat">
+                {formatMeasure(facetValue, 'SHORT_INT')}
+              </span>
+          )}
         </Link>
     );
   }

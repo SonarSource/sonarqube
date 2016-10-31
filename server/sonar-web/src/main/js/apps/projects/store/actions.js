@@ -42,6 +42,16 @@ const METRICS = [
   'ncloc_language_distribution'
 ];
 
+const FACETS = [
+  'reliability_rating',
+  'security_rating',
+  'sqale_rating',
+  'coverage',
+  'duplicated_lines_density',
+  'ncloc',
+  'alert_status'
+];
+
 const onFail = dispatch => error => {
   parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
   dispatch(updateState({ loading: false }));
@@ -74,7 +84,7 @@ const fetchProjectMeasures = projects => dispatch => {
 
 const onReceiveProjects = dispatch => response => {
   dispatch(receiveComponents(response.components));
-  dispatch(receiveProjects(response.components));
+  dispatch(receiveProjects(response.components, response.facets));
   dispatch(fetchProjectMeasures(response.components)).then(() => {
     dispatch(updateState({ loading: false }));
   });
@@ -95,7 +105,7 @@ const onReceiveMoreProjects = dispatch => response => {
 
 export const fetchProjects = query => dispatch => {
   dispatch(updateState({ loading: true }));
-  const data = { ps: PAGE_SIZE };
+  const data = { ps: PAGE_SIZE, facets: FACETS.join() };
   const filter = convertToFilter(query);
   if (filter) {
     data.filter = filter;

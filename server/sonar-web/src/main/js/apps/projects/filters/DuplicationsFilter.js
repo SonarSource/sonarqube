@@ -34,6 +34,11 @@ export default class DuplicationsFilter extends React.Component {
     );
   };
 
+  getFacetValueForOption = (facet, option) => {
+    const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
+    return facet[map[option - 1]];
+  };
+
   render () {
     return (
         <FilterContainer
@@ -41,6 +46,7 @@ export default class DuplicationsFilter extends React.Component {
             options={[1, 2, 3, 4, 5]}
             renderName={() => 'Duplications'}
             renderOption={this.renderOption}
+            getFacetValueForOption={this.getFacetValueForOption}
             query={this.props.query}/>
     );
   }

@@ -126,3 +126,16 @@ export const convertToFilter = query => {
 
   return conditions.join(' and ');
 };
+
+export const mapMetricToProperty = metricKey => {
+  const map = {
+    'reliability_rating': 'reliability',
+    'security_rating': 'security',
+    'sqale_rating': 'maintainability',
+    'coverage': 'coverage',
+    'duplicated_lines_density': 'duplications',
+    'ncloc': 'size',
+    'alert_status': 'gate'
+  };
+  return map[metricKey];
+};

@@ -71,6 +71,7 @@
   transition: none;
 }
 
-.projects-facet-name {
+.projects-facet .facet-name,
+.projects-facet .facet-stat {
   line-height: 24px !important;
 }
