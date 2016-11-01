@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Route } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
 import AppContainer from './components/AppContainer';
+import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 
 export default (
-    <Route path="projects" component={AppContainer}/>
+    <Route path="projects">
+      <IndexRoute component={AppContainer}/>
+      <Route path="favorite" component={FavoriteProjectsContainer}/>
+    </Route>
 );

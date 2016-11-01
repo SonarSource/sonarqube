@@ -28,6 +28,8 @@ import { getProjectsAppState } from '../../../app/store/rootReducer';
 import { getMeasuresForComponents } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../app/store/measures/actions';
 import { convertToFilter } from './utils';
+import { getFavorites } from '../../../api/favorites';
+import { receiveFavorites } from '../../../app/store/favorites/actions';
 
 const PAGE_SIZE = 50;
 
@@ -123,4 +125,24 @@ export const fetchMoreProjects = query => (dispatch, getState) => {
     data.filter = filter;
   }
   return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
+};
+
+export const fetchFavoriteProjects = () => dispatch => {
+  dispatch(updateState({ loading: true }));
+
+  return getFavorites().then(favorites => {
+    dispatch(receiveFavorites(favorites));
+
+    const projects = favorites.filter(component => component.qualifier === 'TRK');
+
+    dispatch(receiveComponents(projects));
+    dispatch(receiveProjects(projects, []));
+    dispatch(fetchProjectMeasures(projects)).then(() => {
+      dispatch(updateState({ loading: false }));
+    });
+    dispatch(updateState({
+      total: projects.length,
+      pageIndex: 1,
+    }));
+  }, onFail(dispatch));
 };

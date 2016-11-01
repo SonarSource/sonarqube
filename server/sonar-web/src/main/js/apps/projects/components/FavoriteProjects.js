@@ -21,47 +21,28 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
-import ProjectsListFooterContainer from './ProjectsListFooterContainer';
-import PageSidebarContainer from './PageSidebarContainer';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
-import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
-export default class App extends React.Component {
+export default class FavoriteProjects extends React.Component {
   static propTypes = {
     user: React.PropTypes.object,
-    fetchProjects: React.PropTypes.func.isRequired
-  };
-
-  state = {
-    query: {}
+    fetchFavoriteProjects: React.PropTypes.func.isRequired
   };
 
   componentDidMount () {
     document.querySelector('html').classList.add('dashboard-page');
-    this.handleQueryChange();
-  }
-
-  componentDidUpdate (prevProps) {
-    if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange();
-    }
+    this.props.fetchFavoriteProjects();
   }
 
   componentWillUnmount () {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  handleQueryChange () {
-    const query = parseUrlQuery(this.props.location.query);
-    this.setState({ query });
-    this.props.fetchProjects(query);
-  }
-
   render () {
-    if (this.props.user == null) {
+    if (!this.props.user) {
       return null;
     }
 
@@ -76,11 +57,11 @@ export default class App extends React.Component {
           <div className="page-with-sidebar page-with-left-sidebar">
             <div className="page-main">
               <ProjectsListContainer/>
-              <ProjectsListFooterContainer query={this.state.query}/>
             </div>
             <aside className="page-sidebar-fixed">
               <FavoriteFilterContainer/>
-              <PageSidebarContainer query={this.state.query}/>
+
+              <p className="note text-center">Filters are not available.</p>
             </aside>
           </div>
         </div>

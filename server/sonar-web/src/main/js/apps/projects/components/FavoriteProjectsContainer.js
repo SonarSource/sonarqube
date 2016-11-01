@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import App from './App';
-import { fetchProjects } from '../store/actions';
+import FavoriteProjects from './FavoriteProjects';
+import { fetchFavoriteProjects } from '../store/actions';
 import { getCurrentUser } from '../../../app/store/rootReducer';
 
+const mapStateToProps = state => ({
+  user: getCurrentUser(state)
+});
+
 export default connect(
-    state => ({
-      user: getCurrentUser(state)
-    }),
-    { fetchProjects }
-)(App);
+    mapStateToProps,
+    { fetchFavoriteProjects }
+)(FavoriteProjects);

@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import { fetchProjects } from '../store/actions';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import React from 'react';
+import { IndexLink, Link } from 'react-router';
 
-export default connect(
-    state => ({
-      user: getCurrentUser(state)
-    }),
-    { fetchProjects }
-)(App);
+export default class FavoriteFilter extends React.Component {
+  render () {
+    if (!this.props.user) {
+      return null;
+    }
+
+    return (
+      <div className="button-group projects-favorite-filter">
+        <IndexLink to="/projects" className="button" activeClassName="button-active">All</IndexLink>
+        <Link to="/projects/favorite" className="button" activeClassName="button-active">Favorite</Link>
+      </div>
+    );
+  }
+}
