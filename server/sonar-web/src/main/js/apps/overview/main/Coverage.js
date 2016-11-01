@@ -26,41 +26,20 @@ import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
 class Coverage extends React.Component {
-  getCoverageMetricPrefix () {
+  getCoverage () {
     const { measures } = this.props;
-    const hasOverallCoverage = !!measures
-        .find(measure => measure.metric.key === 'overall_coverage');
-    const hasUTCoverage = !!measures
-        .find(measure => measure.metric.key === 'coverage');
-    const hasITCoverage = !!measures
-        .find(measure => measure.metric.key === 'it_coverage');
-
-    if (hasOverallCoverage && hasUTCoverage && hasITCoverage) {
-      return 'overall_';
-    } else if (hasITCoverage) {
-      return 'it_';
-    } else {
-      return '';
-    }
-  }
-
-  getCoverage (prefix) {
-    const { measures } = this.props;
-    const { value } = measures
-        .find(measure => measure.metric.key === `${prefix}coverage`);
+    const { value } = measures.find(measure => measure.metric.key === 'coverage');
     return Number(value);
   }
 
-  getNewCoverageMeasure (prefix) {
+  getNewCoverageMeasure () {
     const { measures } = this.props;
-    return measures
-        .find(measure => measure.metric.key === `new_${prefix}coverage`);
+    return measures.find(measure => measure.metric.key === 'new_coverage');
   }
 
-  getNewLinesToCover (prefix) {
+  getNewLinesToCover () {
     const { measures } = this.props;
-    return measures
-        .find(measure => measure.metric.key === `new_${prefix}lines_to_cover`);
+    return measures.find(measure => measure.metric.key === 'new_lines_to_cover');
   }
 
   renderHeader () {
@@ -69,9 +48,8 @@ class Coverage extends React.Component {
         translate('metric.coverage.name'));
   }
 
-  renderTimeline (coverageMetricPrefix, range) {
-    const metricKey = `${coverageMetricPrefix}coverage`;
-    return this.props.renderTimeline(metricKey, range);
+  renderTimeline (range) {
+    return this.props.renderTimeline('coverage', range);
   }
 
   renderTests () {
@@ -86,10 +64,10 @@ class Coverage extends React.Component {
     return this.props.renderDonut(data);
   }
 
-  renderCoverage (coverageMetricPrefix) {
+  renderCoverage () {
     const { component } = this.props;
-    const metric = `${coverageMetricPrefix}coverage`;
-    const coverage = this.getCoverage(coverageMetricPrefix);
+    const metric = 'coverage';
+    const coverage = this.getCoverage();
 
     return (
         <div className="overview-domain-measure">
@@ -112,10 +90,10 @@ class Coverage extends React.Component {
     );
   }
 
-  renderNewCoverage (coverageMetricPrefix) {
+  renderNewCoverage () {
     const { component, leakPeriod } = this.props;
-    const newCoverageMeasure = this.getNewCoverageMeasure(coverageMetricPrefix);
-    const newLinesToCover = this.getNewLinesToCover(coverageMetricPrefix);
+    const newCoverageMeasure = this.getNewCoverageMeasure();
+    const newLinesToCover = this.getNewLinesToCover();
 
     const newCoverageValue = newCoverageMeasure ?
         getPeriodValue(newCoverageMeasure, leakPeriod.index) : null;
@@ -168,20 +146,20 @@ class Coverage extends React.Component {
     );
   }
 
-  renderNutshell (coverageMetricPrefix) {
+  renderNutshell () {
     return (
         <div className="overview-domain-nutshell">
           <div className="overview-domain-measures">
-            {this.renderCoverage(coverageMetricPrefix)}
+            {this.renderCoverage()}
             {this.renderTests()}
           </div>
 
-          {this.renderTimeline(coverageMetricPrefix, 'before')}
+          {this.renderTimeline('before')}
         </div>
     );
   }
 
-  renderLeak (coverageMetricPrefix) {
+  renderLeak () {
     const { leakPeriod } = this.props;
 
     if (leakPeriod == null) {
@@ -191,19 +169,17 @@ class Coverage extends React.Component {
     return (
         <div className="overview-domain-leak">
           <div className="overview-domain-measures">
-            {this.renderNewCoverage(coverageMetricPrefix)}
+            {this.renderNewCoverage()}
           </div>
 
-          {this.renderTimeline(coverageMetricPrefix, 'after')}
+          {this.renderTimeline('after')}
         </div>
     );
   }
 
   render () {
     const { measures } = this.props;
-    const coverageMetricPrefix = this.getCoverageMetricPrefix();
-    const coverageMeasure =
-        measures.find(measure => measure.metric.key === `${coverageMetricPrefix}coverage`);
+    const coverageMeasure = measures.find(measure => measure.metric.key === 'coverage');
 
     if (coverageMeasure == null) {
       return null;
@@ -214,8 +190,8 @@ class Coverage extends React.Component {
           {this.renderHeader()}
 
           <div className="overview-domain-panel">
-            {this.renderNutshell(coverageMetricPrefix)}
-            {this.renderLeak(coverageMetricPrefix)}
+            {this.renderNutshell()}
+            {this.renderLeak()}
           </div>
         </div>
     );
