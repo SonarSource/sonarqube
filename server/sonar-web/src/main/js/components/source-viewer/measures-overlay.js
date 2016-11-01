@@ -131,12 +131,6 @@ export default ModalView.extend({
     if (measures.conditions_to_cover && measures.uncovered_conditions) {
       measures.covered_conditions = measures.conditions_to_cover - measures.uncovered_conditions;
     }
-    if (measures.it_lines_to_cover && measures.it_uncovered_lines) {
-      measures.it_covered_lines = measures.it_lines_to_cover - measures.it_uncovered_lines;
-    }
-    if (measures.it_conditions_to_cover && measures.it_uncovered_conditions) {
-      measures.it_covered_conditions = measures.it_conditions_to_cover - measures.it_uncovered_conditions;
-    }
     return measures;
   },
 

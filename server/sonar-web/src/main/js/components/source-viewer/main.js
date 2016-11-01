@@ -184,29 +184,15 @@ export default Marionette.LayoutView.extend({
     return { from: 1, to: this.LINES_AROUND };
   },
 
-  getUTCoverageStatus (row) {
+  getCoverageStatus (row) {
     let status = null;
-    if (row.utLineHits > 0) {
+    if (row.lineHits > 0) {
       status = 'partially-covered';
     }
-    if (row.utLineHits > 0 && row.utConditions === row.utCoveredConditions) {
+    if (row.lineHits > 0 && row.conditions === row.coveredConditions) {
       status = 'covered';
     }
-    if (row.utLineHits === 0 || row.utCoveredConditions === 0) {
-      status = 'uncovered';
-    }
-    return status;
-  },
-
-  getItCoverageStatus (row) {
-    let status = null;
-    if (row.itLineHits > 0) {
-      status = 'partially-covered';
-    }
-    if (row.itLineHits > 0 && row.itConditions === row.itCoveredConditions) {
-      status = 'covered';
-    }
-    if (row.itLineHits === 0 || row.itCoveredConditions === 0) {
+    if (row.lineHits === 0 || row.coveredConditions === 0) {
       status = 'uncovered';
     }
     return status;
@@ -230,16 +216,14 @@ export default Marionette.LayoutView.extend({
       }
       source = source.map(function (row) {
         return _.extend(row, {
-          utCoverageStatus: that.getUTCoverageStatus(row),
-          itCoverageStatus: that.getItCoverageStatus(row)
+          coverageStatus: that.getCoverageStatus(row),
         });
       });
       const firstLine = _.first(source).line;
       const linesRequested = data.to - data.from + 1;
       that.model.set({
         source,
-        hasUTCoverage: that.model.hasUTCoverage(source),
-        hasITCoverage: that.model.hasITCoverage(source),
+        hasCoverage: that.model.hasCoverage(source),
         hasSourceBefore: firstLine > 1,
         hasSourceAfter: data.sources.length === linesRequested
       });
@@ -445,7 +429,6 @@ export default Marionette.LayoutView.extend({
       const popup = new CoveragePopupView({
         row,
         collection: new Backbone.Collection(data.tests),
-        tests: $(e.currentTarget).data('tests'),
         triggerEl: $(e.currentTarget)
       });
       popup.render();
@@ -634,14 +617,12 @@ export default Marionette.LayoutView.extend({
       }
       source = source.map(function (row) {
         return _.extend(row, {
-          utCoverageStatus: that.getUTCoverageStatus(row),
-          itCoverageStatus: that.getItCoverageStatus(row)
+          coverageStatus: that.getCoverageStatus(row)
         });
       });
       that.model.set({
         source,
-        hasUTCoverage: that.model.hasUTCoverage(source),
-        hasITCoverage: that.model.hasITCoverage(source),
+        hasCoverage: that.model.hasCoverage(source),
         hasSourceBefore: (data.sources.length === that.LINES_AROUND) && (_.first(source).line > 0)
       });
       that.addIssuesPerLineMeta(that.issues);
@@ -680,14 +661,12 @@ export default Marionette.LayoutView.extend({
       }
       source = source.map(function (row) {
         return _.extend(row, {
-          utCoverageStatus: that.getUTCoverageStatus(row),
-          itCoverageStatus: that.getItCoverageStatus(row)
+          coverageStatus: that.getCoverageStatus(row)
         });
       });
       that.model.set({
         source,
-        hasUTCoverage: that.model.hasUTCoverage(source),
-        hasITCoverage: that.model.hasITCoverage(source),
+        hasCoverage: that.model.hasCoverage(source),
         hasSourceAfter: data.sources.length === that.LINES_AROUND
       });
       that.addIssuesPerLineMeta(that.issues);

@@ -29,7 +29,6 @@ export default Backbone.Model.extend({
 
       hasSource: false,
       hasCoverage: false,
-      hasITCoverage: false,
       hasDuplications: false,
       hasSCM: false,
 
@@ -94,15 +93,9 @@ export default Backbone.Model.extend({
     this.set({ hasDuplications });
   },
 
-  hasUTCoverage (source) {
+  hasCoverage (source) {
     return _.some(source, function (line) {
-      return line.utCoverageStatus != null;
-    });
-  },
-
-  hasITCoverage (source) {
-    return _.some(source, function (line) {
-      return line.itCoverageStatus != null;
+      return line.coverageStatus != null;
     });
   }
 });

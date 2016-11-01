@@ -54,16 +54,7 @@ export default Popup.extend({
         tests: testSet
       };
     });
-    _.extend(row, {
-      lineHits: row[this.options.tests + 'LineHits'],
-      conditions: row[this.options.tests + 'Conditions'],
-      coveredConditions: row[this.options.tests + 'CoveredConditions']
-    });
-    return {
-      testFiles,
-      row,
-      tests: this.options.tests
-    };
+    return { testFiles, row };
   }
 });
 
