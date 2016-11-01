@@ -86,7 +86,10 @@ export default class Filter extends React.Component {
       active: option === value,
       'search-navigator-facet-half': this.props.halfWidth
     });
-    const path = this.props.getFilterUrl({ [property]: option });
+
+    const path = option === value ?
+        this.props.getFilterUrl({ [property]: null }) :
+        this.props.getFilterUrl({ [property]: option });
 
     const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
 
