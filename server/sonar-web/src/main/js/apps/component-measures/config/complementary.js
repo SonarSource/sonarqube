@@ -18,18 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export default {
-  'overall_coverage': ['overall_uncovered_lines', 'overall_uncovered_conditions'],
-  'overall_line_coverage': ['overall_uncovered_lines'],
-  'overall_branch_coverage': ['overall_uncovered_conditions'],
-  'overall_uncovered_lines': ['overall_line_coverage'],
-  'overall_uncovered_conditions': ['overall_branch_coverage'],
-
-  'new_overall_coverage': ['new_overall_uncovered_lines', 'new_overall_uncovered_conditions'],
-  'new_overall_line_coverage': ['new_overall_uncovered_lines'],
-  'new_overall_branch_coverage': ['new_overall_uncovered_conditions'],
-  'new_overall_uncovered_lines': ['new_overall_line_coverage'],
-  'new_overall_uncovered_conditions': ['new_overall_branch_coverage'],
-
   'coverage': ['uncovered_lines', 'uncovered_conditions'],
   'line_coverage': ['uncovered_lines'],
   'branch_coverage': ['uncovered_conditions'],
@@ -41,18 +29,6 @@ export default {
   'new_branch_coverage': ['new_uncovered_conditions'],
   'new_uncovered_lines': ['new_line_coverage'],
   'new_uncovered_conditions': ['new_branch_coverage'],
-
-  'it_coverage': ['it_uncovered_lines', 'it_uncovered_conditions'],
-  'it_line_coverage': ['it_uncovered_lines'],
-  'it_branch_coverage': ['it_uncovered_conditions'],
-  'it_uncovered_lines': ['it_line_coverage'],
-  'it_uncovered_conditions': ['it_branch_coverage'],
-
-  'new_it_coverage': ['new_it_uncovered_lines', 'new_it_uncovered_conditions'],
-  'new_it_line_coverage': ['new_it_uncovered_lines'],
-  'new_it_branch_coverage': ['new_it_uncovered_conditions'],
-  'new_it_uncovered_lines': ['new_it_line_coverage'],
-  'new_it_uncovered_conditions': ['new_it_branch_coverage'],
 
   'duplicated_lines_density': ['duplicated_lines'],
   'new_duplicated_lines_density': ['new_duplicated_lines'],
