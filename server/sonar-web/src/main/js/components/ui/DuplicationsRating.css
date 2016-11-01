@@ -11,6 +11,12 @@
   box-sizing: border-box;
 }
 
+.duplications-rating-small {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
 .duplications-rating:after {
   border-radius: 24px;
   background-color: #f3ca8e;
@@ -30,9 +36,19 @@
   height: 6px;
 }
 
+.duplications-rating-small.duplications-rating-B:after {
+  width: 2px;
+  height: 2px;
+}
+
 .duplications-rating-C:after {
   width: 8px;
   height: 8px;
+}
+
+.duplications-rating-small.duplications-rating-C:after {
+  width: 6px;
+  height: 6px;
 }
 
 .duplications-rating-D {
@@ -45,8 +61,20 @@
   background-color: #d4333f;
 }
 
+.duplications-rating-small.duplications-rating-D:after {
+  width: 8px;
+  height: 8px;
+  background-color: #d4333f;
+}
+
 .duplications-rating-E {
   border-color: #d4333f;
+}
+
+.duplications-rating-small.duplications-rating-E:after {
+  width: 10px;
+  height: 10px;
+  background-color: #d4333f;
 }
 
 .duplications-rating-E:after {

@@ -24,7 +24,9 @@ import Rating from '../../../components/ui/Rating';
 export default class IssuesFilter extends React.Component {
   renderOption = option => {
     return (
-        <Rating value={option}/>
+        <span>
+          <Rating value={option} small={true}/>
+        </span>
     );
   };
 

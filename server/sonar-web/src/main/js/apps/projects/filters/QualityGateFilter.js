@@ -24,7 +24,7 @@ import Level from '../../../components/ui/Level';
 export default class QualityGateFilter extends React.Component {
   renderOption = option => {
     return (
-        <Level level={option}/>
+        <Level level={option} small={true}/>
     );
   };
 

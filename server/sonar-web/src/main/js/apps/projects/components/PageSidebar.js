@@ -39,13 +39,13 @@ export default class PageSidebar extends React.Component {
 
     return (
         <div className="search-navigator-facets-list">
+          <QualityGateFilter query={this.props.query}/>
           <ReliabilityFilter query={this.props.query}/>
           <SecurityFilter query={this.props.query}/>
           <MaintainabilityFilter query={this.props.query}/>
           <CoverageFilter query={this.props.query}/>
           <DuplicationsFilter query={this.props.query}/>
           <SizeFilter query={this.props.query}/>
-          <QualityGateFilter query={this.props.query}/>
 
           {isFiltered && (
               <div className="projects-facets-reset">

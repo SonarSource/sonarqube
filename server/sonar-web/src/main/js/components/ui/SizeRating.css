@@ -11,6 +11,15 @@
   text-align: center;
 }
 
+.size-rating-small {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  font-size: 10px;
+}
+
 .size-rating-muted {
   background-color: #ccc;
 }

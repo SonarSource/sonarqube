@@ -34,14 +34,13 @@ export default class ProjectCardQualityGate extends React.Component {
     }
 
     return (
-        <div className="project-card-measure pull-right">
+        <div className="project-card-measure">
           <div className="project-card-measure-inner">
-            <div>
-              <Level level={status}/>
-            </div>
-            <div className="project-card-measure-label">
+            <span className="small spacer-right">
               {translate('overview.quality_gate')}
-            </div>
+              {':'}
+            </span>
+            <Level level={status} small={true}/>
           </div>
         </div>
     );
