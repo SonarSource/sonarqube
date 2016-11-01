@@ -27,7 +27,6 @@ import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
 import { addComponent, addComponentBreadcrumbs } from '../bucket';
-import { selectCoverageMetric } from '../../../helpers/measures';
 
 import '../code.css';
 
@@ -70,8 +69,6 @@ export default class App extends React.Component {
     const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
     retrieveComponentChildren(component.key, isView).then(r => {
       addComponent(r.baseComponent);
-      const prefix = selectCoverageMetric(r.baseComponent.measures);
-      this.coverageMetric = `${prefix}coverage`;
       this.handleUpdate();
     }).catch(e => {
       if (this.mounted) {
@@ -192,8 +189,7 @@ export default class App extends React.Component {
                   <Components
                       rootComponent={component}
                       baseComponent={baseComponent}
-                      components={components}
-                      coverageMetric={this.coverageMetric}/>
+                      components={components}/>
                 </div>
             )}
 

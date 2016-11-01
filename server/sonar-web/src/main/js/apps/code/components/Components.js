@@ -23,7 +23,7 @@ import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
-const Components = ({ rootComponent, baseComponent, components, selected, coverageMetric }) => (
+const Components = ({ rootComponent, baseComponent, components, selected }) => (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent}/>
       {baseComponent && (
@@ -31,8 +31,7 @@ const Components = ({ rootComponent, baseComponent, components, selected, covera
             <Component
                 key={baseComponent.key}
                 rootComponent={rootComponent}
-                component={baseComponent}
-                coverageMetric={coverageMetric}/>
+                component={baseComponent}/>
             <tr className="blank">
               <td colSpan="8">&nbsp;</td>
             </tr>
@@ -47,7 +46,6 @@ const Components = ({ rootComponent, baseComponent, components, selected, covera
                     component={component}
                     selected={component === selected}
                     previous={index > 0 ? list[index - 1] : null}
-                    coverageMetric={coverageMetric}
                     canBrowse={true}/>
             ))
         ) : (
