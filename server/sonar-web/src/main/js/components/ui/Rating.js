@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Rating.css';
 
@@ -30,12 +31,17 @@ export default class Rating extends React.Component {
         throw new Error(
             `Invalid prop "${propName}" passed to "${componentName}".`);
       }
-    }
+    },
+    small: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    small: false
   };
 
   render () {
     const formatted = formatMeasure(this.props.value, 'RATING');
-    const className = 'rating rating-' + formatted;
+    const className = classNames('rating', 'rating-' + formatted, { 'rating-small': this.props.small });
     return <span className={className}>{formatted}</span>;
   }
 }

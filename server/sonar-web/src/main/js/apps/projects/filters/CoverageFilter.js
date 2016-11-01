@@ -26,7 +26,7 @@ export default class CoverageFilter extends React.Component {
   renderOption = option => {
     return (
         <span>
-          <CoverageRating value={getCoverageRatingAverageValue(option)}/>
+          <CoverageRating value={getCoverageRatingAverageValue(option)} small={true}/>
           <span className="spacer-left">
             {getCoverageRatingLabel(option)}
           </span>
@@ -43,7 +43,7 @@ export default class CoverageFilter extends React.Component {
     return (
         <FilterContainer
             property="coverage"
-            options={[1, 2, 3, 4, 5]}
+            options={[5, 4, 3, 2, 1]}
             renderName={() => 'Coverage'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}

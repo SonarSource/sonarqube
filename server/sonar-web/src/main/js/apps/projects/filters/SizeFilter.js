@@ -26,7 +26,7 @@ export default class SizeFilter extends React.Component {
   renderOption = option => {
     return (
         <span>
-          <SizeRating value={getSizeRatingAverageValue(option)}/>
+          <SizeRating value={getSizeRatingAverageValue(option)} small={true}/>
           <span className="spacer-left">
             {getSizeRatingLabel(option)}
           </span>

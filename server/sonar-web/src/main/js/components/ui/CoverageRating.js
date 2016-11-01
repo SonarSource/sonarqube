@@ -22,7 +22,12 @@ import { DonutChart } from '../charts/donut-chart';
 
 export default class CoverageRating extends React.Component {
   static propTypes = {
-    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string])
+    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+    small: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    small: false
   };
 
   render () {
@@ -36,12 +41,15 @@ export default class CoverageRating extends React.Component {
       ];
     }
 
+    const size = this.props.small ? 16 : 24;
+    const thickness = this.props.small ? 2 : 3;
+
     return (
         <DonutChart
             data={data}
-            width={24}
-            height={24}
-            thickness={3}/>
+            width={size}
+            height={size}
+            thickness={thickness}/>
     );
   }
 }

@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import ProjectCardLanguages from './ProjectCardLanguages';
-import ProjectCardQualityGate from './ProjectCardQualityGate';
 import Measure from '../../component-measures/components/Measure';
 import Rating from '../../../components/ui/Rating';
 import CoverageRating from '../../../components/ui/CoverageRating';
@@ -121,8 +120,6 @@ export default class ProjectCardMeasures extends React.Component {
               </div>
             </div>
           </div>
-
-          <ProjectCardQualityGate status={measures['alert_status']}/>
         </div>
     );
   }

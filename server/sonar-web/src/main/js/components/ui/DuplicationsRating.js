@@ -24,12 +24,18 @@ import './DuplicationsRating.css';
 
 export default class DuplicationsRating extends React.Component {
   static propTypes = {
-    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired
+    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
+    small: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    small: false
   };
 
   render () {
     const { value } = this.props;
     const className = classNames('duplications-rating', {
+      'duplications-rating-small': this.props.small,
       'duplications-rating-A': inRange(value, 3),
       'duplications-rating-B': inRange(value, 3, 5),
       'duplications-rating-C': inRange(value, 5, 10),

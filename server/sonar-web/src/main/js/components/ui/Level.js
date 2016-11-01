@@ -18,17 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Level.css';
 
 export default class Level extends React.Component {
   static propTypes = {
-    level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired
+    level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
+    small: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    small: false
   };
 
   render () {
     const formatted = formatMeasure(this.props.level, 'LEVEL');
-    const className = 'level level-' + this.props.level;
+    const className = classNames('level', 'level-' + this.props.level, { 'level-small': this.props.small });
     return <span className={className}>{formatted}</span>;
   }
 }

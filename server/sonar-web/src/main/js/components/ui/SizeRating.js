@@ -18,12 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import inRange from 'lodash/inRange';
 import './SizeRating.css';
 
 export default class SizeRating extends React.Component {
   static propTypes = {
-    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string])
+    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+    small: React.PropTypes.bool
+  };
+
+  static defaultProps = {
+    small: false
   };
 
   render () {
@@ -48,8 +54,10 @@ export default class SizeRating extends React.Component {
       letter = 'XL';
     }
 
+    const className = classNames('size-rating', { 'size-rating-small': this.props.small });
+
     return (
-        <div className="size-rating">{letter}</div>
+        <div className={className}>{letter}</div>
     );
   }
 }

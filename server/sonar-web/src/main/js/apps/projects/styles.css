@@ -1,3 +1,7 @@
+.projects-sidebar {
+  width: 260px;
+}
+
 .projects-list {
   outline: none;
 }
@@ -20,14 +24,23 @@
 }
 
 .project-card-measures {
-  margin: 0 -20px;
+  margin: 0 -15px;
+}
+
+.project-card-measures .project-card-measure {
+  width: 120px;
+  box-sizing: border-box;
+  padding: 0 15px;
+}
+
+.project-card-measures .project-card-measure:nth-child(-n+2) {
+  width: 90px;
 }
 
 .project-card-measure {
   position: relative;
   display: inline-block;
   vertical-align: top;
-  padding: 0 15px;
   text-align: center;
 }
 
@@ -71,11 +84,6 @@
   padding-top: 10px;
   padding-bottom: 10px;
   transition: none;
-}
-
-.projects-facet .facet-name,
-.projects-facet .facet-stat {
-  line-height: 24px !important;
 }
 
 .projects-facets-reset {

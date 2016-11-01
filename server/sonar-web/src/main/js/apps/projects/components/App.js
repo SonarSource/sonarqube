@@ -78,7 +78,7 @@ export default class App extends React.Component {
               <ProjectsListContainer/>
               <ProjectsListFooterContainer query={this.state.query}/>
             </div>
-            <aside className="page-sidebar-fixed">
+            <aside className="page-sidebar-fixed projects-sidebar">
               <FavoriteFilterContainer/>
               <PageSidebarContainer query={this.state.query}/>
             </aside>

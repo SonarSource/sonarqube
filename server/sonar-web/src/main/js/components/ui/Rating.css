@@ -12,6 +12,15 @@
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
+.rating-small {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  font-size: 12px;
+}
+
 a > .rating {
   margin-bottom: -1px;
   border-bottom: 1px solid;

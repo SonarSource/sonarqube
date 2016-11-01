@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import { getComponentUrl } from '../../../helpers/urls';
 
@@ -38,6 +39,11 @@ export default class ProjectCard extends React.Component {
 
     return (
         <div className={className}>
+          {this.props.measures != null && (
+              <div className="boxed-group-actions">
+                <ProjectCardQualityGate status={this.props.measures['alert_status']}/>
+              </div>
+          )}
           <h2 className="project-card-name">
             <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
           </h2>

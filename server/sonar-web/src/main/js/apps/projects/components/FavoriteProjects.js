@@ -58,7 +58,7 @@ export default class FavoriteProjects extends React.Component {
             <div className="page-main">
               <ProjectsListContainer/>
             </div>
-            <aside className="page-sidebar-fixed">
+            <aside className="page-sidebar-fixed projects-sidebar">
               <FavoriteFilterContainer/>
 
               <p className="note text-center">Filters are not available.</p>
