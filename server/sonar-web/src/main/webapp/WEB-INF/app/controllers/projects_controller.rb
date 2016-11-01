@@ -23,4 +23,8 @@ class ProjectsController < ApplicationController
 
   end
 
+  def favorite
+     render :action => 'index'
+  end
+
 end
