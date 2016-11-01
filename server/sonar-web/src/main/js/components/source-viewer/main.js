@@ -209,8 +209,8 @@ export default Marionette.LayoutView.extend({
         // don't display global error
         403: null
       }
-    }).done(function (data) {
-      let source = (data.sources || []).slice(0);
+    }).done(function (r) {
+      let source = (r.sources || []).slice(0);
       if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
         source.unshift({ line: 0 });
       }
@@ -225,7 +225,7 @@ export default Marionette.LayoutView.extend({
         source,
         hasCoverage: that.model.hasCoverage(source),
         hasSourceBefore: firstLine > 1,
-        hasSourceAfter: data.sources.length === linesRequested
+        hasSourceAfter: r.sources.length === linesRequested
       });
       that.model.checkIfHasDuplications();
     }).fail(function (request) {
