@@ -38,7 +38,10 @@ export function getCSRFTokenValue () {
  * @returns {Object}
  */
 export function getCSRFToken () {
-  return { [getCSRFTokenName()]: getCSRFTokenValue() };
+  // Fetch API in Edge doesn't work with empty header,
+  // so we ensure non-empty value
+  const value = getCSRFTokenValue();
+  return value ? { [getCSRFTokenName()]: value } : {};
 }
 
 /**
