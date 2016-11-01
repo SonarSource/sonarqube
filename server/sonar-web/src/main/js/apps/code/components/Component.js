@@ -66,7 +66,7 @@ export default class Component extends React.Component {
   }
 
   render () {
-    const { component, rootComponent, selected, previous, coverageMetric, canBrowse } = this.props;
+    const { component, rootComponent, selected, previous, canBrowse } = this.props;
     const isView = ['VW', 'SVW'].includes(rootComponent.qualifier);
 
     let componentAction = null;
@@ -93,7 +93,7 @@ export default class Component extends React.Component {
       { metric: 'bugs', type: 'SHORT_INT' },
       { metric: 'vulnerabilities', type: 'SHORT_INT' },
       { metric: 'code_smells', type: 'SHORT_INT' },
-      { metric: coverageMetric, type: 'PERCENT' },
+      { metric: 'coverage', type: 'PERCENT' },
       { metric: 'duplicated_lines_density', type: 'PERCENT' }
     ];
 

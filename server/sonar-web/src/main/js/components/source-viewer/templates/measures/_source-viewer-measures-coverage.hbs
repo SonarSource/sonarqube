@@ -1,15 +1,15 @@
-{{#any measures.coverage measures.it_coverage}}
+{{#if measures.coverage}}
   <div class="measures">
     <div class="measures-chart">
       <span class="js-pie-chart"
-            data-value="{{default measures.overall_coverage_raw measures.coverage_raw measures.it_coverage_raw}}"
+            data-value="{{measures.coverage_raw}}"
             data-max="100"
             data-color="#85bb43"
             data-base-color="#d4333f"
             data-size="47"></span>
     </div>
     <div class="measure measure-big" data-metric="coverage">
-      <span class="measure-value">{{default measures.overall_coverage measures.coverage measures.it_coverage}}</span>
+      <span class="measure-value">{{measures.coverage}}</span>
       <span class="measure-name">{{t 'metric.coverage.name'}}</span>
     </div>
   </div>
@@ -18,7 +18,7 @@
     <div class="measures">
       <div class="measures-list">
         <div class="measure measure-one-line">
-          <span class="measure-name">Covered by Unit Tests</span>
+          <span class="measure-name">Covered by Tests</span>
         </div>
         <div class="measure measure-one-line" data-metric="lines_to_cover">
           <span class="measure-name">Lines</span>
@@ -33,24 +33,4 @@
       </div>
     </div>
   {{/any}}
-
-  {{#any measures.it_covered_lines measures.it_lines_to_cover measures.it_covered_conditions measures.it_conditions_to_cover}}
-    <div class="measures">
-      <div class="measures-list">
-        <div class="measure measure-one-line">
-          <span class="measure-name">Covered by Integration Tests</span>
-        </div>
-        <div class="measure measure-one-line" data-metric="it_lines_to_cover">
-          <span class="measure-name">Lines</span>
-          <span class="measure-value">{{measures.it_uncovered_lines}}/{{measures.it_lines_to_cover}}</span>
-        </div>
-        {{#if measures.it_conditions_to_cover}}
-          <div class="measure measure-one-line" data-metric="it_conditions_to_cover">
-            <span class="measure-name">Conditions</span>
-            <span class="measure-value">{{default measures.it_uncovered_conditions 0}}/{{measures.it_conditions_to_cover}}</span>
-          </div>
-        {{/if}}
-      </div>
-    </div>
-  {{/any}}
-{{/any}}
+{{/if}}

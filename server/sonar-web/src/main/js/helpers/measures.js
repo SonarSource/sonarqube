@@ -113,25 +113,6 @@ export function isDiffMetric (metricKey) {
   return metricKey.indexOf('new_') === 0;
 }
 
-/**
- * Check all types of coverage and return most suitable one
- * @param {Array} measures
- * @returns {string}
- */
-export function selectCoverageMetric (measures) {
-  const hasOverallCoverage = !!measures.find(measure => measure.metric === 'overall_coverage');
-  const hasUTCoverage = !!measures.find(measure => measure.metric === 'coverage');
-  const hasITCoverage = !!measures.find(measure => measure.metric === 'it_coverage');
-
-  if (hasOverallCoverage && hasUTCoverage && hasITCoverage) {
-    return 'overall_';
-  } else if (hasITCoverage) {
-    return 'it_';
-  } else {
-    return '';
-  }
-}
-
 /*
  * Helpers
  */

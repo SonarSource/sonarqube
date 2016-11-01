@@ -35,15 +35,9 @@ const METRICS = [
   'code_smells',
   'bugs',
   'vulnerabilities',
+  'coverage',
   'duplicated_lines_density',
   'alert_status'
-];
-
-const METRICS_WITH_COVERAGE = [
-  ...METRICS,
-  'coverage',
-  'it_coverage',
-  'overall_coverage'
 ];
 
 const VIEW_METRICS = [
@@ -117,7 +111,7 @@ function storeChildrenBreadcrumbs (parentComponentKey, children) {
 }
 
 function getMetrics (isView) {
-  return isView ? VIEW_METRICS : METRICS_WITH_COVERAGE;
+  return isView ? VIEW_METRICS : METRICS;
 }
 
 /**

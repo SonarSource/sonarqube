@@ -68,27 +68,11 @@ export const domains = {
 
   'Coverage': {
     main: [
-      'overall_coverage',
       'coverage',
-      'it_coverage',
-      'new_overall_coverage',
       'new_coverage',
-      'new_it_coverage',
       'tests'
     ],
     order: [
-      'overall_coverage',
-      'new_overall_coverage',
-      'overall_line_coverage',
-      'new_overall_line_coverage',
-      'overall_branch_coverage',
-      'new_overall_branch_coverage',
-      'overall_uncovered_lines',
-      'new_overall_uncovered_lines',
-      'overall_uncovered_conditions',
-      'new_overall_uncovered_conditions',
-      'new_overall_lines_to_cover',
-
       'coverage',
       'new_coverage',
       'line_coverage',
@@ -101,18 +85,6 @@ export const domains = {
       'new_uncovered_conditions',
       'new_lines_to_cover',
 
-      'it_coverage',
-      'new_it_coverage',
-      'it_line_coverage',
-      'new_it_line_coverage',
-      'it_branch_coverage',
-      'new_it_branch_coverage',
-      'it_uncovered_lines',
-      'new_it_uncovered_lines',
-      'it_uncovered_conditions',
-      'new_it_uncovered_conditions',
-      'new_it_lines_to_cover',
-
       'lines_to_cover',
 
       'tests',
@@ -122,11 +94,6 @@ export const domains = {
       'skipped_tests',
       'test_success_density',
       'test_execution_time'
-    ],
-    spaces: [
-      'coverage',
-      'it_coverage',
-      'tests'
     ]
   },
 

@@ -33,26 +33,6 @@ function sortMeasures (measures, order) {
   ];
 }
 
-function filterCoverageMeasures (measures) {
-  const hasOverallCoverage = !!measures.find(measure => measure.metric.key === 'overall_coverage');
-  const hasUTCoverage = !!measures.find(measure => measure.metric.key === 'coverage');
-  const hasITCoverage = !!measures.find(measure => measure.metric.key === 'it_coverage');
-
-  // display overall coverage only if all types of coverage exist
-  const shouldShowOverallCoverage = hasOverallCoverage && hasUTCoverage && hasITCoverage;
-
-  // skip if we should display overall coverage
-  if (shouldShowOverallCoverage) {
-    return measures;
-  }
-
-  // otherwise, hide all overall coverage measures
-  return measures.filter(measure => {
-    return measure.metric.key.indexOf('overall_') !== 0 &&
-        measure.metric.key.indexOf('new_overall_') !== 0;
-  });
-}
-
 function filterIssuesMeasures (measures) {
   const BANNED_MEASURES = [
     'blocker_violations',
@@ -73,7 +53,7 @@ const HomeMeasuresList = ({ domain, component }) => {
   const { measures, name } = domain;
   const config = domains[name] || {};
 
-  const filteredMeasures = filterCoverageMeasures(filterIssuesMeasures(measures));
+  const filteredMeasures = filterIssuesMeasures(measures);
 
   const configMain = config.main || [];
   const [mainMeasures, otherMeasures] = partition(filteredMeasures, measure => configMain.includes(measure.metric.key));
