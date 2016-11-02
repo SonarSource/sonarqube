@@ -2,10 +2,7 @@
   "organizations": [
     {
       "key": "foo-company",
-      "name": "Foo Company",
-      "description": "The Foo company produces quality software.",
-      "url": "https://www.foo.com",
-      "avatar": "https://www.foo.com/foo.png"
+      "name": "Foo Company"
     },
     {
       "key": "bar-company",

@@ -103,6 +103,7 @@ public class OrganizationsWsSupport {
 
   Organizations.Organization toOrganization(Organizations.Organization.Builder builder, OrganizationDto dto) {
     builder
+      .clear()
       .setName(dto.getName())
       .setKey(dto.getKey());
     if (dto.getDescription() != null) {

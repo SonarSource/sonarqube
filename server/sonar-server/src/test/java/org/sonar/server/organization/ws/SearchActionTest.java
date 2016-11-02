@@ -102,10 +102,7 @@ public class SearchActionTest {
     insertOrganization(new OrganizationDto()
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey("foo-company")
-      .setName("Foo Company")
-      .setDescription("The Foo company produces quality software.")
-      .setUrl("https://www.foo.com")
-      .setAvatarUrl("https://www.foo.com/foo.png"));
+      .setName("Foo Company"));
 
     String response = executeJsonRequest(null, null);
 
