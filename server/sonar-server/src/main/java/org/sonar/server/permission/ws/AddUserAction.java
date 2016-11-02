@@ -33,6 +33,7 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
@@ -80,7 +81,9 @@ public class AddUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ProjectId> projectId = support.findProject(dbSession, request);
-      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
+      checkArgument(!projectId.isPresent() || organizationKey == null, "Organization must not be set when project is set.");
+      OrganizationDto org = support.findOrganization(dbSession, organizationKey);
 
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
