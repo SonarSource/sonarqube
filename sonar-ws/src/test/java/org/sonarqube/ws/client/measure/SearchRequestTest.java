@@ -39,11 +39,11 @@ public class SearchRequestTest {
   public void with_component_keys() {
     SearchRequest result = underTest
       .setMetricKeys(singletonList("metric"))
-      .setComponentKeys(singletonList("key"))
+      .setProjectKeys(singletonList("key"))
       .build();
 
     assertThat(result.getMetricKeys()).containsExactly("metric");
-    assertThat(result.getComponentKeys()).containsExactly("key");
+    assertThat(result.getProjectKeys()).containsExactly("key");
   }
 
   @Test
@@ -73,7 +73,7 @@ public class SearchRequestTest {
 
     underTest
       .setMetricKeys(singletonList("metric"))
-      .setComponentKeys(emptyList())
+      .setProjectKeys(emptyList())
       .build();
   }
 
@@ -84,6 +84,6 @@ public class SearchRequestTest {
 
   private void expectExceptionOnComponents() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component keys must be provided");
+    expectedException.expectMessage("Project keys must be provided");
   }
 }

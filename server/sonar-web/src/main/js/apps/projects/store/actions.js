@@ -25,7 +25,7 @@ import { receiveComponents } from '../../../app/store/components/actions';
 import { receiveProjects, receiveMoreProjects } from './projects/actions';
 import { updateState } from './state/actions';
 import { getProjectsAppState } from '../../../app/store/rootReducer';
-import { getMeasuresForComponents } from '../../../api/measures';
+import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../app/store/measures/actions';
 import { convertToFilter } from './utils';
 import { getFavorites } from '../../../api/favorites';
@@ -81,7 +81,7 @@ const fetchProjectMeasures = projects => dispatch => {
   }
 
   const projectKeys = projects.map(project => project.key);
-  return getMeasuresForComponents(projectKeys, METRICS).then(onReceiveMeasures(dispatch), onFail(dispatch));
+  return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch), onFail(dispatch));
 };
 
 const onReceiveProjects = dispatch => response => {

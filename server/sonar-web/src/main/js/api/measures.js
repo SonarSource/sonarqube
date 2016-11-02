@@ -34,9 +34,9 @@ export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
   return getJSON(url, data);
 }
 
-export const getMeasuresForComponents = (componentKeys, metricKeys) => (
+export const getMeasuresForProjects = (projectKeys, metricKeys) => (
     getJSON('/api/measures/search', {
-      componentKeys: componentKeys.join(),
+      projectKeys: projectKeys.join(),
       metricKeys: metricKeys.join()
     })
 );

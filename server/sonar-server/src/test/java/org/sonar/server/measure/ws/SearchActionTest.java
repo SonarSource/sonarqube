@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -60,16 +59,14 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchActionTest {
 
@@ -98,10 +95,10 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    List<String> componentKeys = insertJsonExampleData();
+    List<String> projectKeys = insertJsonExampleData();
 
     String result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, Joiner.on(",").join(componentKeys))
+      .setParam(PARAM_PROJECT_KEYS, Joiner.on(",").join(projectKeys))
       .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
       .execute()
       .getInput();
@@ -153,88 +150,48 @@ public class SearchActionTest {
   }
 
   @Test
-  public void add_best_values_when_no_value() {
-    ComponentDto projectDto = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
-    ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
-    componentDb.insertComponent(directoryDto);
-    ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
-    componentDb.insertComponent(file);
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.metricDao().insert(dbSession, newMetricDto()
-      .setKey("ncloc")
-      .setValueType(Metric.ValueType.INT.name())
-      .setOptimizedBestValue(true)
-      .setBestValue(100d)
-      .setWorstValue(1000d));
-    dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("new_violations")
-      .setOptimizedBestValue(true)
-      .setBestValue(1984.0d)
-      .setValueType(Metric.ValueType.INT.name()));
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d),
-      newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(42.0d));
-    db.commit();
-    setBrowsePermissionOnUser(projectDto);
-
-    SearchWsResponse result = call(newArrayList(directoryDto.key(), file.key()), newArrayList("ncloc", "coverage", "new_violations"));
-
-    // directory is not eligible for best value
-    assertThat(result.getMeasuresList().stream()
-      .filter(measure -> directoryDto.key().equals(measure.getComponent()))
-      .map(Measure::getMetric))
-        .containsOnly("coverage");
-    // file measures
-    List<Measure> fileMeasures = result.getMeasuresList().stream().filter(measure -> file.key().equals(measure.getComponent())).collect(Collectors.toList());
-    assertThat(fileMeasures).extracting(Measure::getMetric).containsOnly("ncloc", "coverage", "new_violations");
-    assertThat(fileMeasures).extracting(Measure::getValue).containsOnly("100", "15.5", "");
-  }
-
-  @Test
-  public void sort_by_metric_key_then_component_name() throws Exception {
+  public void sort_by_metric_key_then_project_name() throws Exception {
     MetricDto coverage = insertCoverageMetric();
     MetricDto complexity = insertComplexityMetric();
-    ComponentDto project = newProjectDto();
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    setBrowsePermissionOnUser(project);
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project).setName("C"));
-    ComponentDto file2 = componentDb.insertComponent(newFileDto(project).setName("A"));
-    ComponentDto file3 = componentDb.insertComponent(newFileDto(project).setName("B"));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file1, projectSnapshot).setValue(5.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file2, projectSnapshot).setValue(6.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, file3, projectSnapshot).setValue(7.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file1, projectSnapshot).setValue(10d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file2, projectSnapshot).setValue(15d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, file3, projectSnapshot).setValue(20d));
+    ComponentDto project1 = newProjectDto().setName("C");
+    SnapshotDto projectSnapshot1 = componentDb.insertProjectAndSnapshot(project1);
+    ComponentDto project2 = newProjectDto().setName("A");
+    SnapshotDto projectSnapshot2 = componentDb.insertProjectAndSnapshot(project2);
+    ComponentDto project3 = newProjectDto().setName("B");
+    SnapshotDto projectSnapshot3 = componentDb.insertProjectAndSnapshot(project3);
+    setBrowsePermissionOnUser(project1, project2, project3);
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project1, projectSnapshot1).setValue(5.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project2, projectSnapshot2).setValue(6.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project3, projectSnapshot3).setValue(7.5d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project1, projectSnapshot1).setValue(10d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project2, projectSnapshot2).setValue(15d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project3, projectSnapshot3).setValue(20d));
     db.commit();
 
-    SearchWsResponse result = call(asList(file1.key(), file2.key(), file3.key()), asList("coverage", "complexity"));
+    SearchWsResponse result = call(asList(project1.key(), project2.key(), project3.key()), asList("coverage", "complexity"));
 
     assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
       .containsExactly(
-        tuple("complexity", file2.key()), tuple("complexity", file3.key()), tuple("complexity", file1.key()),
-        tuple("coverage", file2.key()), tuple("coverage", file3.key()), tuple("coverage", file1.key()));
+        tuple("complexity", project2.key()), tuple("complexity", project3.key()), tuple("complexity", project1.key()),
+        tuple("coverage", project2.key()), tuple("coverage", project3.key()), tuple("coverage", project1.key()));
   }
 
   @Test
-  public void only_returns_authorized_components() {
+  public void only_returns_authorized_projects() {
     MetricDto metricDto = insertComplexityMetric();
     ComponentDto project1 = newProjectDto();
     SnapshotDto projectSnapshot1 = componentDb.insertProjectAndSnapshot(project1);
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project1));
     ComponentDto project2 = newProjectDto();
     SnapshotDto projectSnapshot2 = componentDb.insertProjectAndSnapshot(project2);
-    ComponentDto file2 = componentDb.insertComponent(newFileDto(project2));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(metricDto, file1, projectSnapshot1).setValue(15.5d),
-      newMeasureDto(metricDto, file2, projectSnapshot2).setValue(42.0d));
+      newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d),
+      newMeasureDto(metricDto, project2, projectSnapshot2).setValue(42.0d));
     db.commit();
     setBrowsePermissionOnUser(project1);
 
-    SearchWsResponse result = call(asList(file1.key(), file2.key()), singletonList("complexity"));
+    SearchWsResponse result = call(asList(project1.key(), project2.key()), singletonList("complexity"));
 
-    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(file1.key());
+    assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.key());
   }
 
   @Test
@@ -272,27 +229,27 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_if_no_component() {
+  public void fail_if_no_project() {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component keys must be provided");
+    expectedException.expectMessage("Project keys must be provided");
 
     call(null, singletonList("complexity"));
   }
 
   @Test
-  public void fail_if_empty_component_key() {
+  public void fail_if_empty_project_key() {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component keys must be provided");
+    expectedException.expectMessage("Project keys must be provided");
 
     call(emptyList(), singletonList("complexity"));
   }
 
   @Test
-  public void fail_if_more_than_100_component_key() {
+  public void fail_if_more_than_100_project_keys() {
     List<String> keys = IntStream.rangeClosed(1, 101)
       .mapToObj(i -> componentDb.insertProject())
       .map(ComponentDto::key)
@@ -300,7 +257,7 @@ public class SearchActionTest {
     insertComplexityMetric();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("101 components provided, more than maximum authorized (100)");
+    expectedException.expectMessage("101 projects provided, more than maximum authorized (100)");
 
     call(keys, singletonList("complexity"));
   }
@@ -316,14 +273,9 @@ public class SearchActionTest {
     assertThat(result.params()).hasSize(2);
     assertThat(result.responseExampleAsString()).isNotEmpty();
     assertThat(result.description()).isEqualToIgnoringWhitespace("" +
-      "Search for component measures ordered by component names.<br>" +
-      "At most 100 components can be provided.<br>" +
-      "Requires one of the following permissions:" +
-      "<ul>" +
-      " <li>'Administer System'</li>" +
-      " <li>'Administer' rights on the provided components</li>" +
-      " <li>'Browse' on the provided components</li>" +
-      "</ul>");
+      "Search for project measures ordered by project names.<br>" +
+      "At most 100 projects can be provided.<br>" +
+      "Requires 'Browse' on the provided projects");
   }
 
   private SearchWsResponse call(@Nullable List<String> keys, @Nullable List<String> metrics) {
@@ -331,7 +283,7 @@ public class SearchActionTest {
       .setMediaType(PROTOBUF);
 
     if (keys != null) {
-      request.setParam(PARAM_COMPONENT_KEYS, String.join(",", keys));
+      request.setParam(PARAM_PROJECT_KEYS, String.join(",", keys));
     }
     if (metrics != null) {
       request.setParam(PARAM_METRIC_KEYS, String.join(",", metrics));
@@ -415,15 +367,33 @@ public class SearchActionTest {
   }
 
   private List<String> insertJsonExampleData() {
-    List<String> componentKeys = new ArrayList<>();
-    ComponentDto project = newProjectDto("project-id")
-      .setKey("MY_PROJECT")
-      .setName("My Project")
-      .setDescription("My Project Description")
-      .setQualifier(Qualifiers.PROJECT);
-    componentKeys.add(project.key());
-    componentDb.insertComponent(project);
-    SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
+    List<String> projectKeys = new ArrayList<>();
+    ComponentDto project1 = newProjectDto().setKey("MY_PROJECT_1");
+    ComponentDto project2 = newProjectDto().setKey("MY_PROJECT_2");
+    ComponentDto project3 = newProjectDto().setKey("MY_PROJECT_3");
+    projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
+    componentDb.insertComponents(project1, project2, project3);
+    SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
+      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode(1, "previous_version")
+      .setPeriodParam(1, "1.0-SNAPSHOT")
+      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
+      .setPeriodMode(2, "previous_analysis")
+      .setPeriodParam(2, "2016-01-11")
+      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
+      .setPeriodMode(3, "days")
+      .setPeriodParam(3, "30"));
+    SnapshotDto projectSnapshot2 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project2)
+      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode(1, "previous_version")
+      .setPeriodParam(1, "1.0-SNAPSHOT")
+      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
+      .setPeriodMode(2, "previous_analysis")
+      .setPeriodParam(2, "2016-01-11")
+      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
+      .setPeriodMode(3, "days")
+      .setPeriodParam(3, "30"));
+    SnapshotDto projectSnapshot3 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project3)
       .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode(1, "previous_version")
       .setPeriodParam(1, "1.0-SNAPSHOT")
@@ -434,70 +404,49 @@ public class SearchActionTest {
       .setPeriodMode(3, "days")
       .setPeriodParam(3, "30"));
 
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null)
-      .setUuid("AVIwDXE-bJbJqrw6wFv5")
-      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
-      .setName("ElementImpl.java")
-      .setLanguage("java")
-      .setQualifier(Qualifiers.FILE)
-      .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
-    componentKeys.add(file1.key());
-    ComponentDto file = newFileDto(project, null)
-      .setUuid("AVIwDXE_bJbJqrw6wFwJ")
-      .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
-      .setName("ElementImplTest.java")
-      .setLanguage("java")
-      .setQualifier(Qualifiers.UNIT_TEST_FILE)
-      .setPath("src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java");
-    componentKeys.add(file.key());
-    componentDb.insertComponent(file);
-    ComponentDto dir = componentDb.insertComponent(newDirectory(project, "src/main/java/com/sonarsource/markdown/impl")
-      .setUuid("AVIwDXE-bJbJqrw6wFv8")
-      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
-      .setQualifier(Qualifiers.DIRECTORY));
-    componentKeys.add(dir.key());
-
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, file1, projectSnapshot)
+      newMeasureDto(complexity, project1, projectSnapshot1)
         .setValue(12.0d),
-      newMeasureDto(complexity, dir, projectSnapshot)
+      newMeasureDto(complexity, project2, projectSnapshot2)
         .setValue(35.0d)
         .setVariation(2, 0.0d),
-      newMeasureDto(complexity, project, projectSnapshot)
+      newMeasureDto(complexity, project1, projectSnapshot3)
         .setValue(42.0d));
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1, projectSnapshot)
+      newMeasureDto(ncloc, project1, projectSnapshot1)
         .setValue(114.0d),
-      newMeasureDto(ncloc, dir, projectSnapshot)
+      newMeasureDto(ncloc, project2, projectSnapshot2)
         .setValue(217.0d)
         .setVariation(2, 0.0d),
-      newMeasureDto(ncloc, project, projectSnapshot)
+      newMeasureDto(ncloc, project3, projectSnapshot3)
         .setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, file1, projectSnapshot)
+      newMeasureDto(newViolations, project1, projectSnapshot1)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
-      newMeasureDto(newViolations, dir, projectSnapshot)
+      newMeasureDto(newViolations, project2, projectSnapshot2)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
-      newMeasureDto(newViolations, project, projectSnapshot)
+      newMeasureDto(newViolations, project3, projectSnapshot3)
         .setVariation(1, 255.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 255.0d));
     db.commit();
-    setBrowsePermissionOnUser(project);
-    return componentKeys;
+    setBrowsePermissionOnUser(project1, project2, project3);
+    return projectKeys;
   }
 
-  private void setBrowsePermissionOnUser(ComponentDto project) {
-    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+  private void setBrowsePermissionOnUser(ComponentDto... projects) {
+    for (ComponentDto project : projects) {
+      db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+    }
     dbSession.commit();
   }
 }

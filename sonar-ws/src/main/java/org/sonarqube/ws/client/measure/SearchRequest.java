@@ -25,22 +25,22 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class SearchRequest {
-  public static final int MAX_NB_COMPONENTS = 100;
+  public static final int MAX_NB_PROJECTS = 100;
 
   private final List<String> metricKeys;
-  private final List<String> componentKeys;
+  private final List<String> projectKeys;
 
   public SearchRequest(Builder builder) {
     metricKeys = builder.metricKeys;
-    componentKeys = builder.componentKeys;
+    projectKeys = builder.projectKeys;
   }
 
   public List<String> getMetricKeys() {
     return metricKeys;
   }
 
-  public List<String> getComponentKeys() {
-    return componentKeys;
+  public List<String> getProjectKeys() {
+    return projectKeys;
   }
 
   public static Builder builder() {
@@ -49,7 +49,7 @@ public class SearchRequest {
 
   public static class Builder {
     private List<String> metricKeys;
-    private List<String> componentKeys;
+    private List<String> projectKeys;
 
     private Builder() {
       // enforce method constructor
@@ -60,17 +60,17 @@ public class SearchRequest {
       return this;
     }
 
-    public Builder setComponentKeys(List<String> componentKeys) {
-      this.componentKeys = componentKeys;
+    public Builder setProjectKeys(List<String> projectKeys) {
+      this.projectKeys = projectKeys;
       return this;
     }
 
     public SearchRequest build() {
       checkArgument(metricKeys != null && !metricKeys.isEmpty(), "Metric keys must be provided");
-      checkArgument(componentKeys != null && !componentKeys.isEmpty(), "Component keys must be provided");
-      int nbComponents = componentKeys.size();
-      checkArgument(nbComponents < MAX_NB_COMPONENTS,
-        "%s components provided, more than maximum authorized (%s)", nbComponents, MAX_NB_COMPONENTS);
+      checkArgument(projectKeys != null && !projectKeys.isEmpty(), "Project keys must be provided");
+      int nbComponents = projectKeys.size();
+      checkArgument(nbComponents < MAX_NB_PROJECTS,
+        "%s projects provided, more than maximum authorized (%s)", nbComponents, MAX_NB_PROJECTS);
       return new SearchRequest(this);
     }
   }

@@ -3,12 +3,7 @@
     {
       "metric": "complexity",
       "value": "12",
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
-    },
-    {
-      "metric": "complexity",
-      "value": "42",
-      "component": "MY_PROJECT"
+      "component": "MY_PROJECT_1"
     },
     {
       "metric": "complexity",
@@ -19,17 +14,12 @@
           "value": "0"
         }
       ],
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
+      "component": "MY_PROJECT_2"
     },
     {
       "metric": "ncloc",
       "value": "114",
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
-    },
-    {
-      "metric": "ncloc",
-      "value": "1984",
-      "component": "MY_PROJECT"
+      "component": "MY_PROJECT_1"
     },
     {
       "metric": "ncloc",
@@ -40,7 +30,12 @@
           "value": "0"
         }
       ],
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
+      "component": "MY_PROJECT_2"
+    },
+    {
+      "metric": "ncloc",
+      "value": "1984",
+      "component": "MY_PROJECT_3"
     },
     {
       "metric": "new_violations",
@@ -58,14 +53,14 @@
           "value": "25"
         }
       ],
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"
+      "component": "MY_PROJECT_1"
     },
     {
       "metric": "new_violations",
       "periods": [
         {
           "index": 1,
-          "value": "0"
+          "value": "25"
         },
         {
           "index": 2,
@@ -73,10 +68,10 @@
         },
         {
           "index": 3,
-          "value": "0"
+          "value": "25"
         }
       ],
-      "component": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"
+      "component": "MY_PROJECT_2"
     },
     {
       "metric": "new_violations",
@@ -94,25 +89,7 @@
           "value": "255"
         }
       ],
-      "component": "MY_PROJECT"
-    },
-    {
-      "metric": "new_violations",
-      "periods": [
-        {
-          "index": 1,
-          "value": "25"
-        },
-        {
-          "index": 2,
-          "value": "0"
-        },
-        {
-          "index": 3,
-          "value": "25"
-        }
-      ],
-      "component": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl"
+      "component": "MY_PROJECT_3"
     }
   ]
 }
