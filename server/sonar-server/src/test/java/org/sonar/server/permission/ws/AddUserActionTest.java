@@ -318,6 +318,22 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     db.rootFlag().verify(rootByGroupPermissionUser, true);
   }
 
+  @Test
+  public void organization_parameter_must_not_be_set_on_project_permissions() {
+    ComponentDto project = db.components().insertProject();
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Organization must not be set when project is set.");
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_ORGANIZATION_KEY, "an_org")
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .execute();
+  }
+
   private void executeRequest(UserDto userDto, String permission) throws Exception {
     executeRequest(userDto, permission, null);
   }
