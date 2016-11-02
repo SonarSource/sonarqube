@@ -29,41 +29,55 @@
     select
     <include refid="measureColumns"/>
     from
-      project_measures pm
-      inner join projects p on p.uuid=pm.component_uuid
-      inner join snapshots analysis on analysis.component_uuid = p.project_uuid and analysis.uuid = pm.analysis_uuid
-      <if test="query.getMetricKeys() != null">
-        inner join metrics m on m.id = pm.metric_id
-      </if>
-    where
-      <if test="query.getAnalysisUuid() == null">
-        analysis.islast=${_true}
-      </if>
-      <if test="query.getAnalysisUuid() != null">
-        analysis.uuid = #{query.analysisUuid}
-      </if>
-      and p.uuid in
-      <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
-        #{componentUuid}
-      </foreach>
-      <if test="query.getMetricIds() != null">
-        and pm.metric_id in
-        <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
-      </if>
-      <if test="query.getMetricKeys() != null">
-        and m.name in
-        <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">
-          #{metricKey}
+    project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    <if test="query.isOnComponents()">
+      inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
+        and p.project_uuid=#{query.projectUuid}
+        and p.uuid in
+        <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
+          #{componentUuid}
         </foreach>
-      </if>
-      <choose>
-        <when test="query.getPersonId() != null">
-          and person_id = #{query.personId}
-        </when>
-        <otherwise>
-          and person_id is null
-        </otherwise>
-      </choose>
+    </if>
+    <if test="query.isOnSingleComponent()">
+      inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
+        and p.uuid=#{query.componentUuid}
+    </if>
+    <if test="query.getMetricKeys() != null">
+      inner join metrics m on m.id = pm.metric_id
+    </if>
+    where
+    <if test="query.getAnalysisUuid() == null">
+      analysis.islast=${_true}
+    </if>
+    <if test="query.getAnalysisUuid() != null">
+      analysis.uuid = #{query.analysisUuid}
+    </if>
+    <if test="query.isOnProjects()">
+      and analysis.component_uuid=pm.component_uuid
+      and analysis.component_uuid in
+      <foreach item="projectUuid" collection="query.getProjectUuids()" open="(" separator="," close=")">
+        #{projectUuid}
+      </foreach>
+    </if>
+    <if test="query.getMetricIds() != null">
+      and pm.metric_id in
+      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <if test="query.getMetricKeys() != null">
+      and m.name in
+      <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">
+        #{metricKey}
+      </foreach>
+    </if>
+    <choose>
+      <when test="query.getPersonId() != null">
+        and person_id = #{query.personId}
+      </when>
+      <otherwise>
+        and person_id is null
+      </otherwise>
+    </choose>
   </select>
 
   <select id="selectPastMeasures" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">

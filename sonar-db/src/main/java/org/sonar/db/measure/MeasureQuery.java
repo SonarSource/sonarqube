@@ -19,39 +19,50 @@
  */
 package org.sonar.db.measure;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Collections.singleton;
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 public class MeasureQuery {
   private final String analysisUuid;
+
+  @CheckForNull
+  private final List<String> projectUuids;
+
+  @CheckForNull
   private final List<String> componentUuids;
+
   @CheckForNull
-  private final Collection<Integer> metricIds;
+  private final List<Integer> metricIds;
+
   @CheckForNull
-  private final Collection<String> metricKeys;
+  private final List<String> metricKeys;
+
   @CheckForNull
   private final Long personId;
 
   private MeasureQuery(Builder builder) {
-    this(builder.analysisUuid, builder.componentUuids, builder.metricIds, builder.metricKeys, builder.personId);
+    this(builder.analysisUuid, builder.projectUuids, builder.componentUuids, builder.metricIds, builder.metricKeys, builder.personId);
   }
 
   private MeasureQuery(@Nullable String analysisUuid,
-    List<String> componentUuids,
-    @Nullable Collection<Integer> metricIds,
-    @Nullable Collection<String> metricKeys,
+    @Nullable List<String> projectUuids,
+    @Nullable List<String> componentUuids,
+    @Nullable List<Integer> metricIds,
+    @Nullable List<String> metricKeys,
     @Nullable Long personId) {
-    requireNonNull(componentUuids, "Component UUIDs must be set");
-    checkState(metricIds == null || metricKeys == null, "Metric IDs and keys must not be set both");
+    checkArgument(metricIds == null || metricKeys == null, "Metric IDs and keys must not be set both");
+    checkArgument(projectUuids != null || componentUuids != null, "At least one filter on component UUID is expected");
+    checkArgument(componentUuids == null || componentUuids.size() == 1 || (projectUuids != null && projectUuids.size() == 1),
+      "Component UUIDs can only be used when a single project UUID is set");
+
     this.analysisUuid = analysisUuid;
+    this.projectUuids = projectUuids;
     this.componentUuids = componentUuids;
     this.metricIds = metricIds;
     this.metricKeys = metricKeys;
@@ -62,17 +73,33 @@ public class MeasureQuery {
     return analysisUuid;
   }
 
+  @CheckForNull
+  public List<String> getProjectUuids() {
+    return projectUuids;
+  }
+
+  @CheckForNull
+  public String getProjectUuid() {
+    return isOnComponents() ? projectUuids.get(0) : null;
+  }
+
+  @CheckForNull
   public List<String> getComponentUuids() {
     return componentUuids;
   }
 
   @CheckForNull
-  public Collection<Integer> getMetricIds() {
+  public String getComponentUuid() {
+    return isOnSingleComponent() ? componentUuids.get(0) : null;
+  }
+
+  @CheckForNull
+  public List<Integer> getMetricIds() {
     return metricIds;
   }
 
   @CheckForNull
-  public Collection<String> getMetricKeys() {
+  public List<String> getMetricKeys() {
     return metricKeys;
   }
 
@@ -82,9 +109,22 @@ public class MeasureQuery {
   }
 
   public boolean returnsEmpty() {
-    return componentUuids.isEmpty()
+    return (projectUuids != null && projectUuids.isEmpty())
+      || (componentUuids != null && componentUuids.isEmpty())
       || (metricIds != null && metricIds.isEmpty())
       || (metricKeys != null && metricKeys.isEmpty());
+  }
+
+  public boolean isOnProjects() {
+    return projectUuids != null && componentUuids == null;
+  }
+
+  public boolean isOnComponents() {
+    return projectUuids != null && projectUuids.size() == 1 && componentUuids != null;
+  }
+
+  public boolean isOnSingleComponent() {
+    return projectUuids == null && componentUuids != null && componentUuids.size() == 1;
   }
 
   @Override
@@ -97,10 +137,11 @@ public class MeasureQuery {
     }
     MeasureQuery that = (MeasureQuery) o;
     return Objects.equals(analysisUuid, that.analysisUuid) &&
-        Objects.equals(componentUuids, that.componentUuids) &&
-        Objects.equals(metricIds, that.metricIds) &&
-        Objects.equals(metricKeys, that.metricKeys) &&
-        Objects.equals(personId, that.personId);
+      Objects.equals(projectUuids, that.projectUuids) &&
+      Objects.equals(componentUuids, that.componentUuids) &&
+      Objects.equals(metricIds, that.metricIds) &&
+      Objects.equals(metricKeys, that.metricKeys) &&
+      Objects.equals(personId, that.personId);
   }
 
   @Override
@@ -112,15 +153,20 @@ public class MeasureQuery {
     return new Builder();
   }
 
+  static MeasureQuery copyWithSubsetOfProjectUuids(MeasureQuery query, List<String> projectUuids) {
+    return new MeasureQuery(query.analysisUuid, projectUuids, query.componentUuids, query.metricIds, query.metricKeys, query.personId);
+  }
+
   static MeasureQuery copyWithSubsetOfComponentUuids(MeasureQuery query, List<String> componentUuids) {
-    return new MeasureQuery(query.analysisUuid, componentUuids, query.metricIds, query.metricKeys, query.personId);
+    return new MeasureQuery(query.analysisUuid, query.projectUuids, componentUuids, query.metricIds, query.metricKeys, query.personId);
   }
 
   public static final class Builder {
     private String analysisUuid;
+    private List<String> projectUuids;
     private List<String> componentUuids;
-    private Collection<Integer> metricIds;
-    private Collection<String> metricKeys;
+    private List<Integer> metricIds;
+    private List<String> metricKeys;
     private Long personId;
 
     private Builder() {
@@ -132,11 +178,26 @@ public class MeasureQuery {
       return this;
     }
 
-    public Builder setComponentUuids(List<String> componentUuids) {
+    /**
+     * List of projects
+     */
+    public Builder setProjectUuids(@Nullable List<String> projectUuids) {
+      this.projectUuids = projectUuids;
+      return this;
+    }
+
+    /**
+     * List of components of a project
+     */
+    public Builder setComponentUuids(String projectUuid, List<String> componentUuids) {
+      setProjectUuids(singletonList(requireNonNull(projectUuid)));
       this.componentUuids = componentUuids;
       return this;
     }
 
+    /**
+     * Single component
+     */
     public Builder setComponentUuid(String componentUuid) {
       this.componentUuids = singletonList(componentUuid);
       return this;
@@ -145,26 +206,26 @@ public class MeasureQuery {
     /**
      * All the measures are returned if parameter is {@code null}.
      */
-    public Builder setMetricIds(@Nullable Collection<Integer> metricIds) {
+    public Builder setMetricIds(@Nullable List<Integer> metricIds) {
       this.metricIds = metricIds;
       return this;
     }
 
     public Builder setMetricId(int metricId) {
-      this.metricIds = singleton(metricId);
+      this.metricIds = singletonList(metricId);
       return this;
     }
 
     /**
      * All the measures are returned if parameter is {@code null}.
      */
-    public Builder setMetricKeys(@Nullable Collection<String> s) {
+    public Builder setMetricKeys(@Nullable List<String> s) {
       this.metricKeys = s;
       return this;
     }
 
     public Builder setMetricKey(String s) {
-      this.metricKeys = singleton(s);
+      this.metricKeys = singletonList(s);
       return this;
     }
 

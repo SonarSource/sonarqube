@@ -62,7 +62,7 @@ public class SearchMyProjectsDataLoader {
       List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
       MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
       MeasureQuery measureQuery = MeasureQuery.builder()
-        .setComponentUuids(projectUuids)
+        .setProjectUuids(projectUuids)
         .setMetricId(gateStatusMetric.getId())
         .build();
       List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);

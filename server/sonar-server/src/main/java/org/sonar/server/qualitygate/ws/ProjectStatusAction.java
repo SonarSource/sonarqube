@@ -48,6 +48,7 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -162,7 +163,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   private Optional<String> getQualityGateDetailsMeasureData(DbSession dbSession, ComponentDto project) {
     MeasureQuery measureQuery = MeasureQuery.builder()
-      .setComponentUuid(project.projectUuid())
+      .setProjectUuids(singletonList(project.projectUuid()))
       .setMetricKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY)
       .build();
     List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, measureQuery);

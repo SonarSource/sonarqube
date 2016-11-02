@@ -41,8 +41,11 @@ public class MeasureDao implements Dao {
 
   /**
    * Selects the measures of either the last analysis (when {@link MeasureQuery#analysisUuid} is {@code null}) or of the
-   * specified analysis (given by {@link MeasureQuery#analysisUuid}) for the component UUIDs specified in
-   * {@link MeasureQuery#componentUuids}.
+   * specified analysis (given by {@link MeasureQuery#analysisUuid}).
+   * The components can be specified either as :
+   * - A list of projects in {@link MeasureQuery#projectUuids}
+   * - A list of components in {@link MeasureQuery#componentUuids} with one mandatory project in {@link MeasureQuery#projectUuids}
+   * - One single component in  {@link MeasureQuery#componentUuids}
    * <p>
    * In addition, this method returns measures which are not associated to any developer, unless one is specified in
    * {@link MeasureQuery#personId}.
@@ -56,22 +59,29 @@ public class MeasureDao implements Dao {
     if (query.returnsEmpty()) {
       return Collections.emptyList();
     }
-    if (query.getComponentUuids() == null) {
-      return mapper(dbSession).selectByQuery(query);
+    if (query.getComponentUuids() != null) {
+      return executeLargeInputs(
+        query.getComponentUuids(),
+        componentUuids -> {
+          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
+          return mapper(dbSession).selectByQuery(pageQuery);
+        });
+    } else if (query.getProjectUuids() != null) {
+      return executeLargeInputs(
+        query.getProjectUuids(),
+        projectUuids -> {
+          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
+          return mapper(dbSession).selectByQuery(pageQuery);
+        });
     }
-    return executeLargeInputs(query.getComponentUuids(), componentUuids -> {
-      MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-      return mapper(dbSession).selectByQuery(pageQuery);
-    });
+    return mapper(dbSession).selectByQuery(query);
   }
 
   public void selectByQuery(DbSession dbSession, MeasureQuery query, ResultHandler resultHandler) {
     if (query.returnsEmpty()) {
       return;
     }
-    if (query.getComponentUuids() == null) {
-      mapper(dbSession).selectByQuery(query, resultHandler);
-    } else {
+    if (query.getComponentUuids() != null) {
       executeLargeInputsWithoutOutput(
         query.getComponentUuids(),
         componentUuids -> {
@@ -79,7 +89,16 @@ public class MeasureDao implements Dao {
           mapper(dbSession).selectByQuery(pageQuery, resultHandler);
           return null;
         });
+    } else if (query.getProjectUuids() != null) {
+      executeLargeInputsWithoutOutput(
+        query.getProjectUuids(),
+        projectUuids -> {
+          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
+          mapper(dbSession).selectByQuery(pageQuery, resultHandler);
+          return null;
+        });
     }
+    mapper(dbSession).selectByQuery(query, resultHandler);
   }
 
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession,

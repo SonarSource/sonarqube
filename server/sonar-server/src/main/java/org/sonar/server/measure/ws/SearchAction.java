@@ -153,7 +153,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<MeasureDto> searchMeasures() {
       return dbClient.measureDao().selectByQuery(dbSession, MeasureQuery.builder()
-        .setComponentUuids(projects.stream().map(ComponentDto::uuid).collect(toList()))
+        .setProjectUuids(projects.stream().map(ComponentDto::uuid).collect(toList()))
         .setMetricIds(metrics.stream().map(MetricDto::getId).collect(toList()))
         .build());
     }

@@ -209,8 +209,8 @@ public class ComponentTreeDataLoader {
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
     MeasureQuery measureQuery = MeasureQuery.builder()
       .setPersonId(developerId)
-      .setComponentUuids(componentUuids)
-      .setMetricIds(metricsById.keySet())
+      .setComponentUuids(baseComponent.projectUuid(), componentUuids)
+      .setMetricIds(new ArrayList<>(metricsById.keySet()))
       .build();
     List<MeasureDto> measureDtos = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
 
