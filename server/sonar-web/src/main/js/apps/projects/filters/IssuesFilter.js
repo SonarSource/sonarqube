@@ -38,11 +38,10 @@ export default class IssuesFilter extends React.Component {
     return (
         <FilterContainer
             property={this.props.property}
-            options={[1, 4, 2, 5, 3]}
+            options={[1, 2, 3, 4, 5]}
             renderName={() => this.props.name}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
-            halfWidth={true}
             query={this.props.query}/>
     );
   }
