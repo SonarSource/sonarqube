@@ -18,9 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import flatMap from 'lodash/flatMap';
+import sumBy from 'lodash/sumBy';
 import { createMap } from '../../../../components/store/generalReducers';
 import { RECEIVE_PROJECTS } from '../projects/actions';
 import { mapMetricToProperty } from '../utils';
+
+const CUMULATIVE_FACETS = [
+  'reliability',
+  'security',
+  'maintainability',
+  'coverage',
+  'duplications',
+  'size'
+];
+
+const REVERSED_FACETS = [
+  'coverage'
+];
 
 const mapFacetValues = values => {
   const map = {};
@@ -30,11 +44,27 @@ const mapFacetValues = values => {
   return map;
 };
 
+const cumulativeMapFacetValues = values => {
+  const map = {};
+  let sum = sumBy(values, value => value.count);
+  values.forEach((value, index) => {
+    map[value.val] = index > 0 && index < values.length - 1 ? sum : value.count;
+    sum -= value.count;
+  });
+  return map;
+};
+
 const getFacetsMap = facets => {
   const map = {};
   facets.forEach(facet => {
     const property = mapMetricToProperty(facet.property);
-    map[property] = mapFacetValues(facet.values);
+    const { values } = facet;
+    if (REVERSED_FACETS.includes(property)) {
+      values.reverse();
+    }
+    map[property] = CUMULATIVE_FACETS.includes(property) ?
+        cumulativeMapFacetValues(values) :
+        mapFacetValues(values);
   });
   return map;
 };

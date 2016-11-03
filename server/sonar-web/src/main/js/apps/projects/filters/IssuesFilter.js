@@ -26,6 +26,9 @@ export default class IssuesFilter extends React.Component {
     return (
         <span>
           <Rating value={option} small={true}/>
+          {option > 1 && option < 5 && (
+              <span className="note spacer-left">and worse</span>
+          )}
         </span>
     );
   };
