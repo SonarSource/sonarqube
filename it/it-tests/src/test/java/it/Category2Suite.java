@@ -46,7 +46,6 @@ import it.qualityModel.SecurityMeasureTest;
 import it.qualityModel.TechnicalDebtInIssueChangelogTest;
 import it.qualityModel.TechnicalDebtMeasureVariationTest;
 import it.qualityModel.TechnicalDebtTest;
-import it.qualityModel.TechnicalDebtWidgetTest;
 import it.scm.ScmTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
@@ -95,8 +94,7 @@ import static util.ItUtils.xooPlugin;
   SecurityMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
   TechnicalDebtMeasureVariationTest.class,
-  TechnicalDebtTest.class,
-  TechnicalDebtWidgetTest.class
+  TechnicalDebtTest.class
 })
 public class Category2Suite {
 

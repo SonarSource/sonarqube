@@ -20,7 +20,6 @@
 package it.settings;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -61,14 +59,6 @@ public class SettingsTest {
   @After
   public void reset_settings() throws Exception {
     resetSettings(orchestrator, null, PLUGIN_SETTING_KEY);
-  }
-
-  // SONAR-4404
-  @Test
-  public void should_get_settings_default_value() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("settings-default-value",
-      "/settings/SettingsTest/settings-default-value.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**

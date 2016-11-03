@@ -91,42 +91,12 @@ public class QualityGateUiTest {
     qgClient.destroy(qGate.id());
   }
 
-  /**
-   * SONAR-1352
-   */
-  @Test
-  public void display_period_alert_on_project_dashboard() {
-    QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
-    QualityGate qGate = qgClient.create("AlertsForDashboard");
-    qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("LT").warningThreshold("0").errorThreshold("10")
-      .period(1));
-    qgClient.setDefault(qGate.id());
-
-    // No alert
-    scanSampleWithDate("2012-01-01");
-
-    // Red alert because lines number has not changed since previous analysis
-    scanSample();
-
-    new SeleneseTest(Selenese.builder()
-      .setHtmlTestsInClasspath("display-period-alerts",
-        "/qualityGate/QualityGateUiTest/should-display-period-alerts-correctly.html"
-      ).build()).runOn(orchestrator);
-
-    qgClient.unsetDefault();
-    qgClient.destroy(qGate.id());
-  }
-
   @Test
   public void should_display_quality_gates_page() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_quality_gates_page",
         "/qualityGate/QualityGateUiTest/should_display_quality_gates_page.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  private void scanSample() {
-    scanSample(null, null);
   }
 
   private void scanSampleWithDate(String date) {
