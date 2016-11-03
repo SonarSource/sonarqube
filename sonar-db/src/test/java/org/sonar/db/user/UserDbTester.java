@@ -120,6 +120,12 @@ public class UserDbTester {
     return rootByGroupPermissionUser;
   }
 
+  public UserDto insertAdminByUserPermission(OrganizationDto org) {
+    UserDto user = db.users().insertUser();
+    db.users().insertPermissionOnUser(org, user, GlobalPermissions.SYSTEM_ADMIN);
+    return user;
+  }
+
   private GroupDto createOrCheckAdminGroup(@Nullable GroupDto groupDto) {
     if (groupDto == null) {
       GroupDto adminGroup = insertGroup(db.getDefaultOrganization());

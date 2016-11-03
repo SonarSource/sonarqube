@@ -33,6 +33,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -63,6 +64,9 @@ public class RemoveUserActionTest {
 
   @Test
   public void does_nothing_if_user_is_not_in_group() throws Exception {
+    // keep an administrator
+    insertAnAdministratorInDefaultOrganization();
+
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
     UserDto user = db.users().insertUser("my-admin");
     loginAsAdminOnDefaultOrganization();
@@ -78,6 +82,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_by_group_id() throws Exception {
+    // keep an administrator
+    insertAnAdministratorInDefaultOrganization();
     GroupDto users = db.users().insertGroup(db.getDefaultOrganization(), "users");
     UserDto user = db.users().insertUser("my-admin");
     db.users().insertMember(users, user);
@@ -94,8 +100,9 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_by_group_name_in_default_organization() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group_name");
-    UserDto user = db.users().insertUser("user_login");
+    insertAnAdministratorInDefaultOrganization();
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a_group");
+    UserDto user = db.users().insertUser("a_user");
     db.users().insertMember(group, user);
     loginAsAdminOnDefaultOrganization();
 
@@ -112,8 +119,10 @@ public class RemoveUserActionTest {
   public void remove_user_by_group_name_in_specific_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "a_group");
-    UserDto user = db.users().insertUser("user_login");
+    UserDto user = db.users().insertUser("a_user");
     db.users().insertMember(group, user);
+    // keep an administrator
+    db.users().insertAdminByUserPermission(org);
 
     loginAsAdmin(org);
 
@@ -129,6 +138,9 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user_only_from_one_group() throws Exception {
+    // keep an administrator
+    insertAnAdministratorInDefaultOrganization();
+
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto users = db.users().insertGroup(defaultOrg, "user");
     GroupDto admins = db.users().insertGroup(defaultOrg, "admins");
@@ -174,6 +186,9 @@ public class RemoveUserActionTest {
 
   @Test
   public void sets_root_flag_to_false_when_removing_user_from_group_of_default_organization_with_admin_permission() throws Exception {
+    // keep an administrator
+    insertAnAdministratorInDefaultOrganization();
+
     GroupDto adminGroup = db.users().insertAdminGroup();
     UserDto user1 = db.users().insertRootByGroupPermission("user1", adminGroup);
     UserDto user2 = db.users().insertRootByGroupPermission("user2", adminGroup);
@@ -244,7 +259,24 @@ public class RemoveUserActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .setParam("login", user.getLogin())
+      .setParam("login", user.getLogin());
+  }
+
+  @Test
+  public void fail_to_remove_the_last_administrator() throws Exception {
+    OrganizationDto org = db.organizations().insert();
+    GroupDto adminGroup = db.users().insertGroup(org, "sonar-admins");
+    db.users().insertPermissionOnGroup(adminGroup, GlobalPermissions.SYSTEM_ADMIN);
+    UserDto adminUser = db.users().insertUser("the-single-admin");
+    db.users().insertMember(adminGroup, adminUser);
+    loginAsAdmin(org);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The last administrator user cannot be removed");
+
+    newRequest()
+      .setParam("id", adminGroup.getId().toString())
+      .setParam("login", adminUser.getLogin())
       .execute();
   }
 
@@ -299,4 +331,7 @@ public class RemoveUserActionTest {
       .anyMatch(dto -> dto.getLogin().equals(userDto.getLogin()));
   }
 
+  private UserDto insertAnAdministratorInDefaultOrganization() {
+    return db.users().insertAdminByUserPermission(db.getDefaultOrganization());
+  }
 }
