@@ -32,6 +32,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -64,8 +65,8 @@ public class RemoveUserActionTest {
   public void does_nothing_if_user_is_not_in_group() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
     UserDto user = db.users().insertUser("my-admin");
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", user.getLogin())
@@ -80,8 +81,8 @@ public class RemoveUserActionTest {
     GroupDto users = db.users().insertGroup(db.getDefaultOrganization(), "users");
     UserDto user = db.users().insertUser("my-admin");
     db.users().insertMember(users, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", users.getId().toString())
       .setParam("login", user.getLogin())
@@ -96,8 +97,8 @@ public class RemoveUserActionTest {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group_name");
     UserDto user = db.users().insertUser("user_login");
     db.users().insertMember(group, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
@@ -114,7 +115,8 @@ public class RemoveUserActionTest {
     UserDto user = db.users().insertUser("user_login");
     db.users().insertMember(group, user);
 
-    loginAsAdmin();
+    loginAsAdmin(org);
+
     newRequest()
       .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -133,8 +135,8 @@ public class RemoveUserActionTest {
     UserDto user = db.users().insertUser("user");
     db.users().insertMember(users, user);
     db.users().insertMember(admins, user);
+    loginAsAdminOnDefaultOrganization();
 
-    loginAsAdmin();
     newRequest()
       .setParam("id", admins.getId().toString())
       .setParam("login", user.getLogin())
@@ -150,7 +152,7 @@ public class RemoveUserActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("id", "42")
       .setParam("login", user.getLogin())
@@ -163,7 +165,7 @@ public class RemoveUserActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
     newRequest()
       .setParam("id", group.getId().toString())
       .setParam("login", "my-admin")
@@ -175,7 +177,7 @@ public class RemoveUserActionTest {
     GroupDto adminGroup = db.users().insertAdminGroup();
     UserDto user1 = db.users().insertRootByGroupPermission("user1", adminGroup);
     UserDto user2 = db.users().insertRootByGroupPermission("user2", adminGroup);
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     executeRequest(adminGroup, user1);
     verifyUserNotInGroup(user1, adminGroup);
@@ -199,7 +201,7 @@ public class RemoveUserActionTest {
     UserDto adminUserBySingleGroup = db.users().insertUser("adminUserBySingleGroup");
     GroupDto adminGroup2 = db.users().insertAdminGroup();
     db.users().insertMembers(adminGroup2, adminUserByUserPermission, adminUserByTwoGroups, adminUserBySingleGroup);
-    loginAsAdmin();
+    loginAsAdminOnDefaultOrganization();
 
     executeRequest(adminGroup2, adminUserByUserPermission);
     verifyUserNotInGroup(adminUserByUserPermission, adminGroup2);
@@ -229,6 +231,23 @@ public class RemoveUserActionTest {
     verifyRootFlagUpdated(adminUserBySingleGroup, false);
   }
 
+  @Test
+  public void throw_ForbiddenException_if_not_administrator_of_organization() throws Exception {
+    OrganizationDto org = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(org, "a-group");
+    UserDto user = db.users().insertUser();
+    db.users().insertMember(group, user);
+    loginAsAdminOnDefaultOrganization();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .setParam("login", user.getLogin())
+      .execute();
+  }
+
   private void executeRequest(GroupDto group, UserDto user) throws Exception {
     newRequest()
       .setParam("id", group.getId().toString())
@@ -240,8 +259,12 @@ public class RemoveUserActionTest {
     return ws.newPostRequest("api/user_groups", "remove_user");
   }
 
-  private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void loginAsAdminOnDefaultOrganization() {
+    loginAsAdmin(db.getDefaultOrganization());
+  }
+
+  private void loginAsAdmin(OrganizationDto org) {
+    userSession.login("admin").addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private void verifyUnchanged(UserDto user) {
