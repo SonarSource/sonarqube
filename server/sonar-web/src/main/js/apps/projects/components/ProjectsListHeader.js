@@ -17,13 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import ProjectsList from './ProjectsList';
-import { getProjects, getProjectsAppState } from '../../../app/store/rootReducer';
+import React from 'react';
+import FavoriteFilterContainer from './FavoriteFilterContainer';
+import { translate } from '../../../helpers/l10n';
 
-export default connect(
-    state => ({
-      projects: getProjects(state),
-      total: getProjectsAppState(state).total
-    })
-)(ProjectsList);
+export default class ProjectsListHeader extends React.Component {
+  static propTypes = {
+    total: React.PropTypes.number
+  };
+
+  render () {
+    return (
+        <header className="page-header">
+          <div className="page-actions">
+            {this.props.total != null && (
+              <span>
+                <strong>{this.props.total}</strong> {translate('projects._projects')}
+              </span>
+            )}
+          </div>
+          <FavoriteFilterContainer/>
+        </header>
+    );
+  }
+}

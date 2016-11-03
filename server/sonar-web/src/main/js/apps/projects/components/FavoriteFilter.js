@@ -27,7 +27,7 @@ export default class FavoriteFilter extends React.Component {
     }
 
     return (
-      <div className="button-group projects-favorite-filter">
+      <div className="button-group">
         <IndexLink to="/projects" className="button" activeClassName="button-active">All</IndexLink>
         <Link to="/projects/favorite" className="button" activeClassName="button-active">Favorite</Link>
       </div>
