@@ -26,7 +26,6 @@ import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
-import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.Component {
   static propTypes = {
@@ -39,6 +38,18 @@ export default class PageSidebar extends React.Component {
 
     return (
         <div className="search-navigator-facets-list">
+          <div className="projects-facets-header clearfix">
+            {isFiltered && (
+                <div className="projects-facets-reset">
+                  <Link to="/projects" className="button button-red" onClick={this.props.closeAllFilters}>
+                    Clear All Filters
+                  </Link>
+                </div>
+            )}
+
+            <h3>Filters</h3>
+          </div>
+
           <QualityGateFilter query={this.props.query}/>
           <ReliabilityFilter query={this.props.query}/>
           <SecurityFilter query={this.props.query}/>
@@ -46,14 +57,6 @@ export default class PageSidebar extends React.Component {
           <CoverageFilter query={this.props.query}/>
           <DuplicationsFilter query={this.props.query}/>
           <SizeFilter query={this.props.query}/>
-
-          {isFiltered && (
-              <div className="projects-facets-reset">
-                <Link to="/projects" className="button button-red" onClick={this.props.closeAllFilters}>
-                  {translate('reset_verb')}
-                </Link>
-              </div>
-          )}
         </div>
     );
   }

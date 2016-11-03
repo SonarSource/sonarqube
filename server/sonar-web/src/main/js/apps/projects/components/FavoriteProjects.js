@@ -61,7 +61,12 @@ export default class FavoriteProjects extends React.Component {
             </div>
             <aside className="page-sidebar-fixed projects-sidebar">
               <PageHeaderContainer/>
-              <p className="note text-center">Filters are not available.</p>
+              <div className="search-navigator-facets-list">
+                <div className="projects-facets-header">
+                  <h3>Filters</h3>
+                </div>
+                <p className="note text-center">Filters are not available.</p>
+              </div>
             </aside>
           </div>
         </div>
