@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -123,12 +124,21 @@ public class DatabaseUtils {
    * and with MsSQL when there's more than 2000 parameters in a query
    */
   public static <OUTPUT, INPUT extends Comparable<INPUT>> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
+    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptyList() : new ArrayList<>(size));
+  }
+
+  public static <OUTPUT, INPUT extends Comparable<INPUT>> Set<OUTPUT> executeLargeInputsIntoSet(Collection<INPUT> input, Function<List<INPUT>, Set<OUTPUT>> function) {
+    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptySet() : new HashSet<>(size));
+  }
+
+  private static <OUTPUT, INPUT extends Comparable<INPUT>, RESULT extends Collection<OUTPUT>> RESULT executeLargeInputs(Collection<INPUT> input,
+    Function<List<INPUT>, RESULT> function, java.util.function.Function<Integer, RESULT> outputInitializer) {
     if (input.isEmpty()) {
-      return Collections.emptyList();
+      return outputInitializer.apply(0);
     }
-    List<OUTPUT> results = new ArrayList<>(input.size());
+    RESULT results = outputInitializer.apply(input.size());
     for (List<INPUT> partition : toUniqueAndSortedPartitions(input)) {
-      List<OUTPUT> subResults = function.apply(partition);
+      RESULT subResults = function.apply(partition);
       if (subResults != null) {
         results.addAll(subResults);
       }

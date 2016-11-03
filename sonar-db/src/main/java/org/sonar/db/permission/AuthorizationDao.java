@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 
 /**
  * The SQL requests used to verify authorization (the permissions
@@ -95,8 +96,8 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUSerId);
   }
 
-  public Collection<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
-    return executeLargeInputs(
+  public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
+    return executeLargeInputsIntoSet(
       componentIds,
       partition -> {
         if (userId == null) {

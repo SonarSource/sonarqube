@@ -139,7 +139,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> projectDtos) {
       Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
+      Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
         projectDtos.stream().map(ComponentDto::getId).collect(toList()),
         userSession.getUserId(), UserRole.USER);
       return projectDtos.stream()
