@@ -81,7 +81,6 @@ export default React.createClass({
                 {this.renderLink('/settings/encryption', translate('property.category.security.encryption'))}
                 {this.renderLink('/settings/server_id', translate('property.category.server_id'))}
                 {this.renderLink('/metrics', 'Custom Metrics')}
-                {this.renderLink('/admin_dashboards', translate('default_dashboards.page'))}
                 {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
               </ul>
             </li>
