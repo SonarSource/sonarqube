@@ -107,6 +107,17 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupId, userId);
   }
 
+  /**
+   * The number of users who will still have the permission if the permission {@code permission}
+   * is removed from user {@code userId}. The anyone virtual group is not taken into account.
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, long)}, user
+   * still exists and may have the permission through groups.
+   */
+  public int countUsersWithGlobalPermissionExcludingUserPermission(DbSession dbSession, String organizationUuid,
+    String permission, long userId) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userId);
+  }
+
   public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
     return executeLargeInputsIntoSet(
       componentIds,
