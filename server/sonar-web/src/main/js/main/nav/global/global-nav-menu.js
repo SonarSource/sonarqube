@@ -47,15 +47,6 @@ export default React.createClass({
     );
   },
 
-  renderMeasuresLink () {
-    const url = window.baseUrl + '/measures/search?qualifiers[]=TRK';
-    return (
-        <li className={this.activeLink('/measures')}>
-          <a href={url}>{translate('layout.measures')}</a>
-        </li>
-    );
-  },
-
   renderRulesLink () {
     const url = window.baseUrl + '/coding_rules';
     return (
@@ -127,7 +118,6 @@ export default React.createClass({
         <ul className="nav navbar-nav">
           {this.renderProjects()}
           {this.renderIssuesLink()}
-          {this.renderMeasuresLink()}
           {this.renderRulesLink()}
           {this.renderProfilesLink()}
           {this.renderQualityGatesLink()}
