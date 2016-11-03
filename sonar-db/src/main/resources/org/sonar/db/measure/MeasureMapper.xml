@@ -39,25 +39,25 @@
 
   <select id="selectByQueryOnComponents" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
+    <include refid="selectByQueryCommonJoin"/>
     inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
       and p.project_uuid=#{query.projectUuid}
-      and p.uuid in
-      <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
-        #{componentUuid}
-      </foreach>
-    <include refid="selectByQueryCommonJoin"/>
     where
     <include refid="selectByQueryCommonFilters"/>
+    and pm.component_uuid in
+    <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
+      #{componentUuid}
+    </foreach>
   </select>
 
   <select id="selectByQueryOnSingleComponent" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
+    <include refid="selectByQueryCommonJoin"/>
     inner join projects p on p.project_uuid=analysis.component_uuid
       and p.uuid=pm.component_uuid
-      and p.uuid=#{query.componentUuid}
-    <include refid="selectByQueryCommonJoin"/>
     where
     <include refid="selectByQueryCommonFilters"/>
+    and pm.component_uuid=#{query.componentUuid}
   </select>
 
   <sql id="selectByQueryCommonJoin">
