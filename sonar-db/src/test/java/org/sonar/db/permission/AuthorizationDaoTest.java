@@ -43,6 +43,9 @@ public class AuthorizationDaoTest {
   private static final Long PROJECT_ID_WITHOUT_SNAPSHOT = 400L;
   private static final String PROJECT = "pj-w-snapshot";
   private static final String PROJECT_WIHOUT_SNAPSHOT = "pj-wo-snapshot";
+  private static final long MISSING_ID = -1L;
+  private static final String A_PERMISSION = "a-permission";
+  private static final String DOES_NOT_EXIST = "does-not-exist";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -526,5 +529,64 @@ public class AuthorizationDaoTest {
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
       // Only 100 and 101 has 'user' role on project
       newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).isEmpty();
+  }
+
+  @Test
+  public void countUsersWithGlobalPermissionExcludingGroupMember() {
+    // u1 has the direct permission, u2 and u3 have the permission through their group
+    UserDto u1 = db.users().insertUser();
+    db.users().insertPermissionOnUser(org, u1, A_PERMISSION);
+    db.users().insertPermissionOnGroup(group1, A_PERMISSION);
+    db.users().insertPermissionOnGroup(group1, "another-permission");
+    UserDto u2 = db.users().insertUser();
+    db.users().insertMember(group1, u2);
+    UserDto u3 = db.users().insertUser();
+    db.users().insertMember(group1, u3);
+
+    // excluding u2 membership --> remain u1 and u3
+    int count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), A_PERMISSION, group1.getId(), u2.getId());
+    assertThat(count).isEqualTo(2);
+
+    // excluding unknown memberships
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), A_PERMISSION, group1.getId(), MISSING_ID);
+    assertThat(count).isEqualTo(3);
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), A_PERMISSION, MISSING_ID, u2.getId());
+    assertThat(count).isEqualTo(3);
+
+    // another organization
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, A_PERMISSION,  group1.getId(), u2.getId());
+    assertThat(count).isEqualTo(0);
+
+    // another permission
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), DOES_NOT_EXIST,  group1.getId(), u2.getId());
+    assertThat(count).isEqualTo(0);
+  }
+
+  @Test
+  public void countUsersWithGlobalPermissionExcludingUserPermission() {
+    // u1 and u2 have the direct permission, u3 has the permission through his group
+    UserDto u1 = db.users().insertUser();
+    db.users().insertPermissionOnUser(org, u1, A_PERMISSION);
+    UserDto u2 = db.users().insertUser();
+    db.users().insertPermissionOnUser(org, u2, A_PERMISSION);
+    db.users().insertPermissionOnGroup(group1, A_PERMISSION);
+    UserDto u3 = db.users().insertUser();
+    db.users().insertMember(group1, u3);
+
+    // excluding u2 permission --> remain u1 and u3
+    int count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, org.getUuid(), A_PERMISSION, u2.getId());
+    assertThat(count).isEqualTo(2);
+
+    // excluding unknown user
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, org.getUuid(), A_PERMISSION, MISSING_ID);
+    assertThat(count).isEqualTo(3);
+
+    // another organization
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, DOES_NOT_EXIST, A_PERMISSION,  u2.getId());
+    assertThat(count).isEqualTo(0);
+
+    // another permission
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, org.getUuid(), DOES_NOT_EXIST,  u2.getId());
+    assertThat(count).isEqualTo(0);
   }
 }

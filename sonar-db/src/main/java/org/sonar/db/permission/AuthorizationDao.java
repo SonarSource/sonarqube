@@ -79,7 +79,7 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * The number of users who will still have the permission when the group {@code excludedGroupId}
+   * The number of users who will still have the permission if the group {@code excludedGroupId}
    * is deleted. The anyone virtual group is not taken into account.
    */
   public int countUsersWithGlobalPermissionExcludingGroup(DbSession dbSession, String organizationUuid,
@@ -88,12 +88,34 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * The number of users who will still have the permission when the user {@code excludedUserId}
+   * The number of users who will still have the permission if the user {@code excludedUserId}
    * is deleted. The anyone virtual group is not taken into account.
    */
   public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
     String permission, long excludedUSerId) {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUSerId);
+  }
+
+  /**
+   * The number of users who will still have the permission if the user {@code userId}
+   * is removed from group {@code groupId}. The anyone virtual group is not taken into account.
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, long)}, user
+   * still exists and may have the permission directly or through other groups.
+   */
+  public int countUsersWithGlobalPermissionExcludingGroupMember(DbSession dbSession, String organizationUuid,
+    String permission, long groupId, long userId) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupId, userId);
+  }
+
+  /**
+   * The number of users who will still have the permission if the permission {@code permission}
+   * is removed from user {@code userId}. The anyone virtual group is not taken into account.
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, long)}, user
+   * still exists and may have the permission through groups.
+   */
+  public int countUsersWithGlobalPermissionExcludingUserPermission(DbSession dbSession, String organizationUuid,
+    String permission, long userId) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userId);
   }
 
   public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {

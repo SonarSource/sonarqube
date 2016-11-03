@@ -43,8 +43,14 @@ public interface AuthorizationMapper {
   int countUsersWithGlobalPermissionExcludingUser(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission,
     @Param("excludedUserId") long excludedUserId);
 
-  Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid,
+                                                         @Param("permission") String permission, @Param("groupId") long groupId, @Param("userId") long userId);
 
+  int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
+                                                            @Param("permission") String permission, @Param("userId") long userId);
+
+  Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  
   Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
   List<String> keepAuthorizedComponentKeysForAnonymous(@Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
@@ -52,4 +58,6 @@ public interface AuthorizationMapper {
   List<String> keepAuthorizedComponentKeysForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
 
   List<Long> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Long> userIds);
+
+
 }
