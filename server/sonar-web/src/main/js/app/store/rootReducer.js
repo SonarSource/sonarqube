@@ -88,3 +88,7 @@ export const getProjectsAppFilterStatus = (state, key) => (
 export const getProjectsAppFacetByProperty = (state, property) => (
     fromProjectsApp.getFacetByProperty(state.projectsApp, property)
 );
+
+export const getProjectsAppMaxFacetValue = state => (
+    fromProjectsApp.getMaxFacetValue(state.projectsApp)
+);

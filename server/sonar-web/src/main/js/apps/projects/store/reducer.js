@@ -40,3 +40,7 @@ export const getFilterStatus = (state, key) => (
 export const getFacetByProperty = (state, property) => (
     fromFacets.getFacetByProperty(state.facets, property)
 );
+
+export const getMaxFacetValue = state => (
+    fromFacets.getMaxFacetValue(state.facets)
+);

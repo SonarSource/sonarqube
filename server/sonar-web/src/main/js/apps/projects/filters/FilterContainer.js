@@ -22,7 +22,11 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
-import { getProjectsAppFilterStatus, getProjectsAppFacetByProperty } from '../../../app/store/rootReducer';
+import {
+  getProjectsAppFilterStatus,
+  getProjectsAppFacetByProperty,
+  getProjectsAppMaxFacetValue
+} from '../../../app/store/rootReducer';
 import { openFilter, closeFilter } from '../store/filters/statuses/actions';
 import { OPEN } from '../store/filters/statuses/reducer';
 
@@ -30,6 +34,7 @@ const mapStateToProps = (state, ownProps) => ({
   isOpen: getProjectsAppFilterStatus(state, ownProps.property) === OPEN,
   value: ownProps.query[ownProps.property],
   facet: getProjectsAppFacetByProperty(state, ownProps.property),
+  maxFacetValue: getProjectsAppMaxFacetValue(state),
   getFilterUrl: part => {
     const query = omitBy({ ...ownProps.query, ...part }, isNil);
     return { pathname: '/projects', query };

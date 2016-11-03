@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import flatMap from 'lodash/flatMap';
 import { createMap } from '../../../../components/store/generalReducers';
 import { RECEIVE_PROJECTS } from '../projects/actions';
 import { mapMetricToProperty } from '../utils';
@@ -50,3 +51,7 @@ export const getFacetByProperty = (state, property) => (
     state[property]
 );
 
+export const getMaxFacetValue = state => {
+  const allValues = flatMap(Object.values(state), facet => Object.values(facet));
+  return Math.max.apply(null, allValues);
+};

@@ -28,6 +28,8 @@ export default class Filter extends React.Component {
     value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
     options: React.PropTypes.array.isRequired,
+    maxFacetValue: React.PropTypes.number,
+    optionClassName: React.PropTypes.string,
 
     renderName: React.PropTypes.func.isRequired,
     renderOption: React.PropTypes.func.isRequired,
@@ -80,12 +82,25 @@ export default class Filter extends React.Component {
     );
   }
 
+  renderOptionBar (facetValue) {
+    if (facetValue == null || !this.props.maxFacetValue) {
+      return null;
+    }
+
+    return (
+        <div className="projects-facet-bar">
+          <div className="projects-facet-bar-inner"
+               style={{ width: facetValue / this.props.maxFacetValue * 60 }}/>
+        </div>
+    );
+  }
+
   renderOption (option) {
     const { property, value, facet, getFacetValueForOption } = this.props;
     const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
       active: option === value,
       'search-navigator-facet-half': this.props.halfWidth
-    });
+    }, this.props.optionClassName);
 
     const path = option === value ?
         this.props.getFilterUrl({ [property]: null }) :
@@ -96,11 +111,12 @@ export default class Filter extends React.Component {
     return (
         <Link key={option} className={className} to={path}>
           <span className="facet-name">
-            {this.props.renderOption(option)}
+            {this.props.renderOption(option, facetValue)}
           </span>
           {facetValue != null && (
               <span className="facet-stat">
                 {formatMeasure(facetValue, 'SHORT_INT')}
+                {this.renderOptionBar(facetValue)}
               </span>
           )}
         </Link>
@@ -117,6 +133,8 @@ export default class Filter extends React.Component {
 
     return (
         <div className="search-navigator-facet-list">
+          {this.props.children}
+
           {options.map(option => this.renderOption(option))}
         </div>
     );

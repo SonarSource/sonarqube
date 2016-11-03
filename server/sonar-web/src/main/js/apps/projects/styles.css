@@ -103,3 +103,16 @@
 .projects-facets-reset .button {
 
 }
+
+.projects-facet-bar {
+  display: inline-block;
+  width: 60px;
+  margin-left: 8px;
+}
+
+.projects-facet-bar-inner {
+  min-width: 1px;
+  height: 10px;
+  background-color: #b4b4b4;
+  transition: width 0.3s ease;
+}
