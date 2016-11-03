@@ -25,16 +25,21 @@ import './Level.css';
 export default class Level extends React.Component {
   static propTypes = {
     level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
-    small: React.PropTypes.bool
+    small: React.PropTypes.bool,
+    muted: React.PropTypes.bool
   };
 
   static defaultProps = {
-    small: false
+    small: false,
+    muted: false
   };
 
   render () {
     const formatted = formatMeasure(this.props.level, 'LEVEL');
-    const className = classNames('level', 'level-' + this.props.level, { 'level-small': this.props.small });
+    const className = classNames('level', 'level-' + this.props.level, {
+      'level-small': this.props.small,
+      'level-muted': this.props.muted
+    });
     return <span className={className}>{formatted}</span>;
   }
 }

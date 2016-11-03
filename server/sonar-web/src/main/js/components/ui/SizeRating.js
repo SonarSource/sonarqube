@@ -25,11 +25,13 @@ import './SizeRating.css';
 export default class SizeRating extends React.Component {
   static propTypes = {
     value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
-    small: React.PropTypes.bool
+    small: React.PropTypes.bool,
+    muted: React.PropTypes.bool
   };
 
   static defaultProps = {
-    small: false
+    small: false,
+    muted: false
   };
 
   render () {
@@ -54,7 +56,10 @@ export default class SizeRating extends React.Component {
       letter = 'XL';
     }
 
-    const className = classNames('size-rating', { 'size-rating-small': this.props.small });
+    const className = classNames('size-rating', {
+      'size-rating-small': this.props.small,
+      'size-rating-muted': this.props.muted
+    });
 
     return (
         <div className={className}>{letter}</div>

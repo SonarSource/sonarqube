@@ -32,16 +32,21 @@ export default class Rating extends React.Component {
             `Invalid prop "${propName}" passed to "${componentName}".`);
       }
     },
-    small: React.PropTypes.bool
+    small: React.PropTypes.bool,
+    muted: React.PropTypes.bool
   };
 
   static defaultProps = {
-    small: false
+    small: false,
+    muted: false
   };
 
   render () {
     const formatted = formatMeasure(this.props.value, 'RATING');
-    const className = classNames('rating', 'rating-' + formatted, { 'rating-small': this.props.small });
+    const className = classNames('rating', 'rating-' + formatted, {
+      'rating-small': this.props.small,
+      'rating-muted': this.props.muted
+    });
     return <span className={className}>{formatted}</span>;
   }
 }

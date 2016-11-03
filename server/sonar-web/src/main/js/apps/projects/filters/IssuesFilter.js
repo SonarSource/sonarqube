@@ -22,10 +22,10 @@ import FilterContainer from './FilterContainer';
 import Rating from '../../../components/ui/Rating';
 
 export default class IssuesFilter extends React.Component {
-  renderOption = option => {
+  renderOption = (option, selected) => {
     return (
         <span>
-          <Rating value={option} small={true}/>
+          <Rating value={option} small={true} muted={!selected}/>
           {option > 1 && option < 5 && (
               <span className="note spacer-left">and worse</span>
           )}

@@ -9,6 +9,7 @@
   color: #fff;
   font-size: 12px;
   text-align: center;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .size-rating-small {
@@ -21,5 +22,5 @@
 }
 
 .size-rating-muted {
-  background-color: #ccc;
+  background-color: #bdbdbd;
 }

@@ -116,3 +116,7 @@
   background-color: #b4b4b4;
   transition: width 0.3s ease;
 }
+
+.search-navigator-facet.active .projects-facet-bar-inner {
+  background-color: #4b9fd5;
+}

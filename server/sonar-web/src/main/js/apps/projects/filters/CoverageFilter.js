@@ -23,10 +23,10 @@ import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 
 export default class CoverageFilter extends React.Component {
-  renderOption = option => {
+  renderOption = (option, selected) => {
     return (
         <span>
-          <CoverageRating value={getCoverageRatingAverageValue(option)} small={true}/>
+          <CoverageRating value={getCoverageRatingAverageValue(option)} small={true} muted={!selected}/>
           <span className="spacer-left">
             {getCoverageRatingLabel(option)}
           </span>

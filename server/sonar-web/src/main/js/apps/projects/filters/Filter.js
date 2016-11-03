@@ -111,7 +111,7 @@ export default class Filter extends React.Component {
     return (
         <Link key={option} className={className} to={path}>
           <span className="facet-name">
-            {this.props.renderOption(option, facetValue)}
+            {this.props.renderOption(option, option === value)}
           </span>
           {facetValue != null && (
               <span className="facet-stat">

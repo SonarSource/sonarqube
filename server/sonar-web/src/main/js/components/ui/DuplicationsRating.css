@@ -17,6 +17,14 @@
   border-width: 2px;
 }
 
+.duplications-rating-muted {
+  border-color: #bdbdbd !important;
+}
+
+.duplications-rating-muted:after {
+  background-color: #bdbdbd !important;
+}
+
 .duplications-rating:after {
   border-radius: 24px;
   background-color: #f3ca8e;

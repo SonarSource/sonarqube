@@ -22,6 +22,10 @@
   font-size: 12px;
 }
 
+.level-muted {
+  background-color: #bdbdbd !important;
+}
+
 a > .level {
   margin-bottom: -1px;
   border-bottom: 1px solid;
