@@ -51,7 +51,7 @@ export default class QualityGatesApp extends Component {
     const { router } = this.context;
 
     addQualityGate(qualityGate);
-    router.push(`/show/${qualityGate.id}`);
+    router.push(`/quality_gates/show/${qualityGate.id}`);
   }
 
   render () {
