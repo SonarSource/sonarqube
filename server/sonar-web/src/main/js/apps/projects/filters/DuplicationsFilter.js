@@ -23,10 +23,10 @@ import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import { getDuplicationsRatingLabel, getDuplicationsRatingAverageValue } from '../../../helpers/ratings';
 
 export default class DuplicationsFilter extends React.Component {
-  renderOption = option => {
+  renderOption = (option, selected) => {
     return (
         <span>
-          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)} small={true}/>
+          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)} small={true} muted={!selected}/>
           <span className="spacer-left">
             {getDuplicationsRatingLabel(option)}
           </span>

@@ -23,10 +23,10 @@ import SizeRating from '../../../components/ui/SizeRating';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.Component {
-  renderOption = option => {
+  renderOption = (option, selected) => {
     return (
         <span>
-          <SizeRating value={getSizeRatingAverageValue(option)} small={true}/>
+          <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected}/>
           <span className="spacer-left">
             {getSizeRatingLabel(option)}
           </span>

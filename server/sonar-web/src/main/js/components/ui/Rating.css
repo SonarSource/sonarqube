@@ -21,6 +21,12 @@
   font-size: 12px;
 }
 
+.rating-muted {
+  background-color: #bdbdbd !important;
+  color: #fff !important;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35) !important;
+}
+
 a > .rating {
   margin-bottom: -1px;
   border-bottom: 1px solid;
