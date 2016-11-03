@@ -54,7 +54,7 @@ export default class ProfileActions extends React.Component {
     }).on('done', profile => {
       this.props.updateProfiles().then(() => {
         this.context.router.push({
-          pathname: '/show',
+          pathname: '/profiles/show',
           query: { key: profile.key }
         });
       });
@@ -72,7 +72,7 @@ export default class ProfileActions extends React.Component {
     new DeleteProfileView({
       profile: this.props.profile
     }).on('done', () => {
-      this.context.router.replace('/');
+      this.context.router.replace('/profiles');
       this.props.updateProfiles();
     }).render();
   }

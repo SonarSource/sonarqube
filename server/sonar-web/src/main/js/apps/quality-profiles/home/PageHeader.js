@@ -64,7 +64,7 @@ export default class PageHeader extends React.Component {
       }).on('done', profile => {
         this.props.updateProfiles().then(() => {
           this.context.router.push({
-            pathname: '/show',
+            pathname: '/profiles/show',
             query: { key: profile.key }
           });
         });
