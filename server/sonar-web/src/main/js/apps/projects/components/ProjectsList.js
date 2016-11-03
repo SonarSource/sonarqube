@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { List, AutoSizer, WindowScroller } from 'react-virtualized';
 import ProjectCardContainer from './ProjectCardContainer';
 import { translate } from '../../../helpers/l10n';
 
 export default class ProjectsList extends React.Component {
   static propTypes = {
-    projects: React.PropTypes.arrayOf(React.PropTypes.string)
+    projects: React.PropTypes.arrayOf(React.PropTypes.string),
   };
 
   render () {
@@ -34,43 +33,19 @@ export default class ProjectsList extends React.Component {
       return null;
     }
 
-    if (projects.length === 0) {
-      return (
-          <div className="projects-empty-list">
-            <h3>{translate('projects.no_projects.1')}</h3>
-            <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
-          </div>
-      );
-    }
-
-    const rowRenderer = ({ key, index, style }) => {
-      const projectKey = projects[index];
-      return (
-          <div key={key} style={style}>
-            <ProjectCardContainer projectKey={projectKey}/>
-          </div>
-      );
-    };
-
     return (
-        <WindowScroller>
-          {({ height, scrollTop }) => (
-              <AutoSizer disableHeight>
-                {({ width }) => (
-                    <List
-                        className="projects-list"
-                        autoHeight
-                        width={width}
-                        height={height}
-                        rowCount={projects.length}
-                        rowHeight={135}
-                        rowRenderer={rowRenderer}
-                        scrollTop={scrollTop}
-                        overscanRowCount={100}/>
-                )}
-              </AutoSizer>
+        <div className="projects-list">
+          {projects.length > 0 ? (
+              projects.map(projectKey => (
+                  <ProjectCardContainer key={projectKey} projectKey={projectKey}/>
+              ))
+          ) : (
+              <div className="projects-empty-list">
+                <h3>{translate('projects.no_projects.1')}</h3>
+                <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
+              </div>
           )}
-        </WindowScroller>
+        </div>
     );
   }
 }

@@ -23,7 +23,7 @@ import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebarContainer from './PageSidebarContainer';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
+import ProjectsListHeaderContainer from './ProjectsListHeaderContainer';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
@@ -69,17 +69,18 @@ export default class App extends React.Component {
         <div id="projects-page" className="page page-limited">
           <Helmet title={translate('projects.page')} titleTemplate="SonarQube - %s"/>
 
-          <PageHeaderContainer/>
-
           <GlobalMessagesContainer/>
 
           <div className="page-with-sidebar page-with-left-sidebar">
             <div className="page-main">
-              <ProjectsListContainer/>
-              <ProjectsListFooterContainer query={this.state.query}/>
+              <div className="projects-list-container">
+                <ProjectsListHeaderContainer/>
+                <ProjectsListContainer/>
+                <ProjectsListFooterContainer query={this.state.query}/>
+              </div>
             </div>
             <aside className="page-sidebar-fixed projects-sidebar">
-              <FavoriteFilterContainer/>
+              <PageHeaderContainer/>
               <PageSidebarContainer query={this.state.query}/>
             </aside>
           </div>

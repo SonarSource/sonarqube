@@ -2,8 +2,12 @@
   width: 260px;
 }
 
-.projects-list {
-  outline: none;
+.projects-list-container {
+  width: 740px;
+}
+
+.projects-list .page-actions {
+  margin-bottom: 0;
 }
 
 .projects-empty-list {
@@ -95,16 +99,4 @@
 
 .projects-facets-reset .button {
 
-}
-
-.projects-favorite-filter {
-  width: 100%;
-  margin-bottom: 30px;
-  padding-left: 10px;
-  padding-right: 10px;
-  box-sizing: border-box;
-}
-
-.projects-favorite-filter > a {
-  width: 50%;
 }

@@ -21,7 +21,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
+import ProjectsListHeaderContainer from './ProjectsListHeaderContainer';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
@@ -50,17 +50,17 @@ export default class FavoriteProjects extends React.Component {
         <div id="projects-page" className="page page-limited">
           <Helmet title={translate('projects.page')} titleTemplate="SonarQube - %s"/>
 
-          <PageHeaderContainer/>
-
           <GlobalMessagesContainer/>
 
           <div className="page-with-sidebar page-with-left-sidebar">
             <div className="page-main">
-              <ProjectsListContainer/>
+              <div className="projects-list-container">
+                <ProjectsListHeaderContainer/>
+                <ProjectsListContainer/>
+              </div>
             </div>
             <aside className="page-sidebar-fixed projects-sidebar">
-              <FavoriteFilterContainer/>
-
+              <PageHeaderContainer/>
               <p className="note text-center">Filters are not available.</p>
             </aside>
           </div>

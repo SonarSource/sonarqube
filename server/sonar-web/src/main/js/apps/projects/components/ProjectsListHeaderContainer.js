@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import ProjectsList from './ProjectsList';
-import { getProjects, getProjectsAppState } from '../../../app/store/rootReducer';
+import ProjectsListHeader from './ProjectsListHeader';
+import { getProjectsAppState } from '../../../app/store/rootReducer';
+
+const mapStateToProps = state => (
+    getProjectsAppState(state)
+);
 
 export default connect(
-    state => ({
-      projects: getProjects(state),
-      total: getProjectsAppState(state).total
-    })
-)(ProjectsList);
+    mapStateToProps
+)(ProjectsListHeader);

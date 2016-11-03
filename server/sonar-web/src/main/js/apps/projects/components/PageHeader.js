@@ -22,12 +22,11 @@ import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.Component {
   static propTypes = {
-    total: React.PropTypes.number,
     loading: React.PropTypes.bool
   };
 
   render () {
-    const { total, loading } = this.props;
+    const { loading } = this.props;
 
     return (
         <header className="page-header">
@@ -36,16 +35,6 @@ export default class PageHeader extends React.Component {
           {!!loading && (
               <i className="spinner"/>
           )}
-
-          <div className="page-actions">
-            {total != null && (
-                <span><strong>{total}</strong> {translate('projects._projects')}</span>
-            )}
-          </div>
-
-          <div className="page-description">
-            {translate('projects.page.description')}
-          </div>
         </header>
     );
   }
