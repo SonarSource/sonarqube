@@ -1,7 +1,0 @@
-<% if !filter.errors.empty? %>
-  <% filter.errors.full_messages.each do |message| %>
-    <div class="alert alert-danger"><%= h message %></div>
-  <% end %>
-<% elsif filter.rows && filter.display %>
-  <%= render :partial => 'measures/display_list', :locals => {:filter => filter, :edit_mode => edit_mode, :widget_id => widget_id} -%>
-<% end %>

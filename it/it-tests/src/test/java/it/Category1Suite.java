@@ -21,22 +21,17 @@ package it;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.administration.UsersPageTest;
-import it.authorisation.DashboardSharingPermissionTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionSearchTest;
 import it.authorisation.ProvisioningPermissionTest;
 import it.authorisation.QualityProfileAdminPermissionTest;
-import it.authorisation.SystemAdminPermissionTest;
 import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
 import it.measure.MeasuresWsTest;
 import it.measure.ProjectDashboardTest;
 import it.measure.ProjectMeasuresPageTest;
-import it.measure.ProjectWidgetsTest;
-import it.measureFilter.MeasureFiltersTest;
 import it.measureHistory.DifferentialPeriodsTest;
-import it.measureHistory.HistoryUiTest;
 import it.measureHistory.SincePreviousVersionHistoryTest;
 import it.measureHistory.SinceXDaysHistoryTest;
 import it.measureHistory.TimeMachineTest;
@@ -82,24 +77,19 @@ import static util.ItUtils.xooPlugin;
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
   // authorisation
-  DashboardSharingPermissionTest.class,
   ExecuteAnalysisPermissionTest.class,
   IssuePermissionTest.class,
   PermissionSearchTest.class,
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
-  SystemAdminPermissionTest.class,
   // custom measure
   CustomMeasuresTest.class,
   // measure
   ProjectMeasuresPageTest.class,
   ProjectDashboardTest.class,
-  ProjectWidgetsTest.class,
-  MeasureFiltersTest.class,
   MeasuresWsTest.class,
   // measure history
   DifferentialPeriodsTest.class,
-  HistoryUiTest.class,
   SincePreviousVersionHistoryTest.class,
   SinceXDaysHistoryTest.class,
   TimeMachineTest.class,

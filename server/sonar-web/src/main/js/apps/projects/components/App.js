@@ -31,7 +31,7 @@ import '../styles.css';
 
 export default class App extends React.Component {
   static propTypes = {
-    user: React.PropTypes.object,
+    user: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.bool]),
     fetchProjects: React.PropTypes.func.isRequired
   };
 

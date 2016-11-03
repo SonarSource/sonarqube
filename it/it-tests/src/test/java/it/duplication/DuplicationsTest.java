@@ -140,15 +140,6 @@ public class DuplicationsTest {
       "api/duplications/show", "duplications_show-expected.json");
   }
 
-  @Test
-  public void duplications_widget() throws Exception {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("duplications_widget",
-        // SONAR-4347
-        "/duplication/DuplicationsTest/duplications_widget.html").build())
-      .runOn(orchestrator);
-  }
-
   private static Resource getComponent(String key) {
     Resource component = orchestrator.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics(key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density"));

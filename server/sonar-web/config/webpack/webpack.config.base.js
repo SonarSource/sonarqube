@@ -40,7 +40,6 @@ module.exports = {
     'issues': './src/main/js/apps/issues/app.js',
     'maintenance': './src/main/js/apps/maintenance/app.js',
     'markdown': './src/main/js/apps/markdown/app.js',
-    'measures': './src/main/js/apps/measures/app.js',
     'metrics': './src/main/js/apps/metrics/app.js',
     'overview': './src/main/js/apps/overview/app.js',
     'permission-templates': './src/main/js/apps/permission-templates/app.js',

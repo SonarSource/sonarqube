@@ -29,48 +29,6 @@ export default React.createClass({
     return { globalDashboards: [], globalPages: [] };
   },
 
-  renderDashboardLink (dashboard) {
-    const url = `${window.baseUrl}/dashboard/index?did=${encodeURIComponent(dashboard.key)}`;
-    const name = this.getLocalizedDashboardName(dashboard.name);
-    return (
-        <li key={dashboard.name}>
-          <a href={url}>{name}</a>
-        </li>
-    );
-  },
-
-  renderDashboardsManagementLink () {
-    const url = window.baseUrl + '/dashboards';
-    return (
-        <li>
-          <a href={url}>{translate('dashboard.manage_dashboards')}</a>
-        </li>
-    );
-  },
-
-  renderDashboards () {
-    if (window.SS.user) {
-      // do not render dashboards menu for authenticated users
-      return null;
-    }
-
-    const dashboards = this.props.globalDashboards.map(this.renderDashboardLink);
-    const canManageDashboards = !!window.SS.user;
-    return (
-        <li className="dropdown">
-          <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {translate('layout.dashboards')}&nbsp;
-            <span className="icon-dropdown"/>
-          </a>
-          <ul className="dropdown-menu">
-            {dashboards}
-            {canManageDashboards ? <li className="divider"/> : null}
-            {canManageDashboards ? this.renderDashboardsManagementLink() : null}
-          </ul>
-        </li>
-    );
-  },
-
   renderProjects () {
     const url = window.baseUrl + '/projects';
     return (
@@ -85,15 +43,6 @@ export default React.createClass({
     return (
         <li className={this.activeLink('/issues')}>
           <a href={url}>{translate('issues.page')}</a>
-        </li>
-    );
-  },
-
-  renderMeasuresLink () {
-    const url = window.baseUrl + '/measures/search?qualifiers[]=TRK';
-    return (
-        <li className={this.activeLink('/measures')}>
-          <a href={url}>{translate('layout.measures')}</a>
         </li>
     );
   },
@@ -167,10 +116,8 @@ export default React.createClass({
   render () {
     return (
         <ul className="nav navbar-nav">
-          {this.renderDashboards()}
           {this.renderProjects()}
           {this.renderIssuesLink()}
-          {this.renderMeasuresLink()}
           {this.renderRulesLink()}
           {this.renderProfilesLink()}
           {this.renderQualityGatesLink()}
