@@ -26,7 +26,11 @@ import org.apache.ibatis.session.ResultHandler;
 
 public interface MeasureMapper {
 
-  List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query);
+  List<MeasureDto> selectByQueryOnProjects(@Param("query") MeasureQuery query);
+
+  List<MeasureDto> selectByQueryOnComponents(@Param("query") MeasureQuery query);
+
+  List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
 
   void selectByQuery(@Param("query") MeasureQuery query, ResultHandler resultHandler);
 

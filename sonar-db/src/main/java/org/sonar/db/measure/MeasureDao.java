@@ -25,12 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MeasureDao implements Dao {
 
@@ -59,46 +57,23 @@ public class MeasureDao implements Dao {
     if (query.returnsEmpty()) {
       return Collections.emptyList();
     }
-    if (query.getComponentUuids() != null) {
+    if (query.isOnComponents()) {
       return executeLargeInputs(
         query.getComponentUuids(),
         componentUuids -> {
           MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-          return mapper(dbSession).selectByQuery(pageQuery);
+          return mapper(dbSession).selectByQueryOnComponents(pageQuery);
         });
-    } else if (query.getProjectUuids() != null) {
+    }
+    if (query.isOnProjects()) {
       return executeLargeInputs(
         query.getProjectUuids(),
         projectUuids -> {
           MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
-          return mapper(dbSession).selectByQuery(pageQuery);
+          return mapper(dbSession).selectByQueryOnProjects(pageQuery);
         });
     }
-    return mapper(dbSession).selectByQuery(query);
-  }
-
-  public void selectByQuery(DbSession dbSession, MeasureQuery query, ResultHandler resultHandler) {
-    if (query.returnsEmpty()) {
-      return;
-    }
-    if (query.getComponentUuids() != null) {
-      executeLargeInputsWithoutOutput(
-        query.getComponentUuids(),
-        componentUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-          mapper(dbSession).selectByQuery(pageQuery, resultHandler);
-          return null;
-        });
-    } else if (query.getProjectUuids() != null) {
-      executeLargeInputsWithoutOutput(
-        query.getProjectUuids(),
-        projectUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
-          mapper(dbSession).selectByQuery(pageQuery, resultHandler);
-          return null;
-        });
-    }
-    mapper(dbSession).selectByQuery(query, resultHandler);
+    return mapper(dbSession).selectByQueryOnSingleComponent(query);
   }
 
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession,

@@ -136,7 +136,7 @@ public class MeasureQuery {
       return false;
     }
     MeasureQuery that = (MeasureQuery) o;
-    return Objects.equals(analysisUuid, that.analysisUuid) &&
+    return analysisUuid.equals(that.analysisUuid) &&
       Objects.equals(projectUuids, that.projectUuids) &&
       Objects.equals(componentUuids, that.componentUuids) &&
       Objects.equals(metricIds, that.metricIds) &&
