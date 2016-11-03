@@ -30,7 +30,8 @@ export default React.createClass({
   },
 
   renderProjects () {
-    const url = window.baseUrl + '/projects';
+    const controller = window.SS.user ? '/projects/favorite' : '/projects';
+    const url = window.baseUrl + controller;
     return (
         <li className={this.activeLink('/projects')}>
           <a href={url}>{translate('projects.page')}</a>
