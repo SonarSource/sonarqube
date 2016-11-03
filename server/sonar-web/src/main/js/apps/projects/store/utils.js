@@ -42,18 +42,26 @@ export const parseUrlQuery = urlQuery => ({
   'size': getAsNumericRating(urlQuery['size']),
 });
 
+const convertIssuesRating = (metric, rating) => {
+  if (rating > 1 && rating < 5) {
+    return `${metric} >= ${rating}`;
+  } else {
+    return `${metric} = ${rating}`;
+  }
+};
+
 const convertCoverage = coverage => {
   switch (coverage) {
     case 1:
-      return 'coverage < 30';
-    case 2:
-      return 'coverage >= 30 and coverage < 50';
-    case 3:
-      return 'coverage >= 50 and coverage < 70';
-    case 4:
-      return 'coverage >= 70 and coverage < 80';
-    case 5:
       return 'coverage >= 80';
+    case 2:
+      return 'coverage < 80';
+    case 3:
+      return 'coverage < 70';
+    case 4:
+      return 'coverage < 50';
+    case 5:
+      return 'coverage < 30';
     default:
       return '';
   }
@@ -64,11 +72,11 @@ const convertDuplications = duplications => {
     case 1:
       return 'duplicated_lines_density < 3';
     case 2:
-      return 'duplicated_lines_density >= 3 and duplicated_lines_density < 5';
+      return 'duplicated_lines_density >= 3';
     case 3:
-      return 'duplicated_lines_density >= 5 and duplicated_lines_density < 10';
+      return 'duplicated_lines_density >= 5';
     case 4:
-      return 'duplicated_lines_density >= 10 duplicated_lines_density < 20';
+      return 'duplicated_lines_density >= 10';
     case 5:
       return 'duplicated_lines_density >= 20';
     default:
@@ -81,11 +89,11 @@ const convertSize = size => {
     case 1:
       return 'ncloc < 1000';
     case 2:
-      return 'ncloc >= 1000 and ncloc < 10000';
+      return 'ncloc >= 1000';
     case 3:
-      return 'ncloc >= 10000 and ncloc < 100000';
+      return 'ncloc >= 10000';
     case 4:
-      return 'ncloc >= 100000 ncloc < 500000';
+      return 'ncloc >= 100000';
     case 5:
       return 'ncloc >= 500000';
     default:
@@ -113,15 +121,15 @@ export const convertToFilter = query => {
   }
 
   if (query['reliability'] != null) {
-    conditions.push('reliability_rating = ' + query['reliability']);
+    conditions.push(convertIssuesRating('reliability_rating', query['reliability']));
   }
 
   if (query['security'] != null) {
-    conditions.push('security_rating = ' + query['security']);
+    conditions.push(convertIssuesRating('security_rating', query['security']));
   }
 
   if (query['maintainability'] != null) {
-    conditions.push('sqale_rating = ' + query['maintainability']);
+    conditions.push(convertIssuesRating('sqale_rating', query['maintainability']));
   }
 
   return conditions.join(' and ');

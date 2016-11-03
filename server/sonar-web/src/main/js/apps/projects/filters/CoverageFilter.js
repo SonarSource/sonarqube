@@ -35,7 +35,7 @@ export default class CoverageFilter extends React.Component {
   };
 
   getFacetValueForOption = (facet, option) => {
-    const map = ['*-30.0', '30.0-50.0', '50.0-70.0', '70.0-80.0', '80.0-*'];
+    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
     return facet[map[option - 1]];
   };
 
@@ -43,7 +43,7 @@ export default class CoverageFilter extends React.Component {
     return (
         <FilterContainer
             property="coverage"
-            options={[5, 4, 3, 2, 1]}
+            options={[1, 2, 3, 4, 5]}
             renderName={() => 'Coverage'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
