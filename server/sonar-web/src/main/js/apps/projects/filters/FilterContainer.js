@@ -22,16 +22,9 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
-import {
-  getProjectsAppFilterStatus,
-  getProjectsAppFacetByProperty,
-  getProjectsAppMaxFacetValue
-} from '../../../app/store/rootReducer';
-import { openFilter, closeFilter } from '../store/filters/statuses/actions';
-import { OPEN } from '../store/filters/statuses/reducer';
+import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../app/store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
-  isOpen: getProjectsAppFilterStatus(state, ownProps.property) === OPEN,
   value: ownProps.query[ownProps.property],
   facet: getProjectsAppFacetByProperty(state, ownProps.property),
   maxFacetValue: getProjectsAppMaxFacetValue(state),
@@ -41,9 +34,4 @@ const mapStateToProps = (state, ownProps) => ({
   }
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  openFilter: () => dispatch(openFilter(ownProps.property)),
-  closeFilter: () => dispatch(closeFilter(ownProps.property))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Filter));
+export default connect(mapStateToProps)(withRouter(Filter));

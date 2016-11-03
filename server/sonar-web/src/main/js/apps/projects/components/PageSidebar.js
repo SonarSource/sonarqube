@@ -29,8 +29,7 @@ import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 
 export default class PageSidebar extends React.Component {
   static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    closeAllFilters: React.PropTypes.func.isRequired
+    query: React.PropTypes.object.isRequired
   };
 
   render () {
@@ -41,7 +40,7 @@ export default class PageSidebar extends React.Component {
           <div className="projects-facets-header clearfix">
             {isFiltered && (
                 <div className="projects-facets-reset">
-                  <Link to="/projects" className="button button-red" onClick={this.props.closeAllFilters}>
+                  <Link to="/projects" className="button button-red">
                     Clear All Filters
                   </Link>
                 </div>

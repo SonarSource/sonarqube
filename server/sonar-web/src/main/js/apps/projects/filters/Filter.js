@@ -24,7 +24,6 @@ import { formatMeasure } from '../../../helpers/measures';
 
 export default class Filter extends React.Component {
   static propTypes = {
-    isOpen: React.PropTypes.bool.isRequired,
     value: React.PropTypes.any,
     property: React.PropTypes.string.isRequired,
     options: React.PropTypes.array.isRequired,
@@ -39,8 +38,6 @@ export default class Filter extends React.Component {
     halfWidth: React.PropTypes.bool,
 
     getFilterUrl: React.PropTypes.func.isRequired,
-    openFilter: React.PropTypes.func.isRequired,
-    closeFilter: React.PropTypes.func.isRequired,
 
     router: React.PropTypes.object
   };
@@ -49,36 +46,11 @@ export default class Filter extends React.Component {
     halfWidth: false
   };
 
-  handleHeaderClick = e => {
-    e.preventDefault();
-    e.target.blur();
-
-    const { value, isOpen, property } = this.props;
-    const hasValue = value != null;
-    const isDisplayedOpen = isOpen || hasValue;
-
-    if (isDisplayedOpen) {
-      this.props.closeFilter();
-    } else {
-      this.props.openFilter();
-    }
-
-    if (hasValue) {
-      this.props.router.push(this.props.getFilterUrl({ [property]: null }));
-    }
-  };
-
   renderHeader () {
-    const { value, isOpen, renderName } = this.props;
-    const hasValue = value != null;
-    const checkboxClassName = classNames('icon-checkbox', {
-      'icon-checkbox-checked': hasValue || isOpen
-    });
-
     return (
-        <a className="search-navigator-facet-header projects-facet-header" href="#" onClick={this.handleHeaderClick}>
-          <i className={checkboxClassName}/> {renderName()}
-        </a>
+        <div className="search-navigator-facet-header projects-facet-header">
+          {this.props.renderName()}
+        </div>
     );
   }
 
@@ -124,31 +96,16 @@ export default class Filter extends React.Component {
   }
 
   renderOptions () {
-    const { value, isOpen, options } = this.props;
-    const hasValue = value != null;
-
-    if (!hasValue && !isOpen) {
-      return null;
-    }
-
     return (
         <div className="search-navigator-facet-list">
-          {this.props.children}
-
-          {options.map(option => this.renderOption(option))}
+          {this.props.options.map(option => this.renderOption(option))}
         </div>
     );
   }
 
   render () {
-    const { value, isOpen } = this.props;
-    const hasValue = value != null;
-    const className = classNames('search-navigator-facet-box', {
-      'search-navigator-facet-box-collapsed': !hasValue && !isOpen
-    });
-
     return (
-        <div className={className}>
+        <div className="search-navigator-facet-box">
           {this.renderHeader()}
           {this.renderOptions()}
         </div>
