@@ -23,14 +23,15 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -67,7 +68,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(SYSTEM_ADMIN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupId group = support.findGroup(dbSession, request);
@@ -75,11 +76,24 @@ public class RemoveUserAction implements UserGroupsWsAction {
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = getUser(dbSession, login);
 
+      checkNotTryingToDeleteLastAdmin(dbSession, group, user);
+
       dbClient.userGroupDao().delete(dbSession, group.getId(), user.getId());
       dbClient.userDao().updateRootFlagFromPermissions(dbSession, user.getId(), defaultOrganizationProvider.get().getUuid());
       dbSession.commit();
 
       response.noContent();
+    }
+  }
+
+  /**
+   * Verify that there are still users with admin global permission if user is removed from the group.
+   */
+  private void checkNotTryingToDeleteLastAdmin(DbSession dbSession, GroupId group, UserDto user) {
+    int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
+      group.getOrganizationUuid(), SYSTEM_ADMIN, group.getId(), user.getId());
+    if (remainingAdmins == 0) {
+      throw new BadRequestException("The last administrator user cannot be removed");
     }
   }
 
