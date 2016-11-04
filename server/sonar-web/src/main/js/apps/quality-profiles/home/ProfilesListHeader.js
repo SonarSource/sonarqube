@@ -52,14 +52,14 @@ export default class ProfilesListHeader extends React.Component {
     return (
         <ul className="dropdown-menu">
           <li>
-            <IndexLink to="/">
+            <IndexLink to="/profiles/">
               {translate('quality_profiles.all_profiles')}
             </IndexLink>
           </li>
           {this.props.languages.map(language => (
               <li key={language.key}>
                 <IndexLink
-                    to={{ pathname: '/', query: { language: language.key } }}
+                    to={{ pathname: '/profiles/', query: { language: language.key } }}
                     className="js-language-filter-option"
                     data-language={language.key}>
                   {language.name}

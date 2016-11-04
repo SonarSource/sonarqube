@@ -114,17 +114,17 @@ export default class ChangelogContainer extends React.Component {
 
   handleFromDateChange (fromDate) {
     const query = { ...this.props.location.query, since: fromDate };
-    this.context.router.push({ pathname: '/changelog', query });
+    this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
   handleToDateChange (toDate) {
     const query = { ...this.props.location.query, to: toDate };
-    this.context.router.push({ pathname: '/changelog', query });
+    this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
   handleReset () {
     const query = { key: this.props.profile.key };
-    this.context.router.push({ pathname: '/changelog', query });
+    this.context.router.push({ pathname: '/profiles/changelog', query });
   }
 
   render () {

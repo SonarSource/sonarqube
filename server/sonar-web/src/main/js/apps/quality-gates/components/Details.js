@@ -65,7 +65,7 @@ export default class Details extends Component {
       qualityGate,
       onCopy: (newQualityGate) => {
         onCopy(newQualityGate);
-        router.push(`/show/${newQualityGate.id}`);
+        router.push(`/quality_gates/show/${newQualityGate.id}`);
       }
     }).render();
   }
@@ -90,7 +90,7 @@ export default class Details extends Component {
       qualityGate,
       onDelete: (qualityGate) => {
         onDelete(qualityGate);
-        router.replace('/');
+        router.replace('/quality_gates');
       }
     }).render();
   }

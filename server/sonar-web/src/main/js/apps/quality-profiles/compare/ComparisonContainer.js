@@ -81,7 +81,7 @@ export default class ComparisonContainer extends React.Component {
 
   handleCompare (withKey) {
     this.context.router.push({
-      pathname: '/compare',
+      pathname: '/profiles/compare',
       query: {
         key: this.props.profile.key,
         withKey

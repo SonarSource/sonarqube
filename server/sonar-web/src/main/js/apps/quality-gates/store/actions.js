@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const SET_STATE = 'SET_STATE';
+export const SET_STATE = 'qualityGates/SET_STATE';
 export function setState (nextState) {
   return {
     type: SET_STATE,
@@ -25,40 +25,40 @@ export function setState (nextState) {
   };
 }
 
-export const ADD = 'ADD';
+export const ADD = 'qualityGates/ADD';
 export function addQualityGate (qualityGate) {
   return {
-    type: 'ADD',
+    type: ADD,
     qualityGate
   };
 }
 
-export const DELETE = 'DELETE';
+export const DELETE = 'qualityGates/DELETE';
 export function deleteQualityGate (qualityGate) {
   return {
-    type: 'DELETE',
+    type: DELETE,
     qualityGate
   };
 }
 
-export const SHOW = 'SHOW';
+export const SHOW = 'qualityGates/SHOW';
 export function showQualityGate (qualityGate) {
   return {
-    type: 'SHOW',
+    type: SHOW,
     qualityGate
   };
 }
 
-export const RENAME = 'RENAME';
+export const RENAME = 'qualityGates/RENAME';
 export function renameQualityGate (qualityGate, newName) {
   return {
-    type: 'RENAME',
+    type: RENAME,
     qualityGate,
     newName
   };
 }
 
-export const COPY = 'COPY';
+export const COPY = 'qualityGates/COPY';
 export function copyQualityGate (qualityGate) {
   return {
     type: COPY,
@@ -74,7 +74,7 @@ export function setQualityGateAsDefault (qualityGate) {
   };
 }
 
-export const UNSET_AS_DEFAULT = 'UNSET_AS_DEFAULT';
+export const UNSET_AS_DEFAULT = 'qualityGates/UNSET_AS_DEFAULT';
 export function unsetQualityGateAsDefault (qualityGate) {
   return {
     type: UNSET_AS_DEFAULT,
@@ -82,7 +82,7 @@ export function unsetQualityGateAsDefault (qualityGate) {
   };
 }
 
-export const ADD_CONDITION = 'ADD_CONDITION';
+export const ADD_CONDITION = 'qualityGates/ADD_CONDITION';
 export function addCondition (metric) {
   return {
     type: ADD_CONDITION,
@@ -90,7 +90,7 @@ export function addCondition (metric) {
   };
 }
 
-export const SAVE_CONDITION = 'SAVE_CONDITION';
+export const SAVE_CONDITION = 'qualityGates/SAVE_CONDITION';
 export function saveCondition (oldCondition, newCondition) {
   return {
     type: SAVE_CONDITION,
@@ -99,7 +99,7 @@ export function saveCondition (oldCondition, newCondition) {
   };
 }
 
-export const DELETE_CONDITION = 'DELETE_CONDITION';
+export const DELETE_CONDITION = 'qualityGates/DELETE_CONDITION';
 export function deleteCondition (condition) {
   return {
     type: DELETE_CONDITION,

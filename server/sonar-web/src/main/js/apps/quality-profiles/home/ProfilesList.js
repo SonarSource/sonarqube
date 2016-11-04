@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { PropTypes as RouterPropTypes } from 'react-router';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import sortBy from 'lodash/sortBy';
@@ -32,7 +31,7 @@ export default class ProfilesList extends React.Component {
   static propTypes = {
     profiles: ProfilesListType,
     languages: LanguagesListType,
-    location: RouterPropTypes.location,
+    location: React.PropTypes.object,
     canAdmin: React.PropTypes.bool.isRequired,
     updateProfiles: React.PropTypes.func.isRequired
   };

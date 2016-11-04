@@ -17,23 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
+import React from 'react';
+import { Route, IndexRoute, Redirect } from 'react-router';
+import QualityGatesAppContainer from './containers/QualityGatesAppContainer';
+import Intro from './components/Intro';
+import DetailsContainer from './containers/DetailsContainer';
 
-import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
-import QualityGateApp from '../components/QualityGatesApp';
-import { getQualityGatesAppState } from '../../../app/store/rootReducer';
+export default (
+    <Route path="quality_gates" component={QualityGatesAppContainer}>
+      <Redirect from="/quality_gates/index" to="/quality_gates/"/>
 
-const mapStateToProps = state => (
-    getQualityGatesAppState(state)
+      <IndexRoute component={Intro}/>
+      <Route path="show/:id" component={DetailsContainer}/>
+    </Route>
 );
-
-const mapDispatchToProps = dispatch => ({
-  updateStore: nextState => dispatch(setState(nextState)),
-  addQualityGate: qualityGate => dispatch(addQualityGate(qualityGate)),
-  deleteQualityGate: qualityGate => dispatch(deleteQualityGate(qualityGate))
-});
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(QualityGateApp);

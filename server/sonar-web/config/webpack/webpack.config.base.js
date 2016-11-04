@@ -46,8 +46,6 @@ module.exports = {
     'project-admin': './src/main/js/apps/project-admin/app.js',
     'project-permissions': './src/main/js/apps/permissions/project/app.js',
     'projects-admin': './src/main/js/apps/projects-admin/app.js',
-    'quality-gates': './src/main/js/apps/quality-gates/app.js',
-    'quality-profiles': './src/main/js/apps/quality-profiles/app.js',
     'settings': './src/main/js/apps/settings/app.js',
     'source-viewer': './src/main/js/apps/source-viewer/app.js',
     'system': './src/main/js/apps/system/app.js',

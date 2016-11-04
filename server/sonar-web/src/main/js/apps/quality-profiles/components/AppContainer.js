@@ -18,22 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-
-import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
-import QualityGateApp from '../components/QualityGatesApp';
-import { getQualityGatesAppState } from '../../../app/store/rootReducer';
-
-const mapStateToProps = state => (
-    getQualityGatesAppState(state)
-);
-
-const mapDispatchToProps = dispatch => ({
-  updateStore: nextState => dispatch(setState(nextState)),
-  addQualityGate: qualityGate => dispatch(addQualityGate(qualityGate)),
-  deleteQualityGate: qualityGate => dispatch(deleteQualityGate(qualityGate))
-});
+import App from './App';
+import { getLanguages } from '../../../app/store/rootReducer';
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(QualityGateApp);
+    state => ({
+      languages: getLanguages(state)
+    })
+)(App);

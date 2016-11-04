@@ -18,37 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-
 import {
-    deleteQualityGate,
-    showQualityGate,
-    renameQualityGate,
-    copyQualityGate,
-    setQualityGateAsDefault,
-    unsetQualityGateAsDefault,
-    addCondition,
-    deleteCondition,
-    saveCondition
+  deleteQualityGate,
+  showQualityGate,
+  renameQualityGate,
+  copyQualityGate,
+  setQualityGateAsDefault,
+  unsetQualityGateAsDefault,
+  addCondition,
+  deleteCondition,
+  saveCondition
 } from '../store/actions';
 import Details from '../components/Details';
+import { getQualityGatesAppState } from '../../../app/store/rootReducer';
 
-function mapStateToProps (state) {
-  return state.rootReducer;
-}
+const mapStateToProps = state => (
+    getQualityGatesAppState(state)
+);
 
-function mapDispatchToProps (dispatch) {
-  return {
-    onShow: qualityGate => dispatch(showQualityGate(qualityGate)),
-    onDelete: qualityGate => dispatch(deleteQualityGate(qualityGate)),
-    onRename: (qualityGate, newName) => dispatch(renameQualityGate(qualityGate, newName)),
-    onCopy: qualityGate => dispatch(copyQualityGate(qualityGate)),
-    onSetAsDefault: qualityGate => dispatch(setQualityGateAsDefault(qualityGate)),
-    onUnsetAsDefault: qualityGate => dispatch(unsetQualityGateAsDefault(qualityGate)),
-    onAddCondition: metric => dispatch(addCondition(metric)),
-    onSaveCondition: (oldCondition, newCondition) => dispatch(saveCondition(oldCondition, newCondition)),
-    onDeleteCondition: condition => dispatch(deleteCondition(condition))
-  };
-}
+const mapDispatchToProps = dispatch => ({
+  onShow: qualityGate => dispatch(showQualityGate(qualityGate)),
+  onDelete: qualityGate => dispatch(deleteQualityGate(qualityGate)),
+  onRename: (qualityGate, newName) => dispatch(renameQualityGate(qualityGate, newName)),
+  onCopy: qualityGate => dispatch(copyQualityGate(qualityGate)),
+  onSetAsDefault: qualityGate => dispatch(setQualityGateAsDefault(qualityGate)),
+  onUnsetAsDefault: qualityGate => dispatch(unsetQualityGateAsDefault(qualityGate)),
+  onAddCondition: metric => dispatch(addCondition(metric)),
+  onSaveCondition: (oldCondition, newCondition) => dispatch(saveCondition(oldCondition, newCondition)),
+  onDeleteCondition: condition => dispatch(deleteCondition(condition))
+});
 
 export default connect(
     mapStateToProps,
