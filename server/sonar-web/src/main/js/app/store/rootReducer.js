@@ -25,7 +25,6 @@ import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import globalMessages, * as fromGlobalMessages from '../../components/store/globalMessages';
 
-import issuesActivity, * as fromIssuesActivity from '../../apps/account/home/store/reducer';
 import projectsApp, * as fromProjectsApp from '../../apps/projects/store/reducer';
 import qualityGatesApp from '../../apps/quality-gates/store/rootReducer';
 
@@ -38,7 +37,6 @@ export default combineReducers({
   users,
 
   // apps
-  issuesActivity,
   projectsApp,
   qualityGatesApp
 });
@@ -61,10 +59,6 @@ export const getCurrentUser = state => (
 
 export const getFavorites = state => (
     fromFavorites.getFavorites(state.favorites)
-);
-
-export const getIssuesActivity = state => (
-    fromIssuesActivity.getIssuesActivity(state.issuesActivity)
 );
 
 export const getComponentMeasure = (state, componentKey, metricKey) => (

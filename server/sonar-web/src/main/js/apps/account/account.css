@@ -30,20 +30,6 @@
   float: left;
 }
 
-.account-user > a {
-  display: block;
-  float: left;
-  margin: -10px -15px -10px -10px;
-  padding: 10px 15px 10px 10px;
-  border-bottom: none;
-  border-radius: 3px;
-}
-
-.account-user > a:hover,
-.account-user > a:active {
-  background-color: rgba(0, 0, 0, 0.075);
-}
-
 .account-user h1 {
   line-height: 60px;
 }

@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import MyActivityContainer from './home/components/MyActivityContainer';
 import Account from './components/Account';
 import ProjectsContainer from './projects/ProjectsContainer';
 import NotificationsContainer from './notifications/NotificationsContainer';
@@ -27,9 +26,8 @@ import Security from './components/Security';
 import Profile from './profile/Profile';
 
 export default (
-    <Route path="account" component={Account}>
-      <IndexRoute component={MyActivityContainer}/>
-      <Route path="profile" component={Profile}/>
+    <Route component={Account}>
+      <IndexRoute component={Profile}/>
       <Route path="security" component={Security}/>
       <Route path="notifications" component={NotificationsContainer}/>
       <Route path="projects" component={ProjectsContainer}/>

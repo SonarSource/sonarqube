@@ -44,7 +44,7 @@ window.sonarqube.appStarted.then(options => {
       <Provider store={store}>
         <Router history={history}>
           <Route path="/" component={App}>
-            {accountRoutes}
+            <Route path="account">{accountRoutes}</Route>
             {projectsRoutes}
             {qualityGatesRoutes}
             {qualityProfilesRoutes}
