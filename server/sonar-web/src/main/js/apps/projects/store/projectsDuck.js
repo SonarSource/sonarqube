@@ -17,9 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const UPDATE_STATE = 'projects/UPDATE_STATE';
+export const actions = {
+  RECEIVE_PROJECTS: 'projects/RECEIVE_PROJECTS',
+  RECEIVE_MORE_PROJECTS: 'projects/RECEIVE_MORE_PROJECTS'
+};
 
-export const updateState = changes => ({
-  type: UPDATE_STATE,
-  changes
+export const receiveProjects = (projects, facets) => ({
+  type: actions.RECEIVE_PROJECTS,
+  projects,
+  facets
 });
+
+export const receiveMoreProjects = projects => ({
+  type: actions.RECEIVE_MORE_PROJECTS,
+  projects
+});
+
+const reducer = (state = null, action = {}) => {
+  if (action.type === actions.RECEIVE_PROJECTS) {
+    return action.projects.map(project => project.key);
+  }
+
+  if (action.type === actions.RECEIVE_MORE_PROJECTS) {
+    const keys = action.projects.map(project => project.key);
+    return state != null ? [...state, ...keys] : keys;
+  }
+
+  return state;
+};
+
+export default reducer;
+
+export const getProjects = state => state;

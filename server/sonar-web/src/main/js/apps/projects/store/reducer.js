@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import projects, * as fromProjects from './projects/reducer';
-import state from './state/reducer';
-import facets, * as fromFacets from './facets/reducer';
+import projects, * as fromProjects from './projectsDuck';
+import state from './stateDuck';
+import facets, * as fromFacets from './facetsDuck';
 
 export default combineReducers({ projects, state, facets });
 

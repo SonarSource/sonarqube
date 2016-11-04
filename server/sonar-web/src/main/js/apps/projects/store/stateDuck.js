@@ -17,14 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UPDATE_STATE } from './actions';
+import { createValue } from '../../../components/store/generalReducers';
 
-const reducer = (state = {}, action = {}) => {
-  if (action.type === UPDATE_STATE) {
-    return { ...state, ...action.changes };
-  }
-
-  return state;
+export const actions = {
+  UPDATE_STATE: 'projects/UPDATE_STATE'
 };
 
-export default reducer;
+export const updateState = changes => ({
+  type: actions.UPDATE_STATE,
+  changes
+});
+
+export default createValue(
+    // should update
+    (state, action) => action.type === actions.UPDATE_STATE,
+
+    // should reset
+    () => false,
+
+    // get next value
+    (state, action) => ({ ...state, ...action.changes }),
+
+    // default value
+    {}
+);
