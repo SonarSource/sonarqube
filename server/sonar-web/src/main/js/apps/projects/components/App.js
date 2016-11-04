@@ -36,7 +36,7 @@ export default class App extends React.Component {
   render () {
     return (
         <div id="projects-page" className="page page-limited">
-          <Helmet title={translate('projects.page')} titleTemplate="SonarQube - %s"/>
+          <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
 
           <GlobalMessagesContainer/>
 

@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { IndexLink, Link } from 'react-router';
+import { translate } from '../../../helpers/l10n';
 
 export default class FavoriteFilter extends React.Component {
   render () {
@@ -29,8 +30,12 @@ export default class FavoriteFilter extends React.Component {
     return (
         <div className="pull-left big-spacer-left">
           <div className="button-group">
-            <Link to="/projects/favorite" className="button" activeClassName="button-active">Favorite</Link>
-            <IndexLink to="/projects" className="button" activeClassName="button-active">All</IndexLink>
+            <Link to="/projects/favorite" className="button" activeClassName="button-active">
+              {translate('favorite')}
+            </Link>
+            <IndexLink to="/projects" className="button" activeClassName="button-active">
+              {translate('all')}
+            </IndexLink>
           </div>
         </div>
     );
