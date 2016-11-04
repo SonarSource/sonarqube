@@ -32,8 +32,8 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -259,7 +259,8 @@ public class RemoveUserActionTest {
 
     newRequest()
       .setParam("id", group.getId().toString())
-      .setParam("login", user.getLogin());
+      .setParam("login", user.getLogin())
+      .execute();
   }
 
   @Test
