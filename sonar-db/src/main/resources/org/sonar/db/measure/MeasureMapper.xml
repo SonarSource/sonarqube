@@ -27,7 +27,7 @@
 
   <select id="selectByQueryOnProjects" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoin"/>
+    <include refid="selectByQueryCommonJoins"/>
     where
     <include refid="selectByQueryCommonFilters"/>
     and analysis.component_uuid=pm.component_uuid
@@ -39,11 +39,10 @@
 
   <select id="selectByQueryOnComponents" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoin"/>
-    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
-      and p.project_uuid=#{query.projectUuid}
+    <include refid="selectByQueryCommonJoins"/>
     where
     <include refid="selectByQueryCommonFilters"/>
+    and analysis.component_uuid=#{query.projectUuid}
     and pm.component_uuid in
     <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
       #{componentUuid}
@@ -52,7 +51,7 @@
 
   <select id="selectByQueryOnSingleComponent" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoin"/>
+    <include refid="selectByQueryCommonJoins"/>
     inner join projects p on p.project_uuid=analysis.component_uuid
       and p.uuid=pm.component_uuid
     where
@@ -60,7 +59,7 @@
     and pm.component_uuid=#{query.componentUuid}
   </select>
 
-  <sql id="selectByQueryCommonJoin">
+  <sql id="selectByQueryCommonJoins">
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     <if test="query.getMetricKeys() != null">
       inner join metrics m on m.id = pm.metric_id
