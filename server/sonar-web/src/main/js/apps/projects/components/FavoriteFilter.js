@@ -27,11 +27,10 @@ export default class FavoriteFilter extends React.Component {
     }
 
     return (
-        <div>
-          <span className="note spacer-right">Quick Filters:</span>
+        <div className="pull-left big-spacer-left">
           <div className="button-group">
-            <IndexLink to="/projects" className="button" activeClassName="button-active">All</IndexLink>
             <Link to="/projects/favorite" className="button" activeClassName="button-active">Favorite</Link>
+            <IndexLink to="/projects" className="button" activeClassName="button-active">All</IndexLink>
           </div>
         </div>
     );

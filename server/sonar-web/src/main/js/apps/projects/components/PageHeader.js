@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import FavoriteFilterContainer from './FavoriteFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.Component {
   static propTypes = {
-    loading: React.PropTypes.bool
+    loading: React.PropTypes.bool,
+    total: React.PropTypes.number
   };
 
   render () {
@@ -30,11 +32,21 @@ export default class PageHeader extends React.Component {
 
     return (
         <header className="page-header">
+          <div className="page-actions">
+            {!!loading && (
+                <i className="spinner spacer-right"/>
+            )}
+
+            {this.props.total != null && (
+                <span>
+                <strong>{this.props.total}</strong> {translate('projects._projects')}
+              </span>
+            )}
+          </div>
+
           <h1 className="page-title">{translate('projects.page')}</h1>
 
-          {!!loading && (
-              <i className="spinner"/>
-          )}
+          <FavoriteFilterContainer/>
         </header>
     );
   }
