@@ -34,7 +34,6 @@ module.exports = {
     'component-issues': './src/main/js/apps/component-issues/app.js',
     'component-measures': './src/main/js/apps/component-measures/app.js',
     'custom-measures': './src/main/js/apps/custom-measures/app.js',
-    'dashboard': './src/main/js/apps/dashboard/app.js',
     'global-permissions': './src/main/js/apps/permissions/global/app.js',
     'groups': './src/main/js/apps/groups/app.js',
     'issues': './src/main/js/apps/issues/app.js',
@@ -51,9 +50,7 @@ module.exports = {
     'system': './src/main/js/apps/system/app.js',
     'update-center': './src/main/js/apps/update-center/app.js',
     'users': './src/main/js/apps/users/app.js',
-    'web-api': './src/main/js/apps/web-api/app.js',
-
-    'widgets': './src/main/js/widgets/widgets.js'
+    'web-api': './src/main/js/apps/web-api/app.js'
   },
   output: {
     path: paths.appBuild,
