@@ -19,8 +19,11 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
+import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
@@ -48,9 +52,13 @@ import org.sonarqube.ws.client.component.TreeWsRequest;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -66,12 +74,17 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUA
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
 public class TreeAction implements ComponentsWsAction {
+
   private static final int MAX_SIZE = 500;
   private static final int QUERY_MINIMUM_LENGTH = 3;
   private static final String ALL_STRATEGY = "all";
   private static final String CHILDREN_STRATEGY = "children";
   private static final String LEAVES_STRATEGY = "leaves";
-  private static final Set<String> STRATEGIES = ImmutableSortedSet.of(ALL_STRATEGY, CHILDREN_STRATEGY, LEAVES_STRATEGY);
+  private static final Map<String, Strategy> STRATEGIES = ImmutableMap.of(
+    ALL_STRATEGY, LEAVES,
+    CHILDREN_STRATEGY, CHILDREN,
+    LEAVES_STRATEGY, LEAVES);
+
   private static final String NAME_SORT = "name";
   private static final String PATH_SORT = "path";
   private static final String QUALIFIER_SORT = "qualifier";
@@ -137,7 +150,7 @@ public class TreeAction implements ComponentsWsAction {
         "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
         "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
         "</ul>")
-      .setPossibleValues(STRATEGIES)
+      .setPossibleValues(STRATEGIES.keySet())
       .setDefaultValue(ALL_STRATEGY);
   }
 
@@ -148,33 +161,20 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
 
       ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseComponent);
-      List<ComponentDto> components;
-      int total;
-      switch (treeWsRequest.getStrategy()) {
-        case CHILDREN_STRATEGY:
-          components = dbClient.componentDao().selectDescendants(dbSession, query);
-          total = components.size();
-          break;
-        case LEAVES_STRATEGY:
-        case ALL_STRATEGY:
-          components = dbClient.componentDao().selectDescendants(dbSession, query);
-          total = components.size();
-          break;
-        default:
-          throw new IllegalStateException("Unknown component tree strategy");
-      }
+      List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
+      int total = components.size();
+      components = sortComponents(components, treeWsRequest);
+      components = paginateComponents(components, treeWsRequest);
+
       Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
 
       return buildResponse(baseComponent, components, referenceComponentsByUuid,
-        Paging.forPageIndex(query.getPage()).withPageSize(query.getPageSize()).andTotal(total));
-    } finally {
-      dbClient.closeSession(dbSession);
+        Paging.forPageIndex(treeWsRequest.getPage()).withPageSize(treeWsRequest.getPageSize()).andTotal(total));
     }
   }
 
@@ -200,8 +200,7 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDto> components,
-    Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDto> components, Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -222,10 +221,7 @@ public class TreeAction implements ComponentsWsAction {
 
     ComponentTreeQuery.Builder query = ComponentTreeQuery.builder()
       .setBaseUuid(baseComponent.uuid())
-      .setPage(request.getPage())
-      .setPageSize(request.getPageSize())
-      .setSortFields(request.getSort())
-      .setAsc(request.getAsc());
+      .setStrategy(STRATEGIES.get(request.getStrategy()));
     if (request.getQuery() != null) {
       query.setNameOrKeyQuery(request.getQuery());
     }
@@ -261,7 +257,7 @@ public class TreeAction implements ComponentsWsAction {
     TreeWsRequest treeWsRequest = new TreeWsRequest()
       .setBaseComponentId(request.param(PARAM_BASE_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_BASE_COMPONENT_KEY))
-      .setStrategy(request.param(PARAM_STRATEGY))
+      .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
       .setSort(request.mandatoryParamAsStrings(Param.SORT))
@@ -274,6 +270,45 @@ public class TreeAction implements ComponentsWsAction {
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
 
     return treeWsRequest;
+  }
+
+  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+    return from(components)
+      .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
+      .limit(wsRequest.getPageSize())
+      .toList();
+  }
+
+  public static List<ComponentDto> sortComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+    List<String> sortParameters = wsRequest.getSort();
+    if (sortParameters == null || sortParameters.isEmpty()) {
+      return components;
+    }
+    boolean isAscending = wsRequest.getAsc();
+    Map<String, Ordering<ComponentDto>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDto>>builder()
+      .put(NAME_SORT, stringOrdering(isAscending, ComponentDto::name))
+      .put(QUALIFIER_SORT, stringOrdering(isAscending, ComponentDto::qualifier))
+      .put(PATH_SORT, stringOrdering(isAscending, ComponentDto::path))
+      .build();
+
+    String firstSortParameter = sortParameters.get(0);
+    Ordering<ComponentDto> primaryOrdering = orderingsBySortField.get(firstSortParameter);
+    if (sortParameters.size() > 1) {
+      for (int i = 1; i < sortParameters.size(); i++) {
+        String secondarySortParameter = sortParameters.get(i);
+        Ordering<ComponentDto> secondaryOrdering = orderingsBySortField.get(secondarySortParameter);
+        primaryOrdering = primaryOrdering.compound(secondaryOrdering);
+      }
+    }
+    return primaryOrdering.immutableSortedCopy(components);
+  }
+
+  private static Ordering<ComponentDto> stringOrdering(boolean isAscending, Function<ComponentDto, String> function) {
+    Ordering<String> ordering = Ordering.from(CASE_INSENSITIVE_ORDER);
+    if (!isAscending) {
+      ordering = ordering.reverse();
+    }
+    return ordering.nullsLast().onResultOf(function);
   }
 
 }

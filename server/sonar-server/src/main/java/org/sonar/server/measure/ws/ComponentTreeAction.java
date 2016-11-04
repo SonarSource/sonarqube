@@ -19,16 +19,36 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import java.util.Map;
+import java.util.Set;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.Paging;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTreeQuery.Strategy;
+import org.sonar.db.metric.MetricDto;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
@@ -45,21 +65,6 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
-
-import com.google.common.collect.ImmutableSortedSet;
-import java.util.Set;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.Paging;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 /**
  * <p>Navigate through components based on different strategy with specified measures.
@@ -84,7 +89,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_STRATEGY = "all";
   static final String CHILDREN_STRATEGY = "children";
   static final String LEAVES_STRATEGY = "leaves";
-  static final Set<String> STRATEGIES = ImmutableSortedSet.of(ALL_STRATEGY, CHILDREN_STRATEGY, LEAVES_STRATEGY);
+  static final Map<String, Strategy> STRATEGIES = ImmutableMap.of(
+    ALL_STRATEGY, LEAVES,
+    CHILDREN_STRATEGY, CHILDREN,
+    LEAVES_STRATEGY, LEAVES);
   // sort
   static final String NAME_SORT = "name";
   static final String PATH_SORT = "path";
@@ -176,7 +184,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
         "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
         "</ul>")
-      .setPossibleValues(STRATEGIES)
+      .setPossibleValues(STRATEGIES.keySet())
       .setDefaultValue(ALL_STRATEGY);
   }
 

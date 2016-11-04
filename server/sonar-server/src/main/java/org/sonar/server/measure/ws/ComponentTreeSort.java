@@ -57,7 +57,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 
-class ComponentTreeSort {
+public class ComponentTreeSort {
 
   private static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
   private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(DATA, DISTRIB, STRING);
@@ -66,7 +66,7 @@ class ComponentTreeSort {
     // static method only
   }
 
-  static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+  public static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
@@ -95,15 +95,15 @@ class ComponentTreeSort {
   }
 
   private static Ordering<ComponentDto> componentNameOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoToName.INSTANCE);
+    return stringOrdering(isAscending, ComponentDto::name);
   }
 
   private static Ordering<ComponentDto> componentQualifierOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoToQualifier.INSTANCE);
+    return stringOrdering(isAscending, ComponentDto::qualifier);
   }
 
   private static Ordering<ComponentDto> componentPathOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoToPath.INSTANCE);
+    return stringOrdering(isAscending, ComponentDto::path);
   }
 
   private static Ordering<ComponentDto> stringOrdering(boolean isAscending, Function<ComponentDto, String> function) {
@@ -272,30 +272,4 @@ class ComponentTreeSort {
     }
   }
 
-  private enum ComponentDtoToName implements Function<ComponentDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ComponentDto input) {
-      return input.name();
-    }
-  }
-
-  private enum ComponentDtoToQualifier implements Function<ComponentDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ComponentDto input) {
-      return input.qualifier();
-    }
-  }
-
-  private enum ComponentDtoToPath implements Function<ComponentDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ComponentDto input) {
-      return input.path();
-    }
-  }
 }

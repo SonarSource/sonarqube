@@ -287,6 +287,9 @@ public class ComponentTreeActionTest {
       .setParam(Param.PAGE_SIZE, "3"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-4", "file-uuid-5", "file-uuid-6");
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(2);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(3);
+    assertThat(response.getPaging().getTotal()).isEqualTo(9);
   }
 
   @Test
