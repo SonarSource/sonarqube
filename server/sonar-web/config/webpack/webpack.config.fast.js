@@ -19,4 +19,7 @@
  */
 var config = require('./webpack.config.base');
 
+// disable eslint loader
+config.module.preLoaders = [];
+
 module.exports = config;
