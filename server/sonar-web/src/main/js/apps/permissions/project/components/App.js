@@ -27,15 +27,19 @@ import '../../styles.css';
 
 export default class App extends React.Component {
   static propTypes = {
-    project: React.PropTypes.object.isRequired
+    component: React.PropTypes.object
   };
 
   render () {
+    if (!this.props.component) {
+      return null;
+    }
+
     return (
         <div className="page page-limited">
-          <PageHeader project={this.props.project}/>
+          <PageHeader project={this.props.component}/>
           <PageError/>
-          <AllHoldersList project={this.props.project}/>
+          <AllHoldersList project={this.props.component}/>
         </div>
     );
   }

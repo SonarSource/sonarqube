@@ -22,24 +22,24 @@ import { connect } from 'react-redux';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import {
-    loadHolders,
-    grantToUser,
-    revokeFromUser,
-    grantToGroup,
-    revokeFromGroup,
-    updateQuery,
-    updateFilter,
-    selectPermission
+  loadHolders,
+  grantToUser,
+  revokeFromUser,
+  grantToGroup,
+  revokeFromGroup,
+  updateQuery,
+  updateFilter,
+  selectPermission
 } from '../store/actions';
-import {
-    getUsers,
-    getGroups,
-    getQuery,
-    getFilter,
-    getSelectedPermission
-} from '../../shared/store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
+import {
+  getPermissionsAppUsers,
+  getPermissionsAppGroups,
+  getPermissionsAppQuery,
+  getPermissionsAppFilter,
+  getPermissionsAppSelectedPermission
+} from '../../../../app/store/rootReducer';
 
 class AllHoldersList extends React.Component {
   static propTypes = {
@@ -128,11 +128,11 @@ class AllHoldersList extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  users: getUsers(state),
-  groups: getGroups(state),
-  query: getQuery(state),
-  filter: getFilter(state),
-  selectedPermission: getSelectedPermission(state)
+  users: getPermissionsAppUsers(state),
+  groups: getPermissionsAppGroups(state),
+  query: getPermissionsAppQuery(state),
+  filter: getPermissionsAppFilter(state),
+  selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
 const mapDispatchToProps = dispatch => ({

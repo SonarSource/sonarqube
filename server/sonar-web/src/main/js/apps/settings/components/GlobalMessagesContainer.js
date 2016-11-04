@@ -20,10 +20,10 @@
 // @flow
 import { connect } from 'react-redux';
 import GlobalMessages from '../../../components/controls/GlobalMessages';
-import { getGlobalMessages } from '../store/rootReducer';
+import { getSettingsAppGlobalMessages } from '../../../app/store/rootReducer';
 
 const mapStateToProps = state => ({
-  messages: getGlobalMessages(state)
+  messages: getSettingsAppGlobalMessages(state)
 });
 
 export default connect(mapStateToProps)(GlobalMessages);

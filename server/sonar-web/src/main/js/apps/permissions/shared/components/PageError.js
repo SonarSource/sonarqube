@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { getError } from '../store/rootReducer';
+import { getPermissionsAppError } from '../../../../app/store/rootReducer';
 
 class PageError extends React.Component {
   static propTypes = {
@@ -42,7 +42,7 @@ class PageError extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  message: getError(state)
+  message: getPermissionsAppError(state)
 });
 
 export default connect(

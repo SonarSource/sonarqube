@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RECEIVE_HOLDERS_SUCCESS } from '../actions';
+
 const logins = (state = [], action = {}) => {
-  if (action.type === 'RECEIVE_HOLDERS_SUCCESS') {
+  if (action.type === RECEIVE_HOLDERS_SUCCESS) {
     return action.users.map(user => user.login);
   } else {
     return state;

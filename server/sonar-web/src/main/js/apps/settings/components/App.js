@@ -27,7 +27,7 @@ import AllCategoriesList from './AllCategoriesList';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import WildcardsHelp from './WildcardsHelp';
 import { fetchSettings } from '../store/actions';
-import { getDefaultCategory } from '../store/rootReducer';
+import { getSettingsAppDefaultCategory } from '../../../app/store/rootReducer';
 import '../styles.css';
 
 type Props = {
@@ -103,7 +103,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  defaultCategory: getDefaultCategory(state)
+  defaultCategory: getSettingsAppDefaultCategory(state)
 });
 
 export default connect(

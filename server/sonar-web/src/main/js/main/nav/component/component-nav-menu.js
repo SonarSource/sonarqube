@@ -86,7 +86,7 @@ export default React.createClass({
   },
 
   renderComponentIssuesLink() {
-    const url = `/component_issues/index?id=${encodeURIComponent(this.props.component.key)}`;
+    const url = `/component_issues?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, translate('issues.page'), '/component_issues');
   },
 

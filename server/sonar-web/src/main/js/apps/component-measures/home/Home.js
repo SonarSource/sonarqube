@@ -51,7 +51,7 @@ export default class Home extends React.Component {
               <ul>
                 <li>
                   <IndexLink
-                      to={{ pathname: '/', query: { id: component.key } }}
+                      to={{ pathname: '/component_measures', query: { id: component.key } }}
                       activeClassName="active">
                     {translate('all')}
                   </IndexLink>
@@ -59,7 +59,7 @@ export default class Home extends React.Component {
                 {domains.map(domain => (
                     <li key={domain.name}>
                       <Link
-                          to={{ pathname: `domain/${domain.name}`, query: { id: component.key } }}
+                          to={{ pathname: `/component_measures/domain/${domain.name}`, query: { id: component.key } }}
                           activeClassName="active">
                         {getLocalizedMetricDomain(domain.name)}
                       </Link>

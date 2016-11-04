@@ -23,12 +23,12 @@ import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
 import DeletionModal from './views/DeletionModal';
-import { getProjectLinks } from '../store/rootReducer';
 import {
     fetchProjectLinks,
     deleteProjectLink,
     createProjectLink
 } from '../store/actions';
+import { getProjectAdminProjectLinks } from '../../../app/store/rootReducer';
 
 class Links extends React.Component {
   static propTypes = {
@@ -73,7 +73,7 @@ class Links extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  links: getProjectLinks(state, ownProps.component.key)
+  links: getProjectAdminProjectLinks(state, ownProps.component.key)
 });
 
 export default connect(

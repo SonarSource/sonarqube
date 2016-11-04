@@ -25,7 +25,6 @@ import UpdateForm from './UpdateForm';
 import BulkUpdate from './BulkUpdate';
 import FineGrainedUpdate from './FineGrainedUpdate';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
-import { getProjectModules } from '../store/rootReducer';
 import { fetchProjectModules, changeKey } from '../store/actions';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -36,6 +35,7 @@ import {
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../main/nav/component/RecentHistory';
+import { getProjectAdminProjectModules } from '../../../app/store/rootReducer';
 
 class Key extends React.Component {
   static propTypes = {
@@ -152,7 +152,7 @@ class Key extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  modules: getProjectModules(state, ownProps.component.key)
+  modules: getProjectAdminProjectModules(state, ownProps.component.key)
 });
 
 export default connect(

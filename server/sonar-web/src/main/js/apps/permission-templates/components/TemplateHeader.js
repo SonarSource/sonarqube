@@ -36,7 +36,7 @@ export default class TemplateHeader extends React.Component {
     return (
         <header id="project-permissions-header" className="page-header">
           <div className="note spacer-bottom">
-            <Link to="/" className="text-muted">
+            <Link to="/permission_templates" className="text-muted">
               {translate('permission_templates.page')}
             </Link>
           </div>

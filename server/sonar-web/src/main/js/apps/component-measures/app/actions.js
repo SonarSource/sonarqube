@@ -23,8 +23,9 @@ import { getMetrics } from '../../../api/metrics';
  * Actions
  */
 
-export const DISPLAY_HOME = 'app/DISPLAY_HOME';
-export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
+export const DISPLAY_HOME = 'measuresApp/app/DISPLAY_HOME';
+export const RECEIVE_METRICS = 'measuresApp/app/RECEIVE_METRICS';
+export const SET_COMPONENT = 'measuresApp/app/SET_COMPONENT';
 
 /*
  * Action Creators
@@ -36,6 +37,10 @@ export function displayHome () {
 
 function receiveMetrics (metrics) {
   return { type: RECEIVE_METRICS, metrics };
+}
+
+export function setComponent (component) {
+  return { type: SET_COMPONENT, component };
 }
 
 /*

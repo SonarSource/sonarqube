@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getQualityProfiles, associateProject, dissociateProject } from '../../../api/quality-profiles';
-import { getProfileByKey } from './rootReducer';
 import {
   fetchQualityGates,
   getGateForProject,
@@ -29,14 +28,15 @@ import { getProjectLinks, createLink } from '../../../api/projectLinks';
 import { getTree, changeKey as changeKeyApi } from '../../../api/components';
 import { addGlobalSuccessMessage } from '../../../components/store/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getProjectAdminProfileByKey } from '../../../app/store/rootReducer';
 
-export const RECEIVE_PROFILES = 'RECEIVE_PROFILES';
+export const RECEIVE_PROFILES = 'projectAdmin/RECEIVE_PROFILES';
 export const receiveProfiles = profiles => ({
   type: RECEIVE_PROFILES,
   profiles
 });
 
-export const RECEIVE_PROJECT_PROFILES = 'RECEIVE_PROJECT_PROFILES';
+export const RECEIVE_PROJECT_PROFILES = 'projectAdmin/RECEIVE_PROJECT_PROFILES';
 export const receiveProjectProfiles = (projectKey, profiles) => ({
   type: RECEIVE_PROJECT_PROFILES,
   projectKey,
@@ -54,7 +54,7 @@ export const fetchProjectProfiles = projectKey => dispatch => {
   });
 };
 
-export const SET_PROJECT_PROFILE = 'SET_PROJECT_PROFILE';
+export const SET_PROJECT_PROFILE = 'projectAdmin/SET_PROJECT_PROFILE';
 const setProjectProfileAction = (projectKey, oldProfileKey, newProfileKey) => ({
   type: SET_PROJECT_PROFILE,
   projectKey,
@@ -65,7 +65,7 @@ const setProjectProfileAction = (projectKey, oldProfileKey, newProfileKey) => ({
 export const setProjectProfile = (projectKey, oldKey, newKey) =>
     (dispatch, getState) => {
       const state = getState();
-      const newProfile = getProfileByKey(state, newKey);
+      const newProfile = getProjectAdminProfileByKey(state, newKey);
       const request = newProfile.isDefault ?
           dissociateProject(oldKey, projectKey) :
           associateProject(newKey, projectKey);
@@ -79,13 +79,13 @@ export const setProjectProfile = (projectKey, oldKey, newKey) =>
       });
     };
 
-export const RECEIVE_GATES = 'RECEIVE_GATES';
+export const RECEIVE_GATES = 'projectAdmin/RECEIVE_GATES';
 export const receiveGates = gates => ({
   type: RECEIVE_GATES,
   gates
 });
 
-export const RECEIVE_PROJECT_GATE = 'RECEIVE_PROJECT_GATE';
+export const RECEIVE_PROJECT_GATE = 'projectAdmin/RECEIVE_PROJECT_GATE';
 export const receiveProjectGate = (projectKey, gate) => ({
   type: RECEIVE_PROJECT_GATE,
   projectKey,
@@ -103,7 +103,7 @@ export const fetchProjectGate = projectKey => dispatch => {
   });
 };
 
-export const SET_PROJECT_GATE = 'SET_PROJECT_GATE';
+export const SET_PROJECT_GATE = 'projectAdmin/SET_PROJECT_GATE';
 const setProjectGateAction = (projectKey, gateId) => ({
   type: SET_PROJECT_GATE,
   projectKey,
@@ -122,7 +122,7 @@ export const setProjectGate = (projectKey, oldId, newId) => dispatch => {
   });
 };
 
-export const RECEIVE_PROJECT_LINKS = 'RECEIVE_PROJECT_LINKS';
+export const RECEIVE_PROJECT_LINKS = 'projectAdmin/RECEIVE_PROJECT_LINKS';
 export const receiveProjectLinks = (projectKey, links) => ({
   type: RECEIVE_PROJECT_LINKS,
   projectKey,
@@ -135,7 +135,7 @@ export const fetchProjectLinks = projectKey => dispatch => {
   });
 };
 
-export const ADD_PROJECT_LINK = 'ADD_PROJECT_LINK';
+export const ADD_PROJECT_LINK = 'projectAdmin/ADD_PROJECT_LINK';
 const addProjectLink = (projectKey, link) => ({
   type: ADD_PROJECT_LINK,
   projectKey,
@@ -148,14 +148,14 @@ export const createProjectLink = (projectKey, name, url) => dispatch => {
   });
 };
 
-export const DELETE_PROJECT_LINK = 'DELETE_PROJECT_LINK';
+export const DELETE_PROJECT_LINK = 'projectAdmin/DELETE_PROJECT_LINK';
 export const deleteProjectLink = (projectKey, linkId) => ({
   type: DELETE_PROJECT_LINK,
   projectKey,
   linkId
 });
 
-export const RECEIVE_PROJECT_MODULES = 'RECEIVE_PROJECT_MODULES';
+export const RECEIVE_PROJECT_MODULES = 'projectAdmin/RECEIVE_PROJECT_MODULES';
 const receiveProjectModules = (projectKey, modules) => ({
   type: RECEIVE_PROJECT_MODULES,
   projectKey,
@@ -169,7 +169,7 @@ export const fetchProjectModules = projectKey => dispatch => {
   });
 };
 
-export const CHANGE_KEY = 'CHANGE_KEY';
+export const CHANGE_KEY = 'projectAdmin/CHANGE_KEY';
 const changeKeyAction = (key, newKey) => ({
   type: CHANGE_KEY,
   key,

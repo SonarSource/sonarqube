@@ -23,8 +23,8 @@ import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Form from './Form';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
-import { getAllGates, getProjectGate } from '../store/rootReducer';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
+import { getProjectAdminAllGates, getProjectAdminProjectGate } from '../../../app/store/rootReducer';
 
 class QualityGate extends React.Component {
   static propTypes = {
@@ -60,8 +60,8 @@ class QualityGate extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  allGates: getAllGates(state),
-  gate: getProjectGate(state, ownProps.component.key)
+  allGates: getProjectAdminAllGates(state),
+  gate: getProjectAdminProjectGate(state, ownProps.component.key)
 });
 
 export default connect(

@@ -60,7 +60,7 @@ export default class Action extends React.Component {
           <TooltipsContainer>
             <header className="web-api-action-header">
               <Link
-                  to={{ pathname: '/' + actionKey }}
+                  to={{ pathname: '/web_api/' + actionKey }}
                   className="spacer-right icon-link"/>
 
               <h3 className="web-api-action-title">

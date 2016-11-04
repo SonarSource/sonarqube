@@ -23,13 +23,14 @@ import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
+import { getMeasuresAppTree } from '../../../app/store/rootReducer';
 
 /*
  * Actions
  */
 
-export const UPDATE_STORE = 'drilldown/tree/UPDATE_STORE';
-export const INIT = 'drilldown/tree/INIT';
+export const UPDATE_STORE = 'measuresApp/drilldown/tree/UPDATE_STORE';
+export const INIT = 'measuresApp/drilldown/tree/INIT';
 
 /*
  * Action Creators
@@ -115,7 +116,7 @@ function fetchComponents (rootComponent, baseComponent, metric, pageIndex = 1, p
  */
 function fetchList (baseComponent) {
   return (dispatch, getState) => {
-    const { metric, periodIndex, rootComponent } = getState().tree;
+    const { metric, periodIndex, rootComponent } = getMeasuresAppTree(getState());
 
     dispatch(startFetching());
     return fetchComponents(rootComponent, baseComponent, metric, 1, periodIndex).then(r => {
@@ -139,7 +140,7 @@ function fetchList (baseComponent) {
  */
 export function start (rootComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
-    const { tree } = getState();
+    const tree = getMeasuresAppTree(getState());
     if (rootComponent === tree.rootComponent && metric === tree.metric) {
       return Promise.resolve();
     }
@@ -155,7 +156,7 @@ export function start (rootComponent, metric, periodIndex = 1) {
  */
 export function drilldown (component) {
   return (dispatch, getState) => {
-    const { metric, rootComponent, breadcrumbs, periodIndex } = getState().tree;
+    const { metric, rootComponent, breadcrumbs, periodIndex } = getMeasuresAppTree(getState());
     dispatch(startFetching());
     return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
@@ -174,7 +175,7 @@ export function drilldown (component) {
  */
 export function useBreadcrumbs (component) {
   return (dispatch, getState) => {
-    const { metric, rootComponent, breadcrumbs, periodIndex } = getState().tree;
+    const { metric, rootComponent, breadcrumbs, periodIndex } = getMeasuresAppTree(getState());
     const index = breadcrumbs.indexOf(component);
     dispatch(startFetching());
     return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
@@ -190,7 +191,7 @@ export function useBreadcrumbs (component) {
 
 export function fetchMore () {
   return (dispatch, getState) => {
-    const { rootComponent, baseComponent, metric, pageIndex, components, periodIndex } = getState().tree;
+    const { rootComponent, baseComponent, metric, pageIndex, components, periodIndex } = getMeasuresAppTree(getState());
     dispatch(startFetching());
     return fetchComponents(rootComponent, baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
       const nextComponents = [...components, ...r.components];
@@ -206,7 +207,7 @@ export function fetchMore () {
  */
 export function selectComponent (component) {
   return (dispatch, getState) => {
-    const { breadcrumbs } = getState().tree;
+    const { breadcrumbs } = getMeasuresAppTree(getState());
     const nextBreadcrumbs = [...breadcrumbs, component];
     dispatch(updateStore({
       selected: component,
@@ -220,7 +221,7 @@ export function selectComponent (component) {
  */
 export function selectNext () {
   return (dispatch, getState) => {
-    const { components, selected, breadcrumbs } = getState().tree;
+    const { components, selected, breadcrumbs } = getMeasuresAppTree(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex < components.length - 1) {
       const nextSelected = components[selectedIndex + 1];
@@ -238,7 +239,7 @@ export function selectNext () {
  */
 export function selectPrevious () {
   return (dispatch, getState) => {
-    const { components, selected, breadcrumbs } = getState().tree;
+    const { components, selected, breadcrumbs } = getMeasuresAppTree(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex > 0) {
       const nextSelected = components[selectedIndex - 1];

@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  RECEIVE_HOLDERS_SUCCESS,
+  GRANT_PERMISSION_TO_USER,
+  REVOKE_PERMISSION_TO_USER,
+  GRANT_PERMISSION_TO_GROUP,
+  REVOKE_PERMISSION_FROM_GROUP,
+  ERROR
+} from './actions';
+
 const error = (state = null, action = {}) => {
   switch (action.type) {
-    case 'RECEIVE_HOLDERS_SUCCESS':
-    case 'GRANT_PERMISSION_TO_USER':
-    case 'REVOKE_PERMISSION_TO_USER':
-    case 'GRANT_PERMISSION_TO_GROUP':
-    case 'REVOKE_PERMISSION_FROM_GROUP':
+    case RECEIVE_HOLDERS_SUCCESS:
+    case GRANT_PERMISSION_TO_USER:
+    case REVOKE_PERMISSION_TO_USER:
+    case GRANT_PERMISSION_TO_GROUP:
+    case REVOKE_PERMISSION_FROM_GROUP:
       return null;
-    case 'ERROR':
+    case ERROR:
       return action.message;
     default:
       return state;

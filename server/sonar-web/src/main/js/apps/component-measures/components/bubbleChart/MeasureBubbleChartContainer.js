@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-
 import MeasureBubbleChart from './BubbleChart';
+import { getMeasuresAppAllMetrics, getMeasuresAppComponent } from '../../../../app/store/rootReducer';
 
 const mapStateToProps = state => {
   return {
-    component: state.app.component,
-    metrics: state.app.metrics
+    component: getMeasuresAppComponent(state),
+    metrics: getMeasuresAppAllMetrics(state)
   };
 };
 

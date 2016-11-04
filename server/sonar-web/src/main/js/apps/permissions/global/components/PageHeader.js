@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import { loadHolders } from '../store/actions';
-import { isLoading } from '../../shared/store/rootReducer';
+import { isPermissionsAppLoading } from '../../../../app/store/rootReducer';
 
 class PageHeader extends React.Component {
   static propTypes = {
@@ -53,7 +53,7 @@ class PageHeader extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  loading: isLoading(state)
+  loading: isPermissionsAppLoading(state)
 });
 
 const mapDispatchToProps = dispatch => ({

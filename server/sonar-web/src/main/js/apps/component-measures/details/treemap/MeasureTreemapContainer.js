@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-
 import MeasureTreemap from './MeasureTreemap';
+import { getMeasuresAppDetailsMetric, getMeasuresAppComponent } from '../../../../app/store/rootReducer';
 
 const mapStateToProps = state => {
   return {
-    component: state.app.component,
-    metric: state.details.metric
+    component: getMeasuresAppComponent(state),
+    metric: getMeasuresAppDetailsMetric(state)
   };
 };
 

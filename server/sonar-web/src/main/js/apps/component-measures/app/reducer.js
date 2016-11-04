@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RECEIVE_METRICS } from './actions';
+import { RECEIVE_METRICS, SET_COMPONENT } from './actions';
 
 const initialState = {
   metrics: undefined
@@ -27,6 +27,8 @@ export default function appReducer (state = initialState, action = {}) {
   switch (action.type) {
     case RECEIVE_METRICS:
       return { ...state, metrics: action.metrics };
+    case SET_COMPONENT:
+      return { ...state, component: action.component };
     default:
       return state;
   }
