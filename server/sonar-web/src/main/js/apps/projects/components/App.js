@@ -20,70 +20,34 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
-import ProjectsListContainer from './ProjectsListContainer';
-import ProjectsListFooterContainer from './ProjectsListFooterContainer';
-import PageSidebar from './PageSidebar';
-import ProjectsListHeaderContainer from './ProjectsListHeaderContainer';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
-import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export default class App extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.bool]),
-    fetchProjects: React.PropTypes.func.isRequired
-  };
-
-  state = {
-    query: {}
-  };
-
   componentDidMount () {
     document.querySelector('html').classList.add('dashboard-page');
-    this.handleQueryChange();
-  }
-
-  componentDidUpdate (prevProps) {
-    if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange();
-    }
   }
 
   componentWillUnmount () {
     document.querySelector('html').classList.remove('dashboard-page');
   }
 
-  handleQueryChange () {
-    const query = parseUrlQuery(this.props.location.query);
-    this.setState({ query });
-    this.props.fetchProjects(query);
-  }
-
   render () {
-    if (this.props.user == null) {
-      return null;
-    }
-
     return (
         <div id="projects-page" className="page page-limited">
-          <Helmet title={translate('projects.page')} titleTemplate="SonarQube - %s"/>
+          <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
 
           <GlobalMessagesContainer/>
 
-          <div className="page-with-sidebar page-with-left-sidebar">
+          <div className="page-with-sidebar">
             <div className="page-main">
-              <div className="projects-list-container">
-                <ProjectsListHeaderContainer/>
-                <ProjectsListContainer/>
-                <ProjectsListFooterContainer query={this.state.query}/>
-              </div>
-            </div>
-            <aside className="page-sidebar-fixed projects-sidebar">
               <PageHeaderContainer/>
-              <PageSidebar query={this.state.query}/>
-            </aside>
+            </div>
+            <aside className="page-sidebar-fixed projects-sidebar"/>
           </div>
+
+          {this.props.children}
         </div>
     );
   }

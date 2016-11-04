@@ -17,9 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const UPDATE_STATE = 'projects/UPDATE_STATE';
+import { createValue } from '../../../components/store/generalReducers';
+
+export const actions = {
+  UPDATE_STATE: 'projects/UPDATE_STATE'
+};
 
 export const updateState = changes => ({
-  type: UPDATE_STATE,
+  type: actions.UPDATE_STATE,
   changes
 });
+
+export default createValue(
+    // should update
+    (state, action) => action.type === actions.UPDATE_STATE,
+
+    // should reset
+    () => false,
+
+    // get next value
+    (state, action) => ({ ...state, ...action.changes }),
+
+    // default value
+    {}
+);

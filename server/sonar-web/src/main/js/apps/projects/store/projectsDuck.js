@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
-import { translate } from '../../../helpers/l10n';
+export const actions = {
+  RECEIVE_PROJECTS: 'projects/RECEIVE_PROJECTS',
+  RECEIVE_MORE_PROJECTS: 'projects/RECEIVE_MORE_PROJECTS'
+};
 
-export default class ProjectsListHeader extends React.Component {
-  static propTypes = {
-    total: React.PropTypes.number
-  };
+export const receiveProjects = (projects, facets) => ({
+  type: actions.RECEIVE_PROJECTS,
+  projects,
+  facets
+});
 
-  render () {
-    return (
-        <header className="page-header">
-          <div className="page-actions">
-            {this.props.total != null && (
-              <span>
-                <strong>{this.props.total}</strong> {translate('projects._projects')}
-              </span>
-            )}
-          </div>
-          <FavoriteFilterContainer/>
-        </header>
-    );
+export const receiveMoreProjects = projects => ({
+  type: actions.RECEIVE_MORE_PROJECTS,
+  projects
+});
+
+const reducer = (state = null, action = {}) => {
+  if (action.type === actions.RECEIVE_PROJECTS) {
+    return action.projects.map(project => project.key);
   }
-}
+
+  if (action.type === actions.RECEIVE_MORE_PROJECTS) {
+    const keys = action.projects.map(project => project.key);
+    return state != null ? [...state, ...keys] : keys;
+  }
+
+  return state;
+};
+
+export default reducer;
+
+export const getProjects = state => state;

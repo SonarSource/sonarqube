@@ -19,9 +19,9 @@
  */
 import flatMap from 'lodash/flatMap';
 import sumBy from 'lodash/sumBy';
-import { createMap } from '../../../../components/store/generalReducers';
-import { RECEIVE_PROJECTS } from '../projects/actions';
-import { mapMetricToProperty } from '../utils';
+import { createMap } from '../../../components/store/generalReducers';
+import { actions } from './projectsDuck';
+import { mapMetricToProperty } from './utils';
 
 const CUMULATIVE_FACETS = [
   'reliability',
@@ -70,7 +70,7 @@ const getFacetsMap = facets => {
 };
 
 const reducer = createMap(
-    (state, action) => action.type === RECEIVE_PROJECTS,
+    (state, action) => action.type === actions.RECEIVE_PROJECTS,
     () => false,
     (state, action) => getFacetsMap(action.facets)
 );

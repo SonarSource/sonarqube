@@ -19,31 +19,51 @@
  */
 import React from 'react';
 import ProjectsListContainer from './ProjectsListContainer';
+import ProjectsListFooterContainer from './ProjectsListFooterContainer';
+import PageSidebar from './PageSidebar';
+import { parseUrlQuery } from '../store/utils';
 import '../styles.css';
 
-export default class FavoriteProjects extends React.Component {
+export default class AllProjects extends React.Component {
   static propTypes = {
-    user: React.PropTypes.object,
-    fetchFavoriteProjects: React.PropTypes.func.isRequired
+    user: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.bool]),
+    fetchProjects: React.PropTypes.func.isRequired
+  };
+
+  state = {
+    query: {}
   };
 
   componentDidMount () {
-    this.props.fetchFavoriteProjects();
+    this.handleQueryChange();
+  }
+
+  componentDidUpdate (prevProps) {
+    if (prevProps.location.query !== this.props.location.query) {
+      this.handleQueryChange();
+    }
+  }
+
+  handleQueryChange () {
+    const query = parseUrlQuery(this.props.location.query);
+    this.setState({ query });
+    this.props.fetchProjects(query);
   }
 
   render () {
-    if (!this.props.user) {
+    if (this.props.user == null) {
       return null;
     }
 
     return (
-        <div className="page-with-sidebar">
+        <div className="page-with-sidebar projects-page">
           <div className="page-main">
-            <div className="projects-list-container">
-              <ProjectsListContainer/>
-            </div>
+            <ProjectsListContainer/>
+            <ProjectsListFooterContainer query={this.state.query}/>
           </div>
-          <aside className="page-sidebar-fixed projects-sidebar"/>
+          <aside className="page-sidebar-fixed projects-sidebar">
+            <PageSidebar query={this.state.query}/>
+          </aside>
         </div>
     );
   }

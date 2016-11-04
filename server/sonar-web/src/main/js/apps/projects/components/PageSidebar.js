@@ -26,6 +26,7 @@ import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
+import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.Component {
   static propTypes = {
@@ -41,12 +42,12 @@ export default class PageSidebar extends React.Component {
             {isFiltered && (
                 <div className="projects-facets-reset">
                   <Link to="/projects" className="button button-red">
-                    Clear All Filters
+                    {translate('projects.clear_all_filters')}
                   </Link>
                 </div>
             )}
 
-            <h3>Filters</h3>
+            <h3>{translate('filters')}</h3>
           </div>
 
           <QualityGateFilter query={this.props.query}/>
