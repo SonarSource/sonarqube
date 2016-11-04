@@ -948,7 +948,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_descendants_with_leaves_stragegy() {
+  public void select_descendants_with_leaves_strategy() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newModuleDto("module-1-uuid", project));

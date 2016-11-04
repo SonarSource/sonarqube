@@ -38,6 +38,8 @@ public interface MeasureMapper {
 
   void selectByQueryOnSingleComponent(@Param("query") MeasureQuery query, ResultHandler resultHandler);
 
+  List<MeasureDto> selectTreeByQuery(@Param("query") MeasureTreeQuery measureQuery, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
+
   List<PastMeasureDto> selectPastMeasures(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid, @Param("metricIds") List<Integer> metricIds);
 
   List<MeasureDto> selectProjectMeasuresOfDeveloper(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);

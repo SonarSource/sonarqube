@@ -17,73 +17,107 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
 
+package org.sonar.db.measure;
+
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.component.ComponentTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
-import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
+import static org.sonar.db.measure.MeasureTreeQuery.Strategy.CHILDREN;
+import static org.sonar.db.measure.MeasureTreeQuery.Strategy.LEAVES;
 
-public class ComponentTreeQueryTest {
+public class MeasureTreeQueryTest {
 
-  private static final String BASE_UUID = "ABCD";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_query() throws Exception {
-    ComponentTreeQuery query = ComponentTreeQuery.builder()
-      .setBaseUuid(BASE_UUID)
+    MeasureTreeQuery query = MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .setQualifiers(asList("FIL", "DIR"))
       .setNameOrKeyQuery("teSt")
+      .setMetricIds(asList(10, 11))
+      .setPersonId(100L)
       .build();
 
-    assertThat(query.getBaseUuid()).isEqualTo(BASE_UUID);
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).containsOnly("FIL", "DIR");
     assertThat(query.getNameOrKeyQuery()).isEqualTo("teSt");
+    assertThat(query.getMetricIds()).containsOnly(10, 11);
+    assertThat(query.getPersonId()).isEqualTo(100L);
   }
 
   @Test
   public void create_minimal_query() throws Exception {
-    ComponentTreeQuery query = ComponentTreeQuery.builder()
-      .setBaseUuid(BASE_UUID)
+    MeasureTreeQuery query = MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .build();
 
-    assertThat(query.getBaseUuid()).isEqualTo(BASE_UUID);
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).isNull();
     assertThat(query.getNameOrKeyQuery()).isNull();
+    assertThat(query.getMetricIds()).isNull();
+    assertThat(query.getPersonId()).isNull();
+  }
+
+  @Test
+  public void test_getNameOrKeyQueryToSqlForResourceIndex() throws Exception {
+    assertThat(MeasureTreeQuery.builder()
+      .setNameOrKeyQuery("like-\\_%/-value")
+      .setStrategy(CHILDREN)
+      .build().getNameOrKeyQueryToSqlForResourceIndex()).isEqualTo("like-\\/_/%//-value%");
+
+    assertThat(MeasureTreeQuery.builder()
+      .setStrategy(CHILDREN)
+      .build().getNameOrKeyQueryToSqlForResourceIndex()).isNull();
   }
 
   @Test
   public void test_getUuidPath() throws Exception {
-    assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(CHILDREN)
+    assertThat(MeasureTreeQuery.builder().setStrategy(CHILDREN)
       .build().getUuidPath(ComponentTesting.newProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
-    assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(LEAVES)
+    assertThat(MeasureTreeQuery.builder().setStrategy(LEAVES)
       .build().getUuidPath(ComponentTesting.newProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
   }
 
   @Test
-  public void fail_when_no_base_uuid() throws Exception {
-    expectedException.expect(NullPointerException.class);
-    ComponentTreeQuery.builder()
+  public void return_empty_when_metrics_is_empty() throws Exception {
+    assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
-      .build();
+      .setMetricIds(Collections.emptyList())
+      .build().returnsEmpty()).isTrue();
+
+    assertThat(MeasureTreeQuery.builder()
+      .setStrategy(CHILDREN)
+      .setMetricIds(null)
+      .build().returnsEmpty()).isFalse();
+  }
+
+  @Test
+  public void return_empty_when_qualifiers_is_empty() throws Exception {
+    assertThat(MeasureTreeQuery.builder()
+      .setStrategy(CHILDREN)
+      .setQualifiers(Collections.emptyList())
+      .build().returnsEmpty()).isTrue();
+
+    assertThat(MeasureTreeQuery.builder()
+      .setStrategy(CHILDREN)
+      .setQualifiers(asList("FIL", "DIR"))
+      .build().returnsEmpty()).isFalse();
   }
 
   @Test
   public void fail_when_no_strategy() throws Exception {
     expectedException.expect(NullPointerException.class);
-    ComponentTreeQuery.builder()
-      .setBaseUuid(BASE_UUID)
+    MeasureTreeQuery.builder()
       .build();
   }
+
 }

@@ -334,23 +334,23 @@
   <select id="selectDescendants" resultType="Component">
     select
     <include refid="componentColumns"/>
-    <include refid="selectDescendantsQuery"/>
-  </select>
-
-  <sql id="selectDescendantsQuery">
     from projects p
-    inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{query.baseUuid}
+    <include refid="selectDescendantsJoins"/>
     <where>
-      <choose>
-        <when test="query.getStrategy().name() == 'CHILDREN'">
-          and p.uuid_path = #{baseUuidPath}
-        </when>
-        <otherwise>
-          and p.uuid_path like #{baseUuidPath} ESCAPE '/'
-        </otherwise>
-      </choose>
       <include refid="selectDescendantsFilters"/>
     </where>
+  </select>
+
+  <sql id="selectDescendantsJoins">
+    inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{baseUuid}
+    <choose>
+      <when test="query.getStrategy().name() == 'CHILDREN'">
+        and p.uuid_path = #{baseUuidPath}
+      </when>
+      <otherwise>
+        and p.uuid_path like #{baseUuidPath} ESCAPE '/'
+      </otherwise>
+    </choose>
   </sql>
 
   <sql id="selectDescendantsFilters">

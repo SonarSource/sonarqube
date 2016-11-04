@@ -29,6 +29,7 @@ import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 
 public class MeasureQuery {
+  @CheckForNull
   private final String analysisUuid;
 
   @CheckForNull
@@ -136,7 +137,7 @@ public class MeasureQuery {
       return false;
     }
     MeasureQuery that = (MeasureQuery) o;
-    return analysisUuid.equals(that.analysisUuid) &&
+    return Objects.equals(analysisUuid, that.analysisUuid) &&
       Objects.equals(projectUuids, that.projectUuids) &&
       Objects.equals(componentUuids, that.componentUuids) &&
       Objects.equals(metricIds, that.metricIds) &&

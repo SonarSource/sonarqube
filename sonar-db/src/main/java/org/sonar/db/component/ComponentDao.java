@@ -175,7 +175,7 @@ public class ComponentDao implements Dao {
       return emptyList();
     }
     ComponentDto component = componentOpt.get();
-    return mapper(dbSession).selectDescendants(query, query.getUuidPath(component));
+    return mapper(dbSession).selectDescendants(query, componentOpt.get().uuid(), query.getUuidPath(component));
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

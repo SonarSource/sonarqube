@@ -27,21 +27,26 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.measure.MeasureTreeQuery.Strategy.CHILDREN;
+import static org.sonar.db.measure.MeasureTreeQuery.Strategy.LEAVES;
 
 public class MeasureDaoTest {
 
@@ -51,10 +56,11 @@ public class MeasureDaoTest {
   private static final long A_PERSON_ID = 444L;
   private static final String LAST_ANALYSIS_UUID = "A1";
   private static final String OTHER_ANALYSIS_UUID = "A2";
-  public static final String PREVIOUS_ANALYSIS_UUID = "previous analysis UUID";
+  private static final String PREVIOUS_ANALYSIS_UUID = "previous analysis UUID";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -106,7 +112,7 @@ public class MeasureDaoTest {
   @Test
   public void selectByQuery() {
     ComponentDto project1 = db.components().insertProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project1));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
     db.components().insertComponent(newFileDto(module).setUuid("C1"));
     db.components().insertComponent(newFileDto(module).setUuid("C2"));
     insertAnalysis(LAST_ANALYSIS_UUID, project1.uuid(), true);
@@ -201,7 +207,7 @@ public class MeasureDaoTest {
   @Test
   public void selectByQuery_with_handler() {
     ComponentDto project1 = db.components().insertProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project1));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
     db.components().insertComponent(newFileDto(module).setUuid("C1"));
     db.components().insertComponent(newFileDto(module).setUuid("C2"));
     insertAnalysis(LAST_ANALYSIS_UUID, project1.uuid(), true);
@@ -325,9 +331,9 @@ public class MeasureDaoTest {
     long developerId = dev.getId();
     assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds)).isEmpty();
 
-    String projectUuid = insertComponent(Scopes.PROJECT, Qualifiers.PROJECT, true);
-    String viewUuid = insertComponent(Scopes.PROJECT, Qualifiers.VIEW, true);
-    String disabledProjectUuid = insertComponent(Scopes.PROJECT, Qualifiers.PROJECT, false);
+    String projectUuid = insertComponent(Scopes.PROJECT, PROJECT, true);
+    String viewUuid = insertComponent(Scopes.PROJECT, VIEW, true);
+    String disabledProjectUuid = insertComponent(Scopes.PROJECT, PROJECT, false);
     insertMeasure("M1", LAST_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
     insertMeasure("M2", LAST_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
     insertMeasure("M3", LAST_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
@@ -355,6 +361,58 @@ public class MeasureDaoTest {
       .containsOnly("M11", "M54");
   }
 
+  @Test
+  public void select_tree_by_query() {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project));
+    ComponentDto module2 = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(module1).setUuid("C1").setName("File One"));
+    db.components().insertComponent(newFileDto(module2).setUuid("C2").setName("File Two").setQualifier(UNIT_TEST_FILE));
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    db.components().indexAllComponents();
+
+    // project
+    insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    // module 1
+    insertMeasure("MODULE_M1", LAST_ANALYSIS_UUID, module1.uuid(), NCLOC_METRIC_ID);
+    // component C1
+    insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
+    insertMeasure("M3", LAST_ANALYSIS_UUID, "C1", COVERAGE_METRIC_ID);
+    insertMeasureOnPerson("M4", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID, A_PERSON_ID);
+    // component C2
+    insertMeasure("M6", LAST_ANALYSIS_UUID, "C2", NCLOC_METRIC_ID);
+    db.commit();
+
+    // Children measures of project
+    verifyMeasures(project, MeasureTreeQuery.builder().setStrategy(CHILDREN), "PROJECT_M1", "MODULE_M1");
+
+    // Children measures of module 1
+    verifyMeasures(module1, MeasureTreeQuery.builder().setStrategy(CHILDREN), "M2", "M3", "MODULE_M1");
+
+    // Children measure on file => only measures from itself
+    verifyMeasures(file1, MeasureTreeQuery.builder().setStrategy(CHILDREN), "M2", "M3");
+
+    // Leaves measures of project
+    verifyMeasures(project, MeasureTreeQuery.builder().setStrategy(LEAVES), "PROJECT_M1", "MODULE_M1", "M2", "M3", "M6");
+
+    // Leaves measures of module 1
+    verifyMeasures(module1, MeasureTreeQuery.builder().setStrategy(LEAVES), "MODULE_M1", "M2", "M3");
+
+    // Leaves measures of project by metric ids
+    verifyMeasures(project, MeasureTreeQuery.builder().setMetricIds(asList(NCLOC_METRIC_ID)).setStrategy(LEAVES), "PROJECT_M1", "MODULE_M1", "M2",
+      "M6");
+
+    // Leaves measure on file
+    verifyMeasures(file1, MeasureTreeQuery.builder().setStrategy(LEAVES), "M2", "M3");
+
+    // Leaves measures of project matching name
+    verifyMeasures(project, MeasureTreeQuery.builder().setNameOrKeyQuery("OnE").setStrategy(LEAVES), "M2", "M3");
+
+    // Leaves measures of project matching qualifiers
+    verifyMeasures(project, MeasureTreeQuery.builder().setQualifiers(asList(FILE)).setStrategy(LEAVES), "M2", "M3");
+    verifyMeasures(project, MeasureTreeQuery.builder().setQualifiers(asList(FILE, UNIT_TEST_FILE)).setStrategy(LEAVES), "M2", "M3", "M6");
+  }
+
   private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {
     return underTest.selectSingle(db.getSession(), query.build());
   }
@@ -376,6 +434,16 @@ public class MeasureDaoTest {
   private void verifyZeroMeasuresWithHandler(MeasureQuery.Builder query) {
     List<MeasureDto> measures = getMeasuresWithHandler(query);
     assertThat(measures).isEmpty();
+  }
+
+  private void verifyMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery, String... expectedIds) {
+    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build()))
+      .extracting(MeasureDto::getData).containsOnly(expectedIds);
+  }
+
+  private void verifyZeroMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery) {
+    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent,
+      measureQuery.build())).isEmpty();
   }
 
   private List<MeasureDto> getMeasuresWithHandler(MeasureQuery.Builder query) {

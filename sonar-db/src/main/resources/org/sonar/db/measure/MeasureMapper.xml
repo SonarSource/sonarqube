@@ -85,12 +85,46 @@
     </if>
     <choose>
       <when test="query.getPersonId() != null">
-        and person_id = #{query.personId}
+        and pm.person_id = #{query.personId}
       </when>
       <otherwise>
-        and person_id is null
+        and pm.person_id is null
       </otherwise>
     </choose>
+  </sql>
+
+  <select id="selectTreeByQuery" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/> from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
+    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
+    <where>
+      <include refid="selectTreeByQueryFilters"/>
+    </where>
+    -- Add measures of base component
+    union all
+    select <include refid="measureColumns"/> from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid and pm.component_uuid=#{baseUuid}
+    <where>
+      <include refid="selectTreeByQueryFilters"/>
+    </where>
+  </select>
+
+  <sql id="selectTreeByQueryFilters">
+    <if test="query.getMetricIds() != null">
+      and pm.metric_id in
+      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <choose>
+      <when test="query.getPersonId() != null">
+        and pm.person_id = #{query.personId}
+      </when>
+      <otherwise>
+        and pm.person_id is null
+      </otherwise>
+    </choose>
+    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
   </sql>
 
   <select id="selectPastMeasures" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
