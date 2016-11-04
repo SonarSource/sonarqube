@@ -25,10 +25,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MeasureDao implements Dao {
 
@@ -74,6 +76,31 @@ public class MeasureDao implements Dao {
         });
     }
     return mapper(dbSession).selectByQueryOnSingleComponent(query);
+  }
+
+  public void selectByQuery(DbSession dbSession, MeasureQuery query, ResultHandler resultHandler) {
+    if (query.returnsEmpty()) {
+      return;
+    }
+    if (query.isOnComponents()) {
+      executeLargeInputsWithoutOutput(
+        query.getComponentUuids(),
+        componentUuids -> {
+          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
+          mapper(dbSession).selectByQueryOnComponents(pageQuery, resultHandler);
+          return null;
+        });
+    }
+    if (query.isOnProjects()) {
+      executeLargeInputsWithoutOutput(
+        query.getProjectUuids(),
+        projectUuids -> {
+          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
+          mapper(dbSession).selectByQueryOnProjects(pageQuery, resultHandler);
+          return null;
+        });
+    }
+    mapper(dbSession).selectByQueryOnSingleComponent(query, resultHandler);
   }
 
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession,
