@@ -54,7 +54,7 @@ class DashboardController < ApplicationController
       end
     else
       if logged_in?
-        return redirect_to :controller => 'account'
+        return redirect_to :controller => 'projects', :action => 'favorite'
       else
         return redirect_to :controller => 'projects'
       end

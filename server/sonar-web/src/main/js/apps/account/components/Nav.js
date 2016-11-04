@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
+import { Link, IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 const Nav = () => (
     <nav className="account-nav clearfix">
       <ul className="nav navbar-nav nav-tabs">
         <li>
-          <Link to="/account/profile/" activeClassName="active">
+          <IndexLink to="/account/" activeClassName="active">
             {translate('my_account.profile')}
-          </Link>
+          </IndexLink>
         </li>
         <li>
           <Link to="/account/security/" activeClassName="active">
