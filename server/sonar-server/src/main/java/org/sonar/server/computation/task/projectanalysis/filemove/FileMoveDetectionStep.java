@@ -41,8 +41,11 @@ import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
+import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -50,21 +53,18 @@ import org.sonar.server.computation.task.projectanalysis.component.DepthTraversa
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.File;
-import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
   protected static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
   private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  private static final List<String> SORT_FIELDS = singletonList("name");
   private static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -152,15 +152,14 @@ public class FileMoveDetectionStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated
       // mapper method
-      return from(dbClient.componentDao().selectDescendants(
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectDescendants(
         dbSession,
         ComponentTreeQuery.builder()
           .setBaseUuid(rootHolder.getRoot().getUuid())
           .setQualifiers(FILE_QUALIFIERS)
-          .setSortFields(SORT_FIELDS)
-          .setPageSize(Integer.MAX_VALUE)
-          .setPage(1)
-          .build()))
+          .setStrategy(Strategy.LEAVES)
+          .build());
+      return from(componentDtos)
             .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.key(), componentDto.uuid(), componentDto.path()))
             .uniqueIndex(DbComponent::getKey);
     }

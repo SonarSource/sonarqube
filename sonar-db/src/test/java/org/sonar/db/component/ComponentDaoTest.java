@@ -47,6 +47,8 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
+import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 
 public class ComponentDaoTest {
 
@@ -677,8 +679,7 @@ public class ComponentDaoTest {
       .setBModuleUuidPath("moduleUuidPath")
       .setBName("name")
       .setBPath("path")
-      .setBQualifier("qualifier")
-      );
+      .setBQualifier("qualifier"));
     dbSession.commit();
 
     Map<String, Object> row = selectBColumnsForUuid("U1");
@@ -840,167 +841,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectChildren() {
-    // project has 2 children: module and file 1. Other files are part of module.
-    ComponentDto project = newProjectDto(PROJECT_UUID);
-    componentDb.insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto(MODULE_UUID, project);
-    componentDb.insertComponent(module);
-    ComponentDto file1 = newFileDto(project, null, FILE_1_UUID).setKey("file-key-1").setName("File One");
-    componentDb.insertComponent(file1);
-    ComponentDto file2 = newFileDto(module, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
-    componentDb.insertComponent(file2);
-    ComponentDto file3 = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
-    componentDb.insertComponent(file3);
-    db.commit();
-    componentDb.indexAllComponents();
-
-    // test children of root
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
-    List<ComponentDto> children = underTest.selectChildren(dbSession, query);
-    assertThat(children).extracting("uuid").containsExactly(FILE_1_UUID, MODULE_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(2);
-
-    // test children of root, filtered by qualifier
-    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.MODULE)).build();
-    children = underTest.selectChildren(dbSession, query);
-    assertThat(children).extracting("uuid").containsExactly(MODULE_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
-
-    // test children of intermediate component (module here), default ordering by
-    query = newTreeQuery(MODULE_UUID).build();
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(2);
-
-    // test children of leaf component (file here)
-    query = newTreeQuery(FILE_1_UUID).build();
-    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
-
-    // test children of root, matching name
-    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("One").build();
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
-
-    // test children of root, matching case-insensitive name
-    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("OnE").build();
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
-
-    // test children of root, matching key
-    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("file-key-1").build();
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
-
-    // test children of root, without matching name nor key
-    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("does-not-exist").build();
-    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
-
-    // test children of intermediate component (module here), matching name
-    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("Two").build();
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID);
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(1);
-
-    // test children of intermediate component (module here), without matching name
-    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("does-not-exist").build();
-    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
-
-    // test children of leaf component (file here)
-    query = newTreeQuery(FILE_1_UUID).build();
-    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
-
-    // test children of leaf component (file here), matching name
-    query = newTreeQuery(FILE_1_UUID).setNameOrKeyQuery("Foo").build();
-    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
-  }
-
-  @Test
-  public void selectChildren_with_pagination() {
-    ComponentDto project = newProjectDto(PROJECT_UUID);
-    componentDb.insertProjectAndSnapshot(project);
-    for (int i = 1; i <= 9; i++) {
-      componentDb.insertComponent(newFileDto(project, null, "file-uuid-" + i));
-    }
-    db.commit();
-
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID)
-      .setPage(2)
-      .setPageSize(3)
-      .setAsc(false)
-      .build();
-
-    assertThat(underTest.selectChildren(dbSession, query)).extracting("uuid").containsExactly("file-uuid-6", "file-uuid-5", "file-uuid-4");
-    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(9);
-  }
-
-  @Test
-  public void selectChildren_ordered_by_file_path() {
-    ComponentDto project = newProjectDto(PROJECT_UUID);
-    componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-name-1").setPath("3"));
-    componentDb.insertComponent(newFileDto(project, null, "file-uuid-2").setName("file-name-2").setPath("2"));
-    componentDb.insertComponent(newFileDto(project, null, "file-uuid-3").setName("file-name-3").setPath("1"));
-    db.commit();
-    componentDb.indexAllComponents();
-
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID)
-      .setSortFields(singletonList("path"))
-      .setAsc(true)
-      .build();
-
-    List<ComponentDto> result = underTest.selectChildren(dbSession, query);
-    assertThat(result).extracting("uuid").containsExactly("file-uuid-3", "file-uuid-2", "file-uuid-1");
-  }
-
-  @Test
-  public void selectChildren_returns_empty_list_if_base_component_does_not_exist() {
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
-
-    List<ComponentDto> result = underTest.selectChildren(dbSession, query);
-    assertThat(result).isEmpty();
-  }
-
-  @Test
-  public void selectChildren_of_a_view() {
-    ComponentDto view = newView(A_VIEW_UUID);
-    componentDb.insertViewAndSnapshot(view);
-    // one subview
-    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview-name");
-    componentDb.insertComponent(subView);
-    // one project and its copy linked to the view
-    ComponentDto project = newProjectDto(PROJECT_UUID).setName("project-name");
-    componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
-    componentDb.indexAllComponents();
-    ComponentTreeQuery query = newTreeQuery(A_VIEW_UUID).build();
-
-    List<ComponentDto> components = underTest.selectChildren(dbSession, query);
-    assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
-  }
-
-  @Test
-  public void selectChildren_of_a_view_and_filter_by_name() {
-    ComponentDto view = newView(A_VIEW_UUID);
-    componentDb.insertViewAndSnapshot(view);
-    // one subview
-    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
-    componentDb.insertComponent(subView);
-    // one project and its copy linked to the view
-    ComponentDto project = newProjectDto(PROJECT_UUID).setName("project name");
-    componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
-    componentDb.indexAllComponents();
-    ComponentTreeQuery dbQuery = newTreeQuery(A_VIEW_UUID).setNameOrKeyQuery("name").build();
-
-    List<ComponentDto> components = underTest.selectChildren(dbSession, dbQuery);
-    assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
-  }
-
-  @Test
   public void selectParent() {
     // project -> module -> file
     ComponentDto project = newProjectDto(PROJECT_UUID);
@@ -1041,7 +881,74 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectDescendants() {
+  public void select_descendants_with_children_stragegy() {
+    // project has 2 children: module and file 1. Other files are part of module.
+    ComponentDto project = newProjectDto(PROJECT_UUID);
+    componentDb.insertProjectAndSnapshot(project);
+    ComponentDto module = newModuleDto(MODULE_UUID, project);
+    componentDb.insertComponent(module);
+    ComponentDto file1 = newFileDto(project, null, FILE_1_UUID).setKey("file-key-1").setName("File One");
+    componentDb.insertComponent(file1);
+    ComponentDto file2 = newFileDto(module, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
+    componentDb.insertComponent(file2);
+    ComponentDto file3 = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
+    componentDb.insertComponent(file3);
+    db.commit();
+    componentDb.indexAllComponents();
+
+    // test children of root
+    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
+    List<ComponentDto> children = underTest.selectDescendants(dbSession, query);
+    assertThat(children).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
+
+    // test children of root, filtered by qualifier
+    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.MODULE)).build();
+    children = underTest.selectDescendants(dbSession, query);
+    assertThat(children).extracting("uuid").containsOnly(MODULE_UUID);
+
+    // test children of intermediate component (module here), default ordering by
+    query = newTreeQuery(MODULE_UUID).build();
+    assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
+
+    // test children of leaf component (file here)
+    query = newTreeQuery(FILE_1_UUID).build();
+    assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+
+    // test children of root, matching name
+    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("One").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
+
+    // test children of root, matching case-insensitive name
+    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("OnE").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
+
+    // test children of root, matching key
+    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("file-key-1").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_1_UUID);
+
+    // test children of root, without matching name nor key
+    query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("does-not-exist").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+
+    // test children of intermediate component (module here), matching name
+    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("Two").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID);
+
+    // test children of intermediate component (module here), without matching name
+    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("does-not-exist").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+
+    // test children of leaf component (file here)
+    query = newTreeQuery(FILE_1_UUID).build();
+    assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+
+    // test children of leaf component (file here), matching name
+    query = newTreeQuery(FILE_1_UUID).setNameOrKeyQuery("Foo").build();
+    assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+  }
+
+  @Test
+  public void select_descendants_with_leaves_stragegy() {
     ComponentDto project = newProjectDto(PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newModuleDto("module-1-uuid", project));
@@ -1050,57 +957,41 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexAllComponents();
 
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
+    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).setStrategy(LEAVES).build();
 
     List<ComponentDto> result = underTest.selectDescendants(dbSession, query);
-    assertThat(result).extracting("uuid").containsExactly("file-1-uuid", "file-2-uuid", "module-1-uuid");
-    int count = underTest.countDescendants(dbSession, query);
-    assertThat(count).isEqualTo(3);
+    assertThat(result).extracting("uuid").containsOnly("file-1-uuid", "file-2-uuid", "module-1-uuid");
   }
 
   @Test
-  public void selectDescendants_returns_empty_list_if_base_component_does_not_exist() {
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
+  public void select_descendants_returns_empty_list_if_base_component_does_not_exist() {
+    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).setStrategy(CHILDREN).build();
 
     List<ComponentDto> result = underTest.selectDescendants(dbSession, query);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void selectDescendants_of_a_project_paginated_and_ordered() {
-    ComponentDto project = newProjectDto(PROJECT_UUID).setKey("project-key");
+  public void select_descendants_of_a_view_and_filter_by_name() {
+    ComponentDto view = newView(A_VIEW_UUID);
+    componentDb.insertViewAndSnapshot(view);
+    // one subview
+    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
+    componentDb.insertComponent(subView);
+    // one project and its copy linked to the view
+    ComponentDto project = newProjectDto(PROJECT_UUID).setName("project name");
     componentDb.insertProjectAndSnapshot(project);
-    componentDb.insertComponent(newModuleDto("module-1-uuid", project));
-    componentDb.insertComponent(newFileDto(project, null, "file-uuid-1").setName("file-name-1"));
-    componentDb.insertComponent(newFileDto(project, null, "another-uuid"));
-    for (int i = 2; i <= 9; i++) {
-      componentDb.insertComponent(newFileDto(project, null, "file-uuid-" + i).setName("file-name-" + i));
-    }
-    db.commit();
+    componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
     componentDb.indexAllComponents();
+    ComponentTreeQuery dbQuery = newTreeQuery(A_VIEW_UUID).setNameOrKeyQuery("name").setStrategy(CHILDREN).build();
 
-    ComponentTreeQuery query = newTreeQuery(PROJECT_UUID)
-      .setQualifiers(newArrayList(Qualifiers.FILE))
-      .setPage(2)
-      .setPageSize(3)
-      .setNameOrKeyQuery("file-name")
-      .setSortFields(singletonList("name"))
-      .setAsc(false)
-      .build();
-
-    List<ComponentDto> result = underTest.selectDescendants(dbSession, query);
-    int count = underTest.countDescendants(dbSession, query);
-
-    assertThat(count).isEqualTo(9);
-    assertThat(result).extracting("uuid").containsExactly("file-uuid-6", "file-uuid-5", "file-uuid-4");
+    List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
+    assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
   }
 
   private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {
     return ComponentTreeQuery.builder()
-      .setPage(1)
-      .setPageSize(500)
       .setBaseUuid(baseUuid)
-      .setSortFields(singletonList("name"))
-      .setAsc(true);
+      .setStrategy(CHILDREN);
   }
 }

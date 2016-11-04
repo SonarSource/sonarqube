@@ -19,26 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
-import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
-
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
@@ -64,6 +44,26 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
 public class TreeAction implements ComponentsWsAction {
   private static final int MAX_SIZE = 500;
@@ -158,13 +158,13 @@ public class TreeAction implements ComponentsWsAction {
       int total;
       switch (treeWsRequest.getStrategy()) {
         case CHILDREN_STRATEGY:
-          components = dbClient.componentDao().selectChildren(dbSession, query);
-          total = dbClient.componentDao().countChildren(dbSession, query);
+          components = dbClient.componentDao().selectDescendants(dbSession, query);
+          total = components.size();
           break;
         case LEAVES_STRATEGY:
         case ALL_STRATEGY:
           components = dbClient.componentDao().selectDescendants(dbSession, query);
-          total = dbClient.componentDao().countDescendants(dbSession, query);
+          total = components.size();
           break;
         default:
           throw new IllegalStateException("Unknown component tree strategy");

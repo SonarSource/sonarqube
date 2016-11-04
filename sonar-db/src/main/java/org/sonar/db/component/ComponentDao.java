@@ -34,15 +34,12 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.util.Collections.emptyList;
-import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
@@ -167,42 +164,7 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Select the children of a base component, given by its UUID. The components that are not present in last
-   * analysis are ignored.
-   *
-   * An empty list is returned if the base component does not exist or if the base component is a leaf.
-   */
-  public List<ComponentDto> selectChildren(DbSession dbSession, ComponentTreeQuery query) {
-    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
-    if (!componentOpt.isPresent()) {
-      return emptyList();
-    }
-    ComponentDto component = componentOpt.get();
-    RowBounds rowBounds = new RowBounds(offset(query.getPage(), query.getPageSize()), query.getPageSize());
-    return mapper(dbSession).selectChildren(query, uuidPathForChildrenQuery(component), rowBounds);
-  }
-
-  /**
-   * Count the children of a base component, given by its UUID. The components that are not present in last
-   * analysis are ignored.
-   *
-   * Zero is returned if the base component does not exist or if the base component is a leaf.
-   */
-  public int countChildren(DbSession dbSession, ComponentTreeQuery query) {
-    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
-    if (!componentOpt.isPresent()) {
-      return 0;
-    }
-    ComponentDto component = componentOpt.get();
-    return mapper(dbSession).countChildren(query, uuidPathForChildrenQuery(component));
-  }
-
-  private static String uuidPathForChildrenQuery(ComponentDto component) {
-    return component.getUuidPath() + component.uuid() + ".";
-  }
-
-  /**
-   * Select the descendants of a base component, given by its UUID. The components that are not present in last
+   * Select the children or the leaves of a base component, given by its UUID. The components that are not present in last
    * analysis are ignored.
    *
    * An empty list is returned if the base component does not exist or if the base component is a leaf.
@@ -210,30 +172,10 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectDescendants(DbSession dbSession, ComponentTreeQuery query) {
     Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
     if (!componentOpt.isPresent()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     ComponentDto component = componentOpt.get();
-    RowBounds rowBounds = new RowBounds(offset(query.getPage(), query.getPageSize()), query.getPageSize());
-    return mapper(dbSession).selectDescendants(query, uuidPathForDescendantsQuery(component), rowBounds);
-  }
-
-  /**
-   * Count the descendants of a base component, given by its UUID. The components that are not present in last
-   * analysis are ignored.
-   *
-   * Zero is returned if the base component does not exist or if the base component is a leaf.
-   */
-  public int countDescendants(DbSession dbSession, ComponentTreeQuery query) {
-    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
-    if (!componentOpt.isPresent()) {
-      return 0;
-    }
-    ComponentDto component = componentOpt.get();
-    return mapper(dbSession).countDescendants(query, uuidPathForDescendantsQuery(component));
-  }
-
-  private static String uuidPathForDescendantsQuery(ComponentDto component) {
-    return DatabaseUtils.buildLikeValue(component.getUuidPath() + component.uuid() + ".", WildcardPosition.AFTER);
+    return mapper(dbSession).selectDescendants(query, query.getUuidPath(component));
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

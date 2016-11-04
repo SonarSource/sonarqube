@@ -331,29 +331,30 @@
     order by ${query.sqlSort}
   </select>
 
-  <!-- "p" is children -->
-  <select id="selectChildren" resultType="Component">
+  <select id="selectDescendants" resultType="Component">
     select
     <include refid="componentColumns"/>
-    <include refid="sqlChildren"/>
-    order by ${query.sqlSort}
+    <include refid="selectDescendantsQuery"/>
   </select>
 
-  <select id="countChildren" resultType="int">
-    select count(p.id)
-    <include refid="sqlChildren"/>
-  </select>
-
-  <sql id="sqlChildren">
+  <sql id="selectDescendantsQuery">
     from projects p
     inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{query.baseUuid}
-    where
-    p.enabled = ${_true}
-    and p.uuid_path = #{baseUuidPath}
-    <include refid="sqlTreeFilters"/>
+    <where>
+      <choose>
+        <when test="query.getStrategy().name() == 'CHILDREN'">
+          and p.uuid_path = #{baseUuidPath}
+        </when>
+        <otherwise>
+          and p.uuid_path like #{baseUuidPath} ESCAPE '/'
+        </otherwise>
+      </choose>
+      <include refid="selectDescendantsFilters"/>
+    </where>
   </sql>
 
-  <sql id="sqlTreeFilters">
+  <sql id="selectDescendantsFilters">
+    and p.enabled = ${_true}
     <if test="query.qualifiers != null">
       and p.qualifier in
       <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
@@ -377,28 +378,6 @@
       )
       )
     </if>
-  </sql>
-
-  <!-- "p" is descendants -->
-  <select id="selectDescendants" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    <include refid="sqlDescendants"/>
-    order by ${query.sqlSort}
-  </select>
-
-  <select id="countDescendants" resultType="int">
-    select count(p.id)
-    <include refid="sqlDescendants"/>
-  </select>
-
-  <sql id="sqlDescendants">
-    from projects p
-    inner join projects base on base.project_uuid=p.project_uuid and base.uuid = #{query.baseUuid}
-    where
-    p.enabled = ${_true}
-    and p.uuid_path like #{baseUuidPathLike} ESCAPE '/'
-    <include refid="sqlTreeFilters"/>
   </sql>
 
   <select id="countRootComponents" resultType="int">

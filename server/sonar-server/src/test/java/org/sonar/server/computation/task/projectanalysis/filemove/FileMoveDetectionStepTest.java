@@ -44,11 +44,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
-import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
 import static com.google.common.base.Joiner.on;
@@ -287,9 +287,6 @@ public class FileMoveDetectionStepTest {
 
     ComponentTreeQuery query = captor.getValue();
     assertThat(query.getBaseUuid()).isEqualTo(PROJECT.getUuid());
-    assertThat(query.getPage()).isEqualTo(1);
-    assertThat(query.getPageSize()).isEqualTo(Integer.MAX_VALUE);
-    assertThat(query.getSqlSort()).isEqualTo("LOWER(p.name) ASC, p.name ASC");
     assertThat(query.getQualifiers()).containsOnly(FILE, UNIT_TEST_FILE);
   }
 

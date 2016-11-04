@@ -172,13 +172,13 @@ public class ComponentTreeDataLoader {
     switch (strategy) {
       case CHILDREN_STRATEGY:
         return new ComponentDtosAndTotal(
-          dbClient.componentDao().selectChildren(dbSession, dbQuery),
-          dbClient.componentDao().countChildren(dbSession, dbQuery));
+          dbClient.componentDao().selectDescendants(dbSession, dbQuery),
+          0);
       case LEAVES_STRATEGY:
       case ALL_STRATEGY:
         return new ComponentDtosAndTotal(
           dbClient.componentDao().selectDescendants(dbSession, dbQuery),
-          dbClient.componentDao().countDescendants(dbSession, dbQuery));
+          0);
       default:
         throw new IllegalStateException("Unknown component tree strategy");
     }
