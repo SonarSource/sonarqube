@@ -31,13 +31,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import pageobjects.MyActivityPage;
 import pageobjects.Navigation;
 import util.selenium.SeleneseTest;
 
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.WebDriverRunner.url;
-import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -64,20 +60,6 @@ public class MyAccountPageTest {
   @After
   public void deleteTestUser() {
     deactivateUser("account-user");
-  }
-
-  @Test
-  public void should_open_by_default() {
-    nav.logIn().asAdmin().openHomepage();
-    assertThat(url()).contains("/account");
-  }
-
-  @Test
-  public void should_display_activity () {
-    MyActivityPage page = nav.logIn().asAdmin().openMyActivity();
-    page.getAllIssues().shouldBe(visible);
-    page.getRecentIssues().shouldBe(visible);
-    page.assertNoFavoriteProjects();
   }
 
   @Test
