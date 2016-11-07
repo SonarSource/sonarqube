@@ -32,10 +32,6 @@ import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.dashboard.ActiveDashboardDao;
-import org.sonar.db.dashboard.DashboardDao;
-import org.sonar.db.dashboard.WidgetDao;
-import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
@@ -77,7 +73,6 @@ import org.sonar.db.user.UserTokenDao;
 
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
-    ActiveDashboardDao.class,
     AuthorDao.class,
     AuthorizationDao.class,
     CeActivityDao.class,
@@ -86,7 +81,6 @@ public class DaoModule extends Module {
     ComponentDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,
-    DashboardDao.class,
     DuplicationDao.class,
     EventDao.class,
     FileSourceDao.class,
@@ -126,9 +120,7 @@ public class DaoModule extends Module {
     UserDao.class,
     UserGroupDao.class,
     UserPermissionDao.class,
-    UserTokenDao.class,
-    WidgetDao.class,
-    WidgetPropertyDao.class).build();
+    UserTokenDao.class).build();
 
   @Override
   protected void configureModule() {

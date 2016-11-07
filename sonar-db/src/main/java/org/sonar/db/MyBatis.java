@@ -48,14 +48,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
-import org.sonar.db.dashboard.ActiveDashboardDto;
-import org.sonar.db.dashboard.ActiveDashboardMapper;
-import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.db.dashboard.DashboardMapper;
-import org.sonar.db.dashboard.WidgetDto;
-import org.sonar.db.dashboard.WidgetMapper;
-import org.sonar.db.dashboard.WidgetPropertyDto;
-import org.sonar.db.dashboard.WidgetPropertyMapper;
 import org.sonar.db.debt.RequirementMigrationDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
@@ -166,7 +158,6 @@ public class MyBatis {
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
     // DTO aliases, keep them sorted alphabetically
-    confBuilder.loadAlias("ActiveDashboard", ActiveDashboardDto.class);
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("Author", AuthorDto.class);
@@ -174,7 +165,6 @@ public class MyBatis {
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
-    confBuilder.loadAlias("Dashboard", DashboardDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
@@ -217,15 +207,12 @@ public class MyBatis {
     confBuilder.loadAlias("User", UserDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
-    confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
-    confBuilder.loadAlias("Widget", WidgetDto.class);
 
     // ResourceMapper has to be loaded before IssueMapper because this last one used it
     confBuilder.loadMapper(ResourceMapper.class);
 
     // keep them sorted alphabetically
     Class<?>[] mappers = {
-      ActiveDashboardMapper.class,
       ActiveRuleMapper.class,
       AuthorMapper.class,
       AuthorizationMapper.class,
@@ -237,7 +224,6 @@ public class MyBatis {
       ComponentLinkMapper.class,
       ComponentMapper.class,
       CustomMeasureMapper.class,
-      DashboardMapper.class,
       DuplicationMapper.class,
       EventMapper.class,
       FileSourceMapper.class,
@@ -278,9 +264,7 @@ public class MyBatis {
       UserGroupMapper.class,
       UserMapper.class,
       UserPermissionMapper.class,
-      UserTokenMapper.class,
-      WidgetMapper.class,
-      WidgetPropertyMapper.class
+      UserTokenMapper.class
     };
     confBuilder.loadMappers(mappers);
 

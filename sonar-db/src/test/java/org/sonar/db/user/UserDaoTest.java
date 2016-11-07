@@ -33,14 +33,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.dashboard.ActiveDashboardDto;
-import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
 import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 
@@ -400,8 +397,6 @@ public class UserDaoTest {
   @Test
   public void deactivate_user() throws Exception {
     UserDto user = newActiveUser();
-    DashboardDto dashboard = insertDashboard(user, false);
-    ActiveDashboardDto activeDashboard = insertActiveDashboard(dashboard, user);
     IssueFilterDto issueFilter = insertIssueFilter(user, false);
     IssueFilterFavouriteDto issueFilterFavourite = insertIssueFilterFavourite(issueFilter, user);
     MeasureFilterDto measureFilter = insertMeasureFilter(user, false);
@@ -430,8 +425,6 @@ public class UserDaoTest {
 
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
 
-    assertThat(dbClient.dashboardDao().selectById(session, dashboard.getId())).isNull();
-    assertThat(dbClient.activeDashboardDao().selectById(session, activeDashboard.getId())).isNull();
     assertThat(dbClient.issueFilterDao().selectById(session, issueFilter.getId())).isNull();
     assertThat(dbClient.issueFilterFavouriteDao().selectById(session, issueFilterFavourite.getId())).isNull();
     assertThat(dbClient.measureFilterDao().selectById(session, measureFilter.getId())).isNull();
@@ -439,22 +432,6 @@ public class UserDaoTest {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(session, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().login(user.getLogin()).membership(IN).build(), user.getId())).isZero();
-  }
-
-  @Test
-  public void deactivate_user_does_not_remove_shared_dashboard() throws Exception {
-    UserDto user = newActiveUser();
-    DashboardDto notSharedDashboard = insertDashboard(user, false);
-    DashboardDto sharedDashboard = insertDashboard(user, true);
-    session.commit();
-
-    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
-    assertThat(deactivated).isTrue();
-
-    assertThat(dbClient.dashboardDao().selectById(session, notSharedDashboard.getId())).isNull();
-    DashboardDto sharedDashboardReloaded = dbClient.dashboardDao().selectById(session, sharedDashboard.getId());
-    assertThat(sharedDashboardReloaded).isNotNull();
-    assertThat(sharedDashboardReloaded.getUserId()).isEqualTo(user.getId());
   }
 
   @Test
@@ -785,18 +762,6 @@ public class UserDaoTest {
   private UserDto insertUser(boolean active) {
     UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
-    return dto;
-  }
-
-  private DashboardDto insertDashboard(UserDto user, boolean shared) {
-    DashboardDto dto = new DashboardDto().setUserId(user.getId()).setShared(shared);
-    dbClient.dashboardDao().insert(session, dto);
-    return dto;
-  }
-
-  private ActiveDashboardDto insertActiveDashboard(DashboardDto dashboard, UserDto user) {
-    ActiveDashboardDto dto = new ActiveDashboardDto().setDashboardId(dashboard.getId()).setUserId(user.getId());
-    dbClient.activeDashboardDao().insert(session, dto);
     return dto;
   }
 
