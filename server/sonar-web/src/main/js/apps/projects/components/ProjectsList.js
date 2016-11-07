@@ -19,11 +19,11 @@
  */
 import React from 'react';
 import ProjectCardContainer from './ProjectCardContainer';
-import { translate } from '../../../helpers/l10n';
 
 export default class ProjectsList extends React.Component {
   static propTypes = {
     projects: React.PropTypes.arrayOf(React.PropTypes.string),
+    noProjectsComponent: React.PropTypes.element.isRequired
   };
 
   render () {
@@ -40,10 +40,7 @@ export default class ProjectsList extends React.Component {
                   <ProjectCardContainer key={projectKey} projectKey={projectKey}/>
               ))
           ) : (
-              <div className="projects-empty-list">
-                <h3>{translate('projects.no_projects.1')}</h3>
-                <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
-              </div>
+              this.props.noProjectsComponent
           )}
         </div>
     );

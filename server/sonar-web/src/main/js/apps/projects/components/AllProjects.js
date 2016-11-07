@@ -21,8 +21,8 @@ import React from 'react';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
+import NoProjects from './NoProjects';
 import { parseUrlQuery } from '../store/utils';
-import '../styles.css';
 
 export default class AllProjects extends React.Component {
   static propTypes = {
@@ -58,7 +58,7 @@ export default class AllProjects extends React.Component {
     return (
         <div className="page-with-sidebar projects-page">
           <div className="page-main">
-            <ProjectsListContainer/>
+            <ProjectsListContainer noProjectsComponent={<NoProjects/>}/>
             <ProjectsListFooterContainer query={this.state.query}/>
           </div>
           <aside className="page-sidebar-fixed projects-sidebar">

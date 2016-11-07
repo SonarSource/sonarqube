@@ -18,32 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ProjectsListContainer from './ProjectsListContainer';
-import NoFavoriteProjects from './NoFavoriteProjects';
+import { translate } from '../../../helpers/l10n';
 
-export default class FavoriteProjects extends React.Component {
-  static propTypes = {
-    user: React.PropTypes.object,
-    fetchFavoriteProjects: React.PropTypes.func.isRequired
-  };
-
-  componentDidMount () {
-    this.props.fetchFavoriteProjects();
-  }
-
+export default class NoProjects extends React.Component {
   render () {
-    if (!this.props.user) {
-      return null;
-    }
-
     return (
-        <div className="page-with-sidebar">
-          <div className="page-main">
-            <div className="projects-list-container">
-              <ProjectsListContainer noProjectsComponent={<NoFavoriteProjects/>}/>
-            </div>
-          </div>
-          <aside className="page-sidebar-fixed projects-sidebar"/>
+        <div className="projects-empty-list">
+          <h3>{translate('projects.no_projects.1')}</h3>
+          <p className="big-spacer-top">{translate('projects.no_projects.2')}</p>
         </div>
     );
   }
