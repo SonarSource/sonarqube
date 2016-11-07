@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -46,6 +47,6 @@ import org.sonar.api.SonarPlugin;
 public class ServerPlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
-      StartupCrash.class, WidgetDisplayingProperties.class, TempFolderExtension.class);
+      StartupCrash.class, TempFolderExtension.class);
   }
 }
