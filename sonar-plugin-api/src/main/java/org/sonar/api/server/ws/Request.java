@@ -26,12 +26,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
 
@@ -277,9 +282,35 @@ public abstract class Request {
   private static long parseLong(String key, String value) {
     try {
       return Long.parseLong(value);
-    } catch (NumberFormatException expection) {
+    } catch (NumberFormatException exception) {
       throw new IllegalArgumentException(String.format("The '%s' parameter cannot be parsed as a long value: %s", key, value));
     }
+  }
+
+  @Beta
+  public <T> Param<T> getParam(String key, BiFunction<Request, String, T> retrieveAndValidate) {
+    if (hasParam(key)) {
+      return GenericParam.present(retrieveAndValidate.apply(this, key));
+    }
+    return AbsentParam.absent();
+  }
+
+  @Beta
+  public StringParam getParam(String key, Consumer<String> validate) {
+    if (hasParam(key)) {
+      String value = this.param(key);
+      validate.accept(value);
+      return StringParamImpl.present(value);
+    }
+    return AbsentStringParam.absent();
+  }
+
+  @Beta
+  public StringParam getParam(String key) {
+    if (hasParam(key)) {
+      return StringParamImpl.present(this.param(key));
+    }
+    return AbsentStringParam.absent();
   }
 
   /**
@@ -303,5 +334,219 @@ public abstract class Request {
     InputStream getInputStream();
 
     String getFileName();
+  }
+
+  /**
+   * Represents a Request parameter, provides information whether is was specified or not (check {@link #isPresent()})
+   * and utility method to nicely handles cases where the parameter is not present.
+   */
+  @Beta
+  public interface Param<T> {
+    boolean isPresent();
+
+    /**
+     * @return the value of the parameter
+     *
+     * @throws IllegalStateException if param is not present.
+     */
+    @CheckForNull
+    T getValue();
+
+    @CheckForNull
+    T or(Supplier<T> defaultValueSupplier);
+  }
+
+  /**
+   * Implementation of {@link Param} where the param is not present.
+   */
+  private enum AbsentParam implements Param<Object> {
+    INSTANCE;
+
+    @SuppressWarnings("unchecked")
+    protected static <T> Param<T> absent() {
+      return (Param<T>) INSTANCE;
+    }
+
+    /**
+     * Always returns true.
+     */
+    @Override
+    public boolean isPresent() {
+      return false;
+    }
+
+    /**
+     * Always throws a {@link IllegalStateException}.
+     */
+    @Override
+    public Object getValue() {
+      throw createGetValueISE();
+    }
+
+    /**
+     * Always returns the value supplied by {@code defaultValueSupplier}.
+     */
+    @Override
+    @CheckForNull
+    public Object or(Supplier<Object> defaultValueSupplier) {
+      return checkDefaultValueSupplier(defaultValueSupplier).get();
+    }
+  }
+
+  /**
+   * Implementation of {@link Param} where the param is present.
+   */
+  private static final class GenericParam<T> implements Param<T> {
+    private final T value;
+
+    private GenericParam(T value) {
+      this.value = value;
+    }
+
+    static <T> Param<T> present(T value) {
+      return new GenericParam<>(value);
+    }
+
+    /**
+     * Always returns true.
+     */
+    @Override
+    public boolean isPresent() {
+      return true;
+    }
+
+    /**
+     * @return the value of the parameter
+     *
+     * @throws IllegalStateException if param is not present.
+     */
+    @Override
+    @CheckForNull
+    public T getValue() {
+      return value;
+    }
+
+    /**
+     * Always returns value of the parameter.
+     *
+     * @throws NullPointerException As per the inherited contract, {@code defaultValueSupplier} can't be null
+     */
+    @Override
+    @CheckForNull
+    public T or(Supplier<T> defaultValueSupplier) {
+      checkDefaultValueSupplier(defaultValueSupplier);
+      return value;
+    }
+  }
+
+  /**
+   * Extends {@link Param} with convenience methods specific to the type {@link String}.
+   */
+  interface StringParam extends Param<String> {
+    /**
+     * Returns a {@link StringParam} object which methods {@link #getValue()} and {@link #or(Supplier)} will
+     * return {@code null} rather than an empty String when the param is present and its value is an empty String.
+     */
+    StringParam emptyAsNull();
+  }
+
+  /**
+   * Implementation of {@link StringParam} where the param is not present.
+   */
+  private enum AbsentStringParam implements StringParam {
+    INSTANCE;
+
+    protected static StringParam absent() {
+      return INSTANCE;
+    }
+
+    /**
+     * Always returns false.
+     */
+    @Override
+    public boolean isPresent() {
+      return false;
+    }
+
+    /**
+     * Always throws a {@link IllegalStateException}.
+     */
+    @Override
+    public String getValue() {
+      throw createGetValueISE();
+    }
+
+    /**
+     * Always returns the value supplied by {@code defaultValueSupplier}.
+     */
+    @Override
+    public String or(Supplier<String> defaultValueSupplier) {
+      return checkDefaultValueSupplier(defaultValueSupplier).get();
+    }
+
+    /**
+     * Returns itself.
+     */
+    @Override
+    public StringParam emptyAsNull() {
+      return this;
+    }
+  }
+
+  /**
+   * Implementation of {@link StringParam} where the param is present.
+   */
+  private static final class StringParamImpl implements StringParam {
+    @CheckForNull
+    private final String value;
+    private final boolean emptyAsNull;
+
+    private StringParamImpl(@Nullable String value, boolean emptyAsNull) {
+      this.value = value;
+      this.emptyAsNull = emptyAsNull;
+    }
+
+    static StringParam present(String value) {
+      return new StringParamImpl(value, false);
+    }
+
+    @Override
+    public boolean isPresent() {
+      return true;
+    }
+
+    @Override
+    public String getValue() {
+      if (emptyAsNull && value != null && value.isEmpty()) {
+        return null;
+      }
+      return value;
+    }
+
+    @Override
+    @CheckForNull
+    public String or(Supplier<String> defaultValueSupplier) {
+      checkDefaultValueSupplier(defaultValueSupplier);
+      if (emptyAsNull && value != null && value.isEmpty()) {
+        return null;
+      }
+      return value;
+    }
+
+    @Override
+    public StringParam emptyAsNull() {
+      if (emptyAsNull || (value != null && !value.isEmpty())) {
+        return this;
+      }
+      return new StringParamImpl(value, true);
+    }
+  }
+
+  private static <T> Supplier<T> checkDefaultValueSupplier(Supplier<T> defaultValueSupplier) {
+    return requireNonNull(defaultValueSupplier, "default value supplier can't be null");
+  }
+
+  private static IllegalStateException createGetValueISE() {
+    return new IllegalStateException("Param has no value. Use isPresent() before calling getValue()");
   }
 }

@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -43,6 +44,7 @@ import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -220,6 +222,214 @@ public class RequestTest {
   @Test
   public void param_as_date() {
     assertThat(underTest.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
+  }
+
+  @Test
+  public void getParam_of_missing_string_parameter() {
+    Request.StringParam stringParam = underTest.getParam("boo");
+
+    assertThat(stringParam.isPresent()).isFalse();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("foo");
+    expectGetValueFailureWithISE(stringParam::getValue);
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isFalse();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo("bar");
+    expectGetValueFailureWithISE(emptyAsNull::getValue);
+  }
+
+  @Test
+  public void getParam_of_existing_string_parameter_with_non_empty_value() {
+    underTest.setParam("a_string", "sorry");
+
+    Request.StringParam stringParam = underTest.getParam("a_string");
+
+    assertThat(stringParam.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("sorry");
+    assertThat(stringParam.getValue()).isEqualTo("sorry");
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo("sorry");
+    assertThat(emptyAsNull.getValue()).isEqualTo("sorry");
+  }
+
+  @Test
+  public void getParam_of_existing_string_parameter_with_empty_value() {
+    underTest.setParam("a_string", "");
+
+    Request.StringParam stringParam = underTest.getParam("a_string");
+
+    assertThat(stringParam.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("");
+    assertThat(stringParam.getValue()).isEqualTo("");
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isNotSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo(null);
+    assertThat(emptyAsNull.getValue()).isEqualTo(null);
+  }
+
+  @Test
+  public void getParam_with_validation_of_missing_string_parameter() {
+    Request.StringParam stringParam = underTest.getParam("boo", (str) -> {
+      throw new IllegalStateException("validator should not be called");
+    });
+
+    assertThat(stringParam.isPresent()).isFalse();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("foo");
+    expectGetValueFailureWithISE(stringParam::getValue);
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isFalse();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo("bar");
+    expectGetValueFailureWithISE(emptyAsNull::getValue);
+  }
+
+  @Test
+  public void getParam_with_validation_of_existing_string_parameter_with_non_empty_value() {
+    underTest.setParam("a_string", "sorry");
+    AtomicInteger calls = new AtomicInteger();
+
+    Request.StringParam stringParam = underTest.getParam("a_string", (str) -> calls.incrementAndGet());
+
+    assertThat(calls.get()).isEqualTo(1);
+    assertThat(stringParam.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("sorry");
+    assertThat(stringParam.getValue()).isEqualTo("sorry");
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo("sorry");
+    assertThat(emptyAsNull.getValue()).isEqualTo("sorry");
+  }
+
+  @Test
+  public void getParam_with_validation_of_existing_string_parameter_with_empty_value() {
+    underTest.setParam("a_string", "");
+    AtomicInteger calls = new AtomicInteger();
+
+    Request.StringParam stringParam = underTest.getParam("a_string", (str) -> calls.incrementAndGet());
+
+    assertThat(calls.get()).isEqualTo(1);
+    assertThat(stringParam.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
+    assertThat(stringParam.or(() -> "foo")).isEqualTo("");
+    assertThat(stringParam.getValue()).isEqualTo("");
+
+    Request.StringParam emptyAsNull = stringParam.emptyAsNull();
+    assertThat(emptyAsNull).isNotSameAs(stringParam);
+    assertThat(emptyAsNull.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
+    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo(null);
+    assertThat(emptyAsNull.getValue()).isEqualTo(null);
+  }
+
+  @Test
+  public void getParam_with_validation_of_existing_string_parameter_does_not_catch_unchecked_exception_throws_by_validator() {
+    underTest.setParam("a_string", "boo");
+    IllegalArgumentException expected = new IllegalArgumentException("Faking validation of parameter value failed");
+
+    try {
+      underTest.getParam("a_string", (str) -> {throw expected; });
+      fail("an IllegalStateException should have been raised");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).isSameAs(expected);
+    }
+  }
+
+  @Test
+  public void getParam_of_missing_parameter_of_unspecified_type() {
+    Request.Param<Object> param = underTest.getParam("baa", (rqt, key) -> {
+      throw new IllegalStateException("retrieveAndValidate BiConsumer should not be called");
+    });
+
+    assertThat(param.isPresent()).isFalse();
+    expectSupplierCanNotBeNullNPE(() -> param.or(null));
+    assertThat(param.or(() -> "foo")).isEqualTo("foo");
+    expectGetValueFailureWithISE(param::getValue);
+  }
+
+  @Test
+  public void getParam_of_existing_parameter_of_unspecified_type_with_null_value() {
+    underTest.setParam("a_string", "value in fake request actually does not matter");
+
+    Request.Param<Object> param = underTest.getParam("a_string", (rqt, key) -> null);
+
+    assertThat(param.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> param.or(null));
+    assertThat(param.or(() -> "foo")).isNull();
+    assertThat(param.getValue()).isNull();
+  }
+
+  @Test
+  public void getParam_of_existing_parameter_of_unspecified_type_with_empty_string() {
+    underTest.setParam("a_string", "value in fake request actually does not matter");
+
+    Request.Param<Object> param = underTest.getParam("a_string", (rqt, key) -> "");
+
+    assertThat(param.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> param.or(null));
+    assertThat(param.or(() -> "foo")).isEqualTo("");
+    assertThat(param.getValue()).isEqualTo("");
+  }
+
+  @Test
+  public void getParam_of_existing_parameter_of_unspecified_type_with_object() {
+    underTest.setParam("a_string", "value in fake request actually does not matter");
+    Object value = new Object();
+    Request.Param<Object> param = underTest.getParam("a_string", (rqt, key) -> value);
+
+    assertThat(param.isPresent()).isTrue();
+    expectSupplierCanNotBeNullNPE(() -> param.or(null));
+    assertThat(param.or(() -> "foo")).isSameAs(value);
+    assertThat(param.getValue()).isSameAs(value);
+  }
+
+  @Test
+  public void getParam_of_existing_parameter_of_unspecified_type_does_not_catch_unchecked_exception_thrown_by_BiConsumer() {
+    underTest.setParam("a_string", "value in fake request actually does not matter");
+    RuntimeException expected = new RuntimeException("Faking BiConsumer throwing unchecked exception");
+
+    try {
+      underTest.getParam("a_string", (rqt, key) -> { throw expected; });
+      fail("an RuntimeException should have been raised");
+    } catch (RuntimeException e) {
+      assertThat(e).isSameAs(expected);
+    }
+  }
+
+  private void expectGetValueFailureWithISE(Runnable runnable) {
+    try {
+      runnable.run();
+      fail("An IllegalStateException should have been raised");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Param has no value. Use isPresent() before calling getValue()");
+    }
+  }
+
+  private void expectSupplierCanNotBeNullNPE(Runnable runnable) {
+    try {
+      runnable.run();
+      fail("A NullPointerException should have been raised");
+    } catch (NullPointerException e) {
+      assertThat(e).hasMessage("default value supplier can't be null");
+    }
   }
 
   @DataProvider
