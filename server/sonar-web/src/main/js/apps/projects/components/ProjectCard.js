@@ -38,7 +38,7 @@ export default class ProjectCard extends React.Component {
     const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': this.props.measures == null });
 
     return (
-        <div className={className}>
+        <div data-key={project.key} className={className}>
           {this.props.measures != null && (
               <div className="boxed-group-actions">
                 <ProjectCardQualityGate status={this.props.measures['alert_status']}/>

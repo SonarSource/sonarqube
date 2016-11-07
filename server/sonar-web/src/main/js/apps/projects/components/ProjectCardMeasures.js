@@ -41,7 +41,7 @@ export default class ProjectCardMeasures extends React.Component {
 
     return (
         <div className="project-card-measures">
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="reliability_rating">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 <Rating value={measures['reliability_rating']}/>
@@ -52,7 +52,7 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="security_rating">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 <Rating value={measures['security_rating']}/>
@@ -63,7 +63,7 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="sqale_rating">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 <Rating value={measures['sqale_rating']}/>
@@ -74,7 +74,7 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="coverage">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 {measures['coverage'] != null && (
@@ -91,7 +91,7 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="duplicated_lines_density">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 <span className="spacer-right">
@@ -106,7 +106,7 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure">
+          <div className="project-card-measure" data-key="ncloc">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
                 <span className="spacer-right">

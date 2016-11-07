@@ -39,7 +39,7 @@ export default class PageHeader extends React.Component {
 
             {this.props.total != null && (
                 <span>
-                <strong>{this.props.total}</strong> {translate('projects._projects')}
+                <strong id="projects-total">{this.props.total}</strong> {translate('projects._projects')}
               </span>
             )}
           </div>

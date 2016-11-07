@@ -81,7 +81,7 @@ export default class Filter extends React.Component {
     const facetValue = (facet && getFacetValueForOption) ? getFacetValueForOption(facet, option) : null;
 
     return (
-        <Link key={option} className={className} to={path}>
+        <Link key={option} className={className} to={path} data-key={option}>
           <span className="facet-name">
             {this.props.renderOption(option, option === value)}
           </span>
@@ -105,7 +105,7 @@ export default class Filter extends React.Component {
 
   render () {
     return (
-        <div className="search-navigator-facet-box">
+        <div className="search-navigator-facet-box" data-key={this.props.property}>
           {this.renderHeader()}
           {this.renderOptions()}
         </div>

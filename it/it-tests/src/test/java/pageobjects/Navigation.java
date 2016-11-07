@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
 import pageobjects.licenses.LicensesPage;
+import pageobjects.projects.ProjectsPage;
 import pageobjects.settings.SettingsPage;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -53,6 +54,10 @@ public class Navigation extends ExternalResource {
 
   public Navigation openHomepage() {
     return open("/", Navigation.class);
+  }
+
+  public ProjectsPage openProjects() {
+    return open("/projects", ProjectsPage.class);
   }
 
   public ProjectDashboardPage openProjectDashboard(String projectKey) {

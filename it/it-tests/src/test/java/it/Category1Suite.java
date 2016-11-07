@@ -39,6 +39,7 @@ import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.projectAdministration.ProjectLinksPageTest;
+import it.projectSearch.ProjectsPageTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
@@ -87,6 +88,7 @@ import static util.ItUtils.xooPlugin;
   // measure
   ProjectMeasuresPageTest.class,
   ProjectDashboardTest.class,
+  ProjectsPageTest.class,
   MeasuresWsTest.class,
   // measure history
   DifferentialPeriodsTest.class,
