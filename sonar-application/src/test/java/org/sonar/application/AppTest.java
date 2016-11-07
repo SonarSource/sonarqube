@@ -55,94 +55,73 @@ public class AppTest {
 
   @Test
   public void start_all_processes_if_cluster_mode_is_disabled() throws Exception {
+    Props props = initDefaultProps();
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
-    Props props = initDefaultProps();
     app.start(props);
-
     ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
-
     assertThat(argument.getValue()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
 
     app.stopAsync();
+    verify(monitor).stop();
   }
 
   @Test
   public void start_only_web_server_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.WEB_SERVER);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.WEB_SERVER);
   }
 
   @Test
   public void start_only_compute_engine_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.COMPUTE_ENGINE);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.COMPUTE_ENGINE);
   }
 
   @Test
   public void start_only_elasticsearch_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.ELASTICSEARCH);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.ELASTICSEARCH);
   }
 
   @Test
   public void add_custom_jdbc_driver_to_tomcat_classpath() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set("sonar.jdbc.driverPath", "oracle/ojdbc6.jar");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue().get(1).getClasspath()).contains("oracle/ojdbc6.jar");
+    assertThat(commands.get(1).getClasspath()).contains("oracle/ojdbc6.jar");
   }
 
   @Test
   public void sets_TMPDIR_env_var_of_Web_process() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     String expectedTmpDir = "expected tmp dir";
     props.set("sonar.path.temp", expectedTmpDir);
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue().get(1).getEnvVariables()).contains(entry("TMPDIR", expectedTmpDir));
+    assertThat(commands.get(1).getEnvVariables()).contains(entry("TMPDIR", expectedTmpDir));
   }
 
   private Props initDefaultProps() throws IOException {
@@ -152,6 +131,15 @@ public class AppTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     return props;
+  }
+
+  private List<JavaCommand> start(Props props) throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    app.start(props);
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    verify(monitor).start(argument.capture());
+    return argument.getValue();
   }
 
   private ArgumentCaptor<List<JavaCommand>> newJavaCommandArgumentCaptor() {
