@@ -105,7 +105,7 @@ export default class ProfileActions extends React.Component {
           </li>
           <li>
             <Link
-                to={{ pathname: '/compare', query: { key: profile.key } }}
+                to={{ pathname: '/profiles/compare', query: { key: profile.key } }}
                 id="quality-profile-compare">
               {translate('compare')}
             </Link>
