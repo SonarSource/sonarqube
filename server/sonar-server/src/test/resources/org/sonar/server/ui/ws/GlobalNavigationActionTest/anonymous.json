@@ -1,9 +1,4 @@
 {
-  "globalDashboards": [
-    {
-      "name": "Default Dashboard for Anonymous"
-    }
-  ],
   "globalPages": [
     {
       "name": "My Plugin Page",
