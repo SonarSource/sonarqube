@@ -22,8 +22,6 @@ class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  helper :dashboard
-
   # DO NOT REMOVE - used by eclipse plugin
   def index
     require_parameters 'id'
