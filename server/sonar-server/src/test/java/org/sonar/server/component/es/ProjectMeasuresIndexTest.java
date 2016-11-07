@@ -21,7 +21,6 @@ package org.sonar.server.component.es;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,7 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -195,6 +195,19 @@ public class ProjectMeasuresIndexTest {
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 
     assertThat(result).containsExactly("P1", "P2");
+  }
+
+  @Test
+  public void filter_on_ids() {
+    addDocs(
+      newDoc("P1", "K1", "N1"),
+      newDoc("P2", "K2", "N2"),
+      newDoc("P3", "K3", "N3"));
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery().setProjectUuids(newArrayList("P1", "P3"));
+
+    List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
+
+    assertThat(result).containsExactly("P1", "P3");
   }
 
   @Test
@@ -858,8 +871,8 @@ public class ProjectMeasuresIndexTest {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, docs);
       for (ProjectMeasuresDoc doc : docs) {
         authorizationIndexerTester.indexProjectPermission(doc.getId(),
-          authorizedGroup != null ? singletonList(authorizedGroup) : Collections.emptyList(),
-          authorizeUser != null ? singletonList(authorizeUser) : Collections.emptyList());
+          authorizedGroup != null ? singletonList(authorizedGroup) : emptyList(),
+          authorizeUser != null ? singletonList(authorizeUser) : emptyList());
       }
     } catch (Exception e) {
       Throwables.propagate(e);

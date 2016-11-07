@@ -37,6 +37,7 @@ public class ComponentsWsModule extends Module {
       UpdateKeyAction.class,
       BulkUpdateKeyAction.class,
       SearchProjectsAction.class,
+      ProjectMeasuresQueryFactory.class,
       ProjectMeasuresQueryValidator.class);
   }
 }

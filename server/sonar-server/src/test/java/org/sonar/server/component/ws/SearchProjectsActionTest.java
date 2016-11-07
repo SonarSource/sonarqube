@@ -42,6 +42,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.es.ProjectMeasuresDoc;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
@@ -82,7 +83,7 @@ public class SearchProjectsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId(23);
 
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
@@ -95,9 +96,12 @@ public class SearchProjectsActionTest {
   private DbSession dbSession = db.getSession();
 
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+  private final ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), userSession);
+  private ProjectMeasuresQueryFactory queryFactory = new ProjectMeasuresQueryFactory(dbClient, userSession);
+  private final ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
 
   private WsActionTester ws = new WsActionTester(
-    new SearchProjectsAction(dbClient, new ProjectMeasuresIndex(es.client(), userSession), new ProjectMeasuresQueryValidator(dbClient)));
+    new SearchProjectsAction(dbClient, index, queryFactory, queryValidator));
 
   private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
@@ -187,6 +191,22 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void filter_projects_on_favorites() {
+    long javaId = insertProjectInDbAndEs(newProjectDto("java-id").setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    long markDownId = insertProjectInDbAndEs(newProjectDto("markdown-id").setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(javaId).setUserId(Long.valueOf(userSession.getUserId())));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(markDownId).setUserId(Long.valueOf(userSession.getUserId())));
+    dbSession.commit();
+    request.setFilter("isFavorite");
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(2);
+    assertThat(result.getComponentsList()).extracting(Component::getId).containsExactly("java-id", "markdown-id");
+  }
+
+  @Test
   public void return_nloc_facet() {
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
@@ -262,7 +282,7 @@ public class SearchProjectsActionTest {
     insertProjectInDbAndEs(project, emptyList());
   }
 
-  private void insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
+  private long insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
     componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES,
@@ -271,6 +291,8 @@ public class SearchProjectsActionTest {
     } catch (Exception e) {
       Throwables.propagate(e);
     }
+
+    return project.getId();
   }
 
   private void insertMetrics(String... metricKeys) {

@@ -21,11 +21,20 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Splitter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
@@ -33,16 +42,20 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 
-class ProjectMeasuresQueryFactory {
-
+public class ProjectMeasuresQueryFactory {
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
   private static final Pattern CRITERIA_PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(\\w+)");
+  private static final String IS_FAVORITE_CRITERION = "isFavorite";
 
-  private ProjectMeasuresQueryFactory() {
-    // Only static methods
+  private final DbClient dbClient;
+  private final UserSession userSession;
+
+  public ProjectMeasuresQueryFactory(DbClient dbClient, UserSession userSession) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
-  static ProjectMeasuresQuery newProjectMeasuresQuery(String filter) {
+  ProjectMeasuresQuery newProjectMeasuresQuery(DbSession dbSession, String filter) {
     if (StringUtils.isBlank(filter)) {
       return new ProjectMeasuresQuery();
     }
@@ -50,14 +63,21 @@ class ProjectMeasuresQueryFactory {
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
 
     CRITERIA_SPLITTER.split(filter)
-      .forEach(criteria -> processCriterion(criteria, query));
+      .forEach(criteria -> processCriterion(dbSession, criteria, query));
     return query;
   }
 
-  private static void processCriterion(String criterion, ProjectMeasuresQuery query) {
+  private void processCriterion(DbSession dbSession, String rawCriterion, ProjectMeasuresQuery query) {
+    String criterion = rawCriterion.trim();
+
     try {
+      if (IS_FAVORITE_CRITERION.equalsIgnoreCase(criterion)) {
+        query.setProjectUuids(searchFavoriteUuids(dbSession));
+        return;
+      }
+
       Matcher matcher = CRITERIA_PATTERN.matcher(criterion);
-      checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should have a metric, an operator and a value");
+      checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should be 'isFavourite' or criterion should have a metric, an operator and a value");
       String metric = matcher.group(1).toLowerCase(ENGLISH);
       Operator operator = Operator.getByValue(matcher.group(2));
       String value = matcher.group(3);
@@ -69,8 +89,24 @@ class ProjectMeasuresQueryFactory {
         query.addMetricCriterion(new MetricCriterion(metric, operator, doubleValue));
       }
     } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion.trim()), e);
+      throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion), e);
     }
+  }
+
+  private List<String> searchFavoriteUuids(DbSession dbSession) {
+    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(userSession.getUserId())
+      .setKey("favourite")
+      .build(), dbSession)
+      .stream()
+      .map(PropertyDto::getResourceId)
+      .collect(Collectors.toList());
+
+    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds)
+      .stream()
+      .filter(dbComponent -> Qualifiers.PROJECT.equals(dbComponent.qualifier()))
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toList());
   }
 
 }

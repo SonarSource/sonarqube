@@ -32,6 +32,7 @@ import static java.util.Objects.requireNonNull;
 public class ProjectMeasuresQuery {
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus;
+  private List<String> projectUuids = null;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -54,6 +55,19 @@ public class ProjectMeasuresQuery {
   public Metric.Level getQualityGateStatus() {
     checkState(qualityGateStatus != null);
     return qualityGateStatus;
+  }
+
+  public ProjectMeasuresQuery setProjectUuids(List<String> projectUuids) {
+    this.projectUuids = requireNonNull(projectUuids);
+    return this;
+  }
+
+  public boolean doesFilterOnProjectUuids() {
+    return projectUuids != null;
+  }
+
+  public List<String> getProjectUuids() {
+    return requireNonNull(projectUuids);
   }
 
   public enum Operator {

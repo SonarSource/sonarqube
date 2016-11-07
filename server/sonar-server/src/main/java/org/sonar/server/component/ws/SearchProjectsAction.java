@@ -47,7 +47,6 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.component.es.ProjectMeasuresIndex.SUPPORTED_FACETS;
-import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
@@ -56,12 +55,15 @@ import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_S
 public class SearchProjectsAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
-  private final ProjectMeasuresQueryValidator projectMeasuresQueryValidator;
+  private final ProjectMeasuresQueryValidator queryValidator;
+  private final ProjectMeasuresQueryFactory queryFactory;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryValidator projectMeasuresQueryValidator) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryFactory queryFactory,
+    ProjectMeasuresQueryValidator queryValidator) {
     this.dbClient = dbClient;
     this.index = index;
-    this.projectMeasuresQueryValidator = projectMeasuresQueryValidator;
+    this.queryFactory = queryFactory;
+    this.queryValidator = queryValidator;
   }
 
   @Override
@@ -99,8 +101,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchResults searchProjects(DbSession dbSession, SearchProjectsRequest request) {
     String filter = firstNonNull(request.getFilter(), "");
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(filter);
-    projectMeasuresQueryValidator.validate(dbSession, query);
+    ProjectMeasuresQuery query = queryFactory.newProjectMeasuresQuery(dbSession, filter);
+    queryValidator.validate(dbSession, query);
 
     SearchIdResult<String> searchResults = index.search(query, new SearchOptions()
       .addFacets(request.getFacets())

@@ -216,6 +216,9 @@ public class ProjectMeasuresIndex extends BaseIndex {
     if (query.hasQualityGateStatus()) {
       filters.put(ALERT_STATUS_KEY, termQuery(FIELD_QUALITY_GATE, query.getQualityGateStatus().name()));
     }
+    if (query.doesFilterOnProjectUuids()) {
+      filters.put("ids", termsQuery("_id", query.getProjectUuids()));
+    }
     return filters;
   }
 
