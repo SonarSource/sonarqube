@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
-import org.sonar.api.web.Widget;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,9 +37,8 @@ public class ViewsTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private static FakeResourceViewer FAKE_TAB = new FakeResourceViewer();
-  private static FakeWidget FAKE_WIDGET = new FakeWidget();
   private static FakePage FAKE_PAGE = new FakePage();
-  private static final View[] VIEWS = {FAKE_PAGE, FAKE_TAB, FAKE_WIDGET};
+  private static final View[] VIEWS = {FAKE_PAGE, FAKE_TAB};
 
   @Test
   public void should_get_page_by_id() {
@@ -64,38 +62,9 @@ public class ViewsTest {
   }
 
   @Test
-  public void should_get_widgets() {
-    final Views views = new Views(userSessionRule, VIEWS);
-    List<ViewProxy<Widget>> widgets = views.getWidgets();
-    assertThat(widgets.size()).isEqualTo(1);
-    assertThat(widgets.get(0).getTarget().getClass()).isEqualTo(FakeWidget.class);
-  }
-
-  @Test
-  public void should_sort_views_by_title() {
-    final Views views = new Views(userSessionRule, new View[] {new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets();
-    assertThat(widgets.size()).isEqualTo(3);
-    assertThat(widgets.get(0).getId()).isEqualTo("aaa");
-    assertThat(widgets.get(1).getId()).isEqualTo("bbb");
-    assertThat(widgets.get(2).getId()).isEqualTo("ccc");
-  }
-
-  @Test
-  public void should_prefix_title_by_number_to_display_first() {
-    final Views views = new Views(userSessionRule, new View[] {new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets();
-    assertThat(widgets.size()).isEqualTo(3);
-    assertThat(widgets.get(0).getId()).isEqualTo("1id");
-    assertThat(widgets.get(1).getId()).isEqualTo("2id");
-    assertThat(widgets.get(2).getId()).isEqualTo("other");
-  }
-
-  @Test
   public void should_accept_navigation_section() {
     ViewProxy<?> proxy = mock(ViewProxy.class);
     when(proxy.getSections()).thenReturn(new String[] {NavigationSection.RESOURCE});
-    when(proxy.isWidget()).thenReturn(false);
 
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.HOME)).isEqualTo(false);
@@ -104,15 +73,4 @@ public class ViewsTest {
     assertThat(Views.acceptNavigationSection(proxy, null)).isEqualTo(true);
   }
 
-  @Test
-  public void should_not_check_navigation_section_on_widgets() {
-    ViewProxy<?> proxy = mock(ViewProxy.class);
-    when(proxy.isWidget()).thenReturn(true);
-
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE)).isEqualTo(true);
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.HOME)).isEqualTo(true);
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.CONFIGURATION)).isEqualTo(true);
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE_CONFIGURATION)).isEqualTo(true);
-    assertThat(Views.acceptNavigationSection(proxy, null)).isEqualTo(true);
-  }
 }

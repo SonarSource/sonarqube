@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,14 +26,8 @@ import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
-import org.sonar.api.web.Widget;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
-import org.sonar.api.web.WidgetScope;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
@@ -128,67 +120,6 @@ public class ViewProxyTest {
 
     assertThat(proxy.isDefaultTab()).isFalse();
     assertThat(proxy.getDefaultTabForMetrics()).isEqualTo(new String[] {"ncloc", "coverage"});
-  }
-
-  @Test
-  public void widget_should_be_editable() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
-
-    assertThat(proxy.isEditable()).isTrue();
-    assertThat(proxy.getWidgetProperties()).hasSize(3);
-  }
-
-  @Test
-  public void load_widget_properties_in_the_same_order_than_annotations() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
-
-    List<WidgetProperty> widgetProperties = Lists.newArrayList(proxy.getWidgetProperties());
-    assertThat(widgetProperties).hasSize(3);
-    assertThat(widgetProperties.get(0).key()).isEqualTo("first_prop");
-    assertThat(widgetProperties.get(1).key()).isEqualTo("second_prop");
-    assertThat(widgetProperties.get(2).key()).isEqualTo("third_prop");
-  }
-
-  @Test
-  public void widget_should_have_text_property() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new TextWidget(), userSession);
-
-    assertThat(getOnlyElement(proxy.getWidgetProperties()).type()).isEqualTo(WidgetPropertyType.TEXT);
-  }
-
-  @Test
-  public void widget_should_not_be_global_by_default() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
-
-    assertThat(proxy.isGlobal()).isFalse();
-  }
-
-  @Test
-  public void widget_should_be_global() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new GlobalWidget(), userSession);
-
-    assertThat(proxy.isGlobal()).isTrue();
-  }
-
-  @Test
-  public void should_fail_to_load_widget_with_invalid_scope() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("INVALID");
-    exception.expectMessage("WidgetWithInvalidScope");
-
-    new ViewProxy<Widget>(new WidgetWithInvalidScope(), userSession);
-  }
-
-  @Test
-  public void widgetShouldRequireMandatoryProperties() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
-    assertThat(proxy.hasRequiredProperties()).isTrue();
-  }
-
-  @Test
-  public void widgetShouldDefineOnlyOptionalProperties() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties(), userSession);
-    assertThat(proxy.hasRequiredProperties()).isFalse();
   }
 
   @Test
@@ -306,77 +237,5 @@ class FakeView implements View {
   @Override
   public String getTitle() {
     return id;
-  }
-}
-
-@WidgetProperties({
-  @WidgetProperty(key = "first_prop", optional = false),
-  @WidgetProperty(key = "second_prop", defaultValue = "30", type = WidgetPropertyType.INTEGER),
-  @WidgetProperty(key = "third_prop", type = WidgetPropertyType.INTEGER)
-})
-class EditableWidget implements Widget {
-  @Override
-  public String getId() {
-    return "w1";
-  }
-
-  @Override
-  public String getTitle() {
-    return "W1";
-  }
-}
-
-@WidgetProperties(@WidgetProperty(key = "message", defaultValue = "", type = WidgetPropertyType.TEXT))
-class TextWidget implements Widget {
-  @Override
-  public String getId() {
-    return "text";
-  }
-
-  @Override
-  public String getTitle() {
-    return "TEXT";
-  }
-}
-
-@WidgetScope("GLOBAL")
-class GlobalWidget implements Widget {
-  @Override
-  public String getId() {
-    return "global";
-  }
-
-  @Override
-  public String getTitle() {
-    return "Global";
-  }
-}
-
-@WidgetScope("INVALID")
-class WidgetWithInvalidScope implements Widget {
-  @Override
-  public String getId() {
-    return "invalidScope";
-  }
-
-  @Override
-  public String getTitle() {
-    return "InvalidScope";
-  }
-}
-
-@WidgetProperties({
-  @WidgetProperty(key = "foo"),
-  @WidgetProperty(key = "bar")
-})
-class WidgetWithOptionalProperties implements Widget {
-  @Override
-  public String getId() {
-    return "w2";
-  }
-
-  @Override
-  public String getTitle() {
-    return "W2";
   }
 }
