@@ -87,7 +87,7 @@ public class CreateAction implements OrganizationsAction {
         "Otherwise, it must be between 2 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
       .setExampleValue("foo-company");
 
-    wsSupport.addOrganizationDetailsParams(action);
+    wsSupport.addOrganizationDetailsParams(action, true);
   }
 
   @Override
@@ -98,7 +98,7 @@ public class CreateAction implements OrganizationsAction {
       userSession.checkIsRoot();
     }
 
-    String name = wsSupport.getAndCheckName(request);
+    String name = wsSupport.getAndCheckMandatoryName(request);
     String requestKey = getAndCheckKey(request);
     String key = useOrGenerateKey(requestKey, name);
     wsSupport.getAndCheckDescription(request);

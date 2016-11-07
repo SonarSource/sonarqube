@@ -43,11 +43,24 @@ public class OrganizationsWsSupport {
   static final int DESCRIPTION_MAX_LENGTH = 256;
   static final int URL_MAX_LENGTH = 256;
 
-  String getAndCheckName(Request request) {
+  String getAndCheckMandatoryName(Request request) {
     String name = request.mandatoryParam(PARAM_NAME);
+    checkName(name);
+    return name;
+  }
+
+  @CheckForNull
+  String getAndCheckName(Request request) {
+    String name = request.param(PARAM_NAME);
+    if (name != null) {
+      checkName(name);
+    }
+    return name;
+  }
+
+  private static void checkName(String name) {
     checkArgument(name.length() >= NAME_MIN_LENGTH, "Name '%s' must be at least %s chars long", name, NAME_MIN_LENGTH);
     checkArgument(name.length() <= NAME_MAX_LENGTH, "Name '%s' must be at most %s chars long", name, NAME_MAX_LENGTH);
-    return name;
   }
 
   @CheckForNull
@@ -74,9 +87,9 @@ public class OrganizationsWsSupport {
     return value;
   }
 
-  void addOrganizationDetailsParams(WebService.NewAction action) {
+  void addOrganizationDetailsParams(WebService.NewAction action, boolean isNameRequired) {
     action.createParam(PARAM_NAME)
-      .setRequired(true)
+      .setRequired(isNameRequired)
       .setDescription("Name of the organization. <br />" +
         "It must be between 2 and 64 chars longs.")
       .setExampleValue("Foo Company");

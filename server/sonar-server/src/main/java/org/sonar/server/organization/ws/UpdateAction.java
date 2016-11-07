@@ -20,6 +20,8 @@
 package org.sonar.server.organization.ws;
 
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,7 +34,11 @@ import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_AVATAR_URL;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_DESCRIPTION;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_URL;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements OrganizationsAction {
@@ -63,7 +69,7 @@ public class UpdateAction implements OrganizationsAction {
       .setDescription("Organization key")
       .setExampleValue("foo-company");
 
-    wsSupport.addOrganizationDetailsParams(action);
+    wsSupport.addOrganizationDetailsParams(action, false);
   }
 
   @Override
@@ -71,25 +77,35 @@ public class UpdateAction implements OrganizationsAction {
     userSession.checkLoggedIn();
 
     String key = request.mandatoryParam(PARAM_KEY);
-    String name = wsSupport.getAndCheckName(request);
-    String description = wsSupport.getAndCheckDescription(request);
-    String url = wsSupport.getAndCheckUrl(request);
-    String avatar = wsSupport.getAndCheckAvatar(request);
+
+    UpdateOrganizationRequest updateRequest = new UpdateOrganizationRequest(
+      request.getParam(PARAM_NAME, (rqt, paramKey) -> wsSupport.getAndCheckName(rqt)),
+      request.getParam(PARAM_DESCRIPTION, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckDescription(rqt))),
+      request.getParam(PARAM_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckUrl(rqt))),
+      request.getParam(PARAM_AVATAR_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckAvatar(rqt))));
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto dto = getDto(dbSession, key);
 
       userSession.checkOrganizationPermission(dto.getUuid(), SYSTEM_ADMIN);
 
-      dto.setName(name)
-        .setDescription(description)
-        .setUrl(url)
-        .setAvatarUrl(avatar);
+      dto.setName(updateRequest.getName().or(dto::getName))
+        .setDescription(updateRequest.getDescription().or(dto::getDescription))
+        .setUrl(updateRequest.getUrl().or(dto::getUrl))
+        .setAvatarUrl(updateRequest.getAvatar().or(dto::getAvatarUrl));
       dbClient.organizationDao().update(dbSession, dto);
       dbSession.commit();
 
       writeResponse(request, response, dto);
     }
+  }
+
+  @CheckForNull
+  private static String emptyAsNull(@Nullable String value) {
+    if (value == null || value.isEmpty()) {
+      return null;
+    }
+    return value;
   }
 
   private OrganizationDto getDto(DbSession dbSession, String key) {
@@ -106,4 +122,38 @@ public class UpdateAction implements OrganizationsAction {
       request,
       response);
   }
+
+  private static final class UpdateOrganizationRequest {
+    private final Request.Param<String> name;
+    private final Request.Param<String> description;
+    private final Request.Param<String> url;
+    private final Request.Param<String> avatar;
+
+    private UpdateOrganizationRequest(Request.Param<String> name,
+      Request.Param<String> description,
+      Request.Param<String> url,
+      Request.Param<String> avatar) {
+      this.name = name;
+      this.description = description;
+      this.url = url;
+      this.avatar = avatar;
+    }
+
+    public Request.Param<String> getName() {
+      return name;
+    }
+
+    public Request.Param<String> getDescription() {
+      return description;
+    }
+
+    public Request.Param<String> getUrl() {
+      return url;
+    }
+
+    public Request.Param<String> getAvatar() {
+      return avatar;
+    }
+  }
+
 }
