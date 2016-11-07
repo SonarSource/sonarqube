@@ -79,7 +79,7 @@ public class UpdateActionTest {
       .matches(param -> "foo-company".equals(param.exampleValue()))
       .matches(param -> "Organization key".equals(param.description()));
     assertThat(action.param("name"))
-      .matches(WebService.Param::isRequired)
+      .matches(param -> !param.isRequired())
       .matches(param -> "Foo Company".equals(param.exampleValue()))
       .matches(param -> param.description() != null);
     assertThat(action.param("description"))
@@ -139,13 +139,11 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_if_name_param_is_missing() {
-    userSession.login();
+  public void request_with_only_key_param_does_not_fail_and_updates_only_updateAt_field() {
+    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    giveUserSystemAdminPermission(dto);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    executeKeyRequest("key", null);
+    verifyResponseAndDb(executeKeyRequest(dto.getKey(), null), dto, dto.getName(), DATE_2);
   }
 
   @Test
@@ -192,7 +190,7 @@ public class UpdateActionTest {
     giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, null);
-    verifyResponseAndDb(response, dto, "bar", null, null, null, DATE_2);
+    verifyResponseAndDb(response, dto, "bar", DATE_2);
   }
 
   @Test
@@ -221,7 +219,7 @@ public class UpdateActionTest {
     String description = STRING_257_CHARS_LONG.substring(0, 256);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", description, null, null);
-    verifyResponseAndDb(response, dto, "bar", description, null, null, DATE_2);
+    verifyResponseAndDb(response, dto, "bar", description, dto.getUrl(), dto.getAvatarUrl(), DATE_2);
   }
 
   @Test
@@ -241,7 +239,7 @@ public class UpdateActionTest {
     giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, url, null);
-    verifyResponseAndDb(response, dto, "bar", null, url, null, DATE_2);
+    verifyResponseAndDb(response, dto, "bar", dto.getDescription(), url, dto.getAvatarUrl(), DATE_2);
   }
 
   @Test
@@ -261,7 +259,16 @@ public class UpdateActionTest {
     String avatar = STRING_257_CHARS_LONG.substring(0, 256);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, avatar);
-    verifyResponseAndDb(response, dto, "bar", null, null, avatar, DATE_2);
+    verifyResponseAndDb(response, dto, "bar", dto.getDescription(), dto.getUrl(), avatar, DATE_2);
+  }
+
+  @Test
+  public void request_removes_optional_parameters_when_associated_parameter_are_empty() {
+    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    giveUserSystemAdminPermission(dto);
+
+    Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bla", "", "", "");
+    verifyResponseAndDb(response, dto, "bla", null, null, null, DATE_2);
   }
 
   private void giveUserSystemAdminPermission(OrganizationDto organizationDto) {
@@ -307,7 +314,7 @@ public class UpdateActionTest {
   }
 
   private void verifyResponseAndDb(Organizations.UpdateWsResponse response, OrganizationDto dto, String name, long updateAt) {
-    verifyResponseAndDb(response, dto, name, null, null, null, updateAt);
+    verifyResponseAndDb(response, dto, name, dto.getDescription(), dto.getUrl(), dto.getAvatarUrl(), updateAt);
   }
 
   private void verifyResponseAndDb(Organizations.UpdateWsResponse response,

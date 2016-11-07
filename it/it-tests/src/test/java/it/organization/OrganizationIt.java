@@ -111,6 +111,9 @@ public class OrganizationIt {
     adminOrganizationService.update(new UpdateWsRequest.Builder()
       .setKey(createdOrganization.getKey())
       .setName("new name 3")
+      .setDescription("")
+      .setUrl("")
+      .setAvatar("")
       .build());
     verifySingleSearchResult(createdOrganization, "new name 3", null, null, null);
 
