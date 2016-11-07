@@ -19,6 +19,10 @@
  */
 package org.sonar.api.web;
 
+/**
+ * @deprecated since 6.2, as dashboards have been removed
+ */
+@Deprecated
 public enum WidgetPropertyType {
   /**
    * Integer value, positive or negative
