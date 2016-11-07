@@ -510,6 +510,15 @@ public class DbTester extends ExternalResource {
     }
   }
 
+  public void assertTableDoesNotExist(String table) {
+    try (Connection connection = getConnection()) {
+      boolean tableExists = DatabaseUtils.tableExists(table, connection);
+      assertThat(tableExists).isFalse();
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to check if table exists", e);
+    }
+  }
+
   public void assertPrimaryKey(String tableName, @Nullable String expectedPkName, String columnName, String... otherColumnNames) {
     try (Connection connection = getConnection()) {
       PK pk = pkOf(connection, tableName.toUpperCase(Locale.ENGLISH));

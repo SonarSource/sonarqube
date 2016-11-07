@@ -30,7 +30,7 @@ import org.sonar.db.MyBatis;
 
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 1_419;
+  public static final int LAST_VERSION = 1_420;
 
   /**
    * The minimum supported version which can be upgraded. Lower
@@ -47,7 +47,11 @@ public class DatabaseVersion {
    * @see org.sonar.db.charset.ColumnDef#isInSonarQubeTable() 
    */
   public static final Set<String> OLD_DROPPED_TABLES = ImmutableSet.of(
-    "activities");
+    "active_dashboards",
+    "activities",
+    "dashboards",
+    "widgets",
+    "widget_properties");
 
   /**
    * List of all the tables.
@@ -55,7 +59,6 @@ public class DatabaseVersion {
    * for all the supported databases, particularly due to Oracle results.
    */
   public static final Set<String> TABLES = ImmutableSet.of(
-    "active_dashboards",
     "active_rules",
     "active_rule_parameters",
     "authors",
@@ -63,7 +66,6 @@ public class DatabaseVersion {
     "ce_queue",
     "ce_task_input",
     "ce_scanner_context",
-    "dashboards",
     "duplications_index",
     "events",
     "file_sources",
@@ -103,9 +105,7 @@ public class DatabaseVersion {
     "snapshots",
     "users",
     "user_roles",
-    "user_tokens",
-    "widgets",
-    "widget_properties");
+    "user_tokens");
 
   private MyBatis mybatis;
 
