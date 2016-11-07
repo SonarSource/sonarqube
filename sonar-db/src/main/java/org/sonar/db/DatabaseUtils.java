@@ -43,6 +43,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 
 public class DatabaseUtils {
 
@@ -292,5 +293,28 @@ public class DatabaseUtils {
   public static Date getDate(ResultSet rs, int columnIndex) throws SQLException {
     Timestamp t = rs.getTimestamp(columnIndex);
     return rs.wasNull() ? null : new Date(t.getTime());
+  }
+
+  /**
+    * @param table case-insensitive name of table
+    * @return true if a table exists with this name, otherwise false
+    * @throws SQLException
+    */
+  public static boolean tableExists(String table, Connection connection) {
+    try (ResultSet rs = connection.getMetaData().getTables(null, null, null, null)) {
+      while (rs.next()) {
+        String name = rs.getString("TABLE_NAME");
+        if (table.equalsIgnoreCase(name)) {
+          return true;
+        }
+      }
+      return false;
+    } catch (SQLException e) {
+      throw wrapSqlException(e, "Can not check that table %s exists", table);
+    }
+  }
+
+  public static IllegalStateException wrapSqlException(SQLException e, String message, Object... messageArgs) {
+    return new IllegalStateException(format(message, messageArgs), e);
   }
 }
