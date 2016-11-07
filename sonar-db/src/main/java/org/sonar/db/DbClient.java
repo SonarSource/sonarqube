@@ -32,10 +32,6 @@ import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.dashboard.ActiveDashboardDao;
-import org.sonar.db.dashboard.DashboardDao;
-import org.sonar.db.dashboard.WidgetDao;
-import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
@@ -108,10 +104,6 @@ public class DbClient {
   private final CeQueueDao ceQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
   private final CeScannerContextDao ceScannerContextDao;
-  private final DashboardDao dashboardDao;
-  private final ActiveDashboardDao activeDashboardDao;
-  private final WidgetDao widgetDao;
-  private final WidgetPropertyDao widgetPropertyDao;
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
   private final ResourceIndexDao componentIndexDao;
@@ -169,10 +161,6 @@ public class DbClient {
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
-    dashboardDao = getDao(map, DashboardDao.class);
-    activeDashboardDao = getDao(map, ActiveDashboardDao.class);
-    widgetDao = getDao(map, WidgetDao.class);
-    widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
     componentIndexDao = getDao(map, ResourceIndexDao.class);
@@ -320,22 +308,6 @@ public class DbClient {
 
   public CeScannerContextDao ceScannerContextDao() {
     return ceScannerContextDao;
-  }
-
-  public DashboardDao dashboardDao() {
-    return dashboardDao;
-  }
-
-  public ActiveDashboardDao activeDashboardDao() {
-    return activeDashboardDao;
-  }
-
-  public WidgetDao widgetDao() {
-    return widgetDao;
-  }
-
-  public WidgetPropertyDao widgetPropertyDao() {
-    return widgetPropertyDao;
   }
 
   public FileSourceDao fileSourceDao() {
