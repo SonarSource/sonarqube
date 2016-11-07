@@ -19,11 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import java.util.Collection;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -36,13 +31,6 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.ResourceScope;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
-import org.sonar.api.web.Widget;
-import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetLayout;
-import org.sonar.api.web.WidgetLayoutType;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetScope;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
@@ -58,12 +46,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] resourceLanguages = {};
   private String[] defaultForMetrics = {};
   private String description = "";
-  private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newLinkedHashMap();
-  private String[] widgetCategories = {};
-  private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
-  private boolean isWidget = false;
-  private boolean isGlobal = false;
 
   public ViewProxy(V view, UserSession userSession) {
     this.view = view;
@@ -76,51 +59,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     initResourceLanguage(view);
     initDefaultTabInfo(view);
     initDescription(view);
-    initWidgetProperties(view);
-    initWidgetCategory(view);
-    initWidgetLayout(view);
-    initWidgetGlobal(view);
-
-    isWidget = view instanceof Widget;
-  }
-
-  private void initWidgetLayout(final V view) {
-    WidgetLayout layoutAnnotation = AnnotationUtils.getAnnotation(view, WidgetLayout.class);
-    if (layoutAnnotation != null) {
-      widgetLayout = layoutAnnotation.value();
-    }
-  }
-
-  private void initWidgetCategory(final V view) {
-    WidgetCategory categAnnotation = AnnotationUtils.getAnnotation(view, WidgetCategory.class);
-    if (categAnnotation != null) {
-      widgetCategories = categAnnotation.value();
-    }
-  }
-
-  private void initWidgetGlobal(V view) {
-    WidgetScope scopeAnnotation = AnnotationUtils.getAnnotation(view, WidgetScope.class);
-    if (scopeAnnotation != null) {
-      checkValidScope(view, scopeAnnotation);
-      isGlobal = ImmutableSet.copyOf(scopeAnnotation.value()).contains(WidgetScope.GLOBAL);
-    }
-  }
-
-  private static <V> void checkValidScope(V view, WidgetScope scopeAnnotation) {
-    for (String scope : scopeAnnotation.value()) {
-      if (!scope.equals(WidgetScope.PROJECT) && !scope.equalsIgnoreCase(WidgetScope.GLOBAL)) {
-        throw new IllegalArgumentException(String.format("Invalid widget scope %s for widget %s", scope, view.getClass().getSimpleName()));
-      }
-    }
-  }
-
-  private void initWidgetProperties(final V view) {
-    WidgetProperties propAnnotation = AnnotationUtils.getAnnotation(view, WidgetProperties.class);
-    if (propAnnotation != null) {
-      for (WidgetProperty property : propAnnotation.value()) {
-        widgetPropertiesByKey.put(property.key(), property);
-      }
-    }
   }
 
   private void initDescription(final V view) {
@@ -200,18 +138,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return description;
   }
 
-  public Collection<WidgetProperty> getWidgetProperties() {
-    return widgetPropertiesByKey.values();
-  }
-
-  public WidgetProperty getWidgetProperty(String propertyKey) {
-    return widgetPropertiesByKey.get(propertyKey);
-  }
-
-  public String[] getWidgetCategories() {
-    return widgetCategories;
-  }
-
   public String[] getSections() {
     return sections;
   }
@@ -254,32 +180,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
       authorized |= userSession.hasComponentUuidPermission(userRole, component.uuid());
     }
     return authorized;
-  }
-
-  public boolean isWidget() {
-    return isWidget;
-  }
-
-  public boolean isGlobal() {
-    return isGlobal;
-  }
-
-  public WidgetLayoutType getWidgetLayout() {
-    return widgetLayout;
-  }
-
-  public boolean isEditable() {
-    return !widgetPropertiesByKey.isEmpty();
-  }
-
-  public boolean hasRequiredProperties() {
-    boolean requires = false;
-    for (WidgetProperty property : getWidgetProperties()) {
-      if (!property.optional() && StringUtils.isEmpty(property.defaultValue())) {
-        requires = true;
-      }
-    }
-    return requires;
   }
 
   @Override

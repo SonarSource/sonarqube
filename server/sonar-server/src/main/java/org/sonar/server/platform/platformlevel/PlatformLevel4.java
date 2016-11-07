@@ -44,35 +44,6 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
-import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
-import org.sonar.server.dashboard.widget.AlertsWidget;
-import org.sonar.server.dashboard.widget.BubbleChartWidget;
-import org.sonar.server.dashboard.widget.ComplexityWidget;
-import org.sonar.server.dashboard.widget.CoverageWidget;
-import org.sonar.server.dashboard.widget.CustomMeasuresWidget;
-import org.sonar.server.dashboard.widget.DebtOverviewWidget;
-import org.sonar.server.dashboard.widget.DescriptionWidget;
-import org.sonar.server.dashboard.widget.DocumentationCommentsWidget;
-import org.sonar.server.dashboard.widget.DuplicationsWidget;
-import org.sonar.server.dashboard.widget.EventsWidget;
-import org.sonar.server.dashboard.widget.HotspotMetricWidget;
-import org.sonar.server.dashboard.widget.IssueFilterWidget;
-import org.sonar.server.dashboard.widget.IssueTagCloudWidget;
-import org.sonar.server.dashboard.widget.IssuesWidget;
-import org.sonar.server.dashboard.widget.ItCoverageWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterAsBubbleChartWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterAsCloudWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterAsHistogramWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterAsPieChartWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterAsTreemapWidget;
-import org.sonar.server.dashboard.widget.MeasureFilterListWidget;
-import org.sonar.server.dashboard.widget.ProjectFileCloudWidget;
-import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
-import org.sonar.server.dashboard.widget.SizeWidget;
-import org.sonar.server.dashboard.widget.TimeMachineWidget;
-import org.sonar.server.dashboard.widget.TimelineWidget;
-import org.sonar.server.dashboard.widget.TreemapWidget;
-import org.sonar.server.dashboard.widget.WelcomeWidget;
 import org.sonar.server.debt.DebtModelBackup;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
@@ -290,37 +261,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // batch
       BatchWsModule.class,
-
-      // Dashboard
-      GlobalDefaultDashboard.class,
-      AlertsWidget.class,
-      CoverageWidget.class,
-      ItCoverageWidget.class,
-      DescriptionWidget.class,
-      ComplexityWidget.class,
-      IssuesWidget.class,
-      SizeWidget.class,
-      EventsWidget.class,
-      CustomMeasuresWidget.class,
-      TimelineWidget.class,
-      BubbleChartWidget.class,
-      TimeMachineWidget.class,
-      HotspotMetricWidget.class,
-      TreemapWidget.class,
-      MeasureFilterListWidget.class,
-      MeasureFilterAsTreemapWidget.class,
-      WelcomeWidget.class,
-      DocumentationCommentsWidget.class,
-      DuplicationsWidget.class,
-      MeasureFilterAsPieChartWidget.class,
-      MeasureFilterAsCloudWidget.class,
-      MeasureFilterAsHistogramWidget.class,
-      MeasureFilterAsBubbleChartWidget.class,
-      ProjectFileCloudWidget.class,
-      DebtOverviewWidget.class,
-      IssueFilterWidget.class,
-      ProjectIssueFilterWidget.class,
-      IssueTagCloudWidget.class,
 
       // update center
       UpdateCenterModule.class,

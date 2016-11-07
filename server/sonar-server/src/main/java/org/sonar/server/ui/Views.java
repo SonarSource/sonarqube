@@ -22,17 +22,15 @@ package org.sonar.server.ui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -118,6 +116,6 @@ public class Views {
   }
 
   protected static boolean acceptNavigationSection(ViewProxy<?> proxy, @Nullable String section) {
-    return proxy.isWidget() || section == null || ArrayUtils.contains(proxy.getSections(), section);
+    return section == null || ArrayUtils.contains(proxy.getSections(), section);
   }
 }
