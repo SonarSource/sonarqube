@@ -21,6 +21,8 @@ package org.sonar.api.web;
 
 /**
  * @since 1.11
+ * @deprecated since 6.2, as dashboards have been removed
  */
+@Deprecated
 public interface Widget extends View {
 }

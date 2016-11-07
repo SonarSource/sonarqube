@@ -32,7 +32,10 @@ import java.lang.annotation.Target;
  * then is is assumed project scoped.
  *
  * @since 3.1
+/**
+ * @deprecated since 6.2, as dashboards have been removed
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WidgetScope {

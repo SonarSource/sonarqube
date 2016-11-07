@@ -26,7 +26,9 @@ import org.sonar.api.server.ServerSide;
  * This extension point must be implemented to define a new dashboard.
  *
  * @since 2.13
+ * @deprecated since 6.2, as dahsboards have been removed
  */
+@Deprecated
 @ServerSide
 @ExtensionPoint
 public abstract class DashboardTemplate {
