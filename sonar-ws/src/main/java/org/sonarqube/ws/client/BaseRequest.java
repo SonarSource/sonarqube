@@ -153,7 +153,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
     private DefaultParameters setValue(String key, String value) {
       checkArgument(!isNullOrEmpty(key));
-      checkArgument(!isNullOrEmpty(value));
+      checkArgument(value != null);
 
       keyValues.putAll(key, singletonList(value));
       return this;
@@ -163,7 +163,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
       checkArgument(!isNullOrEmpty(key));
       checkArgument(values != null && !values.isEmpty());
 
-      this.keyValues.putAll(key, values.stream().map(Object::toString).collect(Collectors.toList()));
+      this.keyValues.putAll(key, values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
 
       return this;
     }
