@@ -101,6 +101,7 @@ import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisito
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
+import org.sonar.server.computation.task.projectanalysis.webhook.WebhookModule;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
@@ -236,7 +237,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // views
       ViewIndex.class,
 
-      MeasureToMeasureDto.class);
+      MeasureToMeasureDto.class,
+
+      // webhooks
+      WebhookModule.class);
   }
 
 }
