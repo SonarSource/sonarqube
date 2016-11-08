@@ -61,11 +61,8 @@ import org.sonar.api.utils.SonarException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -289,41 +286,8 @@ public class DefaultHttpDownloaderTest {
   }
 
   @Test
-  public void configure_http_and_https_proxies() {
-    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new MapSettings();
-    settings.setProperty("http.proxyHost", "1.2.3.4");
-    settings.setProperty("http.proxyPort", "80");
-    settings.setProperty("https.proxyHost", "5.6.7.8");
-    settings.setProperty("https.proxyPort", "443");
-
-    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
-
-    verify(system).setProperty("http.proxyHost", "1.2.3.4");
-    verify(system).setProperty("http.proxyPort", "80");
-    verify(system).setProperty("https.proxyHost", "5.6.7.8");
-    verify(system).setProperty("https.proxyPort", "443");
-    verify(system, never()).setDefaultAuthenticator(any(Authenticator.class));
-  }
-
-  @Test
-  public void https_defaults_are_http_properties() {
-    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new MapSettings();
-    settings.setProperty("http.proxyHost", "1.2.3.4");
-    settings.setProperty("http.proxyPort", "80");
-
-    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
-
-    verify(system).setProperty("http.proxyHost", "1.2.3.4");
-    verify(system).setProperty("http.proxyPort", "80");
-    verify(system).setProperty("https.proxyHost", "1.2.3.4");
-    verify(system).setProperty("https.proxyPort", "80");
-  }
-
-  @Test
   public void configure_http_proxy_credentials() {
-    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
+    DefaultHttpDownloader.AuthenticatorFacade system = mock(DefaultHttpDownloader.AuthenticatorFacade.class);
     Settings settings = new MapSettings();
     settings.setProperty("https.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyUser", "the_login");
@@ -346,23 +310,9 @@ public class DefaultHttpDownloaderTest {
     }));
   }
 
-  @Test
-  public void no_http_proxy_settings_by_default() {
-    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
-    Settings settings = new MapSettings();
-    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
-
-    verify(system, never()).setProperty(eq("http.proxyHost"), anyString());
-    verify(system, never()).setProperty(eq("https.proxyHost"), anyString());
-    verify(system, never()).setProperty(eq("http.proxyPort"), anyString());
-    verify(system, never()).setProperty(eq("https.proxyPort"), anyString());
-    verify(system, never()).setDefaultAuthenticator(any(Authenticator.class));
-  }
-
-}
-
-class FakeProxy extends Proxy {
-  public FakeProxy() {
-    super(Type.HTTP, new InetSocketAddress("123.45.67.89", 4040));
+  private static class FakeProxy extends Proxy {
+    FakeProxy() {
+      super(Type.HTTP, new InetSocketAddress("123.45.67.89", 4040));
+    }
   }
 }
