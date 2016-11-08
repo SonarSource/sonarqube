@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputModule;
@@ -220,7 +221,7 @@ public class SensorContextTester implements SensorContext {
   }
 
   @CheckForNull
-  public static Integer sumOrNull(Integer o1, Integer o2) {
+  public static Integer sumOrNull(@Nullable Integer o1, @Nullable Integer o2) {
     return o1 == null ? o2 : (o1 + o2);
   }
 
@@ -243,7 +244,7 @@ public class SensorContextTester implements SensorContext {
   }
 
   @CheckForNull
-  public static Integer maxOrNull(Integer o1, Integer o2) {
+  public static Integer maxOrNull(@Nullable Integer o1, @Nullable Integer o2) {
     return o1 == null ? o2 : Math.max(o1, o2);
   }
 

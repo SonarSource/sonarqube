@@ -21,6 +21,7 @@ package org.sonar.scanner.deprecated;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
@@ -135,7 +136,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
     return null;
   }
 
-  private Resource resourceOrProject(Resource resource) {
+  private Resource resourceOrProject(@Nullable Resource resource) {
     if (resource == null) {
       return project;
     }

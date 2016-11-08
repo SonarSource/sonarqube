@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.scanner.index.BatchComponent;
@@ -127,7 +128,7 @@ public final class ResourceReport {
     }
   }
 
-  public boolean isDisplayableLine(Integer lineNumber, boolean all) {
+  public boolean isDisplayableLine(@Nullable Integer lineNumber, boolean all) {
     if (lineNumber == null || lineNumber < 1) {
       return false;
     }

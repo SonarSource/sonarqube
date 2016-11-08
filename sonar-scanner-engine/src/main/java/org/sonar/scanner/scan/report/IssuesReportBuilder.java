@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan.report;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
@@ -81,7 +82,7 @@ public class IssuesReportBuilder {
     }
   }
 
-  private static boolean validate(TrackedIssue issue, Rule rule, BatchComponent resource) {
+  private static boolean validate(TrackedIssue issue, @Nullable Rule rule, @Nullable BatchComponent resource) {
     if (rule == null) {
       LOG.warn("Unknow rule for issue {}", issue);
       return false;

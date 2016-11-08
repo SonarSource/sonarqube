@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,9 +82,7 @@ public class IssuePatternTest {
 
     assertThat(pattern.match(create(rule, javaFile, null))).isFalse();
     assertThat(pattern.match(create(rule, javaFile, 12))).isTrue();
-    assertThat(pattern.match(create((Rule) null, javaFile, 5))).isFalse();
     assertThat(pattern.match(create(rule, null, null))).isFalse();
-    assertThat(pattern.match(create((Rule) null, null, null))).isFalse();
   }
 
   private FilterableIssue create(Rule rule, String component, Integer line) {
@@ -97,11 +95,6 @@ public class IssuePatternTest {
     when(mockIssue.componentKey()).thenReturn(component);
     when(mockIssue.line()).thenReturn(line);
     return mockIssue;
-  }
-
-  @Test
-  public void shouldNotMatchNullRule() {
-    assertThat(new IssuePattern("*", "*").matchRule(null)).isFalse();
   }
 
   @Test

@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class FileSystemLogger {
     }
   }
 
-  private void logDir(Logger logger, String label, File dir) {
+  private static void logDir(Logger logger, String label, @Nullable File dir) {
     if (dir != null) {
       logger.info(label + dir.getAbsolutePath());
     }

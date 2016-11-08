@@ -130,9 +130,10 @@ public class BatchExtensionDictionnary {
   }
 
   private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, Class type) {
-    if (container != null) {
-      extensions.addAll(container.getComponentsByType(type));
-      completeBatchExtensions(container.getParent(), extensions, type);
+    extensions.addAll(container.getComponentsByType(type));
+    ComponentContainer parentContainer = container.getParent();
+    if (parentContainer != null) {
+      completeBatchExtensions(parentContainer, extensions, type);
     }
   }
 

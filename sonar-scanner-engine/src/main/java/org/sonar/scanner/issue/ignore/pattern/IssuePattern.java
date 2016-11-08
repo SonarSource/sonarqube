@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import com.google.common.collect.Sets;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.utils.WildcardPattern;
-
-import java.util.Set;
 
 public class IssuePattern {
 
@@ -144,15 +143,11 @@ public class IssuePattern {
   }
 
   boolean matchRule(RuleKey rule) {
-    if (rule == null) {
-      return false;
-    }
-
     String key = new StringBuilder().append(rule.repository()).append(':').append(rule.rule()).toString();
     return rulePattern.match(key);
   }
 
-  boolean matchResource(String resource) {
+  boolean matchResource(@Nullable String resource) {
     return resource != null && resourcePattern.match(resource);
   }
 
