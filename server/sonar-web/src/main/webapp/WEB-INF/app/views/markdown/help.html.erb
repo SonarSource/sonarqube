@@ -1,8 +1,102 @@
-<div id="markdown-full-help"></div>
-
-<% content_for :extra_script do %>
-  <script>
-    window.sonarqube.el = '#markdown-full-help';
-  </script>
-  <script src="<%= ApplicationController.root_context -%>/js/bundles/markdown.js?v=<%= sonar_version -%>"></script>
-<% end %>
+<div id="markdown-full-help">
+  <h2 class="spacer-bottom">Markdown Syntax</h2>
+  <table class="width-100 data zebra">
+    <thead>
+      <tr>
+        <th>Write:</th>
+        <th>To display:</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>*this text is bold*</td>
+        <td class="markdown"><strong>this text is bold</strong></td>
+      </tr>
+      <tr>
+        <td>http://sonarqube.org</td>
+        <td class="markdown"><a href="http://sonarqube.org">http://sonarqube.org</a></td>
+      </tr>
+      <tr>
+        <td class="text-top">
+          [SonarQube™ Home Page](http://www.sonarqube.org)
+        </td>
+        <td class="markdown text-top">
+          <a href="http://www.sonarqube.org" target="_blank">SonarQube™ Home Page</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-top">* first item<br>
+          * second item
+        </td>
+        <td class="markdown">
+          <ul>
+            <li>first item</li>
+            <li>second item</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-top">1. first item<br>
+          1. second item
+        </td>
+        <td class="markdown text-top">
+          <ol>
+            <li>first item</li>
+            <li>second item</li>
+          </ol>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-top">
+          = Heading Level 1<br>
+          == Heading Level 2<br>
+          === Heading Level 3<br>
+          ==== Heading Level 4<br>
+          ===== Heading Level 5<br>
+          ====== Heading Level 6<br>
+        <td class="markdown text-top">
+          <h1>Heading Level 1</h1>
+          <h2>Heading Level 2</h2>
+          <h3>Heading Level 3</h3>
+          <h4>Heading Level 4</h4>
+          <h5>Heading Level 5</h5>
+          <h6>Heading Level 6</h6>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-top">``Lists#newArrayList()``</td>
+        <td class="markdown text-top"><code>Lists#newArrayList()</code></td>
+      </tr>
+      <tr>
+        <td class="text-top">
+          ``<br>
+          // code on multiple lines<br>
+          public void foo() {<br>
+          &nbsp;&nbsp;// do some logic here<br>
+          }<br>
+          ``
+        </td>
+        <td class="markdown text-top">
+<pre>
+  // code on multiple lines
+  public void foo() {
+  // do some logic here
+  }
+</pre>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-top">
+          Standard text<br>
+          > Blockquoted text<br>
+          > that spans multiple lines<br>
+        </td>
+        <td class="markdown text-top">
+          <p>Standard text</p>
+          <blockquote>Blockquoted text<br>
+            that spans multiple lines<br></blockquote>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

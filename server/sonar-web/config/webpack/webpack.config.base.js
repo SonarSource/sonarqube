@@ -28,9 +28,6 @@ module.exports = {
     'main': './src/main/js/main/app.js',
     'app': './src/main/js/app/index.js',
 
-    // should not use js
-    'markdown': './src/main/js/apps/markdown/app.js',
-
     // not unique url
     'source-viewer': './src/main/js/apps/source-viewer/app.js'
   },
