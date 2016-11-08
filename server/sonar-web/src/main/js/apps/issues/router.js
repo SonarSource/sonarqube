@@ -25,35 +25,12 @@ export default Router.extend({
     ':query': 'index'
   },
 
-  initialize (options) {
-    Router.prototype.initialize.apply(this, arguments);
-    this.listenTo(options.app.state, 'change:filter', this.updateRoute);
-  },
-
   home () {
-    if (this.options.app.state.get('isContext')) {
-      return this.navigate('resolved=false', { trigger: true, replace: true });
-    } else {
-      return this.options.app.controller.showHomePage();
-    }
+    return this.navigate('resolved=false', { trigger: true, replace: true });
   },
 
   index (query) {
-    const that = this;
-    query = this.options.app.controller.parseQuery(query);
-    if (query.id != null) {
-      const filter = this.options.app.filters.get(query.id);
-      delete query.id;
-      if (Object.keys(query).length > 0) {
-        that.options.app.controller.applyFilter(filter, true);
-        that.options.app.state.setQuery(query);
-        that.options.app.state.set({ changed: true });
-      } else {
-        that.options.app.controller.applyFilter(filter);
-      }
-    } else {
-      this.options.app.state.setQuery(query);
-    }
+    this.options.app.state.setQuery(this.options.app.controller.parseQuery(query));
   }
 });
 

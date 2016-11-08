@@ -24,13 +24,11 @@ import State from './models/state';
 import Layout from './layout';
 import Issues from './models/issues';
 import Facets from '../../components/navigator/models/facets';
-import Filters from './models/filters';
 import Controller from './controller';
 import Router from './router';
 import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
-import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 const init = function () {
@@ -39,7 +37,6 @@ const init = function () {
   this.state = new State();
   this.list = new Issues();
   this.facets = new Facets();
-  this.filters = new Filters();
 
   this.layout = new Layout({ app: this, el: options.el });
   this.layout.render();
@@ -66,17 +63,9 @@ const init = function () {
   });
   this.layout.facetsRegion.show(this.facetsView);
 
-  this.filtersView = new FiltersView({
-    app: this,
-    collection: this.filters
-  });
-  this.layout.filtersRegion.show(this.filtersView);
-
-  this.controller.fetchFilters().done(function () {
-    key.setScope('list');
-    App.router = new Router({ app: App });
-    Backbone.history.start();
-  });
+  key.setScope('list');
+  App.router = new Router({ app: App });
+  Backbone.history.start();
 };
 
 App.on('start', function () {
