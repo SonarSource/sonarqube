@@ -34,11 +34,11 @@ import org.sonar.process.Props;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebServerProcessLoggingTest {
-  private WebServerProcessLogging underTest = new WebServerProcessLogging();
-
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
 
-  Props props = new Props(new Properties());
+  private WebServerProcessLogging underTest = new WebServerProcessLogging();
+
+  private Props props = new Props(new Properties());
 
   @AfterClass
   public static void resetLogback() throws JoranException {

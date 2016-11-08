@@ -17,29 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.server.platform.web.requestid;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
+import org.sonar.core.util.UuidGenerator;
+import org.sonar.core.util.UuidGeneratorImpl;
 
-/**
- * Configure logback for the Web Server process. Logs are written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
- */
-public class WebServerProcessLogging extends ServerProcessLogging {
-
-  public WebServerProcessLogging() {
-    super("web", "%X{UID}");
-  }
+public class RequestUidGeneratorBaseImpl implements RequestUidGeneratorBase {
+  private final UuidGenerator.WithFixedBase delegate = new UuidGeneratorImpl().withFixedBase();
 
   @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
+  public byte[] generate(int increment) {
+    return delegate.generate(increment);
   }
-
 }

@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.server.platform.web.requestid;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
+import java.util.Base64;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.sonar.core.util.UuidGeneratorImpl;
 
 /**
- * Configure logback for the Web Server process. Logs are written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
+ * This implementation of {@link RequestUidGenerator} creates unique identifiers for HTTP requests leveraging
+ * {@link UuidGeneratorImpl#withFixedBase()}.
+ * <p>
+ * This implementation is Thread safe.
+ * </p>
  */
-public class WebServerProcessLogging extends ServerProcessLogging {
+public class RequestUidGeneratorImpl implements RequestUidGenerator {
+  private final AtomicInteger counter = new AtomicInteger();
+  private final RequestUidGeneratorBase requestUidGeneratorBase;
 
-  public WebServerProcessLogging() {
-    super("web", "%X{UID}");
+  public RequestUidGeneratorImpl(RequestUidGeneratorBase requestUidGeneratorBase) {
+    this.requestUidGeneratorBase = requestUidGeneratorBase;
   }
 
   @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
+  public String generate() {
+    return Base64.getEncoder().encodeToString(requestUidGeneratorBase.generate(counter.incrementAndGet()));
   }
 
 }

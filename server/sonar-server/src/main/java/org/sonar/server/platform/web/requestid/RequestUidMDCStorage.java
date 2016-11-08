@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.server.platform.web.requestid;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
+import org.slf4j.MDC;
+
+import static java.util.Objects.requireNonNull;
 
 /**
- * Configure logback for the Web Server process. Logs are written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
+ * Wraps MDC calls to store the HTTP request UID in the {@link MDC} into an {@link AutoCloseable}.
  */
-public class WebServerProcessLogging extends ServerProcessLogging {
+class RequestUidMDCStorage implements AutoCloseable {
+  private static final String HTTP_REQUEST_UID_MDC_KEY = "HTTP_REQUEST_ID";
 
-  public WebServerProcessLogging() {
-    super("web", "%X{UID}");
+  public RequestUidMDCStorage(String requestUid) {
+    MDC.put(HTTP_REQUEST_UID_MDC_KEY, requireNonNull(requestUid, "Request UID can't be null"));
   }
 
   @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
+  public void close() {
+    MDC.remove(HTTP_REQUEST_UID_MDC_KEY);
   }
-
 }

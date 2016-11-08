@@ -30,12 +30,16 @@ import org.sonar.server.platform.ServerLogging;
 
 public abstract class ServerProcessLogging {
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%X{ceTaskUuid}][%logger{20}] %msg%n";
+  private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
+  private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
   private final String processName;
+  private final String threadIdField;
   private final LogbackHelper helper = new LogbackHelper();
 
-  protected ServerProcessLogging(String processName) {
+  protected ServerProcessLogging(String processName, String threadIdPattern) {
     this.processName = processName;
+    this.threadIdField = threadIdPattern;
   }
 
   public LoggerContext configure(Props props) {
@@ -53,7 +57,7 @@ public abstract class ServerProcessLogging {
   }
 
   private void configureAppenders(LoggerContext ctx, Props props) {
-    String logFormat = LOG_FORMAT.replace("XXXX", processName);
+    String logFormat = LOG_FORMAT.replace(PROCESS_NAME_PLACEHOLDER, processName).replace(THREAD_ID_PLACEHOLDER, threadIdField);
     configureAppenders(logFormat, ctx, helper, props);
   }
 

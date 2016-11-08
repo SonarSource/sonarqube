@@ -36,7 +36,7 @@ import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 public class CeProcessLogging extends ServerProcessLogging {
 
   public CeProcessLogging() {
-    super("ce");
+    super("ce", "%X{ceTaskUuid}");
   }
 
   @Override
