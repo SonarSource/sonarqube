@@ -21,8 +21,8 @@ import qs from 'querystring';
 import classNames from 'classnames';
 import React from 'react';
 import LinksMixin from '../links-mixin';
-import { translate } from '../../../helpers/l10n';
-import { getComponentUrl } from '../../../helpers/urls';
+import { translate } from '../../../../helpers/l10n';
+import { getComponentUrl } from '../../../../helpers/urls';
 
 const SETTINGS_URLS = [
   '/project/settings',

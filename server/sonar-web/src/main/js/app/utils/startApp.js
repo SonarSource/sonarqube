@@ -17,21 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import _ from 'underscore';
-import Backbone from 'backbone';
-import moment from 'moment';
-import './processes';
-import Navigation from './nav/app';
-import { installGlobal, requestMessages } from '../helpers/l10n';
-import * as measures from '../helpers/measures';
-import * as request from '../helpers/request';
-import './common-styles';
-
-import '../../less/sonar.less';
-
-// set the Backbone's $
-Backbone.$ = $;
+import Navigation from '../components/nav/app';
+import { installGlobal, requestMessages } from '../../helpers/l10n';
 
 function requestLocalizationBundle () {
   if (!window.sonarqube.bannedNavigation) {
@@ -70,16 +58,12 @@ function prepareAppOptions (navResponse) {
   return appOptions;
 }
 
-function getPreferredLanguage () {
-  return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
-}
+const startApp = () => {
+  window.sonarqube.appStarted = Promise.resolve()
+      .then(requestLocalizationBundle)
+      .then(startNavigation)
+      .then(prepareAppOptions);
+};
 
-moment.locale(getPreferredLanguage());
+export default startApp;
 
-window.sonarqube.appStarted = Promise.resolve()
-    .then(requestLocalizationBundle)
-    .then(startNavigation)
-    .then(prepareAppOptions);
-
-window.SonarMeasures = measures;
-window.SonarRequest = request;

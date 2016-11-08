@@ -21,7 +21,7 @@ import React from 'react';
 import classNames from 'classnames';
 import some from 'lodash/some';
 import LinksMixin from '../links-mixin';
-import { translate } from '../../../helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 
 export default React.createClass({
   mixins: [LinksMixin],

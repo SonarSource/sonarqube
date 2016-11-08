@@ -24,13 +24,13 @@ import ReactDOM from 'react-dom';
 import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
-import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../api/nav';
+import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../../api/nav';
 
 export default class App {
   start () {
     const options = window.sonarqube;
 
-    require('../../components/workspace/main');
+    require('../../../components/workspace/main');
 
     return new Promise((resolve) => {
       const response = {};

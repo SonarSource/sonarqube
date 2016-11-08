@@ -22,8 +22,8 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import escapeHtml from 'escape-html';
-import { translate } from '../helpers/l10n';
-import { getCSRFTokenName, getCSRFTokenValue } from '../helpers/request';
+import { translate } from '../../helpers/l10n';
+import { getCSRFTokenName, getCSRFTokenValue } from '../../helpers/request';
 
 const defaults = {
   queue: {},
@@ -185,6 +185,8 @@ $.ajaxSetup({
   }
 });
 
-$(function () {
+const startAjaxMonitoring = () => {
   processesView.render().$el.insertBefore('#footer');
-});
+};
+
+export default startAjaxMonitoring;

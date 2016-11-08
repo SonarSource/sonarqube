@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import QualifierIcon from '../../../components/shared/qualifier-icon';
+import { translate } from '../../../helpers/l10n';
 
-export default React.createClass({
-  render() {
-    if (!this.props.breadcrumbs) {
-      return null;
+export default {
+  getLocalizedDashboardName(baseName) {
+    const l10nKey = `dashboard.${baseName}.name`;
+    const l10nLabel = translate(l10nKey);
+    if (l10nLabel !== l10nKey) {
+      return l10nLabel;
+    } else {
+      return baseName;
     }
-    const items = this.props.breadcrumbs.map((item, index) => {
-      const url = `${window.baseUrl}/dashboard/index?id=${encodeURIComponent(item.key)}`;
-      return (
-          <li key={index}>
-            <a href={url}>
-              <QualifierIcon qualifier={item.qualifier}/>&nbsp;{item.name}
-            </a>
-          </li>
-      );
-    });
-    return (
-        <ul className="nav navbar-nav nav-crumbs">{items}</ul>
-    );
   }
-});
+};

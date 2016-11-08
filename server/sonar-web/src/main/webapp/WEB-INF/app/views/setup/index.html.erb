@@ -1,7 +1,0 @@
-<% content_for :extra_script do %>
-  <script>
-    window.sonarqube.setup = true;
-  </script>
-  <script src="<%= ApplicationController.root_context -%>/js/bundles/app.js?v=<%= sonar_version -%>"></script>
-<% end %>
-

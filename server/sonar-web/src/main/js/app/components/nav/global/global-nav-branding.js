@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 
 export default React.createClass({
   renderLogo() {

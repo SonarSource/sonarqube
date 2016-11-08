@@ -17,9 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-// this is a bad idea
-// TODO rework once we have single js app
-
-import '../components/ui/Level.css';
-import '../components/ui/Rating.css';
+export default function () {
+  return null;
+}

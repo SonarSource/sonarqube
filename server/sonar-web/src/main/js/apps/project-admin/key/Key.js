@@ -34,7 +34,7 @@ import {
 } from '../../../components/store/globalMessages';
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
-import RecentHistory from '../../../main/nav/component/RecentHistory';
+import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 import { getProjectAdminProjectModules } from '../../../app/store/rootReducer';
 
 class Key extends React.Component {

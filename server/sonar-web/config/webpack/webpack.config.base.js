@@ -25,7 +25,6 @@ module.exports = {
 
     'sonar': './src/main/js/libs/sonar.js',
 
-    'main': './src/main/js/main/app.js',
     'app': './src/main/js/app/index.js',
 
     // not unique url

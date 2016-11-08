@@ -17,20 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Favorite from '../../../components/controls/Favorite';
+import * as measures from '../../helpers/measures';
+import * as request from '../../helpers/request';
 
-export default React.createClass({
-  render() {
-    if (!this.props.canBeFavorite) {
-      return null;
-    }
-    return (
-        <div className="navbar-context-favorite">
-          <Favorite
-              component={this.props.component}
-              favorite={this.props.favorite}/>
-        </div>
-    );
-  }
-});
+const exposeLibraries = () => {
+  window.SonarMeasures = measures;
+  window.SonarRequest = request;
+};
+
+export default exposeLibraries;

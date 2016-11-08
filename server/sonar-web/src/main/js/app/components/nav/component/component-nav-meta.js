@@ -19,8 +19,8 @@
  */
 import moment from 'moment';
 import React from 'react';
-import PendingIcon from '../../../components/shared/pending-icon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import PendingIcon from '../../../../components/shared/pending-icon';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export default React.createClass({
   render() {

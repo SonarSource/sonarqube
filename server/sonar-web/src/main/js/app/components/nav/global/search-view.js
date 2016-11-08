@@ -21,13 +21,13 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
-import SelectableCollectionView from '../../../components/common/selectable-collection-view';
+import SelectableCollectionView from '../../../../components/common/selectable-collection-view';
 import SearchItemTemplate from '../templates/nav-search-item.hbs';
 import EmptySearchTemplate from '../templates/nav-search-empty.hbs';
 import SearchTemplate from '../templates/nav-search.hbs';
 import RecentHistory from '../component/RecentHistory';
-import { translate } from '../../../helpers/l10n';
-import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
+import { translate } from '../../../../helpers/l10n';
+import { collapsedDirFromPath, fileFromPath } from '../../../../helpers/path';
 
 const SearchItemView = Marionette.ItemView.extend({
   tagName: 'li',

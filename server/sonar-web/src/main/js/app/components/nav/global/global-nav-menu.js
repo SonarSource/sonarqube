@@ -20,7 +20,7 @@
 import React from 'react';
 import DashboardNameMixin from '../dashboard-name-mixin';
 import LinksMixin from '../links-mixin';
-import { translate } from '../../../helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
