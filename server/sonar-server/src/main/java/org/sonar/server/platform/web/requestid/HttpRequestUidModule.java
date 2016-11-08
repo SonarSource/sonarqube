@@ -24,7 +24,8 @@ import org.sonar.core.platform.Module;
 public class HttpRequestUidModule extends Module {
   @Override
   protected void configureModule() {
-    add(RequestUidGeneratorBaseImpl.class,
+    add(new RequestIdConfiguration(RequestUidGeneratorImpl.UUID_GENERATOR_RENEWAL_COUNT),
+      RequestUidGeneratorBaseImpl.class,
       RequestUidGeneratorImpl.class);
   }
 }

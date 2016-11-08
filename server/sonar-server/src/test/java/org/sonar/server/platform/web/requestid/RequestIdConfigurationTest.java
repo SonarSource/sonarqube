@@ -19,13 +19,15 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.sonar.core.util.UuidGenerator;
-import org.sonar.core.util.UuidGeneratorImpl;
+import org.junit.Test;
 
-public class RequestUidGeneratorBaseImpl implements RequestUidGeneratorBase {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public UuidGenerator.WithFixedBase createNew() {
-    return new UuidGeneratorImpl().withFixedBase();
+public class RequestIdConfigurationTest {
+  private RequestIdConfiguration underTest = new RequestIdConfiguration(50);
+
+  @Test
+  public void getUidGeneratorRenewalCount_returns_value_provided_from_constructor() {
+    assertThat(underTest.getUidGeneratorRenewalCount()).isEqualTo(50);
   }
 }

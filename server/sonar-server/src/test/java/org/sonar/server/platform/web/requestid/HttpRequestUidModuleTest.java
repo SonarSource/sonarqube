@@ -35,6 +35,6 @@ public class HttpRequestUidModuleTest {
     underTest.configure(container);
 
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_HARDCODED_IN_CONTAINER + 2);
+      .hasSize(COMPONENTS_HARDCODED_IN_CONTAINER + 3);
   }
 }

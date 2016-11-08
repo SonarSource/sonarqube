@@ -21,9 +21,9 @@ package org.sonar.server.platform.web.requestid;
 
 import org.sonar.core.util.UuidGenerator;
 
-/**
- * Marker interface to be able to add a {@link org.sonar.core.util.UuidGenerator.WithFixedBase} to pico without risk
- * of use in another domain.
- */
-public interface RequestUidGeneratorBase extends UuidGenerator.WithFixedBase {
+public interface RequestUidGeneratorBase {
+  /**
+   * Provides a new instance of {@link UuidGenerator.WithFixedBase} to be used by {@link RequestUidGeneratorImpl}.
+   */
+  UuidGenerator.WithFixedBase createNew();
 }

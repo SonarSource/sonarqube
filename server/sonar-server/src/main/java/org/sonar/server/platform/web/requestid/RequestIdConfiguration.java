@@ -19,13 +19,17 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.sonar.core.util.UuidGenerator;
-import org.sonar.core.util.UuidGeneratorImpl;
+public class RequestIdConfiguration {
+  /**
+   * @see RequestUidGeneratorImpl#mustRenewUuidGenerator(long)
+   */
+  private final long uuidGeneratorRenewalCount;
 
-public class RequestUidGeneratorBaseImpl implements RequestUidGeneratorBase {
+  public RequestIdConfiguration(long uuidGeneratorRenewalCount) {
+    this.uuidGeneratorRenewalCount = uuidGeneratorRenewalCount;
+  }
 
-  @Override
-  public UuidGenerator.WithFixedBase createNew() {
-    return new UuidGeneratorImpl().withFixedBase();
+  public long getUidGeneratorRenewalCount() {
+    return uuidGeneratorRenewalCount;
   }
 }

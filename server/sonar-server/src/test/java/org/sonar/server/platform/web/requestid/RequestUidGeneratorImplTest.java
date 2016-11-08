@@ -19,15 +19,71 @@
  */
 package org.sonar.server.platform.web.requestid;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.core.util.UuidGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RequestUidGeneratorImplTest {
-  @Test
-  public void generate_returns_value_if_RequestUidGeneratorBase_generate_encoded_in_base64() {
-    RequestUidGeneratorImpl underTest = new RequestUidGeneratorImpl(increment -> new byte[] {124, 22, 66, 96, 55, 88, 2, 9});
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk=");
+  private UuidGenerator.WithFixedBase generator1 = increment -> new byte[] {124, 22, 66, 96, 55, 88, 2, 9};
+  private UuidGenerator.WithFixedBase generator2 = increment -> new byte[] {0, 5, 88, 81, 8, 6, 44, 19};
+  private UuidGenerator.WithFixedBase generator3 = increment -> new byte[] {126, 9, 35, 76, 2, 1, 2};
+  private RequestUidGeneratorBase uidGeneratorBase = mock(RequestUidGeneratorBase.class);
+  private IllegalStateException expected = new IllegalStateException("Unexpected third call to createNew");
+
+  @Test
+  public void generate_renews_inner_UuidGenerator_instance_every_number_of_calls_to_generate_specified_in_RequestIdConfiguration_supports_2() {
+    when(uidGeneratorBase.createNew())
+      .thenReturn(generator1)
+      .thenReturn(generator2)
+      .thenReturn(generator3)
+      .thenThrow(expected);
+
+    RequestUidGeneratorImpl underTest = new RequestUidGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(2));
+
+    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // using generator1
+    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // still using generator1
+    assertThat(underTest.generate()).isEqualTo("AAVYUQgGLBM="); // renewing generator and using generator2
+    assertThat(underTest.generate()).isEqualTo("AAVYUQgGLBM="); // still using generator2
+    assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // renewing generator and using generator3
+    assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(expected.getMessage());
+
+    underTest.generate(); // renewing generator and failing
+  }
+
+  @Test
+  public void generate_renews_inner_UuidGenerator_instance_every_number_of_calls_to_generate_specified_in_RequestIdConfiguration_supports_3() {
+    when(uidGeneratorBase.createNew())
+      .thenReturn(generator1)
+      .thenReturn(generator2)
+      .thenReturn(generator3)
+      .thenThrow(expected);
+
+    RequestUidGeneratorImpl underTest = new RequestUidGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(3));
+
+    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // using generator1
+    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // still using generator1
+    assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // still using generator1
+    assertThat(underTest.generate()).isEqualTo("AAVYUQgGLBM="); // renewing generator and using it
+    assertThat(underTest.generate()).isEqualTo("AAVYUQgGLBM="); // still using generator2
+    assertThat(underTest.generate()).isEqualTo("AAVYUQgGLBM="); // still using generator2
+    assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // renewing generator and using it
+    assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
+    assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(expected.getMessage());
+
+    underTest.generate(); // renewing generator and failing
   }
 }
