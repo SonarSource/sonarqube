@@ -40,8 +40,6 @@ import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.measure.MeasureFilterDao;
-import org.sonar.db.measure.MeasureFilterFavouriteDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
@@ -86,8 +84,6 @@ public class DbClient {
   private final ResourceDao resourceDao;
   private final ComponentKeyUpdaterDao componentKeyUpdaterDao;
   private final MeasureDao measureDao;
-  private final MeasureFilterDao measureFilterDao;
-  private final MeasureFilterFavouriteDao measureFilterFavouriteDao;
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
   private final UserTokenDao userTokenDao;
@@ -143,8 +139,6 @@ public class DbClient {
     resourceDao = getDao(map, ResourceDao.class);
     componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
-    measureFilterDao = getDao(map, MeasureFilterDao.class);
-    measureFilterFavouriteDao = getDao(map, MeasureFilterFavouriteDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
     userTokenDao = getDao(map, UserTokenDao.class);
@@ -252,14 +246,6 @@ public class DbClient {
 
   public MeasureDao measureDao() {
     return measureDao;
-  }
-
-  public MeasureFilterDao measureFilterDao() {
-    return measureFilterDao;
-  }
-
-  public MeasureFilterFavouriteDao measureFilterFavouriteDao() {
-    return measureFilterFavouriteDao;
   }
 
   public UserDao userDao() {

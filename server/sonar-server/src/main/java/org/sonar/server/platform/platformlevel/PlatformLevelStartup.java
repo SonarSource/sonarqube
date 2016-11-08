@@ -33,7 +33,6 @@ import org.sonar.server.startup.DeleteOldAnalysisReportsFromFs;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterMetrics;
-import org.sonar.server.startup.RegisterNewMeasureFilters;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.user.DoPrivileged;
@@ -57,7 +56,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterQualityGates.class,
       RegisterRules.class,
       RegisterQualityProfiles.class,
-      RegisterNewMeasureFilters.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
       RegisterIssueFilters.class,

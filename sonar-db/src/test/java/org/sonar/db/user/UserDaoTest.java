@@ -35,8 +35,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.db.measure.MeasureFilterDto;
-import org.sonar.db.measure.MeasureFilterFavouriteDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -399,8 +397,6 @@ public class UserDaoTest {
     UserDto user = newActiveUser();
     IssueFilterDto issueFilter = insertIssueFilter(user, false);
     IssueFilterFavouriteDto issueFilterFavourite = insertIssueFilterFavourite(issueFilter, user);
-    MeasureFilterDto measureFilter = insertMeasureFilter(user, false);
-    MeasureFilterFavouriteDto measureFilterFavourite = insertMeasureFilterFavourite(measureFilter, user);
     PropertyDto property = insertProperty(user);
     db.users().insertPermissionOnUser(user, "perm");
     insertUserGroup(user);
@@ -427,8 +423,6 @@ public class UserDaoTest {
 
     assertThat(dbClient.issueFilterDao().selectById(session, issueFilter.getId())).isNull();
     assertThat(dbClient.issueFilterFavouriteDao().selectById(session, issueFilterFavourite.getId())).isNull();
-    assertThat(dbClient.measureFilterDao().selectById(session, measureFilter.getId())).isNull();
-    assertThat(dbClient.measureFilterFavouriteDao().selectById(session, measureFilterFavourite.getId())).isNull();
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(session, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().login(user.getLogin()).membership(IN).build(), user.getId())).isZero();
@@ -448,22 +442,6 @@ public class UserDaoTest {
     IssueFilterDto sharedFilterReloaded = dbClient.issueFilterDao().selectById(session, sharedFilter.getId());
     assertThat(sharedFilterReloaded).isNotNull();
     assertThat(sharedFilterReloaded.getUserLogin()).isEqualTo(user.getLogin());
-  }
-
-  @Test
-  public void deactivate_user_does_not_remove_shared_measure_filter() throws Exception {
-    UserDto user = newActiveUser();
-    MeasureFilterDto notSharedFilter = insertMeasureFilter(user, false);
-    MeasureFilterDto sharedFilter = insertMeasureFilter(user, true);
-    session.commit();
-
-    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
-    assertThat(deactivated).isTrue();
-
-    assertThat(dbClient.measureFilterDao().selectById(session, notSharedFilter.getId())).isNull();
-    MeasureFilterDto sharedFilterReloaded = dbClient.measureFilterDao().selectById(session, sharedFilter.getId());
-    assertThat(sharedFilterReloaded).isNotNull();
-    assertThat(sharedFilterReloaded.getUserId()).isEqualTo(user.getId());
   }
 
   @Test
@@ -774,18 +752,6 @@ public class UserDaoTest {
   private IssueFilterFavouriteDto insertIssueFilterFavourite(IssueFilterDto filter, UserDto user) {
     IssueFilterFavouriteDto dto = new IssueFilterFavouriteDto().setUserLogin(user.getLogin()).setIssueFilterId(filter.getId());
     dbClient.issueFilterFavouriteDao().insert(session, dto);
-    return dto;
-  }
-
-  private MeasureFilterDto insertMeasureFilter(UserDto user, boolean shared) {
-    MeasureFilterDto dto = new MeasureFilterDto().setUserId(user.getId()).setName(randomAlphanumeric(100)).setShared(shared);
-    dbClient.measureFilterDao().insert(session, dto);
-    return dto;
-  }
-
-  private MeasureFilterFavouriteDto insertMeasureFilterFavourite(MeasureFilterDto measureFilter, UserDto user) {
-    MeasureFilterFavouriteDto dto = new MeasureFilterFavouriteDto().setUserId(user.getId()).setMeasureFilterId(measureFilter.getId());
-    dbClient.measureFilterFavouriteDao().insert(session, dto);
     return dto;
   }
 

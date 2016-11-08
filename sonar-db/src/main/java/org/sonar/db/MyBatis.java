@@ -64,10 +64,6 @@ import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureFilterDto;
-import org.sonar.db.measure.MeasureFilterFavouriteDto;
-import org.sonar.db.measure.MeasureFilterFavouriteMapper;
-import org.sonar.db.measure.MeasureFilterMapper;
 import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureMapper;
@@ -178,8 +174,6 @@ public class MyBatis {
     confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
-    confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
-    confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Organization", OrganizationDto.class);
@@ -237,8 +231,6 @@ public class MyBatis {
       IssueFilterMapper.class,
       IssueMapper.class,
       LoadedTemplateMapper.class,
-      MeasureFilterFavouriteMapper.class,
-      MeasureFilterMapper.class,
       MeasureMapper.class,
       MetricMapper.class,
       Migration45Mapper.class,

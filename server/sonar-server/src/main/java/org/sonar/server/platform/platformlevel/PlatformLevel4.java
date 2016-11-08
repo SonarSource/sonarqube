@@ -88,9 +88,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.license.ws.LicensesWsModule;
-import org.sonar.server.measure.MeasureFilterEngine;
-import org.sonar.server.measure.MeasureFilterExecutor;
-import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.template.MyFavouritesFilter;
 import org.sonar.server.measure.template.ProjectFilter;
@@ -327,9 +324,6 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.language.ws.ListAction.class,
 
       // measure
-      MeasureFilterFactory.class,
-      MeasureFilterExecutor.class,
-      MeasureFilterEngine.class,
       MetricsWsModule.class,
       MeasuresWsModule.class,
       CustomMeasuresWsModule.class,

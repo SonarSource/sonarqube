@@ -54,8 +54,6 @@ import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.measure.MeasureFilterEngine;
-import org.sonar.server.measure.MeasureFilterResult;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
@@ -74,10 +72,6 @@ public final class JRubyFacade {
 
   <T> T get(Class<T> componentType) {
     return getContainer().getComponentByType(componentType);
-  }
-
-  public MeasureFilterResult executeMeasureFilter(Map<String, Object> map, @Nullable Long userId) {
-    return get(MeasureFilterEngine.class).execute(map, userId);
   }
 
   public Collection<ResourceType> getResourceTypesForFilter() {

@@ -70,10 +70,6 @@ public interface UserMapper {
 
   void deleteUserIssueFilterFavourites(String login);
 
-  void deleteUnsharedUserMeasureFilters(long userId);
-
-  void deleteUserMeasureFilterFavourites(long userId);
-
   void deleteUserProperties(long userId);
 
   void deleteUserRoles(long userId);
