@@ -22,7 +22,6 @@ package org.sonar.core.util;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import java.io.File;
@@ -75,7 +74,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new SystemFacade(), settings, server.getVersion());
+    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), settings, server.getVersion());
   }
 
   public DefaultHttpDownloader(Settings settings) {
@@ -89,7 +88,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new SystemFacade(), settings, null);
+    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), settings, null);
   }
 
   @Override
@@ -158,16 +157,10 @@ public class DefaultHttpDownloader extends HttpDownloader {
   }
 
   /**
-   * Facade to allow unit tests to verify calls to {@link System}.
-   * This class could be replaced by {@link org.sonar.api.utils.System2},
-   * but it sounds overkill to define {@link #setDefaultAuthenticator(Authenticator)}.
+   * Facade to allow unit tests to verify calls to {@link Authenticator#setDefault(Authenticator)}.
    */
-  static class SystemFacade {
-    public void setProperty(String key, String value) {
-      System.setProperty(key, value);
-    }
-
-    public void setDefaultAuthenticator(Authenticator authenticator) {
+  static class AuthenticatorFacade {
+    void setDefaultAuthenticator(Authenticator authenticator) {
       Authenticator.setDefault(authenticator);
     }
   }
@@ -177,44 +170,19 @@ public class DefaultHttpDownloader extends HttpDownloader {
     private static final String GET = "GET";
     private static final String HTTP_PROXY_USER = "http.proxyUser";
     private static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
-    private static final String HTTP_PROXY_HOST = "http.proxyHost";
-    private static final String HTTPS_PROXY_HOST = "https.proxyHost";
-    private static final String HTTP_PROXY_PORT = "http.proxyPort";
-    private static final String HTTPS_PROXY_PORT = "https.proxyPort";
-
-    private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-      HTTP_PROXY_HOST, HTTP_PROXY_PORT, "http.nonProxyHosts",
-      HTTPS_PROXY_HOST, HTTPS_PROXY_PORT,
-      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
-    BaseHttpDownloader(SystemFacade system, Settings settings, @Nullable String userAgent) {
+    BaseHttpDownloader(AuthenticatorFacade system, Settings settings, @Nullable String userAgent) {
       initProxy(system, settings);
       initUserAgent(userAgent, settings);
     }
 
-    private void initProxy(SystemFacade system, Settings settings) {
-      // propagate system properties
-      for (String key : PROXY_SETTINGS) {
-        if (settings.hasKey(key)) {
-          system.setProperty(key, settings.getString(key));
-        }
-      }
-      // defaults of HTTPS properties are the values of HTTP properties
-      setSystemPropertyToDefaultIfNotSet(system, settings, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
-      setSystemPropertyToDefaultIfNotSet(system, settings, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
-
+    private void initProxy(AuthenticatorFacade system, Settings settings) {
       // register credentials
       String login = settings.getString(HTTP_PROXY_USER);
       if (isNotEmpty(login)) {
         system.setDefaultAuthenticator(new ProxyAuthenticator(login, settings.getString(HTTP_PROXY_PASSWORD)));
-      }
-    }
-
-    private static void setSystemPropertyToDefaultIfNotSet(SystemFacade system, Settings settings, String httpsProperty, String httpProperty) {
-      if (!settings.hasKey(httpsProperty) && settings.hasKey(httpProperty)) {
-        system.setProperty(httpsProperty, settings.getString(httpProperty));
       }
     }
 
