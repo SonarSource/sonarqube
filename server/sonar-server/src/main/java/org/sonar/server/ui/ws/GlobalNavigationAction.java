@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui.ws;
 
-import java.util.List;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -29,28 +28,19 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
-import org.sonar.db.dashboard.ActiveDashboardDao;
-import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.UserSession;
 
 public class GlobalNavigationAction implements NavigationWsAction {
 
-  private static final String ANONYMOUS = null;
-
-  private final ActiveDashboardDao activeDashboardDao;
   private final Views views;
   private final Settings settings;
   private final ResourceTypes resourceTypes;
-  private final UserSession userSession;
 
-  public GlobalNavigationAction(ActiveDashboardDao activeDashboardDao, Views views, Settings settings, ResourceTypes resourceTypes, UserSession userSession) {
-    this.activeDashboardDao = activeDashboardDao;
+  public GlobalNavigationAction(Views views, Settings settings, ResourceTypes resourceTypes) {
     this.views = views;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
-    this.userSession = userSession;
   }
 
   @Override
@@ -65,28 +55,11 @@ public class GlobalNavigationAction implements NavigationWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<DashboardDto> dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(userSession.getLogin());
-    if (dashboards.isEmpty()) {
-      dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(ANONYMOUS);
-    }
-
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeDashboards(json, dashboards);
     writePages(json);
     writeLogoProperties(json);
     writeQualifiers(json);
     json.endObject().close();
-  }
-
-  private static void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
-    json.name("globalDashboards").beginArray();
-    for (DashboardDto dashboard : dashboards) {
-      json.beginObject()
-        .prop("key", dashboard.getKey())
-        .prop("name", dashboard.getName())
-        .endObject();
-    }
-    json.endArray();
   }
 
   private void writePages(JsonWriter json) {

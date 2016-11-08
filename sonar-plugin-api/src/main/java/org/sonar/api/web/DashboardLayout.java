@@ -23,7 +23,9 @@ package org.sonar.api.web;
  * Possible layouts for a dashboard.
  *
  * @since 2.13
+ * @deprecated since 6.2, as dashboards have been removed
  */
+@Deprecated
 public enum DashboardLayout {
 
   /**

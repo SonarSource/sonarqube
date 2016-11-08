@@ -21,7 +21,9 @@ package org.sonar.api.web;
 
 /**
  * @since 2.4
+ * @deprecated since 6.2, as dashboards have been removed
  */
+@Deprecated
 public enum WidgetLayoutType {
   DEFAULT, NONE
 }

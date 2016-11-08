@@ -19,12 +19,10 @@
  */
 package org.sonar.server.ui.ws;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
@@ -34,20 +32,11 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.dashboard.ActiveDashboardDao;
-import org.sonar.db.dashboard.ActiveDashboardDto;
-import org.sonar.db.dashboard.DashboardDao;
-import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.db.user.UserDao;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsTester;
-
-import static org.mockito.Mockito.mock;
 
 public class GlobalNavigationActionTest {
 
@@ -56,35 +45,13 @@ public class GlobalNavigationActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbSession session;
+  private DbSession session = dbTester.getSession();
 
   private WsTester wsTester;
 
-  private UserDao userDao;
-
-  private DashboardDao dashboardDao;
-
-  private ActiveDashboardDao activeDashboardDao;
-
-  @Before
-  public void before() {
-    userDao = new UserDao(dbTester.myBatis(), mock(System2.class));
-    dashboardDao = new DashboardDao(dbTester.myBatis());
-    activeDashboardDao = new ActiveDashboardDao(dbTester.myBatis());
-    DbClient dbClient = new DbClient(
-      dbTester.database(), dbTester.myBatis(), userDao, dashboardDao, activeDashboardDao);
-
-    session = dbClient.openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
-  }
-
   @Test
   public void empty_call() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new MapSettings(), new ResourceTypes(), userSessionRule)));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(new Views(userSessionRule), new MapSettings(), new ResourceTypes())));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "empty.json");
   }
@@ -104,18 +71,18 @@ public class GlobalNavigationActionTest {
           .addRelations("PAL", "LAP")
           .build()
       });
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new MapSettings(), resourceTypes, userSessionRule)));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(new Views(userSessionRule), new MapSettings(), resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "with_qualifiers.json");
   }
 
   @Test
   public void only_logo() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule),
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(new Views(userSessionRule),
       new MapSettings()
         .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
         .setProperty("sonar.lf.logoWidthPx", "123"),
-      new ResourceTypes(), userSessionRule)));
+      new ResourceTypes())));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "only_logo.json");
   }
@@ -155,50 +122,12 @@ public class GlobalNavigationActionTest {
   }
 
   private void nominalSetup() {
-    createAndConfigureDashboardForUser();
-    createAndConfigureDashboardForAnonymous();
-
     session.commit();
 
     Settings settings = new MapSettings()
       .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
       .setProperty("sonar.lf.logoWidthPx", "123");
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings, new ResourceTypes(), userSessionRule)));
-  }
-
-  private void createAndConfigureDashboardForUser() {
-    UserDto user = createUser("obiwan", 42L);
-    userDao.insert(session, user);
-    DashboardDto defaultDashboardForUser = createDashboard(1L, "Default Dashboard for User");
-    dashboardDao.insert(defaultDashboardForUser);
-    activeDashboardDao.insert(createActiveDashboard(user.getId(), defaultDashboardForUser.getId(), 1));
-  }
-
-  private void createAndConfigureDashboardForAnonymous() {
-    DashboardDto defaultDashboardForAnonymous = createDashboard(2L, "Default Dashboard for Anonymous");
-    dashboardDao.insert(defaultDashboardForAnonymous);
-    activeDashboardDao.insert(createActiveDashboard(null, defaultDashboardForAnonymous.getId(), 1));
-  }
-
-  private UserDto createUser(String login, Long userId) {
-    return new UserDto()
-      .setActive(true)
-      .setId(userId)
-      .setLogin(login);
-  }
-
-  private DashboardDto createDashboard(long id, String name) {
-    return new DashboardDto()
-      .setId(id)
-      .setName(name)
-      .setShared(true);
-  }
-
-  private ActiveDashboardDto createActiveDashboard(Long userId, Long dashboardId, int orderIndex) {
-    return new ActiveDashboardDto()
-      .setOrderIndex(orderIndex)
-      .setDashboardId(dashboardId)
-      .setUserId(userId);
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(createViews(), settings, new ResourceTypes())));
   }
 
   private Views createViews() {
@@ -207,6 +136,7 @@ public class GlobalNavigationActionTest {
       public String getTitle() {
         return "My Plugin Page";
       }
+
       @Override
       public String getId() {
         return "my_plugin_page";
@@ -218,6 +148,7 @@ public class GlobalNavigationActionTest {
       public String getTitle() {
         return "My Rails App";
       }
+
       @Override
       public String getId() {
         return "/my_rails_app";

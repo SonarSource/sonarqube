@@ -18,23 +18,12 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class ResourceController < ApplicationController
+#
+# SonarQube 6.2
+#
+class DropRelatedDashboardTables < ActiveRecord::Migration
 
-  SECTION=Navigation::SECTION_RESOURCE
-
-  # DO NOT REMOVE - used by eclipse plugin
-  def index
-    require_parameters 'id'
-
-    component_key = params[:id]
-    if Api::Utils.is_number?(component_key)
-      component=Project.by_key(component_key)
-      not_found unless component
-      access_denied unless has_role?(:user, component)
-      component_key = component.key
-    end
-
-    redirect_to url_for(:controller => 'component', :action => 'index', :id => component_key)
+  def self.up
+    execute_java_migration('org.sonar.db.version.v62.DropRelatedDashboardTables')
   end
-
 end

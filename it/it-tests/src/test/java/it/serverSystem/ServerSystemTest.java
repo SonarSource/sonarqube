@@ -25,7 +25,6 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -68,7 +67,7 @@ public class ServerSystemTest {
   @Test
   public void get_sonarqube_version() {
     String version = orchestrator.getServer().getWsClient().find(new ServerQuery()).getVersion();
-    if (!StringUtils.startsWithAny(version, new String[]{"5.", "6."})) {
+    if (!StringUtils.startsWithAny(version, new String[] {"5.", "6."})) {
       fail("Bad version: " + version);
     }
   }
@@ -203,32 +202,6 @@ public class ServerSystemTest {
   }
 
   /**
-   * SONAR-3147
-   */
-  // TODO should be moved elsewhere
-  @Test
-  public void test_widgets_web_service() throws IOException {
-    HttpClient httpclient = new DefaultHttpClient();
-    try {
-      HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/api/widgets");
-      HttpResponse response = httpclient.execute(get);
-
-      assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-      String json = IOUtils.toString(response.getEntity().getContent());
-      List widgets = (List) JSONValue.parse(json);
-      assertThat(widgets.size()).isGreaterThan(10);
-
-      // quick test of the first widget
-      assertThat(((Map) widgets.get(0)).get("title")).isNotNull();
-
-      EntityUtils.consume(response.getEntity());
-
-    } finally {
-      httpclient.getConnectionManager().shutdown();
-    }
-  }
-
-  /**
    * SONAR-5197
    */
   // TODO should be moved elsewhere
@@ -253,7 +226,7 @@ public class ServerSystemTest {
   private String getValidIpAddress() throws IOException {
     WsClient adminWsClient = newAdminWsClient(orchestrator);
     ShowWsResponse response = ShowWsResponse.parseFrom(adminWsClient.wsConnector().call(
-        new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
+      new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
     assertThat(response.getValidIpAddressesCount()).isGreaterThan(0);
     return response.getValidIpAddresses(0);
   }

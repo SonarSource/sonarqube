@@ -22,6 +22,10 @@ package org.sonar.api.web;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * @deprecated since 6.2, as dashboards have been removed
+ */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WidgetProperties {
   WidgetProperty[] value() default {};

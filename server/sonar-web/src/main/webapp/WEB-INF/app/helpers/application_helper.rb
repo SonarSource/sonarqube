@@ -467,9 +467,6 @@ module ApplicationHelper
     end
 
     index=options[:period]||options[:index]
-    if index.nil? && defined?(@dashboard_configuration) && @dashboard_configuration.selected_period?
-      index = @dashboard_configuration.period_index
-    end
 
     if m
       m.variation(index)||options[:default]

@@ -32,12 +32,10 @@ import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DeleteOldAnalysisReportsFromFs;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
-import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
-import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -60,11 +58,9 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterRules.class,
       RegisterQualityProfiles.class,
       RegisterNewMeasureFilters.class,
-      RegisterDashboards.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
       RegisterIssueFilters.class,
-      RenameIssueWidgets.class,
       DisplayLogOnDeprecatedProjects.class,
       ClearRulesOverloadedDebt.class,
       DeleteOldAnalysisReportsFromFs.class);

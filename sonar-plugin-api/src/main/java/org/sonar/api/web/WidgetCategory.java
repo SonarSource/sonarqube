@@ -26,7 +26,9 @@ import java.lang.annotation.Target;
 
 /**
  * @since 2.4
+ * @deprecated since 6.2, as dashboards have been removed
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WidgetCategory {
