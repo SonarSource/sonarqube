@@ -25,21 +25,27 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
@@ -47,6 +53,7 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.component.es.ProjectMeasuresIndex.SUPPORTED_FACETS;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
@@ -56,14 +63,13 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
   private final ProjectMeasuresQueryValidator queryValidator;
-  private final ProjectMeasuresQueryFactory queryFactory;
+  private final UserSession userSession;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryFactory queryFactory,
-    ProjectMeasuresQueryValidator queryValidator) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryValidator queryValidator, UserSession userSession) {
     this.dbClient = dbClient;
     this.index = index;
-    this.queryFactory = queryFactory;
     this.queryValidator = queryValidator;
+    this.userSession = userSession;
   }
 
   @Override
@@ -93,25 +99,44 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchResults searchResults = searchProjects(dbSession, request);
+      SearchResults searchResults = searchData(dbSession, request);
 
       return buildResponse(request, searchResults);
     }
   }
 
-  private SearchResults searchProjects(DbSession dbSession, SearchProjectsRequest request) {
+  private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request) {
     String filter = firstNonNull(request.getFilter(), "");
-    ProjectMeasuresQuery query = queryFactory.newProjectMeasuresQuery(dbSession, filter);
+
+    Set<String> favoriteProjectUuids = searchFavoriteProjects(dbSession);
+
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(filter, favoriteProjectUuids);
     queryValidator.validate(dbSession, query);
 
-    SearchIdResult<String> searchResults = index.search(query, new SearchOptions()
+    SearchIdResult<String> esResults = index.search(query, new SearchOptions()
       .addFacets(request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));
 
-    Ordering<ComponentDto> ordering = Ordering.explicit(searchResults.getIds()).onResultOf(ComponentDto::uuid);
-    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, searchResults.getIds()));
+    Ordering<ComponentDto> ordering = Ordering.explicit(esResults.getIds()).onResultOf(ComponentDto::uuid);
+    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, esResults.getIds()));
 
-    return new SearchResults(projects, searchResults);
+    return new SearchResults(projects, favoriteProjectUuids, esResults);
+  }
+
+  private Set<String> searchFavoriteProjects(DbSession dbSession) {
+    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(userSession.getUserId())
+      .setKey("favourite")
+      .build(), dbSession)
+      .stream()
+      .map(PropertyDto::getResourceId)
+      .collect(Collectors.toList());
+
+    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds)
+      .stream()
+      .filter(dbComponent -> Qualifiers.PROJECT.equals(dbComponent.qualifier()))
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toSet());
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
@@ -126,7 +151,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent();
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(searchResults.favoriteProjectUuids);
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -205,9 +230,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
     private final Component.Builder wsComponent;
+    private final Set<String> favoriteProjectUuids;
 
-    private DbToWsComponent() {
+    private DbToWsComponent(Set<String> favoriteProjectUuids) {
       this.wsComponent = Component.newBuilder();
+      this.favoriteProjectUuids = favoriteProjectUuids;
     }
 
     @Override
@@ -217,17 +244,20 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
         .setName(dbComponent.name())
+        .setIsFavorite(favoriteProjectUuids.contains(dbComponent.uuid()))
         .build();
     }
   }
 
   private static class SearchResults {
     private final List<ComponentDto> projects;
+    private final Set<String> favoriteProjectUuids;
     private final Facets facets;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, SearchIdResult<String> searchResults) {
+    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults) {
       this.projects = projects;
+      this.favoriteProjectUuids = favoriteProjectUuids;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
     }

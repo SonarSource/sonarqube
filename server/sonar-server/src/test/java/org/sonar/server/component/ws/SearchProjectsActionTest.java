@@ -97,17 +97,16 @@ public class SearchProjectsActionTest {
 
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
   private final ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), userSession);
-  private ProjectMeasuresQueryFactory queryFactory = new ProjectMeasuresQueryFactory(dbClient, userSession);
   private final ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
 
   private WsActionTester ws = new WsActionTester(
-    new SearchProjectsAction(dbClient, index, queryFactory, queryValidator));
+    new SearchProjectsAction(dbClient, index, queryValidator, userSession));
 
   private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
   @Test
   public void json_example() {
-    insertProjectInDbAndEs(newProjectDto()
+    long project1Id = insertProjectInDbAndEs(newProjectDto()
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1"));
@@ -119,6 +118,9 @@ public class SearchProjectsActionTest {
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3"));
+    userSession.login().setUserId(23);
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(project1Id).setUserId(23L));
+    dbSession.commit();
 
     String result = ws.newRequest().execute().getInput();
 
@@ -278,8 +280,8 @@ public class SearchProjectsActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
   }
 
-  private void insertProjectInDbAndEs(ComponentDto project) {
-    insertProjectInDbAndEs(project, emptyList());
+  private long insertProjectInDbAndEs(ComponentDto project) {
+    return insertProjectInDbAndEs(project, emptyList());
   }
 
   private long insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {

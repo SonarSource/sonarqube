@@ -30,12 +30,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Collections.emptySet;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 
 public class ProjectMeasuresQueryValidatorTest {
 
@@ -50,20 +52,19 @@ public class ProjectMeasuresQueryValidatorTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ProjectMeasuresQueryFactory queryFactory = new ProjectMeasuresQueryFactory(dbClient, userSession);
 
   private ProjectMeasuresQueryValidator underTest = new ProjectMeasuresQueryValidator(dbClient);
 
   @Test
   public void query_with_empty_metrics_is_valid() throws Exception {
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, ""));
+    underTest.validate(dbSession, newProjectMeasuresQuery("", emptySet()));
   }
 
   @Test
   public void does_not_fail_when_metric_criteria_contains_an_existing_metric() throws Exception {
     insertValidMetric("ncloc");
 
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, "ncloc > 10"));
+    underTest.validate(dbSession, newProjectMeasuresQuery("ncloc > 10", emptySet()));
   }
 
   @Test
@@ -76,7 +77,7 @@ public class ProjectMeasuresQueryValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Following metrics are not numeric : [data, distrib, string]");
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, "data > 10 and distrib = 11 and ncloc <= 20 and debt < 30 and string = 40"));
+    underTest.validate(dbSession, newProjectMeasuresQuery("data > 10 and distrib = 11 and ncloc <= 20 and debt < 30 and string = 40", emptySet()));
   }
 
   @Test
@@ -85,7 +86,7 @@ public class ProjectMeasuresQueryValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Following metrics are disabled : [ncloc]");
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, "ncloc > 10"));
+    underTest.validate(dbSession, newProjectMeasuresQuery("ncloc > 10", emptySet()));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class ProjectMeasuresQueryValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown metric(s) [unknown]");
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, "unknown > 10"));
+    underTest.validate(dbSession, newProjectMeasuresQuery("unknown > 10", emptySet()));
   }
 
   @Test
@@ -103,7 +104,7 @@ public class ProjectMeasuresQueryValidatorTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
-    underTest.validate(dbSession, queryFactory.newProjectMeasuresQuery(dbSession, "debt > 10 AND ncloc <= 20 AND coverage > 30"));
+    underTest.validate(dbSession, newProjectMeasuresQuery("debt > 10 AND ncloc <= 20 AND coverage > 30", emptySet()));
   }
 
   private void insertValidMetric(String metricKey) {

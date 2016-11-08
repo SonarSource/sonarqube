@@ -8,17 +8,20 @@
     {
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "my_project",
-      "name": "My Project 1"
+      "name": "My Project 1",
+      "isFavorite": true
     },
     {
       "id": "AU-TpxcA-iU5OvuD2FLz",
       "key": "another_project",
-      "name": "My Project 2"
+      "name": "My Project 2",
+      "isFavorite": false
     },
     {
       "id": "AU-TpxcA-iU5OvuD2FL0",
       "key": "third_project",
-      "name": "My Project 3"
+      "name": "My Project 3",
+      "isFavorite": false
     }
   ]
 }

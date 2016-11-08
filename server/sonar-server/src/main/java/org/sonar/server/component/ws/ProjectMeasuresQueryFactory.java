@@ -21,20 +21,12 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Splitter;
-import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.util.stream.Collectors;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.property.PropertyDto;
-import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
-import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
@@ -42,20 +34,16 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 
-public class ProjectMeasuresQueryFactory {
+class ProjectMeasuresQueryFactory {
   private static final Splitter CRITERIA_SPLITTER = Splitter.on(Pattern.compile("and", Pattern.CASE_INSENSITIVE));
   private static final Pattern CRITERIA_PATTERN = Pattern.compile("(\\w+)\\s*([<>]?[=]?)\\s*(\\w+)");
   private static final String IS_FAVORITE_CRITERION = "isFavorite";
 
-  private final DbClient dbClient;
-  private final UserSession userSession;
-
-  public ProjectMeasuresQueryFactory(DbClient dbClient, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
+  private ProjectMeasuresQueryFactory() {
+    // prevent instantiation
   }
 
-  ProjectMeasuresQuery newProjectMeasuresQuery(DbSession dbSession, String filter) {
+  static ProjectMeasuresQuery newProjectMeasuresQuery(String filter, Set<String> favoriteProjectUuids) {
     if (StringUtils.isBlank(filter)) {
       return new ProjectMeasuresQuery();
     }
@@ -63,16 +51,16 @@ public class ProjectMeasuresQueryFactory {
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
 
     CRITERIA_SPLITTER.split(filter)
-      .forEach(criteria -> processCriterion(dbSession, criteria, query));
+      .forEach(criteria -> processCriterion(criteria, query, favoriteProjectUuids));
     return query;
   }
 
-  private void processCriterion(DbSession dbSession, String rawCriterion, ProjectMeasuresQuery query) {
+  private static void processCriterion(String rawCriterion, ProjectMeasuresQuery query, Set<String> favoriteProjectUuids) {
     String criterion = rawCriterion.trim();
 
     try {
       if (IS_FAVORITE_CRITERION.equalsIgnoreCase(criterion)) {
-        query.setProjectUuids(searchFavoriteUuids(dbSession));
+        query.setProjectUuids(favoriteProjectUuids);
         return;
       }
 
@@ -91,22 +79,6 @@ public class ProjectMeasuresQueryFactory {
     } catch (Exception e) {
       throw new IllegalArgumentException(String.format("Invalid criterion '%s'", criterion), e);
     }
-  }
-
-  private List<String> searchFavoriteUuids(DbSession dbSession) {
-    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(userSession.getUserId())
-      .setKey("favourite")
-      .build(), dbSession)
-      .stream()
-      .map(PropertyDto::getResourceId)
-      .collect(Collectors.toList());
-
-    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds)
-      .stream()
-      .filter(dbComponent -> Qualifiers.PROJECT.equals(dbComponent.qualifier()))
-      .map(ComponentDto::uuid)
-      .collect(Collectors.toList());
   }
 
 }

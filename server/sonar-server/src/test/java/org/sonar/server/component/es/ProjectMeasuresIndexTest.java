@@ -39,6 +39,7 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -203,7 +204,7 @@ public class ProjectMeasuresIndexTest {
       newDoc("P1", "K1", "N1"),
       newDoc("P2", "K2", "N2"),
       newDoc("P3", "K3", "N3"));
-    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery().setProjectUuids(newArrayList("P1", "P3"));
+    ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery().setProjectUuids(newHashSet("P1", "P3"));
 
     List<String> result = underTest.search(esQuery, new SearchOptions()).getIds();
 

@@ -22,6 +22,7 @@ package org.sonar.server.component.es;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.measures.Metric;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -32,7 +33,7 @@ import static java.util.Objects.requireNonNull;
 public class ProjectMeasuresQuery {
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus;
-  private List<String> projectUuids = null;
+  private Set<String> projectUuids = null;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -57,7 +58,7 @@ public class ProjectMeasuresQuery {
     return qualityGateStatus;
   }
 
-  public ProjectMeasuresQuery setProjectUuids(List<String> projectUuids) {
+  public ProjectMeasuresQuery setProjectUuids(Set<String> projectUuids) {
     this.projectUuids = requireNonNull(projectUuids);
     return this;
   }
@@ -66,7 +67,7 @@ public class ProjectMeasuresQuery {
     return projectUuids != null;
   }
 
-  public List<String> getProjectUuids() {
+  public Set<String> getProjectUuids() {
     return requireNonNull(projectUuids);
   }
 

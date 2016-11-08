@@ -23,17 +23,15 @@ package org.sonar.server.component.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 import org.sonar.server.component.es.ProjectMeasuresQuery;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
 
 public class ProjectMeasuresQueryFactoryTest {
@@ -42,17 +40,10 @@ public class ProjectMeasuresQueryFactoryTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private ProjectMeasuresQueryFactory underTest = new ProjectMeasuresQueryFactory(dbClient, userSession);
 
   @Test
   public void create_query() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc > 10 and coverage <= 80");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc > 10 and coverage <= 80", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -63,7 +54,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_having_lesser_than_operation() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc < 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc < 10", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -72,7 +63,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_having_lesser_than_or_equals_operation() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc <= 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc <= 10", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -81,7 +72,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_having_greater_than_operation() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc > 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc > 10", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -90,7 +81,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_having_greater_than_or_equals_operation() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc >= 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc >= 10", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -99,7 +90,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_having_equal_operation() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc = 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc = 10", emptySet());
 
     assertThat(query.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
@@ -108,21 +99,21 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void create_query_on_quality_gate() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "alert_status = OK");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("alert_status = OK", emptySet());
 
     assertThat(query.getQualityGateStatus().name()).isEqualTo(OK.name());
   }
 
   @Test
   public void query_without_favorites_by_default() {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "ncloc = 10");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("ncloc = 10", emptySet());
 
     assertThat(query.doesFilterOnProjectUuids()).isFalse();
   }
 
   @Test
   public void create_query_with_favorites() throws Exception {
-    ProjectMeasuresQuery query = underTest.newProjectMeasuresQuery(dbSession, "isFavorite");
+    ProjectMeasuresQuery query = newProjectMeasuresQuery("isFavorite", emptySet());
 
     assertThat(query.doesFilterOnProjectUuids()).isTrue();
   }
@@ -130,17 +121,17 @@ public class ProjectMeasuresQueryFactoryTest {
   @Test
   public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    underTest.newProjectMeasuresQuery(dbSession, "alert_status > OK");
+    newProjectMeasuresQuery("alert_status > OK", emptySet());
   }
 
   @Test
   public void search_is_case_insensitive() throws Exception {
-    assertThat(underTest.newProjectMeasuresQuery(dbSession, "ncloc > 10 AnD coverage <= 80 AND debt = 10 AND issues = 20").getMetricCriteria()).hasSize(4);
+    assertThat(newProjectMeasuresQuery("ncloc > 10 AnD coverage <= 80 AND debt = 10 AND issues = 20", emptySet()).getMetricCriteria()).hasSize(4);
   }
 
   @Test
   public void convert_metric_to_lower_case() throws Exception {
-    assertThat(underTest.newProjectMeasuresQuery(dbSession, "NCLOC > 10 AND coVERage <= 80").getMetricCriteria())
+    assertThat(newProjectMeasuresQuery("NCLOC > 10 AND coVERage <= 80", emptySet()).getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(
         tuple("ncloc", Operator.GT, 10d),
@@ -149,14 +140,14 @@ public class ProjectMeasuresQueryFactoryTest {
 
   @Test
   public void ignore_white_spaces() throws Exception {
-    assertThat(underTest.newProjectMeasuresQuery(dbSession, "   ncloc    >    10   ").getMetricCriteria())
+    assertThat(newProjectMeasuresQuery("   ncloc    >    10   ", emptySet()).getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(tuple("ncloc", Operator.GT, 10d));
   }
 
   @Test
   public void accept_empty_query() throws Exception {
-    ProjectMeasuresQuery result = underTest.newProjectMeasuresQuery(dbSession, "");
+    ProjectMeasuresQuery result = newProjectMeasuresQuery("", emptySet());
 
     assertThat(result.getMetricCriteria()).isEmpty();
   }
@@ -165,7 +156,7 @@ public class ProjectMeasuresQueryFactoryTest {
   public void fail_on_invalid_criteria() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc ? 10'");
-    underTest.newProjectMeasuresQuery(dbSession, "ncloc ? 10");
+    newProjectMeasuresQuery("ncloc ? 10", emptySet());
   }
 
   @Test
@@ -173,34 +164,34 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc ? 10'");
 
-    underTest.newProjectMeasuresQuery(dbSession, "    ncloc ? 10    ");
+    newProjectMeasuresQuery("    ncloc ? 10    ", emptySet());
   }
 
   @Test
   public void fail_when_not_double() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc > ten'");
-    underTest.newProjectMeasuresQuery(dbSession, "ncloc > ten");
+    newProjectMeasuresQuery("ncloc > ten", emptySet());
   }
 
   @Test
   public void fail_when_no_operator() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc 10'");
-    underTest.newProjectMeasuresQuery(dbSession, "ncloc 10");
+    newProjectMeasuresQuery("ncloc 10", emptySet());
   }
 
   @Test
   public void fail_when_no_key() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion '>= 10'");
-    underTest.newProjectMeasuresQuery(dbSession, ">= 10");
+    newProjectMeasuresQuery(">= 10", emptySet());
   }
 
   @Test
   public void fail_when_no_value() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Invalid criterion 'ncloc >='");
-    underTest.newProjectMeasuresQuery(dbSession, "ncloc >=");
+    newProjectMeasuresQuery("ncloc >=", emptySet());
   }
 }
