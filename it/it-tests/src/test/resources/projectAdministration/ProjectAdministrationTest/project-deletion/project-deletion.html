@@ -45,8 +45,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/all_projects?qualifier=TRK</td>
+	<td>/projects</td>
 	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.page-main</td>
+	<td>*1 projects*</td>
 </tr>
 <tr>
 	<td>assertTextPresent</td>
@@ -85,8 +90,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/all_projects?qualifier=TRK</td>
+	<td>/projects</td>
 	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.page-main</td>
+	<td>*0 projects*</td>
 </tr>
 <tr>
 	<td>assertTextNotPresent</td>

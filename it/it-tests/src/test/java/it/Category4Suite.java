@@ -24,7 +24,6 @@ import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
 import it.component.ComponentsWsTest;
 import it.component.ProjectSearchTest;
-import it.componentSearch.AllProjectsTest;
 import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
@@ -87,8 +86,6 @@ import static util.ItUtils.xooPlugin;
   ProjectComparisonTest.class,
   // project search
   SearchProjectsTest.class,
-  // component search
-  AllProjectsTest.class,
   // http
   HttpHeadersTest.class,
   // ui
