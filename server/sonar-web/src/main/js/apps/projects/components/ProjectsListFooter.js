@@ -22,7 +22,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 
 export default class ProjectsListFooter extends React.Component {
   static propTypes = {
-    total: React.PropTypes.number.isRequired,
+    total: React.PropTypes.number.isRequired
   };
 
   render () {

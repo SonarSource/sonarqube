@@ -92,7 +92,7 @@ const onReceiveProjects = dispatch => response => {
   });
   dispatch(updateState({
     total: response.paging.total,
-    pageIndex: response.paging.pageIndex,
+    pageIndex: response.paging.pageIndex
   }));
 };
 
@@ -142,7 +142,7 @@ export const fetchFavoriteProjects = () => dispatch => {
     });
     dispatch(updateState({
       total: projects.length,
-      pageIndex: 1,
+      pageIndex: 1
     }));
   }, onFail(dispatch));
 };

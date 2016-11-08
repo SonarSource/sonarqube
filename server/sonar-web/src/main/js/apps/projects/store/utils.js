@@ -39,7 +39,7 @@ export const parseUrlQuery = urlQuery => ({
   'maintainability': getAsNumericRating(urlQuery['maintainability']),
   'coverage': getAsNumericRating(urlQuery['coverage']),
   'duplications': getAsNumericRating(urlQuery['duplications']),
-  'size': getAsNumericRating(urlQuery['size']),
+  'size': getAsNumericRating(urlQuery['size'])
 });
 
 const convertIssuesRating = (metric, rating) => {

@@ -87,7 +87,7 @@ export default class Component extends React.Component {
       { metric: 'reliability_rating', type: 'RATING' },
       { metric: 'security_rating', type: 'RATING' },
       { metric: 'sqale_rating', type: 'RATING' },
-      { metric: 'ncloc', type: 'SHORT_INT' },
+      { metric: 'ncloc', type: 'SHORT_INT' }
     ] : [
       { metric: 'ncloc', type: 'SHORT_INT' },
       { metric: 'bugs', type: 'SHORT_INT' },

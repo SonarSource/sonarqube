@@ -24,6 +24,6 @@ import { getComponent, getComponentMeasures } from '../../../app/store/rootReduc
 export default connect(
     (state, ownProps) => ({
       project: getComponent(state, ownProps.projectKey),
-      measures: getComponentMeasures(state, ownProps.projectKey),
+      measures: getComponentMeasures(state, ownProps.projectKey)
     })
 )(ProjectCard);

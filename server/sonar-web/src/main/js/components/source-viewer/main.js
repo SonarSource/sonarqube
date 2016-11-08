@@ -216,7 +216,7 @@ export default Marionette.LayoutView.extend({
       }
       source = source.map(function (row) {
         return _.extend(row, {
-          coverageStatus: that.getCoverageStatus(row),
+          coverageStatus: that.getCoverageStatus(row)
         });
       });
       const firstLine = _.first(source).line;
