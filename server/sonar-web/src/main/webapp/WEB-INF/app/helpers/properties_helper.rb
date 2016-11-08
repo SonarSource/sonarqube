@@ -73,21 +73,9 @@ module PropertiesHelper
         size = options[:size] || 50
         text_field_tag name, value, {:size => size}.update(html_options)
 
-      when PropertyType::TYPE_FILTER
-        user_filters = options_id(value, current_user.measure_filters)
-        shared_filters = options_id(value, MeasureFilter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:name))
-
-        filters_combo = select_tag name, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
-        filter_link = link_to message('widget.filter.edit'), {:controller => 'measures', :action => 'manage'}, :class => 'link-action'
-
-        "#{filters_combo} #{filter_link}"
-
       when PropertyType::TYPE_ISSUE_FILTER
         user_filters = options_id(value, Internal.issues.findIssueFiltersForCurrentUser())
         shared_filters = options_id(value, Internal.issues.findSharedFiltersForCurrentUser())
-
-        #user_filters = options_id(value, current_user.measure_filters)
-        #shared_filters = options_id(value, MeasureFilter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:name))
 
         filters_combo = select_tag name, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
         filter_link = link_to message('widget.filter.edit'), {:controller => 'issues', :action => 'manage'}, :class => 'link-action'

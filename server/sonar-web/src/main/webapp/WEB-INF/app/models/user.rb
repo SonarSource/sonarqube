@@ -26,15 +26,6 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
 
   has_many :properties, :foreign_key => 'user_id', :dependent => :delete_all
-  has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
-  has_many :dashboards, :dependent => :destroy
-  has_many :measure_filters, :class_name => 'MeasureFilter', :dependent => :delete_all, :order => 'name asc'
-
-  # measure filters that are marked as favourites
-  has_many :favourited_measure_filters, :class_name => 'MeasureFilter', :through => :measure_filter_favourites, :source => :measure_filter, :order => 'name asc'
-
-  # the join table MEASURE_FILTER_FAVOURITES
-  has_many :measure_filter_favourites, :class_name => 'MeasureFilterFavourite', :dependent => :delete_all
 
   include Authentication
   include Authentication::ByPassword
