@@ -22,6 +22,7 @@ package org.sonar.api.measures;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.utils.KeyValueFormat;
@@ -104,7 +105,7 @@ public class CountDistributionBuilder implements MeasureBuilder {
    * @param measure the measure to add to the current one
    * @return the current object
    */
-  public CountDistributionBuilder add(Measure measure) {
+  public CountDistributionBuilder add(@Nullable Measure measure) {
     if (measure != null && measure.getData() != null) {
       Map<String, String> map = KeyValueFormat.parse(measure.getData());
       for (Map.Entry<String, String> entry : map.entrySet()) {

@@ -22,6 +22,9 @@ package org.sonar.db.metric;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 public class MetricDtoTest {
 
@@ -59,5 +62,14 @@ public class MetricDtoTest {
     assertThat(metricDto.isHidden()).isTrue();
     assertThat(metricDto.isDeleteHistoricalData()).isTrue();
     assertThat(metricDto.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void is_data_type() throws Exception {
+    assertThat(MetricTesting.newMetricDto().setValueType(INT.name()).isDataType()).isFalse();
+
+    assertThat(MetricTesting.newMetricDto().setValueType(DATA.name()).isDataType()).isTrue();
+    assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
+    assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
   }
 }
