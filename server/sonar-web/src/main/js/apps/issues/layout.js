@@ -30,8 +30,7 @@ export default Marionette.LayoutView.extend({
     facetsRegion: '.search-navigator-facets',
     workspaceHeaderRegion: '.search-navigator-workspace-header',
     workspaceListRegion: '.search-navigator-workspace-list',
-    workspaceComponentViewerRegion: '.issues-workspace-component-viewer',
-    workspaceHomeRegion: '.issues-workspace-home'
+    workspaceComponentViewerRegion: '.issues-workspace-component-viewer'
   },
 
   onRender () {
@@ -60,14 +59,6 @@ export default Marionette.LayoutView.extend({
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
-  },
-
-  showHomePage () {
-    this.$('.issues').addClass('issues-home-view');
-  },
-
-  hideHomePage () {
-    this.$('.issues').removeClass('issues-home-view');
   }
 });
 

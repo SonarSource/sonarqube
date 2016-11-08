@@ -22,7 +22,6 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
-import HomeView from './workspace-home-view';
 
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
@@ -62,7 +61,6 @@ export default Controller.extend({
     }
     if (firstPage) {
       this.options.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
-      this.hideHomePage();
       this.closeComponentViewer();
     }
     const data = this._issuesParameters();
@@ -109,18 +107,6 @@ export default Controller.extend({
   isIssuePermalink () {
     const query = this.options.app.state.get('query');
     return (query.issues != null) && this.options.app.list.length === 1;
-  },
-
-  fetchFilters () {
-    const that = this;
-    return $.when(
-        that.options.app.filters.fetch({ reset: true }),
-        $.get(window.baseUrl + '/api/issue_filters/app', function (r) {
-          that.options.app.state.set({
-            canBulkChange: r.canBulkChange,
-            canManageFilters: r.canManageFilters
-          });
-        }));
   },
 
   _mergeCollections (a, b) {
@@ -175,21 +161,11 @@ export default Controller.extend({
     return this.options.app.state.setQuery({ resolved: 'false' });
   },
 
-  applyFilter (filter, ignoreQuery) {
-    if (ignoreQuery == null) {
-      ignoreQuery = false;
-    }
-    if (!ignoreQuery) {
-      const filterQuery = this.parseQuery(filter.get('query'));
-      this.options.app.state.setQuery(filterQuery);
-    }
-    return this.options.app.state.set({ filter, changed: false });
-  },
-
   parseQuery () {
     const q = Controller.prototype.parseQuery.apply(this, arguments);
     delete q.asc;
     delete q.s;
+    delete q.id;
     return q;
   },
 
@@ -209,19 +185,6 @@ export default Controller.extend({
       return route.push(`${property}=${encodeURIComponent(value)}`);
     });
     return route.join(separator);
-  },
-
-  getRoute () {
-    const filter = this.options.app.state.get('filter');
-    let query = Controller.prototype.getRoute.apply(this, arguments);
-    if (filter != null) {
-      if (this.options.app.state.get('changed') && query.length > 0) {
-        query = 'id=' + filter.id + '|' + query;
-      } else {
-        query = 'id=' + filter.id;
-      }
-    }
-    return query;
   },
 
   _prepareComponent (issue) {
@@ -253,29 +216,6 @@ export default Controller.extend({
     this.options.app.state.unset('component');
     this.options.app.layout.workspaceComponentViewerRegion.reset();
     this.options.app.layout.hideComponentViewer();
-    this.options.app.issuesView.bindScrollEvents();
-    return this.options.app.issuesView.scrollTo();
-  },
-
-  showHomePage () {
-    this.options.app.state.set({ query: { resolved: 'false' } }, { silent: true });
-    this.fetchList();
-    this.options.app.layout.workspaceComponentViewerRegion.reset();
-    key.setScope('home');
-    this.options.app.issuesView.unbindScrollEvents();
-    this.options.app.homeView = new HomeView({
-      app: this.options.app,
-      collection: this.options.app.filters
-    });
-    this.options.app.layout.workspaceHomeRegion.show(this.options.app.homeView);
-    return this.options.app.layout.showHomePage();
-  },
-
-  hideHomePage () {
-    this.options.app.layout.workspaceComponentViewerRegion.reset();
-    this.options.app.layout.workspaceHomeRegion.reset();
-    key.setScope('list');
-    this.options.app.layout.hideHomePage();
     this.options.app.issuesView.bindScrollEvents();
     return this.options.app.issuesView.scrollTo();
   }

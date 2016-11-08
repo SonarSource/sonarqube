@@ -36,7 +36,6 @@ import it.issue.IssuePurgeTest;
 import it.issue.IssueSearchTest;
 import it.issue.IssueTrackingTest;
 import it.issue.IssueWorkflowTest;
-import it.issue.IssuesPageTest;
 import it.issue.NewIssuesMeasureTest;
 import it.qualityModel.MaintainabilityMeasureTest;
 import it.qualityModel.MaintainabilityRatingMeasureTest;
@@ -84,7 +83,6 @@ import static util.ItUtils.xooPlugin;
   IssueSearchTest.class,
   IssueTrackingTest.class,
   IssueWorkflowTest.class,
-  IssuesPageTest.class,
   NewIssuesMeasureTest.class,
   // debt
   MaintainabilityMeasureTest.class,

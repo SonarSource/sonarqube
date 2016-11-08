@@ -25,7 +25,6 @@ import State from '../issues/models/state';
 import Layout from '../issues/layout';
 import Issues from '../issues/models/issues';
 import Facets from '../../components/navigator/models/facets';
-import Filters from '../issues/models/filters';
 import Controller from '../issues/controller';
 import Router from '../issues/router';
 import WorkspaceListView from '../issues/workspace-list-view';
@@ -47,7 +46,6 @@ const init = function () {
   this.updateContextFacets();
   this.list = new Issues();
   this.facets = new Facets();
-  this.filters = new Filters();
 
   this.layout = new Layout({ app: this, el: options.el });
   this.layout.render();
@@ -74,11 +72,9 @@ const init = function () {
   });
   this.layout.facetsRegion.show(this.facetsView);
 
-  this.controller.fetchFilters().done(function () {
-    key.setScope('list');
-    App.router = new Router({ app: App });
-    Backbone.history.start();
-  });
+  key.setScope('list');
+  App.router = new Router({ app: App });
+  Backbone.history.start();
 };
 
 App.getContextQuery = function () {
