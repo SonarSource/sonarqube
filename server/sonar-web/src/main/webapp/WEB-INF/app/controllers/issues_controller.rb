@@ -25,12 +25,12 @@ class IssuesController < ApplicationController
 
   # GET /issues/index
   def index
-    redirect_to :action => 'search'
+
   end
 
   # GET /issues/search
   def search
-
+    redirect_to :action => 'index'
   end
 
   def show

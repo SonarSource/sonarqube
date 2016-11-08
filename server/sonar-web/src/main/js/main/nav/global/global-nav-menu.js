@@ -40,7 +40,7 @@ export default React.createClass({
   },
 
   renderIssuesLink () {
-    const url = window.baseUrl + '/issues/search';
+    const url = window.baseUrl + '/issues';
     return (
         <li className={this.activeLink('/issues')}>
           <a href={url}>{translate('issues.page')}</a>
