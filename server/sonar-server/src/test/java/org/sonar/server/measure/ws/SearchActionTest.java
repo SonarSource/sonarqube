@@ -368,9 +368,9 @@ public class SearchActionTest {
 
   private List<String> insertJsonExampleData() {
     List<String> projectKeys = new ArrayList<>();
-    ComponentDto project1 = newProjectDto().setKey("MY_PROJECT_1");
-    ComponentDto project2 = newProjectDto().setKey("MY_PROJECT_2");
-    ComponentDto project3 = newProjectDto().setKey("MY_PROJECT_3");
+    ComponentDto project1 = newProjectDto().setKey("MY_PROJECT_1").setName("Project 1");
+    ComponentDto project2 = newProjectDto().setKey("MY_PROJECT_2").setName("Project 2");
+    ComponentDto project3 = newProjectDto().setKey("MY_PROJECT_3").setName("Project 3");
     projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
     componentDb.insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
