@@ -23,21 +23,18 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.scanner.bootstrap.BatchWsClient;
-import org.sonar.scanner.bootstrap.BatchWsClientProvider;
-import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonarqube.ws.client.HttpConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchWsClientProviderTest {
 
-  BatchWsClientProvider underTest = new BatchWsClientProvider();
-  EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.3");
+  private BatchWsClientProvider underTest = new BatchWsClientProvider();
+  private EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.3");
 
   @Test
   public void provide_client_with_default_settings() {
-    GlobalProperties settings = new GlobalProperties(new HashMap<String, String>());
+    GlobalProperties settings = new GlobalProperties(new HashMap<>());
 
     BatchWsClient client = underTest.provide(settings, env);
 
@@ -48,7 +45,6 @@ public class BatchWsClientProviderTest {
     assertThat(httpConnector.okHttpClient().proxy()).isNull();
     assertThat(httpConnector.okHttpClient().connectTimeoutMillis()).isEqualTo(5_000);
     assertThat(httpConnector.okHttpClient().readTimeoutMillis()).isEqualTo(60_000);
-    assertThat(httpConnector.userAgent()).isEqualTo("Maven Plugin/2.3");
   }
 
   @Test
@@ -66,12 +62,11 @@ public class BatchWsClientProviderTest {
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("https://here/sonarqube/");
     assertThat(httpConnector.okHttpClient().proxy()).isNull();
-    assertThat(httpConnector.userAgent()).isEqualTo("Maven Plugin/2.3");
   }
 
   @Test
   public void build_singleton() {
-    GlobalProperties settings = new GlobalProperties(new HashMap<String, String>());
+    GlobalProperties settings = new GlobalProperties(new HashMap<>());
     BatchWsClient first = underTest.provide(settings, env);
     BatchWsClient second = underTest.provide(settings, env);
     assertThat(first).isSameAs(second);

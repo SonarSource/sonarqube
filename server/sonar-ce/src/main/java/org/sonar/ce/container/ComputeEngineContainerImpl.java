@@ -137,6 +137,7 @@ import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.user.DeprecatedUserFinder;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonarqube.ws.Rules;
@@ -241,6 +242,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // issues
       IssueIndex.class,
+
+      new OkHttpClientProvider()
     };
   }
 

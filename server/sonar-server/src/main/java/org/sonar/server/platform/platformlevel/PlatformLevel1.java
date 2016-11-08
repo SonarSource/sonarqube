@@ -55,6 +55,7 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.util.OkHttpClientProvider;
 
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
@@ -118,6 +119,7 @@ public class PlatformLevel1 extends PlatformLevel {
       // issues
       IssueIndex.class,
 
+      new OkHttpClientProvider(),
       // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
       org.sonar.core.properties.PropertiesDao.class);
     addAll(CorePropertyDefinitions.all());

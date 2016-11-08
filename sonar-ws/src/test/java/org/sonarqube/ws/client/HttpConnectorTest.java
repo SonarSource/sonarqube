@@ -49,10 +49,9 @@ public class HttpConnectorTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  MockWebServer server;
-  String serverUrl;
-
-  HttpConnector underTest;
+  private MockWebServer server;
+  private String serverUrl;
+  private HttpConnector underTest;
 
   @Before
   public void setUp() throws Exception {
