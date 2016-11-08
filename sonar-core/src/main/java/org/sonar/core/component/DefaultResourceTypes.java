@@ -31,7 +31,6 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public final class DefaultResourceTypes {
 
-  private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
   private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
 
@@ -43,29 +42,23 @@ public final class DefaultResourceTypes {
     return ResourceTypeTree.builder()
       .addType(ResourceType.builder(Qualifiers.PROJECT)
         .setProperty("deletable", true)
-        .setProperty("supportsGlobalDashboards", true)
         .setProperty("modifiable_history", true)
         .setProperty("hasRolePolicy", true)
         .setProperty(UPDATABLE_KEY, true)
-        .setProperty(SUPPORTS_MEASURE_FILTERS, true)
         .setProperty("comparable", true)
         .setProperty(CONFIGURABLE, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.MODULE)
         .setProperty(UPDATABLE_KEY, true)
-        .setProperty(SUPPORTS_MEASURE_FILTERS, true)
         .setProperty(CONFIGURABLE, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.DIRECTORY)
-        .setProperty(SUPPORTS_MEASURE_FILTERS, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.FILE)
         .hasSourceCode()
-        .setProperty(SUPPORTS_MEASURE_FILTERS, true)
         .build())
       .addType(ResourceType.builder(Qualifiers.UNIT_TEST_FILE)
         .hasSourceCode()
-        .setProperty(SUPPORTS_MEASURE_FILTERS, true)
         .build())
 
       .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)

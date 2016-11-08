@@ -22,11 +22,9 @@ package org.sonar.api.resources;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
 
 /**
  * <p>Experimental extension to declare types of resources.
@@ -156,7 +154,6 @@ public class ResourceType {
    * Builder used to create {@link ResourceType} objects.
    */
   public static class Builder {
-    private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
     private String qualifier;
     private String iconPath;
     private boolean hasSourceCode = false;
@@ -184,7 +181,6 @@ public class ResourceType {
      */
     @Deprecated
     public Builder availableForFilters() {
-      setProperty(SUPPORTS_MEASURE_FILTERS, "true");
       return this;
     }
 
@@ -205,11 +201,6 @@ public class ResourceType {
       Preconditions.checkNotNull(key);
       Preconditions.checkNotNull(value);
       properties.put(key, value);
-
-      // for backward-compatibility since version 3.4
-      if ("availableForFilters".equals(key)) {
-        properties.put(SUPPORTS_MEASURE_FILTERS, value);
-      }
       return this;
     }
 
