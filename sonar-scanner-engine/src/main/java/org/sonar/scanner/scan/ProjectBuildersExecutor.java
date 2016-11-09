@@ -60,9 +60,6 @@ public class ProjectBuildersExecutor {
   }
 
   private static String getDescription(ProjectBuilder projectBuilder) {
-    if (projectBuilder == null) {
-      return null;
-    }
     Method toString;
     try {
       toString = projectBuilder.getClass().getMethod("toString");

@@ -49,9 +49,8 @@ class MeasureValueCoder implements ValueCoder {
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key " + metricKey);
     }
-    DefaultMeasure<?> m = new DefaultMeasure()
+    return new DefaultMeasure()
       .forMetric(metric)
       .withValue((Serializable) value.get());
-    return m;
   }
 }

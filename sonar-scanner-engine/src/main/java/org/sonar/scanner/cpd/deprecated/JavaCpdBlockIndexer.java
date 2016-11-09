@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
@@ -90,7 +91,8 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
 
       List<Statement> statements;
 
-      try (Reader reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding())) {
+      try (InputStream is = new FileInputStream(inputFile.file());
+        Reader reader = new InputStreamReader(is, fs.encoding())) {
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
