@@ -166,6 +166,7 @@ import org.sonar.db.version.v62.AddOrganizationUuidToPermissionTemplates;
 import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
+import org.sonar.db.version.v62.CreateTableWebhookDeliveries;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
 import org.sonar.db.version.v62.DropIssueFiltersTables;
 import org.sonar.db.version.v62.DropMeasureFiltersTables;
@@ -382,6 +383,7 @@ public class MigrationStepModule extends Module {
       UpdateQualityGateConditionsOnCoverage.class,
       DropRelatedDashboardTables.class,
       DropMeasureFiltersTables.class,
-      DropIssueFiltersTables.class);
+      DropIssueFiltersTables.class,
+      CreateTableWebhookDeliveries.class);
   }
 }
