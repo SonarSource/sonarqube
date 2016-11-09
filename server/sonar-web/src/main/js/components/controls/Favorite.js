@@ -24,15 +24,19 @@ import { addFavorite, removeFavorite } from '../../api/favorites';
 export default class Favorite extends React.Component {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
-    component: React.PropTypes.string.isRequired
+    component: React.PropTypes.string.isRequired,
+    className: React.PropTypes.string
   };
 
   render () {
+    const { favorite, component, ...other } = this.props;
+
     return (
         <FavoriteBase
-            favorite={this.props.favorite}
-            addFavorite={() => addFavorite(this.props.component)}
-            removeFavorite={() => removeFavorite(this.props.component)}/>
+            {...other}
+            favorite={favorite}
+            addFavorite={() => addFavorite(component)}
+            removeFavorite={() => removeFavorite(component)}/>
     );
   }
 }

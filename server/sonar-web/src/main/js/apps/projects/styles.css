@@ -80,6 +80,10 @@
   font-size: 12px;
 }
 
+.project-card-quality-gate {
+  line-height: 24px;
+}
+
 .projects-facet-header {
   padding-top: 10px;
   padding-bottom: 10px;

@@ -34,7 +34,7 @@ export default class ProjectCardQualityGate extends React.Component {
     }
 
     return (
-        <div className="project-card-measure">
+        <div className="project-card-measure project-card-quality-gate">
           <div className="project-card-measure-inner">
             <span className="small spacer-right">
               {translate('overview.quality_gate')}

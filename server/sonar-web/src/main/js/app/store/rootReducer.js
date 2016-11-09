@@ -20,7 +20,7 @@
 import { combineReducers } from 'redux';
 import components, * as fromComponents from './components/reducer';
 import users, * as fromUsers from './users/reducer';
-import favorites, * as fromFavorites from './favorites/reducer';
+import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import globalMessages, * as fromGlobalMessages from '../../components/store/globalMessages';
@@ -57,8 +57,8 @@ export const getCurrentUser = state => (
     fromUsers.getCurrentUser(state.users)
 );
 
-export const getFavorites = state => (
-    fromFavorites.getFavorites(state.favorites)
+export const isFavorite = (state, componentKey) => (
+    fromFavorites.isFavorite(state.favorites, componentKey)
 );
 
 export const getComponentMeasure = (state, componentKey, metricKey) => (
