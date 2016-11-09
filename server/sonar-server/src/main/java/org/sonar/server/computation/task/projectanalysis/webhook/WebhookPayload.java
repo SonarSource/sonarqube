@@ -29,6 +29,7 @@ import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
+import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.utils.text.JsonWriter;
 
 import static java.util.Objects.requireNonNull;
@@ -63,8 +64,19 @@ public class WebhookPayload {
     }
     writeProject(analysis, writer, analysis.getProject());
     writeQualityGate(writer, analysis.getQualityGate());
+    writeAnalysisProperties(writer, analysis.getScannerContext());
     writer.endObject().close();
     return new WebhookPayload(analysis.getProject().getKey(), string.toString());
+  }
+
+  private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {
+    writer.name("properties");
+    writer.beginObject();
+    scannerContext.getProperties().entrySet()
+      .stream()
+      .filter(prop -> prop.getKey().startsWith("sonar.analysis."))
+      .forEach(prop ->  writer.prop(prop.getKey(), prop.getValue()));
+    writer.endObject();
   }
 
   private static void writeTask(JsonWriter writer, CeTask ceTask) {
