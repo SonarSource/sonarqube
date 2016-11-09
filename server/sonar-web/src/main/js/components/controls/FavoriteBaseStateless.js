@@ -20,7 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export default class FavoriteBase extends React.Component {
+export default class FavoriteBaseStateless extends React.Component {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
     addFavorite: React.PropTypes.func.isRequired,
@@ -28,44 +28,14 @@ export default class FavoriteBase extends React.Component {
     className: React.PropTypes.string
   };
 
-  constructor (props) {
-    super(props);
-    this.state = { favorite: this.props.favorite };
-  }
-
-  componentWillMount () {
-    this.mounted = true;
-    this.toggleFavorite = this.toggleFavorite.bind(this);
-  }
-
-  componentWillUnmount () {
-    this.mounted = false;
-  }
-
-  toggleFavorite (e) {
+  toggleFavorite = e => {
     e.preventDefault();
-    if (this.state.favorite) {
-      this.removeFavorite();
+    if (this.props.favorite) {
+      this.props.removeFavorite();
     } else {
-      this.addFavorite();
+      this.props.addFavorite();
     }
-  }
-
-  addFavorite () {
-    this.props.addFavorite().then(() => {
-      if (this.mounted) {
-        this.setState({ favorite: true });
-      }
-    });
-  }
-
-  removeFavorite () {
-    this.props.removeFavorite().then(() => {
-      if (this.mounted) {
-        this.setState({ favorite: false });
-      }
-    });
-  }
+  };
 
   renderSVG () {
     /* eslint max-len: 0 */
@@ -79,7 +49,7 @@ export default class FavoriteBase extends React.Component {
 
   render () {
     const className = classNames('icon-star', {
-      'icon-star-favorite': this.state.favorite
+      'icon-star-favorite': this.props.favorite
     }, this.props.className);
 
     return (

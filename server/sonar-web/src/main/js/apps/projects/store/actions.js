@@ -28,8 +28,7 @@ import { getProjectsAppState } from '../../../app/store/rootReducer';
 import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../app/store/measures/actions';
 import { convertToFilter } from './utils';
-import { getFavorites } from '../../../api/favorites';
-import { receiveFavorites } from '../../../app/store/favorites/actions';
+import { receiveFavorites } from '../../../app/store/favorites/duck';
 
 const PAGE_SIZE = 50;
 
@@ -84,9 +83,17 @@ const fetchProjectMeasures = projects => dispatch => {
   return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch), onFail(dispatch));
 };
 
+const handleFavorites = (dispatch, projects) => {
+  const favorites = projects.filter(project => project.isFavorite);
+  if (favorites.length) {
+    dispatch(receiveFavorites(favorites));
+  }
+};
+
 const onReceiveProjects = dispatch => response => {
   dispatch(receiveComponents(response.components));
   dispatch(receiveProjects(response.components, response.facets));
+  handleFavorites(dispatch, response.components);
   dispatch(fetchProjectMeasures(response.components)).then(() => {
     dispatch(updateState({ loading: false }));
   });
@@ -99,6 +106,7 @@ const onReceiveProjects = dispatch => response => {
 const onReceiveMoreProjects = dispatch => response => {
   dispatch(receiveComponents(response.components));
   dispatch(receiveMoreProjects(response.components));
+  handleFavorites(dispatch, response.components);
   dispatch(fetchProjectMeasures(response.components)).then(() => {
     dispatch(updateState({ loading: false }));
   });
@@ -125,24 +133,4 @@ export const fetchMoreProjects = query => (dispatch, getState) => {
     data.filter = filter;
   }
   return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
-};
-
-export const fetchFavoriteProjects = () => dispatch => {
-  dispatch(updateState({ loading: true }));
-
-  return getFavorites().then(favorites => {
-    dispatch(receiveFavorites(favorites));
-
-    const projects = favorites.filter(component => component.qualifier === 'TRK');
-
-    dispatch(receiveComponents(projects));
-    dispatch(receiveProjects(projects, []));
-    dispatch(fetchProjectMeasures(projects)).then(() => {
-      dispatch(updateState({ loading: false }));
-    });
-    dispatch(updateState({
-      total: projects.length,
-      pageIndex: 1
-    }));
-  }, onFail(dispatch));
 };

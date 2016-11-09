@@ -16,6 +16,26 @@
   margin: 15px -20px;
 }
 
+.boxed-group-header {
+  padding: 15px 20px 0;
+}
+
+.boxed-group-header > h2 {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 24px;
+}
+
+.boxed-group-header > [class^="icon-"] {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.boxed-group-header > .icon-star {
+  position: relative;
+  top: 1px;
+}
+
 .boxed-group-actions {
   float: right;
   margin-top: 15px;

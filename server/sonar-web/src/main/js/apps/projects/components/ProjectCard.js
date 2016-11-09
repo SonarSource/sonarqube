@@ -21,6 +21,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
+import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import { getComponentUrl } from '../../../helpers/urls';
 
 export default class ProjectCard extends React.Component {
@@ -44,9 +45,14 @@ export default class ProjectCard extends React.Component {
                 <ProjectCardQualityGate status={this.props.measures['alert_status']}/>
               </div>
           )}
-          <h2 className="project-card-name">
-            <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
-          </h2>
+          <div className="boxed-group-header">
+            {project.isFavorite != null && (
+                <FavoriteContainer className="spacer-right" componentKey={project.key}/>
+            )}
+            <h2 className="project-card-name">
+              <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
+            </h2>
+          </div>
           <div className="boxed-group-inner">
             <ProjectCardMeasures measures={this.props.measures}/>
           </div>
