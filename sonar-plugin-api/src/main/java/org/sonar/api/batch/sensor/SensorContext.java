@@ -147,7 +147,11 @@ public interface SensorContext {
   /**
    * Add a property to the scanner context. This context is available
    * in Compute Engine when processing the report.
+   * <br/>
+   * The properties starting with {@code "sonar.analysis."} are included to the
+   * payload of webhooks.
    *
+   * @throws IllegalArgumentException if key or value parameter is null
    * @see org.sonar.api.ce.posttask.PostProjectAnalysisTask.ProjectAnalysis#getScannerContext()
    * @since 6.1
    */

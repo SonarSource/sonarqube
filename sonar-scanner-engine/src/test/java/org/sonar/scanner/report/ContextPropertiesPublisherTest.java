@@ -19,20 +19,21 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import java.util.Map;
-import javax.annotation.Nonnull;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ContextPropertiesCache;
 
+import static java.util.Collections.emptyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,41 +42,52 @@ public class ContextPropertiesPublisherTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  ContextPropertiesCache cache = new ContextPropertiesCache();
-  ContextPropertiesPublisher underTest = new ContextPropertiesPublisher(cache);
+  private ScannerReportWriter writer = mock(ScannerReportWriter.class);
+  private ContextPropertiesCache cache = new ContextPropertiesCache();
+  private Settings settings = new MapSettings();
+  private ContextPropertiesPublisher underTest = new ContextPropertiesPublisher(cache, settings);
 
   @Test
   public void publish_writes_properties_to_report() {
     cache.put("foo1", "bar1");
     cache.put("foo2", "bar2");
 
-    ScannerReportWriter writer = mock(ScannerReportWriter.class);
     underTest.publish(writer);
 
-    verify(writer).writeContextProperties(argThat(new TypeSafeMatcher<Iterable<ScannerReport.ContextProperty>>() {
-      @Override
-      protected boolean matchesSafely(Iterable<ScannerReport.ContextProperty> props) {
-        Map<String, ScannerReport.ContextProperty> map = Maps.uniqueIndex(props, ContextPropertyToKey.INSTANCE);
-        return map.size() == 2 &&
-          map.get("foo1").getValue().equals("bar1") &&
-          map.get("foo2").getValue().equals("bar2");
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
-    }));
+    List<ScannerReport.ContextProperty> expected = Arrays.asList(
+      newContextProperty("foo1", "bar1"),
+      newContextProperty("foo2", "bar2"));
+    expectWritten(expected);
   }
 
   @Test
   public void publish_writes_no_properties_to_report() {
-    ScannerReportWriter writer = mock(ScannerReportWriter.class);
     underTest.publish(writer);
 
+    expectWritten(emptyList());
+  }
+
+  @Test
+  public void publish_settings_prefixed_with_sonar_analysis_for_webhooks() {
+    settings.setProperty("foo", "should not be exported");
+    settings.setProperty("sonar.analysis.revision", "ab45b3");
+    settings.setProperty("sonar.analysis.build.number", "B123");
+
+    underTest.publish(writer);
+
+    List<ScannerReport.ContextProperty> expected = Arrays.asList(
+      newContextProperty("sonar.analysis.revision", "ab45b3"),
+      newContextProperty("sonar.analysis.build.number", "B123"));
+    expectWritten(expected);
+  }
+
+  private void expectWritten(List<ScannerReport.ContextProperty> expected) {
     verify(writer).writeContextProperties(argThat(new TypeSafeMatcher<Iterable<ScannerReport.ContextProperty>>() {
       @Override
       protected boolean matchesSafely(Iterable<ScannerReport.ContextProperty> props) {
-        return Iterables.isEmpty(props);
+        List<ScannerReport.ContextProperty> copy = Lists.newArrayList(props);
+        copy.removeAll(expected);
+        return copy.isEmpty();
       }
 
       @Override
@@ -84,11 +96,10 @@ public class ContextPropertiesPublisherTest {
     }));
   }
 
-  private enum ContextPropertyToKey implements Function<ScannerReport.ContextProperty, String> {
-    INSTANCE;
-    @Override
-    public String apply(@Nonnull ScannerReport.ContextProperty input) {
-      return input.getKey();
-    }
+  private static ScannerReport.ContextProperty newContextProperty(String key, String value) {
+    return ScannerReport.ContextProperty.newBuilder()
+      .setKey(key)
+      .setValue(value)
+      .build();
   }
 }

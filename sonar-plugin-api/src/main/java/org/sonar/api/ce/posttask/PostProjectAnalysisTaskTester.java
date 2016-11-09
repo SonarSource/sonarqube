@@ -561,13 +561,13 @@ public class PostProjectAnalysisTaskTester {
       // prevents instantiation outside PostProjectAnalysisTaskTester
     }
 
+    public ScannerContextBuilder addProperties(Map<String, String> map) {
+      properties.putAll(map);
+      return this;
+    }
+
     public ScannerContext build() {
-      return new ScannerContext() {
-        @Override
-        public Map<String, String> getProperties() {
-          return properties;
-        }
-      };
+      return () -> properties;
     }
   }
 }

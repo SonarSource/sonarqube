@@ -1,0 +1,10 @@
+{
+  "taskId": "#1",
+  "status": "FAILED",
+  "project": {
+    "key": "P1",
+    "name": "Project One"
+  },
+  "properties": {
+  }
+}

@@ -55,94 +55,124 @@ public class AppTest {
 
   @Test
   public void start_all_processes_if_cluster_mode_is_disabled() throws Exception {
+    Props props = initDefaultProps();
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
-    Props props = initDefaultProps();
     app.start(props);
-
     ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
-
     assertThat(argument.getValue()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
 
     app.stopAsync();
+    verify(monitor).stop();
   }
 
   @Test
   public void start_only_web_server_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.WEB_SERVER);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.WEB_SERVER);
   }
 
   @Test
   public void start_only_compute_engine_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_SEARCH_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.COMPUTE_ENGINE);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.COMPUTE_ENGINE);
   }
 
   @Test
   public void start_only_elasticsearch_node_in_cluster() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_WEB_DISABLED, "true");
     props.set(ProcessProperties.CLUSTER_CE_DISABLED, "true");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.ELASTICSEARCH);
+    assertThat(commands).extracting("processId").containsOnly(ProcessId.ELASTICSEARCH);
   }
 
   @Test
   public void add_custom_jdbc_driver_to_tomcat_classpath() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     props.set("sonar.jdbc.driverPath", "oracle/ojdbc6.jar");
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue().get(1).getClasspath()).contains("oracle/ojdbc6.jar");
+    assertThat(commands.get(1).getClasspath()).contains("oracle/ojdbc6.jar");
   }
 
   @Test
   public void sets_TMPDIR_env_var_of_Web_process() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
     Props props = initDefaultProps();
     String expectedTmpDir = "expected tmp dir";
     props.set("sonar.path.temp", expectedTmpDir);
-    app.start(props);
 
-    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
-    verify(monitor).start(argument.capture());
+    List<JavaCommand> commands = start(props);
 
-    assertThat(argument.getValue().get(1).getEnvVariables()).contains(entry("TMPDIR", expectedTmpDir));
+    assertThat(commands.get(1).getEnvVariables()).contains(entry("TMPDIR", expectedTmpDir));
+  }
+
+  @Test
+  public void configure_http_and_https_proxies_on_all_processes() throws Exception {
+    Props props = initDefaultProps();
+    // These properties can be defined in conf/sonar.properties.
+    // They must be propagated to JVM.
+    props.set("http.proxyHost", "1.2.3.4");
+    props.set("http.proxyPort", "80");
+    props.set("https.proxyHost", "5.6.7.8");
+    props.set("https.proxyPort", "443");
+
+    List<JavaCommand> commands = start(props);
+    assertThat(commands).isNotEmpty();
+
+    for (JavaCommand command : commands) {
+      assertThat(command.getJavaOptions()).contains("-Dhttp.proxyHost=1.2.3.4");
+      assertThat(command.getJavaOptions()).contains("-Dhttp.proxyPort=80");
+      assertThat(command.getJavaOptions()).contains("-Dhttps.proxyHost=5.6.7.8");
+      assertThat(command.getJavaOptions()).contains("-Dhttps.proxyPort=443");
+    }
+  }
+
+  @Test
+  public void https_proxy_defaults_are_http_proxy_properties() throws Exception {
+    Props props = initDefaultProps();
+    props.set("http.proxyHost", "1.2.3.4");
+    props.set("http.proxyPort", "80");
+
+    List<JavaCommand> commands = start(props);
+    assertThat(commands).isNotEmpty();
+
+    for (JavaCommand command : commands) {
+      assertThat(command.getJavaOptions()).contains("-Dhttp.proxyHost=1.2.3.4");
+      assertThat(command.getJavaOptions()).contains("-Dhttp.proxyPort=80");
+      assertThat(command.getJavaOptions()).contains("-Dhttps.proxyHost=1.2.3.4");
+      assertThat(command.getJavaOptions()).contains("-Dhttps.proxyPort=80");
+    }
+  }
+
+  @Test
+  public void no_http_proxy_settings_by_default() throws Exception {
+    List<JavaCommand> commands = start(initDefaultProps());
+
+    assertThat(commands).isNotEmpty();
+    for (JavaCommand command : commands) {
+      assertThat(command.getJavaOptions()).doesNotContain("http.proxyHost");
+      assertThat(command.getJavaOptions()).doesNotContain("https.proxyHost");
+      assertThat(command.getJavaOptions()).doesNotContain("http.proxyPort");
+      assertThat(command.getJavaOptions()).doesNotContain("https.proxyPort");
+    }
   }
 
   private Props initDefaultProps() throws IOException {
@@ -152,6 +182,15 @@ public class AppTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     return props;
+  }
+
+  private List<JavaCommand> start(Props props) throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    app.start(props);
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    verify(monitor).start(argument.capture());
+    return argument.getValue();
   }
 
   private ArgumentCaptor<List<JavaCommand>> newJavaCommandArgumentCaptor() {

@@ -73,6 +73,13 @@ public class ProcessProperties {
 
   public static final String CE_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8";
 
+  public static final String HTTP_PROXY_HOST = "http.proxyHost";
+  public static final String HTTPS_PROXY_HOST = "https.proxyHost";
+  public static final String HTTP_PROXY_PORT = "http.proxyPort";
+  public static final String HTTPS_PROXY_PORT = "https.proxyPort";
+  public static final String HTTP_PROXY_USER = "http.proxyUser";
+  public static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
+
   private ProcessProperties() {
     // only static stuff
   }

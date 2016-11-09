@@ -19,25 +19,11 @@
  */
 package org.sonarqube.ws.client;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Proxy;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import okhttp3.Call;
-import okhttp3.ConnectionSpec;
 import okhttp3.Credentials;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -52,7 +38,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 /**
  * Connect to any SonarQube server available through HTTP or HTTPS.
@@ -63,23 +48,21 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
-  private static final String NONE = "NONE";
-  private static final String P11KEYSTORE = "PKCS11";
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
    * It is required for further usage of {@link HttpUrl#resolve(String)}.
    */
   private final HttpUrl baseUrl;
-  private final String userAgent;
   private final String credentials;
-  private final String proxyCredentials;
   private final OkHttpClient okHttpClient;
 
   private HttpConnector(Builder builder) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
     checkArgument(this.baseUrl != null, "Malformed URL: '%s'", builder.url);
-    this.userAgent = builder.userAgent;
+
+    OkHttpClientBuilder okHttpClientBuilder = new OkHttpClientBuilder();
+    okHttpClientBuilder.setUserAgent(builder.userAgent);
 
     if (isNullOrEmpty(builder.login)) {
       // no login nor access token
@@ -89,139 +72,17 @@ public class HttpConnector implements WsConnector {
       // the Basic credentials consider an empty password.
       this.credentials = Credentials.basic(builder.login, nullToEmpty(builder.password));
     }
-    // proxy credentials can be used on system-wide proxies, so even if builder.proxy is null
-    if (isNullOrEmpty(builder.proxyLogin)) {
-      this.proxyCredentials = null;
-    } else {
-      this.proxyCredentials = Credentials.basic(builder.proxyLogin, nullToEmpty(builder.proxyPassword));
-    }
-    this.okHttpClient = buildClient(builder);
-  }
-
-  private static OkHttpClient buildClient(Builder builder) {
-    OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
-    if (builder.proxy != null) {
-      okHttpClientBuilder.proxy(builder.proxy);
-    }
-
-    okHttpClientBuilder.connectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
-    okHttpClientBuilder.readTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
-
-    ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-      .allEnabledTlsVersions()
-      .allEnabledCipherSuites()
-      .supportsTlsExtensions(true)
-      .build();
-    okHttpClientBuilder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
-    X509TrustManager systemDefaultTrustManager = systemDefaultTrustManager();
-    okHttpClientBuilder.sslSocketFactory(systemDefaultSslSocketFactory(systemDefaultTrustManager), systemDefaultTrustManager);
-
-    return okHttpClientBuilder.build();
-  }
-
-  private static X509TrustManager systemDefaultTrustManager() {
-    try {
-      TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-      trustManagerFactory.init((KeyStore) null);
-      TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-      if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-        throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
-      }
-      return (X509TrustManager) trustManagers[0];
-    } catch (GeneralSecurityException e) {
-      // The system has no TLS. Just give up.
-      throw new AssertionError(e);
-    }
-  }
-
-  private static SSLSocketFactory systemDefaultSslSocketFactory(X509TrustManager trustManager) {
-    KeyManager[] defaultKeyManager;
-    try {
-      defaultKeyManager = getDefaultKeyManager();
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to get default key manager", e);
-    }
-    try {
-      SSLContext sslContext = SSLContext.getInstance("TLS");
-      sslContext.init(defaultKeyManager, new TrustManager[] {trustManager}, null);
-      return sslContext.getSocketFactory();
-    } catch (GeneralSecurityException e) {
-      // The system has no TLS. Just give up.
-      throw new AssertionError(e);
-    }
-  }
-
-  private static void logDebug(String msg) {
-    boolean debugEnabled = "all".equals(System.getProperty("javax.net.debug"));
-    if (debugEnabled) {
-      System.out.println(msg);
-    }
-  }
-
-  /**
-   * Inspired from sun.security.ssl.SSLContextImpl#getDefaultKeyManager()
-   */
-  private static synchronized KeyManager[] getDefaultKeyManager() throws Exception {
-
-    final String defaultKeyStore = System.getProperty("javax.net.ssl.keyStore", "");
-    String defaultKeyStoreType = System.getProperty("javax.net.ssl.keyStoreType", KeyStore.getDefaultType());
-    String defaultKeyStoreProvider = System.getProperty("javax.net.ssl.keyStoreProvider", "");
-
-    logDebug("keyStore is : " + defaultKeyStore);
-    logDebug("keyStore type is : " + defaultKeyStoreType);
-    logDebug("keyStore provider is : " + defaultKeyStoreProvider);
-
-    if (P11KEYSTORE.equals(defaultKeyStoreType) && !NONE.equals(defaultKeyStore)) {
-      throw new IllegalArgumentException("if keyStoreType is " + P11KEYSTORE + ", then keyStore must be " + NONE);
-    }
-
-    KeyStore ks = null;
-    String defaultKeyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword", "");
-    char[] passwd = defaultKeyStorePassword.isEmpty() ? null : defaultKeyStorePassword.toCharArray();
-
-    /**
-     * Try to initialize key store.
-     */
-    if (!defaultKeyStoreType.isEmpty()) {
-      logDebug("init keystore");
-      if (defaultKeyStoreProvider.isEmpty()) {
-        ks = KeyStore.getInstance(defaultKeyStoreType);
-      } else {
-        ks = KeyStore.getInstance(defaultKeyStoreType, defaultKeyStoreProvider);
-      }
-      if (!defaultKeyStore.isEmpty() && !NONE.equals(defaultKeyStore)) {
-        try (FileInputStream fs = new FileInputStream(defaultKeyStore)) {
-          ks.load(fs, passwd);
-        }
-      } else {
-        ks.load(null, passwd);
-      }
-    }
-
-    /*
-     * Try to initialize key manager.
-     */
-    logDebug("init keymanager of type " + KeyManagerFactory.getDefaultAlgorithm());
-    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-    if (P11KEYSTORE.equals(defaultKeyStoreType)) {
-      // do not pass key passwd if using token
-      kmf.init(ks, null);
-    } else {
-      kmf.init(ks, passwd);
-    }
-
-    return kmf.getKeyManagers();
+    okHttpClientBuilder.setProxy(builder.proxy);
+    okHttpClientBuilder.setProxyLogin(builder.proxyLogin);
+    okHttpClientBuilder.setProxyPassword(builder.proxyPassword);
+    okHttpClientBuilder.setConnectTimeoutMs(builder.connectTimeoutMs);
+    okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
+    this.okHttpClient = okHttpClientBuilder.build();
   }
 
   @Override
   public String baseUrl() {
     return baseUrl.url().toExternalForm();
-  }
-
-  @CheckForNull
-  public String userAgent() {
-    return userAgent;
   }
 
   public OkHttpClient okHttpClient() {
@@ -286,12 +147,6 @@ public class HttpConnector implements WsConnector {
       .addHeader("Accept-Charset", "UTF-8");
     if (credentials != null) {
       okHttpRequestBuilder.header("Authorization", credentials);
-    }
-    if (proxyCredentials != null) {
-      okHttpRequestBuilder.header("Proxy-Authorization", proxyCredentials);
-    }
-    if (userAgent != null) {
-      okHttpRequestBuilder.addHeader("User-Agent", userAgent);
     }
     return okHttpRequestBuilder;
   }

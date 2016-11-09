@@ -35,7 +35,7 @@ public class CorePropertyDefinitionsTest {
   @Test
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs.size()).isGreaterThan(9);
+    assertThat(defs).hasSize(64);
   }
 
   @Test
