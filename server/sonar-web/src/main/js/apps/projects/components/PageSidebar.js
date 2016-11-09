@@ -30,18 +30,21 @@ import { translate } from '../../../helpers/l10n';
 
 export default class PageSidebar extends React.Component {
   static propTypes = {
-    query: React.PropTypes.object.isRequired
+    query: React.PropTypes.object.isRequired,
+    isFavorite: React.PropTypes.bool.isRequired
   };
 
   render () {
     const isFiltered = Object.keys(this.props.query).some(key => this.props.query[key] != null);
+
+    const pathname = this.props.isFavorite ? '/projects/favorite' : '/projects';
 
     return (
         <div className="search-navigator-facets-list">
           <div className="projects-facets-header clearfix">
             {isFiltered && (
                 <div className="projects-facets-reset">
-                  <Link to="/projects" className="button button-red">
+                  <Link to={pathname} className="button button-red">
                     {translate('projects.clear_all_filters')}
                   </Link>
                 </div>
@@ -50,13 +53,13 @@ export default class PageSidebar extends React.Component {
             <h3>{translate('filters')}</h3>
           </div>
 
-          <QualityGateFilter query={this.props.query}/>
-          <ReliabilityFilter query={this.props.query}/>
-          <SecurityFilter query={this.props.query}/>
-          <MaintainabilityFilter query={this.props.query}/>
-          <CoverageFilter query={this.props.query}/>
-          <DuplicationsFilter query={this.props.query}/>
-          <SizeFilter query={this.props.query}/>
+          <QualityGateFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <ReliabilityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <SecurityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <MaintainabilityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <CoverageFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <DuplicationsFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <SizeFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
         </div>
     );
   }

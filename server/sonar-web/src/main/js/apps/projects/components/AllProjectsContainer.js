@@ -23,7 +23,8 @@ import { fetchProjects } from '../store/actions';
 import { getCurrentUser } from '../../../app/store/rootReducer';
 
 const mapStateToProps = state => ({
-  user: getCurrentUser(state)
+  user: getCurrentUser(state),
+  isFavorite: false
 });
 
 export default connect(

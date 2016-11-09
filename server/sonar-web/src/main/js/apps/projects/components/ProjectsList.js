@@ -19,12 +19,22 @@
  */
 import React from 'react';
 import ProjectCardContainer from './ProjectCardContainer';
+import NoProjects from './NoProjects';
+import NoFavoriteProjects from './NoFavoriteProjects';
 
 export default class ProjectsList extends React.Component {
   static propTypes = {
     projects: React.PropTypes.arrayOf(React.PropTypes.string),
-    noProjectsComponent: React.PropTypes.element.isRequired
+    favoriteAndNoFilters: React.PropTypes.bool.isRequired
   };
+
+  renderNoProjects () {
+    return this.props.favoriteAndNoFilters ? (
+        <NoFavoriteProjects/>
+    ) : (
+        <NoProjects/>
+    );
+  }
 
   render () {
     const { projects } = this.props;
@@ -40,7 +50,7 @@ export default class ProjectsList extends React.Component {
                   <ProjectCardContainer key={projectKey} projectKey={projectKey}/>
               ))
           ) : (
-              this.props.noProjectsComponent
+              this.renderNoProjects()
           )}
         </div>
     );

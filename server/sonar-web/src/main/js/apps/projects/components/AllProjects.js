@@ -21,12 +21,12 @@ import React from 'react';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
-import NoProjects from './NoProjects';
 import { parseUrlQuery } from '../store/utils';
 
 export default class AllProjects extends React.Component {
   static propTypes = {
     user: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.bool]),
+    isFavorite: React.PropTypes.bool.isRequired,
     fetchProjects: React.PropTypes.func.isRequired
   };
 
@@ -47,7 +47,7 @@ export default class AllProjects extends React.Component {
   handleQueryChange () {
     const query = parseUrlQuery(this.props.location.query);
     this.setState({ query });
-    this.props.fetchProjects(query);
+    this.props.fetchProjects(query, this.props.isFavorite);
   }
 
   render () {
@@ -55,14 +55,17 @@ export default class AllProjects extends React.Component {
       return null;
     }
 
+    const favoriteAndNoFilters = this.props.isFavorite &&
+        !Object.keys(this.state.query).some(key => this.state.query[key] != null);
+
     return (
         <div className="page-with-sidebar projects-page">
           <div className="page-main">
-            <ProjectsListContainer noProjectsComponent={<NoProjects/>}/>
-            <ProjectsListFooterContainer query={this.state.query}/>
+            <ProjectsListContainer favoriteAndNoFilters={favoriteAndNoFilters}/>
+            <ProjectsListFooterContainer query={this.state.query} isFavorite={this.props.isFavorite}/>
           </div>
           <aside className="page-sidebar-fixed projects-sidebar">
-            <PageSidebar query={this.state.query}/>
+            <PageSidebar query={this.state.query} isFavorite={this.props.isFavorite}/>
           </aside>
         </div>
     );
