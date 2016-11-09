@@ -45,13 +45,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/all_projects?qualifier=TRK</td>
+	<td>/projects</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertTextPresent</td>
-	<td>Sample</td>
-	<td></td>
+	<td>waitForText</td>
+	<td>projects-page</td>
+	<td>*Sample*</td>
 </tr>
 <tr>
 	<td>open</td>
@@ -85,13 +85,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/all_projects?qualifier=TRK</td>
+	<td>/projects</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertTextNotPresent</td>
-	<td>content</td>
-	<td>*Sample*</td>
+	<td>waitForText</td>
+	<td>projects-page</td>
+	<td>*0 projects*</td>
 </tr>
 </tbody>
 </table>
