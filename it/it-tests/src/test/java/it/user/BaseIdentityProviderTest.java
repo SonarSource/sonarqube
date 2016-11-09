@@ -193,7 +193,7 @@ public class BaseIdentityProviderTest {
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
       "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html").build()).runOn(ORCHESTRATOR);
 
-    File logFile = ORCHESTRATOR.getServer().getLogs();
+    File logFile = ORCHESTRATOR.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("UnauthorizedException");
 

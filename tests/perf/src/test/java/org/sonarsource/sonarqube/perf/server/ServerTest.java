@@ -106,6 +106,6 @@ public class ServerTest extends PerfTestCase {
   }
 
   private static List<String> readLogLines(Orchestrator orchestrator) throws IOException {
-    return FileUtils.readLines(orchestrator.getServer().getLogs());
+    return FileUtils.readLines(orchestrator.getServer().getCeLogs());
   }
 }

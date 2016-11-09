@@ -259,7 +259,7 @@ public class QualityGateTest {
   }
 
   private void verifyQGStatusInPostTask(BuildResult buildResult, String taskStatus, String qgStatus) throws IOException {
-    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getLogs(), Charsets.UTF_8);
+    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getCeLogs(), Charsets.UTF_8);
     List<String> postTaskLogLines = extractPosttaskPluginLogs(extractCeTaskId(buildResult), logsLines);
 
     assertThat(postTaskLogLines).hasSize(1);

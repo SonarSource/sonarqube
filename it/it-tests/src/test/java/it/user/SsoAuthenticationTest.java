@@ -132,7 +132,7 @@ public class SsoAuthenticationTest {
     assertThat(response.code()).isEqualTo(200);
     assertThat(response.body().string()).contains("You're not authorized to access this page. Please contact the administrator");
 
-    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getLogs(), Charsets.UTF_8);
+    List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8);
     assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: user.bad_login");
     USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
   }

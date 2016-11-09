@@ -130,7 +130,7 @@ public class ServerSystemTest {
 
   private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
     for (int i = 0; i < 10_000; i++) {
-      File logs = orchestrator.getServer().getLogs();
+      File logs = orchestrator.getServer().getCeLogs();
       if (FileUtils.readFileToString(logs).contains("Compute Engine is up")) {
         return;
       }

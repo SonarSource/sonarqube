@@ -66,7 +66,7 @@
     <slf4j.version>1.7.21</slf4j.version>
     <tomcat.version>8.0.32</tomcat.version>
     <elasticsearch.version>2.3.5</elasticsearch.version>
-    <orchestrator.version>3.13-build640</orchestrator.version>
+    <orchestrator.version>3.13-build783</orchestrator.version>
     <okhttp.version>3.3.1</okhttp.version>
     <jackson.version>2.6.6</jackson.version>
 

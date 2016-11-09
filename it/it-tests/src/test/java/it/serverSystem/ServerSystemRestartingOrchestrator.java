@@ -63,7 +63,7 @@ public class ServerSystemRestartingOrchestrator {
       orchestrator.start();
       fail();
     } catch (Exception e) {
-      assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs())).contains(
+      assertThat(FileUtils.readFileToString(orchestrator.getServer().getWebLogs())).contains(
         "Plugin incompatible-plugin [incompatibleplugin] requires at least SonarQube 100");
     }
   }
@@ -92,7 +92,7 @@ public class ServerSystemRestartingOrchestrator {
 
     File tempDir = new File(orchestrator.getServer().getHome(), "temp/tmp");
 
-    String logs = FileUtils.readFileToString(orchestrator.getServer().getLogs());
+    String logs = FileUtils.readFileToString(orchestrator.getServer().getWebLogs());
     assertThat(logs).contains("Creating temp directory: " + tempDir.getAbsolutePath() + File.separator + "sonar-it");
     assertThat(logs).contains("Creating temp file: " + tempDir.getAbsolutePath() + File.separator + "sonar-it");
 

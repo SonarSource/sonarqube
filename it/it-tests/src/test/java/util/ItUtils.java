@@ -19,11 +19,8 @@
  */
 package util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sonar.orchestrator.Orchestrator;
@@ -36,11 +33,15 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
@@ -57,10 +58,8 @@ import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -252,7 +251,8 @@ public class ItUtils {
     if (properties == null || properties.length == 0) {
       return str;
     }
-    return from(Iterables.concat(asList(properties), asList(str))).toArray(String.class);
+    return Stream.concat(Arrays.stream(properties), Arrays.stream(str))
+      .toArray(String[]::new);
   }
 
   public static void verifyHttpException(Exception e, int expectedCode) {
@@ -283,19 +283,10 @@ public class ItUtils {
 
   public static List<String> extractCeTaskIds(BuildResult buildResult) {
     String logs = buildResult.getLogs();
-    return from(LINE_SPLITTER.split(logs))
-      .filter(new Predicate<String>() {
-        @Override
-        public boolean apply(String s) {
-          return s.contains("More about the report processing at");
-        }
-      }).transform(new Function<String, String>() {
-        @Nullable
-        @Override
-        public String apply(String s) {
-          return s.substring(s.length() - 20, s.length());
-        }
-      }).toList();
+    return StreamSupport.stream(LINE_SPLITTER.split(logs).spliterator(), false)
+      .filter(s -> s.contains("More about the report processing at"))
+      .map(s -> s.substring(s.length() - 20, s.length()))
+      .collect(Collectors.toList());
   }
 
   public static Map<String, Object> jsonToMap(String json) {

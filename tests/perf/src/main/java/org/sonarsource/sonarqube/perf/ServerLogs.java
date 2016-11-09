@@ -56,8 +56,8 @@ public class ServerLogs {
   }
 
   public static void clear(Orchestrator orch) throws IOException {
-    if (orch.getServer() != null && orch.getServer().getLogs() != null) {
-      FileUtils.write(orch.getServer().getLogs(), "", false);
+    if (orch.getServer() != null && orch.getServer().getCeLogs() != null) {
+      FileUtils.write(orch.getServer().getCeLogs(), "", false);
     }
   }
 
@@ -65,7 +65,7 @@ public class ServerLogs {
    * 2015.09.29 16:57:45 INFO ce[o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms
    */
   public static Long extractComputationTotalTime(Orchestrator orchestrator) throws IOException {
-    File report = orchestrator.getServer().getLogs();
+    File report = orchestrator.getServer().getCeLogs();
     List<String> logsLines = FileUtils.readLines(report, Charsets.UTF_8);
     return extractComputationTotalTime(logsLines);
   }

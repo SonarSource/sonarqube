@@ -71,7 +71,7 @@ public class ClusterTest {
     // verify that datastores are populated by requesting rules
     assertThat(newWsClient(orchestrator).rules().search(new SearchWsRequest()).getTotal()).isGreaterThan(0);
 
-    FileUtils.write(orchestrator.getServer().getLogs(), "", false);
+    FileUtils.write(orchestrator.getServer().getWebLogs(), "", false);
     updateSonarPropertiesFile(orchestrator, ImmutableMap.of("sonar.cluster.web.startupLeader", "false"));
     orchestrator.restartServer();
 
@@ -96,7 +96,7 @@ public class ClusterTest {
         .build();
       elasticsearch.start();
       assertThat(esWatcher.port).isGreaterThan(0);
-      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getLogs())).doesNotContain("Process[web]");
+      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getAppLogs())).doesNotContain("Process[web]");
 
       web = Orchestrator.builderEnv()
         .setServerProperty("sonar.cluster.enabled", "true")
@@ -114,7 +114,7 @@ public class ClusterTest {
       String coreId = getPropertyValue(web, "sonar.core.id");
       String startTime = getPropertyValue(web, "sonar.core.startTime");
 
-      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getLogs())).doesNotContain("Process[es]");
+      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getAppLogs())).doesNotContain("Process[es]");
       // call a web service that requires Elasticsearch
       Issues.SearchWsResponse wsResponse = ItUtils.newWsClient(web).issues().search(new org.sonarqube.ws.client.issue.SearchWsRequest());
       assertThat(wsResponse.getIssuesCount()).isEqualTo(0);
@@ -160,14 +160,14 @@ public class ClusterTest {
   }
 
   private static void expectLog(Orchestrator orchestrator, String expectedLog) throws IOException {
-    File logFile = orchestrator.getServer().getLogs();
+    File logFile = orchestrator.getServer().getWebLogs();
     try (Stream<String> lines = Files.lines(logFile.toPath())) {
       assertThat(lines.anyMatch(s -> StringUtils.containsIgnoreCase(s, expectedLog))).isTrue();
     }
   }
 
   private static void expectWriteOperations(Orchestrator orchestrator, boolean expected) throws IOException {
-    try (Stream<String> lines = Files.lines(orchestrator.getServer().getLogs().toPath())) {
+    try (Stream<String> lines = Files.lines(orchestrator.getServer().getWebLogs().toPath())) {
       List<String> writeOperations = lines.filter(ClusterTest::isWriteOperation).collect(Collectors.toList());
       if (expected) {
         assertThat(writeOperations).isNotEmpty();

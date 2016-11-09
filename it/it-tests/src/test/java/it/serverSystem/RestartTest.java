@@ -81,7 +81,7 @@ public class RestartTest {
       // we just wait five seconds, for a lack of a better approach to waiting for the restart process to start in SQ
       Thread.sleep(5000);
 
-      assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
+      assertThat(FileUtils.readFileToString(orchestrator.getServer().getWebLogs()))
         .contains("SonarQube restart requested by big");
     }
   }
@@ -99,7 +99,7 @@ public class RestartTest {
       orchestrator.start();
 
       newAdminWsClient(orchestrator).system().restart();
-      assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
+      assertThat(FileUtils.readFileToString(orchestrator.getServer().getWebLogs()))
         .contains("Fast restarting WebServer...")
         .contains("WebServer restarted");
     }
