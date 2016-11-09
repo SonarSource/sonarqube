@@ -54,9 +54,7 @@ public final class PropertyDefinitions {
   private final Map<String, String> deprecatedKeys = new HashMap<>();
 
   public PropertyDefinitions(Object... components) {
-    if (components != null) {
-      addComponents(Arrays.asList(components));
-    }
+    addComponents(Arrays.asList(components));
   }
 
   public PropertyDefinitions(Collection<PropertyDefinition> components) {

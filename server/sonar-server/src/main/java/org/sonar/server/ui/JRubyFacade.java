@@ -224,10 +224,6 @@ public final class JRubyFacade {
   }
 
   public Object getCoreComponentByClassname(String className) {
-    if (className == null) {
-      return null;
-    }
-
     try {
       return get(Class.forName(className));
     } catch (ClassNotFoundException e) {

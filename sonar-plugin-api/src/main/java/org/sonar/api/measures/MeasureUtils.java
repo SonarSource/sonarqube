@@ -45,7 +45,7 @@ public final class MeasureUtils {
    * @return true if all measures numeric values
    */
   public static boolean haveValues(Measure... measures) {
-    if (measures == null || measures.length == 0) {
+    if (measures.length == 0) {
       return false;
     }
     for (Measure measure : measures) {
@@ -78,11 +78,11 @@ public final class MeasureUtils {
     return defaultValue;
   }
 
-  public static Double getVariation(Measure measure, int periodIndex) {
+  public static Double getVariation(@Nullable Measure measure, int periodIndex) {
     return getVariation(measure, periodIndex, null);
   }
 
-  public static Double getVariation(Measure measure, int periodIndex, @Nullable Double defaultValue) {
+  public static Double getVariation(@Nullable Measure measure, int periodIndex, @Nullable Double defaultValue) {
     Double result = null;
     if (measure != null) {
       result = measure.getVariation(periodIndex);
@@ -90,11 +90,11 @@ public final class MeasureUtils {
     return result != null ? result : defaultValue;
   }
 
-  public static Long getVariationAsLong(Measure measure, int periodIndex) {
+  public static Long getVariationAsLong(@Nullable Measure measure, int periodIndex) {
     return getVariationAsLong(measure, periodIndex, null);
   }
 
-  public static Long getVariationAsLong(Measure measure, int periodIndex, @Nullable Long defaultValue) {
+  public static Long getVariationAsLong(@Nullable Measure measure, int periodIndex, @Nullable Long defaultValue) {
     Double result = null;
     if (measure != null) {
       result = measure.getVariation(periodIndex);
@@ -108,7 +108,7 @@ public final class MeasureUtils {
    * @param measure the measure
    * @return whether the measure has a value
    */
-  public static boolean hasValue(Measure measure) {
+  public static boolean hasValue(@Nullable Measure measure) {
     return measure != null && measure.getValue() != null;
   }
 
@@ -118,7 +118,7 @@ public final class MeasureUtils {
    * @param measure the measure
    * @return whether the measure has a data field
    */
-  public static boolean hasData(Measure measure) {
+  public static boolean hasData(@Nullable Measure measure) {
     return measure != null && StringUtils.isNotBlank(measure.getData());
   }
 
@@ -129,7 +129,7 @@ public final class MeasureUtils {
    * @param measures   the series of measures
    * @return the sum of the measure series
    */
-  public static Double sum(boolean zeroIfNone, Collection<Measure> measures) {
+  public static Double sum(boolean zeroIfNone, @Nullable Collection<Measure> measures) {
     if (measures != null) {
       return sum(zeroIfNone, measures.toArray(new Measure[measures.size()]));
     }
@@ -144,9 +144,6 @@ public final class MeasureUtils {
    * @return the sum of the measure series
    */
   public static Double sum(boolean zeroIfNone, Measure... measures) {
-    if (measures == null) {
-      return zeroIfNone(zeroIfNone);
-    }
     Double sum = 0d;
     boolean hasValue = false;
     for (Measure measure : measures) {
@@ -170,7 +167,7 @@ public final class MeasureUtils {
    * @param measures   the series of measures
    * @return the sum of the variations for the measure series
    */
-  public static Double sumOnVariation(boolean zeroIfNone, int variationIndex, Collection<Measure> measures) {
+  public static Double sumOnVariation(boolean zeroIfNone, int variationIndex, @Nullable Collection<Measure> measures) {
     if (measures == null) {
       return zeroIfNone(zeroIfNone);
     }

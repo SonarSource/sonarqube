@@ -409,7 +409,8 @@ public class IssueQueryService {
     builder.projectUuids(projectUuids);
   }
 
-  private Collection<String> authorsFromParamsOrFromDeveloper(DbSession session, Collection<String> componentUuids, Collection<String> authors) {
+  private Collection<String> authorsFromParamsOrFromDeveloper(DbSession session, Collection<String> componentUuids,
+    @Nullable Collection<String> authors) {
     return authors == null ? dbClient.authorDao().selectScmAccountsByDeveloperUuids(session, componentUuids) : authors;
   }
 

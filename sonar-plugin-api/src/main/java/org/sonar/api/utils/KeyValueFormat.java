@@ -144,10 +144,11 @@ public final class KeyValueFormat {
   }
 
   public abstract static class Converter<T> {
-    abstract String format(T type);
+    abstract String format(@Nullable T type);
 
     @CheckForNull
     abstract T parse(String s);
+
 
     String escape(String s) {
       if (s.contains(FIELD_SEPARATOR) || s.contains(PAIR_SEPARATOR)) {
@@ -167,8 +168,8 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(String s) {
-      return escape(s);
+    String format(@Nullable String s) {
+      return s == null ? "" : escape(s);
     }
 
     @Override
@@ -188,8 +189,8 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(Object o) {
-      return escape(o.toString());
+    String format(@Nullable Object o) {
+      return o == null ? "" : escape(o.toString());
     }
 
     @Override
@@ -209,7 +210,7 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(Integer s) {
+    String format(@Nullable Integer s) {
       return s == null ? "" : String.valueOf(s);
     }
 
@@ -230,7 +231,7 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(RulePriority s) {
+    String format(@Nullable RulePriority s) {
       return s == null ? "" : s.toString();
     }
 
@@ -251,7 +252,7 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(Double d) {
+    String format(@Nullable Double d) {
       return d == null ? "" : String.valueOf(d);
     }
 
@@ -273,7 +274,7 @@ public final class KeyValueFormat {
     }
 
     @Override
-    String format(Date d) {
+    String format(@Nullable Date d) {
       return d == null ? "" : dateFormat.format(d);
     }
 

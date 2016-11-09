@@ -22,6 +22,7 @@ package org.sonar.api.utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -169,7 +170,7 @@ public class WildcardPattern {
    * 
    * @see #create(String, String)
    */
-  public static WildcardPattern[] create(String[] patterns) {
+  public static WildcardPattern[] create(@Nullable String[] patterns) {
     if (patterns == null) {
       return new WildcardPattern[0];
     }

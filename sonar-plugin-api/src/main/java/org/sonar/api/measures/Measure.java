@@ -135,7 +135,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param metric the metric
    * @param level  the alert level
    */
-  public Measure(Metric metric, Metric.Level level) {
+  public Measure(Metric metric, @Nullable Metric.Level level) {
     this.metric = metric;
     this.metricKey = metric.getKey();
     if (level != null) {
@@ -308,7 +308,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param i the value
    * @return the measure object instance
    */
-  public Measure<G> setIntValue(Integer i) {
+  public Measure<G> setIntValue(@Nullable Integer i) {
     if (i == null) {
       this.value = null;
     } else {
@@ -361,7 +361,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param level the alert level
    * @return the measure object instance
    */
-  public Measure<G> setData(Metric.Level level) {
+  public Measure<G> setData(@Nullable Metric.Level level) {
     if (level == null) {
       this.data = null;
     } else {

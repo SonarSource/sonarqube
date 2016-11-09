@@ -20,6 +20,7 @@
 package org.sonar.api.measures;
 
 import java.util.Collection;
+import javax.annotation.Nullable;
 
 /**
  * @since 1.10
@@ -28,6 +29,6 @@ import java.util.Collection;
 @Deprecated
 public interface MeasuresFilter<M> {
 
-  M filter(Collection<Measure> measures);
+  M filter(@Nullable Collection<Measure> measures);
 
 }

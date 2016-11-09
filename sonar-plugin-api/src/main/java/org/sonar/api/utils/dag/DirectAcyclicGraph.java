@@ -37,15 +37,13 @@ public class DirectAcyclicGraph {
   private Map<Object, Node> registeredObjects = new HashMap<>();
   private List<Node> nodes = new ArrayList<>();
 
-  public DirectAcyclicGraph(final Object... objects) {
-    if (objects != null) {
-      for (Object object : objects) {
-        add(object);
-      }
+  public DirectAcyclicGraph(Object... objects) {
+    for (Object object : objects) {
+      add(object);
     }
   }
 
-  public Node add(final Object object, final Object... dependencies) {
+  public Node add(Object object, Object... dependencies) {
     Node node = registeredObjects.get(object);
     if (node == null) {
       node = new Node(object);
@@ -53,11 +51,9 @@ public class DirectAcyclicGraph {
       registeredObjects.put(object, node);
     }
 
-    if (dependencies != null) {
-      for (Object dependency : dependencies) {
-        Node depNode = add(dependency);
-        node.addDependency(depNode);
-      }
+    for (Object dependency : dependencies) {
+      Node depNode = add(dependency);
+      node.addDependency(depNode);
     }
     return node;
   }

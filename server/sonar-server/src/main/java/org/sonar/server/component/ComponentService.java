@@ -229,7 +229,7 @@ public class ComponentService {
     return componentQualifiers;
   }
 
-  public Collection<ComponentDto> getByUuids(DbSession session, Collection<String> componentUuids) {
+  public Collection<ComponentDto> getByUuids(DbSession session, @Nullable Collection<String> componentUuids) {
     Set<ComponentDto> directoryPaths = Sets.newHashSet();
     if (componentUuids != null && !componentUuids.isEmpty()) {
       List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
