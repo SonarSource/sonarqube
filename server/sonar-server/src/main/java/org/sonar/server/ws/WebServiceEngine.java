@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.catalina.connector.ClientAbortException;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
@@ -114,8 +113,8 @@ public class WebServiceEngine implements LocalConnector, Startable {
     } catch (ServerException e) {
       sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
-      Throwable cause = e.getCause();
-      if (cause != null && cause instanceof ClientAbortException) {
+      Response.Stream stream = response.stream();
+      if (stream instanceof ServletResponse.ServletStream && ((ServletResponse.ServletStream) stream).response().isCommitted()) {
         // Request has been aborted by the client, nothing can been done as Tomcat has committed the response
         LOGGER.debug("Request {} has been aborted by client, error is '{}'", request, e.getMessage());
         return;
