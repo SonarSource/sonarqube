@@ -1,14 +1,15 @@
-<div class="issues-facet-mode">
-  <ul class="radio-toggle">
-    <li>
-      <input type="radio" name="issues-page-mode" value="count" id="issues-page-mode-count"
-             {{#eq mode 'count'}}checked{{/eq}}>
-      <label for="issues-page-mode-count">{{t 'issues.facet.mode.issues'}}</label>
-    </li>
-    <li>
-      <input type="radio" name="issues-page-mode" value="effort" id="issues-page-mode-effort"
-             {{#eq mode 'effort'}}checked{{/eq}}>
-      <label for="issues-page-mode-effort">{{t 'issues.facet.mode.effort'}}</label>
-    </li>
-  </ul>
+<div class="search-navigator-facet-header">
+  {{t 'issues.facet.mode'}}
+</div>
+
+
+<div class="search-navigator-facet-list">
+  <a class="facet search-navigator-facet search-navigator-facet-half js-facet {{#eq mode 'count'}}active{{/eq}}"
+     data-value="count">
+    <span class="facet-name">{{t 'issues.facet.mode.issues'}}</span>
+  </a>
+  <a class="facet search-navigator-facet search-navigator-facet-half js-facet {{#eq mode 'effort'}}active{{/eq}}"
+     data-value="effort">
+    <span class="facet-name">{{t 'issues.facet.mode.effort'}}</span>
+  </a>
 </div>

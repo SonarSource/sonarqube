@@ -21,12 +21,13 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/issues-layout.hbs';
+import './styles.css';
 
 export default Marionette.LayoutView.extend({
   template: Template,
 
   regions: {
-    filtersRegion: '.search-navigator-filters',
+    filtersRegion: '.issues-header',
     facetsRegion: '.search-navigator-facets',
     workspaceHeaderRegion: '.search-navigator-workspace-header',
     workspaceListRegion: '.search-navigator-workspace-list',
@@ -34,9 +35,6 @@ export default Marionette.LayoutView.extend({
   },
 
   onRender () {
-    if (this.options.app.state.get('isContext')) {
-      this.$(this.filtersRegion.el).addClass('hidden');
-    }
     this.$('.search-navigator').addClass('sticky');
     const top = this.$('.search-navigator').offset().top;
     this.$('.search-navigator-workspace-header').css({ top });

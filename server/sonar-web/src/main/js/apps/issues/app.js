@@ -29,6 +29,7 @@ import Router from './router';
 import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
+import HeaderView from './HeaderView';
 
 const App = new Marionette.Application();
 const init = function () {
@@ -62,6 +63,11 @@ const init = function () {
     collection: this.facets
   });
   this.layout.facetsRegion.show(this.facetsView);
+
+  this.headerView = new HeaderView({
+    app: this
+  });
+  this.layout.filtersRegion.show(this.headerView);
 
   key.setScope('list');
   App.router = new Router({ app: App });

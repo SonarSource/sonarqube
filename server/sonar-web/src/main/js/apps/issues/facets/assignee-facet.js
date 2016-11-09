@@ -56,12 +56,14 @@ export default CustomValuesFacet.extend({
       const value = checked ? 'false' : null;
       return this.options.app.state.updateFilter({
         assigned: value,
-        assignees: null
+        assignees: null,
+        assigned_to_me: null
       });
     } else {
       return this.options.app.state.updateFilter({
         assigned: null,
-        assignees: this.getValue()
+        assignees: this.getValue(),
+        assigned_to_me: null
       });
     }
   },
@@ -110,13 +112,8 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getNumberOfMyIssues () {
-    return this.options.app.state.get('myIssues');
-  },
-
   serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
-      myIssues: this.getNumberOfMyIssues(),
       values: this.sortValues(this.getValuesWithLabels())
     });
   }

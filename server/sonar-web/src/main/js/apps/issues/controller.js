@@ -26,14 +26,6 @@ import ComponentViewer from './component-viewer/main';
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
 export default Controller.extend({
-  _facetsFromServer () {
-    const facets = Controller.prototype._facetsFromServer.apply(this, arguments) || [];
-    if (facets.indexOf('assignees') !== -1) {
-      facets.push('assigned_to_me');
-    }
-    return facets;
-  },
-
   _issuesParameters () {
     return {
       p: this.options.app.state.get('page'),
@@ -43,15 +35,6 @@ export default Controller.extend({
       additionalFields: '_all',
       facets: this._facetsFromServer().join()
     };
-  },
-
-  _myIssuesFromResponse (r) {
-    const myIssuesData = _.findWhere(r.facets, { property: 'assigned_to_me' });
-    if ((myIssuesData != null) && _.isArray(myIssuesData.values) && myIssuesData.values.length > 0) {
-      return this.options.app.state.set({ myIssues: myIssuesData.values[0].count }, { silent: true });
-    } else {
-      return this.options.app.state.unset('myIssues', { silent: true });
-    }
   },
 
   fetchList (firstPage) {
@@ -65,6 +48,9 @@ export default Controller.extend({
     }
     const data = this._issuesParameters();
     _.extend(data, this.options.app.state.get('query'));
+    if (this.options.app.state.get('query').assigned_to_me) {
+      _.extend(data, { assignees: '__me__' });
+    }
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
@@ -80,10 +66,7 @@ export default Controller.extend({
         that.options.app.facets[field] = r[field];
       });
       that.options.app.facets.reset(that._allFacets());
-      that.options.app.facets.add(_.reject(r.facets, function (f) {
-        return f.property === 'assigned_to_me';
-      }), { merge: true });
-      that._myIssuesFromResponse(r);
+      that.options.app.facets.add(r.facets, { merge: true });
       that.enableFacets(that._enabledFacets());
       if (firstPage) {
         that.options.app.state.set({
@@ -117,9 +100,6 @@ export default Controller.extend({
 
   requestFacet (id) {
     const that = this;
-    if (id === 'assignees') {
-      return this.requestAssigneeFacet();
-    }
     const facet = this.options.app.facets.get(id);
     const data = _.extend({ facets: id, ps: 1, additionalFields: '_all' }, this.options.app.state.get('query'));
     if (this.options.app.state.get('isContext')) {
@@ -130,26 +110,6 @@ export default Controller.extend({
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
       const facetData = _.findWhere(r.facets, { property: id });
-      if (facetData != null) {
-        return facet.set(facetData);
-      }
-    });
-  },
-
-  requestAssigneeFacet () {
-    const that = this;
-    const facet = this.options.app.facets.get('assignees');
-    const data = _.extend({ facets: 'assignees,assigned_to_me', ps: 1, additionalFields: '_all' },
-        this.options.app.state.get('query'));
-    if (this.options.app.state.get('isContext')) {
-      _.extend(data, this.options.app.state.get('contextQuery'));
-    }
-    return $.get(window.baseUrl + '/api/issues/search', data, function (r) {
-      FACET_DATA_FIELDS.forEach(function (field) {
-        that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
-      });
-      const facetData = _.findWhere(r.facets, { property: 'assignees' });
-      that._myIssuesFromResponse(r);
       if (facetData != null) {
         return facet.set(facetData);
       }
