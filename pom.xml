@@ -46,13 +46,6 @@
     <url>http://jira.sonarsource.com/browse/SONAR</url>
   </issueManagement>
 
-  <distributionManagement>
-    <repository>
-      <id>bintray</id>
-      <url>https://api.bintray.com/maven/sonarsource/SonarQube/${project.groupId}/;publish=1</url>
-    </repository>
-  </distributionManagement>
-
   <properties>
     <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
     <sonarJava.version>4.0</sonarJava.version>
