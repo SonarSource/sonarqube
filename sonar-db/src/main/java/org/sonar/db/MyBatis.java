@@ -56,10 +56,6 @@ import org.sonar.db.event.EventMapper;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueFilterDto;
-import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.db.issue.IssueFilterFavouriteMapper;
-import org.sonar.db.issue.IssueFilterMapper;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
@@ -170,8 +166,6 @@ public class MyBatis {
     confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
-    confBuilder.loadAlias("IssueFilterFavourite", IssueFilterFavouriteDto.class);
-    confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
@@ -227,8 +221,6 @@ public class MyBatis {
       InternalPropertiesMapper.class,
       IsAliveMapper.class,
       IssueChangeMapper.class,
-      IssueFilterFavouriteMapper.class,
-      IssueFilterMapper.class,
       IssueMapper.class,
       LoadedTemplateMapper.class,
       MeasureMapper.class,

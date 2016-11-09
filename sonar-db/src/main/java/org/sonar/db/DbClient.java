@@ -36,8 +36,6 @@ import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.issue.IssueFilterDao;
-import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -93,8 +91,6 @@ public class DbClient {
   private final PermissionTemplateDao permissionTemplateDao;
   private final PermissionTemplateCharacteristicDao permissionTemplateCharacteristicDao;
   private final IssueDao issueDao;
-  private final IssueFilterDao issueFilterDao;
-  private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueChangeDao issueChangeDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
@@ -148,8 +144,6 @@ public class DbClient {
     permissionTemplateDao = getDao(map, PermissionTemplateDao.class);
     permissionTemplateCharacteristicDao = getDao(map, PermissionTemplateCharacteristicDao.class);
     issueDao = getDao(map, IssueDao.class);
-    issueFilterDao = getDao(map, IssueFilterDao.class);
-    issueFilterFavouriteDao = getDao(map, IssueFilterFavouriteDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
@@ -198,14 +192,6 @@ public class DbClient {
 
   public IssueDao issueDao() {
     return issueDao;
-  }
-
-  public IssueFilterDao issueFilterDao() {
-    return issueFilterDao;
-  }
-
-  public IssueFilterFavouriteDao issueFilterFavouriteDao() {
-    return issueFilterFavouriteDao;
   }
 
   public IssueChangeDao issueChangeDao() {

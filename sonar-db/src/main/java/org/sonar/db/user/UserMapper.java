@@ -66,10 +66,6 @@ public interface UserMapper {
 
   void removeUserFromGroups(long userId);
 
-  void deleteUnsharedUserIssueFilters(String login);
-
-  void deleteUserIssueFilterFavourites(String login);
-
   void deleteUserProperties(long userId);
 
   void deleteUserRoles(long userId);

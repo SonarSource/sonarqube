@@ -36,8 +36,6 @@ import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.issue.IssueFilterDao;
-import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -87,8 +85,6 @@ public class DaoModule extends Module {
     InternalPropertiesDao.class,
     IssueDao.class,
     IssueChangeDao.class,
-    IssueFilterDao.class,
-    IssueFilterFavouriteDao.class,
     LoadedTemplateDao.class,
     MeasureDao.class,
     MetricDao.class,

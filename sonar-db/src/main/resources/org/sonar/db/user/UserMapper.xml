@@ -127,14 +127,6 @@
     DELETE FROM properties WHERE user_id=#{id}
   </delete>
 
-  <delete id="deleteUnsharedUserIssueFilters" parameterType="String">
-    DELETE FROM issue_filters WHERE user_login=#{id} and shared &lt;&gt; ${_true}
-  </delete>
-
-  <delete id="deleteUserIssueFilterFavourites" parameterType="String">
-    DELETE FROM issue_filter_favourites WHERE user_login=#{id}
-  </delete>
-
   <delete id="deletePropertiesMatchingLogin" parameterType="String">
     DELETE FROM properties
     <where>
