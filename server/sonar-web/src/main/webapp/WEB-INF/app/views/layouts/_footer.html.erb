@@ -10,15 +10,15 @@
 
 <% if cookies['flash'] %>
   <script>
-    var data = JSON.parse(unescape('<%= escape_javascript(cookies['flash']) -%>'));
+    var data = JSON.parse('<%= escape_javascript cookies['flash'] -%>');
     if (data['notice']) {
-      info(data['notice'].toString().replace(/\+/g, ' '));
+      info(data['notice']);
     }
     if (data['warning']) {
-      warning(data['warning'].toString().replace(/\+/g, ' '));
+      warning(data['warning']);
     }
     if (data['error']) {
-      error(data['error'].toString().replace(/\+/g, ' '));
+      error(data['error']);
     }
   </script>
 <% end %>
