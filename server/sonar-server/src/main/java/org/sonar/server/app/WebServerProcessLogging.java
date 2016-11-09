@@ -19,27 +19,13 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
-
 /**
- * Configure logback for the Web Server process. Logs are written to console, which is
- * forwarded to file logs/sonar.log by the app master process.
+ * Configure logback for the Web Server process. Logs are written to file "web.log" in SQ's log directory.
  */
 public class WebServerProcessLogging extends ServerProcessLogging {
 
   public WebServerProcessLogging() {
     super("web", "%X{UID}");
-  }
-
-  @Override
-  protected void configureAppenders(String logFormat, LoggerContext ctx, LogbackHelper helper, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
   }
 
 }

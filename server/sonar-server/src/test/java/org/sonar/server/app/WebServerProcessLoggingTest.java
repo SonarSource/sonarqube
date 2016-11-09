@@ -22,23 +22,41 @@ package org.sonar.server.app;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebServerProcessLoggingTest {
+
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private File logDir;
+  private Props props = new Props(new Properties());
   private WebServerProcessLogging underTest = new WebServerProcessLogging();
 
-  private Props props = new Props(new Properties());
+  @Before
+  public void setUp() throws IOException {
+    logDir = temp.newFolder();
+    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+  }
 
   @AfterClass
   public static void resetLogback() throws JoranException {
@@ -46,17 +64,26 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
-  public void log_to_console() {
+  public void do_not_log_to_console() {
     LoggerContext ctx = underTest.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
-    assertThat(appender).isInstanceOf(ConsoleAppender.class);
+    assertThat(appender).isNull();
+  }
 
-    // default level is INFO
-    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.INFO);
-    // change level of some loggers
-    assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
+  @Test
+  public void log_to_web_file() {
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    Appender<ILoggingEvent> appender = root.getAppender("file");
+    assertThat(appender).isInstanceOf(FileAppender.class);
+    FileAppender fileAppender = (FileAppender) appender;
+    assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "web.log").getAbsolutePath());
+    assertThat(fileAppender.getEncoder()).isInstanceOf(PatternLayoutEncoder.class);
+    PatternLayoutEncoder encoder = (PatternLayoutEncoder) fileAppender.getEncoder();
+    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{UID}][%logger{20}] %msg%n");
   }
 
   @Test
