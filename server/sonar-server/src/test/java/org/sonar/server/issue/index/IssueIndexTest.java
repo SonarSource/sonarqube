@@ -1112,6 +1112,35 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void default_sort_is_by_creation_date_then_project_then_file_then_line_then_issue_key() {
+    ComponentDto project1 = ComponentTesting.newProjectDto("P1");
+    ComponentDto file1 = ComponentTesting.newFileDto(project1, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
+    ComponentDto file2 = ComponentTesting.newFileDto(project1, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
+
+    ComponentDto project2 = ComponentTesting.newProjectDto("P2");
+    ComponentDto file3 = ComponentTesting.newFileDto(project2, null, "F3").setPath("src/main/xoo/org/sonar/samples/File3.xoo");
+
+    indexIssues(
+      // file F1 from project P1
+      IssueTesting.newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+
+      // file F2 from project P1
+      IssueTesting.newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      // two issues on the same line -> sort by key
+      IssueTesting.newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+
+      // file F3 from project P2
+      IssueTesting.newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      IssueTesting.newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+
+    assertThat(underTest.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).extracting(IssueDoc::key)
+      .containsExactly("F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
+  }
+
+  @Test
   public void authorized_issues_on_groups() {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");

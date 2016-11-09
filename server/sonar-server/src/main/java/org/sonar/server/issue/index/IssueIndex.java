@@ -181,8 +181,11 @@ public class IssueIndex extends BaseIndex {
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE).reverse();
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, IssueIndexDefinition.FIELD_ISSUE_KEY);
 
-    // by default order by updated date and issue key (in order to be deterministic when same ms)
-    this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT).reverse();
+    // by default order by created date, project, file, line and issue key (in order to be deterministic when same ms)
+    this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).reverse();
+    this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID);
+    this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
+    this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_LINE);
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
