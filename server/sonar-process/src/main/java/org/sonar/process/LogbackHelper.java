@@ -25,6 +25,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.jul.LevelChangePropagator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
@@ -46,6 +47,8 @@ public class LogbackHelper {
 
   public static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
   public static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
+  private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level [" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
 
   public LoggerContext getRootContext() {
     org.slf4j.Logger logger;
@@ -71,6 +74,25 @@ public class LogbackHelper {
     propagator.start();
     loggerContext.addListener(propagator);
     return propagator;
+  }
+
+  public void configureRootLogger(LoggerContext ctx, Props props, String threadIdFieldPattern, String fileName) {
+    String logFormat = LOG_FORMAT.replace(THREAD_ID_PLACEHOLDER, threadIdFieldPattern);
+    // configure appender
+    LogbackHelper.RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, fileName);
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file");
+    fileAppender.setContext(ctx);
+    PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+    fileEncoder.setContext(ctx);
+    fileEncoder.setPattern(logFormat);
+    fileEncoder.start();
+    fileAppender.setEncoder(fileEncoder);
+    fileAppender.start();
+
+    // configure logger
+    Logger rootLogger = ctx.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    rootLogger.addAppender(fileAppender);
+    rootLogger.detachAppender("console");
   }
 
   public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, Filter... filters) {

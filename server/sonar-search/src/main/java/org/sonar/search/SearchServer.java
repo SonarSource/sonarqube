@@ -86,7 +86,7 @@ public class SearchServer implements Monitored {
 
   public static void main(String... args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    new SearchLogging().configure();
+    new SearchLogging().configure(entryPoint.getProps());
     SearchServer searchServer = new SearchServer(entryPoint.getProps());
     entryPoint.launch(searchServer);
   }

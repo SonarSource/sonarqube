@@ -19,26 +19,20 @@
  */
 package org.sonar.search;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.Props;
 
 public class SearchLogging {
 
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level  es[][%logger{20}] %X %msg%n";
-
   private LogbackHelper helper = new LogbackHelper();
 
-  public LoggerContext configure() {
+  public LoggerContext configure(Props props) {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
-    Logger rootLogger = helper.configureLogger(Logger.ROOT_LOGGER_NAME, Level.INFO);
-    rootLogger.addAppender(consoleAppender);
+    helper.configureRootLogger(ctx, props, "", "es");
+
     return ctx;
   }
 }
