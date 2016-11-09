@@ -21,6 +21,7 @@ package org.sonar.server.ws;
 
 import java.io.IOException;
 import java.util.Locale;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -289,12 +290,16 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void does_not_fail_when_request_is_aborted() throws Exception {
+  public void does_not_fail_when_request_is_aborted_and_response_is_committed() throws Exception {
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_client_abort_exception");
-    DumbResponse response = new DumbResponse();
+    Response response = mock(Response.class);
+    ServletResponse.ServletStream servletStream = mock(ServletResponse.ServletStream.class);
+    when(response.stream()).thenReturn(servletStream);
+    HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+    when(httpServletResponse.isCommitted()).thenReturn(true);
+    when(servletStream.response()).thenReturn(httpServletResponse);
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isNotEmpty();
   }
 
