@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * @deprecated since 6.2, as dashboards have been removed
+ * @deprecated since 6.2, this extension is ignored as dashboards have been removed
  */
 @Deprecated
 @Retention(RetentionPolicy.RUNTIME)

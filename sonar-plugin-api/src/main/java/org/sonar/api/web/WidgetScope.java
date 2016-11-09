@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  *
  * @since 3.1
 /**
- * @deprecated since 6.2, as dashboards have been removed
+ * @deprecated since 6.2, this extension is ignored as dashboards have been removed
  */
 @Deprecated
 @Retention(RetentionPolicy.RUNTIME)

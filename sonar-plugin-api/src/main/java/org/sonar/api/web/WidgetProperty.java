@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @deprecated since 6.2, as dashboards have been removed
+ * @deprecated since 6.2, this extension is ignored as dashboards have been removed
  */
 @Deprecated
 @Retention(RetentionPolicy.RUNTIME)

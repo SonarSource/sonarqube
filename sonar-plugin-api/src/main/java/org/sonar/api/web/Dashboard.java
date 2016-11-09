@@ -33,7 +33,7 @@ import java.util.Map;
  * "dashboard.&lt;id&gt;.description".
  *
  * @since 2.13
- * @deprecated since 6.2, as dashboards have been removed
+ * @deprecated since 6.2, this extension is ignored as dashboards have been removed
  */
 @Deprecated
 public final class Dashboard {
