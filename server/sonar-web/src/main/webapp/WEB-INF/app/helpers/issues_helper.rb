@@ -19,18 +19,6 @@
 #
 module IssuesHelper
 
-  def issue_filter_star(filter, is_favourite)
-    if is_favourite
-      style='icon-favorite'
-      title=message('click_to_remove_from_favorites')
-    else
-      style='icon-not-favorite'
-      title=message('click_to_add_to_favorites')
-    end
-
-    "<a href='#' id='star-#{filter.name.parameterize}' class='issue-filter-star #{style}' filter-id='#{filter.id.to_s}' title='#{title}'></a>"
-  end
-
   def can_be_reassigned_by(user, filter)
     user.has_role?(:admin) && filter.shared
   end

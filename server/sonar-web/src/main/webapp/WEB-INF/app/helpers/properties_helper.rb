@@ -73,15 +73,6 @@ module PropertiesHelper
         size = options[:size] || 50
         text_field_tag name, value, {:size => size}.update(html_options)
 
-      when PropertyType::TYPE_ISSUE_FILTER
-        user_filters = options_id(value, Internal.issues.findIssueFiltersForCurrentUser())
-        shared_filters = options_id(value, Internal.issues.findSharedFiltersForCurrentUser())
-
-        filters_combo = select_tag name, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
-        filter_link = link_to message('widget.filter.edit'), {:controller => 'issues', :action => 'manage'}, :class => 'link-action'
-
-        "#{filters_combo} #{filter_link}"
-
       when PropertyType::TYPE_SINGLE_SELECT_LIST
         default_value = options[:default].blank? ? '' : message('default')
         select_options = "<option value=''>#{ default_value }</option>"
