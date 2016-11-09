@@ -40,12 +40,7 @@ export default class App extends React.Component {
 
           <GlobalMessagesContainer/>
 
-          <div className="page-with-sidebar">
-            <div className="page-main">
-              <PageHeaderContainer/>
-            </div>
-            <aside className="page-sidebar-fixed projects-sidebar"/>
-          </div>
+          <PageHeaderContainer/>
 
           {this.props.children}
         </div>

@@ -59,14 +59,14 @@ export default class AllProjects extends React.Component {
         !Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
     return (
-        <div className="page-with-sidebar projects-page">
+        <div className="page-with-sidebar page-with-left-sidebar projects-page">
+          <aside className="page-sidebar-fixed projects-sidebar">
+            <PageSidebar query={this.state.query} isFavorite={this.props.isFavorite}/>
+          </aside>
           <div className="page-main">
             <ProjectsListContainer favoriteAndNoFilters={favoriteAndNoFilters}/>
             <ProjectsListFooterContainer query={this.state.query} isFavorite={this.props.isFavorite}/>
           </div>
-          <aside className="page-sidebar-fixed projects-sidebar">
-            <PageSidebar query={this.state.query} isFavorite={this.props.isFavorite}/>
-          </aside>
         </div>
     );
   }
