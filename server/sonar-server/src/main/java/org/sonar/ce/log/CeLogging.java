@@ -24,7 +24,6 @@ import org.sonar.ce.queue.CeTask;
 
 public class CeLogging {
 
-  static final String MDC_CE_ACTIVITY_FLAG = "ceActivityFlag";
   static final String MDC_CE_TASK_UUID = "ceTaskUuid";
 
   public void initForTask(CeTask task) {
