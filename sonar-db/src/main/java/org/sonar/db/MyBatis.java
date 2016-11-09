@@ -122,6 +122,7 @@ import org.sonar.db.version.SchemaMigrationMapper;
 import org.sonar.db.version.v45.Migration45Mapper;
 import org.sonar.db.version.v50.Migration50Mapper;
 import org.sonar.db.version.v53.Migration53Mapper;
+import org.sonar.db.webhook.WebhookDeliveryMapper;
 
 public class MyBatis {
 
@@ -248,7 +249,8 @@ public class MyBatis {
       UserGroupMapper.class,
       UserMapper.class,
       UserPermissionMapper.class,
-      UserTokenMapper.class
+      UserTokenMapper.class,
+      WebhookDeliveryMapper.class
     };
     confBuilder.loadMappers(mappers);
 

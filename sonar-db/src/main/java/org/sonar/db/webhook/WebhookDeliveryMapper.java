@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.webhook;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface WebhookDeliveryMapper {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 45);
-  }
+  @CheckForNull
+  WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
+
+  void insert(WebhookDeliveryDto dto);
+
+  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
 }
