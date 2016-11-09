@@ -167,6 +167,7 @@ import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
 import org.sonar.db.version.v62.CreateDefaultOrganization;
 import org.sonar.db.version.v62.CreateTableOrganizations;
 import org.sonar.db.version.v62.DeletePermissionShareDashboard;
+import org.sonar.db.version.v62.DropIssueFiltersTables;
 import org.sonar.db.version.v62.DropMeasureFiltersTables;
 import org.sonar.db.version.v62.DropRelatedDashboardTables;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroupRoles;
@@ -380,6 +381,7 @@ public class MigrationStepModule extends Module {
       MakeOrganizationUuidNotNullOnGroupRoles.class,
       UpdateQualityGateConditionsOnCoverage.class,
       DropRelatedDashboardTables.class,
-      DropMeasureFiltersTables.class);
+      DropMeasureFiltersTables.class,
+      DropIssueFiltersTables.class);
   }
 }

@@ -17,18 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
 
+package org.sonar.db.version.v62;
+
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropIssueFiltersTableTest {
 
-public class MigrationStepModuleTest {
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DropIssueFiltersTableTest.class, "schema.sql");
+
+  private DropIssueFiltersTables underTest = new DropIssueFiltersTables(db.database());
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(163);
+  public void delete_tables() throws SQLException {
+    underTest.execute();
+
+    db.assertTableDoesNotExist("issue_filters");
+    db.assertTableDoesNotExist("issue_filter_favourites");
+  }
+
+  @Test
+  public void migration_is_re_entrant() throws Exception {
+    underTest.execute();
+    underTest.execute();
+
+    db.assertTableDoesNotExist("issue_filters");
+    db.assertTableDoesNotExist("issue_filter_favourites");
   }
 }
