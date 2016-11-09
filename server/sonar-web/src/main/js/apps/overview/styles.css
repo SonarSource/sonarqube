@@ -72,22 +72,33 @@
 }
 
 .overview-quality-gate-condition-container {
-  float: left;
   display: flex;
   align-items: center;
-  padding: 10px 10px 10px 20px;
+  min-width: 150px;
+  /* three lines by 16px and 4px margin */
+  min-height: 52px;
+  padding: 10px;
 }
 
 .overview-quality-gate-condition-value {
   line-height: 1;
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 24px;
   font-weight: normal;
+
+  /* for consistency with ratings */
+  min-width: 24px;
+  text-align: center;
 }
 
 .overview-quality-gate-condition-value span {
   display: inline-block;
   vertical-align: top;
+}
+
+.overview-quality-gate-threshold {
+  margin-top: 4px;
+  font-size: 12px;
 }
 
 .overview-quality-gate-warning {
@@ -100,6 +111,14 @@
 
 .overview-quality-gate-condition-warn {
   border-color: #f90;
+}
+
+.overview-quality-gate-condition-error .overview-quality-gate-threshold {
+  color: #d4333f;
+}
+
+.overview-quality-gate-condition-warn .overview-quality-gate-threshold {
+  color: #f90;
 }
 
 

@@ -25,7 +25,6 @@ import Measure from '../../component-measures/components/Measure';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getPeriod, getPeriodDate } from '../../../helpers/periods';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 const QualityGateCondition = ({ component, periods, condition }) => {
   const { measure } = condition;
@@ -46,7 +45,7 @@ const QualityGateCondition = ({ component, periods, condition }) => {
   const periodDate = getPeriodDate(period);
   const operator = isRating ?
       translate('quality_gates.operator', condition.op, 'rating') :
-      translate('quality_gates.operator', condition.op, 'short');
+      translate('quality_gates.operator', condition.op);
 
   const className = classNames(
       'overview-quality-gate-condition',
@@ -55,35 +54,34 @@ const QualityGateCondition = ({ component, periods, condition }) => {
   );
 
   return (
-      <TooltipsContainer>
-        <li className={className}>
-          <div className="overview-quality-gate-condition-container"
-               title={`${operator} ${formatMeasure(threshold, metric.type)}`}
-               data-toggle="tooltip">
-            <div className="overview-quality-gate-condition-value">
-              <DrilldownLink
-                  className={isRating ? 'link-no-underline' : null}
-                  component={component.key}
-                  metric={metric.key}
-                  period={condition.period}
-                  periodDate={periodDate}>
-                <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
-              </DrilldownLink>
-            </div>
+      <li className={className}>
+        <div className="overview-quality-gate-condition-container">
+          <div className="overview-quality-gate-condition-value">
+            <DrilldownLink
+                className={isRating ? 'link-no-underline' : null}
+                component={component.key}
+                metric={metric.key}
+                period={condition.period}
+                periodDate={periodDate}>
+              <Measure measure={{ value: actual, leak: actual }} metric={metric}/>
+            </DrilldownLink>
+          </div>
 
-            <div>
-              <div className="overview-quality-gate-condition-metric">
-                {metric.name}
-              </div>
-              {!isDiff && period != null && (
-                  <div className="overview-quality-gate-condition-period">
-                    {translate('quality_gates.conditions.leak')}
-                  </div>
-              )}
+          <div>
+            <div className="overview-quality-gate-condition-metric">
+              {metric.name}
+            </div>
+            {!isDiff && period != null && (
+                <div className="overview-quality-gate-condition-period">
+                  {translate('quality_gates.conditions.leak')}
+                </div>
+            )}
+            <div className="overview-quality-gate-threshold">
+              {operator} {formatMeasure(threshold, metric.type)}
             </div>
           </div>
-        </li>
-      </TooltipsContainer>
+        </div>
+      </li>
   );
 };
 
