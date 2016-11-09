@@ -209,6 +209,30 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void do_not_return_isFavorite_if_anonymous_user() {
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertMetrics(COVERAGE);
+    userSession.anonymous();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(1);
+    assertThat(result.getComponents(0).hasIsFavorite()).isFalse();
+  }
+
+  @Test
+  public void empty_list_if_isFavorite_filter_and_anonymous_user() {
+    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertMetrics(COVERAGE);
+    userSession.anonymous();
+    request.setFilter("isFavorite");
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(0);
+  }
+
+  @Test
   public void return_nloc_facet() {
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));

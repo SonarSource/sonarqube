@@ -150,8 +150,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private static SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(searchResults.favoriteProjectUuids);
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(searchResults.favoriteProjectUuids, userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -231,21 +231,27 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
     private final Component.Builder wsComponent;
     private final Set<String> favoriteProjectUuids;
+    private final boolean isUserLoggedIn;
 
-    private DbToWsComponent(Set<String> favoriteProjectUuids) {
+    private DbToWsComponent(Set<String> favoriteProjectUuids, boolean isUserLoggedIn) {
+      this.isUserLoggedIn = isUserLoggedIn;
       this.wsComponent = Component.newBuilder();
       this.favoriteProjectUuids = favoriteProjectUuids;
     }
 
     @Override
     public Component apply(ComponentDto dbComponent) {
-      return wsComponent
+      wsComponent
         .clear()
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
-        .setName(dbComponent.name())
-        .setIsFavorite(favoriteProjectUuids.contains(dbComponent.uuid()))
-        .build();
+        .setName(dbComponent.name());
+
+      if (isUserLoggedIn) {
+        wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbComponent.uuid()));
+      }
+
+      return wsComponent.build();
     }
   }
 
