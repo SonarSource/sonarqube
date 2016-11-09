@@ -32,6 +32,12 @@ public class WebhookProperties {
   public static final String PROJECT_KEY = "sonar.webhooks.project";
   public static final String NAME_FIELD = "name";
   public static final String URL_FIELD = "url";
+
+  /**
+   * Prefix of the properties to be automatically exported from scanner to payload
+   */
+  public static final String ANALYSIS_PROPERTY_PREFIX = "sonar.analysis.";
+
   private static final String CATEGORY = "webhooks";
   private static final String DESCRIPTION = "Webhooks are used to notify external services when a project analysis is done. " +
     "A HTTP POST request including a JSON payload is sent to each of the provided URLs. " +

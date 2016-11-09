@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Test;
@@ -29,6 +31,7 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
@@ -59,22 +62,11 @@ public class WebhookPayloadTest {
         .setErrorThreshold("70.0")
         .build(QualityGate.EvaluationStatus.WARN, "74.0"))
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate);
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, emptyMap());
 
     WebhookPayload payload = WebhookPayload.from(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/success.json"));
-  }
-
-  @Test
-  public void create_payload_for_failed_analysis() {
-    CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null);
-
-    WebhookPayload payload = WebhookPayload.from(analysis);
-
-    assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
-    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/failed.json"));
   }
 
   @Test
@@ -94,14 +86,53 @@ public class WebhookPayloadTest {
         .setErrorThreshold("70.0")
         .buildNoValue())
       .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate);
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, emptyMap());
 
     WebhookPayload payload = WebhookPayload.from(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/gate_condition_without_value.json"));
   }
 
-  private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate) {
+  @Test
+  public void create_payload_with_analysis_properties() {
+    CeTask task = newCeTaskBuilder()
+      .setStatus(CeTask.Status.SUCCESS)
+      .setId("#1")
+      .build();
+    QualityGate gate = newQualityGateBuilder()
+      .setId("G1")
+      .setName("Gate One")
+      .setStatus(QualityGate.Status.WARN)
+      .build();
+    Map<String, String> scannerProperties = ImmutableMap.of(
+      "sonar.analysis.revision", "ab45d24",
+      "sonar.analysis.buildNumber", "B123",
+      "not.prefixed.with.sonar.analysis", "should be ignored",
+      "foo", "should be ignored too"
+    );
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, scannerProperties);
+
+    WebhookPayload payload = WebhookPayload.from(analysis);
+    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/with_analysis_properties.json"));
+    assertThat(payload.toJson())
+      .doesNotContain("not.prefixed.with.sonar.analysis")
+      .doesNotContain("foo")
+      .doesNotContain("should be ignored");
+  }
+
+  @Test
+  public void create_payload_for_failed_analysis() {
+    CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
+    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, emptyMap());
+
+    WebhookPayload payload = WebhookPayload.from(analysis);
+
+    assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
+    assertJson(payload.toJson()).isSimilarTo(getClass().getResource("WebhookPayloadTest/failed.json"));
+  }
+
+  private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
+    Map<String, String> scannerProperties) {
     return new PostProjectAnalysisTask.ProjectAnalysis() {
       @Override
       public CeTask getCeTask() {
@@ -134,7 +165,9 @@ public class WebhookPayloadTest {
 
       @Override
       public ScannerContext getScannerContext() {
-        return newScannerContextBuilder().build();
+        return newScannerContextBuilder()
+          .addProperties(scannerProperties)
+          .build();
       }
     };
   }

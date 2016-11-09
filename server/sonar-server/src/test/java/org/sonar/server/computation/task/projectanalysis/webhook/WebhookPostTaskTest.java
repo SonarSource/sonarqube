@@ -35,6 +35,7 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
+import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 
 public class WebhookPostTaskTest {
@@ -102,6 +103,7 @@ public class WebhookPostTaskTest {
         .setKey("P1")
         .setName("Project One")
         .build())
+      .withScannerContext(newScannerContextBuilder().build())
       .execute();
   }
 }

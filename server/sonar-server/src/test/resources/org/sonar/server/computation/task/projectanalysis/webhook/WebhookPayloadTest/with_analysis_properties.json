@@ -10,17 +10,10 @@
     "name": "Gate One",
     "status": "WARN",
     "conditions": [
-      {
-        "metric": "coverage",
-        "operator": "GREATER_THAN",
-        "value": "74.0",
-        "status": "WARN",
-        "onLeakPeriod": true,
-        "errorThreshold": "70.0",
-        "warningThreshold": "75.0"
-      }
     ]
   },
   "properties": {
+    "sonar.analysis.revision": "ab45d24",
+    "sonar.analysis.buildNumber": "B123"
   }
 }

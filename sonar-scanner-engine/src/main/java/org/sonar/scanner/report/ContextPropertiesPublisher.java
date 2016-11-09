@@ -20,31 +20,49 @@
 package org.sonar.scanner.report;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import org.sonar.api.config.Settings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 
 public class ContextPropertiesPublisher implements ReportPublisherStep {
-  private final ContextPropertiesCache cache;
 
-  public ContextPropertiesPublisher(ContextPropertiesCache cache) {
+  private final ContextPropertiesCache cache;
+  private final Settings settings;
+
+  public ContextPropertiesPublisher(ContextPropertiesCache cache, Settings settings) {
     this.cache = cache;
+    this.settings = settings;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    Iterable<ScannerReport.ContextProperty> it = from(cache.getAll().entrySet()).transform(new MapEntryToContextPropertyFunction());
-    writer.writeContextProperties(it);
+    MapEntryToContextPropertyFunction transformer = new MapEntryToContextPropertyFunction();
+
+    // properties defined programmatically by plugins
+    Iterable<ScannerReport.ContextProperty> fromCache = from(cache.getAll().entrySet())
+      .transform(transformer);
+
+    // properties that are automatically included to report so that
+    // they can be included to webhook payloads
+    Iterable<ScannerReport.ContextProperty> fromSettings = from(settings.getProperties().entrySet())
+      .filter(e -> e.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
+      .transform(transformer);
+
+    writer.writeContextProperties(Iterables.concat(fromCache, fromSettings));
   }
 
   private static final class MapEntryToContextPropertyFunction implements Function<Map.Entry<String, String>, ScannerReport.ContextProperty> {
     private final ScannerReport.ContextProperty.Builder builder = ScannerReport.ContextProperty.newBuilder();
 
     @Override
-    public ScannerReport.ContextProperty apply(Map.Entry<String, String> input) {
+    public ScannerReport.ContextProperty apply(@Nonnull  Map.Entry<String, String> input) {
       return builder.clear().setKey(input.getKey()).setValue(input.getValue()).build();
     }
   }
