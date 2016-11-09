@@ -40,7 +40,8 @@ export default class QualityGateFilter extends React.Component {
             renderName={() => 'Quality Gate'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}/>
+            query={this.props.query}
+            isFavorite={this.props.isFavorite}/>
     );
   }
 }

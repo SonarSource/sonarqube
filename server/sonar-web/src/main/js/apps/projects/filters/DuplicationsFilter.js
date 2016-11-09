@@ -47,7 +47,8 @@ export default class DuplicationsFilter extends React.Component {
             renderName={() => 'Duplications'}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}/>
+            query={this.props.query}
+            isFavorite={this.props.isFavorite}/>
     );
   }
 }

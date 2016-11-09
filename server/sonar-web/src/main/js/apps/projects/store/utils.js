@@ -101,8 +101,12 @@ const convertSize = size => {
   }
 };
 
-export const convertToFilter = query => {
+export const convertToFilter = (query, isFavorite) => {
   const conditions = [];
+
+  if (isFavorite) {
+    conditions.push('isFavorite');
+  }
 
   if (query['gate'] != null) {
     conditions.push('alert_status = ' + query['gate']);

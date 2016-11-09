@@ -45,7 +45,8 @@ export default class IssuesFilter extends React.Component {
             renderName={() => this.props.name}
             renderOption={this.renderOption}
             getFacetValueForOption={this.getFacetValueForOption}
-            query={this.props.query}/>
+            query={this.props.query}
+            isFavorite={this.props.isFavorite}/>
     );
   }
 }

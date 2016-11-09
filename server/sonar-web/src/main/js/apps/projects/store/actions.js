@@ -113,22 +113,22 @@ const onReceiveMoreProjects = dispatch => response => {
   dispatch(updateState({ pageIndex: response.paging.pageIndex }));
 };
 
-export const fetchProjects = query => dispatch => {
+export const fetchProjects = (query, isFavorite) => dispatch => {
   dispatch(updateState({ loading: true }));
   const data = { ps: PAGE_SIZE, facets: FACETS.join() };
-  const filter = convertToFilter(query);
+  const filter = convertToFilter(query, isFavorite);
   if (filter) {
     data.filter = filter;
   }
   return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
 };
 
-export const fetchMoreProjects = query => (dispatch, getState) => {
+export const fetchMoreProjects = (query, isFavorite) => (dispatch, getState) => {
   dispatch(updateState({ loading: true }));
   const state = getState();
   const { pageIndex } = getProjectsAppState(state);
   const data = { ps: PAGE_SIZE, p: pageIndex + 1 };
-  const filter = convertToFilter(query);
+  const filter = convertToFilter(query, isFavorite);
   if (filter) {
     data.filter = filter;
   }
