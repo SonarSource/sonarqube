@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.webhook;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Optional;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class WebhookDeliveryDao implements Dao {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 45);
+  public Optional<WebhookDeliveryDto> selectByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
+  }
+  public void insert(DbSession dbSession, WebhookDeliveryDto dto) {
+    mapper(dbSession).insert(dto);
+  }
+
+  public void deleteComponentBeforeDate(DbSession dbSession, String componentUuid, long beforeDate) {
+    mapper(dbSession).deleteComponentBeforeDate(componentUuid, beforeDate);
+  }
+
+  private static WebhookDeliveryMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(WebhookDeliveryMapper.class);
   }
 }

@@ -66,6 +66,7 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserTokenDao;
+import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DbClient {
 
@@ -115,6 +116,7 @@ public class DbClient {
   private final ActiveRuleDao activeRuleDao;
   private final QProfileChangeDao qProfileChangeDao;
   private final UserPermissionDao userPermissionDao;
+  private final WebhookDeliveryDao webhookDeliveryDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -168,6 +170,7 @@ public class DbClient {
     activeRuleDao = getDao(map, ActiveRuleDao.class);
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
     userPermissionDao = getDao(map, UserPermissionDao.class);
+    webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -356,6 +359,10 @@ public class DbClient {
 
   public UserPermissionDao userPermissionDao() {
     return userPermissionDao;
+  }
+
+  public WebhookDeliveryDao webhookDeliveryDao() {
+    return webhookDeliveryDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

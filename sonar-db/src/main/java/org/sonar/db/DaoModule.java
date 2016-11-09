@@ -66,6 +66,7 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserTokenDao;
+import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
@@ -112,7 +113,8 @@ public class DaoModule extends Module {
     UserDao.class,
     UserGroupDao.class,
     UserPermissionDao.class,
-    UserTokenDao.class).build();
+    UserTokenDao.class,
+    WebhookDeliveryDao.class).build();
 
   @Override
   protected void configureModule() {
