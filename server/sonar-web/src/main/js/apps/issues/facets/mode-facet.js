@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import $ from 'jquery';
 import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-mode-facet.hbs';
@@ -24,13 +25,11 @@ import Template from '../templates/facets/issues-mode-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  events: {
-    'change [name="issues-page-mode"]': 'onModeChange'
-  },
-
-  onModeChange () {
-    const mode = this.$('[name="issues-page-mode"]:checked').val();
-    this.options.app.state.updateFilter({ facetMode: mode });
+  toggleFacet (e) {
+    const isCount = $(e.currentTarget).is('[data-value="count"]');
+    return this.options.app.state.updateFilter({
+      facetMode: isCount ? 'count' : 'effort'
+    });
   },
 
   serializeData () {

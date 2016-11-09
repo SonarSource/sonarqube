@@ -30,6 +30,7 @@ import Router from '../issues/router';
 import WorkspaceListView from '../issues/workspace-list-view';
 import WorkspaceHeaderView from '../issues/workspace-header-view';
 import FacetsView from './../issues/facets-view';
+import HeaderView from './../issues/HeaderView';
 
 const App = new Marionette.Application();
 const init = function () {
@@ -72,6 +73,11 @@ const init = function () {
     collection: this.facets
   });
   this.layout.facetsRegion.show(this.facetsView);
+
+  this.headerView = new HeaderView({
+    app: this
+  });
+  this.layout.filtersRegion.show(this.headerView);
 
   key.setScope('list');
   App.router = new Router({ app: App });
