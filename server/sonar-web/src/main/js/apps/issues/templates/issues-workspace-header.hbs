@@ -34,15 +34,19 @@
 
 <div class="search-navigator-header-actions">
   {{#notNull state.total}}
+    {{#unless state.component}}
+      <div class="issues-header-order">Ordered: <strong>by creation date</strong></div>
+    {{/unless}}
     <div class="search-navigator-header-pagination flash flash-heavy">
+      {{#unless state.component}}Issues:{{/unless}}
       {{#gt state.total 0}}
-        <a class="js-prev icon-prev" title="{{t "paging_previous"}}"></a>
-        <span class="current">
-          {{sum state.selectedIndex 1}}
-          /
-          <span id="issues-total">{{formatMeasure state.total 'INT'}}</span>
-        </span>
-        <a class="js-next icon-next" title="{{t "paging_next"}}"></a>
+        <strong>
+          <span class="current">
+            {{sum state.selectedIndex 1}}
+            /
+            <span id="issues-total">{{formatMeasure state.total 'INT'}}</span>
+          </span>
+        </strong>
       {{else}}
         <span class="current">0 / <span id="issues-total">0</span></span>
       {{/gt}}
