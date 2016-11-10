@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
 
 public class WebhookDeliveryDaoTest {
 
@@ -53,7 +54,10 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void insert_row_with_only_mandatory_columns() {
-    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1");
+    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1")
+      .setHttpStatus(null)
+      .setDurationMs(null)
+      .setErrorStacktrace(null);
 
     underTest.insert(dbSession, dto);
 
@@ -68,11 +72,7 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void insert_row_with_all_columns() {
-    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1")
-      .setDurationMs(10000)
-      .setHttpStatus(200)
-      .setErrorStacktrace("timeout")
-      .setPayload("{json}");
+    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1");
 
     underTest.insert(dbSession, dto);
 
@@ -128,15 +128,10 @@ public class WebhookDeliveryDaoTest {
    * Optional fields are kept null.
    */
   private static WebhookDeliveryDto newDto(String uuid, String componentUuid, String ceTaskUuid) {
-    return new WebhookDeliveryDto()
+    return newWebhookDeliveryDto()
       .setUuid(uuid)
       .setComponentUuid(componentUuid)
-      .setCeTaskUuid(ceTaskUuid)
-      .setName("Jenkins")
-      .setUrl("http://jenkins")
-      .setSuccess(true)
-      .setPayload("{json}")
-      .setCreatedAt(DATE_1);
+      .setCeTaskUuid(ceTaskUuid);
   }
 
   private WebhookDeliveryDto selectByUuid(String uuid) {

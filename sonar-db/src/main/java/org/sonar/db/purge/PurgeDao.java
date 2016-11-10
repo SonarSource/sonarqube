@@ -162,6 +162,7 @@ public class PurgeDao implements Dao {
     commands.deleteComponents(childrenIds);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
+    commands.deleteWebhookDeliveries(rootUuid);
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<IdUuidPair> analysisIdUuids) {

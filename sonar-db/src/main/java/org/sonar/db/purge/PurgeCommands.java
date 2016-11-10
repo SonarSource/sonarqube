@@ -210,4 +210,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteWebhookDeliveries(String rootUuid) {
+    profiler.start("deleteWebhookDeliveries (webhook_deliveries)");
+    purgeMapper.deleteWebhookDeliveriesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
 }

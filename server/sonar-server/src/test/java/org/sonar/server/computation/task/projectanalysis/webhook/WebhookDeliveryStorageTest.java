@@ -20,8 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -31,10 +29,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 public class WebhookDeliveryStorageTest {
 
@@ -96,9 +95,8 @@ public class WebhookDeliveryStorageTest {
 
     underTest.purge("PROJECT_1");
 
-    List<Map<String, Object>> uuids = dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries");
     // do not purge another project PROJECT_2
-    assertThat(uuids).extracting(column -> column.get("uuid")).containsOnly("D2", "D3");
+    assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2", "D3");
   }
 
   private static WebhookDelivery.Builder newBuilderTemplate() {
@@ -111,14 +109,9 @@ public class WebhookDeliveryStorageTest {
   }
 
   private static WebhookDeliveryDto newDto(String uuid, String componentUuid, long at) {
-    return new WebhookDeliveryDto()
+    return newWebhookDeliveryDto()
       .setUuid(uuid)
       .setComponentUuid(componentUuid)
-      .setCeTaskUuid(randomAlphanumeric(40))
-      .setName("Jenkins")
-      .setUrl("http://jenkins")
-      .setSuccess(true)
-      .setPayload("{json}")
       .setCreatedAt(at);
   }
 }
