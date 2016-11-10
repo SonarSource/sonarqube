@@ -32,7 +32,6 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
-import static com.google.common.base.Throwables.getRootCause;
 import static java.lang.String.format;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
@@ -42,11 +41,14 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   private final TreeRootHolder rootHolder;
   private final SettingsRepository settingsRepository;
   private final WebhookCaller caller;
+  private final WebhookDeliveryStorage deliveryStorage;
 
-  public WebhookPostTask(TreeRootHolder rootHolder, SettingsRepository settingsRepository, WebhookCaller caller) {
+  public WebhookPostTask(TreeRootHolder rootHolder, SettingsRepository settingsRepository, WebhookCaller caller,
+    WebhookDeliveryStorage deliveryStorage) {
     this.rootHolder = rootHolder;
     this.settingsRepository = settingsRepository;
     this.caller = caller;
+    this.deliveryStorage = deliveryStorage;
   }
 
   @Override
@@ -55,10 +57,10 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
     Iterable<String> webhookProps = Iterables.concat(
       getWebhookProperties(settings, WebhookProperties.GLOBAL_KEY),
-      getWebhookProperties(settings, WebhookProperties.PROJECT_KEY)
-    );
+      getWebhookProperties(settings, WebhookProperties.PROJECT_KEY));
     if (!Iterables.isEmpty(webhookProps)) {
       process(settings, analysis, webhookProps);
+      deliveryStorage.purge(analysis.getProject().getUuid());
     }
   }
 
@@ -76,21 +78,22 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
       String url = settings.getString(format("%s.%s", webhookProp, WebhookProperties.URL_FIELD));
       // as webhooks are defined as property sets, we can't ensure validity of fields on creation.
       if (name != null && url != null) {
-        Webhook webhook = new Webhook(name, url);
+        Webhook webhook = new Webhook(analysis.getProject().getUuid(), analysis.getCeTask().getId(), name, url);
         WebhookDelivery delivery = caller.call(webhook, payload);
         log(delivery);
+        deliveryStorage.persist(delivery);
       }
     }
   }
 
   private static void log(WebhookDelivery delivery) {
-    Optional<Throwable> throwable = delivery.getThrowable();
-    if (throwable.isPresent()) {
+    Optional<String> error = delivery.getErrorMessage();
+    if (error.isPresent()) {
       LOGGER.debug("Failed to send webhook '{}' | url={} | message={}",
-        delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), getRootCause(throwable.get()).getMessage());
+        delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), error.get());
     } else {
       LOGGER.debug("Sent webhook '{}' | url={} | time={}ms | status={}",
-        delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), delivery.getDurationInMs().orElse(-1L), delivery.getHttpStatus().orElse(-1));
+        delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), delivery.getDurationInMs().orElse(-1), delivery.getHttpStatus().orElse(-1));
     }
   }
 }

@@ -39,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebhookCallerImplTest {
 
   private static final long NOW = 1_500_000_000_000L;
+  private static final String PROJECT_UUID = "P_UUID1";
+  private static final String CE_TASK_UUID = "CE_UUID1";
 
   @Rule
   public MockWebServer server = new MockWebServer();
@@ -47,15 +49,15 @@ public class WebhookCallerImplTest {
 
   @Test
   public void send_posts_payload_to_http_server() throws Exception {
-    Webhook webhook = new Webhook("my-webhook", server.url("/ping").toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
     WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
     WebhookDelivery delivery = newSender().call(webhook, payload);
 
     assertThat(delivery.getHttpStatus().get()).isEqualTo(201);
-    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0L);
-    assertThat(delivery.getThrowable()).isEmpty();
+    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getError()).isEmpty();
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(payload);
@@ -71,7 +73,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void send_does_not_throw_exception_on_errors() throws Exception {
-    Webhook webhook = new Webhook("my-webhook", server.url("/ping").toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
     WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
     server.shutdown();
@@ -79,7 +81,7 @@ public class WebhookCallerImplTest {
 
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
-    assertThat(delivery.getThrowable().get().getMessage()).startsWith("Failed to connect to");
+    assertThat(delivery.getErrorMessage().get()).startsWith("Failed to connect");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(payload);
