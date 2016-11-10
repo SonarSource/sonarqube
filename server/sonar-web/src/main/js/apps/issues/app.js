@@ -34,7 +34,7 @@ const App = new Marionette.Application();
 const init = function () {
   const options = window.sonarqube;
 
-  this.state = new State();
+  this.state = new State({ canBulkChange: !!window.SS.user });
   this.list = new Issues();
   this.facets = new Facets();
 

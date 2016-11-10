@@ -310,6 +310,13 @@ public class IssueSearchTest extends AbstractIssueTest {
     assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
   }
 
+  @Test
+  public void bulk_change() {
+    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("bulk_change",
+      "/issue/IssueSearchTest/bulk_change.html"
+    ).build());
+  }
+
   private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
     return searchIssues(new SearchWsRequest().setRules(asList(ruleKey))).getIssuesList();
   }

@@ -37,6 +37,7 @@ const init = function () {
 
   this.config = options.config;
   this.state = new State({
+    canBulkChange: !!window.SS.user,
     isContext: true,
     contextQuery: { componentUuids: options.config.resource },
     contextComponentUuid: options.config.resource,
