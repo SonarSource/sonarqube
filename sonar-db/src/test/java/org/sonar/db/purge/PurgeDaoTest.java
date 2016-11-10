@@ -43,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
+import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 public class PurgeDaoTest {
 
@@ -208,6 +210,16 @@ public class PurgeDaoTest {
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
+  }
+
+  @Test
+  public void deleteProject_deletes_webhook_deliveries() {
+    dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid("P1").setUuid("D1"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid("P2").setUuid("D2"));
+
+    underTest.deleteProject(dbSession, "P1");
+
+    assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2");
   }
 
   private CeActivityDto insertCeActivity(String componentUuid) {

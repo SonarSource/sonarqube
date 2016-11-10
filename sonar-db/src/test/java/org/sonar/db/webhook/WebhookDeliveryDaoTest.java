@@ -19,9 +19,7 @@
  */
 package org.sonar.db.webhook;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,12 +29,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 
 public class WebhookDeliveryDaoTest {
 
-  private static final long DATE_1 = 1_999_000L;
-  
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE).setDisableDefaultOrganization(true);
 
@@ -49,7 +47,10 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void insert_row_with_only_mandatory_columns() {
-    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1");
+    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1")
+      .setHttpStatus(null)
+      .setDurationMs(null)
+      .setErrorStacktrace(null);
 
     underTest.insert(dbSession, dto);
 
@@ -64,11 +65,7 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void insert_row_with_all_columns() {
-    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1")
-      .setDurationMs(10000)
-      .setHttpStatus(200)
-      .setErrorStacktrace("timeout")
-      .setPayload("{json}");
+    WebhookDeliveryDto dto = newDto("DELIVERY_1", "COMPONENT_1", "TASK_1");
 
     underTest.insert(dbSession, dto);
 
@@ -88,11 +85,7 @@ public class WebhookDeliveryDaoTest {
     // should delete the old delivery on COMPONENT_1 and keep the one of COMPONENT_2
     underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_1", 1_500_000L);
 
-    List<Object> uuids = dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries")
-      .stream()
-      .map(columns -> columns.get("uuid"))
-      .collect(Collectors.toList());
-    assertThat(uuids).containsOnly("DELIVERY_2", "DELIVERY_3");
+    assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("DELIVERY_2", "DELIVERY_3");
 
   }
 
@@ -112,15 +105,10 @@ public class WebhookDeliveryDaoTest {
    * Optional fields are kept null.
    */
   private static WebhookDeliveryDto newDto(String uuid, String componentUuid, String ceTaskUuid) {
-    return new WebhookDeliveryDto()
+    return newWebhookDeliveryDto()
       .setUuid(uuid)
       .setComponentUuid(componentUuid)
-      .setCeTaskUuid(ceTaskUuid)
-      .setName("Jenkins")
-      .setUrl("http://jenkins")
-      .setSuccess(true)
-      .setPayload("{json}")
-      .setCreatedAt(DATE_1);
+      .setCeTaskUuid(ceTaskUuid);
   }
 
   private WebhookDeliveryDto selectByUuid(String uuid) {

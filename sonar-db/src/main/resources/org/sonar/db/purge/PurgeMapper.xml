@@ -319,5 +319,9 @@
       delete from ce_activity where component_uuid=#{rootProjectUuid}
   </delete>
 
+  <delete id="deleteWebhookDeliveriesByProjectUuid">
+    delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
 </mapper>
 
