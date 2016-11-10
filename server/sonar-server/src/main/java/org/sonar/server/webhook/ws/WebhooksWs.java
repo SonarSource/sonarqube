@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.webhook;
+package org.sonar.server.webhook.ws;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.server.ws.WebService;
 
-public interface WebhookDeliveryMapper {
+public class WebhooksWs implements WebService {
 
-  @CheckForNull
-  WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
+  public static final String API_ENDPOINT = "api/webhooks";
 
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid);
+  private final WebhooksWsAction[] actions;
 
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid);
+  public WebhooksWs(WebhooksWsAction... actions) {
+    this.actions = actions;
+  }
 
-  void insert(WebhookDeliveryDto dto);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController(API_ENDPOINT);
+    controller.setDescription("Webhooks allow to notify external services when a project analysis is done");
+    controller.setSince("6.2");
+    for (WebhooksWsAction action : actions) {
+      action.define(controller);
+    }
+    controller.done();
+  }
 
-  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
 }

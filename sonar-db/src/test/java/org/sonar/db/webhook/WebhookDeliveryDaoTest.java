@@ -19,6 +19,7 @@
  */
 package org.sonar.db.webhook;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,8 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
-
 public class WebhookDeliveryDaoTest {
+
+  private static final long NOW = 1_500_000_000L;
+  private static final long BEFORE = NOW - 1_000L;
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE).setDisableDefaultOrganization(true);
@@ -44,6 +47,52 @@ public class WebhookDeliveryDaoTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDeliveryDao underTest = dbClient.webhookDeliveryDao();
+
+  @Test
+  public void selectOrderedByComponentUuid_returns_empty_if_no_records() {
+    underTest.insert(dbSession, newDto("D1", "COMPONENT_1", "TASK_1"));
+
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByComponentUuid(dbSession, "ANOTHER_COMPONENT");
+
+    assertThat(deliveries).isEmpty();
+  }
+
+  @Test
+  public void selectOrderedByComponentUuid_returns_records_ordered_by_date() {
+    WebhookDeliveryDto dto1 = newDto("D1", "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE);
+    WebhookDeliveryDto dto2 = newDto("D2", "COMPONENT_1", "TASK_1").setCreatedAt(NOW);
+    WebhookDeliveryDto dto3 = newDto("D3", "COMPONENT_2", "TASK_1").setCreatedAt(NOW);
+    underTest.insert(dbSession, dto3);
+    underTest.insert(dbSession, dto2);
+    underTest.insert(dbSession, dto1);
+
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByComponentUuid(dbSession, "COMPONENT_1");
+
+    assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D2", "D1");
+  }
+
+  @Test
+  public void selectOrderedByCeTaskUuid_returns_empty_if_no_records() {
+    underTest.insert(dbSession, newDto("D1", "COMPONENT_1", "TASK_1"));
+
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "ANOTHER_TASK");
+
+    assertThat(deliveries).isEmpty();
+  }
+
+  @Test
+  public void selectOrderedByCeTaskUuid_returns_records_ordered_by_date() {
+    WebhookDeliveryDto dto1 = newDto("D1", "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE);
+    WebhookDeliveryDto dto2 = newDto("D2", "COMPONENT_1", "TASK_1").setCreatedAt(NOW);
+    WebhookDeliveryDto dto3 = newDto("D3", "COMPONENT_2", "TASK_2").setCreatedAt(NOW);
+    underTest.insert(dbSession, dto3);
+    underTest.insert(dbSession, dto2);
+    underTest.insert(dbSession, dto1);
+
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "TASK_1");
+
+    assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D2", "D1");
+  }
 
   @Test
   public void insert_row_with_only_mandatory_columns() {
@@ -86,7 +135,6 @@ public class WebhookDeliveryDaoTest {
     underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_1", 1_500_000L);
 
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("DELIVERY_2", "DELIVERY_3");
-
   }
 
   private void verifyMandatoryFields(WebhookDeliveryDto expected, WebhookDeliveryDto actual) {

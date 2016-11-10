@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
+import org.sonarqube.ws.client.webhook.WebhooksService;
 
 /**
  * Allows to request the web services of SonarQube server. Instance is provided by
@@ -97,4 +98,9 @@ public interface WsClient {
    * @since 6.2
    */
   RootsService rootService();
+
+  /**
+   * @since 6.2
+   */
+  WebhooksService webhooks();
 }

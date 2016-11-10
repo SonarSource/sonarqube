@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.webhook;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.webhook;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public interface WebhookDeliveryMapper {
-
-  @CheckForNull
-  WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
-
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid);
-
-  void insert(WebhookDeliveryDto dto);
-
-  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
-}

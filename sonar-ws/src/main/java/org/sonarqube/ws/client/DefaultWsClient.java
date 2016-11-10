@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
+import org.sonarqube.ws.client.webhook.WebhooksService;
 
 /**
  * This class is not public anymore since version 5.5. It is
@@ -59,6 +60,7 @@ class DefaultWsClient implements WsClient {
   private final ProjectLinksService projectLinksService;
   private final SettingsService settingsService;
   private final RootsService rootsService;
+  private final WebhooksService webhooksService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -77,6 +79,7 @@ class DefaultWsClient implements WsClient {
     this.projectLinksService = new ProjectLinksService(wsConnector);
     this.settingsService = new SettingsService(wsConnector);
     this.rootsService = new RootsService(wsConnector);
+    this.webhooksService = new WebhooksService(wsConnector);
   }
 
   @Override
@@ -157,5 +160,10 @@ class DefaultWsClient implements WsClient {
   @Override
   public RootsService rootService() {
     return rootsService;
+  }
+
+  @Override
+  public WebhooksService webhooks() {
+    return webhooksService;
   }
 }
