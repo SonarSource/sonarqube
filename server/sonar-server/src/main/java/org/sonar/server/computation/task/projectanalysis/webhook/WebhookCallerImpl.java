@@ -56,8 +56,7 @@ public class WebhookCallerImpl implements WebhookCaller {
       .setAt(startedAt)
       .setPayload(payload)
       .setWebhook(webhook);
-    try {
-      Response response = okHttpClient.newCall(request.build()).execute();
+    try (Response response = okHttpClient.newCall(request.build()).execute()) {
       builder.setHttpStatus(response.code());
       builder.setDurationInMs((int)(system.now() - startedAt));
     } catch (IOException e) {
