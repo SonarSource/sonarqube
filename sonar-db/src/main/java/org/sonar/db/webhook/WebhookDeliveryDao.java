@@ -19,6 +19,7 @@
  */
 package org.sonar.db.webhook;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -28,6 +29,21 @@ public class WebhookDeliveryDao implements Dao {
   public Optional<WebhookDeliveryDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
+
+  /**
+   * All the deliveries for the specified component. Results are ordered by descending date.
+   */
+  public List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(DbSession dbSession, String componentUuid) {
+    return mapper(dbSession).selectOrderedByComponentUuid(componentUuid);
+  }
+
+  /**
+   * All the deliveries for the specified CE task. Results are ordered by descending date.
+   */
+  public List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(DbSession dbSession, String ceTaskUuid) {
+    return mapper(dbSession).selectOrderedByCeTaskUuid(ceTaskUuid);
+  }
+
   public void insert(DbSession dbSession, WebhookDeliveryDto dto) {
     mapper(dbSession).insert(dto);
   }

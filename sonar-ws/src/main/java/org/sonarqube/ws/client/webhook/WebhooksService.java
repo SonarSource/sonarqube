@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.webhook;
+package org.sonarqube.ws.client.webhook;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+import org.sonarqube.ws.Webhooks;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-public interface WebhookDeliveryMapper {
+public class WebhooksService extends BaseService {
 
-  @CheckForNull
-  WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
+  public WebhooksService(WsConnector wsConnector) {
+    super(wsConnector, "api/webhooks");
+  }
 
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid);
-
-  void insert(WebhookDeliveryDto dto);
-
-  void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
+  /**
+   * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
+   */
+  public Webhooks.DeliveriesWsResponse deliveries(DeliveriesRequest request) {
+    GetRequest httpRequest = new GetRequest(path("deliveries"))
+      .setParam("componentKey", request.getComponentKey())
+      .setParam("ceTaskId", request.getCeTaskId());
+    return call(httpRequest, Webhooks.DeliveriesWsResponse.parser());
+  }
 }

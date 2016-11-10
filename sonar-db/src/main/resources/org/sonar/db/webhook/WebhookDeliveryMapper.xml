@@ -4,8 +4,7 @@
 
 <mapper namespace="org.sonar.db.webhook.WebhookDeliveryMapper">
 
-  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryDto">
-    select
+  <sql id="sqlLiteColumns">
     uuid,
     component_uuid as componentUuid,
     ce_task_uuid as ceTaskUuid,
@@ -14,11 +13,30 @@
     success,
     http_status as httpStatus,
     duration_ms as durationMs,
-    payload,
-    error_stacktrace as errorStacktrace,
     created_at as createdAt
+  </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryDto">
+    select
+    <include refid="sqlLiteColumns" />,
+    payload,
+    error_stacktrace as errorStacktrace
     from webhook_deliveries
     where uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectOrderedByComponentUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+    select <include refid="sqlLiteColumns" />
+    from webhook_deliveries
+    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    order by created_at desc
+  </select>
+
+  <select id="selectOrderedByCeTaskUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+    select <include refid="sqlLiteColumns" />
+    from webhook_deliveries
+    where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
+    order by created_at desc
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.webhook.WebhookDeliveryDto" useGeneratedKeys="false">
