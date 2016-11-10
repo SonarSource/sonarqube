@@ -101,6 +101,9 @@ export default Controller.extend({
     const that = this;
     const facet = this.options.app.facets.get(id);
     const data = _.extend({ facets: id, ps: 1, additionalFields: '_all' }, this.options.app.state.get('query'));
+    if (this.options.app.state.get('query').assigned_to_me) {
+      _.extend(data, { assignees: '__me__' });
+    }
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
