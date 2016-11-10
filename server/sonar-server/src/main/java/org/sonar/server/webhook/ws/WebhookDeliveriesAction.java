@@ -38,7 +38,7 @@ import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class WebhookDeliveriesAction implements WebhooksWsAction {
@@ -61,7 +61,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     WebService.NewAction action = controller.createAction("deliveries")
       .setSince("6.2")
       .setDescription("Get the recent deliveries for a specified project or Compute Engine task.<br/>" +
-        "Require 'Administer System' permission.<br/>" +
+        "Require 'Administer' permission on the related project.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
       .setResponseExample(Resources.getResource(this.getClass(), "example-deliveries.json"))
       .setHandler(this);
@@ -112,10 +112,10 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
   private static class Data {
     private final ComponentDto component;
-    private final List<WebhookDeliveryLiteDto> deliveries;
+    private final List<WebhookDeliveryLiteDto> deliveryDtos;
 
     Data(@Nullable ComponentDto component, List<WebhookDeliveryLiteDto> deliveries) {
-      this.deliveries = deliveries;
+      this.deliveryDtos = deliveries;
       if (deliveries.isEmpty()) {
         this.component = null;
       } else {
@@ -132,22 +132,8 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     void writeTo(Request request, Response response) {
       Webhooks.DeliveriesWsResponse.Builder responseBuilder = Webhooks.DeliveriesWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
-      for (WebhookDeliveryLiteDto dto : deliveries) {
-        deliveryBuilder
-          .clear()
-          .setId(dto.getUuid())
-          .setAt(formatDateTime(dto.getCreatedAt()))
-          .setName(dto.getName())
-          .setUrl(dto.getUrl())
-          .setSuccess(dto.isSuccess())
-          .setCeTaskId(dto.getCeTaskUuid())
-          .setComponentKey(component.getKey());
-        if (dto.getHttpStatus() != null) {
-          deliveryBuilder.setHttpStatus(dto.getHttpStatus());
-        }
-        if (dto.getDurationMs() != null) {
-          deliveryBuilder.setDurationMs(dto.getDurationMs());
-        }
+      for (WebhookDeliveryLiteDto dto : deliveryDtos) {
+        copyDtoToProtobuf(component, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }
       writeProtobuf(responseBuilder.build(), request, response);

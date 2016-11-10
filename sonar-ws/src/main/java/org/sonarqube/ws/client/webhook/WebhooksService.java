@@ -24,10 +24,19 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+/**
+ * @since 6.2
+ */
 public class WebhooksService extends BaseService {
 
   public WebhooksService(WsConnector wsConnector) {
     super(wsConnector, "api/webhooks");
+  }
+
+  public Webhooks.DeliveryWsResponse delivery(String deliveryId) {
+    GetRequest httpRequest = new GetRequest(path("delivery"))
+      .setParam("deliveryId", deliveryId);
+    return call(httpRequest, Webhooks.DeliveryWsResponse.parser());
   }
 
   /**

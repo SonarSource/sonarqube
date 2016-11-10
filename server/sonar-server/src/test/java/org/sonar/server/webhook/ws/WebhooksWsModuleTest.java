@@ -26,11 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebhooksWsModuleTest {
 
+  private WebhooksWsModule underTest = new WebhooksWsModule();
+
   @Test
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
-    new WebhooksWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 2);
+    underTest.configure(container);
+    assertThat(container.size()).isEqualTo(2 + 3);
   }
 
 }
