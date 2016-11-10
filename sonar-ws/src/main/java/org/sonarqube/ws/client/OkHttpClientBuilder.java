@@ -24,6 +24,11 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -198,7 +203,8 @@ public class OkHttpClientBuilder {
   /**
    * Inspired from sun.security.ssl.SSLContextImpl#getDefaultKeyManager()
    */
-  private static synchronized KeyManager[] getDefaultKeyManager() throws Exception {
+  private static synchronized KeyManager[] getDefaultKeyManager() throws KeyStoreException, NoSuchProviderException,
+    IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
     final String defaultKeyStore = System.getProperty("javax.net.ssl.keyStore", "");
     String defaultKeyStoreType = System.getProperty("javax.net.ssl.keyStoreType", KeyStore.getDefaultType());
     String defaultKeyStoreProvider = System.getProperty("javax.net.ssl.keyStoreProvider", "");
