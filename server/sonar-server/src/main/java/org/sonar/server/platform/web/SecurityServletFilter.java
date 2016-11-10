@@ -56,7 +56,7 @@ public class SecurityServletFilter implements Filter {
       return;
     }
 
-    chain.doFilter(httpRequest, httpResponse);
+    // WARNING, headers must be added before the doFilter, otherwise they won't be added when response is already committed (for instance when a WS is called)
 
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
@@ -69,6 +69,8 @@ public class SecurityServletFilter implements Filter {
     // MIME-sniffing
     // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
     httpResponse.addHeader("X-Content-Type-Options", "nosniff");
+
+    chain.doFilter(httpRequest, httpResponse);
   }
 
   @Override

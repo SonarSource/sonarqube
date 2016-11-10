@@ -29,7 +29,7 @@ import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.duplication.NewDuplicationsTest;
-import it.http.HttpHeadersTest;
+import it.serverSystem.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
 import it.projectSearch.SearchProjectsTest;

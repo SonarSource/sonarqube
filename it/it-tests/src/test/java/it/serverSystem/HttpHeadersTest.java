@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package it.http;
+package it.serverSystem;
 
 import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
@@ -77,6 +76,36 @@ public class HttpHeadersTest {
     assertCacheInBrowser(httpResponse);
   }
 
+  @Test
+  public void verify_security_headers_on_base_url() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/"));
+  }
+
+  @Test
+  public void verify_security_headers_on_ws() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/issues/search"));
+  }
+
+  @Test
+  public void verify_security_headers_on_ruby_ws() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/resources/index"));
+  }
+
+  @Test
+  public void verify_security_headers_on_images() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/images/logo.svg"));
+  }
+
+  @Test
+  public void verify_security_headers_on_css() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/css/sonar.css"));
+  }
+
+  @Test
+  public void verify_security_headers_on_js() throws Exception {
+    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/js/bundles/main.js"));
+  }
+
   private static void assertCacheInBrowser(Response httpResponse) {
     CacheControl cacheControl = httpResponse.cacheControl();
     assertThat(cacheControl.mustRevalidate()).isFalse();
@@ -89,6 +118,16 @@ public class HttpHeadersTest {
     assertThat(cacheControl.mustRevalidate()).isTrue();
     assertThat(cacheControl.noCache()).isTrue();
     assertThat(cacheControl.noStore()).isTrue();
+  }
+
+  /**
+   * SONAR-8247
+   */
+  private static void verifySecurityHeaders(Response httpResponse) {
+    assertThat(httpResponse.isSuccessful()).isTrue();
+    assertThat(httpResponse.headers().get("X-Frame-Options")).isEqualTo("SAMEORIGIN");
+    assertThat(httpResponse.headers().get("X-XSS-Protection")).isEqualTo("1; mode=block");
+    assertThat(httpResponse.headers().get("X-Content-Type-Options")).isEqualTo("nosniff");
   }
 
   private static Response call(String url) {
