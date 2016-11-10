@@ -77,6 +77,31 @@ public class HttpHeadersTest {
     assertCacheInBrowser(httpResponse);
   }
 
+  @Test
+  public void check_security_headers_for_page() throws Exception {
+    assertSecurityHeaders(call(orchestrator.getServer().getUrl() + "/"));
+  }
+
+  @Test
+  public void check_security_headers_for_ws() throws Exception {
+    assertSecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/issues/search"));
+  }
+
+  @Test
+  public void check_security_headers_in_ruby_ws() throws Exception {
+    assertSecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/resources/index"));
+  }
+
+  @Test
+  public void check_security_headers_on_images() throws Exception {
+    assertSecurityHeaders(call(orchestrator.getServer().getUrl() + "/images/logo.svg"));
+  }
+
+  @Test
+  public void check_security_headers_on_css() throws Exception {
+    assertSecurityHeaders(call(orchestrator.getServer().getUrl() + "/css/sonar.css"));
+  }
+
   private static void assertCacheInBrowser(Response httpResponse) {
     CacheControl cacheControl = httpResponse.cacheControl();
     assertThat(cacheControl.mustRevalidate()).isFalse();
@@ -89,6 +114,12 @@ public class HttpHeadersTest {
     assertThat(cacheControl.mustRevalidate()).isTrue();
     assertThat(cacheControl.noCache()).isTrue();
     assertThat(cacheControl.noStore()).isTrue();
+  }
+
+  private static void assertSecurityHeaders(Response httpResponse) {
+    assertThat(httpResponse.headers().get("X-Frame-Options")).isNotNull().isEqualTo("SAMEORIGIN");
+    assertThat(httpResponse.headers().get("X-XSS-Protection")).isNotNull().isEqualTo("1; mode=block");
+    assertThat(httpResponse.headers().get("X-Content-Type-Options")).isNotNull().isEqualTo("nosniff");
   }
 
   private static Response call(String url) {
