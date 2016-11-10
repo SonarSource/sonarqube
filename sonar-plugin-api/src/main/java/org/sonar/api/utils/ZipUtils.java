@@ -54,11 +54,11 @@ public final class ZipUtils {
    * @return the target directory
    */
   public static File unzip(File zip, File toDir) throws IOException {
-    return unzip(zip, toDir, (Predicate<ZipEntry>)ze -> true);
+    return unzip(zip, toDir, (Predicate<ZipEntry>) ze -> true);
   }
 
   public static File unzip(InputStream zip, File toDir) throws IOException {
-    return unzip(zip, toDir, (Predicate<ZipEntry>)ze -> true);
+    return unzip(zip, toDir, (Predicate<ZipEntry>) ze -> true);
   }
 
   /**
@@ -71,8 +71,9 @@ public final class ZipUtils {
 
   /**
    * Unzip a file to a directory.
+   *
    * @param stream the zip input file
-   * @param toDir the target directory. It is created if needed.
+   * @param toDir  the target directory. It is created if needed.
    * @param filter filter zip entries so that only a subset of directories/files can be
    *               extracted to target directory.
    * @return the parameter {@code toDir}
@@ -88,20 +89,24 @@ public final class ZipUtils {
       ZipEntry entry;
       while ((entry = zipStream.getNextEntry()) != null) {
         if (filter.test(entry)) {
-          File to = new File(toDir, entry.getName());
-          if (entry.isDirectory()) {
-            throwExceptionIfDirectoryIsNotCreatable(to);
-          } else {
-            File parent = to.getParentFile();
-            throwExceptionIfDirectoryIsNotCreatable(parent);
-            copy(zipStream, to);
-          }
+          unzipEntry(entry, zipStream, toDir);
         }
       }
       return toDir;
 
     } finally {
       zipStream.close();
+    }
+  }
+
+  private static void unzipEntry(ZipEntry entry, ZipInputStream zipStream, File toDir) throws IOException {
+    File to = new File(toDir, entry.getName());
+    if (entry.isDirectory()) {
+      throwExceptionIfDirectoryIsNotCreatable(to);
+    } else {
+      File parent = to.getParentFile();
+      throwExceptionIfDirectoryIsNotCreatable(parent);
+      copy(zipStream, to);
     }
   }
 
@@ -121,8 +126,9 @@ public final class ZipUtils {
 
   /**
    * Unzip a file to a directory.
-   * @param zip the zip file. It must exist.
-   * @param toDir the target directory. It is created if needed.
+   *
+   * @param zip    the zip file. It must exist.
+   * @param toDir  the target directory. It is created if needed.
    * @param filter filter zip entries so that only a subset of directories/files can be
    *               extracted to target directory.
    * @return the parameter {@code toDir}
@@ -233,8 +239,8 @@ public final class ZipUtils {
   }
 
   /**
-   * @deprecated replaced by {@link Predicate<ZipEntry>} in 6.2.
    * @see #unzip(File, File, Predicate)
+   * @deprecated replaced by {@link Predicate<ZipEntry>} in 6.2.
    */
   @Deprecated
   @FunctionalInterface

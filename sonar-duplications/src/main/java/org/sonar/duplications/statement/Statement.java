@@ -19,10 +19,10 @@
  */
 package org.sonar.duplications.statement;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.duplications.CodeFragment;
 import org.sonar.duplications.token.Token;
-
-import java.util.List;
 
 public class Statement implements CodeFragment {
 
@@ -41,7 +41,7 @@ public class Statement implements CodeFragment {
     this.value = value;
   }
 
-  public Statement(List<Token> tokens) {
+  public Statement(@Nullable List<Token> tokens) {
     if (tokens == null || tokens.isEmpty()) {
       throw new IllegalArgumentException("A statement can't be initialized with an empty list of tokens");
     }

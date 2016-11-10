@@ -19,13 +19,11 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -40,7 +38,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Used to define a metric in a plugin. Should be used with {@link Metrics} extension point.
- * Should no more be used on scanner side. Use {@link org.sonar.api.batch.measure.Metric} instead. 
+ * Should no more be used on scanner side. Use {@link org.sonar.api.batch.measure.Metric} instead.
  */
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
@@ -55,6 +53,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
   /**
    * The maximum supported value of scale for decimal metrics
+   *
    * @since 5.3
    */
   public static final int MAX_DECIMAL_SCALE = 5;
@@ -109,13 +108,9 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   public enum Level {
     OK("Green"), WARN("Orange"), ERROR("Red");
 
-    private static final List<String> NAMES = Lists.transform(Arrays.asList(values()), new Function<Level, String>() {
-      @Nonnull
-      @Override
-      public String apply(@Nonnull Level level) {
-        return level.name();
-      }
-    });
+    private static final List<String> NAMES = Arrays.stream(values())
+      .map(Level::name)
+      .collect(Collectors.toList());
 
     private String colorName;
 
@@ -521,6 +516,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
   /**
    * Return the number scale if metric type is {@link ValueType#FLOAT}, else {@code null}
+   *
    * @since 5.3
    */
   @CheckForNull
@@ -631,12 +627,11 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * </ul>
      * Metric.DIRECTION_NONE is the default value.
      *
+     * @param d the direction
+     * @return the builder
      * @see Metric#DIRECTION_WORST
      * @see Metric#DIRECTION_BETTER
      * @see Metric#DIRECTION_NONE
-     *
-     * @param d the direction
-     * @return the builder
      */
     public Builder setDirection(Integer d) {
       this.direction = d;
@@ -680,7 +675,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      *
      * @param f the formula
      * @return the builder
-     *
      * @deprecated since 5.2, it's no more possible to define a formula on a metric, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
      */
     @Deprecated
@@ -741,10 +735,9 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     /**
      * Specifies whether this metric can be edited online in the "Manual measures" page. Default is false.
      *
-     * @since 2.10
-     *
      * @param b true if the metric can be edited online.
      * @return the builder
+     * @since 2.10
      */
     public Builder setUserManaged(boolean b) {
       this.userManaged = b;
@@ -756,10 +749,9 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * <br>
      * By default, historical data are kept.
      *
-     * @since 2.14
-     *
      * @param b true if measures from the past can be deleted automatically.
      * @return the builder
+     * @since 2.14
      */
     public Builder setDeleteHistoricalData(boolean b) {
       this.deleteHistoricalData = b;
@@ -769,6 +761,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     /**
      * Scale to be used if the metric has decimal type ({@link ValueType#FLOAT} or {@link ValueType#PERCENT}).
      * Default is 1. It is not set (({@code null}) on non-decimal metrics.
+     *
      * @since 5.3
      */
     public Builder setDecimalScale(int scale) {

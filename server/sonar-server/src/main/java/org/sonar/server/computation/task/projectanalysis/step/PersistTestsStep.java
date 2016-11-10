@@ -153,7 +153,7 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private boolean checkIfThereAreUnprocessedCoverageDetails(Multimap<String, DbFileSources.Test.Builder> testsByName,
-      Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName, String componentKey) {
+                                                              Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName, String componentKey) {
       Set<String> unprocessedCoverageDetailNames = new HashSet<>(coveredFilesByName.rowKeySet());
       unprocessedCoverageDetailNames.removeAll(testsByName.keySet());
       boolean hasUnprocessedCoverage = !unprocessedCoverageDetailNames.isEmpty();
@@ -164,7 +164,7 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private List<DbFileSources.Test> addCoveredFilesToTests(Multimap<String, DbFileSources.Test.Builder> testsByName,
-      Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName) {
+                                                            Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName) {
       List<DbFileSources.Test> tests = new ArrayList<>();
       for (DbFileSources.Test.Builder test : testsByName.values()) {
         Collection<DbFileSources.Test.CoveredFile.Builder> coveredFiles = coveredFilesByName.row(test.getName()).values();
@@ -215,25 +215,30 @@ public class PersistTestsStep implements ComputationStep {
       try (CloseableIterator<ScannerReport.CoverageDetail> coverageIterator = reportReader.readCoverageDetails(testFileRef)) {
         while (coverageIterator.hasNext()) {
           ScannerReport.CoverageDetail batchCoverageDetail = coverageIterator.next();
+          String testName = batchCoverageDetail.getTestName();
           for (ScannerReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {
-            String testName = batchCoverageDetail.getTestName();
-            String mainFileUuid = getUuid(batchCoveredFile.getFileRef());
-            DbFileSources.Test.CoveredFile.Builder existingDbCoveredFile = nameToCoveredFiles.get(testName, mainFileUuid);
-            List<Integer> batchCoveredLines = batchCoveredFile.getCoveredLineList();
-            if (existingDbCoveredFile == null) {
-              DbFileSources.Test.CoveredFile.Builder dbCoveredFile = DbFileSources.Test.CoveredFile.newBuilder()
-                .setFileUuid(getUuid(batchCoveredFile.getFileRef()))
-                .addAllCoveredLine(batchCoveredLines);
-              nameToCoveredFiles.put(testName, mainFileUuid, dbCoveredFile);
-            } else {
-              List<Integer> remainingBatchCoveredLines = new ArrayList<>(batchCoveredLines);
-              remainingBatchCoveredLines.removeAll(existingDbCoveredFile.getCoveredLineList());
-              existingDbCoveredFile.addAllCoveredLine(batchCoveredLines);
-            }
+            loadCoverageFile(batchCoveredFile, testName, nameToCoveredFiles);
           }
         }
       }
       return nameToCoveredFiles;
+    }
+
+    private void loadCoverageFile(ScannerReport.CoverageDetail.CoveredFile batchCoveredFile, String testName, Table<String, String,
+      DbFileSources.Test.CoveredFile.Builder> nameToCoveredFiles) {
+      String mainFileUuid = getUuid(batchCoveredFile.getFileRef());
+      DbFileSources.Test.CoveredFile.Builder existingDbCoveredFile = nameToCoveredFiles.get(testName, mainFileUuid);
+      List<Integer> batchCoveredLines = batchCoveredFile.getCoveredLineList();
+      if (existingDbCoveredFile == null) {
+        DbFileSources.Test.CoveredFile.Builder dbCoveredFile = DbFileSources.Test.CoveredFile.newBuilder()
+          .setFileUuid(getUuid(batchCoveredFile.getFileRef()))
+          .addAllCoveredLine(batchCoveredLines);
+        nameToCoveredFiles.put(testName, mainFileUuid, dbCoveredFile);
+      } else {
+        List<Integer> remainingBatchCoveredLines = new ArrayList<>(batchCoveredLines);
+        remainingBatchCoveredLines.removeAll(existingDbCoveredFile.getCoveredLineList());
+        existingDbCoveredFile.addAllCoveredLine(batchCoveredLines);
+      }
     }
 
     private String getUuid(int fileRef) {

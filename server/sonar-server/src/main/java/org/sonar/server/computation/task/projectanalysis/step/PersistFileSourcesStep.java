@@ -29,8 +29,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
@@ -112,12 +110,9 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitProject(Component project) {
       this.projectUuid = project.getUuid();
       session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
-        new ResultHandler() {
-          @Override
-          public void handleResult(ResultContext context) {
-            FileSourceDto dto = (FileSourceDto) context.getResultObject();
-            previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
-          }
+        context -> {
+          FileSourceDto dto = (FileSourceDto) context.getResultObject();
+          previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
         });
     }
 

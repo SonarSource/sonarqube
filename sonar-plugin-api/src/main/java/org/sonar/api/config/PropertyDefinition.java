@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
@@ -165,12 +166,12 @@ public final class PropertyDefinition {
       return Result.SUCCESS;
     }
 
-    EnumMap<PropertyType, Validation> validations = createValidations(options);
-    return validations.getOrDefault(type, aValue -> Result.SUCCESS).validate(value);
+    EnumMap<PropertyType, Function<String, Result>> validations = createValidations(options);
+    return validations.getOrDefault(type, aValue -> Result.SUCCESS).apply(value);
   }
 
-  private static EnumMap<PropertyType, Validation> createValidations(List<String> options) {
-    return new EnumMap<>(ImmutableMap.<PropertyType, Validation>builder()
+  private static EnumMap<PropertyType, Function<String, Result>> createValidations(List<String> options) {
+    return new EnumMap<>(ImmutableMap.<PropertyType, Function<String, Result>>builder()
       .put(BOOLEAN, validateBoolean())
       .put(INTEGER, validateInteger())
       .put(LONG, validateInteger())
@@ -181,7 +182,7 @@ public final class PropertyDefinition {
       .build());
   }
 
-  private static Validation validateBoolean() {
+  private static Function<String, Result> validateBoolean() {
     return value -> {
       if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
         return Result.newError("notBoolean");
@@ -190,7 +191,7 @@ public final class PropertyDefinition {
     };
   }
 
-  private static Validation validateInteger() {
+  private static Function<String, Result> validateInteger() {
     return value -> {
       if (!NumberUtils.isDigits(value)) {
         return Result.newError("notInteger");
@@ -199,7 +200,7 @@ public final class PropertyDefinition {
     };
   }
 
-  private static Validation validateFloat() {
+  private static Function<String, Result> validateFloat() {
     return value -> {
       try {
         Double.parseDouble(value);
@@ -210,7 +211,7 @@ public final class PropertyDefinition {
     };
   }
 
-  private static Validation validateRegexp() {
+  private static Function<String, Result> validateRegexp() {
     return value -> {
       try {
         Pattern.compile(value);
@@ -574,10 +575,5 @@ public final class PropertyDefinition {
         }
       }
     }
-  }
-
-  @FunctionalInterface
-  private interface Validation {
-    Result validate(String value);
   }
 }

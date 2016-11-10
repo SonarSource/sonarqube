@@ -21,7 +21,7 @@ package org.sonar.duplications.statement;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.annotation.Nullable;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
@@ -31,20 +31,20 @@ public final class StatementChannel {
   private final TokenMatcher[] tokenMatchers;
   private final boolean blackHole;
 
+  private StatementChannel(boolean blackHole, @Nullable TokenMatcher... tokenMatchers) {
+    if (tokenMatchers == null || tokenMatchers.length == 0) {
+      throw new IllegalArgumentException();
+    }
+    this.blackHole = blackHole;
+    this.tokenMatchers = tokenMatchers;
+  }
+
   public static StatementChannel create(TokenMatcher... tokenMatchers) {
     return new StatementChannel(false, tokenMatchers);
   }
 
   public static StatementChannel createBlackHole(TokenMatcher... tokenMatchers) {
     return new StatementChannel(true, tokenMatchers);
-  }
-
-  private StatementChannel(boolean blackHole, TokenMatcher... tokenMatchers) {
-    if (tokenMatchers == null || tokenMatchers.length == 0) {
-      throw new IllegalArgumentException();
-    }
-    this.blackHole = blackHole;
-    this.tokenMatchers = tokenMatchers;
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> output) {

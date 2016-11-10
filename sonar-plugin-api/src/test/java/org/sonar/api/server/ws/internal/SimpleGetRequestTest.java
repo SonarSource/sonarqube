@@ -19,12 +19,13 @@
  */
 package org.sonar.api.server.ws.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.io.InputStream;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
 
 public class SimpleGetRequestTest {
 
@@ -58,5 +59,33 @@ public class SimpleGetRequestTest {
     assertThat(part.getFileName()).isEqualTo("filename");
 
     assertThat(underTest.paramAsPart("unknown")).isNull();
+  }
+
+  @Test
+  public void getMediaType() {
+    underTest.setMediaType("JSON");
+
+    assertThat(underTest.getMediaType()).isEqualTo("JSON");
+  }
+
+  @Test
+  public void multiParam_with_one_element() {
+    underTest.setParam("foo", "bar");
+
+    assertThat(underTest.multiParam("foo")).containsExactly("bar");
+  }
+
+  @Test
+  public void multiParam_without_any_element() {
+    assertThat(underTest.multiParam("42")).isEmpty();
+  }
+
+  @Test
+  public void getParams() {
+    underTest
+      .setParam("foo", "bar")
+      .setParam("fee", "beer");
+
+    assertThat(underTest.getParams()).containsOnly(entry("foo", "bar"), entry("fee", "beer"));
   }
 }

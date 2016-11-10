@@ -21,7 +21,7 @@ package org.sonar.duplications.statement;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.annotation.Nullable;
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.TokenQueue;
@@ -30,15 +30,15 @@ public final class StatementChunker {
 
   private final StatementChannelDisptacher channelDispatcher;
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   private StatementChunker(Builder builder) {
     this.channelDispatcher = builder.getChannelDispatcher();
   }
 
-  public List<Statement> chunk(TokenQueue tokenQueue) {
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public List<Statement> chunk(@Nullable TokenQueue tokenQueue) {
     if (tokenQueue == null) {
       throw new IllegalArgumentException();
     }
