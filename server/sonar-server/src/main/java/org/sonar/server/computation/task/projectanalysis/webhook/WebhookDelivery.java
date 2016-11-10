@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Throwables.getRootCause;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -34,9 +35,9 @@ public class WebhookDelivery {
   private final Webhook webhook;
   private final WebhookPayload payload;
   private final Integer httpStatus;
-  private final Long durationInMs;
+  private final Integer durationInMs;
   private final long at;
-  private final Throwable throwable;
+  private final Throwable error;
 
   private WebhookDelivery(Builder builder) {
     this.webhook = requireNonNull(builder.webhook);
@@ -44,7 +45,7 @@ public class WebhookDelivery {
     this.httpStatus = builder.httpStatus;
     this.durationInMs = builder.durationInMs;
     this.at = builder.at;
-    this.throwable = builder.throwable;
+    this.error = builder.error;
   }
 
   public Webhook getWebhook() {
@@ -56,7 +57,7 @@ public class WebhookDelivery {
   }
 
   /**
-   * @return the HTTP status if {@link #getThrowable()} is empty, else returns 
+   * @return the HTTP status if {@link #getError()} is empty, else returns
    * {@link Optional#empty()}
    */
   public Optional<Integer> getHttpStatus() {
@@ -64,10 +65,10 @@ public class WebhookDelivery {
   }
 
   /**
-   * @return the duration in milliseconds if {@link #getThrowable()} is empty,
+   * @return the duration in milliseconds if {@link #getError()} is empty,
    * else returns {@link Optional#empty()}
    */
-  public Optional<Long> getDurationInMs() {
+  public Optional<Integer> getDurationInMs() {
     return Optional.ofNullable(durationInMs);
   }
 
@@ -82,17 +83,28 @@ public class WebhookDelivery {
    * @return the error raised if the request could not be executed due to a connectivity
    * problem or timeout
    */
-  public Optional<Throwable> getThrowable() {
-    return Optional.ofNullable(throwable);
+  public Optional<Throwable> getError() {
+    return Optional.ofNullable(error);
+  }
+
+  /**
+   * @return the cause message of {@link #getError()}, Optional.empty() is error is not set.
+   */
+  public Optional<String> getErrorMessage() {
+    return error != null ? Optional.ofNullable(getRootCause(error).getMessage()) : Optional.empty();
+  }
+
+  public boolean isSuccess() {
+    return httpStatus != null && httpStatus >= 200 && httpStatus < 300;
   }
 
   public static class Builder {
     private Webhook webhook;
     private WebhookPayload payload;
     private Integer httpStatus;
-    private Long durationInMs;
+    private Integer durationInMs;
     private long at;
-    private Throwable throwable;
+    private Throwable error;
 
     public Builder setWebhook(Webhook w) {
       this.webhook = w;
@@ -109,7 +121,7 @@ public class WebhookDelivery {
       return this;
     }
 
-    public Builder setDurationInMs(@Nullable Long durationInMs) {
+    public Builder setDurationInMs(@Nullable Integer durationInMs) {
       this.durationInMs = durationInMs;
       return this;
     }
@@ -119,8 +131,8 @@ public class WebhookDelivery {
       return this;
     }
 
-    public Builder setThrowable(@Nullable Throwable t) {
-      this.throwable = t;
+    public Builder setError(@Nullable Throwable t) {
+      this.error = t;
       return this;
     }
 

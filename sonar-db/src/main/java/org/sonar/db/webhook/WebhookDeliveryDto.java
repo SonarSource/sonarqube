@@ -59,8 +59,8 @@ public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDt
       .append("httpStatus", httpStatus)
       .append("durationMs", durationMs)
       .append("url", url)
-      .append("createdAt", createdAt)
       .append("errorStacktrace", errorStacktrace)
+      .append("createdAt", createdAt)
       .toString();
   }
 }

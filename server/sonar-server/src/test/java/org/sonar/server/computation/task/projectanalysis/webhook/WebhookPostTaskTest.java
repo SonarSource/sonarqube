@@ -33,6 +33,11 @@ import org.sonar.server.computation.task.projectanalysis.component.TestSettingsR
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
@@ -41,6 +46,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 public class WebhookPostTaskTest {
 
   private static final long NOW = 1_500_000_000_000L;
+  private static final String PROJECT_UUID = "P1_UUID";
 
   @Rule
   public LogTester logTester = new LogTester().setLevel(LoggerLevel.DEBUG);
@@ -50,6 +56,7 @@ public class WebhookPostTaskTest {
 
   private final MapSettings settings = new MapSettings();
   private final TestWebhookCaller caller = new TestWebhookCaller();
+  private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
 
   @Test
   public void do_nothing_if_no_webhooks() {
@@ -57,6 +64,7 @@ public class WebhookPostTaskTest {
 
     assertThat(caller.countSent()).isEqualTo(0);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    verifyZeroInteractions(deliveryStorage);
   }
 
   @Test
@@ -74,6 +82,8 @@ public class WebhookPostTaskTest {
     assertThat(caller.countSent()).isEqualTo(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
+    verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
+    verify(deliveryStorage).purge(PROJECT_UUID);
   }
   @Test
   public void send_project_webhooks() {
@@ -86,11 +96,13 @@ public class WebhookPostTaskTest {
 
     assertThat(caller.countSent()).isEqualTo(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
+    verify(deliveryStorage).persist(any(WebhookDelivery.class));
+    verify(deliveryStorage).purge(PROJECT_UUID);
   }
 
   private void execute() {
     SettingsRepository settingsRepository = new TestSettingsRepository(settings);
-    WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, caller);
+    WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, caller, deliveryStorage);
 
     PostProjectAnalysisTaskTester.of(task)
       .at(new Date())
@@ -99,7 +111,7 @@ public class WebhookPostTaskTest {
         .setId("#1")
         .build())
       .withProject(newProjectBuilder()
-        .setUuid("P1_UUID")
+        .setUuid(PROJECT_UUID)
         .setKey("P1")
         .setName("Project One")
         .build())

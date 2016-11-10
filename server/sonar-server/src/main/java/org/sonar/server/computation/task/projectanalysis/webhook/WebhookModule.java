@@ -26,6 +26,7 @@ public class WebhookModule extends Module {
   protected void configureModule() {
     add(
       WebhookCallerImpl.class,
+      WebhookDeliveryStorage.class,
       WebhookPostTask.class);
   }
 }

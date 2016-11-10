@@ -31,7 +31,7 @@ public class TestWebhookCaller implements WebhookCaller {
   private final Queue<Item> deliveries = new LinkedList<>();
   private final AtomicInteger countSent = new AtomicInteger(0);
 
-  public TestWebhookCaller enqueueSuccess(long at, int httpCode, long durationMs) {
+  public TestWebhookCaller enqueueSuccess(long at, int httpCode, int durationMs) {
     deliveries.add(new Item(at, httpCode, durationMs, null));
     return this;
   }
@@ -49,7 +49,7 @@ public class TestWebhookCaller implements WebhookCaller {
       .setAt(item.at)
       .setHttpStatus(item.httpCode)
       .setDurationInMs(item.durationMs)
-      .setThrowable(item.throwable)
+      .setError(item.throwable)
       .setPayload(payload)
       .setWebhook(webhook)
       .build();
@@ -62,10 +62,10 @@ public class TestWebhookCaller implements WebhookCaller {
   private static class Item {
     final long at;
     final Integer httpCode;
-    final Long durationMs;
+    final Integer durationMs;
     final Throwable throwable;
 
-    Item(long at, @Nullable Integer httpCode, @Nullable Long durationMs, @Nullable Throwable throwable) {
+    Item(long at, @Nullable Integer httpCode, @Nullable Integer durationMs, @Nullable Throwable throwable) {
       this.at = at;
       this.httpCode = httpCode;
       this.durationMs = durationMs;

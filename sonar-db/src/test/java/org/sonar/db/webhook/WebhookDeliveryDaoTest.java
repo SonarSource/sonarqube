@@ -20,8 +20,8 @@
 package org.sonar.db.webhook;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,11 +32,10 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class WebhookDeliveryDaoTest {
 
   private static final long DATE_1 = 1_999_000L;
-  
+
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE).setDisableDefaultOrganization(true);
 
@@ -46,6 +45,11 @@ public class WebhookDeliveryDaoTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDeliveryDao underTest = dbClient.webhookDeliveryDao();
+
+  @Test
+  public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
+    assertThat(underTest.selectByUuid(dbSession, "missing")).isEmpty();
+  }
 
   @Test
   public void insert_row_with_only_mandatory_columns() {
@@ -80,7 +84,7 @@ public class WebhookDeliveryDaoTest {
   }
 
   @Test
-  public void delete_rows_before_date() {
+  public void deleteComponentBeforeDate_deletes_rows_before_date() {
     underTest.insert(dbSession, newDto("DELIVERY_1", "COMPONENT_1", "TASK_1").setCreatedAt(1_000_000L));
     underTest.insert(dbSession, newDto("DELIVERY_2", "COMPONENT_1", "TASK_2").setCreatedAt(2_000_000L));
     underTest.insert(dbSession, newDto("DELIVERY_3", "COMPONENT_2", "TASK_3").setCreatedAt(1_000_000L));
@@ -88,12 +92,24 @@ public class WebhookDeliveryDaoTest {
     // should delete the old delivery on COMPONENT_1 and keep the one of COMPONENT_2
     underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_1", 1_500_000L);
 
-    List<Object> uuids = dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries")
-      .stream()
-      .map(columns -> columns.get("uuid"))
-      .collect(Collectors.toList());
-    assertThat(uuids).containsOnly("DELIVERY_2", "DELIVERY_3");
+    List<Map<String, Object>> uuids = dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries");
+    assertThat(uuids).extracting(column -> column.get("uuid")).containsOnly("DELIVERY_2", "DELIVERY_3");
+  }
 
+  @Test
+  public void deleteComponentBeforeDate_does_nothing_on_empty_table() {
+    underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_1", 1_500_000L);
+
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteComponentBeforeDate_does_nothing_on_invalid_uuid() {
+    underTest.insert(dbSession, newDto("DELIVERY_1", "COMPONENT_1", "TASK_1").setCreatedAt(1_000_000L));
+
+    underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_2", 1_500_000L);
+
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);
   }
 
   private void verifyMandatoryFields(WebhookDeliveryDto expected, WebhookDeliveryDto actual) {
