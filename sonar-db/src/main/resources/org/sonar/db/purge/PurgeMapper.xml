@@ -16,7 +16,7 @@
         and (s.purge_status is null or s.purge_status=0)
       </if>
       <if test="componentUuid != null">
-        and s.component_uuid=#{componentUuid}
+        and s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       </if>
       <if test="status != null">
         and s.status in
@@ -31,7 +31,7 @@
     from
       snapshots s
     where
-      s.component_uuid=#{componentUuid}
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       and s.status='P'
       and exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
@@ -42,7 +42,7 @@
     from
       snapshots s
     where
-      s.component_uuid=#{componentUuid}
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       and s.status='P'
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
@@ -52,7 +52,7 @@
   </select>
 
   <select id="selectComponentsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
-    select id, uuid from projects where project_uuid=#{uuid} or uuid=#{uuid}
+    select id, uuid from projects where project_uuid=#{uuid,jdbcType=VARCHAR} or uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="deleteAnalysisMeasures" parameterType="map">
@@ -60,7 +60,7 @@
     where
       analysis_uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -69,7 +69,7 @@
     where
       analysis_uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -78,11 +78,11 @@
     where
       analysis_uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
       and component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -91,7 +91,7 @@
     where
       analysis_uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -100,7 +100,7 @@
     where
       analysis_uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -109,7 +109,7 @@
     where
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -139,7 +139,7 @@
     where
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
+        #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
   </update>
 
@@ -155,7 +155,7 @@
     where
       component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
       and resolution is null
   </update>
@@ -165,7 +165,7 @@
     where
       component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -174,7 +174,7 @@
     where
       component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -192,7 +192,7 @@
     where
       uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -217,7 +217,7 @@
   <delete id="deleteComponentManualMeasures" parameterType="map">
     delete from manual_measures where component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
@@ -226,7 +226,7 @@
     where
       component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
@@ -243,7 +243,7 @@
     delete from issue_changes ic
     where exists (select * from issues i where i.kee=ic.issue_key and i.component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
     )
   </delete>
@@ -254,7 +254,7 @@
     inner join issues on issue_changes.issue_key=issues.kee
     where issues.component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
@@ -262,19 +262,19 @@
   <delete id="deleteComponentIssueChanges" databaseId="mysql" parameterType="map">
     delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
   <delete id="deleteComponentIssues" parameterType="map">
     delete from issues where component_uuid in
     <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid}
+      #{componentUuid,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
   <delete id="deleteFileSourcesByProjectUuid">
-    delete from file_sources where project_uuid=#{rootProjectUuid}
+    delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteFileSourcesByUuid">
@@ -282,13 +282,13 @@
     where
       file_uuid in
       <foreach collection="fileUuids" open="(" close=")" item="fileUuid" separator=",">
-        #{fileUuid}
+        #{fileUuid,jdbcType=VARCHAR}
       </foreach>
   </delete>
 
   <select id="selectOldClosedIssueKeys" parameterType="map" resultType="String">
     SELECT kee FROM issues
-    WHERE project_uuid=#{projectUuid}
+    WHERE project_uuid=#{projectUuid,jdbcType=VARCHAR}
     <choose>
       <when test="toDate == null">
         AND issue_close_date IS NOT NULL
@@ -303,7 +303,7 @@
     DELETE FROM issues
     WHERE kee IN
     <foreach collection="keys" open="(" close=")" item="key" separator=",">
-      #{key}
+      #{key,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
@@ -311,12 +311,12 @@
     DELETE FROM issue_changes
     WHERE issue_key IN
     <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
-      #{issueKey}
+      #{issueKey,jdbcType=VARCHAR}
     </foreach>
   </delete>
 
   <delete id="deleteCeActivityByProjectUuid">
-      delete from ce_activity where component_uuid=#{rootProjectUuid}
+      delete from ce_activity where component_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteWebhookDeliveriesByProjectUuid">
