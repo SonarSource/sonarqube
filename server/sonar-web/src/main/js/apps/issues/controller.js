@@ -30,7 +30,6 @@ export default Controller.extend({
     return {
       p: this.options.app.state.get('page'),
       ps: this.pageSize,
-      s: 'FILE_LINE',
       asc: true,
       additionalFields: '_all',
       facets: this._facetsFromServer().join()
