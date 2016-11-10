@@ -21,6 +21,8 @@ package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.ce.posttask.CeTask;
@@ -85,6 +87,7 @@ public class WebhookPostTaskTest {
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge(PROJECT_UUID);
   }
+
   @Test
   public void send_project_webhooks() {
     settings.setProperty("sonar.webhooks.project", "1");
@@ -98,6 +101,31 @@ public class WebhookPostTaskTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     verify(deliveryStorage).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge(PROJECT_UUID);
+  }
+
+  @Test
+  public void process_only_the_10_first_global_webhooks() {
+    testMaxWebhooks("sonar.webhooks.global");
+  }
+
+  @Test
+  public void process_only_the_10_first_project_webhooks() {
+    testMaxWebhooks("sonar.webhooks.project");
+  }
+
+  private void testMaxWebhooks(String property) {
+    IntStream.range(1, 15)
+      .forEach(i -> {
+        settings.setProperty(property + "." + i + ".name", "First");
+        settings.setProperty(property + "." + i + ".url", "http://url");
+        caller.enqueueSuccess(NOW, 200, 1_234);
+      });
+    settings.setProperty(property, IntStream.range(1, 15).mapToObj(String::valueOf).collect(Collectors.joining(",")));
+
+    execute();
+
+    assertThat(caller.countSent()).isEqualTo(10);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).stream().filter(log -> log.contains("Sent"))).hasSize(10);
   }
 
   private void execute() {
